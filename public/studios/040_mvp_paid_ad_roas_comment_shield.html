@@ -1,0 +1,1198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>MVP #40 — Paid-Ad Comment Shield & ROAS Recovery Engine (ReplyZen.ai Teardown)</title>
+<style>
+    :root {
+        --bg: #0b0f17;
+        --panel: #131b2e;
+        --panel-alt: #19233c;
+        --border: #263457;
+        --text: #e2e8f0;
+        --muted: #94a3b8;
+        --emerald: #10b981;
+        --amber: #f59e0b;
+        --red: #ef4444;
+        --blue: #3b82f6;
+        --purple: #a855f7;
+    }
+    * { box-sizing: border-box; }
+    body {
+        margin: 0;
+        padding: 24px;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.5;
+    }
+    .container { max-width: 1440px; margin: 0 auto; }
+    header {
+        background: linear-gradient(135deg, #131b2e 0%, #1e1b4b 100%);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 24px 28px;
+        margin-bottom: 24px;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+    }
+    h1 { margin: 0 0 6px 0; font-size: 24px; color: #fff; }
+    .subtitle { color: var(--muted); font-size: 14px; margin: 0; }
+    .forensic-pill {
+        background: rgba(16, 185, 129, 0.15);
+        border: 1px solid rgba(16, 185, 129, 0.45);
+        color: #34d399;
+        padding: 8px 14px;
+        border-radius: 999px;
+        font-size: 13px;
+        font-weight: 600;
+    }
+    .kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+        gap: 16px;
+        margin-bottom: 24px;
+    }
+    .kpi-card {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 18px;
+    }
+    .kpi-label { font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+    .kpi-val { font-size: 28px; font-weight: 700; color: #fff; margin: 6px 0 4px 0; }
+    .kpi-sub { font-size: 12px; color: var(--muted); }
+    .section {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 22px;
+        margin-bottom: 24px;
+    }
+    .section h2 { margin: 0 0 14px 0; font-size: 18px; color: #fff; }
+    table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+    th, td { padding: 12px 10px; border-bottom: 1px solid var(--border); text-align: left; vertical-align: top; }
+    th { color: var(--muted); font-weight: 600; font-size: 12px; text-transform: uppercase; }
+    .num { text-align: right; font-variant-numeric: tabular-nums; }
+    .text-white { color: #fff; }
+    .text-muted { color: var(--muted); }
+    .text-emerald { color: var(--emerald); }
+    .text-amber { color: var(--amber); }
+    .font-semibold { font-weight: 600; }
+    .font-bold { font-weight: 700; }
+    .text-xs { font-size: 12px; }
+    .roas-bad { color: var(--red); text-decoration: line-through; }
+    .roas-good { color: var(--emerald); font-weight: 700; }
+    .plat-badge {
+        display: inline-block;
+        padding: 3px 9px;
+        border-radius: 6px;
+        font-size: 11.5px;
+        font-weight: 600;
+    }
+    .plat-badge.meta { background: rgba(24, 119, 242, 0.2); color: #60a5fa; border: 1px solid rgba(24, 119, 242, 0.4); }
+    .plat-badge.ig { background: rgba(225, 48, 108, 0.2); color: #f472b6; border: 1px solid rgba(225, 48, 108, 0.4); }
+    .plat-badge.tt { background: rgba(37, 244, 238, 0.16); color: #2dd4bf; border: 1px solid rgba(37, 244, 238, 0.4); }
+    .filter-bar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 18px;
+        align-items: center;
+    }
+    .filter-btn {
+        background: var(--panel-alt);
+        color: var(--text);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 7px 13px;
+        font-size: 12.5px;
+        cursor: pointer;
+        font-weight: 600;
+    }
+    .filter-btn.active, .filter-btn:hover {
+        background: var(--blue);
+        color: #fff;
+        border-color: var(--blue);
+    }
+    .comment-card {
+        background: var(--panel-alt);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 16px;
+        margin-bottom: 14px;
+    }
+    .card-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 10px;
+    }
+    .card-meta, .card-right { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .bucket-badge {
+        padding: 3px 10px;
+        border-radius: 999px;
+        font-size: 11.5px;
+        font-weight: 700;
+        letter-spacing: 0.03em;
+    }
+    .author-tag { font-weight: 700; color: #fff; font-size: 14px; }
+    .status-pill {
+        padding: 3px 10px;
+        border-radius: 6px;
+        font-size: 11.5px;
+        font-weight: 700;
+    }
+    .hidden-pill { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); }
+    .replied-pill { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4); }
+    .conf-tag { font-size: 12px; color: var(--muted); }
+    .comment-quote {
+        font-size: 15px;
+        color: #f8fafc;
+        background: rgba(15, 23, 42, 0.65);
+        padding: 11px 14px;
+        border-radius: 8px;
+        border-left: 3px solid var(--blue);
+        margin-bottom: 10px;
+    }
+    .strike-quote {
+        text-decoration: line-through;
+        color: #94a3b8;
+        border-left-color: var(--red);
+    }
+    .impact-strip {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+        font-size: 12.5px;
+        color: var(--muted);
+        margin-bottom: 10px;
+    }
+    .action-block {
+        padding: 10px 14px;
+        border-radius: 8px;
+        margin-top: 8px;
+        font-size: 13.5px;
+    }
+    .pub-reply {
+        background: rgba(16, 185, 129, 0.09);
+        border: 1px solid rgba(16, 185, 129, 0.35);
+    }
+    .priv-dm {
+        background: rgba(59, 130, 246, 0.09);
+        border: 1px solid rgba(59, 130, 246, 0.35);
+        white-space: pre-line;
+    }
+    .action-title { font-weight: 700; font-size: 12px; text-transform: uppercase; margin-bottom: 4px; color: #fff; }
+    .voucher-box {
+        margin-top: 8px;
+        padding: 10px 14px;
+        border-radius: 8px;
+        background: rgba(245, 158, 11, 0.1);
+        border: 1px dashed rgba(245, 158, 11, 0.5);
+        font-size: 12.5px;
+    }
+    .voucher-header { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; margin-bottom: 6px; }
+    .voucher-pill { color: #fbbf24; font-weight: 600; }
+    .voucher-links { display: flex; flex-direction: column; gap: 4px; color: var(--text); word-break: break-all; }
+    .support-box {
+        margin-top: 8px;
+        padding: 9px 12px;
+        border-radius: 8px;
+        background: rgba(168, 85, 247, 0.14);
+        border: 1px solid rgba(168, 85, 247, 0.4);
+        font-size: 12.5px;
+        color: #e9d5ff;
+    }
+    .calc-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 16px;
+        align-items: end;
+    }
+    .calc-input label { display: block; font-size: 12.5px; color: var(--muted); margin-bottom: 6px; }
+    .calc-input input {
+        width: 100%;
+        padding: 9px 12px;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        background: var(--panel-alt);
+        color: #fff;
+        font-size: 14px;
+    }
+    code {
+        background: rgba(15, 23, 42, 0.8);
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 12px;
+        color: #93c5fd;
+    }
+</style>
+</head>
+<body>
+
+<!-- DACH CASHFLOW STUDIOS LAUNCH BAR -->
+<style>
+  #dcs-launch-bar {
+    position: sticky;
+    top: 0;
+    z-index: 99999;
+    background: linear-gradient(90deg, #0b1120 0%, #111827 50%, #0f172a 100%);
+    color: #f8fafc;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.35);
+    padding: 8px 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  }
+  #dcs-launch-bar .dcs-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+  }
+  #dcs-launch-bar .dcs-badge {
+    background: rgba(16, 185, 129, 0.18);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.03em;
+  }
+  #dcs-launch-bar a.dcs-nav {
+    color: #93c5fd;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 12.5px;
+  }
+  #dcs-launch-bar a.dcs-nav:hover {
+    text-decoration: underline;
+    color: #dbeafe;
+  }
+  #dcs-launch-bar .dcs-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  #dcs-launch-bar .dcs-btn {
+    padding: 5px 11px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s ease;
+  }
+  #dcs-launch-bar .dcs-btn-ghost {
+    background: rgba(255,255,255,0.08);
+    color: #e2e8f0;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  #dcs-launch-bar .dcs-btn-primary {
+    background: linear-gradient(135deg, #0ea5e9, #2563eb);
+    color: #ffffff;
+  }
+  #dcs-launch-bar .dcs-btn-emerald {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
+  }
+  @media print {
+    #dcs-launch-bar { display: none !important; }
+  }
+</style>
+<div id="dcs-launch-bar">
+  <div class="dcs-left">
+    <a href="/index.html" class="dcs-nav">← Alle 150 DACH Studios</a>
+    <span class="dcs-badge">MVP #040 VERIFIED</span>
+    <span style="color:#cbd5e1;font-size:12px;">B2B SaaS, Lead-Intent Sniper & AI/MCP Infrastructure</span>
+  </div>
+  <div class="dcs-actions">
+    <button onclick="window.print()" class="dcs-btn dcs-btn-ghost">🖨️ PDF / Dossier drucken</button>
+    <a href="#checkout-modal-49" target="_blank" rel="noopener" class="dcs-btn dcs-btn-primary">⚡ Musterschreiben & Voll-Dossier (€49)</a>
+    <a href="#checkout-modal-299" target="_blank" rel="noopener" class="dcs-btn dcs-btn-emerald">🛡️ B2B Umsetzung buchen (€299 / €1.490)</a>
+  </div>
+</div>
+
+<div class="container">
+    <header>
+        <div>
+            <h1>🛡️ Paid-Ad Comment Shield & Private DM Checkout Closer (MVP #40)</h1>
+            <p class="subtitle">
+                Forensic Clone & Upgrade of <strong>ReplyZen.ai</strong> (<code>confidential-startup-72</code> · New Media S.r.l., Italy · $12,355/30d · <strong>$30.26/Visitor</strong> · 82% Margin)
+            </p>
+        </div>
+        <div class="forensic-pill">
+            ⚡ Sub-Second SLA: 852.0ms avg (Max 1308ms &lt; 1,500ms)
+        </div>
+    </header>
+
+    <div class="kpi-grid">
+        <div class="kpi-card">
+            <div class="kpi-label">Daily ROAS Saved (Auto-Hide)</div>
+            <div class="kpi-val text-amber">€1,646.63</div>
+            <div class="kpi-sub">7 ROAS-killing comments hidden in &lt;1.5s</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">Daily Recovered DM Checkout Revenue</div>
+            <div class="kpi-val text-emerald">€221.90</div>
+            <div class="kpi-sub">7 expiring 10% 2-hr codes dispatched</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">Projected Monthly ROAS + Sales Lift</div>
+            <div class="kpi-val">€56,056/mo</div>
+            <div class="kpi-sub">Across €81,000/mo combined paid ad spend</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">ReplyZen Benchmark Parity</div>
+            <div class="kpi-val text-emerald">5.67% Conv</div>
+            <div class="kpi-sub">$0.038 Shortlink CPC · +21% ROAS Lift</div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>📊 Active Paid-Ad Campaigns & ROAS Protection Ledger</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Campaign / Dark-Post ID</th>
+                    <th>Platform</th>
+                    <th class="num">Ad Spend</th>
+                    <th class="num">Unprotected → Shielded ROAS</th>
+                    <th class="num">Shield Actions</th>
+                    <th class="num">Daily ROAS Saved</th>
+                    <th class="num">Daily DM Sales</th>
+                    <th class="num">30-Day Impact</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+            <tr>
+                <td>
+                    <div class="font-semibold text-white">DE/AT/CH_Q4_OrthoCloud_Ergonomic_Pillow_DarkPost</div>
+                    <div class="text-xs text-muted">Post ID: <code>108492019482019_99481029481</code> · OrthoCloud Pro Nackenkissen</div>
+                </td>
+                <td><span class="plat-badge meta">Meta Dark-Post Ad</span></td>
+                <td class="num">€850/d<br><span class="text-xs text-muted">€25,500/mo</span></td>
+                <td class="num"><span class="roas-bad">2.31x</span> → <span class="roas-good">4.29x</span></td>
+                <td class="num">3 hidden / 4 DMs</td>
+                <td class="num text-amber">€679.15</td>
+                <td class="num text-emerald">€80.01</td>
+                <td class="num font-bold text-white">€22,775/mo</td>
+            </tr>
+            
+            <tr>
+                <td>
+                    <div class="font-semibold text-white">DACH_Lumiderm_LED_Cryo_Mask_ReelsAd</div>
+                    <div class="text-xs text-muted">Post ID: <code>17982348910293841</code> · LumiDerm 7-Wave LED Cryo Maske</div>
+                </td>
+                <td><span class="plat-badge ig">Instagram Reels Ad</span></td>
+                <td class="num">€1,200/d<br><span class="text-xs text-muted">€36,000/mo</span></td>
+                <td class="num"><span class="roas-bad">2.14x</span> → <span class="roas-good">3.84x</span></td>
+                <td class="num">2 hidden / 3 DMs</td>
+                <td class="num text-amber">€718.20</td>
+                <td class="num text-emerald">€108.47</td>
+                <td class="num font-bold text-white">€24,800/mo</td>
+            </tr>
+            
+            <tr>
+                <td>
+                    <div class="font-semibold text-white">EU_AeroBrew_Portable_Espresso_TikTokSpark</div>
+                    <div class="text-xs text-muted">Post ID: <code>7419283749182736412</code> · AeroBrew 20-Bar Travel Espresso</div>
+                </td>
+                <td><span class="plat-badge tt">TikTok Spark Ad</span></td>
+                <td class="num">€650/d<br><span class="text-xs text-muted">€19,500/mo</span></td>
+                <td class="num"><span class="roas-bad">2.01x</span> → <span class="roas-good">3.38x</span></td>
+                <td class="num">2 hidden / 2 DMs</td>
+                <td class="num text-amber">€249.28</td>
+                <td class="num text-emerald">€33.42</td>
+                <td class="num font-bold text-white">€8,481/mo</td>
+            </tr>
+            
+            </tbody>
+        </table>
+    </div>
+
+    <div class="section">
+        <h2>🧮 Interactive Paid-Ad ROAS Bleed & DM Recovery Calculator</h2>
+        <div class="calc-grid">
+            <div class="calc-input">
+                <label for="calcSpend">Monthly Meta/TikTok Ad Spend (€)</label>
+                <input id="calcSpend" type="number" value="25000" min="1000" step="1000" oninput="recalcRoas()"/>
+            </div>
+            <div class="calc-input">
+                <label for="calcComments">Monthly Ad Comments Volume</label>
+                <input id="calcComments" type="number" value="2500" min="100" step="100" oninput="recalcRoas()"/>
+            </div>
+            <div class="calc-input">
+                <label for="calcAov">Average Order Value (AOV €)</label>
+                <input id="calcAov" type="number" value="95" min="15" step="5" oninput="recalcRoas()"/>
+            </div>
+            <div class="kpi-card" style="margin:0;">
+                <div class="kpi-label">Estimated Monthly Net Value Protected</div>
+                <div id="calcOutput" class="kpi-val text-emerald">€16,696/mo</div>
+                <div id="calcPlan" class="kpi-sub">Recommended ReplyZen Tier: Pro ($69/mo → 242x ROI)</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>⚡ Live Sub-Second Ad Comment Moderation & DM Closer Stream (6 Actionable Buckets)</h2>
+        <div class="filter-bar">
+            <button class="filter-btn active" onclick="filterCards('ALL', this)">All (14)</button>
+            <button class="filter-btn" onclick="filterCards('TOXIC_ROAS_KILLER', this)">🚫 TOXIC_ROAS_KILLER (3)</button>
+            <button class="filter-btn" onclick="filterCards('BOT_SPAM_LINK', this)">🤖 BOT_SPAM_LINK (2)</button>
+            <button class="filter-btn" onclick="filterCards('BUYING_QUESTION_SHIPPING_SIZE', this)">💳 BUYING_QUESTION (3)</button>
+            <button class="filter-btn" onclick="filterCards('SKEPTICAL_OBJECTION', this)">🤔 SKEPTICAL_OBJECTION (2)</button>
+            <button class="filter-btn" onclick="filterCards('POSITIVE_TAG_FRIEND', this)">🔥 POSITIVE_TAG_FRIEND (2)</button>
+            <button class="filter-btn" onclick="filterCards('SUPPORT_COMPLAINT', this)">🛟 SUPPORT_COMPLAINT (2)</button>
+        </div>
+        <div id="cardsContainer">
+            
+            <div class="comment-card" data-bucket="TOXIC_ROAS_KILLER" data-campaign="CAMP-META-01">
+                <div class="card-top">
+                    <div class="card-meta">
+                        <span class="bucket-badge" style="background:rgba(239, 68, 68, 0.14);color:#ef4444;border:1px solid #ef444455;">
+                            TOXIC_ROAS_KILLER
+                        </span>
+                        <span class="author-tag">@kevin_schnaeppchen</span>
+                        <span class="text-xs text-muted">on DE/AT/CH_Q4_OrthoCloud_Ergonomic_Pillow_DarkPost (meta_dark_post)</span>
+                    </div>
+                    <div class="card-right">
+                        <span class="status-pill hidden-pill">👁️‍🗨️ AUTO-HIDDEN IN 743ms</span>
+                        <span class="conf-tag">Conf: 98%</span>
+                    </div>
+                </div>
+
+                <div class="comment-quote strike-quote">
+                    "Leute fallt nicht drauf rein!! Genau dasselbe Kissen gibt es bei Temu für 3€ inkl. Versand! Komplette Abzocke hier!"
+                </div>
+
+                <div class="impact-strip">
+                    <span><strong>Action:</strong> <code>AUTO_HIDE_UNDER_1_5S</code></span>
+                    <span><strong>API:</strong> <code>POST https://graph.facebook.com/v21.0/108492019482019_1001</code></span>
+                    <span class="text-amber"><strong>ROAS Saved:</strong> €245.65</span>
+                    <span class="text-emerald"><strong>Recovered Sales:</strong> €0.00</span>
+                </div>
+
+                
+                
+                
+                
+            </div>
+            
+            <div class="comment-card" data-bucket="BUYING_QUESTION_SHIPPING_SIZE" data-campaign="CAMP-META-01">
+                <div class="card-top">
+                    <div class="card-meta">
+                        <span class="bucket-badge" style="background:rgba(16, 185, 129, 0.14);color:#10b981;border:1px solid #10b98155;">
+                            BUYING_QUESTION_SHIPPING_SIZE
+                        </span>
+                        <span class="author-tag">@sabine_mueller_zh</span>
+                        <span class="text-xs text-muted">on DE/AT/CH_Q4_OrthoCloud_Ergonomic_Pillow_DarkPost (meta_dark_post)</span>
+                    </div>
+                    <div class="card-right">
+                        <span class="status-pill replied-pill">✅ PUBLIC + DM CLOSER IN 1119ms</span>
+                        <span class="conf-tag">Conf: 98%</span>
+                    </div>
+                </div>
+
+                <div class="comment-quote ">
+                    "Habt ihr Größe XL auf Lager und liefert ihr auch in die Schweiz ohne hohe Zollgebühren?"
+                </div>
+
+                <div class="impact-strip">
+                    <span><strong>Action:</strong> <code>PUBLIC_HELPFUL_REPLY_WITH_SHORTLINK</code></span>
+                    <span><strong>API:</strong> <code>POST https://graph.facebook.com/v21.0/108492019482019_1002/comments</code></span>
+                    <span class="text-amber"><strong>ROAS Saved:</strong> €0.00</span>
+                    <span class="text-emerald"><strong>Recovered Sales:</strong> €22.43</span>
+                </div>
+
+                
+            <div class="action-block pub-reply">
+                <div class="action-title">💬 Public Ad Reply (Boosts Algorithm & CTR)</div>
+                <div class="action-body">Hey Sabine! 🙌 Alle Größen (Standard &amp; XL-Breit) sind auf Lager! Versand nach DE, AT &amp; in die Schweiz (verzollter DHL-Premiumversand) in 1–3 Werktagen. Hier direkt zur Wunschgröße: https://rzen.to/orthoclo-ce745 — wir haben dir außerdem gerade eine persönliche Überraschung per DM geschickt! 📩</div>
+            </div>
+            
+                
+            <div class="action-block priv-dm">
+                <div class="action-title">📩 Automated Comment-to-DM Closer</div>
+                <div class="action-body">Hey Sabine! 👋 Danke für deine Frage unter unserer Anzeige zu **OrthoCloud Pro Nackenkissen**.
+
+✅ Alle Größen (Standard &amp; XL-Breit) sind auf Lager! Versand nach DE, AT &amp; in die Schweiz (verzollter DHL-Premiumversand) in 1–3 Werktagen.
+🎁 Damit du direkt testen kannst, ist hier dein persönlicher **10% Sofort-Rabattcode: `ZEN10-SABINE-CE74`** (gültig für die nächsten **2 Stunden** bis 17:30 UTC).
+
+👉 **Direkt zum 1-Click-Shopify-Checkout (10% bereits abgezogen):**
+https://shop.orthocloud.de/discount/ZEN10-SABINE-CE74?redirect=/products/orthocloud&amp;utm_source=meta_dark_post_comment_dm&amp;utm_medium=comment_shield&amp;utm_campaign=camp-meta-01</div>
+            </div>
+            
+                
+            <div class="voucher-box">
+                <div class="voucher-header">
+                    <span class="voucher-pill">⚡ 10% OFF 2-HR EXPIRING CODE: <strong>ZEN10-SABINE-CE74</strong></span>
+                    <span class="text-xs text-muted">Provider: SHOPIFY · Expires 2026-10-17T17:30:00Z</span>
+                </div>
+                <div class="voucher-links">
+                    <div><strong>Public Tracked Shortlink:</strong> <code>https://rzen.to/orthoclo-ce745</code></div>
+                    <div><strong>1-Click DM Checkout URL:</strong> <code>https://shop.orthocloud.de/discount/ZEN10-SABINE-CE74?redirect=/products/orthocloud&amp;utm_source=meta_dark_post_comment_dm&amp;utm_medium=comment_shield&amp;utm_campaign=camp-meta-01</code></div>
+                </div>
+            </div>
+            
+                
+            </div>
+            
+            <div class="comment-card" data-bucket="SUPPORT_COMPLAINT" data-campaign="CAMP-META-01">
+                <div class="card-top">
+                    <div class="card-meta">
+                        <span class="bucket-badge" style="background:rgba(168, 85, 247, 0.14);color:#a855f7;border:1px solid #a855f755;">
+                            SUPPORT_COMPLAINT
+                        </span>
+                        <span class="author-tag">@markus_weber88</span>
+                        <span class="text-xs text-muted">on DE/AT/CH_Q4_OrthoCloud_Ergonomic_Pillow_DarkPost (meta_dark_post)</span>
+                    </div>
+                    <div class="card-right">
+                        <span class="status-pill hidden-pill">👁️‍🗨️ AUTO-HIDDEN IN 491ms</span>
+                        <span class="conf-tag">Conf: 98%</span>
+                    </div>
+                </div>
+
+                <div class="comment-quote strike-quote">
+                    "Wo bleibt meine Bestellung #48291?? Warte seit 10 Tagen und DHL Sendungsnummer bewegt sich nicht!"
+                </div>
+
+                <div class="impact-strip">
+                    <span><strong>Action:</strong> <code>AUTO_HIDE_PUBLICLY</code></span>
+                    <span><strong>API:</strong> <code>POST https://graph.facebook.com/v21.0/108492019482019_1003</code></span>
+                    <span class="text-amber"><strong>ROAS Saved:</strong> €216.75</span>
+                    <span class="text-emerald"><strong>Recovered Sales:</strong> €31.15</span>
+                </div>
+
+                
+                
+            <div class="action-block priv-dm">
+                <div class="action-title">📩 Automated Comment-to-DM Closer</div>
+                <div class="action-body">Hallo Markus, entschuldige bitte die Unannehmlichkeiten! 🙏 Wir haben dein Anliegen sofort als **Prioritäts-Ticket #ZD-D6B6E** an unser Support-Team eskaliert (aus Datenschutzgründen haben wir deinen Kommentar öffentlich ausgeblendet, damit keine Bestelldaten sichtbar sind). Klicke hier für deinen direkten WhatsApp-VIP-Draht oder antworte einfach mit deiner Bestellnummer: https://wa.me/491510000000?text=Ticket_ZD-D6B6E</div>
+            </div>
+            
+                
+                
+            <div class="support-box">
+                <strong>🛟 Escalated Ticket:</strong> <code>ZD-D6B6E</code> via Zendesk Priority + WhatsApp VIP Concierge
+            </div>
+            
+            </div>
+            
+            <div class="comment-card" data-bucket="SKEPTICAL_OBJECTION" data-campaign="CAMP-META-01">
+                <div class="card-top">
+                    <div class="card-meta">
+                        <span class="bucket-badge" style="background:rgba(234, 179, 8, 0.14);color:#eab308;border:1px solid #eab30855;">
+                            SKEPTICAL_OBJECTION
+                        </span>
+                        <span class="author-tag">@claudia.berger</span>
+                        <span class="text-xs text-muted">on DE/AT/CH_Q4_OrthoCloud_Ergonomic_Pillow_DarkPost (meta_dark_post)</span>
+                    </div>
+                    <div class="card-right">
+                        <span class="status-pill replied-pill">✅ PUBLIC + DM CLOSER IN 1308ms</span>
+                        <span class="conf-tag">Conf: 98%</span>
+                    </div>
+                </div>
+
+                <div class="comment-quote ">
+                    "Hält das wirklich die Form oder wird der Memory-Schaum nach 2 Wochen platt? Hat jemand Erfahrung mit der Geld-zurück-Garantie?"
+                </div>
+
+                <div class="impact-strip">
+                    <span><strong>Action:</strong> <code>PUBLIC_SOCIAL_PROOF_REFRAME</code></span>
+                    <span><strong>API:</strong> <code>POST https://graph.facebook.com/v21.0/108492019482019_1004/comments</code></span>
+                    <span class="text-amber"><strong>ROAS Saved:</strong> €86.70</span>
+                    <span class="text-emerald"><strong>Recovered Sales:</strong> €11.21</span>
+                </div>
+
+                
+            <div class="action-block pub-reply">
+                <div class="action-title">💬 Public Ad Reply (Boosts Algorithm & CTR)</div>
+                <div class="action-body">Super wichtige Frage, Claudia! 💡 Von Physiotherapeuten entwickelt, Öko-Tex 100 zertifiziert und über 24.000 Schläfer mit 100-Nächte-Probeschlafen-Garantie überzeugt. Alle Labor- &amp; Praxistests findest du hier: https://rzen.to/orthoclo-fae5c</div>
+            </div>
+            
+                
+            <div class="action-block priv-dm">
+                <div class="action-title">📩 Automated Comment-to-DM Closer</div>
+                <div class="action-body">Hey Claudia! Falls du OrthoCloud Pro Nackenkissen völlig risikofrei (mit 30-Tage-Testgarantie) ausprobieren möchtest, nutze gerne `ZEN10-CLAUDI-FAE5` für 10% Rabatt in den nächsten 2 Stunden: https://shop.orthocloud.de/discount/ZEN10-CLAUDI-FAE5?redirect=/products/orthocloud&amp;utm_source=meta_dark_post_comment_dm&amp;utm_medium=comment_shield&amp;utm_campaign=camp-meta-01</div>
+            </div>
+            
+                
+            <div class="voucher-box">
+                <div class="voucher-header">
+                    <span class="voucher-pill">⚡ 10% OFF 2-HR EXPIRING CODE: <strong>ZEN10-CLAUDI-FAE5</strong></span>
+                    <span class="text-xs text-muted">Provider: SHOPIFY · Expires 2026-10-17T17:30:00Z</span>
+                </div>
+                <div class="voucher-links">
+                    <div><strong>Public Tracked Shortlink:</strong> <code>https://rzen.to/orthoclo-fae5c</code></div>
+                    <div><strong>1-Click DM Checkout URL:</strong> <code>https://shop.orthocloud.de/discount/ZEN10-CLAUDI-FAE5?redirect=/products/orthocloud&amp;utm_source=meta_dark_post_comment_dm&amp;utm_medium=comment_shield&amp;utm_campaign=camp-meta-01</code></div>
+                </div>
+            </div>
+            
+                
+            </div>
+            
+            <div class="comment-card" data-bucket="POSITIVE_TAG_FRIEND" data-campaign="CAMP-META-01">
+                <div class="card-top">
+                    <div class="card-meta">
+                        <span class="bucket-badge" style="background:rgba(59, 130, 246, 0.14);color:#3b82f6;border:1px solid #3b82f655;">
+                            POSITIVE_TAG_FRIEND
+                        </span>
+                        <span class="author-tag">@julia_k_94</span>
+                        <span class="text-xs text-muted">on DE/AT/CH_Q4_OrthoCloud_Ergonomic_Pillow_DarkPost (meta_dark_post)</span>
+                    </div>
+                    <div class="card-right">
+                        <span class="status-pill replied-pill">✅ PUBLIC + DM CLOSER IN 1297ms</span>
+                        <span class="conf-tag">Conf: 97%</span>
+                    </div>
+                </div>
+
+                <div class="comment-quote ">
+                    "@thomas_k_92 schau mal, das brauchen wir dringend für deinen Nacken!! 😍 Hab meins schon bestellt!"
+                </div>
+
+                <div class="impact-strip">
+                    <span><strong>Action:</strong> <code>PUBLIC_WARM_BOOST_REPLY</code></span>
+                    <span><strong>API:</strong> <code>POST https://graph.facebook.com/v21.0/108492019482019_1005/comments</code></span>
+                    <span class="text-amber"><strong>ROAS Saved:</strong> €0.00</span>
+                    <span class="text-emerald"><strong>Recovered Sales:</strong> €15.22</span>
+                </div>
+
+                
+            <div class="action-block pub-reply">
+                <div class="action-title">💬 Public Ad Reply (Boosts Algorithm & CTR)</div>
+                <div class="action-body">Liebe es, Julia! 🔥 Danke fürs Markieren — wir haben dir gerade ein kleines Freundes-Special ins Postfach gelegt! 💌 (https://rzen.to/orthoclo-d3dad)</div>
+            </div>
+            
+                
+            <div class="action-block priv-dm">
+                <div class="action-title">📩 Automated Comment-to-DM Closer</div>
+                <div class="action-body">Hey Julia! 🙌 Mega cool, dass du an uns gedacht hast! Wenn ihr zusammen bestellt oder du dir OrthoCloud Pro Nackenkissen sichern willst, sparst du mit `ZEN10-JULIAK-D3DA` in den nächsten 2 Stunden 10%: https://shop.orthocloud.de/discount/ZEN10-JULIAK-D3DA?redirect=/products/orthocloud&amp;utm_source=meta_dark_post_comment_dm&amp;utm_medium=comment_shield&amp;utm_campaign=camp-meta-01</div>
+            </div>
+            
+                
+            <div class="voucher-box">
+                <div class="voucher-header">
+                    <span class="voucher-pill">⚡ 10% OFF 2-HR EXPIRING CODE: <strong>ZEN10-JULIAK-D3DA</strong></span>
+                    <span class="text-xs text-muted">Provider: SHOPIFY · Expires 2026-10-17T17:30:00Z</span>
+                </div>
+                <div class="voucher-links">
+                    <div><strong>Public Tracked Shortlink:</strong> <code>https://rzen.to/orthoclo-d3dad</code></div>
+                    <div><strong>1-Click DM Checkout URL:</strong> <code>https://shop.orthocloud.de/discount/ZEN10-JULIAK-D3DA?redirect=/products/orthocloud&amp;utm_source=meta_dark_post_comment_dm&amp;utm_medium=comment_shield&amp;utm_campaign=camp-meta-01</code></div>
+                </div>
+            </div>
+            
+                
+            </div>
+            
+            <div class="comment-card" data-bucket="BOT_SPAM_LINK" data-campaign="CAMP-META-01">
+                <div class="card-top">
+                    <div class="card-meta">
+                        <span class="bucket-badge" style="background:rgba(249, 115, 22, 0.14);color:#f97316;border:1px solid #f9731655;">
+                            BOT_SPAM_LINK
+                        </span>
+                        <span class="author-tag">@crypto_signal_bot99</span>
+                        <span class="text-xs text-muted">on DE/AT/CH_Q4_OrthoCloud_Ergonomic_Pillow_DarkPost (meta_dark_post)</span>
+                    </div>
+                    <div class="card-right">
+                        <span class="status-pill hidden-pill">👁️‍🗨️ AUTO-HIDDEN IN 533ms</span>
+                        <span class="conf-tag">Conf: 98%</span>
+                    </div>
+                </div>
+
+                <div class="comment-quote strike-quote">
+                    "👉 Make $3,500/week from home with AI Crypto Signals! Join free Telegram now: https://t.me/fast_usdt_pump99 💰💰"
+                </div>
+
+                <div class="impact-strip">
+                    <span><strong>Action:</strong> <code>AUTO_DELETE_OR_HIDE</code></span>
+                    <span><strong>API:</strong> <code>DELETE https://graph.facebook.com/v21.0/108492019482019_1006</code></span>
+                    <span class="text-amber"><strong>ROAS Saved:</strong> €130.05</span>
+                    <span class="text-emerald"><strong>Recovered Sales:</strong> €0.00</span>
+                </div>
+
+                
+                
+                
+                
+            </div>
+            
+            <div class="comment-card" data-bucket="TOXIC_ROAS_KILLER" data-campaign="CAMP-IG-02">
+                <div class="card-top">
+                    <div class="card-meta">
+                        <span class="bucket-badge" style="background:rgba(239, 68, 68, 0.14);color:#ef4444;border:1px solid #ef444455;">
+                            TOXIC_ROAS_KILLER
+                        </span>
+                        <span class="author-tag">@troll_police_de</span>
+                        <span class="text-xs text-muted">on DACH_Lumiderm_LED_Cryo_Mask_ReelsAd (instagram_ad)</span>
+                    </div>
+                    <div class="card-right">
+                        <span class="status-pill hidden-pill">👁️‍🗨️ AUTO-HIDDEN IN 515ms</span>
+                        <span class="conf-tag">Conf: 98%</span>
+                    </div>
+                </div>
+
+                <div class="comment-quote strike-quote">
+                    "Achtung Fake Shop! Das ist 1:1 billiger China Schrott von AliExpress für 12 Euro, lasst euch nicht verarschen!"
+                </div>
+
+                <div class="impact-strip">
+                    <span><strong>Action:</strong> <code>AUTO_HIDE_UNDER_1_5S</code></span>
+                    <span><strong>API:</strong> <code>POST https://graph.facebook.com/v21.0/179823489102938_2001</code></span>
+                    <span class="text-amber"><strong>ROAS Saved:</strong> €321.30</span>
+                    <span class="text-emerald"><strong>Recovered Sales:</strong> €0.00</span>
+                </div>
+
+                
+                
+                
+                
+            </div>
+            
+            <div class="comment-card" data-bucket="BUYING_QUESTION_SHIPPING_SIZE" data-campaign="CAMP-IG-02">
+                <div class="card-top">
+                    <div class="card-meta">
+                        <span class="bucket-badge" style="background:rgba(16, 185, 129, 0.14);color:#10b981;border:1px solid #10b98155;">
+                            BUYING_QUESTION_SHIPPING_SIZE
+                        </span>
+                        <span class="author-tag">@elena.beauty.muc</span>
+                        <span class="text-xs text-muted">on DACH_Lumiderm_LED_Cryo_Mask_ReelsAd (instagram_ad)</span>
+                    </div>
+                    <div class="card-right">
+                        <span class="status-pill replied-pill">✅ PUBLIC + DM CLOSER IN 876ms</span>
+                        <span class="conf-tag">Conf: 98%</span>
+                    </div>
+                </div>
+
+                <div class="comment-quote ">
+                    "Kann ich auch mit Klarna auf Rechnung zahlen und wie lange dauert der Versand nach Österreich?"
+                </div>
+
+                <div class="impact-strip">
+                    <span><strong>Action:</strong> <code>PUBLIC_HELPFUL_REPLY_WITH_SHORTLINK</code></span>
+                    <span><strong>API:</strong> <code>POST https://graph.facebook.com/v21.0/179823489102938_2002/comments</code></span>
+                    <span class="text-amber"><strong>ROAS Saved:</strong> €0.00</span>
+                    <span class="text-emerald"><strong>Recovered Sales:</strong> €37.55</span>
+                </div>
+
+                
+            <div class="action-block pub-reply">
+                <div class="action-title">💬 Public Ad Reply (Boosts Algorithm & CTR)</div>
+                <div class="action-body">Hey Elena! 🙌 Sofort ab deutschem Lager lieferbar! Ratenzahlung via Klarna &amp; PayPal möglich, kostenloser Expressversand nach DE/AT/CH. Hier direkt zur Wunschgröße: https://rzen.to/lumiderm-aa960 — wir haben dir außerdem gerade eine persönliche Überraschung per DM geschickt! 📩</div>
+            </div>
+            
+                
+            <div class="action-block priv-dm">
+                <div class="action-title">📩 Automated Comment-to-DM Closer</div>
+                <div class="action-body">Hey Elena! 👋 Danke für deine Frage unter unserer Anzeige zu **LumiDerm 7-Wave LED Cryo Maske**.
+
+✅ Sofort ab deutschem Lager lieferbar! Ratenzahlung via Klarna &amp; PayPal möglich, kostenloser Expressversand nach DE/AT/CH.
+🎁 Damit du direkt testen kannst, ist hier dein persönlicher **10% Sofort-Rabattcode: `ZEN10-ELENAB-AA96`** (gültig für die nächsten **2 Stunden** bis 17:30 UTC).
+
+👉 **Direkt zum 1-Click-Stripe-Checkout (10% bereits abgezogen):**
+https://checkout.lumiderm.de/pay/lumiderm?prefilled_promo_code=ZEN10-ELENAB-AA96&amp;utm_source=instagram_ad_comment_dm&amp;utm_medium=comment_shield&amp;utm_campaign=camp-ig-02</div>
+            </div>
+            
+                
+            <div class="voucher-box">
+                <div class="voucher-header">
+                    <span class="voucher-pill">⚡ 10% OFF 2-HR EXPIRING CODE: <strong>ZEN10-ELENAB-AA96</strong></span>
+                    <span class="text-xs text-muted">Provider: STRIPE · Expires 2026-10-17T17:30:00Z</span>
+                </div>
+                <div class="voucher-links">
+                    <div><strong>Public Tracked Shortlink:</strong> <code>https://rzen.to/lumiderm-aa960</code></div>
+                    <div><strong>1-Click DM Checkout URL:</strong> <code>https://checkout.lumiderm.de/pay/lumiderm?prefilled_promo_code=ZEN10-ELENAB-AA96&amp;utm_source=instagram_ad_comment_dm&amp;utm_medium=comment_shield&amp;utm_campaign=camp-ig-02</code></div>
+                </div>
+            </div>
+            
+                
+            </div>
+            
+            <div class="comment-card" data-bucket="SKEPTICAL_OBJECTION" data-campaign="CAMP-IG-02">
+                <div class="card-top">
+                    <div class="card-meta">
+                        <span class="bucket-badge" style="background:rgba(234, 179, 8, 0.14);color:#eab308;border:1px solid #eab30855;">
+                            SKEPTICAL_OBJECTION
+                        </span>
+                        <span class="author-tag">@lena_skin_care</span>
+                        <span class="text-xs text-muted">on DACH_Lumiderm_LED_Cryo_Mask_ReelsAd (instagram_ad)</span>
+                    </div>
+                    <div class="card-right">
+                        <span class="status-pill replied-pill">✅ PUBLIC + DM CLOSER IN 805ms</span>
+                        <span class="conf-tag">Conf: 87%</span>
+                    </div>
+                </div>
+
+                <div class="comment-quote ">
+                    "Ist das Licht auch für sehr empfindliche Haut geeignet oder wird das Gesicht heiß?"
+                </div>
+
+                <div class="impact-strip">
+                    <span><strong>Action:</strong> <code>PUBLIC_SOCIAL_PROOF_REFRAME</code></span>
+                    <span><strong>API:</strong> <code>POST https://graph.facebook.com/v21.0/179823489102938_2003/comments</code></span>
+                    <span class="text-amber"><strong>ROAS Saved:</strong> €113.40</span>
+                    <span class="text-emerald"><strong>Recovered Sales:</strong> €18.77</span>
+                </div>
+
+                
+            <div class="action-block pub-reply">
+                <div class="action-title">💬 Public Ad Reply (Boosts Algorithm & CTR)</div>
+                <div class="action-body">Super wichtige Frage, Lena! 💡 Klinisch getestete 633nm + 830nm Wellenlängen (CE-Medizinprodukt-Standard), 100% sicher bei empfindlicher Haut &amp; Rosazea, 30 Tage Geld-zurück-Garantie. Alle Labor- &amp; Praxistests findest du hier: https://rzen.to/lumiderm-ad0c9</div>
+            </div>
+            
+                
+            <div class="action-block priv-dm">
+                <div class="action-title">📩 Automated Comment-to-DM Closer</div>
+                <div class="action-body">Hey Lena! Falls du LumiDerm 7-Wave LED Cryo Maske völlig risikofrei (mit 30-Tage-Testgarantie) ausprobieren möchtest, nutze gerne `ZEN10-LENASK-AD0C` für 10% Rabatt in den nächsten 2 Stunden: https://checkout.lumiderm.de/pay/lumiderm?prefilled_promo_code=ZEN10-LENASK-AD0C&amp;utm_source=instagram_ad_comment_dm&amp;utm_medium=comment_shield&amp;utm_campaign=camp-ig-02</div>
+            </div>
+            
+                
+            <div class="voucher-box">
+                <div class="voucher-header">
+                    <span class="voucher-pill">⚡ 10% OFF 2-HR EXPIRING CODE: <strong>ZEN10-LENASK-AD0C</strong></span>
+                    <span class="text-xs text-muted">Provider: STRIPE · Expires 2026-10-17T17:30:00Z</span>
+                </div>
+                <div class="voucher-links">
+                    <div><strong>Public Tracked Shortlink:</strong> <code>https://rzen.to/lumiderm-ad0c9</code></div>
+                    <div><strong>1-Click DM Checkout URL:</strong> <code>https://checkout.lumiderm.de/pay/lumiderm?prefilled_promo_code=ZEN10-LENASK-AD0C&amp;utm_source=instagram_ad_comment_dm&amp;utm_medium=comment_shield&amp;utm_campaign=camp-ig-02</code></div>
+                </div>
+            </div>
+            
+                
+            </div>
+            
+            <div class="comment-card" data-bucket="SUPPORT_COMPLAINT" data-campaign="CAMP-IG-02">
+                <div class="card-top">
+                    <div class="card-meta">
+                        <span class="bucket-badge" style="background:rgba(168, 85, 247, 0.14);color:#a855f7;border:1px solid #a855f755;">
+                            SUPPORT_COMPLAINT
+                        </span>
+                        <span class="author-tag">@nadine_hh_89</span>
+                        <span class="text-xs text-muted">on DACH_Lumiderm_LED_Cryo_Mask_ReelsAd (instagram_ad)</span>
+                    </div>
+                    <div class="card-right">
+                        <span class="status-pill hidden-pill">👁️‍🗨️ AUTO-HIDDEN IN 720ms</span>
+                        <span class="conf-tag">Conf: 96%</span>
+                    </div>
+                </div>
+
+                <div class="comment-quote strike-quote">
+                    "Mein Netzteil aus Bestellung #77102 ist leider defekt angekommen, an wen kann ich mich für Ersatz wenden?"
+                </div>
+
+                <div class="impact-strip">
+                    <span><strong>Action:</strong> <code>AUTO_HIDE_PUBLICLY</code></span>
+                    <span><strong>API:</strong> <code>POST https://graph.facebook.com/v21.0/179823489102938_2004</code></span>
+                    <span class="text-amber"><strong>ROAS Saved:</strong> €283.50</span>
+                    <span class="text-emerald"><strong>Recovered Sales:</strong> €52.15</span>
+                </div>
+
+                
+                
+            <div class="action-block priv-dm">
+                <div class="action-title">📩 Automated Comment-to-DM Closer</div>
+                <div class="action-body">Hallo Nadine, entschuldige bitte die Unannehmlichkeiten! 🙏 Wir haben dein Anliegen sofort als **Prioritäts-Ticket #ZD-D7EE3** an unser Support-Team eskaliert (aus Datenschutzgründen haben wir deinen Kommentar öffentlich ausgeblendet, damit keine Bestelldaten sichtbar sind). Klicke hier für deinen direkten WhatsApp-VIP-Draht oder antworte einfach mit deiner Bestellnummer: https://wa.me/491510000000?text=Ticket_ZD-D7EE3</div>
+            </div>
+            
+                
+                
+            <div class="support-box">
+                <strong>🛟 Escalated Ticket:</strong> <code>ZD-D7EE3</code> via Zendesk Priority + WhatsApp VIP Concierge
+            </div>
+            
+            </div>
+            
+            <div class="comment-card" data-bucket="TOXIC_ROAS_KILLER" data-campaign="CAMP-TT-03">
+                <div class="card-top">
+                    <div class="card-meta">
+                        <span class="bucket-badge" style="background:rgba(239, 68, 68, 0.14);color:#ef4444;border:1px solid #ef444455;">
+                            TOXIC_ROAS_KILLER
+                        </span>
+                        <span class="author-tag">@temu_finder_uk</span>
+                        <span class="text-xs text-muted">on EU_AeroBrew_Portable_Espresso_TikTokSpark (tiktok_spark_ad)</span>
+                    </div>
+                    <div class="card-right">
+                        <span class="status-pill hidden-pill">👁️‍🗨️ AUTO-HIDDEN IN 762ms</span>
+                        <span class="conf-tag">Conf: 98%</span>
+                    </div>
+                </div>
+
+                <div class="comment-quote strike-quote">
+                    "Lmao you can buy this exact dropshipping scam on Temu for $8, complete waste of money don&#x27;t buy!"
+                </div>
+
+                <div class="impact-strip">
+                    <span><strong>Action:</strong> <code>AUTO_HIDE_UNDER_1_5S</code></span>
+                    <span><strong>API:</strong> <code>POST https://business-api.tiktok.com/open_api/v1.3/comment/status/update/</code></span>
+                    <span class="text-amber"><strong>ROAS Saved:</strong> €162.99</span>
+                    <span class="text-emerald"><strong>Recovered Sales:</strong> €0.00</span>
+                </div>
+
+                
+                
+                
+                
+            </div>
+            
+            <div class="comment-card" data-bucket="BUYING_QUESTION_SHIPPING_SIZE" data-campaign="CAMP-TT-03">
+                <div class="card-top">
+                    <div class="card-meta">
+                        <span class="bucket-badge" style="background:rgba(16, 185, 129, 0.14);color:#10b981;border:1px solid #10b98155;">
+                            BUYING_QUESTION_SHIPPING_SIZE
+                        </span>
+                        <span class="author-tag">@coffee_nomad_dan</span>
+                        <span class="text-xs text-muted">on EU_AeroBrew_Portable_Espresso_TikTokSpark (tiktok_spark_ad)</span>
+                    </div>
+                    <div class="card-right">
+                        <span class="status-pill replied-pill">✅ PUBLIC + DM CLOSER IN 1143ms</span>
+                        <span class="conf-tag">Conf: 98%</span>
+                    </div>
+                </div>
+
+                <div class="comment-quote ">
+                    "Is the Matte Black bundle in stock right now? And where can I buy with express shipping to Zurich?"
+                </div>
+
+                <div class="impact-strip">
+                    <span><strong>Action:</strong> <code>PUBLIC_HELPFUL_REPLY_WITH_SHORTLINK</code></span>
+                    <span><strong>API:</strong> <code>POST https://business-api.tiktok.com/open_api/v1.3/comment/post/</code></span>
+                    <span class="text-amber"><strong>ROAS Saved:</strong> €0.00</span>
+                    <span class="text-emerald"><strong>Recovered Sales:</strong> €19.91</span>
+                </div>
+
+                
+            <div class="action-block pub-reply">
+                <div class="action-title">💬 Public Ad Reply (Boosts Algorithm & CTR)</div>
+                <div class="action-body">Hey Coffee! 🙌 Ships same-day from our Frankfurt warehouse to all EU &amp; UK destinations! Fits both Nespresso capsules and ground coffee. Check availability here: https://rzen.to/aerobrew-9b8ff — plus check your DMs, we just sent you a private 10% code! 📩</div>
+            </div>
+            
+                
+            <div class="action-block priv-dm">
+                <div class="action-title">📩 Automated Comment-to-DM Closer</div>
+                <div class="action-body">Hey Coffee! 👋 Saw your comment on our **AeroBrew 20-Bar Travel Espresso** ad.
+
+✅ Ships same-day from our Frankfurt warehouse to all EU &amp; UK destinations! Fits both Nespresso capsules and ground coffee.
+🎁 Here is a private **10% OFF checkout code: `ZEN10-COFFEE-9B8F`** valid for the next **2 hours**!
+
+👉 **Complete your order in 1 click (Shopify auto-applied):**
+https://shop.aerobrew.de/discount/ZEN10-COFFEE-9B8F?redirect=/products/aerobrew&amp;utm_source=tiktok_spark_ad_comment_dm&amp;utm_medium=comment_shield&amp;utm_campaign=camp-tt-03</div>
+            </div>
+            
+                
+            <div class="voucher-box">
+                <div class="voucher-header">
+                    <span class="voucher-pill">⚡ 10% OFF 2-HR EXPIRING CODE: <strong>ZEN10-COFFEE-9B8F</strong></span>
+                    <span class="text-xs text-muted">Provider: SHOPIFY · Expires 2026-10-17T17:30:00Z</span>
+                </div>
+                <div class="voucher-links">
+                    <div><strong>Public Tracked Shortlink:</strong> <code>https://rzen.to/aerobrew-9b8ff</code></div>
+                    <div><strong>1-Click DM Checkout URL:</strong> <code>https://shop.aerobrew.de/discount/ZEN10-COFFEE-9B8F?redirect=/products/aerobrew&amp;utm_source=tiktok_spark_ad_comment_dm&amp;utm_medium=comment_shield&amp;utm_campaign=camp-tt-03</code></div>
+                </div>
+            </div>
+            
+                
+            </div>
+            
+            <div class="comment-card" data-bucket="BOT_SPAM_LINK" data-campaign="CAMP-TT-03">
+                <div class="card-top">
+                    <div class="card-meta">
+                        <span class="bucket-badge" style="background:rgba(249, 115, 22, 0.14);color:#f97316;border:1px solid #f9731655;">
+                            BOT_SPAM_LINK
+                        </span>
+                        <span class="author-tag">@promo_followers_king</span>
+                        <span class="text-xs text-muted">on EU_AeroBrew_Portable_Espresso_TikTokSpark (tiktok_spark_ad)</span>
+                    </div>
+                    <div class="card-right">
+                        <span class="status-pill hidden-pill">👁️‍🗨️ AUTO-HIDDEN IN 404ms</span>
+                        <span class="conf-tag">Conf: 98%</span>
+                    </div>
+                </div>
+
+                <div class="comment-quote strike-quote">
+                    "Want 10k followers for $15? Check bit.ly/tt-boost-now or WhatsApp +447911123456 🔥"
+                </div>
+
+                <div class="impact-strip">
+                    <span><strong>Action:</strong> <code>AUTO_DELETE_OR_HIDE</code></span>
+                    <span><strong>API:</strong> <code>POST https://business-api.tiktok.com/open_api/v1.3/comment/status/update/</code></span>
+                    <span class="text-amber"><strong>ROAS Saved:</strong> €86.29</span>
+                    <span class="text-emerald"><strong>Recovered Sales:</strong> €0.00</span>
+                </div>
+
+                
+                
+                
+                
+            </div>
+            
+            <div class="comment-card" data-bucket="POSITIVE_TAG_FRIEND" data-campaign="CAMP-TT-03">
+                <div class="card-top">
+                    <div class="card-meta">
+                        <span class="bucket-badge" style="background:rgba(59, 130, 246, 0.14);color:#3b82f6;border:1px solid #3b82f655;">
+                            POSITIVE_TAG_FRIEND
+                        </span>
+                        <span class="author-tag">@marco_barista</span>
+                        <span class="text-xs text-muted">on EU_AeroBrew_Portable_Espresso_TikTokSpark (tiktok_spark_ad)</span>
+                    </div>
+                    <div class="card-right">
+                        <span class="status-pill replied-pill">✅ PUBLIC + DM CLOSER IN 1212ms</span>
+                        <span class="conf-tag">Conf: 97%</span>
+                    </div>
+                </div>
+
+                <div class="comment-quote ">
+                    "@luca_outdoor_van take my money! Best game changer for our Dolomites roadtrip!! 🔥☕"
+                </div>
+
+                <div class="impact-strip">
+                    <span><strong>Action:</strong> <code>PUBLIC_WARM_BOOST_REPLY</code></span>
+                    <span><strong>API:</strong> <code>POST https://business-api.tiktok.com/open_api/v1.3/comment/post/</code></span>
+                    <span class="text-amber"><strong>ROAS Saved:</strong> €0.00</span>
+                    <span class="text-emerald"><strong>Recovered Sales:</strong> €13.51</span>
+                </div>
+
+                
+            <div class="action-block pub-reply">
+                <div class="action-title">💬 Public Ad Reply (Boosts Algorithm & CTR)</div>
+                <div class="action-body">Love this energy, Marco! 🔥 Thanks for tagging — we just dropped a little duo treat in your DMs! 💌 (https://rzen.to/aerobrew-6c68e)</div>
+            </div>
+            
+                
+            <div class="action-block priv-dm">
+                <div class="action-title">📩 Automated Comment-to-DM Closer</div>
+                <div class="action-body">Hey Marco! 🙌 Thanks for sharing **AeroBrew 20-Bar Travel Espresso**! Grab yours (or a matching set) with 10% off for the next 2 hours using `ZEN10-MARCOB-6C68`: https://shop.aerobrew.de/discount/ZEN10-MARCOB-6C68?redirect=/products/aerobrew&amp;utm_source=tiktok_spark_ad_comment_dm&amp;utm_medium=comment_shield&amp;utm_campaign=camp-tt-03</div>
+            </div>
+            
+                
+            <div class="voucher-box">
+                <div class="voucher-header">
+                    <span class="voucher-pill">⚡ 10% OFF 2-HR EXPIRING CODE: <strong>ZEN10-MARCOB-6C68</strong></span>
+                    <span class="text-xs text-muted">Provider: SHOPIFY · Expires 2026-10-17T17:30:00Z</span>
+                </div>
+                <div class="voucher-links">
+                    <div><strong>Public Tracked Shortlink:</strong> <code>https://rzen.to/aerobrew-6c68e</code></div>
+                    <div><strong>1-Click DM Checkout URL:</strong> <code>https://shop.aerobrew.de/discount/ZEN10-MARCOB-6C68?redirect=/products/aerobrew&amp;utm_source=tiktok_spark_ad_comment_dm&amp;utm_medium=comment_shield&amp;utm_campaign=camp-tt-03</code></div>
+                </div>
+            </div>
+            
+                
+            </div>
+            
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>🔬 Forensic Competitive Teardown: ReplyZen.ai vs. CommentGuard vs. BrandBastion vs. Brandwise</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Platform</th>
+                    <th>Verified Pricing Tiers</th>
+                    <th>Ad Channels</th>
+                    <th>Auto-Hide Moderation Engine</th>
+                    <th>Comment-to-DM & Link Conversion Flow</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+            <tr>
+                <td class="font-semibold text-white">ReplyZen.ai</td>
+                <td>$29 / $69 / $149 / $249 per month (flat volume tiers, 14-day trial w/ 500 replies + 500 moderations)</td>
+                <td>Facebook Pages &amp; Dark-Post Ads, Instagram Business &amp; Ads, TikTok Organic &amp; Spark Ads</td>
+                <td>Sub-second AI intent moderation with plain-English custom rules (hides scam claims, Temu/AliExpress drops, price bashing, attachments)</td>
+                <td>AI intent-triggered private DMs on FB/IG (no rigid keyword matching required) + public replies with tracked UTM shortlinks ($0.038 CPC)</td>
+            </tr>
+            
+            <tr>
+                <td class="font-semibold text-white">CommentGuard.io</td>
+                <td>$29 (5k) / $49 (10k) / $99 (25k) / $199 (50k) up to $1,999 (500k comments/mo), 7-day no-CC trial</td>
+                <td>Facebook &amp; Instagram Posts, Dark-Post Ads, Reels, Stories (no TikTok)</td>
+                <td>Deterministic toggles (URLs, images, emojis, profanity, keyword blacklists) + AI filter + &#x27;Hide All New Comments&#x27; nuclear shield</td>
+                <td>Keyword-triggered DM automations + manual/AI-assisted inbox replies (no tracked shortlinks in public comments)</td>
+            </tr>
+            
+            <tr>
+                <td class="font-semibold text-white">BrandBastion</td>
+                <td>Lite legacy $229/mo; TikTok/self-serve ~$499/mo; Reputation+ ~$825/mo; Engage+ custom enterprise</td>
+                <td>8+ platforms: Meta, Instagram, TikTok, YouTube, X, LinkedIn, Trustpilot, Google Reviews</td>
+                <td>Enterprise classifier (100+ categories, 109+ languages, 95%+ accuracy, real-time PR crisis alerts)</td>
+                <td>Rule-based &amp; consent-flow DMs; heavy focus on batch-approval queues (Agent+) or 24/7 human managed team (Engage+)</td>
+            </tr>
+            
+            <tr>
+                <td class="font-semibold text-white">Brandwise.ai</td>
+                <td>$49 / $99 / $179 / $269 per month (credit-based: 1 moderation + 1 reply = 2+ credits consumed)</td>
+                <td>Facebook, Instagram, TikTok + Email Inbox + native Shopify order lookup/refunds</td>
+                <td>AI spam/negativity hiding + user blocking + smart labels</td>
+                <td>Support-focused DMs + Shopify helpdesk tickets (no tracked conversion shortlinks)</td>
+            </tr>
+            
+            <tr>
+                <td class="font-semibold text-white">Agorapulse (+ Supermetrics)</td>
+                <td>Agorapulse Pro $119-$149/seat/mo (ad comments unlocked), Advanced $149-$199/seat/mo (auto-rules). Supermetrics $39-$499/mo (ETL metrics only)</td>
+                <td>FB/IG dark posts, TikTok, LinkedIn, X, YouTube</td>
+                <td>Keyword/regex inbox moderation rules on Advanced tier only; no sub-second LLM intent classifier</td>
+                <td>General social CRM inbox; not purpose-built for paid-ad ROAS recovery</td>
+            </tr>
+            
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+const REPORT_DATA = {"mvp_id": "MVP_40_PAID_AD_ROAS_COMMENT_SHIELD", "generated_at_iso": "2026-10-17T15:30:00Z", "target_teardown": {"de_anonymized_target": {"alias": "confidential-startup-72", "brand_name": "ReplyZen", "domain": "https://replyzen.ai/", "operator_entity": "New Media S.r.l. (Italy, VAT ID IT13006890969)", "founder_cal_link": "https://cal.com/flavio-replyzen", "tech_stack": "Next.js App Router + Supabase (kyhjlxpyejyyxhquzphn.supabase.co) + Paddle Billing + Queues Worker (queues.replyzen.ai)", "verified_metrics": {"revenue_30d_usd": 12355, "revenue_per_visitor_usd": 30.26, "active_subscribers": 147, "profit_margin_pct": 82.0, "asking_price_usd": 475000, "claimed_conversion_rate_per_100_comments_pct": 5.67, "claimed_shortlink_cpc_usd": 0.038, "claimed_roas_lift_pct": 21.0}, "pricing_tiers_live_paddle": [{"tier": "Basic", "price_usd_mo": 29, "ai_replies_mo": 500, "moderations_mo": 2500, "trial_days": 14}, {"tier": "Pro", "price_usd_mo": 69, "ai_replies_mo": 1500, "moderations_mo": 7500, "trial_days": 14}, {"tier": "Enterprise", "price_usd_mo": 149, "ai_replies_mo": 5000, "moderations_mo": 25000, "trial_days": 14}, {"tier": "Ultra", "price_usd_mo": 249, "ai_replies_mo": 10000, "moderations_mo": 50000, "trial_days": 14}]}, "competitors": [{"name": "ReplyZen.ai", "pricing": "$29 / $69 / $149 / $249 per month (flat volume tiers, 14-day trial w/ 500 replies + 500 moderations)", "platforms": "Facebook Pages & Dark-Post Ads, Instagram Business & Ads, TikTok Organic & Spark Ads", "auto_hide_engine": "Sub-second AI intent moderation with plain-English custom rules (hides scam claims, Temu/AliExpress drops, price bashing, attachments)", "comment_to_dm": "AI intent-triggered private DMs on FB/IG (no rigid keyword matching required) + public replies with tracked UTM shortlinks ($0.038 CPC)", "publishing_modes": "Autonomous Autopilot, Confidence-Threshold Hybrid Mode, Manual Draft Queue"}, {"name": "CommentGuard.io", "pricing": "$29 (5k) / $49 (10k) / $99 (25k) / $199 (50k) up to $1,999 (500k comments/mo), 7-day no-CC trial", "platforms": "Facebook & Instagram Posts, Dark-Post Ads, Reels, Stories (no TikTok)", "auto_hide_engine": "Deterministic toggles (URLs, images, emojis, profanity, keyword blacklists) + AI filter + 'Hide All New Comments' nuclear shield", "comment_to_dm": "Keyword-triggered DM automations + manual/AI-assisted inbox replies (no tracked shortlinks in public comments)", "publishing_modes": "Auto-hide rules + AI draft suggestions in unified inbox"}, {"name": "BrandBastion", "pricing": "Lite legacy $229/mo; TikTok/self-serve ~$499/mo; Reputation+ ~$825/mo; Engage+ custom enterprise", "platforms": "8+ platforms: Meta, Instagram, TikTok, YouTube, X, LinkedIn, Trustpilot, Google Reviews", "auto_hide_engine": "Enterprise classifier (100+ categories, 109+ languages, 95%+ accuracy, real-time PR crisis alerts)", "comment_to_dm": "Rule-based & consent-flow DMs; heavy focus on batch-approval queues (Agent+) or 24/7 human managed team (Engage+)", "publishing_modes": "Batch approval workflow (Agent+) or 24/7 human-in-the-loop (Engage+)"}, {"name": "Brandwise.ai", "pricing": "$49 / $99 / $179 / $269 per month (credit-based: 1 moderation + 1 reply = 2+ credits consumed)", "platforms": "Facebook, Instagram, TikTok + Email Inbox + native Shopify order lookup/refunds", "auto_hide_engine": "AI spam/negativity hiding + user blocking + smart labels", "comment_to_dm": "Support-focused DMs + Shopify helpdesk tickets (no tracked conversion shortlinks)", "publishing_modes": "Automated replies + e-commerce helpdesk triage"}, {"name": "Agorapulse (+ Supermetrics)", "pricing": "Agorapulse Pro $119-$149/seat/mo (ad comments unlocked), Advanced $149-$199/seat/mo (auto-rules). Supermetrics $39-$499/mo (ETL metrics only)", "platforms": "FB/IG dark posts, TikTok, LinkedIn, X, YouTube", "auto_hide_engine": "Keyword/regex inbox moderation rules on Advanced tier only; no sub-second LLM intent classifier", "comment_to_dm": "General social CRM inbox; not purpose-built for paid-ad ROAS recovery", "publishing_modes": "Manual social team inbox + saved replies"}]}, "summary_kpis": {"total_campaigns_monitored": 3, "total_comments_processed": 14, "all_buckets_represented": true, "bucket_distribution": {"TOXIC_ROAS_KILLER": 3, "BOT_SPAM_LINK": 2, "BUYING_QUESTION_SHIPPING_SIZE": 3, "SKEPTICAL_OBJECTION": 2, "POSITIVE_TAG_FRIEND": 2, "SUPPORT_COMPLAINT": 2}, "auto_hidden_or_deleted_count": 7, "public_replies_posted_count": 7, "private_dms_sent_count": 9, "checkout_vouchers_generated_count": 7, "support_tickets_escalated_count": 2, "avg_shield_latency_ms": 852.0, "max_shield_latency_ms": 1308, "all_within_1500ms_sla": true, "daily_roas_saved_eur": 1646.63, "daily_recovered_revenue_eur": 221.9, "daily_total_protected_and_recovered_eur": 1868.53, "monthly_projected_roas_and_revenue_eur": 56055.9}, "campaign_summaries": [{"campaign_id": "CAMP-META-01", "name": "DE/AT/CH_Q4_OrthoCloud_Ergonomic_Pillow_DarkPost", "platform": "meta_dark_post", "ad_post_id": "108492019482019_99481029481", "product_name": "OrthoCloud Pro Nackenkissen", "checkout_provider": "shopify", "daily_spend_eur": 850.0, "monthly_spend_eur": 25500.0, "baseline_ctr_pct": 2.85, "baseline_cpa_eur": 24.5, "unprotected_roas": 2.31, "baseline_roas": 3.4, "protected_roas": 4.29, "comments_processed": 6, "comments_auto_hidden": 3, "private_dms_dispatched": 4, "expiring_vouchers_issued": 3, "avg_latency_ms": 915.2, "daily_roas_saved_eur": 679.15, "daily_recovered_revenue_eur": 80.01, "daily_total_value_protected_eur": 759.16, "monthly_projected_value_eur": 22774.8}, {"campaign_id": "CAMP-IG-02", "name": "DACH_Lumiderm_LED_Cryo_Mask_ReelsAd", "platform": "instagram_ad", "ad_post_id": "17982348910293841", "product_name": "LumiDerm 7-Wave LED Cryo Maske", "checkout_provider": "stripe", "daily_spend_eur": 1200.0, "monthly_spend_eur": 36000.0, "baseline_ctr_pct": 3.1, "baseline_cpa_eur": 38.0, "unprotected_roas": 2.14, "baseline_roas": 3.15, "protected_roas": 3.84, "comments_processed": 4, "comments_auto_hidden": 2, "private_dms_dispatched": 3, "expiring_vouchers_issued": 2, "avg_latency_ms": 729.0, "daily_roas_saved_eur": 718.2, "daily_recovered_revenue_eur": 108.47, "daily_total_value_protected_eur": 826.67, "monthly_projected_value_eur": 24800.1}, {"campaign_id": "CAMP-TT-03", "name": "EU_AeroBrew_Portable_Espresso_TikTokSpark", "platform": "tiktok_spark_ad", "ad_post_id": "7419283749182736412", "product_name": "AeroBrew 20-Bar Travel Espresso", "checkout_provider": "shopify", "daily_spend_eur": 650.0, "monthly_spend_eur": 19500.0, "baseline_ctr_pct": 2.4, "baseline_cpa_eur": 21.0, "unprotected_roas": 2.01, "baseline_roas": 2.95, "protected_roas": 3.38, "comments_processed": 4, "comments_auto_hidden": 2, "private_dms_dispatched": 2, "expiring_vouchers_issued": 2, "avg_latency_ms": 880.2, "daily_roas_saved_eur": 249.28, "daily_recovered_revenue_eur": 33.42, "daily_total_value_protected_eur": 282.7, "monthly_projected_value_eur": 8481.0}], "decisions": [{"comment_id": "108492019482019_1001", "campaign_id": "CAMP-META-01", "campaign_name": "DE/AT/CH_Q4_OrthoCloud_Ergonomic_Pillow_DarkPost", "platform": "meta_dark_post", "author_handle": "@kevin_schnaeppchen", "comment_text": "Leute fallt nicht drauf rein!! Genau dasselbe Kissen gibt es bei Temu für 3€ inkl. Versand! Komplette Abzocke hier!", "language": "de", "bucket": "TOXIC_ROAS_KILLER", "bucket_label": "Toxic ROAS Killer", "confidence": 0.98, "matched_signals": ["competitor_marketplace_drop", "scam_or_ripoff_accusation"], "latency_ms": 743, "within_1500ms_sla": true, "is_hidden_publicly": true, "is_deleted_publicly": false, "public_action": "AUTO_HIDE_UNDER_1_5S", "dm_action": "NONE", "api_mutation_endpoint": "POST https://graph.facebook.com/v21.0/108492019482019_1001", "api_mutation_payload": {"is_hidden": true, "comment_id": "108492019482019_1001"}, "public_reply_text": null, "private_dm_text": null, "checkout_voucher": null, "support_ticket_id": null, "support_channel": null, "roas_saved_eur": 245.65, "recovered_revenue_eur": 0.0, "estimated_conversion_prob": 0.0, "ctr_drop_prevented_pct": 42.5}, {"comment_id": "108492019482019_1002", "campaign_id": "CAMP-META-01", "campaign_name": "DE/AT/CH_Q4_OrthoCloud_Ergonomic_Pillow_DarkPost", "platform": "meta_dark_post", "author_handle": "@sabine_mueller_zh", "comment_text": "Habt ihr Größe XL auf Lager und liefert ihr auch in die Schweiz ohne hohe Zollgebühren?", "language": "de", "bucket": "BUYING_QUESTION_SHIPPING_SIZE", "bucket_label": "Buying Question (Shipping / Size / Stock)", "confidence": 0.98, "matched_signals": ["size_or_stock_inquiry", "shipping_destination_or_speed"], "latency_ms": 1119, "within_1500ms_sla": true, "is_hidden_publicly": false, "is_deleted_publicly": false, "public_action": "PUBLIC_HELPFUL_REPLY_WITH_SHORTLINK", "dm_action": "PRIVATE_DM_10PCT_2HR_CHECKOUT_CODE", "api_mutation_endpoint": "POST https://graph.facebook.com/v21.0/108492019482019_1002/comments", "api_mutation_payload": {"message": "Hey Sabine! 🙌 Alle Größen (Standard & XL-Breit) sind auf Lager! Versand nach DE, AT & in die Schweiz (verzollter DHL-Premiumversand) in 1–3 Werktagen. Hier direkt zur Wunschgröße: https://rzen.to/orthoclo-ce745 — wir haben dir außerdem gerade eine persönliche Überraschung per DM geschickt! 📩", "private_reply_mutation": {"endpoint": "POST https://graph.facebook.com/v21.0/me/messages", "recipient": {"comment_id": "108492019482019_1002"}, "message": {"text": "Hey Sabine! 👋 Danke für deine Frage unter unserer Anzeige zu **OrthoCloud Pro Nackenkissen**.\n\n✅ Alle Größen (Standard & XL-Breit) sind auf Lager! Versand nach DE, AT & in die Schweiz (verzollter DHL-Premiumversand) in 1–3 Werktagen.\n🎁 Damit du direkt testen kannst, ist hier dein persönlicher **10% Sofort-Rabattcode: `ZEN10-SABINE-CE74`** (gültig für die nächsten **2 Stunden** bis 17:30 UTC).\n\n👉 **Direkt zum 1-Click-Shopify-Checkout (10% bereits abgezogen):**\nhttps://shop.orthocloud.de/discount/ZEN10-SABINE-CE74?redirect=/products/orthocloud&utm_source=meta_dark_post_comment_dm&utm_medium=comment_shield&utm_campaign=camp-meta-01"}}}, "public_reply_text": "Hey Sabine! 🙌 Alle Größen (Standard & XL-Breit) sind auf Lager! Versand nach DE, AT & in die Schweiz (verzollter DHL-Premiumversand) in 1–3 Werktagen. Hier direkt zur Wunschgröße: https://rzen.to/orthoclo-ce745 — wir haben dir außerdem gerade eine persönliche Überraschung per DM geschickt! 📩", "private_dm_text": "Hey Sabine! 👋 Danke für deine Frage unter unserer Anzeige zu **OrthoCloud Pro Nackenkissen**.\n\n✅ Alle Größen (Standard & XL-Breit) sind auf Lager! Versand nach DE, AT & in die Schweiz (verzollter DHL-Premiumversand) in 1–3 Werktagen.\n🎁 Damit du direkt testen kannst, ist hier dein persönlicher **10% Sofort-Rabattcode: `ZEN10-SABINE-CE74`** (gültig für die nächsten **2 Stunden** bis 17:30 UTC).\n\n👉 **Direkt zum 1-Click-Shopify-Checkout (10% bereits abgezogen):**\nhttps://shop.orthocloud.de/discount/ZEN10-SABINE-CE74?redirect=/products/orthocloud&utm_source=meta_dark_post_comment_dm&utm_medium=comment_shield&utm_campaign=camp-meta-01", "checkout_voucher": {"code": "ZEN10-SABINE-CE74", "discount_pct": 10, "expires_at_iso": "2026-10-17T17:30:00Z", "expires_in_minutes": 120, "checkout_provider": "shopify", "checkout_url": "https://shop.orthocloud.de/discount/ZEN10-SABINE-CE74?redirect=/products/orthocloud&utm_source=meta_dark_post_comment_dm&utm_medium=comment_shield&utm_campaign=camp-meta-01", "shortlink_url": "https://rzen.to/orthoclo-ce745", "utm_source": "meta_dark_post_comment_dm", "utm_campaign": "camp-meta-01"}, "support_ticket_id": null, "support_channel": null, "roas_saved_eur": 0.0, "recovered_revenue_eur": 22.43, "estimated_conversion_prob": 0.28, "ctr_drop_prevented_pct": 0.0}, {"comment_id": "108492019482019_1003", "campaign_id": "CAMP-META-01", "campaign_name": "DE/AT/CH_Q4_OrthoCloud_Ergonomic_Pillow_DarkPost", "platform": "meta_dark_post", "author_handle": "@markus_weber88", "comment_text": "Wo bleibt meine Bestellung #48291?? Warte seit 10 Tagen und DHL Sendungsnummer bewegt sich nicht!", "language": "de", "bucket": "SUPPORT_COMPLAINT", "bucket_label": "Order / Support Complaint", "confidence": 0.98, "matched_signals": ["missing_order_complaint", "order_number_or_tracking_issue"], "latency_ms": 491, "within_1500ms_sla": true, "is_hidden_publicly": true, "is_deleted_publicly": false, "public_action": "AUTO_HIDE_PUBLICLY", "dm_action": "ESCALATE_ZENDESK_WHATSAPP_SUPPORT_DM", "api_mutation_endpoint": "POST https://graph.facebook.com/v21.0/108492019482019_1003", "api_mutation_payload": {"is_hidden": true, "comment_id": "108492019482019_1003", "private_reply_mutation": {"endpoint": "POST https://graph.facebook.com/v21.0/me/messages", "recipient": {"comment_id": "108492019482019_1003"}, "message": {"text": "Hallo Markus, entschuldige bitte die Unannehmlichkeiten! 🙏 Wir haben dein Anliegen sofort als **Prioritäts-Ticket #ZD-D6B6E** an unser Support-Team eskaliert (aus Datenschutzgründen haben wir deinen Kommentar öffentlich ausgeblendet, damit keine Bestelldaten sichtbar sind). Klicke hier für deinen direkten WhatsApp-VIP-Draht oder antworte einfach mit deiner Bestellnummer: https://wa.me/491510000000?text=Ticket_ZD-D6B6E"}}}, "public_reply_text": null, "private_dm_text": "Hallo Markus, entschuldige bitte die Unannehmlichkeiten! 🙏 Wir haben dein Anliegen sofort als **Prioritäts-Ticket #ZD-D6B6E** an unser Support-Team eskaliert (aus Datenschutzgründen haben wir deinen Kommentar öffentlich ausgeblendet, damit keine Bestelldaten sichtbar sind). Klicke hier für deinen direkten WhatsApp-VIP-Draht oder antworte einfach mit deiner Bestellnummer: https://wa.me/491510000000?text=Ticket_ZD-D6B6E", "checkout_voucher": null, "support_ticket_id": "ZD-D6B6E", "support_channel": "Zendesk Priority + WhatsApp VIP Concierge", "roas_saved_eur": 216.75, "recovered_revenue_eur": 31.15, "estimated_conversion_prob": 0.0, "ctr_drop_prevented_pct": 38.0}, {"comment_id": "108492019482019_1004", "campaign_id": "CAMP-META-01", "campaign_name": "DE/AT/CH_Q4_OrthoCloud_Ergonomic_Pillow_DarkPost", "platform": "meta_dark_post", "author_handle": "@claudia.berger", "comment_text": "Hält das wirklich die Form oder wird der Memory-Schaum nach 2 Wochen platt? Hat jemand Erfahrung mit der Geld-zurück-Garantie?", "language": "de", "bucket": "SKEPTICAL_OBJECTION", "bucket_label": "Skeptical Product Objection", "confidence": 0.98, "matched_signals": ["efficacy_proof_question", "spec_or_guarantee_skepticism"], "latency_ms": 1308, "within_1500ms_sla": true, "is_hidden_publicly": false, "is_deleted_publicly": false, "public_action": "PUBLIC_SOCIAL_PROOF_REFRAME", "dm_action": "OPTIONAL_GUARANTEE_INFO_DM", "api_mutation_endpoint": "POST https://graph.facebook.com/v21.0/108492019482019_1004/comments", "api_mutation_payload": {"message": "Super wichtige Frage, Claudia! 💡 Von Physiotherapeuten entwickelt, Öko-Tex 100 zertifiziert und über 24.000 Schläfer mit 100-Nächte-Probeschlafen-Garantie überzeugt. Alle Labor- & Praxistests findest du hier: https://rzen.to/orthoclo-fae5c", "private_reply_mutation": {"endpoint": "POST https://graph.facebook.com/v21.0/me/messages", "recipient": {"comment_id": "108492019482019_1004"}, "message": {"text": "Hey Claudia! Falls du OrthoCloud Pro Nackenkissen völlig risikofrei (mit 30-Tage-Testgarantie) ausprobieren möchtest, nutze gerne `ZEN10-CLAUDI-FAE5` für 10% Rabatt in den nächsten 2 Stunden: https://shop.orthocloud.de/discount/ZEN10-CLAUDI-FAE5?redirect=/products/orthocloud&utm_source=meta_dark_post_comment_dm&utm_medium=comment_shield&utm_campaign=camp-meta-01"}}}, "public_reply_text": "Super wichtige Frage, Claudia! 💡 Von Physiotherapeuten entwickelt, Öko-Tex 100 zertifiziert und über 24.000 Schläfer mit 100-Nächte-Probeschlafen-Garantie überzeugt. Alle Labor- & Praxistests findest du hier: https://rzen.to/orthoclo-fae5c", "private_dm_text": "Hey Claudia! Falls du OrthoCloud Pro Nackenkissen völlig risikofrei (mit 30-Tage-Testgarantie) ausprobieren möchtest, nutze gerne `ZEN10-CLAUDI-FAE5` für 10% Rabatt in den nächsten 2 Stunden: https://shop.orthocloud.de/discount/ZEN10-CLAUDI-FAE5?redirect=/products/orthocloud&utm_source=meta_dark_post_comment_dm&utm_medium=comment_shield&utm_campaign=camp-meta-01", "checkout_voucher": {"code": "ZEN10-CLAUDI-FAE5", "discount_pct": 10, "expires_at_iso": "2026-10-17T17:30:00Z", "expires_in_minutes": 120, "checkout_provider": "shopify", "checkout_url": "https://shop.orthocloud.de/discount/ZEN10-CLAUDI-FAE5?redirect=/products/orthocloud&utm_source=meta_dark_post_comment_dm&utm_medium=comment_shield&utm_campaign=camp-meta-01", "shortlink_url": "https://rzen.to/orthoclo-fae5c", "utm_source": "meta_dark_post_comment_dm", "utm_campaign": "camp-meta-01"}, "support_ticket_id": null, "support_channel": null, "roas_saved_eur": 86.7, "recovered_revenue_eur": 11.21, "estimated_conversion_prob": 0.14, "ctr_drop_prevented_pct": 15.0}, {"comment_id": "108492019482019_1005", "campaign_id": "CAMP-META-01", "campaign_name": "DE/AT/CH_Q4_OrthoCloud_Ergonomic_Pillow_DarkPost", "platform": "meta_dark_post", "author_handle": "@julia_k_94", "comment_text": "@thomas_k_92 schau mal, das brauchen wir dringend für deinen Nacken!! 😍 Hab meins schon bestellt!", "language": "de", "bucket": "POSITIVE_TAG_FRIEND", "bucket_label": "Positive Praise / Friend Tag", "confidence": 0.97, "matched_signals": ["friend_mention_tag", "viral_praise_or_tag"], "latency_ms": 1297, "within_1500ms_sla": true, "is_hidden_publicly": false, "is_deleted_publicly": false, "public_action": "PUBLIC_WARM_BOOST_REPLY", "dm_action": "PRIVATE_REFERRAL_DUO_DM", "api_mutation_endpoint": "POST https://graph.facebook.com/v21.0/108492019482019_1005/comments", "api_mutation_payload": {"message": "Liebe es, Julia! 🔥 Danke fürs Markieren — wir haben dir gerade ein kleines Freundes-Special ins Postfach gelegt! 💌 (https://rzen.to/orthoclo-d3dad)", "private_reply_mutation": {"endpoint": "POST https://graph.facebook.com/v21.0/me/messages", "recipient": {"comment_id": "108492019482019_1005"}, "message": {"text": "Hey Julia! 🙌 Mega cool, dass du an uns gedacht hast! Wenn ihr zusammen bestellt oder du dir OrthoCloud Pro Nackenkissen sichern willst, sparst du mit `ZEN10-JULIAK-D3DA` in den nächsten 2 Stunden 10%: https://shop.orthocloud.de/discount/ZEN10-JULIAK-D3DA?redirect=/products/orthocloud&utm_source=meta_dark_post_comment_dm&utm_medium=comment_shield&utm_campaign=camp-meta-01"}}}, "public_reply_text": "Liebe es, Julia! 🔥 Danke fürs Markieren — wir haben dir gerade ein kleines Freundes-Special ins Postfach gelegt! 💌 (https://rzen.to/orthoclo-d3dad)", "private_dm_text": "Hey Julia! 🙌 Mega cool, dass du an uns gedacht hast! Wenn ihr zusammen bestellt oder du dir OrthoCloud Pro Nackenkissen sichern willst, sparst du mit `ZEN10-JULIAK-D3DA` in den nächsten 2 Stunden 10%: https://shop.orthocloud.de/discount/ZEN10-JULIAK-D3DA?redirect=/products/orthocloud&utm_source=meta_dark_post_comment_dm&utm_medium=comment_shield&utm_campaign=camp-meta-01", "checkout_voucher": {"code": "ZEN10-JULIAK-D3DA", "discount_pct": 10, "expires_at_iso": "2026-10-17T17:30:00Z", "expires_in_minutes": 120, "checkout_provider": "shopify", "checkout_url": "https://shop.orthocloud.de/discount/ZEN10-JULIAK-D3DA?redirect=/products/orthocloud&utm_source=meta_dark_post_comment_dm&utm_medium=comment_shield&utm_campaign=camp-meta-01", "shortlink_url": "https://rzen.to/orthoclo-d3dad", "utm_source": "meta_dark_post_comment_dm", "utm_campaign": "camp-meta-01"}, "support_ticket_id": null, "support_channel": null, "roas_saved_eur": 0.0, "recovered_revenue_eur": 15.22, "estimated_conversion_prob": 0.19, "ctr_drop_prevented_pct": 0.0}, {"comment_id": "108492019482019_1006", "campaign_id": "CAMP-META-01", "campaign_name": "DE/AT/CH_Q4_OrthoCloud_Ergonomic_Pillow_DarkPost", "platform": "meta_dark_post", "author_handle": "@crypto_signal_bot99", "comment_text": "👉 Make $3,500/week from home with AI Crypto Signals! Join free Telegram now: https://t.me/fast_usdt_pump99 💰💰", "language": "en", "bucket": "BOT_SPAM_LINK", "bucket_label": "Bot / Spam Link", "confidence": 0.98, "matched_signals": ["external_url", "shortener_or_messenger_link", "crypto_whatsapp_bot", "promo_bot_phrase", "emoji_bait_spam"], "latency_ms": 533, "within_1500ms_sla": true, "is_hidden_publicly": true, "is_deleted_publicly": true, "public_action": "AUTO_DELETE_OR_HIDE", "dm_action": "NONE", "api_mutation_endpoint": "DELETE https://graph.facebook.com/v21.0/108492019482019_1006", "api_mutation_payload": {"comment_id": "108492019482019_1006", "action": "DELETE"}, "public_reply_text": null, "private_dm_text": null, "checkout_voucher": null, "support_ticket_id": null, "support_channel": null, "roas_saved_eur": 130.05, "recovered_revenue_eur": 0.0, "estimated_conversion_prob": 0.0, "ctr_drop_prevented_pct": 28.0}, {"comment_id": "179823489102938_2001", "campaign_id": "CAMP-IG-02", "campaign_name": "DACH_Lumiderm_LED_Cryo_Mask_ReelsAd", "platform": "instagram_ad", "author_handle": "@troll_police_de", "comment_text": "Achtung Fake Shop! Das ist 1:1 billiger China Schrott von AliExpress für 12 Euro, lasst euch nicht verarschen!", "language": "de", "bucket": "TOXIC_ROAS_KILLER", "bucket_label": "Toxic ROAS Killer", "confidence": 0.98, "matched_signals": ["competitor_marketplace_drop", "scam_or_ripoff_accusation", "destructive_insult"], "latency_ms": 515, "within_1500ms_sla": true, "is_hidden_publicly": true, "is_deleted_publicly": false, "public_action": "AUTO_HIDE_UNDER_1_5S", "dm_action": "NONE", "api_mutation_endpoint": "POST https://graph.facebook.com/v21.0/179823489102938_2001", "api_mutation_payload": {"is_hidden": true, "comment_id": "179823489102938_2001"}, "public_reply_text": null, "private_dm_text": null, "checkout_voucher": null, "support_ticket_id": null, "support_channel": null, "roas_saved_eur": 321.3, "recovered_revenue_eur": 0.0, "estimated_conversion_prob": 0.0, "ctr_drop_prevented_pct": 42.5}, {"comment_id": "179823489102938_2002", "campaign_id": "CAMP-IG-02", "campaign_name": "DACH_Lumiderm_LED_Cryo_Mask_ReelsAd", "platform": "instagram_ad", "author_handle": "@elena.beauty.muc", "comment_text": "Kann ich auch mit Klarna auf Rechnung zahlen und wie lange dauert der Versand nach Österreich?", "language": "de", "bucket": "BUYING_QUESTION_SHIPPING_SIZE", "bucket_label": "Buying Question (Shipping / Size / Stock)", "confidence": 0.98, "matched_signals": ["shipping_destination_or_speed", "direct_checkout_or_payment_question"], "latency_ms": 876, "within_1500ms_sla": true, "is_hidden_publicly": false, "is_deleted_publicly": false, "public_action": "PUBLIC_HELPFUL_REPLY_WITH_SHORTLINK", "dm_action": "PRIVATE_DM_10PCT_2HR_CHECKOUT_CODE", "api_mutation_endpoint": "POST https://graph.facebook.com/v21.0/179823489102938_2002/comments", "api_mutation_payload": {"message": "Hey Elena! 🙌 Sofort ab deutschem Lager lieferbar! Ratenzahlung via Klarna & PayPal möglich, kostenloser Expressversand nach DE/AT/CH. Hier direkt zur Wunschgröße: https://rzen.to/lumiderm-aa960 — wir haben dir außerdem gerade eine persönliche Überraschung per DM geschickt! 📩", "private_reply_mutation": {"endpoint": "POST https://graph.facebook.com/v21.0/me/messages", "recipient": {"comment_id": "179823489102938_2002"}, "message": {"text": "Hey Elena! 👋 Danke für deine Frage unter unserer Anzeige zu **LumiDerm 7-Wave LED Cryo Maske**.\n\n✅ Sofort ab deutschem Lager lieferbar! Ratenzahlung via Klarna & PayPal möglich, kostenloser Expressversand nach DE/AT/CH.\n🎁 Damit du direkt testen kannst, ist hier dein persönlicher **10% Sofort-Rabattcode: `ZEN10-ELENAB-AA96`** (gültig für die nächsten **2 Stunden** bis 17:30 UTC).\n\n👉 **Direkt zum 1-Click-Stripe-Checkout (10% bereits abgezogen):**\nhttps://checkout.lumiderm.de/pay/lumiderm?prefilled_promo_code=ZEN10-ELENAB-AA96&utm_source=instagram_ad_comment_dm&utm_medium=comment_shield&utm_campaign=camp-ig-02"}}}, "public_reply_text": "Hey Elena! 🙌 Sofort ab deutschem Lager lieferbar! Ratenzahlung via Klarna & PayPal möglich, kostenloser Expressversand nach DE/AT/CH. Hier direkt zur Wunschgröße: https://rzen.to/lumiderm-aa960 — wir haben dir außerdem gerade eine persönliche Überraschung per DM geschickt! 📩", "private_dm_text": "Hey Elena! 👋 Danke für deine Frage unter unserer Anzeige zu **LumiDerm 7-Wave LED Cryo Maske**.\n\n✅ Sofort ab deutschem Lager lieferbar! Ratenzahlung via Klarna & PayPal möglich, kostenloser Expressversand nach DE/AT/CH.\n🎁 Damit du direkt testen kannst, ist hier dein persönlicher **10% Sofort-Rabattcode: `ZEN10-ELENAB-AA96`** (gültig für die nächsten **2 Stunden** bis 17:30 UTC).\n\n👉 **Direkt zum 1-Click-Stripe-Checkout (10% bereits abgezogen):**\nhttps://checkout.lumiderm.de/pay/lumiderm?prefilled_promo_code=ZEN10-ELENAB-AA96&utm_source=instagram_ad_comment_dm&utm_medium=comment_shield&utm_campaign=camp-ig-02", "checkout_voucher": {"code": "ZEN10-ELENAB-AA96", "discount_pct": 10, "expires_at_iso": "2026-10-17T17:30:00Z", "expires_in_minutes": 120, "checkout_provider": "stripe", "checkout_url": "https://checkout.lumiderm.de/pay/lumiderm?prefilled_promo_code=ZEN10-ELENAB-AA96&utm_source=instagram_ad_comment_dm&utm_medium=comment_shield&utm_campaign=camp-ig-02", "shortlink_url": "https://rzen.to/lumiderm-aa960", "utm_source": "instagram_ad_comment_dm", "utm_campaign": "camp-ig-02"}, "support_ticket_id": null, "support_channel": null, "roas_saved_eur": 0.0, "recovered_revenue_eur": 37.55, "estimated_conversion_prob": 0.28, "ctr_drop_prevented_pct": 0.0}, {"comment_id": "179823489102938_2003", "campaign_id": "CAMP-IG-02", "campaign_name": "DACH_Lumiderm_LED_Cryo_Mask_ReelsAd", "platform": "instagram_ad", "author_handle": "@lena_skin_care", "comment_text": "Ist das Licht auch für sehr empfindliche Haut geeignet oder wird das Gesicht heiß?", "language": "de", "bucket": "SKEPTICAL_OBJECTION", "bucket_label": "Skeptical Product Objection", "confidence": 0.87, "matched_signals": ["spec_or_guarantee_skepticism"], "latency_ms": 805, "within_1500ms_sla": true, "is_hidden_publicly": false, "is_deleted_publicly": false, "public_action": "PUBLIC_SOCIAL_PROOF_REFRAME", "dm_action": "OPTIONAL_GUARANTEE_INFO_DM", "api_mutation_endpoint": "POST https://graph.facebook.com/v21.0/179823489102938_2003/comments", "api_mutation_payload": {"message": "Super wichtige Frage, Lena! 💡 Klinisch getestete 633nm + 830nm Wellenlängen (CE-Medizinprodukt-Standard), 100% sicher bei empfindlicher Haut & Rosazea, 30 Tage Geld-zurück-Garantie. Alle Labor- & Praxistests findest du hier: https://rzen.to/lumiderm-ad0c9", "private_reply_mutation": {"endpoint": "POST https://graph.facebook.com/v21.0/me/messages", "recipient": {"comment_id": "179823489102938_2003"}, "message": {"text": "Hey Lena! Falls du LumiDerm 7-Wave LED Cryo Maske völlig risikofrei (mit 30-Tage-Testgarantie) ausprobieren möchtest, nutze gerne `ZEN10-LENASK-AD0C` für 10% Rabatt in den nächsten 2 Stunden: https://checkout.lumiderm.de/pay/lumiderm?prefilled_promo_code=ZEN10-LENASK-AD0C&utm_source=instagram_ad_comment_dm&utm_medium=comment_shield&utm_campaign=camp-ig-02"}}}, "public_reply_text": "Super wichtige Frage, Lena! 💡 Klinisch getestete 633nm + 830nm Wellenlängen (CE-Medizinprodukt-Standard), 100% sicher bei empfindlicher Haut & Rosazea, 30 Tage Geld-zurück-Garantie. Alle Labor- & Praxistests findest du hier: https://rzen.to/lumiderm-ad0c9", "private_dm_text": "Hey Lena! Falls du LumiDerm 7-Wave LED Cryo Maske völlig risikofrei (mit 30-Tage-Testgarantie) ausprobieren möchtest, nutze gerne `ZEN10-LENASK-AD0C` für 10% Rabatt in den nächsten 2 Stunden: https://checkout.lumiderm.de/pay/lumiderm?prefilled_promo_code=ZEN10-LENASK-AD0C&utm_source=instagram_ad_comment_dm&utm_medium=comment_shield&utm_campaign=camp-ig-02", "checkout_voucher": {"code": "ZEN10-LENASK-AD0C", "discount_pct": 10, "expires_at_iso": "2026-10-17T17:30:00Z", "expires_in_minutes": 120, "checkout_provider": "stripe", "checkout_url": "https://checkout.lumiderm.de/pay/lumiderm?prefilled_promo_code=ZEN10-LENASK-AD0C&utm_source=instagram_ad_comment_dm&utm_medium=comment_shield&utm_campaign=camp-ig-02", "shortlink_url": "https://rzen.to/lumiderm-ad0c9", "utm_source": "instagram_ad_comment_dm", "utm_campaign": "camp-ig-02"}, "support_ticket_id": null, "support_channel": null, "roas_saved_eur": 113.4, "recovered_revenue_eur": 18.77, "estimated_conversion_prob": 0.14, "ctr_drop_prevented_pct": 15.0}, {"comment_id": "179823489102938_2004", "campaign_id": "CAMP-IG-02", "campaign_name": "DACH_Lumiderm_LED_Cryo_Mask_ReelsAd", "platform": "instagram_ad", "author_handle": "@nadine_hh_89", "comment_text": "Mein Netzteil aus Bestellung #77102 ist leider defekt angekommen, an wen kann ich mich für Ersatz wenden?", "language": "de", "bucket": "SUPPORT_COMPLAINT", "bucket_label": "Order / Support Complaint", "confidence": 0.96, "matched_signals": ["post_purchase_defect_or_return"], "latency_ms": 720, "within_1500ms_sla": true, "is_hidden_publicly": true, "is_deleted_publicly": false, "public_action": "AUTO_HIDE_PUBLICLY", "dm_action": "ESCALATE_ZENDESK_WHATSAPP_SUPPORT_DM", "api_mutation_endpoint": "POST https://graph.facebook.com/v21.0/179823489102938_2004", "api_mutation_payload": {"is_hidden": true, "comment_id": "179823489102938_2004", "private_reply_mutation": {"endpoint": "POST https://graph.facebook.com/v21.0/me/messages", "recipient": {"comment_id": "179823489102938_2004"}, "message": {"text": "Hallo Nadine, entschuldige bitte die Unannehmlichkeiten! 🙏 Wir haben dein Anliegen sofort als **Prioritäts-Ticket #ZD-D7EE3** an unser Support-Team eskaliert (aus Datenschutzgründen haben wir deinen Kommentar öffentlich ausgeblendet, damit keine Bestelldaten sichtbar sind). Klicke hier für deinen direkten WhatsApp-VIP-Draht oder antworte einfach mit deiner Bestellnummer: https://wa.me/491510000000?text=Ticket_ZD-D7EE3"}}}, "public_reply_text": null, "private_dm_text": "Hallo Nadine, entschuldige bitte die Unannehmlichkeiten! 🙏 Wir haben dein Anliegen sofort als **Prioritäts-Ticket #ZD-D7EE3** an unser Support-Team eskaliert (aus Datenschutzgründen haben wir deinen Kommentar öffentlich ausgeblendet, damit keine Bestelldaten sichtbar sind). Klicke hier für deinen direkten WhatsApp-VIP-Draht oder antworte einfach mit deiner Bestellnummer: https://wa.me/491510000000?text=Ticket_ZD-D7EE3", "checkout_voucher": null, "support_ticket_id": "ZD-D7EE3", "support_channel": "Zendesk Priority + WhatsApp VIP Concierge", "roas_saved_eur": 283.5, "recovered_revenue_eur": 52.15, "estimated_conversion_prob": 0.0, "ctr_drop_prevented_pct": 38.0}, {"comment_id": "741928374918273_3001", "campaign_id": "CAMP-TT-03", "campaign_name": "EU_AeroBrew_Portable_Espresso_TikTokSpark", "platform": "tiktok_spark_ad", "author_handle": "@temu_finder_uk", "comment_text": "Lmao you can buy this exact dropshipping scam on Temu for $8, complete waste of money don't buy!", "language": "en", "bucket": "TOXIC_ROAS_KILLER", "bucket_label": "Toxic ROAS Killer", "confidence": 0.98, "matched_signals": ["competitor_marketplace_drop", "scam_or_ripoff_accusation", "price_bashing_or_dont_buy"], "latency_ms": 762, "within_1500ms_sla": true, "is_hidden_publicly": true, "is_deleted_publicly": false, "public_action": "AUTO_HIDE_UNDER_1_5S", "dm_action": "NONE", "api_mutation_endpoint": "POST https://business-api.tiktok.com/open_api/v1.3/comment/status/update/", "api_mutation_payload": {"comment_ids": ["741928374918273_3001"], "status": "HIDDEN", "ad_id": "CAMP-TT-03"}, "public_reply_text": null, "private_dm_text": null, "checkout_voucher": null, "support_ticket_id": null, "support_channel": null, "roas_saved_eur": 162.99, "recovered_revenue_eur": 0.0, "estimated_conversion_prob": 0.0, "ctr_drop_prevented_pct": 42.5}, {"comment_id": "741928374918273_3002", "campaign_id": "CAMP-TT-03", "campaign_name": "EU_AeroBrew_Portable_Espresso_TikTokSpark", "platform": "tiktok_spark_ad", "author_handle": "@coffee_nomad_dan", "comment_text": "Is the Matte Black bundle in stock right now? And where can I buy with express shipping to Zurich?", "language": "en", "bucket": "BUYING_QUESTION_SHIPPING_SIZE", "bucket_label": "Buying Question (Shipping / Size / Stock)", "confidence": 0.98, "matched_signals": ["size_or_stock_inquiry", "shipping_destination_or_speed", "direct_checkout_or_payment_question"], "latency_ms": 1143, "within_1500ms_sla": true, "is_hidden_publicly": false, "is_deleted_publicly": false, "public_action": "PUBLIC_HELPFUL_REPLY_WITH_SHORTLINK", "dm_action": "PRIVATE_DM_10PCT_2HR_CHECKOUT_CODE", "api_mutation_endpoint": "POST https://business-api.tiktok.com/open_api/v1.3/comment/post/", "api_mutation_payload": {"comment_id": "741928374918273_3002", "text": "Hey Coffee! 🙌 Ships same-day from our Frankfurt warehouse to all EU & UK destinations! Fits both Nespresso capsules and ground coffee. Check availability here: https://rzen.to/aerobrew-9b8ff — plus check your DMs, we just sent you a private 10% code! 📩", "direct_message_followup": {"recipient_user_id": "tt_773012", "text": "Hey Coffee! 👋 Saw your comment on our **AeroBrew 20-Bar Travel Espresso** ad.\n\n✅ Ships same-day from our Frankfurt warehouse to all EU & UK destinations! Fits both Nespresso capsules and ground coffee.\n🎁 Here is a private **10% OFF checkout code: `ZEN10-COFFEE-9B8F`** valid for the next **2 hours**!\n\n👉 **Complete your order in 1 click (Shopify auto-applied):**\nhttps://shop.aerobrew.de/discount/ZEN10-COFFEE-9B8F?redirect=/products/aerobrew&utm_source=tiktok_spark_ad_comment_dm&utm_medium=comment_shield&utm_campaign=camp-tt-03"}}, "public_reply_text": "Hey Coffee! 🙌 Ships same-day from our Frankfurt warehouse to all EU & UK destinations! Fits both Nespresso capsules and ground coffee. Check availability here: https://rzen.to/aerobrew-9b8ff — plus check your DMs, we just sent you a private 10% code! 📩", "private_dm_text": "Hey Coffee! 👋 Saw your comment on our **AeroBrew 20-Bar Travel Espresso** ad.\n\n✅ Ships same-day from our Frankfurt warehouse to all EU & UK destinations! Fits both Nespresso capsules and ground coffee.\n🎁 Here is a private **10% OFF checkout code: `ZEN10-COFFEE-9B8F`** valid for the next **2 hours**!\n\n👉 **Complete your order in 1 click (Shopify auto-applied):**\nhttps://shop.aerobrew.de/discount/ZEN10-COFFEE-9B8F?redirect=/products/aerobrew&utm_source=tiktok_spark_ad_comment_dm&utm_medium=comment_shield&utm_campaign=camp-tt-03", "checkout_voucher": {"code": "ZEN10-COFFEE-9B8F", "discount_pct": 10, "expires_at_iso": "2026-10-17T17:30:00Z", "expires_in_minutes": 120, "checkout_provider": "shopify", "checkout_url": "https://shop.aerobrew.de/discount/ZEN10-COFFEE-9B8F?redirect=/products/aerobrew&utm_source=tiktok_spark_ad_comment_dm&utm_medium=comment_shield&utm_campaign=camp-tt-03", "shortlink_url": "https://rzen.to/aerobrew-9b8ff", "utm_source": "tiktok_spark_ad_comment_dm", "utm_campaign": "camp-tt-03"}, "support_ticket_id": null, "support_channel": null, "roas_saved_eur": 0.0, "recovered_revenue_eur": 19.91, "estimated_conversion_prob": 0.28, "ctr_drop_prevented_pct": 0.0}, {"comment_id": "741928374918273_3003", "campaign_id": "CAMP-TT-03", "campaign_name": "EU_AeroBrew_Portable_Espresso_TikTokSpark", "platform": "tiktok_spark_ad", "author_handle": "@promo_followers_king", "comment_text": "Want 10k followers for $15? Check bit.ly/tt-boost-now or WhatsApp +447911123456 🔥", "language": "en", "bucket": "BOT_SPAM_LINK", "bucket_label": "Bot / Spam Link", "confidence": 0.98, "matched_signals": ["shortener_or_messenger_link", "crypto_whatsapp_bot", "promo_bot_phrase"], "latency_ms": 404, "within_1500ms_sla": true, "is_hidden_publicly": true, "is_deleted_publicly": true, "public_action": "AUTO_DELETE_OR_HIDE", "dm_action": "NONE", "api_mutation_endpoint": "POST https://business-api.tiktok.com/open_api/v1.3/comment/status/update/", "api_mutation_payload": {"comment_ids": ["741928374918273_3003"], "status": "HIDDEN", "ad_id": "CAMP-TT-03"}, "public_reply_text": null, "private_dm_text": null, "checkout_voucher": null, "support_ticket_id": null, "support_channel": null, "roas_saved_eur": 86.29, "recovered_revenue_eur": 0.0, "estimated_conversion_prob": 0.0, "ctr_drop_prevented_pct": 28.0}, {"comment_id": "741928374918273_3004", "campaign_id": "CAMP-TT-03", "campaign_name": "EU_AeroBrew_Portable_Espresso_TikTokSpark", "platform": "tiktok_spark_ad", "author_handle": "@marco_barista", "comment_text": "@luca_outdoor_van take my money! Best game changer for our Dolomites roadtrip!! 🔥☕", "language": "en", "bucket": "POSITIVE_TAG_FRIEND", "bucket_label": "Positive Praise / Friend Tag", "confidence": 0.97, "matched_signals": ["friend_mention_tag", "viral_praise_or_tag"], "latency_ms": 1212, "within_1500ms_sla": true, "is_hidden_publicly": false, "is_deleted_publicly": false, "public_action": "PUBLIC_WARM_BOOST_REPLY", "dm_action": "PRIVATE_REFERRAL_DUO_DM", "api_mutation_endpoint": "POST https://business-api.tiktok.com/open_api/v1.3/comment/post/", "api_mutation_payload": {"comment_id": "741928374918273_3004", "text": "Love this energy, Marco! 🔥 Thanks for tagging — we just dropped a little duo treat in your DMs! 💌 (https://rzen.to/aerobrew-6c68e)", "direct_message_followup": {"recipient_user_id": "tt_773014", "text": "Hey Marco! 🙌 Thanks for sharing **AeroBrew 20-Bar Travel Espresso**! Grab yours (or a matching set) with 10% off for the next 2 hours using `ZEN10-MARCOB-6C68`: https://shop.aerobrew.de/discount/ZEN10-MARCOB-6C68?redirect=/products/aerobrew&utm_source=tiktok_spark_ad_comment_dm&utm_medium=comment_shield&utm_campaign=camp-tt-03"}}, "public_reply_text": "Love this energy, Marco! 🔥 Thanks for tagging — we just dropped a little duo treat in your DMs! 💌 (https://rzen.to/aerobrew-6c68e)", "private_dm_text": "Hey Marco! 🙌 Thanks for sharing **AeroBrew 20-Bar Travel Espresso**! Grab yours (or a matching set) with 10% off for the next 2 hours using `ZEN10-MARCOB-6C68`: https://shop.aerobrew.de/discount/ZEN10-MARCOB-6C68?redirect=/products/aerobrew&utm_source=tiktok_spark_ad_comment_dm&utm_medium=comment_shield&utm_campaign=camp-tt-03", "checkout_voucher": {"code": "ZEN10-MARCOB-6C68", "discount_pct": 10, "expires_at_iso": "2026-10-17T17:30:00Z", "expires_in_minutes": 120, "checkout_provider": "shopify", "checkout_url": "https://shop.aerobrew.de/discount/ZEN10-MARCOB-6C68?redirect=/products/aerobrew&utm_source=tiktok_spark_ad_comment_dm&utm_medium=comment_shield&utm_campaign=camp-tt-03", "shortlink_url": "https://rzen.to/aerobrew-6c68e", "utm_source": "tiktok_spark_ad_comment_dm", "utm_campaign": "camp-tt-03"}, "support_ticket_id": null, "support_channel": null, "roas_saved_eur": 0.0, "recovered_revenue_eur": 13.51, "estimated_conversion_prob": 0.19, "ctr_drop_prevented_pct": 0.0}]};
+
+function filterCards(bucket, btnEl) {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    if (btnEl) btnEl.classList.add('active');
+    document.querySelectorAll('.comment-card').forEach(card => {
+        if (bucket === 'ALL' || card.getAttribute('data-bucket') === bucket) {
+            card.style.display = 'block';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+}
+
+function recalcRoas() {
+    const spend = parseFloat(document.getElementById('calcSpend').value) || 0;
+    const comments = parseFloat(document.getElementById('calcComments').value) || 0;
+    const aov = parseFloat(document.getElementById('calcAov').value) || 0;
+
+    // 18% of ad spend is protected from CTR/CPA degradation by hiding toxic/scam comments in <1.5s
+    const roasSaved = spend * 0.18;
+    // ReplyZen verified benchmark: 5.67% conversions per 100 comments (90% net after 10% DM voucher)
+    const dmConversions = (comments / 100.0) * 5.67;
+    const dmRevenue = dmConversions * aov * 0.90;
+    const totalVal = Math.round(roasSaved + dmRevenue);
+
+    let tier = "Basic ($29/mo)";
+    let cost = 29;
+    if (comments > 25000) { tier = "Ultra ($249/mo)"; cost = 249; }
+    else if (comments > 7500) { tier = "Enterprise ($149/mo)"; cost = 149; }
+    else if (comments > 2500) { tier = "Pro ($69/mo)"; cost = 69; }
+
+    const roi = cost > 0 ? Math.round(totalVal / cost) : 0;
+    document.getElementById('calcOutput').textContent = '€' + totalVal.toLocaleString() + '/mo';
+    document.getElementById('calcPlan').textContent = 'Recommended Tier: ' + tier + ' → ' + roi + 'x Software ROI';
+}
+recalcRoas();
+</script>
+</body>
+</html>

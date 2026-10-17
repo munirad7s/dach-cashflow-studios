@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DACH §§ 558–558e & §§ 559–559e BGB Mieterhöhungs- & Modernisierungsumlage-Simulator — MVP #139</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --panel: #121a30;
+      --panel-alt: #18223f;
+      --border: #28365e;
+      --text: #eef2ff;
+      --muted: #9fb0d9;
+      --accent: #38bdf8;
+      --emerald: #10b981;
+      --amber: #f59e0b;
+      --rose: #f43f5e;
+      --violet: #a855f7;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: radial-gradient(circle at top right, #172554 0%, var(--bg) 55%);
+      color: var(--text);
+      line-height: 1.5;
+      padding: 24px;
+    }
+    .container { max-width: 1460px; margin: 0 auto; }
+    header {
+      background: linear-gradient(135deg, rgba(18,26,48,0.95), rgba(24,34,63,0.92));
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px 28px;
+      margin-bottom: 20px;
+      box-shadow: 0 16px 40px rgba(0,0,0,0.35);
+    }
+    .badge-row { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; }
+    .badge {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      padding: 5px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(56,189,248,0.4);
+      background: rgba(56,189,248,0.12);
+      color: var(--accent);
+    }
+    .badge.emerald { border-color: rgba(16,185,129,0.45); background: rgba(16,185,129,0.12); color: #34d399; }
+    .badge.amber { border-color: rgba(245,158,11,0.45); background: rgba(245,158,11,0.12); color: #fbbf24; }
+    .badge.rose { border-color: rgba(244,63,94,0.45); background: rgba(244,63,94,0.12); color: #fb7185; }
+    h1 { font-size: 25px; font-weight: 800; margin-bottom: 8px; }
+    .subtitle { color: var(--muted); font-size: 14px; max-width: 1180px; }
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 20px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px 18px;
+    }
+    .mode-switch, .scenario-bar { display: flex; flex-wrap: wrap; gap: 8px; }
+    button {
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background: var(--panel-alt);
+      color: var(--text);
+      padding: 9px 14px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      transition: all 0.16s ease;
+    }
+    button:hover { border-color: var(--accent); transform: translateY(-1px); }
+    button.active {
+      background: linear-gradient(135deg, #0284c7, #2563eb);
+      border-color: #38bdf8;
+      color: #fff;
+    }
+    .grid-main {
+      display: grid;
+      grid-template-columns: 460px 1fr;
+      gap: 20px;
+    }
+    @media (max-width: 1120px) {
+      .grid-main { grid-template-columns: 1fr; }
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px;
+      margin-bottom: 18px;
+    }
+    .card h2 {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 14px;
+      color: #f8fafc;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+    label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 4px; font-weight: 600; }
+    input[type="number"], input[type="date"], select {
+      width: 100%;
+      background: #0d1428;
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 8px 11px;
+      border-radius: 8px;
+      font-size: 13px;
+    }
+    .checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+      font-size: 13px;
+      color: var(--text);
+    }
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+    @media (max-width: 900px) {
+      .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    .kpi {
+      background: var(--panel-alt);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 15px;
+    }
+    .kpi .label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); }
+    .kpi .value { font-size: 23px; font-weight: 800; margin: 6px 0 4px; }
+    .kpi .sub { font-size: 12px; color: var(--muted); }
+    .kpi.emerald .value { color: #34d399; }
+    .kpi.rose .value { color: #fb7185; }
+    .kpi.amber .value { color: #fbbf24; }
+    .kpi.accent .value { color: #38bdf8; }
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    @media (max-width: 960px) { .two-col { grid-template-columns: 1fr; } }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th, td { padding: 9px 10px; border-bottom: 1px solid rgba(40,54,94,0.65); text-align: left; }
+    th { color: var(--muted); font-weight: 600; font-size: 12px; }
+    td.num { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
+    .defect-box {
+      border-left: 4px solid var(--rose);
+      background: rgba(244,63,94,0.1);
+      padding: 11px 14px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      font-size: 13px;
+    }
+    .warn-box {
+      border-left: 4px solid var(--amber);
+      background: rgba(245,158,11,0.1);
+      padding: 11px 14px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      font-size: 13px;
+    }
+    .ok-box {
+      border-left: 4px solid var(--emerald);
+      background: rgba(16,185,129,0.1);
+      padding: 11px 14px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      font-size: 13px;
+    }
+    .letter-box {
+      background: #090e1d;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px;
+      font-family: 'JetBrains Mono', Consolas, monospace;
+      font-size: 12.5px;
+      white-space: pre-wrap;
+      color: #dbeafe;
+      max-height: 360px;
+      overflow-y: auto;
+    }
+  </style>
+</head>
+<body>
+
+<!-- DACH CASHFLOW STUDIOS LAUNCH BAR -->
+<style>
+  #dcs-launch-bar {
+    position: sticky;
+    top: 0;
+    z-index: 99999;
+    background: linear-gradient(90deg, #0b1120 0%, #111827 50%, #0f172a 100%);
+    color: #f8fafc;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.35);
+    padding: 8px 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  }
+  #dcs-launch-bar .dcs-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+  }
+  #dcs-launch-bar .dcs-badge {
+    background: rgba(16, 185, 129, 0.18);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.03em;
+  }
+  #dcs-launch-bar a.dcs-nav {
+    color: #93c5fd;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 12.5px;
+  }
+  #dcs-launch-bar a.dcs-nav:hover {
+    text-decoration: underline;
+    color: #dbeafe;
+  }
+  #dcs-launch-bar .dcs-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  #dcs-launch-bar .dcs-btn {
+    padding: 5px 11px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s ease;
+  }
+  #dcs-launch-bar .dcs-btn-ghost {
+    background: rgba(255,255,255,0.08);
+    color: #e2e8f0;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  #dcs-launch-bar .dcs-btn-primary {
+    background: linear-gradient(135deg, #0ea5e9, #2563eb);
+    color: #ffffff;
+  }
+  #dcs-launch-bar .dcs-btn-emerald {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
+  }
+  @media print {
+    #dcs-launch-bar { display: none !important; }
+  }
+</style>
+<div id="dcs-launch-bar">
+  <div class="dcs-left">
+    <a href="/index.html" class="dcs-nav">← Alle 150 DACH Studios</a>
+    <span class="dcs-badge">MVP #139 VERIFIED</span>
+    <span style="color:#cbd5e1;font-size:12px;">DACH LegalTech, Labor Law & Consumer Claims</span>
+  </div>
+  <div class="dcs-actions">
+    <button onclick="window.print()" class="dcs-btn dcs-btn-ghost">🖨️ PDF / Dossier drucken</button>
+    <a href="#checkout-modal-49" target="_blank" rel="noopener" class="dcs-btn dcs-btn-primary">⚡ Musterschreiben & Voll-Dossier (€49)</a>
+    <a href="#checkout-modal-299" target="_blank" rel="noopener" class="dcs-btn dcs-btn-emerald">🛡️ B2B Umsetzung buchen (€299 / €1.490)</a>
+  </div>
+</div>
+
+  <div class="container">
+    <header>
+      <div class="badge-row">
+        <span class="badge">MVP #139 · DACH LegalTech & PropTech</span>
+        <span class="badge emerald">Pillar 1: §§ 558–558d BGB (15%/20% Kappung & 15-Monats-Sperrfrist)</span>
+        <span class="badge amber">Pillar 2: § 559 (8%) vs. § 559e BGB (10% GEG-Wärmepumpe & 0,50 €/m² Deckel)</span>
+        <span class="badge rose">§ 559 Abs. 3a BGB Härtedeckel: 2,00 €/m² (&lt; 7 €/m²) vs. 3,00 €/m²</span>
+      </div>
+      <h1>Dual-Mode DACH §§ 558–558e BGB Mieterhöhungs- &amp; §§ 559–559e BGB Modernisierungsumlage-Simulator</h1>
+      <p class="subtitle">
+        Interaktives Prüf- und Optimierungsstudio für 3,9 Mio. private Kleinvermieter und 21 Mio. Mieterhaushalte:
+        Prüft die 12-/15-Monats-Sperrfrist (§ 558 Abs. 1 BGB), die 15%/20%-Kappungsgrenze (§ 558 Abs. 3 BGB),
+        die Pflichtangabe des qualifizierten Mietspiegels (§ 558a Abs. 3 BGB), das vereinfachte Verfahren (§ 559c BGB bis 10.000 €),
+        die neue 10%-GEG-Heizungsumlage (§ 559e BGB mit 15% Pauschalabzug &amp; 0,50 €/m² Deckel) sowie den 2,00 €/3,00 € je m² 6-Jahres-Deckel (§ 559 Abs. 3a BGB).
+      </p>
+    </header>
+
+    <div class="toolbar">
+      <div class="mode-switch">
+        <button id="modeTenantBtn" class="active" onclick="setPerspective('tenant')">🛡️ Mieter-Abwehr-Modus (Formfehler &amp; Kappungs-Schutz)</button>
+        <button id="modeLandlordBtn" onclick="setPerspective('landlord')">📈 Vermieter-Optimierer (Rechtssichere Maximalrendite)</button>
+      </div>
+      <div class="scenario-bar" id="scenarioButtons"></div>
+    </div>
+
+    <div class="grid-main">
+      <div>
+        <div class="card">
+          <h2>1. Objekt &amp; § 558 BGB Vergleichsmiete <span style="font-size:12px;color:var(--accent);">Pillar 1</span></h2>
+          <div class="form-row">
+            <div>
+              <label>Kommune / KappungsgrenzenVO (§ 558 Abs. 3 BGB)</label>
+              <select id="cityKey" onchange="onCityChange()"></select>
+            </div>
+            <div>
+              <label>Wohnfläche (m²)</label>
+              <input type="number" id="livingArea" step="1" value="85" oninput="recalc()" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div>
+              <label>Aktuelle Nettokaltmiete (€/Monat)</label>
+              <input type="number" id="currentRent" step="10" value="1020" oninput="recalc()" />
+            </div>
+            <div>
+              <label>Nettokaltmiete vor 3 Jahren (€/Monat)</label>
+              <input type="number" id="rent3YrsAgo" step="10" value="1020" oninput="recalc()" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div>
+              <label>Geforderte neue Miete nach § 558 (€/Monat)</label>
+              <input type="number" id="demandedRent558" step="10" value="1224" oninput="recalc()" />
+            </div>
+            <div>
+              <label>Ortsübliche Vergleichsmiete laut Mietspiegel (€/m²)</label>
+              <input type="number" id="comparativeSqm" step="0.05" value="14.85" oninput="recalc()" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div>
+              <label>Letzte § 558 Erhöhung wirksam am</label>
+              <input type="date" id="lastIncreaseDate" value="2025-10-01" onchange="recalc()" />
+            </div>
+            <div>
+              <label>Zugang des Erhöhungsschreibens am</label>
+              <input type="date" id="receiptDate" value="2026-07-10" onchange="recalc()" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div>
+              <label>Begründungsmittel (§ 558a Abs. 2 BGB)</label>
+              <select id="begruendungType" onchange="recalc()">
+                <option value="mietspiegel">Qualifizierter / Einfacher Mietspiegel (§ 558a Abs. 2 Nr. 1)</option>
+                <option value="vergleichswohnungen">Vergleichswohnungen (§ 558a Abs. 2 Nr. 4 — mind. 3)</option>
+                <option value="gutachten">Sachverständigengutachten (§ 558a Abs. 2 Nr. 3)</option>
+                <option value="pauschale_behauptung">Pauschaler Verweis auf Inflation / ImmoScout (Unzulässig)</option>
+              </select>
+            </div>
+            <div>
+              <label>Anzahl benannter Vergleichswohnungen</label>
+              <input type="number" id="comparablesCount" min="0" max="6" value="2" oninput="recalc()" />
+            </div>
+          </div>
+          <label class="checkbox-row">
+            <input type="checkbox" id="disclosedQualMietspiegel" onchange="recalc()" />
+            Vorhandener qualifizierter Mietspiegel im Schreiben mitgeteilt (§ 558a Abs. 3 BGB Pflicht!)
+          </label>
+          <label class="checkbox-row">
+            <input type="checkbox" id="spanCited" onchange="recalc()" />
+            Mietspiegel-Rasterfeld &amp; volle Spanne angegeben (§ 558a Abs. 4 BGB)
+          </label>
+        </div>
+
+        <div class="card">
+          <h2>2. §§ 559–559e BGB Modernisierung &amp; GEG-Wärmepumpe <span style="font-size:12px;color:var(--amber);">Pillar 2</span></h2>
+          <div class="form-row">
+            <div>
+              <label>Klassische Modernisierung Brutto (€/Wohnung, § 559)</label>
+              <input type="number" id="classicGross" step="500" value="0" oninput="recalc()" />
+            </div>
+            <div>
+              <label>Ersparte Instandhaltung (§ 559 Abs. 2 BGB %)</label>
+              <input type="number" id="classicMaintPct" step="5" value="20" oninput="recalc()" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div>
+              <label>KfW / BAFA Zuschuss auf klass. Modernisierung (€)</label>
+              <input type="number" id="classicSubsidy" step="200" value="0" oninput="recalc()" />
+            </div>
+            <div>
+              <label>Vorherige § 559 Erhöhungen in letzten 6 J. (€/m²)</label>
+              <input type="number" id="prior6YrSqm" step="0.1" value="0" oninput="recalc()" />
+            </div>
+          </div>
+          <label class="checkbox-row">
+            <input type="checkbox" id="useSimplified559c" onchange="recalc()" />
+            Vereinfachtes Verfahren § 559c BGB wählen (Deckel 10.000 € Brutto, 30% Pauschalabzug)
+          </label>
+          <hr style="border:none;border-top:1px solid var(--border);margin:12px 0;" />
+          <div class="form-row">
+            <div>
+              <label>GEG-Heizungstausch / Wärmepumpe Brutto (€, § 559e)</label>
+              <input type="number" id="heatingGross" step="500" value="30000" oninput="recalc()" />
+            </div>
+            <div>
+              <label>BEG / KfW-458 Heizungs-Zuschuss (€, § 559a/e)</label>
+              <input type="number" id="heatingSubsidy" step="500" value="9000" oninput="recalc()" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div>
+              <label>Vom Vermieter geforderte Mod.-Umlage (€/Monat)</label>
+              <input type="number" id="demandedModMonthly" step="5" value="137.50" oninput="recalc()" />
+            </div>
+            <div>
+              <label>&nbsp;</label>
+              <div style="font-size:12px;color:var(--muted);padding-top:6px;">
+                § 559e Abs. 2: 15% Pauschalabzug · § 559e Abs. 3: max. 0,50 €/m²
+              </div>
+            </div>
+          </div>
+          <label class="checkbox-row">
+            <input type="checkbox" id="heatingMeetsGeg" checked onchange="recalc()" />
+            Erfüllt § 71 GEG (65%-EE / Wärmepumpe) + BEG-Förderung (§ 559e BGB 10%-Umlagesatz)
+          </label>
+          <label class="checkbox-row">
+            <input type="checkbox" id="proper555c" checked onchange="recalc()" />
+            Fristgerechte Ankündigung 3 Monate vor Baubeginn (§ 555c BGB) &amp; &le;10% Kostenabweichung
+          </label>
+          <label class="checkbox-row">
+            <input type="checkbox" id="calcExplained559b" checked onchange="recalc()" />
+            Gesamtkosten, Verteilerschlüssel, Instandhaltung &amp; Drittmittel offengelegt (§ 559b Abs. 1 BGB)
+          </label>
+        </div>
+      </div>
+
+      <div>
+        <div class="kpi-grid">
+          <div class="kpi accent">
+            <div class="label">§ 558 Zulässiges Maximum</div>
+            <div class="value" id="kpi558Max">—</div>
+            <div class="sub" id="kpi558Sub">—</div>
+          </div>
+          <div class="kpi amber">
+            <div class="label">§§ 559/559e Zulässige Umlage</div>
+            <div class="value" id="kpi559Max">—</div>
+            <div class="sub" id="kpi559Sub">—</div>
+          </div>
+          <div class="kpi rose">
+            <div class="label" id="kpiDefenseLabel">Abgewehrte Überforderung</div>
+            <div class="value" id="kpiDefenseVal">—</div>
+            <div class="sub" id="kpiDefenseSub">—</div>
+          </div>
+          <div class="kpi emerald">
+            <div class="label">Fristen &amp; Wirksamkeit</div>
+            <div class="value" id="kpiEffectiveDate">—</div>
+            <div class="sub" id="kpiDeadlineSub">—</div>
+          </div>
+        </div>
+
+        <div class="two-col">
+          <div class="card">
+            <h2>Pillar 1: § 558 BGB Kappungsgrenzen- &amp; Sperrfrist-Matrix</h2>
+            <table>
+              <tbody id="table558Body"></tbody>
+            </table>
+          </div>
+          <div class="card">
+            <h2>Pillar 2: §§ 559 / 559c / 559e BGB Umlage- &amp; Deckel-Rechnung</h2>
+            <table>
+              <tbody id="table559Body"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Juristische Formfehler-, Sperrfrist- &amp; Deckel-Diagnose</h2>
+          <div id="auditContainer"></div>
+        </div>
+
+        <div class="card">
+          <h2 id="letterHeading">Generiertes Musterschreiben (Mieter-Teilzustimmung / Abwehr vs. Vermieter-Verlangen)</h2>
+          <div class="letter-box" id="letterPreview"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const MANIFEST = {"mvp_number": 139, "title": "Dual-Mode DACH §§ 558–558e BGB Mieterhöhungs- (15%/20% Kappungsgrenze & 15-Monats-Sperrfrist) & §§ 559–559e BGB Modernisierungsumlage- (8% Klassisch vs. 10% GEG-Heizungsumlage § 559e BGB + § 559 Abs. 3a BGB €0.50/€2.00/€3.00/m² Deckel) Simulator", "generated_at": "2026-10-17T20:34:36.942105+00:00", "legal_pillars": ["Pillar 1: §§ 558–558d BGB Mieterhöhung bis zur ortsüblichen Vergleichsmiete (12-Monats-Jahressperrfrist, 15-Monats-Wartefrist, 15%/20% Kappungsgrenze § 558 Abs. 3 BGB, § 558a Abs. 3 & 4 BGB Begründungspflicht)", "Pillar 2: §§ 559–559e BGB Modernisierungsumlage (8% klassisch vs. 10% GEG-Wärmepumpe § 559e BGB nach 15% Pauschalabzug & KfW-Zuschuss, 0,50 €/m² Heizungs-Deckel § 559e Abs. 3 BGB, 2,00 €/3,00 €/m² 6-Jahres-Gesamtdeckel § 559 Abs. 3a BGB)"], "municipalities_count": 10, "benchmark_scenarios": [{"id": "SCENARIO_1_MUENCHEN_15PCT_CAP_AND_12M_SPERRFRIST_TRAP", "name": "Fall 1: München — 15%-Kappungsgrenze (§ 558 Abs. 3 BGB) & 12-Monats-Jahressperrfrist-Falle", "badge": "FORMELL UNWIRKSAM + KAPPUNGSVERSTOSS", "description": "Vermieter in München (85 m², bisher 1.020 € = 12,00 €/m², letzte Erhöhung zum 01.10.2025) fordert bereits im Juli 2026 (nach 9 Monaten!) eine Erhöhung um +20% auf 1.224 € (14,40 €/m²) mit 2 Vergleichswohnungen ohne Nennung des qualifizierten Münchner Mietspiegels.", "pillar_focus": "Pillar 1 (§§ 558–558d BGB)", "inputs_558": {"city_key": "muenchen", "living_area_sqm": 85.0, "current_net_cold_rent_eur": 1020.0, "rent_3_years_ago_eur": 1020.0, "demanded_new_rent_eur": 1224.0, "applicable_comparative_eur_sqm": 14.85, "last_increase_effective_iso": "2025-10-01", "letter_receipt_date_iso": "2026-07-10", "begruendung_type": "vergleichswohnungen", "comparables_count": 2, "disclosed_qualifizierter_mietspiegel": false, "mietspiegel_span_cited": false, "textform_126b_all_landlords_tenants": true}, "inputs_559": {"living_area_sqm": 85.0, "prior_net_cold_rent_eur": 1020.0, "classic_gross_cost_eur": 0.0, "heating_gross_cost_eur": 0.0, "demanded_mod_increase_monthly_eur": 0.0}, "result_558": {"city_key": "muenchen", "city_name": "München (BY)", "bundesland": "Bayern", "verordnung": "Bayerische Mieterschutzverordnung (MiSchuV BY)", "living_area_sqm": 85.0, "current_net_cold_rent_eur": 1020.0, "current_eur_per_sqm": 12.0, "rent_3_years_ago_eur": 1020.0, "demanded_new_rent_eur": 1224.0, "demanded_eur_per_sqm": 14.4, "demanded_increase_monthly_eur": 204.0, "demanded_increase_pct_3yr": 20.0, "kappungsgrenze_pct": 15.0, "has_15pct_kappungsgrenze": true, "max_rent_by_kappungsgrenze_eur": 1173.0, "max_increase_by_kappungsgrenze_eur": 153.0, "mietspiegel_min_eur_sqm": 12.6, "mietspiegel_mid_eur_sqm": 14.85, "mietspiegel_max_eur_sqm": 17.4, "applicable_comparative_eur_sqm": 14.85, "mietspiegel_span_min_total_eur": 1071.0, "mietspiegel_span_max_total_eur": 1479.0, "max_rent_by_mietspiegel_eur": 1262.25, "legally_permissible_max_rent_eur": 1173.0, "legally_permissible_max_eur_sqm": 13.8, "max_legal_monthly_increase_eur": 153.0, "binding_ceiling_reason": "Kappungsgrenze (15% in 3 Jahren gem. § 558 Abs. 3 BGB)", "last_increase_effective_iso": "2025-10-01", "letter_receipt_date_iso": "2026-07-10", "earliest_assertion_date_iso": "2026-10-01", "jahressperrfrist_12m_violated": true, "sperrfrist_15m_violated": true, "months_since_last_increase_at_receipt_plus_3m": 12, "ueberlegungsfrist_end_date_iso": "2026-09-30", "effective_date_iso": "2027-01-01", "klagefrist_end_date_iso": "2026-12-31", "is_formally_valid": false, "formal_defects": [{"code": "DEFECT_558_JAHRESSPERRFRIST", "norm": "§ 558 Abs. 1 Satz 2 BGB (BGH VIII ZR 15/08)", "title": "Verstoß gegen die 12-monatige Jahressperrfrist", "detail": "Zugang des Mieterhöhungsverlangens am 2026-07-10 liegt vor Ablauf von 12 Monaten seit der letzten Erhöhung (2025-10-01). Früheste zulässige Geltendmachung am 2026-10-01. Das gesamte Erhöhungsverlangen ist formell unwirksam und heilt auch durch Zeitablauf nicht!"}, {"code": "DEFECT_558A_FEWER_THAN_3_COMPARABLES", "norm": "§ 558a Abs. 2 Nr. 4 BGB", "title": "Nur 2 statt mindestens 3 Vergleichswohnungen benannt", "detail": "Wird die Erhöhung auf Vergleichswohnungen gestützt, müssen zwingend mindestens 3 identifizierbare Wohnungen (Adresse, Geschoss/Lage, m²-Preis) benannt werden."}, {"code": "DEFECT_558A_ABS_3_QUALIFIZIERTER_MIETSPIEGEL_OMITTED", "norm": "§ 558a Abs. 3 BGB (BGH VIII ZR 99/09)", "title": "Pflichtangabe des vorhandenen qualifizierten Mietspiegels fehlt", "detail": "In München (BY) existiert ein qualifizierter Mietspiegel (§ 558d BGB). Auch bei Begründung mit 3 Vergleichswohnungen oder Gutachten MUSS der Vermieter die Zahlen des qualifizierten Mietspiegels im Schreiben mitteilen, sonst ist das Verlangen formell unwirksam!"}], "warnings": [], "enforceable_new_rent_eur": 1020.0, "enforceable_applied_rent_eur": 1020.0, "enforceable_monthly_increase_eur": 0.0, "tenant_monthly_overcharge_eur": 204.0, "tenant_3yr_defense_savings_eur": 7344.0, "landlord_left_on_table_monthly_eur": 153.0, "landlord_3yr_yield_gain_eur": 5508.0}, "result_559": {"living_area_sqm": 85.0, "prior_net_cold_rent_eur": 1020.0, "prior_eur_per_sqm": 12.0, "is_low_rent_under_7_eur_sqm": false, "overall_6yr_cap_eur_sqm": 3.0, "prior_6yr_mod_increase_eur_sqm": 0.0, "remaining_6yr_cap_eur_sqm": 3.0, "overall_6yr_max_monthly_eur": 255.0, "classic_gross_cost_eur": 0.0, "use_simplified_559c": false, "capped_559c_gross_eur": 0.0, "applied_classic_maint_pct": 20.0, "classic_maintenance_deduction_eur": 0.0, "classic_subsidy_eur": 0.0, "classic_eligible_net_cost_eur": 0.0, "classic_annual_pass_through_8pct_eur": 0.0, "classic_uncapped_monthly_eur": 0.0, "classic_uncapped_eur_sqm": 0.0, "heating_gross_cost_eur": 0.0, "heating_meets_geg_71": true, "heating_claims_beg_subsidy": true, "qualifies_for_559e_10pct": false, "heating_maintenance_pct": 15.0, "heating_maintenance_deduction_eur": 0.0, "heating_subsidy_eur": 0.0, "heating_eligible_net_cost_eur": 0.0, "heating_levy_rate_pct": 0.0, "heating_annual_uncapped_eur": 0.0, "heating_uncapped_monthly_eur": 0.0, "heating_uncapped_eur_sqm": 0.0, "heating_cap_eur_sqm": 0.0, "heating_cap_monthly_eur": 0.0, "heating_capped_monthly_eur": 0.0, "heating_capped_eur_sqm": 0.0, "heating_cut_by_050_cap_monthly_eur": 0.0, "combined_uncapped_monthly_eur": 0.0, "combined_after_heating_cap_monthly_eur": 0.0, "legally_permissible_mod_monthly_eur": 0.0, "legally_permissible_mod_eur_sqm": 0.0, "overall_cap_cut_monthly_eur": 0.0, "demanded_mod_increase_monthly_eur": 0.0, "enforceable_mod_monthly_eur": 0.0, "new_net_cold_rent_after_mod_eur": 1020.0, "tenant_monthly_overcharge_eur": 0.0, "tenant_6yr_defense_savings_eur": 0.0, "landlord_6yr_mod_revenue_eur": 0.0, "notice_receipt_date_iso": "2026-06-15", "standard_effective_date_iso": "2026-09-01", "delayed_effective_date_iso": "2027-03-01", "effective_date_iso": "2026-09-01", "six_month_penalty_triggered": false, "delay_6m_loss_for_landlord_eur": 0.0, "is_formally_valid": true, "formal_defects": [], "warnings": []}}, {"id": "SCENARIO_2_GEG_HEATPUMP_559E_050_CAP_SQUEEZE", "name": "Fall 2: § 559e BGB Wärmepumpen-Umlage (10% nach 15% Pauschale & KfW) vs. 0,50 €/m² Heizungs-Deckel", "badge": "§ 559e ABS. 3 DECKEL (0,50 €/m²)", "description": "80 m² Wohnung (700 € Kaltmiete = 8,75 €/m²). Einbau einer § 71 GEG Wärmepumpe für 30.000 € Wohnungsanteil mit 30% KfW-Zuschuss (9.000 €). Rechnerische 10%-Umlage nach 15% Instandhaltungsabzug (4.500 €) und KfW-Abzug wäre 137,50 €/Monat (1,72 €/m²) — wird aber durch § 559e Abs. 3 BGB hart auf 0,50 €/m² = 40,00 €/Monat gedeckelt!", "pillar_focus": "Pillar 2 (§ 559e BGB GEG-Heizungstausch)", "inputs_558": {"city_key": "frankfurt", "living_area_sqm": 80.0, "current_net_cold_rent_eur": 700.0, "rent_3_years_ago_eur": 700.0, "demanded_new_rent_eur": 805.0, "applicable_comparative_eur_sqm": 11.5, "last_increase_effective_iso": "2023-01-01", "letter_receipt_date_iso": "2026-06-15", "begruendung_type": "mietspiegel", "comparables_count": 3, "disclosed_qualifizierter_mietspiegel": true, "mietspiegel_span_cited": true, "textform_126b_all_landlords_tenants": true}, "inputs_559": {"living_area_sqm": 80.0, "prior_net_cold_rent_eur": 700.0, "prior_6yr_mod_increase_eur_sqm": 0.0, "classic_gross_cost_eur": 0.0, "use_simplified_559c": false, "classic_maintenance_share_pct": 20.0, "classic_subsidy_eur": 0.0, "heating_gross_cost_eur": 30000.0, "heating_meets_geg_71": true, "heating_claims_beg_subsidy": true, "heating_beg_subsidy_pct": 30.0, "heating_subsidy_eur": 9000.0, "demanded_mod_increase_monthly_eur": 137.5, "proper_555c_announcement_3m_prior": true, "cost_overrun_exceeds_10pct": false, "calculation_transparently_explained_559b": true}, "result_558": {"city_key": "frankfurt", "city_name": "Frankfurt am Main (HE)", "bundesland": "Hessen", "verordnung": "Hessische Mieterschutzverordnung", "living_area_sqm": 80.0, "current_net_cold_rent_eur": 700.0, "current_eur_per_sqm": 8.75, "rent_3_years_ago_eur": 700.0, "demanded_new_rent_eur": 805.0, "demanded_eur_per_sqm": 10.06, "demanded_increase_monthly_eur": 105.0, "demanded_increase_pct_3yr": 15.0, "kappungsgrenze_pct": 15.0, "has_15pct_kappungsgrenze": true, "max_rent_by_kappungsgrenze_eur": 805.0, "max_increase_by_kappungsgrenze_eur": 105.0, "mietspiegel_min_eur_sqm": 10.9, "mietspiegel_mid_eur_sqm": 12.9, "mietspiegel_max_eur_sqm": 15.2, "applicable_comparative_eur_sqm": 11.5, "mietspiegel_span_min_total_eur": 872.0, "mietspiegel_span_max_total_eur": 1216.0, "max_rent_by_mietspiegel_eur": 920.0, "legally_permissible_max_rent_eur": 805.0, "legally_permissible_max_eur_sqm": 10.06, "max_legal_monthly_increase_eur": 105.0, "binding_ceiling_reason": "Kappungsgrenze (15% in 3 Jahren gem. § 558 Abs. 3 BGB)", "last_increase_effective_iso": "2023-01-01", "letter_receipt_date_iso": "2026-06-15", "earliest_assertion_date_iso": "2024-01-01", "jahressperrfrist_12m_violated": false, "sperrfrist_15m_violated": false, "months_since_last_increase_at_receipt_plus_3m": 44, "ueberlegungsfrist_end_date_iso": "2026-08-31", "effective_date_iso": "2026-09-01", "klagefrist_end_date_iso": "2026-11-30", "is_formally_valid": true, "formal_defects": [], "warnings": [], "enforceable_new_rent_eur": 805.0, "enforceable_applied_rent_eur": 805.0, "enforceable_monthly_increase_eur": 105.0, "tenant_monthly_overcharge_eur": 0.0, "tenant_3yr_defense_savings_eur": 0.0, "landlord_left_on_table_monthly_eur": 0.0, "landlord_3yr_yield_gain_eur": 3780.0}, "result_559": {"living_area_sqm": 80.0, "prior_net_cold_rent_eur": 700.0, "prior_eur_per_sqm": 8.75, "is_low_rent_under_7_eur_sqm": false, "overall_6yr_cap_eur_sqm": 3.0, "prior_6yr_mod_increase_eur_sqm": 0.0, "remaining_6yr_cap_eur_sqm": 3.0, "overall_6yr_max_monthly_eur": 240.0, "classic_gross_cost_eur": 0.0, "use_simplified_559c": false, "capped_559c_gross_eur": 0.0, "applied_classic_maint_pct": 20.0, "classic_maintenance_deduction_eur": 0.0, "classic_subsidy_eur": 0.0, "classic_eligible_net_cost_eur": 0.0, "classic_annual_pass_through_8pct_eur": 0.0, "classic_uncapped_monthly_eur": 0.0, "classic_uncapped_eur_sqm": 0.0, "heating_gross_cost_eur": 30000.0, "heating_meets_geg_71": true, "heating_claims_beg_subsidy": true, "qualifies_for_559e_10pct": true, "heating_maintenance_pct": 15.0, "heating_maintenance_deduction_eur": 4500.0, "heating_subsidy_eur": 9000.0, "heating_eligible_net_cost_eur": 16500.0, "heating_levy_rate_pct": 10.0, "heating_annual_uncapped_eur": 1650.0, "heating_uncapped_monthly_eur": 137.5, "heating_uncapped_eur_sqm": 1.72, "heating_cap_eur_sqm": 0.5, "heating_cap_monthly_eur": 40.0, "heating_capped_monthly_eur": 40.0, "heating_capped_eur_sqm": 0.5, "heating_cut_by_050_cap_monthly_eur": 97.5, "combined_uncapped_monthly_eur": 137.5, "combined_after_heating_cap_monthly_eur": 40.0, "legally_permissible_mod_monthly_eur": 40.0, "legally_permissible_mod_eur_sqm": 0.5, "overall_cap_cut_monthly_eur": 0.0, "demanded_mod_increase_monthly_eur": 137.5, "enforceable_mod_monthly_eur": 40.0, "new_net_cold_rent_after_mod_eur": 740.0, "tenant_monthly_overcharge_eur": 97.5, "tenant_6yr_defense_savings_eur": 7020.0, "landlord_6yr_mod_revenue_eur": 2880.0, "notice_receipt_date_iso": "2026-06-15", "standard_effective_date_iso": "2026-09-01", "delayed_effective_date_iso": "2027-03-01", "effective_date_iso": "2026-09-01", "six_month_penalty_triggered": false, "delay_6m_loss_for_landlord_eur": 0.0, "is_formally_valid": true, "formal_defects": [], "warnings": []}}, {"id": "SCENARIO_3_LOW_RENT_UNDER_7_EUR_2_EUR_HARD_CAP", "name": "Fall 3: Niedrigmiete (< 7,00 €/m²) + Vollmodernisierung — Der harte 2,00 €/m² Deckel (§ 559 Abs. 3a S. 2 BGB)", "badge": "2,00 €/m² NIEDRIGMIETEN-DECKEL", "description": "75 m² Altbauwohnung in Berlin mit bisher 480 € Nettokaltmiete (6,40 €/m² < 7,00 €/m²!). Vermieter saniert Fassade & Fenster (36.000 € Wohnungsanteil, 20% Instandhaltung, 3.800 € BAFA) plus Wärmepumpe (18.000 €) und verlangt +245 €/Monat (+3,27 €/m²). Wegen Vormiete < 7,00 €/m² greift § 559 Abs. 3a Satz 2 BGB: Maximal 2,00 €/m² = 150,00 €/Monat zulässig!", "pillar_focus": "Pillar 2 (§ 559 Abs. 3a S. 2 BGB €2.00/m² Cap)", "inputs_558": {"city_key": "berlin", "living_area_sqm": 75.0, "current_net_cold_rent_eur": 480.0, "rent_3_years_ago_eur": 480.0, "demanded_new_rent_eur": 552.0, "applicable_comparative_eur_sqm": 8.9, "last_increase_effective_iso": "2022-05-01", "letter_receipt_date_iso": "2026-06-15", "begruendung_type": "mietspiegel", "comparables_count": 3, "disclosed_qualifizierter_mietspiegel": true, "mietspiegel_span_cited": true, "textform_126b_all_landlords_tenants": true}, "inputs_559": {"living_area_sqm": 75.0, "prior_net_cold_rent_eur": 480.0, "prior_6yr_mod_increase_eur_sqm": 0.0, "classic_gross_cost_eur": 36000.0, "use_simplified_559c": false, "classic_maintenance_share_pct": 20.0, "classic_subsidy_eur": 3800.0, "heating_gross_cost_eur": 18000.0, "heating_meets_geg_71": true, "heating_claims_beg_subsidy": true, "heating_beg_subsidy_pct": 35.0, "heating_subsidy_eur": 6300.0, "demanded_mod_increase_monthly_eur": 245.0, "proper_555c_announcement_3m_prior": true, "cost_overrun_exceeds_10pct": false, "calculation_transparently_explained_559b": true}, "result_558": {"city_key": "berlin", "city_name": "Berlin (BE)", "bundesland": "Berlin", "verordnung": "Berliner Kappungsgrenzenverordnung (KappGVO BE)", "living_area_sqm": 75.0, "current_net_cold_rent_eur": 480.0, "current_eur_per_sqm": 6.4, "rent_3_years_ago_eur": 480.0, "demanded_new_rent_eur": 552.0, "demanded_eur_per_sqm": 7.36, "demanded_increase_monthly_eur": 72.0, "demanded_increase_pct_3yr": 15.0, "kappungsgrenze_pct": 15.0, "has_15pct_kappungsgrenze": true, "max_rent_by_kappungsgrenze_eur": 552.0, "max_increase_by_kappungsgrenze_eur": 72.0, "mietspiegel_min_eur_sqm": 7.6, "mietspiegel_mid_eur_sqm": 9.45, "mietspiegel_max_eur_sqm": 11.8, "applicable_comparative_eur_sqm": 8.9, "mietspiegel_span_min_total_eur": 570.0, "mietspiegel_span_max_total_eur": 885.0, "max_rent_by_mietspiegel_eur": 667.5, "legally_permissible_max_rent_eur": 552.0, "legally_permissible_max_eur_sqm": 7.36, "max_legal_monthly_increase_eur": 72.0, "binding_ceiling_reason": "Kappungsgrenze (15% in 3 Jahren gem. § 558 Abs. 3 BGB)", "last_increase_effective_iso": "2022-05-01", "letter_receipt_date_iso": "2026-06-15", "earliest_assertion_date_iso": "2023-05-01", "jahressperrfrist_12m_violated": false, "sperrfrist_15m_violated": false, "months_since_last_increase_at_receipt_plus_3m": 52, "ueberlegungsfrist_end_date_iso": "2026-08-31", "effective_date_iso": "2026-09-01", "klagefrist_end_date_iso": "2026-11-30", "is_formally_valid": true, "formal_defects": [], "warnings": [], "enforceable_new_rent_eur": 552.0, "enforceable_applied_rent_eur": 552.0, "enforceable_monthly_increase_eur": 72.0, "tenant_monthly_overcharge_eur": 0.0, "tenant_3yr_defense_savings_eur": 0.0, "landlord_left_on_table_monthly_eur": 0.0, "landlord_3yr_yield_gain_eur": 2592.0}, "result_559": {"living_area_sqm": 75.0, "prior_net_cold_rent_eur": 480.0, "prior_eur_per_sqm": 6.4, "is_low_rent_under_7_eur_sqm": true, "overall_6yr_cap_eur_sqm": 2.0, "prior_6yr_mod_increase_eur_sqm": 0.0, "remaining_6yr_cap_eur_sqm": 2.0, "overall_6yr_max_monthly_eur": 150.0, "classic_gross_cost_eur": 36000.0, "use_simplified_559c": false, "capped_559c_gross_eur": 36000.0, "applied_classic_maint_pct": 20.0, "classic_maintenance_deduction_eur": 7200.0, "classic_subsidy_eur": 3800.0, "classic_eligible_net_cost_eur": 25000.0, "classic_annual_pass_through_8pct_eur": 2000.0, "classic_uncapped_monthly_eur": 166.67, "classic_uncapped_eur_sqm": 2.22, "heating_gross_cost_eur": 18000.0, "heating_meets_geg_71": true, "heating_claims_beg_subsidy": true, "qualifies_for_559e_10pct": true, "heating_maintenance_pct": 15.0, "heating_maintenance_deduction_eur": 2700.0, "heating_subsidy_eur": 6300.0, "heating_eligible_net_cost_eur": 9000.0, "heating_levy_rate_pct": 10.0, "heating_annual_uncapped_eur": 900.0, "heating_uncapped_monthly_eur": 75.0, "heating_uncapped_eur_sqm": 1.0, "heating_cap_eur_sqm": 0.5, "heating_cap_monthly_eur": 37.5, "heating_capped_monthly_eur": 37.5, "heating_capped_eur_sqm": 0.5, "heating_cut_by_050_cap_monthly_eur": 37.5, "combined_uncapped_monthly_eur": 241.67, "combined_after_heating_cap_monthly_eur": 204.17, "legally_permissible_mod_monthly_eur": 150.0, "legally_permissible_mod_eur_sqm": 2.0, "overall_cap_cut_monthly_eur": 54.17, "demanded_mod_increase_monthly_eur": 245.0, "enforceable_mod_monthly_eur": 150.0, "new_net_cold_rent_after_mod_eur": 630.0, "tenant_monthly_overcharge_eur": 95.0, "tenant_6yr_defense_savings_eur": 6840.0, "landlord_6yr_mod_revenue_eur": 10800.0, "notice_receipt_date_iso": "2026-06-15", "standard_effective_date_iso": "2026-09-01", "delayed_effective_date_iso": "2027-03-01", "effective_date_iso": "2026-09-01", "six_month_penalty_triggered": false, "delay_6m_loss_for_landlord_eur": 0.0, "is_formally_valid": true, "formal_defects": [], "warnings": []}}, {"id": "SCENARIO_4_COMBO_559C_SIMPLIFIED_PLUS_558_OPTIMIZATION", "name": "Fall 4: Vermieter-Optimum — Vereinfachtes Verfahren (§ 559c BGB bis 10.000 €) + § 558 BGB Stufenstrategie", "badge": "VERMIETER-OPTIMUM (KOMBI-STRATEGIE)", "description": "90 m² Wohnung in Hamburg (990 € Kaltmiete = 11,00 €/m²). Vermieter führt Balkon-/Fenster-Upgrade für 9.800 € im vereinfachten Verfahren (§ 559c BGB: 30% Pauschalabzug -> 6.860 € umlagefähig -> 8% = 45,73 €/Monat) und kombiniert dies rechtssicher mit einer § 558 BGB Anpassung.", "pillar_focus": "Dual-Pillar (§ 558 BGB + § 559c BGB Vereinfachtes Verfahren)", "inputs_558": {"city_key": "hamburg", "living_area_sqm": 90.0, "current_net_cold_rent_eur": 990.0, "rent_3_years_ago_eur": 990.0, "demanded_new_rent_eur": 1116.0, "applicable_comparative_eur_sqm": 12.4, "last_increase_effective_iso": "2024-01-01", "letter_receipt_date_iso": "2026-06-10", "begruendung_type": "mietspiegel", "comparables_count": 3, "disclosed_qualifizierter_mietspiegel": true, "mietspiegel_span_cited": true, "textform_126b_all_landlords_tenants": true}, "inputs_559": {"living_area_sqm": 90.0, "prior_net_cold_rent_eur": 990.0, "prior_6yr_mod_increase_eur_sqm": 0.0, "classic_gross_cost_eur": 9800.0, "use_simplified_559c": true, "simplified_maintenance_pct": 30.0, "classic_maintenance_share_pct": 30.0, "classic_subsidy_eur": 0.0, "heating_gross_cost_eur": 0.0, "heating_meets_geg_71": false, "heating_claims_beg_subsidy": false, "demanded_mod_increase_monthly_eur": 45.73, "proper_555c_announcement_3m_prior": true, "cost_overrun_exceeds_10pct": false, "calculation_transparently_explained_559b": true}, "result_558": {"city_key": "hamburg", "city_name": "Hamburg (HH)", "bundesland": "Hamburg", "verordnung": "Kappungsgrenzenverordnung Hamburg", "living_area_sqm": 90.0, "current_net_cold_rent_eur": 990.0, "current_eur_per_sqm": 11.0, "rent_3_years_ago_eur": 990.0, "demanded_new_rent_eur": 1116.0, "demanded_eur_per_sqm": 12.4, "demanded_increase_monthly_eur": 126.0, "demanded_increase_pct_3yr": 12.73, "kappungsgrenze_pct": 15.0, "has_15pct_kappungsgrenze": true, "max_rent_by_kappungsgrenze_eur": 1138.5, "max_increase_by_kappungsgrenze_eur": 148.5, "mietspiegel_min_eur_sqm": 9.8, "mietspiegel_mid_eur_sqm": 11.6, "mietspiegel_max_eur_sqm": 13.9, "applicable_comparative_eur_sqm": 12.4, "mietspiegel_span_min_total_eur": 882.0, "mietspiegel_span_max_total_eur": 1251.0, "max_rent_by_mietspiegel_eur": 1116.0, "legally_permissible_max_rent_eur": 1116.0, "legally_permissible_max_eur_sqm": 12.4, "max_legal_monthly_increase_eur": 126.0, "binding_ceiling_reason": "Ortsübliche Vergleichsmiete (§ 558 Abs. 1 & 2 BGB)", "last_increase_effective_iso": "2024-01-01", "letter_receipt_date_iso": "2026-06-10", "earliest_assertion_date_iso": "2025-01-01", "jahressperrfrist_12m_violated": false, "sperrfrist_15m_violated": false, "months_since_last_increase_at_receipt_plus_3m": 32, "ueberlegungsfrist_end_date_iso": "2026-08-31", "effective_date_iso": "2026-09-01", "klagefrist_end_date_iso": "2026-11-30", "is_formally_valid": true, "formal_defects": [], "warnings": [], "enforceable_new_rent_eur": 1116.0, "enforceable_applied_rent_eur": 1116.0, "enforceable_monthly_increase_eur": 126.0, "tenant_monthly_overcharge_eur": 0.0, "tenant_3yr_defense_savings_eur": 0.0, "landlord_left_on_table_monthly_eur": 0.0, "landlord_3yr_yield_gain_eur": 4536.0}, "result_559": {"living_area_sqm": 90.0, "prior_net_cold_rent_eur": 990.0, "prior_eur_per_sqm": 11.0, "is_low_rent_under_7_eur_sqm": false, "overall_6yr_cap_eur_sqm": 3.0, "prior_6yr_mod_increase_eur_sqm": 0.0, "remaining_6yr_cap_eur_sqm": 3.0, "overall_6yr_max_monthly_eur": 270.0, "classic_gross_cost_eur": 9800.0, "use_simplified_559c": true, "capped_559c_gross_eur": 9800.0, "applied_classic_maint_pct": 30.0, "classic_maintenance_deduction_eur": 2940.0, "classic_subsidy_eur": 0.0, "classic_eligible_net_cost_eur": 6860.0, "classic_annual_pass_through_8pct_eur": 548.8, "classic_uncapped_monthly_eur": 45.73, "classic_uncapped_eur_sqm": 0.51, "heating_gross_cost_eur": 0.0, "heating_meets_geg_71": false, "heating_claims_beg_subsidy": false, "qualifies_for_559e_10pct": false, "heating_maintenance_pct": 15.0, "heating_maintenance_deduction_eur": 0.0, "heating_subsidy_eur": 0.0, "heating_eligible_net_cost_eur": 0.0, "heating_levy_rate_pct": 0.0, "heating_annual_uncapped_eur": 0.0, "heating_uncapped_monthly_eur": 0.0, "heating_uncapped_eur_sqm": 0.0, "heating_cap_eur_sqm": 0.0, "heating_cap_monthly_eur": 0.0, "heating_capped_monthly_eur": 0.0, "heating_capped_eur_sqm": 0.0, "heating_cut_by_050_cap_monthly_eur": 0.0, "combined_uncapped_monthly_eur": 45.73, "combined_after_heating_cap_monthly_eur": 45.73, "legally_permissible_mod_monthly_eur": 45.73, "legally_permissible_mod_eur_sqm": 0.51, "overall_cap_cut_monthly_eur": 0.0, "demanded_mod_increase_monthly_eur": 45.73, "enforceable_mod_monthly_eur": 45.73, "new_net_cold_rent_after_mod_eur": 1035.73, "tenant_monthly_overcharge_eur": 0.0, "tenant_6yr_defense_savings_eur": 0.0, "landlord_6yr_mod_revenue_eur": 3292.56, "notice_receipt_date_iso": "2026-06-15", "standard_effective_date_iso": "2026-09-01", "delayed_effective_date_iso": "2027-03-01", "effective_date_iso": "2026-09-01", "six_month_penalty_triggered": false, "delay_6m_loss_for_landlord_eur": 0.0, "is_formally_valid": true, "formal_defects": [], "warnings": []}}]};
+    const CITIES = {"muenchen": {"name": "München (BY)", "bundesland": "Bayern", "has_15pct_kappungsgrenze": true, "verordnung": "Bayerische Mieterschutzverordnung (MiSchuV BY)", "has_qualifizierter_mietspiegel": true, "typical_mietspiegel_mid_eur_sqm": 14.85, "typical_mietspiegel_min_eur_sqm": 12.6, "typical_mietspiegel_max_eur_sqm": 17.4}, "berlin": {"name": "Berlin (BE)", "bundesland": "Berlin", "has_15pct_kappungsgrenze": true, "verordnung": "Berliner Kappungsgrenzenverordnung (KappGVO BE)", "has_qualifizierter_mietspiegel": true, "typical_mietspiegel_mid_eur_sqm": 9.45, "typical_mietspiegel_min_eur_sqm": 7.6, "typical_mietspiegel_max_eur_sqm": 11.8}, "hamburg": {"name": "Hamburg (HH)", "bundesland": "Hamburg", "has_15pct_kappungsgrenze": true, "verordnung": "Kappungsgrenzenverordnung Hamburg", "has_qualifizierter_mietspiegel": true, "typical_mietspiegel_mid_eur_sqm": 11.6, "typical_mietspiegel_min_eur_sqm": 9.8, "typical_mietspiegel_max_eur_sqm": 13.9}, "frankfurt": {"name": "Frankfurt am Main (HE)", "bundesland": "Hessen", "has_15pct_kappungsgrenze": true, "verordnung": "Hessische Mieterschutzverordnung", "has_qualifizierter_mietspiegel": true, "typical_mietspiegel_mid_eur_sqm": 12.9, "typical_mietspiegel_min_eur_sqm": 10.9, "typical_mietspiegel_max_eur_sqm": 15.2}, "stuttgart": {"name": "Stuttgart (BW)", "bundesland": "Baden-Württemberg", "has_15pct_kappungsgrenze": true, "verordnung": "Kappungsgrenzenverordnung Baden-Württemberg", "has_qualifizierter_mietspiegel": true, "typical_mietspiegel_mid_eur_sqm": 12.7, "typical_mietspiegel_min_eur_sqm": 10.8, "typical_mietspiegel_max_eur_sqm": 14.9}, "koeln": {"name": "Köln (NW)", "bundesland": "Nordrhein-Westfalen", "has_15pct_kappungsgrenze": true, "verordnung": "NRW Mieterschutzverordnung (MietSchVO NRW)", "has_qualifizierter_mietspiegel": false, "typical_mietspiegel_mid_eur_sqm": 11.4, "typical_mietspiegel_min_eur_sqm": 9.7, "typical_mietspiegel_max_eur_sqm": 13.3}, "duesseldorf": {"name": "Düsseldorf (NW)", "bundesland": "Nordrhein-Westfalen", "has_15pct_kappungsgrenze": true, "verordnung": "NRW Mieterschutzverordnung (MietSchVO NRW)", "has_qualifizierter_mietspiegel": false, "typical_mietspiegel_mid_eur_sqm": 11.5, "typical_mietspiegel_min_eur_sqm": 9.8, "typical_mietspiegel_max_eur_sqm": 13.6}, "freiburg": {"name": "Freiburg im Breisgau (BW)", "bundesland": "Baden-Württemberg", "has_15pct_kappungsgrenze": true, "verordnung": "Kappungsgrenzenverordnung Baden-Württemberg", "has_qualifizierter_mietspiegel": true, "typical_mietspiegel_mid_eur_sqm": 12.2, "typical_mietspiegel_min_eur_sqm": 10.4, "typical_mietspiegel_max_eur_sqm": 14.1}, "essen": {"name": "Essen (NW — Regelgebiet 20%)", "bundesland": "Nordrhein-Westfalen", "has_15pct_kappungsgrenze": false, "verordnung": "Keine KappungsgrenzenVO (Regelgrenze 20% nach § 558 Abs. 3 S. 1 BGB)", "has_qualifizierter_mietspiegel": true, "typical_mietspiegel_mid_eur_sqm": 8.2, "typical_mietspiegel_min_eur_sqm": 6.9, "typical_mietspiegel_max_eur_sqm": 9.6}, "chemnitz": {"name": "Chemnitz (SN — Regelgebiet 20%)", "bundesland": "Sachsen", "has_15pct_kappungsgrenze": false, "verordnung": "Keine KappungsgrenzenVO (Regelgrenze 20% nach § 558 Abs. 3 S. 1 BGB)", "has_qualifizierter_mietspiegel": true, "typical_mietspiegel_mid_eur_sqm": 6.4, "typical_mietspiegel_min_eur_sqm": 5.3, "typical_mietspiegel_max_eur_sqm": 7.6}};
+    let currentPerspective = 'tenant';
+
+    function initStudio() {
+      const citySel = document.getElementById('cityKey');
+      Object.entries(CITIES).forEach(([key, info]) => {
+        const opt = document.createElement('option');
+        opt.value = key;
+        opt.textContent = `${info.name} — ${info.has_15pct_kappungsgrenze ? '15% Kappung' : '20% Regelkappung'}`;
+        citySel.appendChild(opt);
+      });
+
+      const bar = document.getElementById('scenarioButtons');
+      MANIFEST.benchmark_scenarios.forEach((sc, idx) => {
+        const btn = document.createElement('button');
+        btn.textContent = sc.name.split('—')[0].trim();
+        btn.title = sc.name;
+        btn.onclick = () => loadScenario(idx);
+        bar.appendChild(btn);
+      });
+
+      loadScenario(0);
+    }
+
+    function setPerspective(mode) {
+      currentPerspective = mode;
+      document.getElementById('modeTenantBtn').classList.toggle('active', mode === 'tenant');
+      document.getElementById('modeLandlordBtn').classList.toggle('active', mode === 'landlord');
+      recalc();
+    }
+
+    function onCityChange() {
+      const key = document.getElementById('cityKey').value;
+      const info = CITIES[key];
+      if (info) {
+        document.getElementById('comparativeSqm').value = info.typical_mietspiegel_mid_eur_sqm.toFixed(2);
+      }
+      recalc();
+    }
+
+    function loadScenario(idx) {
+      const sc = MANIFEST.benchmark_scenarios[idx];
+      if (!sc) return;
+      const i558 = sc.inputs_558;
+      const i559 = sc.inputs_559;
+
+      document.getElementById('cityKey').value = i558.city_key;
+      document.getElementById('livingArea').value = i558.living_area_sqm;
+      document.getElementById('currentRent').value = i558.current_net_cold_rent_eur;
+      document.getElementById('rent3YrsAgo').value = i558.rent_3_years_ago_eur;
+      document.getElementById('demandedRent558').value = i558.demanded_new_rent_eur;
+      document.getElementById('comparativeSqm').value = i558.applicable_comparative_eur_sqm;
+      document.getElementById('lastIncreaseDate').value = i558.last_increase_effective_iso;
+      document.getElementById('receiptDate').value = i558.letter_receipt_date_iso;
+      document.getElementById('begruendungType').value = i558.begruendung_type;
+      document.getElementById('comparablesCount').value = i558.comparables_count;
+      document.getElementById('disclosedQualMietspiegel').checked = !!i558.disclosed_qualifizierter_mietspiegel;
+      document.getElementById('spanCited').checked = !!i558.mietspiegel_span_cited;
+
+      document.getElementById('classicGross').value = i559.classic_gross_cost_eur || 0;
+      document.getElementById('classicMaintPct').value = i559.classic_maintenance_share_pct ?? 20;
+      document.getElementById('classicSubsidy').value = i559.classic_subsidy_eur || 0;
+      document.getElementById('prior6YrSqm').value = i559.prior_6yr_mod_increase_eur_sqm || 0;
+      document.getElementById('useSimplified559c').checked = !!i559.use_simplified_559c;
+      document.getElementById('heatingGross').value = i559.heating_gross_cost_eur || 0;
+      document.getElementById('heatingSubsidy').value = i559.heating_subsidy_eur || 0;
+      document.getElementById('demandedModMonthly').value = i559.demanded_mod_increase_monthly_eur || 0;
+      document.getElementById('heatingMeetsGeg').checked = i559.heating_meets_geg_71 !== false;
+      document.getElementById('proper555c').checked = i559.proper_555c_announcement_3m_prior !== false;
+      document.getElementById('calcExplained559b').checked = i559.calculation_transparently_explained_559b !== false;
+
+      recalc();
+    }
+
+    function addMonthsFirst(dateStr, months) {
+      const [y, m] = dateStr.split('-').map(Number);
+      const total = (y * 12 + (m - 1)) + months;
+      const ny = Math.floor(total / 12);
+      const nm = (total % 12) + 1;
+      return `${ny}-${String(nm).padStart(2, '0')}-01`;
+    }
+
+    function addMonthsExact(dateStr, months) {
+      const [y, m, d] = dateStr.split('-').map(Number);
+      const total = (y * 12 + (m - 1)) + months;
+      const ny = Math.floor(total / 12);
+      const nm = (total % 12) + 1;
+      const maxDay = new Date(ny, nm, 0).getDate();
+      const nd = Math.min(d, maxDay);
+      return `${ny}-${String(nm).padStart(2, '0')}-${String(nd).padStart(2, '0')}`;
+    }
+
+    function fmtEur(v) {
+      return v.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
+    }
+
+    function recalc() {
+      const cityKey = document.getElementById('cityKey').value;
+      const city = CITIES[cityKey] || CITIES.muenchen;
+      const area = Math.max(10, parseFloat(document.getElementById('livingArea').value) || 80);
+      const currentRent = Math.max(0, parseFloat(document.getElementById('currentRent').value) || 0);
+      const rent3Yrs = Math.max(1, parseFloat(document.getElementById('rent3YrsAgo').value) || currentRent);
+      const demanded558 = Math.max(currentRent, parseFloat(document.getElementById('demandedRent558').value) || currentRent);
+      const compSqm = Math.max(1, parseFloat(document.getElementById('comparativeSqm').value) || city.typical_mietspiegel_mid_eur_sqm);
+
+      const lastIncIso = document.getElementById('lastIncreaseDate').value || '2025-04-01';
+      const receiptIso = document.getElementById('receiptDate').value || '2026-06-15';
+      const begType = document.getElementById('begruendungType').value;
+      const compCount = parseInt(document.getElementById('comparablesCount').value || '0', 10);
+      const disclosedQual = document.getElementById('disclosedQualMietspiegel').checked;
+      const spanCited = document.getElementById('spanCited').checked;
+
+      const earliestAssertionIso = addMonthsExact(lastIncIso, 12);
+      const jahressperrfristViolated = receiptIso < earliestAssertionIso;
+      const statutoryEffIso = addMonthsFirst(receiptIso, 3);
+      const earliest15mEffIso = addMonthsFirst(lastIncIso, 15);
+      const effective558Iso = statutoryEffIso > earliest15mEffIso ? statutoryEffIso : earliest15mEffIso;
+
+      const capPct = city.has_15pct_kappungsgrenze ? 15 : 20;
+      const maxByCap = +(rent3Yrs * (1 + capPct / 100)).toFixed(2);
+      const maxByMietspiegel = +(area * compSqm).toFixed(2);
+      const permissibleMax558 = Math.max(currentRent, Math.min(maxByCap, maxByMietspiegel));
+
+      const defects = [];
+      const warnings = [];
+      if (jahressperrfristViolated) {
+        defects.push({
+          norm: '§ 558 Abs. 1 Satz 2 BGB',
+          title: 'Verstoß gegen die 12-monatige Jahressperrfrist',
+          detail: `Zugang am ${receiptIso} liegt vor Ablauf von 12 Monaten seit ${lastIncIso} (frühestens ab ${earliestAssertionIso} zulässig). Das Verlangen ist formell unwirksam!`
+        });
+      }
+      if (begType === 'vergleichswohnungen' && compCount < 3) {
+        defects.push({
+          norm: '§ 558a Abs. 2 Nr. 4 BGB',
+          title: `Nur ${compCount} statt mindestens 3 Vergleichswohnungen genannt`,
+          detail: 'Bei Begründung mit Vergleichswohnungen müssen zwingend mindestens 3 Wohnungen konkret benannt werden.'
+        });
+      }
+      if (begType === 'pauschale_behauptung') {
+        defects.push({
+          norm: '§ 558a Abs. 1 & 2 BGB',
+          title: 'Kein gesetzliches Begründungsmittel angegeben',
+          detail: 'Pauschaler Verweis auf Inflation oder ImmoScout-Inserate macht das Verlangen formell unwirksam.'
+        });
+      }
+      if (city.has_qualifizierter_mietspiegel && begType !== 'mietspiegel' && !disclosedQual) {
+        defects.push({
+          norm: '§ 558a Abs. 3 BGB (BGH VIII ZR 99/09)',
+          title: `Qualifizierter Mietspiegel (${city.name}) im Schreiben verschwiegen`,
+          detail: 'Existiert ein qualifizierter Mietspiegel, muss der Vermieter dessen Werte selbst dann mitteilen, wenn er mit Vergleichswohnungen oder Gutachten begründet!'
+        });
+      }
+      if (begType === 'mietspiegel' && !spanCited) {
+        warnings.push({
+          norm: '§ 558a Abs. 4 Satz 2 BGB',
+          title: 'Mietspiegel-Spanne / Rasterfeld fehlt',
+          detail: 'Mietspiegel-Spanne (Unter- und Oberwert) sollte zur Prüfbarkeit ausgewiesen werden.'
+        });
+      }
+
+      const valid558 = defects.length === 0;
+      const enforceableRent558 = valid558 ? Math.min(demanded558, permissibleMax558) : currentRent;
+      const overcharge558 = Math.max(0, demanded558 - enforceableRent558);
+
+      const classicGross = Math.max(0, parseFloat(document.getElementById('classicGross').value) || 0);
+      const use559c = document.getElementById('useSimplified559c').checked;
+      const classicMaintPct = use559c ? 30 : Math.max(0, parseFloat(document.getElementById('classicMaintPct').value) || 0);
+      const classicSub = Math.max(0, parseFloat(document.getElementById('classicSubsidy').value) || 0);
+      const prior6YrSqm = Math.max(0, parseFloat(document.getElementById('prior6YrSqm').value) || 0);
+
+      const consideredClassicGross = use559c ? Math.min(classicGross, 10000) : classicGross;
+      const classicMaintEur = +(consideredClassicGross * (classicMaintPct / 100)).toFixed(2);
+      const classicNetEur = Math.max(0, consideredClassicGross - classicMaintEur - classicSub);
+      const classicMonthly8Pct = +((classicNetEur * 0.08) / 12).toFixed(2);
+
+      const heatingGross = Math.max(0, parseFloat(document.getElementById('heatingGross').value) || 0);
+      const heatingSub = Math.max(0, parseFloat(document.getElementById('heatingSubsidy').value) || 0);
+      const heatingMeetsGeg = document.getElementById('heatingMeetsGeg').checked;
+      const qualifies559e = heatingGross > 0 && heatingMeetsGeg && heatingSub > 0;
+      const heatingMaintEur = +(heatingGross * 0.15).toFixed(2);
+      const heatingNetEur = Math.max(0, heatingGross - heatingMaintEur - heatingSub);
+      const heatingRatePct = qualifies559e ? 10 : (heatingGross > 0 ? 8 : 0);
+      const heatingUncappedMonthly = +((heatingNetEur * (heatingRatePct / 100)) / 12).toFixed(2);
+      const heatingCapMonthly = heatingGross > 0 && heatingMeetsGeg ? +(area * 0.50).toFixed(2) : heatingUncappedMonthly;
+      const heatingCappedMonthly = Math.min(heatingUncappedMonthly, heatingCapMonthly);
+
+      const priorSqm = +(currentRent / area).toFixed(2);
+      const lowRentUnder7 = priorSqm < 7.0;
+      const overallCapSqm = lowRentUnder7 ? 2.0 : 3.0;
+      const remCapSqm = Math.max(0, overallCapSqm - prior6YrSqm);
+      const overallCapMonthly = +(area * remCapSqm).toFixed(2);
+
+      const combinedAfterHeatingCap = +(classicMonthly8Pct + heatingCappedMonthly).toFixed(2);
+      const permissibleModMonthly = Math.min(combinedAfterHeatingCap, overallCapMonthly);
+
+      const proper555c = document.getElementById('proper555c').checked;
+      const calcExplained559b = document.getElementById('calcExplained559b').checked;
+      const demandedMod = Math.max(0, parseFloat(document.getElementById('demandedModMonthly').value) || 0);
+
+      if (!calcExplained559b && (classicGross > 0 || heatingGross > 0)) {
+        defects.push({
+          norm: '§ 559b Abs. 1 Satz 2 BGB',
+          title: 'Modernisierungsberechnung formell unzureichend erläutert',
+          detail: 'Gesamtkosten, Instandhaltungsabzug und KfW/BAFA-Drittmittel müssen im Erhöhungsschreiben transparent aufgeschlüsselt werden.'
+        });
+      }
+      if (!proper555c && (classicGross > 0 || heatingGross > 0)) {
+        warnings.push({
+          norm: '§ 559b Abs. 2 Satz 2 BGB i.V.m. § 555c BGB',
+          title: '6-Monats-Strafverschiebung wegen fehlender Ankündigung / >10% Kostenüberschreitung',
+          detail: `Wirksamkeit der Modernisierungsumlage verschiebt sich um 6 Monate auf den ${addMonthsFirst(receiptIso, 9)}!`
+        });
+      }
+
+      const enforceableModMonthly = calcExplained559b ? Math.min(demandedMod, permissibleModMonthly) : 0;
+      const overchargeMod = Math.max(0, demandedMod - enforceableModMonthly);
+      const totalMonthlyOvercharge = +(overcharge558 + overchargeMod).toFixed(2);
+
+      document.getElementById('kpi558Max').textContent = fmtEur(permissibleMax558);
+      document.getElementById('kpi558Sub').textContent = `Max. +${fmtEur(permissibleMax558 - currentRent)}/Mon. (${capPct}% Kappung vs. ${compSqm.toFixed(2)} €/m²)`;
+
+      document.getElementById('kpi559Max').textContent = fmtEur(permissibleModMonthly) + '/Mon.';
+      document.getElementById('kpi559Sub').textContent = `Deckel: ${overallCapSqm.toFixed(2)} €/m² (${lowRentUnder7 ? '< 7 €/m² Niedrigmiete' : '≥ 7 €/m²'}) · Heizung max. 0,50 €/m²`;
+
+      if (currentPerspective === 'tenant') {
+        document.getElementById('kpiDefenseLabel').textContent = 'Mieter-Ersparnis (Überforderung)';
+        document.getElementById('kpiDefenseVal').textContent = fmtEur(totalMonthlyOvercharge) + '/Mon.';
+        document.getElementById('kpiDefenseSub').textContent = `3-Jahres-Abwehrwert: ${fmtEur(totalMonthlyOvercharge * 36)}`;
+      } else {
+        const maxCombinedIncrease = (permissibleMax558 - currentRent) + permissibleModMonthly;
+        document.getElementById('kpiDefenseLabel').textContent = 'Rechtssicheres Zusatz-Potenzial';
+        document.getElementById('kpiDefenseVal').textContent = '+' + fmtEur(maxCombinedIncrease) + '/Mon.';
+        document.getElementById('kpiDefenseSub').textContent = `3-Jahres-Mehrertrag: +${fmtEur(maxCombinedIncrease * 36)}`;
+      }
+
+      document.getElementById('kpiEffectiveDate').textContent = effective558Iso;
+      document.getElementById('kpiDeadlineSub').textContent = jahressperrfristViolated
+        ? `Sperrfristverstoß! Frühestens ab ${earliestAssertionIso}`
+        : `Überlegungsfrist (§ 558b) bis Monatsende + 2M`;
+
+      document.getElementById('table558Body').innerHTML = `
+        <tr><th>Bisherige Nettokaltmiete</th><td class="num">${fmtEur(currentRent)} (${priorSqm.toFixed(2)} €/m²)</td></tr>
+        <tr><th>Kappungsgrenze (§ 558 Abs. 3 BGB — ${capPct}%)</th><td class="num">${fmtEur(maxByCap)}</td></tr>
+        <tr><th>Ortsübliche Vergleichsmiete (${compSqm.toFixed(2)} €/m²)</th><td class="num">${fmtEur(maxByMietspiegel)}</td></tr>
+        <tr><th>Gesetzlich zulässige § 558 Höchstmiete</th><td class="num" style="color:#38bdf8;">${fmtEur(permissibleMax558)}</td></tr>
+        <tr><th>Vom Vermieter geforderte § 558 Miete</th><td class="num">${fmtEur(demanded558)}</td></tr>
+        <tr><th>Durchsetzbare § 558 Miete (nach Formprüfung)</th><td class="num" style="color:${valid558 ? '#34d399' : '#fb7185'};">${fmtEur(enforceableRent558)}</td></tr>
+        <tr><th>Kürzungsbetrag / Abwehr (§ 558 BGB)</th><td class="num" style="color:#fb7185;">-${fmtEur(overcharge558)} / Monat</td></tr>
+      `;
+
+      document.getElementById('table559Body').innerHTML = `
+        <tr><th>Klassische Modernisierung (§ 559 / § 559c: 8% p.a. nach ${classicMaintPct}% Abzug)</th><td class="num">${fmtEur(classicMonthly8Pct)} / Monat</td></tr>
+        <tr><th>§ 559e GEG-Heizung (${heatingRatePct}% nach 15% Pauschale &amp; KfW, vor Deckel)</th><td class="num">${fmtEur(heatingUncappedMonthly)} / Monat</td></tr>
+        <tr><th>§ 559e Abs. 3 Heizungs-Deckel (max. 0,50 €/m² = ${fmtEur(heatingCapMonthly)})</th><td class="num" style="color:#fbbf24;">${fmtEur(heatingCappedMonthly)} / Monat</td></tr>
+        <tr><th>§ 559 Abs. 3a 6-Jahres-Gesamtdeckel (${overallCapSqm.toFixed(2)} €/m² Rest: ${remCapSqm.toFixed(2)} €/m²)</th><td class="num">${fmtEur(overallCapMonthly)} / Monat</td></tr>
+        <tr><th>Rechtlich zulässige Modernisierungsumlage gesamt</th><td class="num" style="color:#34d399;">${fmtEur(permissibleModMonthly)} / Monat</td></tr>
+        <tr><th>Geforderte Modernisierungsumlage vs. Kürzung</th><td class="num" style="color:#fb7185;">Gefordert: ${fmtEur(demandedMod)} · Abwehr: -${fmtEur(overchargeMod)}</td></tr>
+      `;
+
+      let auditHtml = '';
+      if (defects.length === 0 && warnings.length === 0) {
+        auditHtml = `<div class="ok-box"><strong>✅ Formell wirksam:</strong> Keine Formfehler nach §§ 558a, 559b BGB erkannt. Es gelten ausschließlich die materiellen Kappungsgrenzen (§ 558 Abs. 3, § 559 Abs. 3a, § 559e Abs. 3 BGB).</div>`;
+      } else {
+        defects.forEach(d => {
+          auditHtml += `<div class="defect-box"><strong>❌ Formfehler (${d.norm}): ${d.title}</strong><br/>${d.detail}</div>`;
+        });
+        warnings.forEach(w => {
+          auditHtml += `<div class="warn-box"><strong>⚠️ Hinweis (${w.norm}): ${w.title}</strong><br/>${w.detail}</div>`;
+        });
+      }
+      document.getElementById('auditContainer').innerHTML = auditHtml;
+
+      if (currentPerspective === 'tenant') {
+        document.getElementById('letterHeading').textContent = 'Generiertes Mieter-Antwortschreiben (Teilzustimmung / Zurückweisung nach §§ 558b, 559 Abs. 3a, 559e Abs. 3 BGB)';
+        document.getElementById('letterPreview').textContent =
+`Betreff: Ihr Mieterhöhungsverlangen / Modernisierungsumlage vom ${receiptIso} — Wohnung (${area} m²)
+
+Sehr geehrte Vermieterseite,
+
+bezugnehmend auf Ihr Schreiben vom ${receiptIso} habe ich die geltend gemachte Mieterhöhung rechtlich und rechnerisch geprüft:
+
+1. Mieterhöhung nach § 558 BGB (Ortsübliche Vergleichsmiete & Kappungsgrenze):
+${valid558
+  ? `Unter Berücksichtigung der in ${city.name} geltenden Kappungsgrenze von ${capPct}% (§ 558 Abs. 3 BGB: max. ${fmtEur(maxByCap)}) sowie der ortsüblichen Vergleichsmiete (${compSqm.toFixed(2)} €/m² = ${fmtEur(maxByMietspiegel)}) stimme ich einer Erhöhung der Nettokaltmiete gemäß § 558b Abs. 1 BGB lediglich bis zum gesetzlich zulässigen Höchstbetrag von ${fmtEur(enforceableRent558)}/Monat mit Wirkung zum ${effective558Iso} zu. Den überschießenden Betrag von ${fmtEur(overcharge558)}/Monat weise ich zurück.`
+  : `Ihr Mieterhöhungsverlangen nach § 558 BGB weise ich als formell unwirksam zurück (${defects.map(d => d.norm + ': ' + d.title).join('; ')}). Eine Zustimmungspflicht besteht nicht.`}
+
+2. Modernisierungsumlage nach §§ 559, 559e BGB:
+Die geforderte Modernisierungsumlage von ${fmtEur(demandedMod)}/Monat überschreitet die gesetzlichen Höchstgrenzen:
+- Nach § 559e Abs. 2 & 3 BGB sind beim Heizungstausch 15% ersparte Instandhaltung (${fmtEur(heatingMaintEur)}) sowie die BEG/KfW-Förderung (${fmtEur(heatingSub)}) abzuziehen; zudem greift die strikte Sonderkappungsgrenze von maximal 0,50 €/m² (${fmtEur(heatingCapMonthly)}/Monat).
+- Überdies begrenzt § 559 Abs. 3a BGB die gesamte Modernisierungsumlage innerhalb von 6 Jahren auf maximal ${overallCapSqm.toFixed(2)} €/m² (${fmtEur(overallCapMonthly)}/Monat).
+Rechtlich geschuldet sind daher maximal ${fmtEur(enforceableModMonthly)}/Monat (Kürzung um ${fmtEur(overchargeMod)}/Monat).
+
+Mit freundlichen Grüßen`;
+      } else {
+        document.getElementById('letterHeading').textContent = 'Generiertes Vermieter-Mieterhöhungsverlangen (§§ 558a, 559b, 559c, 559e BGB — Formfehlerfrei)';
+        document.getElementById('letterPreview').textContent =
+`Betreff: Mieterhöhungsverlangen nach § 558 BGB sowie Modernisierungsumlage nach §§ 559, 559e BGB (${area} m²)
+
+Sehr geehrte Mietpartei,
+
+1. Anpassung an die ortsübliche Vergleichsmiete (§§ 558–558d BGB):
+Die aktuelle Nettokaltmiete beträgt seit dem ${lastIncIso} unverändert ${fmtEur(currentRent)} (${priorSqm.toFixed(2)} €/m²).
+Gemäß dem aktuellen Mietspiegel für ${city.name} (Spanne ${city.typical_mietspiegel_min_eur_sqm.toFixed(2)}–${city.typical_mietspiegel_max_eur_sqm.toFixed(2)} €/m², einschlägiger Wert: ${compSqm.toFixed(2)} €/m²; Pflichtangabe nach § 558a Abs. 3 & 4 BGB) beträgt die ortsübliche Vergleichsmiete ${fmtEur(maxByMietspiegel)}.
+Unter Wahrung der ${capPct}%-Kappungsgrenze (§ 558 Abs. 3 BGB: max. ${fmtEur(maxByCap)}) bitte ich um Ihre Zustimmung zur Erhöhung der Nettokaltmiete auf ${fmtEur(permissibleMax558)}/Monat mit Wirkung zum ${effective558Iso} (Überlegungsfrist nach § 558b Abs. 1 BGB).
+
+2. Modernisierungsumlage nach §§ 559, 559e BGB (§ 559b Abs. 1 BGB Berechnung):
+- Klassische Modernisierung (§ 559${use559c ? 'c vereinfachtes Verfahren' : ''} BGB): Brutto ${fmtEur(consideredClassicGross)} abzgl. ${classicMaintPct}% Instandhaltung (${fmtEur(classicMaintEur)}) abzgl. Förderung (${fmtEur(classicSub)}) = ${fmtEur(classicNetEur)} × 8% p.a. ÷ 12 = ${fmtEur(classicMonthly8Pct)}/Monat.
+- GEG-Heizungsmodernisierung (§ 559e BGB): Brutto ${fmtEur(heatingGross)} abzgl. 15% Pauschalabzug nach § 559e Abs. 2 BGB (${fmtEur(heatingMaintEur)}) abzgl. BEG/KfW-Zuschuss (${fmtEur(heatingSub)}) = ${fmtEur(heatingNetEur)} × ${heatingRatePct}% p.a. ÷ 12 = ${fmtEur(heatingUncappedMonthly)}/Monat, begrenzt durch § 559e Abs. 3 BGB (0,50 €/m²) auf ${fmtEur(heatingCappedMonthly)}/Monat.
+- Unter Beachtung der Kappungsgrenze des § 559 Abs. 3a BGB (${overallCapSqm.toFixed(2)} €/m²) ergibt sich eine zulässige Modernisierungsumlage von ${fmtEur(permissibleModMonthly)}/Monat.
+
+Mit freundlichen Grüßen`;
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', initStudio);
+  </script>
+</body>
+</html>

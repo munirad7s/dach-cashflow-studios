@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MVP #159 · DACH § 1 Abs. 8 BEEG (175.000 €-Klippe), Elterngeld- & MuSchG/U2-Erstattungs-Studio</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --panel: #131b33;
+      --panel-alt: #192342;
+      --border: #2a3966;
+      --text: #eef2ff;
+      --muted: #9eb0d9;
+      --accent: #38bdf8;
+      --emerald: #10b981;
+      --amber: #f59e0b;
+      --rose: #f43f5e;
+      --violet: #a855f7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: radial-gradient(circle at top right, #172554 0%, var(--bg) 60%);
+      color: var(--text);
+      line-height: 1.5;
+      padding: 24px;
+    }
+    .container { max-width: 1440px; margin: 0 auto; }
+    header {
+      background: linear-gradient(135deg, rgba(30,41,82,0.92), rgba(15,23,42,0.95));
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px 28px;
+      margin-bottom: 22px;
+      box-shadow: 0 14px 34px rgba(0,0,0,0.35);
+    }
+    .badge-row { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 10px; }
+    .badge {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(56,189,248,0.15);
+      color: var(--accent);
+      border: 1px solid rgba(56,189,248,0.35);
+    }
+    .badge.rose { background: rgba(244,63,94,0.16); color: #fda4af; border-color: rgba(244,63,94,0.4); }
+    .badge.emerald { background: rgba(16,185,129,0.16); color: #6ee7b7; border-color: rgba(16,185,129,0.4); }
+    h1 { margin: 0 0 8px; font-size: 25px; font-weight: 800; }
+    header p { margin: 0; color: var(--muted); font-size: 14px; }
+    .kpi-strip {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 22px;
+    }
+    @media (max-width: 1100px) { .kpi-strip { grid-template-columns: repeat(2, 1fr); } }
+    .kpi {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px 18px;
+    }
+    .kpi-label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+    .kpi-val { font-size: 26px; font-weight: 800; margin: 6px 0 4px; color: var(--accent); }
+    .kpi-val.emerald { color: var(--emerald); }
+    .kpi-val.rose { color: var(--rose); }
+    .kpi-val.amber { color: var(--amber); }
+    .kpi-sub { font-size: 12px; color: var(--muted); }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+    @media (max-width: 1100px) { .grid-2 { grid-template-columns: 1fr; } }
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px 22px;
+    }
+    .panel h2 {
+      margin: 0 0 14px;
+      font-size: 17px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 10px;
+    }
+    .pill {
+      font-size: 11px;
+      padding: 3px 9px;
+      border-radius: 999px;
+      font-weight: 700;
+    }
+    .pill.ok { background: rgba(16,185,129,0.18); color: #6ee7b7; }
+    .pill.trap { background: rgba(244,63,94,0.2); color: #fda4af; }
+    .control-group { margin-bottom: 12px; }
+    .control-group label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+    .control-group label strong { color: var(--text); }
+    input[type="range"] { width: 100%; accent-color: var(--accent); cursor: pointer; }
+    select {
+      width: 100%;
+      background: var(--panel-alt);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-size: 13px;
+    }
+    .checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--text);
+      margin: 8px 0;
+      cursor: pointer;
+    }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 10px; }
+    th, td { padding: 8px 9px; border-bottom: 1px solid rgba(42,57,102,0.6); text-align: left; }
+    th { color: var(--muted); font-weight: 600; font-size: 12px; }
+    td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+    .callout {
+      margin-top: 12px;
+      padding: 12px 14px;
+      border-radius: 10px;
+      font-size: 13px;
+      border-left: 4px solid var(--accent);
+      background: rgba(56,189,248,0.08);
+    }
+    .callout.emerald { border-left-color: var(--emerald); background: rgba(16,185,129,0.1); }
+    .callout.rose { border-left-color: var(--rose); background: rgba(244,63,94,0.12); }
+    .callout.amber { border-left-color: var(--amber); background: rgba(245,158,11,0.1); }
+  </style>
+</head>
+<body>
+
+<!-- DACH CASHFLOW STUDIOS LAUNCH BAR -->
+<style>
+  #dcs-launch-bar {
+    position: sticky;
+    top: 0;
+    z-index: 99999;
+    background: linear-gradient(90deg, #0b1120 0%, #111827 50%, #0f172a 100%);
+    color: #f8fafc;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.35);
+    padding: 8px 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  }
+  #dcs-launch-bar .dcs-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+  }
+  #dcs-launch-bar .dcs-badge {
+    background: rgba(16, 185, 129, 0.18);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.03em;
+  }
+  #dcs-launch-bar a.dcs-nav {
+    color: #93c5fd;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 12.5px;
+  }
+  #dcs-launch-bar a.dcs-nav:hover {
+    text-decoration: underline;
+    color: #dbeafe;
+  }
+  #dcs-launch-bar .dcs-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  #dcs-launch-bar .dcs-btn {
+    padding: 5px 11px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s ease;
+  }
+  #dcs-launch-bar .dcs-btn-ghost {
+    background: rgba(255,255,255,0.08);
+    color: #e2e8f0;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  #dcs-launch-bar .dcs-btn-primary {
+    background: linear-gradient(135deg, #0ea5e9, #2563eb);
+    color: #ffffff;
+  }
+  #dcs-launch-bar .dcs-btn-emerald {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
+  }
+  @media print {
+    #dcs-launch-bar { display: none !important; }
+  }
+</style>
+<div id="dcs-launch-bar">
+  <div class="dcs-left">
+    <a href="/index.html" class="dcs-nav">← Alle 150 DACH Studios</a>
+    <span class="dcs-badge">MVP #159 VERIFIED</span>
+    <span style="color:#cbd5e1;font-size:12px;">DACH Tax, Corporate & Accounting Arbitrage</span>
+  </div>
+  <div class="dcs-actions">
+    <button onclick="window.print()" class="dcs-btn dcs-btn-ghost">🖨️ PDF / Dossier drucken</button>
+    <a href="#checkout-modal-49" target="_blank" rel="noopener" class="dcs-btn dcs-btn-primary">⚡ Musterschreiben & Voll-Dossier (€49)</a>
+    <a href="#checkout-modal-299" target="_blank" rel="noopener" class="dcs-btn dcs-btn-emerald">🛡️ B2B Umsetzung buchen (€299 / €1.490)</a>
+  </div>
+</div>
+
+  <div class="container">
+    <header>
+      <div class="badge-row">
+        <span class="badge rose">§ 1 Abs. 8 BEEG · 175.000 € zvE Fallbeil-Klippe (ab 01.04.2025)</span>
+        <span class="badge">§§ 2b, 2c Abs. 3 BEEG · Mischeinkünfte-Weiche & 7-Monats-Steuerklasse III</span>
+        <span class="badge emerald">§§ 18, 20 MuSchG + § 1 Abs. 2 AAG · 100 % Arbeitgeber-U2-Erstattung</span>
+      </div>
+      <h1>DACH Elterngeld-175k-Klippen-Retter, Bemessungszeitraum-Shifter & MuSchG/U2-Simulator (MVP #159)</h1>
+      <p>Deterministische Simulation der harten 175.000,00 € zvE-Grenze (21.600 € – 25.200 € Totalverlust ab 1 € Überschreitung), der 5 legalen zvE-Drücker (inkl. rückwirkendem § 7g EStG IAB) sowie der 100 %-U2-Krankenkassenerstattung bei Beschäftigungsverbot.</p>
+    </header>
+
+    <div class="kpi-strip">
+      <div class="kpi">
+        <div class="kpi-label">1. § 1 Abs. 8 BEEG Klippen-Status</div>
+        <div class="kpi-val emerald" id="kpi_cliff_status">GERETTET (21.600 €)</div>
+        <div class="kpi-sub" id="kpi_cliff_sub">zvE nach Hebeln unter 175.000,00 €</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">2. Gesamt-Hebel (Elterngeld + ESt-Refund)</div>
+        <div class="kpi-val emerald" id="kpi_total_rescue">32.234,40 €</div>
+        <div class="kpi-sub" id="kpi_rescue_sub">21.600 € Elterngeld + 10.634 € Steuererstattung</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">3. § 2b / § 2c BEEG Boost (12 Mo.)</div>
+        <div class="kpi-val" id="kpi_beeg_boost">+13.680,00 €</div>
+        <div class="kpi-sub" id="kpi_beeg_sub">Steuerklasse III (7-Mo.) + Gewerbe-Weiche</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">4. § 1 Abs. 2 AAG Arbeitgeber-U2-Erstattung</div>
+        <div class="kpi-val amber" id="kpi_u2_reimb">37.470,00 €</div>
+        <div class="kpi-sub" id="kpi_u2_sub">100 % Erstattung (0,00 € Eigenkosten AG!)</div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <!-- Pillar 1: § 1 Abs. 8 BEEG 175.000 € zvE Cliff Rescue -->
+      <div class="panel">
+        <h2>
+          <span>1. § 1 Abs. 8 BEEG: Die 175.000 € zvE-Fallbeil-Klippe knacken</span>
+          <span class="pill trap" id="pill_cliff">Fallbeil ab 175.001 €</span>
+        </h2>
+
+        <div class="control-group">
+          <label>
+            <span>Zu versteuerndes Einkommen (zvE § 2 Abs. 5 EStG) im Kalenderjahr VOR Geburt</span>
+            <strong id="lbl_zve_pre">194.000 €</strong>
+          </label>
+          <input type="range" id="inp_zve_pre" min="150000" max="240000" step="1000" value="194000" />
+        </div>
+
+        <div class="control-group">
+          <label><span>Geburtskohorte & gesetzliche zvE-Obergrenze (§ 1 Abs. 8 BEEG)</span></label>
+          <select id="inp_cohort">
+            <option value="175000" selected>Geburt ab 01.04.2025: Harte 175.000 € zvE-Grenze (Paare UND Alleinerziehende!)</option>
+            <option value="200000">Geburt 01.04.2024 – 31.03.2025: Übergangsgrenze 200.000 € zvE</option>
+            <option value="300000">Geburt bis 31.03.2024: Alt-Grenze 300.000 € Paare / 250.000 € Alleinerziehende</option>
+          </select>
+        </div>
+
+        <div class="control-group">
+          <label>
+            <span>Hebel 1: § 10 Abs. 1 Nr. 2b EStG Rürup-Basisrente Einmalzahlung (bis 31.12. Vorjahr)</span>
+            <strong id="lbl_ruerup">10.000 €</strong>
+          </label>
+          <input type="range" id="inp_ruerup" min="0" max="40000" step="1000" value="10000" />
+        </div>
+
+        <div class="control-group">
+          <label>
+            <span>Hebel 2: § 10 Abs. 1 Nr. 3 S. 5 EStG PKV/GKV-Vorauszahlung (bis 3 Jahresbeiträge im Dez.)</span>
+            <strong id="lbl_pkv">6.000 €</strong>
+          </label>
+          <input type="range" id="inp_pkv" min="0" max="30000" step="500" value="6000" />
+        </div>
+
+        <div class="control-group">
+          <label>
+            <span>Hebel 3: § 7g Abs. 1 EStG 50 % IAB-Abzug (AUCH RÜCKWIRKEND in Steuererklärung!)</span>
+            <strong id="lbl_iab">5.000 €</strong>
+          </label>
+          <input type="range" id="inp_iab" min="0" max="40000" step="1000" value="5000" />
+        </div>
+
+        <div class="control-group">
+          <label>
+            <span>Hebel 4 & 5: § 9 EStG Werbungskosten / Fortbildung + § 10b Spenden / Bonus-Shift</span>
+            <strong id="lbl_wk">3.000 €</strong>
+          </label>
+          <input type="range" id="inp_wk" min="0" max="20000" step="500" value="3000" />
+        </div>
+
+        <label class="checkbox-row">
+          <input type="checkbox" id="inp_sibling_twins" />
+          <span>Geschwisterbonus (+10 % / mind. 75 € nach § 2a Abs. 1 BEEG) oder Zwillinge (+300 €/Mo.) aktiv (+3.600 €)</span>
+        </label>
+
+        <table>
+          <thead>
+            <tr>
+              <th>§ 1 Abs. 8 BEEG Kennzahl</th>
+              <th class="num">Vor Optimierung</th>
+              <th class="num">Nach 5 zvE-Hebeln</th>
+            </tr>
+          </thead>
+          <tbody id="tbl_cliff"></tbody>
+        </table>
+
+        <div class="callout emerald" id="callout_cliff"></div>
+      </div>
+
+      <!-- Pillar 2: §§ 2b, 2c Abs. 3 BEEG Bemessungszeitraum & 7-Monats-Steuerklassenwechsel -->
+      <div class="panel">
+        <h2>
+          <span>2. §§ 2b, 2c Abs. 3 BEEG: 7-Monats-Steuerklasse III & Gewerbe-Weiche</span>
+          <span class="pill ok">Max. 1.800 €/Mo.</span>
+        </h2>
+
+        <div class="control-group">
+          <label>
+            <span>Monatliches Bruttogehalt des betreuenden Elternteils (§ 19 EStG)</span>
+            <strong id="lbl_gross_beeg">3.800 €</strong>
+          </label>
+          <input type="range" id="inp_gross_beeg" min="2000" max="6500" step="100" value="3800" />
+        </div>
+
+        <div class="control-group">
+          <label><span>Steuerklassen-Strategie vor Mutterschutz (§ 2c Abs. 3 BEEG)</span></label>
+          <select id="inp_tc_mode">
+            <option value="5_to_3_ok" selected>Wechsel StKl V → III rechtzeitig (>= 7 Monate vor Mutterschutz = bis 9. Mo. vor ET)</option>
+            <option value="4_to_3_ok">Wechsel StKl IV → III rechtzeitig (>= 7 Monate vor Mutterschutz)</option>
+            <option value="5_to_3_late">Frist verpasst: Wechsel StKl V → III erst 5 Monate vor Mutterschutz (< 7 Monate!)</option>
+          </select>
+        </div>
+
+        <div class="control-group">
+          <label>
+            <span>Geschwisterkind-Falle: Ø Teilzeit-Netto zwischen Kind 1 und Kind 2 (ohne Gewerbe-Weiche)</span>
+            <strong id="lbl_parttime_net">1.450 €</strong>
+          </label>
+          <input type="range" id="inp_parttime_net" min="800" max="2800" step="50" value="1450" />
+        </div>
+
+        <div class="control-group">
+          <label>
+            <span>§ 2b Abs. 2 & 3 BEEG Gewerbe-Weiche + Ausklammerung: Ø Vollzeit-Netto VOR Kind 1</span>
+            <strong id="lbl_fulltime_net">2.800 €</strong>
+          </label>
+          <input type="range" id="inp_fulltime_net" min="1500" max="3500" step="50" value="2800" />
+        </div>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Optimierungs-Baustein (§§ 2b, 2c BEEG)</th>
+              <th class="num">Monatl. Elterngeld</th>
+              <th class="num">12-Monats-Vorteil</th>
+            </tr>
+          </thead>
+          <tbody id="tbl_beeg"></tbody>
+        </table>
+
+        <div class="callout emerald" id="callout_beeg"></div>
+      </div>
+    </div>
+
+    <!-- Pillar 3: §§ 18, 20 MuSchG + § 1 Abs. 2 AAG Employer U2 100% Reimbursement -->
+    <div class="panel">
+      <h2>
+        <span>3. §§ 11, 18, 20 MuSchG + § 1 Abs. 2 AAG: 100 % Arbeitgeber-U2-Erstattungs-Rechner (Beschäftigungsverbot & Mutterschutz)</span>
+        <span class="pill ok">0,00 € Netto-Belastung für Arbeitgeber</span>
+      </h2>
+
+      <div class="grid-2" style="margin-bottom:0;">
+        <div>
+          <div class="control-group">
+            <label>
+              <span>Monatliches Bruttogehalt der Schwangeren (§ 18 MuSchG Mutterschutzlohn)</span>
+              <strong id="lbl_u2_gross">4.800 €</strong>
+            </label>
+            <input type="range" id="inp_u2_gross" min="2000" max="9000" step="200" value="4800" />
+          </div>
+
+          <div class="control-group">
+            <label>
+              <span>Monatliches Nettogehalt (§ 20 MuSchG Zuschuss-Basis)</span>
+              <strong id="lbl_u2_net">3.000 €</strong>
+            </label>
+            <input type="range" id="inp_u2_net" min="1400" max="5500" step="100" value="3000" />
+          </div>
+
+          <div class="control-group">
+            <label>
+              <span>Dauer des ärztlichen / betrieblichen Beschäftigungsverbots (§ 18 MuSchG)</span>
+              <strong id="lbl_bv_months">5,0 Monate</strong>
+            </label>
+            <input type="range" id="inp_bv_months" min="0" max="7.5" step="0.5" value="5.0" />
+          </div>
+
+          <div class="control-group">
+            <label><span>Mutterschutzfrist (§ 3 MuSchG: 6 Wochen vor + 8 bzw. 12 Wochen nach Geburt)</span></label>
+            <select id="inp_ms_weeks">
+              <option value="14" selected>Regulär: 14 Wochen (98 Kalendertage: 6 Wo. vor + 8 Wo. nach Geburt)</option>
+              <option value="18">Frühgeburt / Mehrlinge (§ 3 Abs. 2 S. 2 MuSchG): 18 Wochen (126 Kalendertage)</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <table>
+            <thead>
+              <tr>
+                <th>Aufwandsposition (§§ 18, 20 MuSchG)</th>
+                <th class="num">AG-Auszahlung</th>
+                <th class="num">U2-Erstattung (§ 1 Abs. 2 AAG)</th>
+                <th class="num">AG-Restkosten</th>
+              </tr>
+            </thead>
+            <tbody id="tbl_u2"></tbody>
+          </table>
+
+          <div class="callout amber" id="callout_u2"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const INITIAL_SAMPLE = {"mvp_id": "MVP_159", "title": "DACH § 1 Abs. 8 BEEG (175.000 €-Einkommensklippe), §§ 2b, 2c BEEG & §§ 18, 20 MuSchG / § 1 Abs. 2 AAG U2-Engine", "legal_pillars": {"pillar_1_175k_zve_cliff_rescue": {"birth_cohort": "from_2025_04_01", "is_couple": true, "statutory_zve_limit_eur": 175000.0, "pre_optimization_zve_eur": 194000.0, "excess_over_cliff_before_eur": 19000.0, "eligible_before_optimization": false, "elterngeld_before_eur": 0.0, "total_zve_deduction_applied_eur": 24000.0, "post_optimization_zve_eur": 170000.0, "safety_buffer_below_175k_eur": 5000.0, "eligible_after_optimization": true, "months_basiselterngeld": 12, "monthly_elterngeld_eur": 1800.0, "geschwisterbonus_or_twins_extra_eur": 0.0, "rescued_tax_free_elterngeld_eur": 21600.0, "income_tax_refund_from_levers_eur": 10634.4, "total_net_wealth_gain_eur": 32234.4, "effective_return_on_deduction_pct": 134.31, "levers": [{"lever_id": "ruerup_10_1_2b_estg", "title": "§ 10 Abs. 1 Nr. 2b EStG Basisrente (Rürup) Einmalzahlung", "legal_basis": "§ 10 Abs. 1 Nr. 2b i.V.m. Abs. 3 EStG (100 % Sonderausgabenabzug)", "execution_timing": "Bis 31.12. des Vorjahres der Geburt (Zufluss/Abfluss § 11 Abs. 2 EStG)", "applied_deduction_eur": 10000.0, "max_statutory_headroom_eur": 41888.0, "income_tax_refund_eur": 4431.0, "notes": "Senkt das zvE sofort 1:1 um die Einmalzahlung bis zum verbleibenden Höchstbetrag nach GRV."}, {"lever_id": "pkv_gkv_vorauszahlung_10_1_3_estg", "title": "§ 10 Abs. 1 Nr. 3 S. 5 EStG PKV/GKV-Beitragsvorauszahlung (bis 3 Jahresbeiträge)", "legal_basis": "§ 10 Abs. 1 Nr. 3 S. 5 EStG i.V.m. § 11 Abs. 2 EStG (Abflussprinzip)", "execution_timing": "Überweisung bis ~20.12. des Vorjahres der Geburt an Krankenkasse / PKV", "applied_deduction_eur": 6000.0, "max_statutory_headroom_eur": 36000.0, "income_tax_refund_eur": 2658.6, "notes": "Bis zu 3 Jahresbeiträge Basis-KV/PV im Vorjahr voll abziehbar; entsperrt in Folgejahren § 10 Abs. 4 EStG."}, {"lever_id": "iab_7g_estg_retroactive", "title": "§ 7g Abs. 1 EStG 50 % Investitionsabzugsbetrag (IAB) — RÜCKWIRKEND", "legal_basis": "§ 7g Abs. 1 EStG (50 % außerbilanzielle Gewinnminderung vor Anschaffung)", "execution_timing": "Auch RÜCKWIRKEND nach Geburt im Rahmen der Steuererklärung des Vorjahres!", "applied_deduction_eur": 5000.0, "max_statutory_headroom_eur": 200000.0, "income_tax_refund_eur": 2215.5, "notes": "Der einzige legale Notfall-Hebel NACH Ablauf des 31.12.: 50 % IAB für geplante bewegliche WG / gewerbliche PV."}, {"lever_id": "werbungskosten_9_estg", "title": "§ 9 EStG Werbungskosten / Fortbildung / Doppelte Haushaltsführung", "legal_basis": "§ 9 Abs. 1 S. 3 Nr. 5 & 6 EStG, BFH VI R 18/17", "execution_timing": "Bis 31.12. zahlen + RÜCKWIRKEND in der Einkommensteuererklärung erfassen", "applied_deduction_eur": 2000.0, "max_statutory_headroom_eur": 50000.0, "income_tax_refund_eur": 886.2, "notes": "Senkt den Gesamtbetrag der Einkünfte (GdE) und damit direkt das maßgebliche zvE (§ 2 Abs. 5 EStG)."}, {"lever_id": "spenden_10b_bonus_shift_11_estg", "title": "§ 10b EStG Spenden / § 11 Abs. 1 EStG Bonus-Verschiebung ins Geburtsjahr", "legal_basis": "§ 10b Abs. 1 EStG (bis 20 % GdE) / § 11 Abs. 1 EStG (Zuflussprinzip Arbeitslohn)", "execution_timing": "Bonus-Auszahlungsvereinbarung vor Fälligkeit ins Geburtsjahr schieben", "applied_deduction_eur": 1000.0, "max_statutory_headroom_eur": 100000.0, "income_tax_refund_eur": 443.1, "notes": "Verschobener Bonus fällt aus dem Vorjahres-zvE heraus; Spenden mindern das zvE als Sonderausgaben."}]}, "pillar_1_175001_binary_cliff_proof": {"birth_cohort": "from_2025_04_01", "is_couple": false, "statutory_zve_limit_eur": 175000.0, "pre_optimization_zve_eur": 175001.0, "excess_over_cliff_before_eur": 1.0, "eligible_before_optimization": false, "elterngeld_before_eur": 0.0, "total_zve_deduction_applied_eur": 0.0, "post_optimization_zve_eur": 175001.0, "safety_buffer_below_175k_eur": -1.0, "eligible_after_optimization": false, "months_basiselterngeld": 12, "monthly_elterngeld_eur": 1800.0, "geschwisterbonus_or_twins_extra_eur": 0.0, "rescued_tax_free_elterngeld_eur": 0.0, "income_tax_refund_from_levers_eur": 0.0, "total_net_wealth_gain_eur": 0.0, "effective_return_on_deduction_pct": 0.0, "levers": [{"lever_id": "ruerup_10_1_2b_estg", "title": "§ 10 Abs. 1 Nr. 2b EStG Basisrente (Rürup) Einmalzahlung", "legal_basis": "§ 10 Abs. 1 Nr. 2b i.V.m. Abs. 3 EStG (100 % Sonderausgabenabzug)", "execution_timing": "Bis 31.12. des Vorjahres der Geburt (Zufluss/Abfluss § 11 Abs. 2 EStG)", "applied_deduction_eur": 0.0, "max_statutory_headroom_eur": 12544.0, "income_tax_refund_eur": 0.0, "notes": "Senkt das zvE sofort 1:1 um die Einmalzahlung bis zum verbleibenden Höchstbetrag nach GRV."}, {"lever_id": "pkv_gkv_vorauszahlung_10_1_3_estg", "title": "§ 10 Abs. 1 Nr. 3 S. 5 EStG PKV/GKV-Beitragsvorauszahlung (bis 3 Jahresbeiträge)", "legal_basis": "§ 10 Abs. 1 Nr. 3 S. 5 EStG i.V.m. § 11 Abs. 2 EStG (Abflussprinzip)", "execution_timing": "Überweisung bis ~20.12. des Vorjahres der Geburt an Krankenkasse / PKV", "applied_deduction_eur": 0.0, "max_statutory_headroom_eur": 18000.0, "income_tax_refund_eur": 0.0, "notes": "Bis zu 3 Jahresbeiträge Basis-KV/PV im Vorjahr voll abziehbar; entsperrt in Folgejahren § 10 Abs. 4 EStG."}, {"lever_id": "iab_7g_estg_retroactive", "title": "§ 7g Abs. 1 EStG 50 % Investitionsabzugsbetrag (IAB) — RÜCKWIRKEND", "legal_basis": "§ 7g Abs. 1 EStG (50 % außerbilanzielle Gewinnminderung vor Anschaffung)", "execution_timing": "Auch RÜCKWIRKEND nach Geburt im Rahmen der Steuererklärung des Vorjahres!", "applied_deduction_eur": 0.0, "max_statutory_headroom_eur": 200000.0, "income_tax_refund_eur": 0.0, "notes": "Der einzige legale Notfall-Hebel NACH Ablauf des 31.12.: 50 % IAB für geplante bewegliche WG / gewerbliche PV."}, {"lever_id": "werbungskosten_9_estg", "title": "§ 9 EStG Werbungskosten / Fortbildung / Doppelte Haushaltsführung", "legal_basis": "§ 9 Abs. 1 S. 3 Nr. 5 & 6 EStG, BFH VI R 18/17", "execution_timing": "Bis 31.12. zahlen + RÜCKWIRKEND in der Einkommensteuererklärung erfassen", "applied_deduction_eur": 0.0, "max_statutory_headroom_eur": 50000.0, "income_tax_refund_eur": 0.0, "notes": "Senkt den Gesamtbetrag der Einkünfte (GdE) und damit direkt das maßgebliche zvE (§ 2 Abs. 5 EStG)."}, {"lever_id": "spenden_10b_bonus_shift_11_estg", "title": "§ 10b EStG Spenden / § 11 Abs. 1 EStG Bonus-Verschiebung ins Geburtsjahr", "legal_basis": "§ 10b Abs. 1 EStG (bis 20 % GdE) / § 11 Abs. 1 EStG (Zuflussprinzip Arbeitslohn)", "execution_timing": "Bonus-Auszahlungsvereinbarung vor Fälligkeit ins Geburtsjahr schieben", "applied_deduction_eur": 0.0, "max_statutory_headroom_eur": 100000.0, "income_tax_refund_eur": 0.0, "notes": "Verschobener Bonus fällt aus dem Vorjahres-zvE heraus; Spenden mindern das zvE als Sonderausgaben."}]}, "pillar_2_beeg_tax_class_3_and_mischeinkuenfte_shift": {"monthly_gross_salary_eur": 3800.0, "tax_class_before": 5, "tax_class_optimized": 3, "months_in_new_tax_class_before_mutterschutz": 7, "seven_month_rule_satisfied_2c_abs_3": true, "applied_tax_class_for_beeg": 3, "beeg_net_monthly_before_switch_eur": 1808.74, "beeg_net_monthly_after_switch_eur": 2548.24, "monthly_elterngeld_before_switch_eur": 1175.68, "monthly_elterngeld_after_switch_eur": 1656.36, "twelve_month_tax_class_gain_eur": 5768.16, "has_gewerbe_mischeinkuenfte_2b_abs_2": true, "has_prior_child_elterngeld_ausklammerung_2b_abs_3": true, "standard_12m_avg_net_during_parttime_eur": 1450.0, "shifted_pre_child1_calendar_year_avg_net_eur": 2800.0, "monthly_elterngeld_without_gewerbe_shift_eur": 942.5, "monthly_elterngeld_with_gewerbe_shift_eur": 1800.0, "twelve_month_mischeinkuenfte_shift_gain_eur": 10290.0, "combined_12m_elterngeld_advantage_eur": 16058.16, "deadline_warning_de": "FRIST EINGEHALTEN (§ 2c Abs. 3 BEEG): 7 Monate in Steuerklasse 3 vor Beginn des Mutterschutz-Monats (>= 7 Monate Überwiegensprinzip)."}, "pillar_2_late_tax_class_switch_5_months_trap": {"monthly_gross_salary_eur": 3800.0, "tax_class_before": 5, "tax_class_optimized": 3, "months_in_new_tax_class_before_mutterschutz": 5, "seven_month_rule_satisfied_2c_abs_3": false, "applied_tax_class_for_beeg": 5, "beeg_net_monthly_before_switch_eur": 1808.74, "beeg_net_monthly_after_switch_eur": 1808.74, "monthly_elterngeld_before_switch_eur": 1175.68, "monthly_elterngeld_after_switch_eur": 1175.68, "twelve_month_tax_class_gain_eur": 0.0, "has_gewerbe_mischeinkuenfte_2b_abs_2": true, "has_prior_child_elterngeld_ausklammerung_2b_abs_3": true, "standard_12m_avg_net_during_parttime_eur": 1450.0, "shifted_pre_child1_calendar_year_avg_net_eur": 2800.0, "monthly_elterngeld_without_gewerbe_shift_eur": 942.5, "monthly_elterngeld_with_gewerbe_shift_eur": 1800.0, "twelve_month_mischeinkuenfte_shift_gain_eur": 10290.0, "combined_12m_elterngeld_advantage_eur": 10290.0, "deadline_warning_de": "FRISTVERLUST (§ 2c Abs. 3 BEEG): Nur 5 Monate in Steuerklasse 3 (< 7 Monate)! Die Elterngeldstelle rechnet zwingend mit Alt-Steuerklasse 5 ab (Verlust: 5,768.16 €)."}, "pillar_3_muschg_18_20_aag_u2_100pct_reimbursement": {"monthly_gross_salary_eur": 4800.0, "monthly_net_salary_eur": 3000.0, "employer_sv_rate_pct": 20.6, "months_beschaeftigungsverbot_18_muschg": 5.0, "weeks_mutterschutzfrist_3_muschg": 14, "total_days_mutterschutzfrist": 98, "bv_gross_mutterschutzlohn_total_eur": 24000.0, "bv_employer_sv_contributions_total_eur": 4944.0, "bv_total_employer_outlay_eur": 28944.0, "bv_u2_reimbursement_100pct_eur": 28944.0, "bv_net_employer_cost_after_u2_eur": 0.0, "ms_daily_net_salary_eur": 100.0, "ms_daily_kk_mutterschaftsgeld_eur": 13.0, "ms_daily_employer_zuschuss_20_muschg_eur": 87.0, "ms_total_kk_mutterschaftsgeld_eur": 1274.0, "ms_total_employer_zuschuss_20_muschg_eur": 8526.0, "ms_u2_reimbursement_zuschuss_100pct_eur": 8526.0, "ms_net_employer_cost_after_u2_eur": 0.0, "total_mother_protected_gross_and_benefits_eur": 38744.0, "total_krankenkasse_u2_reimbursement_to_employer_eur": 37470.0, "total_remaining_employer_out_of_pocket_eur": 0.0, "accrued_paid_vacation_days_24_muschg": 20.6}}, "self_test_passed": true};
+
+    function fmtEur(v) {
+      return v.toLocaleString("de-DE", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " €";
+    }
+
+    function computeBeegNet(gross, tc) {
+      const taxable = Math.max(0, gross - 102.5);
+      const sv = Math.min(gross, 5512.5) * 0.21;
+      let lstRate = 0.185;
+      if (tc === 3) lstRate = gross <= 4200 ? 0.095 : 0.135;
+      else if (tc === 4) lstRate = gross <= 4200 ? 0.185 : 0.225;
+      else if (tc === 5) lstRate = gross <= 4200 ? 0.295 : 0.335;
+      return Math.max(0, gross - 102.5 - sv - taxable * lstRate);
+    }
+
+    function computeMonthlyEg(beegNet) {
+      const capped = Math.min(Math.max(0, beegNet), 2770);
+      if (capped <= 0) return 300;
+      let rate = 0.65;
+      if (capped < 1000) rate = Math.min(1.0, 0.67 + ((1000 - capped) / 2) * 0.001);
+      else if (capped <= 1200) rate = 0.67;
+      else if (capped < 1240) rate = Math.max(0.65, 0.67 - ((capped - 1200) / 2) * 0.001);
+      return Math.min(1800, Math.max(300, capped * rate));
+    }
+
+    function recalc() {
+      // Pillar 1
+      const zvePre = parseFloat(document.getElementById("inp_zve_pre").value);
+      const limit = parseFloat(document.getElementById("inp_cohort").value);
+      const ruerup = parseFloat(document.getElementById("inp_ruerup").value);
+      const pkv = parseFloat(document.getElementById("inp_pkv").value);
+      const iab = parseFloat(document.getElementById("inp_iab").value);
+      const wk = parseFloat(document.getElementById("inp_wk").value);
+      const hasBonus = document.getElementById("inp_sibling_twins").checked;
+
+      document.getElementById("lbl_zve_pre").textContent = zvePre.toLocaleString("de-DE") + " €";
+      document.getElementById("lbl_ruerup").textContent = ruerup.toLocaleString("de-DE") + " €";
+      document.getElementById("lbl_pkv").textContent = pkv.toLocaleString("de-DE") + " €";
+      document.getElementById("lbl_iab").textContent = iab.toLocaleString("de-DE") + " €";
+      document.getElementById("lbl_wk").textContent = wk.toLocaleString("de-DE") + " €";
+
+      const totalDed = ruerup + pkv + iab + wk;
+      const zvePost = Math.max(0, zvePre - totalDed);
+      const mtr = 0.4431;
+      const taxRefund = totalDed * mtr;
+      const egPot = 21600 + (hasBonus ? 3600 : 0);
+      const egBefore = zvePre <= limit ? egPot : 0;
+      const egAfter = zvePost <= limit ? egPot : 0;
+      const rescuedEg = Math.max(0, egAfter - egBefore);
+      const totalGain = rescuedEg + taxRefund;
+
+      const kpiStatus = document.getElementById("kpi_cliff_status");
+      if (zvePost <= limit) {
+        kpiStatus.className = "kpi-val emerald";
+        kpiStatus.textContent = `GERETTET (${fmtEur(egAfter)})`;
+        document.getElementById("kpi_cliff_sub").textContent =
+          `Neues zvE: ${fmtEur(zvePost)} (Puffer: ${fmtEur(limit - zvePost)} unter Grenze)`;
+      } else {
+        kpiStatus.className = "kpi-val rose";
+        kpiStatus.textContent = "0,00 € (KLIPPE GERISSEN!)";
+        document.getElementById("kpi_cliff_sub").textContent =
+          `Noch ${fmtEur(zvePost - limit)} über der ${limit.toLocaleString("de-DE")} €-Grenze!`;
+      }
+
+      document.getElementById("kpi_total_rescue").textContent = fmtEur(totalGain);
+      document.getElementById("kpi_rescue_sub").textContent =
+        `${fmtEur(rescuedEg)} gerettetes Elterngeld + ${fmtEur(taxRefund)} Steuererstattung`;
+
+      document.getElementById("tbl_cliff").innerHTML = `
+        <tr>
+          <td>Maßgebliches zvE (§ 2 Abs. 5 EStG Vorjahr)</td>
+          <td class="num" style="color:${zvePre > limit ? 'var(--rose)' : 'var(--emerald)'}">${fmtEur(zvePre)}</td>
+          <td class="num" style="color:${zvePost > limit ? 'var(--rose)' : 'var(--emerald)'}; font-weight:700;">${fmtEur(zvePost)}</td>
+        </tr>
+        <tr>
+          <td>Abstand zur ${limit.toLocaleString("de-DE")} €-Fallbeil-Grenze</td>
+          <td class="num">${zvePre > limit ? '+' + fmtEur(zvePre - limit) + ' drüber' : fmtEur(limit - zvePre) + ' Puffer'}</td>
+          <td class="num">${zvePost > limit ? '+' + fmtEur(zvePost - limit) + ' drüber' : fmtEur(limit - zvePost) + ' Puffer'}</td>
+        </tr>
+        <tr>
+          <td>Steuerfreier Elterngeld-Anspruch (12 Mo.)</td>
+          <td class="num">${fmtEur(egBefore)}</td>
+          <td class="num" style="font-weight:700; color:var(--emerald);">${fmtEur(egAfter)}</td>
+        </tr>
+        <tr style="font-weight:700; color:var(--accent);">
+          <td>Kumulierter Netto-Vorteil (Elterngeld + 44,31 % ESt-Refund)</td>
+          <td class="num">0,00 €</td>
+          <td class="num">+${fmtEur(totalGain)}</td>
+        </tr>
+      `;
+
+      const calloutCliff = document.getElementById("callout_cliff");
+      if (zvePost <= limit) {
+        calloutCliff.className = "callout emerald";
+        calloutCliff.innerHTML = `<strong>Fallbeil-Rettung erfolgreich:</strong> Durch <strong>${fmtEur(totalDed)}</strong> gezielte zvE-Minderung sinkt Ihr Vorjahres-zvE auf <strong>${fmtEur(zvePost)}</strong>. Sie retten <strong>${fmtEur(rescuedEg)}</strong> steuerfreies Elterngeld UND erhalten zusätzlich <strong>${fmtEur(taxRefund)}</strong> Einkommensteuer-Erstattung vom Finanzamt!`;
+      } else {
+        calloutCliff.className = "callout rose";
+        calloutCliff.innerHTML = `<strong>WARNUNG (§ 1 Abs. 8 BEEG):</strong> Ihr zvE liegt noch um <strong>${fmtEur(zvePost - limit)}</strong> über der Grenze von ${limit.toLocaleString("de-DE")} €! Erhöhen Sie den rückwirkenden § 7g EStG IAB oder die PKV/Rürup-Vorauszahlung um mindestens ${fmtEur(zvePost - limit)}, um ${fmtEur(egPot)} Elterngeld zu retten.`;
+      }
+
+      // Pillar 2
+      const grossBeeg = parseFloat(document.getElementById("inp_gross_beeg").value);
+      const tcMode = document.getElementById("inp_tc_mode").value;
+      const partNet = parseFloat(document.getElementById("inp_parttime_net").value);
+      const fullNet = parseFloat(document.getElementById("inp_fulltime_net").value);
+
+      document.getElementById("lbl_gross_beeg").textContent = grossBeeg.toLocaleString("de-DE") + " €";
+      document.getElementById("lbl_parttime_net").textContent = partNet.toLocaleString("de-DE") + " €";
+      document.getElementById("lbl_fulltime_net").textContent = fullNet.toLocaleString("de-DE") + " €";
+
+      const tcBefore = tcMode.startsWith("5") ? 5 : 4;
+      const tcApplied = tcMode.endsWith("ok") ? 3 : tcBefore;
+      const egTcBefore = computeMonthlyEg(computeBeegNet(grossBeeg, tcBefore));
+      const egTcAfter = computeMonthlyEg(computeBeegNet(grossBeeg, tcApplied));
+      const tc12mGain = Math.max(0, egTcAfter - egTcBefore) * 12;
+
+      const egPart = computeMonthlyEg(partNet);
+      const egFull = computeMonthlyEg(fullNet);
+      const shift12mGain = Math.max(0, egFull - egPart) * 12;
+      const totalBeegBoost = tc12mGain + shift12mGain;
+
+      document.getElementById("kpi_beeg_boost").textContent = "+" + fmtEur(totalBeegBoost);
+
+      document.getElementById("tbl_beeg").innerHTML = `
+        <tr>
+          <td>Ohne Steuerklassenwechsel (Steuerklasse ${tcBefore})</td>
+          <td class="num">${fmtEur(egTcBefore)} / Mo.</td>
+          <td class="num">Basis</td>
+        </tr>
+        <tr style="color:var(--emerald); font-weight:700;">
+          <td>Mit § 2c Abs. 3 BEEG Wechsel in Steuerklasse ${tcApplied}</td>
+          <td class="num">${fmtEur(egTcAfter)} / Mo.</td>
+          <td class="num">+${fmtEur(tc12mGain)}</td>
+        </tr>
+        <tr>
+          <td>Geschwisterkind ohne Gewerbe-Weiche (12-Mo. Teilzeit-Schnitt)</td>
+          <td class="num">${fmtEur(egPart)} / Mo.</td>
+          <td class="num">Basis</td>
+        </tr>
+        <tr style="color:var(--accent); font-weight:700;">
+          <td>Mit § 2b Abs. 2 & 3 BEEG Gewerbe-Weiche + Ausklammerung (Vollzeit-Vorjahr)</td>
+          <td class="num">${fmtEur(egFull)} / Mo.</td>
+          <td class="num">+${fmtEur(shift12mGain)}</td>
+        </tr>
+      `;
+
+      const calloutBeeg = document.getElementById("callout_beeg");
+      if (tcMode.endsWith("late")) {
+        calloutBeeg.className = "callout rose";
+        calloutBeeg.innerHTML = `<strong>7-MONATS-FRIST VERPASST (§ 2c Abs. 3 BEEG):</strong> Da Steuerklasse III weniger als 7 Monate vor Beginn des Mutterschutzes galt, rechnet die Elterngeldstelle zwingend mit Steuerklasse ${tcBefore} ab!`;
+      } else {
+        calloutBeeg.className = "callout emerald";
+        calloutBeeg.innerHTML = `<strong>Doppel-Hebel aktiv:</strong> Der rechtzeitige Wechsel in Steuerklasse III bringt <strong>+${fmtEur(tc12mGain)}</strong>, und die § 2b Abs. 2 & 3 BEEG Gewerbe-Weiche rettet beim Geschwisterkind weitere <strong>+${fmtEur(shift12mGain)}</strong> steuerfreies Elterngeld!`;
+      }
+
+      // Pillar 3
+      const u2Gross = parseFloat(document.getElementById("inp_u2_gross").value);
+      const u2Net = parseFloat(document.getElementById("inp_u2_net").value);
+      const bvMonths = parseFloat(document.getElementById("inp_bv_months").value);
+      const msWeeks = parseInt(document.getElementById("inp_ms_weeks").value, 10);
+
+      document.getElementById("lbl_u2_gross").textContent = u2Gross.toLocaleString("de-DE") + " €";
+      document.getElementById("lbl_u2_net").textContent = u2Net.toLocaleString("de-DE") + " €";
+      document.getElementById("lbl_bv_months").textContent = bvMonths.toFixed(1).replace(".", ",") + " Monate";
+
+      const bvGrossTotal = u2Gross * bvMonths;
+      const bvSvTotal = bvGrossTotal * 0.206;
+      const bvTotal = bvGrossTotal + bvSvTotal;
+
+      const msDays = msWeeks * 7;
+      const dailyNet = (u2Net * 3) / 90.0;
+      const dailyZuschuss = Math.max(0, dailyNet - 13.0);
+      const msZuschussTotal = dailyZuschuss * msDays;
+      const totalU2 = bvTotal + msZuschussTotal;
+
+      document.getElementById("kpi_u2_reimb").textContent = fmtEur(totalU2);
+
+      document.getElementById("tbl_u2").innerHTML = `
+        <tr>
+          <td>§ 18 MuSchG Brutto-Mutterschutzlohn (${bvMonths.toFixed(1).replace(".", ",")} Mo.)</td>
+          <td class="num">${fmtEur(bvGrossTotal)}</td>
+          <td class="num" style="color:var(--emerald);">100 % (${fmtEur(bvGrossTotal)})</td>
+          <td class="num">0,00 €</td>
+        </tr>
+        <tr>
+          <td>§ 1 Abs. 2 Nr. 3 AAG AG-Sozialversicherungsanteile (~20,6 %)</td>
+          <td class="num">${fmtEur(bvSvTotal)}</td>
+          <td class="num" style="color:var(--emerald);">100 % (${fmtEur(bvSvTotal)})</td>
+          <td class="num">0,00 €</td>
+        </tr>
+        <tr>
+          <td>§ 20 MuSchG AG-Zuschuss zum Mutterschaftsgeld (${msDays} Tage)</td>
+          <td class="num">${fmtEur(msZuschussTotal)}</td>
+          <td class="num" style="color:var(--emerald);">100 % (${fmtEur(msZuschussTotal)})</td>
+          <td class="num">0,00 €</td>
+        </tr>
+        <tr style="font-weight:700; color:var(--amber);">
+          <td>Summe Arbeitgeber-Entlastung über U2-Umlageverfahren</td>
+          <td class="num">${fmtEur(totalU2)}</td>
+          <td class="num">${fmtEur(totalU2)}</td>
+          <td class="num">0,00 €</td>
+        </tr>
+      `;
+
+      document.getElementById("callout_u2").innerHTML =
+        `<strong>§ 1 Abs. 2 AAG Voll-Erstattungs-Garantie:</strong> Die Krankenkasse erstattet dem Arbeitgeber über das U2-Verfahren <strong>100 % des Brutto-Mutterschutzlohns (${fmtEur(bvGrossTotal)})</strong>, <strong>100 % der Arbeitgeber-SV-Beiträge (${fmtEur(bvSvTotal)})</strong> sowie <strong>100 % des Mutterschaftsgeld-Zuschusses (${fmtEur(msZuschussTotal)})</strong>. Zudem erwirbt die Mitarbeiterin nach § 24 S. 1 MuSchG vollen bezahlten Urlaubsanspruch ohne Kürzung!`;
+    }
+
+    ["inp_zve_pre", "inp_cohort", "inp_ruerup", "inp_pkv", "inp_iab", "inp_wk", "inp_sibling_twins",
+     "inp_gross_beeg", "inp_tc_mode", "inp_parttime_net", "inp_fulltime_net",
+     "inp_u2_gross", "inp_u2_net", "inp_bv_months", "inp_ms_weeks"].forEach(id => {
+      document.getElementById(id).addEventListener("input", recalc);
+      document.getElementById(id).addEventListener("change", recalc);
+    });
+
+    recalc();
+  </script>
+</body>
+</html>

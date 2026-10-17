@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MVP #73 — Douyin & RedNote (Xiaohongshu) to DACH 8-Week Trend Time-Machine</title>
+  <style>
+    :root {
+      --bg: #0b0f19;
+      --card: #131b2e;
+      --card-alt: #19233c;
+      --border: #263554;
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --accent: #ff2442;
+      --douyin: #00f2fe;
+      --green: #10b981;
+      --amber: #f59e0b;
+      --red: #ef4444;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      padding: 24px;
+    }
+    .container { max-width: 1440px; margin: 0 auto; }
+    header {
+      background: linear-gradient(135deg, #131b2e 0%, #1e152a 60%, #0f2438 100%);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+    .badge-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+    .badge {
+      font-size: 12px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(255, 36, 66, 0.15);
+      color: #ff6b81;
+      border: 1px solid rgba(255, 36, 66, 0.35);
+    }
+    .badge.cyan {
+      background: rgba(0, 242, 254, 0.12);
+      color: var(--douyin);
+      border-color: rgba(0, 242, 254, 0.35);
+    }
+    h1 { font-size: 26px; font-weight: 800; margin-bottom: 8px; }
+    .subtitle { color: var(--muted); font-size: 14px; max-width: 1050px; }
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+    .kpi {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+    }
+    .kpi-label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+    .kpi-val { font-size: 24px; font-weight: 800; margin-top: 4px; }
+    .kpi-sub { font-size: 12px; color: var(--muted); margin-top: 4px; }
+    .layout-grid {
+      display: grid;
+      grid-template-columns: 380px 1fr;
+      gap: 20px;
+      margin-bottom: 24px;
+    }
+    @media (max-width: 1080px) {
+      .layout-grid { grid-template-columns: 1fr; }
+    }
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+    }
+    .panel h2 { font-size: 17px; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+    .control-group { margin-bottom: 14px; }
+    .control-group label { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 4px; color: var(--muted); }
+    .control-group input[type="range"], .control-group select {
+      width: 100%;
+      background: var(--card-alt);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 6px;
+    }
+    .calc-box {
+      background: var(--card-alt);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+      margin-top: 14px;
+    }
+    .calc-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      padding: 5px 0;
+      border-bottom: 1px dashed rgba(148, 163, 184, 0.15);
+    }
+    .calc-row.total {
+      font-weight: 700;
+      font-size: 15px;
+      border-bottom: none;
+      padding-top: 10px;
+      color: var(--douyin);
+    }
+    .filter-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .btn {
+      background: var(--card-alt);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 7px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .btn.active, .btn:hover {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+    .sku-card {
+      background: var(--card-alt);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+      margin-bottom: 16px;
+    }
+    .sku-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .verdict-pill {
+      padding: 5px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .verdict-GO_FAST_TRACK { background: rgba(16, 185, 129, 0.18); color: #34d399; border: 1px solid #10b981; }
+    .verdict-CONDITIONAL_LAB_TEST { background: rgba(245, 158, 11, 0.18); color: #fbbf24; border: 1px solid #f59e0b; }
+    .verdict-NO_GO_TRAP { background: rgba(239, 68, 68, 0.18); color: #f87171; border: 1px solid #ef4444; }
+    .metrics-strip {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(145px, 1fr));
+      gap: 10px;
+      margin: 12px 0;
+      background: rgba(11, 15, 25, 0.55);
+      padding: 12px;
+      border-radius: 8px;
+    }
+    .metric-cell { font-size: 12px; }
+    .metric-cell span { display: block; color: var(--muted); font-size: 11px; }
+    .metric-cell strong { font-size: 15px; }
+    .script-box {
+      background: #0d1424;
+      border-left: 3px solid var(--douyin);
+      padding: 12px;
+      border-radius: 6px;
+      margin-top: 10px;
+      font-size: 13px;
+    }
+    .compliance-box {
+      background: rgba(245, 158, 11, 0.08);
+      border-left: 3px solid var(--amber);
+      padding: 10px 12px;
+      border-radius: 6px;
+      margin-top: 10px;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- DACH CASHFLOW STUDIOS LAUNCH BAR -->
+<style>
+  #dcs-launch-bar {
+    position: sticky;
+    top: 0;
+    z-index: 99999;
+    background: linear-gradient(90deg, #0b1120 0%, #111827 50%, #0f172a 100%);
+    color: #f8fafc;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.35);
+    padding: 8px 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  }
+  #dcs-launch-bar .dcs-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+  }
+  #dcs-launch-bar .dcs-badge {
+    background: rgba(16, 185, 129, 0.18);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.03em;
+  }
+  #dcs-launch-bar a.dcs-nav {
+    color: #93c5fd;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 12.5px;
+  }
+  #dcs-launch-bar a.dcs-nav:hover {
+    text-decoration: underline;
+    color: #dbeafe;
+  }
+  #dcs-launch-bar .dcs-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  #dcs-launch-bar .dcs-btn {
+    padding: 5px 11px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s ease;
+  }
+  #dcs-launch-bar .dcs-btn-ghost {
+    background: rgba(255,255,255,0.08);
+    color: #e2e8f0;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  #dcs-launch-bar .dcs-btn-primary {
+    background: linear-gradient(135deg, #0ea5e9, #2563eb);
+    color: #ffffff;
+  }
+  #dcs-launch-bar .dcs-btn-emerald {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
+  }
+  @media print {
+    #dcs-launch-bar { display: none !important; }
+  }
+</style>
+<div id="dcs-launch-bar">
+  <div class="dcs-left">
+    <a href="/index.html" class="dcs-nav">← Alle 150 DACH Studios</a>
+    <span class="dcs-badge">MVP #073 VERIFIED</span>
+    <span style="color:#cbd5e1;font-size:12px;">DACH Tax, Corporate & Accounting Arbitrage</span>
+  </div>
+  <div class="dcs-actions">
+    <button onclick="window.print()" class="dcs-btn dcs-btn-ghost">🖨️ PDF / Dossier drucken</button>
+    <a href="#checkout-modal-49" target="_blank" rel="noopener" class="dcs-btn dcs-btn-primary">⚡ Musterschreiben & Voll-Dossier (€49)</a>
+    <a href="#checkout-modal-299" target="_blank" rel="noopener" class="dcs-btn dcs-btn-emerald">🛡️ B2B Umsetzung buchen (€299 / €1.490)</a>
+  </div>
+</div>
+
+<div class="container">
+  <header>
+    <div class="badge-row">
+      <span class="badge">MVP #73 · Round 15 Gold-Dive</span>
+      <span class="badge">Xiaohongshu (小红书 种草) + Douyin Shop (抖音商城)</span>
+      <span class="badge cyan">18,950+ Combined Cluster MAU · 7 of Top 12 2026 Breakout Actors</span>
+      <span class="badge cyan">1688 RMB -> EUR Landed Cost + EU LFGB/CE/WEEE Gatekeeper</span>
+    </div>
+    <h1>Douyin & RedNote-to-DACH 8-Week Trend Time-Machine Studio</h1>
+    <p class="subtitle">
+      Erkennt virale <strong>种草 (Zhongcao = Kauflust-Seeding)</strong> Produkte auf Xiaohongshu & Douyin 6–10 Wochen vor dem DACH-Peak,
+      berechnet den echten <strong>1688 Landed Cost inkl. Zoll, 19% EUSt, LUCID VerpackG & LFGB/WEEE-Umlage</strong> und übersetzt
+      chinesische 3-Sekunden-Hooks in rechtssichere deutsche TikTok Shop & Reels Skripte.
+    </p>
+  </header>
+
+  <div class="kpi-grid">
+    <div class="kpi">
+      <div class="kpi-label">Apify 2026 Breakout #1</div>
+      <div class="kpi-val" style="color: var(--accent);">18.950+ MAU</div>
+      <div class="kpi-sub">7 der Top 12 neuen 2026 Actors scrapen Douyin & RedNote</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Fast-Track GO SKUs</div>
+      <div class="kpi-val" style="color: var(--green);">3 / 6</div>
+      <div class="kpi-sub">+ 1 Conditional (LFGB-Test) · 2 Traps blockiert</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Ø DACH Zeitvorsprung</div>
+      <div class="kpi-val" style="color: var(--douyin);">7.5 Wochen</div>
+      <div class="kpi-sub">First-Mover-Fenster vor Amazon.de / TikTok Shop DE Sättigung</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Ø Netto-Marge (GO SKUs)</div>
+      <div class="kpi-val" style="color: var(--green);">32.2%</div>
+      <div class="kpi-sub">Nach 1688 Einkauf, Bahnfracht, TARIC-Zoll, FBA & Creator-Provision</div>
+    </div>
+  </div>
+
+  <div class="layout-grid">
+    <div class="panel">
+      <h2>🧮 Live 1688-to-DACH Landed-Cost Simulator</h2>
+      <div class="control-group">
+        <label><span>Produkt-Preset wählen</span></label>
+        <select id="skuSelect" onchange="loadPreset()"></select>
+      </div>
+      <div class="control-group">
+        <label><span>1688 Ex-Factory Preis (RMB ¥)</span><strong id="lblRmb">9.80 ¥</strong></label>
+        <input type="range" id="rngRmb" min="4" max="80" step="0.5" value="9.8" oninput="recalc()" />
+      </div>
+      <div class="control-group">
+        <label><span>DACH Verkaufspreis Brutto (EUR €)</span><strong id="lblVk">22.90 €</strong></label>
+        <input type="range" id="rngVk" min="12" max="69" step="0.5" value="22.9" oninput="recalc()" />
+      </div>
+      <div class="control-group">
+        <label><span>Fracht-Modus (China -> Deutschland)</span></label>
+        <select id="selFreight" onchange="recalc()">
+          <option value="rail_yiwu_duisburg">Yiwu–Duisburg Güterzug (2,45 €/kg · 18–22 Tage)</option>
+          <option value="air_express">Air Express DDP/DDU (6,80 €/kg · 5–7 Tage)</option>
+          <option value="sea_lcl_hamburg">See-LCL Shenzhen–Hamburg (1,35 €/kg · 35 Tage)</option>
+        </select>
+      </div>
+      <div class="control-group">
+        <label><span>TikTok Shop / Creator Affiliate (%)</span><strong id="lblAff">15%</strong></label>
+        <input type="range" id="rngAff" min="0" max="35" step="1" value="15" oninput="recalc()" />
+      </div>
+
+      <div class="calc-box" id="calcOutput"></div>
+    </div>
+
+    <div class="panel">
+      <h2>🚀 2026 Douyin & Xiaohongshu Trend-Kandidaten (DACH Time-Machine)</h2>
+      <div class="filter-bar">
+        <button class="btn active" onclick="filterCards('ALL', this)">Alle (6)</button>
+        <button class="btn" onclick="filterCards('GO_FAST_TRACK', this)">🟢 Fast-Track GO (3)</button>
+        <button class="btn" onclick="filterCards('CONDITIONAL_LAB_TEST', this)">🟡 LFGB Labor-Pflicht (1)</button>
+        <button class="btn" onclick="filterCards('NO_GO_TRAP', this)">🔴 WEEE/HWG/Margen-Falle (2)</button>
+      </div>
+      <div id="cardsContainer"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const OPPORTUNITIES = [{"sku_id": "DY-XHS-2026-02", "cn_title": "宠物静电自清洁推毛梳一键除毛器 (Electrostatic Self-Cleaning Pet Hair Roller & Sofa Brush)", "de_product_name": "FellWeg Click — Elektrostatische Tierhaarbürste mit 1-Klick-Selbstreinigung", "category": "Pet Accessories (Haustierbedarf)", "hs_code": "9603.90.91", "xhs_save_to_like_ratio_pct": 45.99, "zhongcao_intent_score": 99.2, "douyin_velocity_score": 98.3, "dach_saturation_index": 16.2, "arbitrage_time_machine_score": 99.6, "estimated_lead_weeks_ahead": 8, "ex_factory_1688_rmb": 14.5, "ex_factory_eur": 1.85, "freight_per_unit_eur": 0.99, "customs_duty_eur": 0.11, "regulatory_amortization_per_unit_eur": 0.36, "true_landed_cost_net_eur": 3.31, "eust_19pct_cashflow_per_unit_eur": 0.56, "target_vk_brutto_eur": 27.9, "target_vk_netto_eur": 23.45, "platform_and_fulfillment_eur": 7.0, "creator_affiliate_eur": 4.18, "return_allowance_eur": 1.06, "net_profit_per_unit_eur": 7.9, "net_margin_pct": 33.7, "moq_units": 500, "moq_total_upfront_cash_eur": 1935.0, "unit_roi_pct": 238.7, "compliance_status": "GREEN_CLEAR", "required_certifications": ["GPSR (EU 2023/988) Hersteller-/EU-Bevollmächtigter & Chargen-Etikett", "LUCID VerpackG (Dualer System-Lizenzvertrag)", "REACH SVHC-Konformitätserklärung"], "compliance_blockers_and_actions": ["Keine WEEE-, BattG- oder LFGB-Blocker. Standard-GPSR + LUCID VerpackG ausreichend."], "total_fixed_compliance_cost_eur": 180.0, "verdict": "GO_FAST_TRACK", "verdict_rationale": "FAST-TRACK GO: Mechanisches Non-Elektronik-Produkt ohne WEEE/LFGB-Blocker! 45.99% Xiaohongshu Save-to-Like Ratio, 8 Wochen DACH-Vorsprung, +7.90 EUR Netto-Gewinn/Stück (33.7% Netto-Marge, 238.7% Unit-ROI).", "xhs_semantic_cluster_winner": "Decision + Review ('No Sticky Refill Rolls Needed + Works on Velvet Couches')", "cn_3sec_visual_hook": "Golden Retriever shakes fur onto black velvet sofa -> 2 swipes + 1 button pop ejects a compressed fur brick.", "dach_transcreated_hook_de": "[0–3s Visual Shock] Wenn dein schwarzes Sofa nach 5 Minuten mit Hund oder Katze SO aussieht — wirf deine Kleberollen weg!", "dach_script_body_de": "1) Nahaufnahme: Schwarzes Polster voller Katzenhaare. 2) Zwei Züge mit Mikro-Elektrostatik-Borsten ohne Klebepapier. 3) Befriedigender 1-Klick-Auswurf des Haarbündels direkt in den Mülleimer.", "dach_compliance_note_de": "Rein mechanisch (kein Akku, kein WEEE, kein LFGB). Nur GPSR-Sicherheitsdatenblatt + LUCID VerpackG erforderlich. Perfekter Fast-Track-Import!"}, {"sku_id": "DY-XHS-2026-01", "cn_title": "磁吸模块化硅胶理线器桌面固定夹 (Magnetic Modular Silicone Cable & Desk Anchor)", "de_product_name": "MagGrip Pro — Magnetischer Silikon-Kabelorganizer (6er-Set, N52 Neodym)", "category": "Home Office & Desk Organization", "hs_code": "3926.90.97", "xhs_save_to_like_ratio_pct": 51.66, "zhongcao_intent_score": 100.0, "douyin_velocity_score": 93.0, "dach_saturation_index": 9.3, "arbitrage_time_machine_score": 99.3, "estimated_lead_weeks_ahead": 9, "ex_factory_1688_rmb": 9.8, "ex_factory_eur": 1.25, "freight_per_unit_eur": 0.69, "customs_duty_eur": 0.13, "regulatory_amortization_per_unit_eur": 0.36, "true_landed_cost_net_eur": 2.43, "eust_19pct_cashflow_per_unit_eur": 0.39, "target_vk_brutto_eur": 22.9, "target_vk_netto_eur": 19.24, "platform_and_fulfillment_eur": 6.4, "creator_affiliate_eur": 3.43, "return_allowance_eur": 0.67, "net_profit_per_unit_eur": 6.31, "net_margin_pct": 32.8, "moq_units": 500, "moq_total_upfront_cash_eur": 1410.0, "unit_roi_pct": 259.7, "compliance_status": "GREEN_CLEAR", "required_certifications": ["GPSR (EU 2023/988) Hersteller-/EU-Bevollmächtigter & Chargen-Etikett", "LUCID VerpackG (Dualer System-Lizenzvertrag)", "REACH SVHC-Konformitätserklärung"], "compliance_blockers_and_actions": ["Keine WEEE-, BattG- oder LFGB-Blocker. Standard-GPSR + LUCID VerpackG ausreichend."], "total_fixed_compliance_cost_eur": 180.0, "verdict": "GO_FAST_TRACK", "verdict_rationale": "FAST-TRACK GO: Mechanisches Non-Elektronik-Produkt ohne WEEE/LFGB-Blocker! 51.66% Xiaohongshu Save-to-Like Ratio, 9 Wochen DACH-Vorsprung, +6.31 EUR Netto-Gewinn/Stück (32.8% Netto-Marge, 259.7% Unit-ROI).", "xhs_semantic_cluster_winner": "Scenario + Specification ('Desk Setup Clean Aesthetic + Zero Residue Acrylic Adhesive')", "cn_3sec_visual_hook": "Split-screen: chaotic cable spaghetti under desk -> one-handed magnetic 'SNAP' click in 0.8s with ASMR sound.", "dach_transcreated_hook_de": "[0–3s ASMR-Snap] Hör auf, jedes Mal unter den Schreibtisch zu kriechen, wenn dein Ladekabel runterfällt!", "dach_script_body_de": "1) Zeige das typische Kabel-Chaos am Home-Office-Tisch. 2) Ein-Hand-Magnet-Klick (N52 Neodym) direkt an der Tischkante demonstrieren. 3) Rückstandsloses Ablösen vom Echtholz-Tisch zeigen -> 'Klick auf den gelben Warenkorb für das 6er-Set'.", "dach_compliance_note_de": "GPSR 2024/2026 Hersteller-/Importeur-Etikett + LUCID VerpackG Registrierung + REACH SVHC-Freiheit. Kein WEEE/CE-Blocker (passiver Magnet)."}, {"sku_id": "DY-XHS-2026-04", "cn_title": "车载折叠磁吸遮阳伞前挡风玻璃防晒隔热帘 (Foldable Umbrella-Style Car Windshield UV Heat Shield)", "de_product_name": "SunBlock Fold — Faltbarer Auto-Frontscheiben-Sonnenschutz im Regenschirm-Design (UPF 50+)", "category": "Automotive Accessories (Auto-Zubehör)", "hs_code": "6601.91.00", "xhs_save_to_like_ratio_pct": 41.64, "zhongcao_intent_score": 87.0, "douyin_velocity_score": 77.5, "dach_saturation_index": 21.0, "arbitrage_time_machine_score": 87.3, "estimated_lead_weeks_ahead": 6, "ex_factory_1688_rmb": 16.0, "ex_factory_eur": 2.04, "freight_per_unit_eur": 1.28, "customs_duty_eur": 0.16, "regulatory_amortization_per_unit_eur": 0.36, "true_landed_cost_net_eur": 3.84, "eust_19pct_cashflow_per_unit_eur": 0.66, "target_vk_brutto_eur": 26.9, "target_vk_netto_eur": 22.61, "platform_and_fulfillment_eur": 6.88, "creator_affiliate_eur": 3.77, "return_allowance_eur": 1.13, "net_profit_per_unit_eur": 6.99, "net_margin_pct": 30.9, "moq_units": 500, "moq_total_upfront_cash_eur": 2250.0, "unit_roi_pct": 182.0, "compliance_status": "GREEN_CLEAR", "required_certifications": ["GPSR (EU 2023/988) Hersteller-/EU-Bevollmächtigter & Chargen-Etikett", "LUCID VerpackG (Dualer System-Lizenzvertrag)", "REACH SVHC-Konformitätserklärung"], "compliance_blockers_and_actions": ["Keine WEEE-, BattG- oder LFGB-Blocker. Standard-GPSR + LUCID VerpackG ausreichend."], "total_fixed_compliance_cost_eur": 180.0, "verdict": "GO_FAST_TRACK", "verdict_rationale": "FAST-TRACK GO: Mechanisches Non-Elektronik-Produkt ohne WEEE/LFGB-Blocker! 41.64% Xiaohongshu Save-to-Like Ratio, 6 Wochen DACH-Vorsprung, +6.99 EUR Netto-Gewinn/Stück (30.9% Netto-Marge, 182.0% Unit-ROI).", "xhs_semantic_cluster_winner": "Specification + Tutorial ('Fits SUV & Compact + Folds into Door Pocket in 3 Seconds')", "cn_3sec_visual_hook": "Infrared thermal camera shows 68°C dashboard vs. 31°C after popping open the titanium-silver umbrella shield in 2 seconds.", "dach_transcreated_hook_de": "[0–3s Wärmebild-Kontrast] 65 Grad im geparkten Auto vs. 31 Grad — und er klappt auf wie ein normaler Regenschirm!", "dach_script_body_de": "1) Verbrennungsgefahr am heißen Lenkrad vs. sperrige Alufolien-Matte zeigen. 2) SunBlock Fold in 2 Sekunden wie einen Schirm aufspannen (360° biegsamer Griff schützt das Display). 3) Zusammenfalten und ins Türfach stecken.", "dach_compliance_note_de": "Keine Elektronik, kein Lebensmittelkontakt. GPSR-Produktetikett + REACH Azofarbstoff-/PAK-Prüfung für den Griff + LUCID VerpackG. Sehr geringe Abmahngefahr."}, {"sku_id": "DY-XHS-2026-03", "cn_title": "旋转分格按压式冰块模具盒带冰铲 (Press-to-Release Stackable Silicone Ice Cube Dispenser Box)", "de_product_name": "EisPress Pro — 1-Sekunden Push-Release Eiswürfelbox (64 Würfel + Vorratsbehälter)", "category": "Kitchen & Bar Gadgets", "hs_code": "3924.10.00", "xhs_save_to_like_ratio_pct": 44.05, "zhongcao_intent_score": 88.6, "douyin_velocity_score": 81.1, "dach_saturation_index": 20.7, "arbitrage_time_machine_score": 81.1, "estimated_lead_weeks_ahead": 7, "ex_factory_1688_rmb": 18.2, "ex_factory_eur": 2.32, "freight_per_unit_eur": 1.38, "customs_duty_eur": 0.24, "regulatory_amortization_per_unit_eur": 1.45, "true_landed_cost_net_eur": 5.39, "eust_19pct_cashflow_per_unit_eur": 0.75, "target_vk_brutto_eur": 29.9, "target_vk_netto_eur": 25.13, "platform_and_fulfillment_eur": 7.24, "creator_affiliate_eur": 3.59, "return_allowance_eur": 1.01, "net_profit_per_unit_eur": 7.9, "net_margin_pct": 31.4, "moq_units": 600, "moq_total_upfront_cash_eur": 3684.0, "unit_roi_pct": 146.6, "compliance_status": "AMBER_LAB_OR_REG_REQUIRED", "required_certifications": ["GPSR (EU 2023/988) Hersteller-/EU-Bevollmächtigter & Chargen-Etikett", "LUCID VerpackG (Dualer System-Lizenzvertrag)", "REACH SVHC-Konformitätserklärung", "LFGB §30/31 & EU 10/2011 Lebensmittelkontakt-Migrationsprüfung (TÜV/SGS)"], "compliance_blockers_and_actions": ["LFGB-PFLICHT: Deutsches/EU-akkreditiertes Laborzertifikat (Sensorik + Gesamtmigration) zwingend vor Zollfreigabe nötig (~690 EUR Fixkosten)."], "total_fixed_compliance_cost_eur": 870.0, "verdict": "CONDITIONAL_LAB_TEST", "verdict_rationale": "CONDITIONAL GO (LFGB-Laborprüfung vorab): Starkes Zhongcao-Signal (44.05% Save/Like, 7 Wochen Vorsprung) & 31.4% Netto-Marge (7.90 EUR/Einheit), aber LFGB §30/31 Lebensmittelkontakt-Prüfbericht vor Versand Pflicht!", "xhs_semantic_cluster_winner": "Scenario + Concern ('Iced Matcha Latte at Home + Odor-Free Food-Grade Silicone')", "cn_3sec_visual_hook": "Pressing lid down with two thumbs -> 64 crystal ice cubes drop simultaneously with loud clinking ASMR.", "dach_transcreated_hook_de": "[0–3s Ice-Clink ASMR] Nie wieder steife Plastik-Eiswürfelformen verdrehen, bis sie brechen — 64 Eiswürfel mit EINEM Daumendruck!", "dach_script_body_de": "1) Frust beim Herausdrehen klassischer Eiswürfelformen zeigen. 2) Deckel umdrehen, einmal drücken -> 64 Eiswürfel fallen gleichzeitig in die Box. 3) Iced Coffee / Aperol direkt mit der integrierten Eisschaufel servieren.", "dach_compliance_note_de": "ACHTUNG LFGB-PFLICHT (§30/31 LFGB + EU 10/2011 Lebensmittelkontakt): Vor Zollabfertigung zwingend deutsches Laborzertifikat (TÜV/SGS Migrationstest für PP + Silikon) + Konformitätserklärung (DoC) einholen!"}, {"sku_id": "DY-XHS-2026-05", "cn_title": "微电流红光发热刮痧板瘦脸美容仪 (EMS Microcurrent Red-Light Heated Gua Sha Facial Sculptor)", "de_product_name": "GlowSculpt EMS — LED-Wärme-Gesichtsmassagegerät (TRAP: Hohes HWG/WEEE/BattG Risiko)", "category": "Beauty & Electronic Skincare", "hs_code": "8509.80.00", "xhs_save_to_like_ratio_pct": 36.04, "zhongcao_intent_score": 71.9, "douyin_velocity_score": 73.1, "dach_saturation_index": 75.0, "arbitrage_time_machine_score": 13.2, "estimated_lead_weeks_ahead": 4, "ex_factory_1688_rmb": 38.0, "ex_factory_eur": 4.84, "freight_per_unit_eur": 2.53, "customs_duty_eur": 0.16, "regulatory_amortization_per_unit_eur": 3.66, "true_landed_cost_net_eur": 11.19, "eust_19pct_cashflow_per_unit_eur": 1.43, "target_vk_brutto_eur": 39.9, "target_vk_netto_eur": 33.53, "platform_and_fulfillment_eur": 9.63, "creator_affiliate_eur": 7.98, "return_allowance_eur": 4.86, "net_profit_per_unit_eur": -0.13, "net_margin_pct": -0.4, "moq_units": 500, "moq_total_upfront_cash_eur": 6310.0, "unit_roi_pct": -1.2, "compliance_status": "RED_BLOCKER", "required_certifications": ["GPSR (EU 2023/988) Hersteller-/EU-Bevollmächtigter & Chargen-Etikett", "LUCID VerpackG (Dualer System-Lizenzvertrag)", "REACH SVHC-Konformitätserklärung", "Stiftung EAR WEEE / ElektroG Registrierung (8–12 Wochen Vorlauf)", "BattG Meldung + UN38.3 Lithium-Transporttest + MSDS", "CE-Konformität (EMV / RED / RoHS Prüfberichte)"], "compliance_blockers_and_actions": ["ELEKTRO/AKKU-BLOCKER: Stiftung EAR (WEEE) + BattG + CE-EMV/RoHS Pflicht (~1.650 EUR Fixkosten & 8–12 Wochen Behördenvorlauf; ohne WEEE-Nr. droht sofortige Amazon/TikTok-Sperre!).", "HWG / UWG ABMAHN-BLOCKER: Chinesische Heil-/Entgiftungs-/Sterilisations-Claims verstoßen gegen das deutsche Heilmittelwerbegesetz (HWG) bzw. die EU-Biozid-Verordnung!"], "total_fixed_compliance_cost_eur": 1830.0, "verdict": "NO_GO_TRAP", "verdict_rationale": "STOP / TRAP: Compliance=RED_BLOCKER, Netto-Marge=-0.4%, Xiaohongshu Save-to-Like=36.04%. Hohes WEEE/BattG/HWG-Risiko und/oder negative Unit Economics.", "xhs_semantic_cluster_winner": "Concern + Review ('Does EMS really lift jawline or is it water retention?')", "cn_3sec_visual_hook": "Half-face comparison showing instant 2cm jawline lift + claims 'Eliminates lymph toxins & collagen regeneration'.", "dach_transcreated_hook_de": "[WARNUNG / REWRITE NÖTIG] Entspannte 42°C Wärme-Massage für deine Abend-Skincare-Routine (ohne Heilversprechen!).", "dach_script_body_de": "1) WICHTIG: Chinesische Vorher/Nachher-Heilversprechen ('Lymph-Entgiftung', 'Kollagen-Heilung') führen in DE sofort zu HWG-Abmahnungen! 2) Nur als kosmetisches Wellness-Wärme-Massagegerät zur Pflegeprodukt-Einarbeitung positionieren.", "dach_compliance_note_de": "ROTER BLOCKER: 1) Lithium-Akku erfordert UN38.3 + BattG-Meldung + Stiftung EAR WEEE-Nr. (8–12 Wochen Vorlauf!). 2) CE-EMV/RED + RoHS Prüfberichte nötig. 3) HWG-Abmahnfalle bei chinesischen 'Anti-Aging/Lymph-Detox'-Claims + 14.5% Retourenquote frisst die Marge auf!"}, {"sku_id": "DY-XHS-2026-06", "cn_title": "超声波便携果蔬清洗机无线净化器 (Wireless Ultrasonic Fruit & Vegetable Pesticide Purifier Capsule)", "de_product_name": "VitaClean Sonic — Kabelloser Ultraschall-Obst-Reiniger (TRAP: Biozid/LFGB/WEEE/Margen-Falle)", "category": "Kitchen Electronics", "hs_code": "8543.70.90", "xhs_save_to_like_ratio_pct": 21.71, "zhongcao_intent_score": 40.0, "douyin_velocity_score": 31.8, "dach_saturation_index": 100.0, "arbitrage_time_machine_score": 0.0, "estimated_lead_weeks_ahead": 2, "ex_factory_1688_rmb": 46.0, "ex_factory_eur": 5.86, "freight_per_unit_eur": 3.61, "customs_duty_eur": 0.35, "regulatory_amortization_per_unit_eur": 5.04, "true_landed_cost_net_eur": 14.86, "eust_19pct_cashflow_per_unit_eur": 1.87, "target_vk_brutto_eur": 34.9, "target_vk_netto_eur": 29.33, "platform_and_fulfillment_eur": 8.88, "creator_affiliate_eur": 6.98, "return_allowance_eur": 5.28, "net_profit_per_unit_eur": -6.67, "net_margin_pct": -22.7, "moq_units": 500, "moq_total_upfront_cash_eur": 8365.0, "unit_roi_pct": -44.9, "compliance_status": "RED_BLOCKER", "required_certifications": ["GPSR (EU 2023/988) Hersteller-/EU-Bevollmächtigter & Chargen-Etikett", "LUCID VerpackG (Dualer System-Lizenzvertrag)", "REACH SVHC-Konformitätserklärung", "LFGB §30/31 & EU 10/2011 Lebensmittelkontakt-Migrationsprüfung (TÜV/SGS)", "Stiftung EAR WEEE / ElektroG Registrierung (8–12 Wochen Vorlauf)", "BattG Meldung + UN38.3 Lithium-Transporttest + MSDS", "CE-Konformität (EMV / RED / RoHS Prüfberichte)"], "compliance_blockers_and_actions": ["LFGB-PFLICHT: Deutsches/EU-akkreditiertes Laborzertifikat (Sensorik + Gesamtmigration) zwingend vor Zollfreigabe nötig (~690 EUR Fixkosten).", "ELEKTRO/AKKU-BLOCKER: Stiftung EAR (WEEE) + BattG + CE-EMV/RoHS Pflicht (~1.650 EUR Fixkosten & 8–12 Wochen Behördenvorlauf; ohne WEEE-Nr. droht sofortige Amazon/TikTok-Sperre!).", "HWG / UWG ABMAHN-BLOCKER: Chinesische Heil-/Entgiftungs-/Sterilisations-Claims verstoßen gegen das deutsche Heilmittelwerbegesetz (HWG) bzw. die EU-Biozid-Verordnung!"], "total_fixed_compliance_cost_eur": 2520.0, "verdict": "NO_GO_TRAP", "verdict_rationale": "STOP / TRAP: Compliance=RED_BLOCKER, Netto-Marge=-22.7%, Xiaohongshu Save-to-Like=21.71%. Hohes WEEE/BattG/HWG-Risiko und/oder negative Unit Economics.", "xhs_semantic_cluster_winner": "Concern ('避雷 / Debunking: Does electrolysis actually remove pesticides or just make bubbles?')", "cn_3sec_visual_hook": "Strawberries in water bubble violently with white foam -> claims '99.9% pesticide & bacteria sterilization in 3 mins'.", "dach_transcreated_hook_de": "[NICHT IMPORTIEREN — BIOZID & MARGEN-FALLE]", "dach_script_body_de": "Chinesischer Hook behauptet '99,9% Pestizid- und Bakterien-Sterilisation durch Elektrolyse' -> verstößt in der EU gegen die Biozid-Verordnung (EU 528/2012) und UWG Irreführungsverbot.", "dach_compliance_note_de": "DREIFACH-BLOCKER: WEEE/BattG (Akku im Wasser!) + LFGB Lebensmittelkontakt + EU-Biozid-Verordnung bei '99,9% Sterilisations'-Claims. Zudem Xiaohongshu Save-to-Like Ratio nur 21,7% bei massiver '避雷 (Avoid)'-Kritik in den Kommentaren!"}];
+const FREIGHT_RATES = { rail_yiwu_duisburg: 2.45, air_express: 6.80, sea_lcl_hamburg: 1.35 };
+let currentFilter = 'ALL';
+
+function init() {
+  const sel = document.getElementById('skuSelect');
+  OPPORTUNITIES.forEach((o, idx) => {
+    const opt = document.createElement('option');
+    opt.value = idx;
+    opt.textContent = `${o.sku_id} — ${o.de_product_name.split('—')[0].trim()}`;
+    sel.appendChild(opt);
+  });
+  loadPreset();
+  renderCards();
+}
+
+function loadPreset() {
+  const idx = parseInt(document.getElementById('skuSelect').value || '0', 10);
+  const o = OPPORTUNITIES[idx];
+  document.getElementById('rngRmb').value = o.ex_factory_1688_rmb;
+  document.getElementById('rngVk').value = o.target_vk_brutto_eur;
+  document.getElementById('rngAff').value = Math.round((o.creator_affiliate_eur / o.target_vk_brutto_eur) * 100);
+  recalc();
+}
+
+function recalc() {
+  const idx = parseInt(document.getElementById('skuSelect').value || '0', 10);
+  const o = OPPORTUNITIES[idx];
+  const rmb = parseFloat(document.getElementById('rngRmb').value);
+  const vkBrutto = parseFloat(document.getElementById('rngVk').value);
+  const affPct = parseFloat(document.getElementById('rngAff').value);
+  const freightMode = document.getElementById('selFreight').value;
+
+  document.getElementById('lblRmb').textContent = rmb.toFixed(2) + ' ¥';
+  document.getElementById('lblVk').textContent = vkBrutto.toFixed(2) + ' €';
+  document.getElementById('lblAff').textContent = affPct.toFixed(0) + '%';
+
+  const exEur = rmb / 7.85;
+  const weightEst = (o.freight_per_unit_eur - 0.35) / 2.45;
+  const freightEur = Math.max(0.45, weightEst * FREIGHT_RATES[freightMode] + 0.35);
+  const dutyEur = (exEur + freightEur) * 0.05;
+  const regAmort = o.regulatory_amortization_per_unit_eur;
+  const landedNet = exEur + freightEur + dutyEur + regAmort;
+  const vkNetto = vkBrutto / 1.19;
+  const platformFee = vkBrutto * 0.12 + 3.65;
+  const affFee = vkBrutto * (affPct / 100.0);
+  const returnCost = o.return_allowance_eur;
+  const netProfit = vkNetto - landedNet - platformFee - affFee - returnCost;
+  const netMargin = (netProfit / vkNetto) * 100.0;
+
+  const color = netMargin >= 20 ? '#10b981' : (netMargin >= 10 ? '#f59e0b' : '#ef4444');
+  document.getElementById('calcOutput').innerHTML = `
+    <div class="calc-row"><span>1688 Ex-Factory (7,85 RMB/€):</span><strong>${exEur.toFixed(2)} €</strong></div>
+    <div class="calc-row"><span>Fracht + China-Konsolidierung:</span><strong>${freightEur.toFixed(2)} €</strong></div>
+    <div class="calc-row"><span>EU TARIC Zoll + Compliance-Umlage:</span><strong>${(dutyEur + regAmort).toFixed(2)} €</strong></div>
+    <div class="calc-row"><span><strong>True Landed Cost (Netto):</strong></span><strong>${landedNet.toFixed(2)} €</strong></div>
+    <div class="calc-row"><span>VK Netto (nach 19% USt):</span><strong>${vkNetto.toFixed(2)} €</strong></div>
+    <div class="calc-row"><span>Plattform + 3PL Pick&Pack + Retouren:</span><strong>-${(platformFee + returnCost).toFixed(2)} €</strong></div>
+    <div class="calc-row"><span>Creator Affiliate (${affPct}%):</span><strong>-${affFee.toFixed(2)} €</strong></div>
+    <div class="calc-row total" style="color:${color}">
+      <span>Netto-Gewinn / Stück (Marge):</span>
+      <span>${netProfit.toFixed(2)} € (${netMargin.toFixed(1)}%)</span>
+    </div>
+  `;
+}
+
+function filterCards(verdict, btn) {
+  currentFilter = verdict;
+  document.querySelectorAll('.filter-bar .btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderCards();
+}
+
+function renderCards() {
+  const container = document.getElementById('cardsContainer');
+  const filtered = OPPORTUNITIES.filter(o => currentFilter === 'ALL' || o.verdict === currentFilter);
+  container.innerHTML = filtered.map(o => `
+    <div class="sku-card">
+      <div class="sku-header">
+        <div>
+          <div style="font-size:12px; color:var(--muted);">${o.sku_id} · ${o.category} · HS ${o.hs_code} · <span style="color:var(--douyin)">⏱️ ${o.estimated_lead_weeks_ahead} Wochen vor DACH-Peak</span></div>
+          <h3 style="font-size:17px; margin-top:2px;">${o.de_product_name}</h3>
+          <div style="font-size:12px; color:var(--muted);">${o.cn_title}</div>
+        </div>
+        <span class="verdict-pill verdict-${o.verdict}">${o.verdict} · Score ${o.arbitrage_time_machine_score}/100</span>
+      </div>
+
+      <div class="metrics-strip">
+        <div class="metric-cell"><span>Xiaohongshu Save/Like</span><strong style="color:var(--accent)">${o.xhs_save_to_like_ratio_pct}% (Intent ${o.zhongcao_intent_score})</strong></div>
+        <div class="metric-cell"><span>Douyin Velocity Score</span><strong style="color:var(--douyin)">${o.douyin_velocity_score} / 100</strong></div>
+        <div class="metric-cell"><span>DACH Saturation Index</span><strong>${o.dach_saturation_index} / 100</strong></div>
+        <div class="metric-cell"><span>1688 -> Landed Cost</span><strong>${o.ex_factory_1688_rmb}¥ -> ${o.true_landed_cost_net_eur.toFixed(2)}€</strong></div>
+        <div class="metric-cell"><span>DACH VK Brutto / Netto</span><strong>${o.target_vk_brutto_eur.toFixed(2)}€ / ${o.target_vk_netto_eur.toFixed(2)}€</strong></div>
+        <div class="metric-cell"><span>Netto-Gewinn / Marge</span><strong style="color:${o.net_margin_pct >= 20 ? '#10b981' : '#ef4444'}">${o.net_profit_per_unit_eur.toFixed(2)}€ (${o.net_margin_pct}%)</strong></div>
+      </div>
+
+      <div style="font-size:13px; margin-bottom:8px;"><strong>Entscheidungs-Begründung:</strong> ${o.verdict_rationale}</div>
+      <div style="font-size:12px; color:var(--muted);"><strong>Xiaohongshu Semantic Cluster Winner:</strong> ${o.xhs_semantic_cluster_winner}</div>
+
+      <div class="script-box">
+        <div><strong>🎬 CN 3-Sekunden-Vorlage (Douyin):</strong> ${o.cn_3sec_visual_hook}</div>
+        <div style="margin-top:4px; color:var(--douyin);"><strong>🇩🇪 DACH TikTok Shop / Reels Hook:</strong> ${o.dach_transcreated_hook_de}</div>
+        <div style="margin-top:4px;"><strong>Storyboard:</strong> ${o.dach_script_body_de}</div>
+      </div>
+
+      <div class="compliance-box">
+        <strong>🛡️ EU/DE Zoll & Compliance Gatekeeper (${o.compliance_status} · Fixkosten ca. ${o.total_fixed_compliance_cost_eur.toFixed(0)} €):</strong>
+        ${o.dach_compliance_note_de}
+      </div>
+    </div>
+  `).join('');
+}
+
+init();
+</script>
+</body>
+</html>

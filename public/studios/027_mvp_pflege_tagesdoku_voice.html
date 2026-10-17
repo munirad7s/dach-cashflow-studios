@@ -1,0 +1,2271 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PflegeDoku Voice AI — SGB IX (ICF d1–d9) & SGB XI (SIS) Tagesdokumentation</title>
+  <style>
+    :root {
+      --bg: #0b1120;
+      --surface: #111827;
+      --surface-2: #1e293b;
+      --border: #334155;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --primary: #38bdf8;
+      --primary-dark: #0284c7;
+      --emerald: #10b981;
+      --amber: #f59e0b;
+      --rose: #f43f5e;
+      --violet: #a855f7;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      padding-bottom: 60px;
+    }
+    header {
+      background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 20px 28px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .brand-badge {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--primary), var(--violet));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 20px;
+      color: #fff;
+      box-shadow: 0 8px 20px rgba(56, 189, 248, 0.25);
+    }
+    .brand h1 {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+    .brand p {
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .kpi-strip {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .kpi-pill {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+      padding: 8px 14px;
+      border-radius: 10px;
+      font-size: 12px;
+    }
+    .kpi-pill strong {
+      display: block;
+      font-size: 15px;
+      color: var(--primary);
+    }
+    .container {
+      max-width: 1440px;
+      margin: 24px auto;
+      padding: 0 24px;
+      display: grid;
+      grid-template-columns: 410px 1fr;
+      gap: 24px;
+    }
+    @media (max-width: 1100px) {
+      .container { grid-template-columns: 1fr; }
+    }
+    .phone-frame {
+      background: var(--surface);
+      border: 2px solid var(--border);
+      border-radius: 28px;
+      padding: 20px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.45);
+      position: sticky;
+      top: 20px;
+    }
+    .phone-notch {
+      width: 110px;
+      height: 6px;
+      background: var(--border);
+      border-radius: 999px;
+      margin: 0 auto 16px;
+    }
+    .phone-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+    .lang-badges {
+      display: flex;
+      gap: 5px;
+      flex-wrap: wrap;
+    }
+    .badge {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 6px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+    .badge.emerald { background: rgba(16, 185, 129, 0.15); border-color: var(--emerald); color: #34d399; }
+    .badge.rose { background: rgba(244, 63, 94, 0.18); border-color: var(--rose); color: #fb7185; }
+    .badge.amber { background: rgba(245, 158, 11, 0.18); border-color: var(--amber); color: #fbbf24; }
+    .badge.sky { background: rgba(56, 189, 248, 0.15); border-color: var(--primary); color: var(--primary); }
+    .badge.violet { background: rgba(168, 85, 247, 0.18); border-color: var(--violet); color: #c084fc; }
+
+    .scenario-selector {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .scenario-btn {
+      text-align: left;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 10px 12px;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      font-size: 13px;
+    }
+    .scenario-btn:hover, .scenario-btn.active {
+      border-color: var(--primary);
+      background: rgba(56, 189, 248, 0.12);
+    }
+    .scenario-btn .sub {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+    .mic-box {
+      background: linear-gradient(180deg, rgba(56,189,248,0.12), rgba(168,85,247,0.08));
+      border: 1px dashed var(--primary);
+      border-radius: 16px;
+      padding: 14px;
+      text-align: center;
+      margin-bottom: 14px;
+    }
+    .mic-btn {
+      background: linear-gradient(135deg, var(--primary-dark), var(--violet));
+      color: #fff;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 6px 18px rgba(56,189,248,0.3);
+    }
+    textarea.voice-input {
+      width: 100%;
+      min-height: 115px;
+      background: #090d16;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      color: var(--text);
+      padding: 10px 12px;
+      font-size: 13px;
+      resize: vertical;
+      margin-bottom: 10px;
+      font-family: inherit;
+    }
+    .transform-btn {
+      width: 100%;
+      background: var(--emerald);
+      color: #042f2e;
+      font-weight: 800;
+      border: none;
+      padding: 12px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: opacity 0.15s;
+    }
+    .transform-btn:hover { opacity: 0.92; }
+
+    .workspace {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 20px 24px;
+    }
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    .card-title {
+      font-size: 17px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .mode-tabs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .tab-btn {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 8px 14px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .tab-btn.active {
+      background: var(--primary);
+      color: #082f49;
+      border-color: var(--primary);
+    }
+    .icf-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 14px;
+    }
+    .icf-card {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px;
+      transition: transform 0.12s;
+    }
+    .icf-card.active-domain {
+      border-color: var(--primary);
+      background: linear-gradient(180deg, rgba(56,189,248,0.09), rgba(30,41,59,0.95));
+    }
+    .icf-card.inactive-domain {
+      opacity: 0.58;
+    }
+    .icf-code-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .icf-code {
+      font-weight: 800;
+      font-size: 14px;
+      color: var(--primary);
+    }
+    .field-block {
+      margin-top: 8px;
+      font-size: 12.5px;
+    }
+    .field-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--muted);
+      font-weight: 700;
+      margin-bottom: 2px;
+    }
+    .sis-columns {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    @media (max-width: 850px) {
+      .sis-columns { grid-template-columns: 1fr; }
+    }
+    .alert-box {
+      border-radius: 12px;
+      padding: 12px 14px;
+      margin-bottom: 10px;
+      border: 1px solid var(--border);
+      background: var(--surface-2);
+      font-size: 13px;
+    }
+    .alert-box.critical {
+      border-color: var(--rose);
+      background: rgba(244, 63, 94, 0.12);
+    }
+    .alert-box.high {
+      border-color: var(--amber);
+      background: rgba(245, 158, 11, 0.12);
+    }
+    .alert-box.routine {
+      border-color: var(--emerald);
+      background: rgba(16, 185, 129, 0.09);
+    }
+    .handover-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    .handover-table th, .handover-table td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+      vertical-align: top;
+    }
+    .handover-table th {
+      color: var(--muted);
+      font-size: 11px;
+      text-transform: uppercase;
+    }
+    .formal-report-box {
+      background: #090d16;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+      font-size: 13px;
+      line-height: 1.65;
+      color: #e2e8f0;
+      margin-top: 12px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- DACH CASHFLOW STUDIOS LAUNCH BAR -->
+<style>
+  #dcs-launch-bar {
+    position: sticky;
+    top: 0;
+    z-index: 99999;
+    background: linear-gradient(90deg, #0b1120 0%, #111827 50%, #0f172a 100%);
+    color: #f8fafc;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.35);
+    padding: 8px 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  }
+  #dcs-launch-bar .dcs-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+  }
+  #dcs-launch-bar .dcs-badge {
+    background: rgba(16, 185, 129, 0.18);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.03em;
+  }
+  #dcs-launch-bar a.dcs-nav {
+    color: #93c5fd;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 12.5px;
+  }
+  #dcs-launch-bar a.dcs-nav:hover {
+    text-decoration: underline;
+    color: #dbeafe;
+  }
+  #dcs-launch-bar .dcs-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  #dcs-launch-bar .dcs-btn {
+    padding: 5px 11px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s ease;
+  }
+  #dcs-launch-bar .dcs-btn-ghost {
+    background: rgba(255,255,255,0.08);
+    color: #e2e8f0;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  #dcs-launch-bar .dcs-btn-primary {
+    background: linear-gradient(135deg, #0ea5e9, #2563eb);
+    color: #ffffff;
+  }
+  #dcs-launch-bar .dcs-btn-emerald {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
+  }
+  @media print {
+    #dcs-launch-bar { display: none !important; }
+  }
+</style>
+<div id="dcs-launch-bar">
+  <div class="dcs-left">
+    <a href="/index.html" class="dcs-nav">← Alle 150 DACH Studios</a>
+    <span class="dcs-badge">MVP #027 VERIFIED</span>
+    <span style="color:#cbd5e1;font-size:12px;">DACH LegalTech, Labor Law & Consumer Claims</span>
+  </div>
+  <div class="dcs-actions">
+    <button onclick="window.print()" class="dcs-btn dcs-btn-ghost">🖨️ PDF / Dossier drucken</button>
+    <a href="#checkout-modal-49" target="_blank" rel="noopener" class="dcs-btn dcs-btn-primary">⚡ Musterschreiben & Voll-Dossier (€49)</a>
+    <a href="#checkout-modal-299" target="_blank" rel="noopener" class="dcs-btn dcs-btn-emerald">🛡️ B2B Umsetzung buchen (€299 / €1.490)</a>
+  </div>
+</div>
+
+
+<header>
+  <div class="brand">
+    <div class="brand-badge">PF</div>
+    <div>
+      <h1>PflegeDoku Voice AI — SGB IX (ICF d1–d9) &amp; SGB XI (SIS) Engine</h1>
+      <p>Kibu ($234k MRR / $625 ARPU) DACH-Adaption · 20s Mehrsprachige Spracheingabe &rarr; MDK- &amp; Teilhabeplan-prüfsicherer Bericht</p>
+    </div>
+  </div>
+  <div class="kpi-strip">
+    <div class="kpi-pill"><strong>48,5 Min. / Schicht</strong>Zeitersparnis pro Kraft</div>
+    <div class="kpi-pill"><strong>DE · TR · AR · PL · RO · UKR</strong>Mehrsprachige Pflege-KI</div>
+    <div class="kpi-pill"><strong>§ 118 SGB IX &amp; SIS</strong>100% Prüfungs-Compliance</div>
+    <div class="kpi-pill"><strong>Vivendi · Curasoft · MICOS</strong>1-Klick Export-bereit</div>
+  </div>
+</header>
+
+<div class="container">
+  <aside class="phone-frame">
+    <div class="phone-notch"></div>
+    <div class="phone-header">
+      <div>
+        <div style="font-weight:700;font-size:15px;">MagicVoice Übergabe</div>
+        <div style="font-size:11px;color:var(--muted);">20-Sekunden Sprachnotiz am Bett / im Gruppendienst</div>
+      </div>
+      <span class="badge emerald">LIVE ENGINE</span>
+    </div>
+
+    <div class="field-label" style="margin-bottom:6px;">1. Klient &amp; Praxisszenario wählen:</div>
+    <div class="scenario-selector" id="scenarioSelector"></div>
+
+    <div class="mic-box">
+      <button class="mic-btn" id="simulateMicBtn" type="button">
+        <span>🎙️ 20s Sprachmemo abspielen / diktieren</span>
+      </button>
+      <div style="font-size:11px;color:var(--muted);margin-top:6px;">
+        Erkennt automatisch Deutsch, Türkisch, Arabisch, Polnisch, Rumänisch, Ukrainisch &amp; Übergabe-Slang
+      </div>
+    </div>
+
+    <div class="field-label">2. Transkript (Freitext / Code-Switching editierbar):</div>
+    <textarea id="voiceTranscriptInput" class="voice-input"></textarea>
+
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+      <span style="font-size:11px;color:var(--muted);">Erkannte Sprachen:</span>
+      <div class="lang-badges" id="detectedLangBadges"></div>
+    </div>
+
+    <button class="transform-btn" id="runEngineBtn" type="button">
+      ⚡ Jetzt in SGB IX (ICF) &amp; SGB XI (SIS) Bericht umwandeln
+    </button>
+  </aside>
+
+  <main class="workspace">
+    <section class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title" id="clientHeaderTitle">Klientenakte lädt...</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:3px;" id="clientHeaderSub"></div>
+        </div>
+        <div class="mode-tabs">
+          <button class="tab-btn active" data-tab="sgb9" type="button">SGB IX Modus (ICF d1–d9 &amp; BTHG)</button>
+          <button class="tab-btn" data-tab="sgb11" type="button">SGB XI Modus (SIS &amp; MDK-Berichteblatt)</button>
+          <button class="tab-btn" data-tab="handover" type="button">Schichtübergabe &amp; Kibu-Benchmark</button>
+        </div>
+      </div>
+
+      <div id="translationBanner" style="margin-bottom:12px;"></div>
+
+      <div class="field-label">Prüfsicherer Gesamt-Verlaufsbericht (Kopierfertig für Vivendi / Curasoft / MICOS):</div>
+      <div class="formal-report-box" id="formalSummaryBox"></div>
+    </section>
+
+    <section class="card" id="tab-sgb9">
+      <div class="card-header">
+        <div class="card-title">
+          <span>🧩 SGB IX Eingliederungshilfe — 9 ICF Lebensbereiche (§ 118 SGB IX / BEI_NRW / ITP)</span>
+        </div>
+        <span class="badge violet" id="assistenzModeBadge"></span>
+      </div>
+      <div class="icf-grid" id="icfGridContainer"></div>
+    </section>
+
+    <section class="card" id="tab-sgb11" style="display:none;">
+      <div class="card-header">
+        <div class="card-title">
+          <span>🩺 SGB XI Strukturmodell (SIS) — Abweichungsprinzip &amp; MDK-Risikoprüfung</span>
+        </div>
+        <span class="badge emerald" id="mdkScoreBadge">MDK-QPR Audit-Score: 99/100</span>
+      </div>
+
+      <div class="sis-columns">
+        <div>
+          <div class="field-label" style="margin-bottom:8px;">🚨 Akute Pflegerisiken &amp; Pflicht-Berichteblatt (Nur Abweichungen!):</div>
+          <div id="sisRisksContainer"></div>
+        </div>
+        <div>
+          <div class="field-label" style="margin-bottom:8px;">🛡️ Ausgefilterte Routine-Maßnahmen (Schutz vor Textwüsten):</div>
+          <div id="sisRoutineFilterContainer"></div>
+          <div class="field-label" style="margin-top:16px;margin-bottom:8px;">📋 Gesetzlicher SIS-Evaluations-Trigger:</div>
+          <div id="sisEvalBox" class="alert-box"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card" id="tab-handover" style="display:none;">
+      <div class="card-header">
+        <div class="card-title">
+          <span>🔄 Schichtübergabe-Board (Alle Klienten) &amp; Kibu ($200k/30d) DACH-Marktanalyse</span>
+        </div>
+        <span class="badge sky">375 Einrichtungen · $624.85 ARPU</span>
+      </div>
+      <table class="handover-table">
+        <thead>
+          <tr>
+            <th>Priorität</th>
+            <th>Klient &amp; Setting</th>
+            <th>Pflegekraft (Sprache)</th>
+            <th>ICF-Domänen</th>
+            <th>SIS-Risiken &amp; Übergabe-Kernaussage</th>
+          </tr>
+        </thead>
+        <tbody id="handoverTableBody"></tbody>
+      </table>
+    </section>
+  </main>
+</div>
+
+<script>
+  const REPORTS = [
+  {
+    "note_id": "DOKU-2026-1017-01",
+    "timestamp_berlin": "2026-10-17T13:10:00+02:00",
+    "caregiver_name": "Ayşe Yılmaz (Pflegefachkraft)",
+    "caregiver_native_lang": "TR / DE",
+    "audio_duration_sec": 19,
+    "time_saved_minutes": 11.5,
+    "client": {
+      "client_id": "KL-901",
+      "name": "Herr Klaus-Dieter Bauer",
+      "age": 74,
+      "care_setting": "KOMPLEX_BEIDE",
+      "pflegegrad_or_bg": "Pflegegrad 4 & SGB IX Besondere Wohnform (BEI_NRW)",
+      "primary_diagnoses": [
+        "Vaskuläre Demenz",
+        "Arterielle Hypertonie",
+        "Z.n. Oberschenkelhalsfraktur links"
+      ],
+      "teilhabeziele": [
+        {
+          "code": "d4",
+          "goal_title": "Sichere Fortbewegung im Wohnbereich mit Rollator erhalten",
+          "target_indicator": "Täglicher Transfer und 50m Gehen mit punktueller Assistenz ohne Sturzereignis"
+        },
+        {
+          "code": "d5",
+          "goal_title": "Selbstständige Grundpflege-Teilhandlungen und ausreichende Trinkmenge (>1.300 ml/Tag)",
+          "target_indicator": "Eigenständiges Ankleiden des Oberkörpers nach Anleitung; Trinkbilanz stabil"
+        }
+      ],
+      "sis_massnahmenplan_summary": [
+        "TF 2 Mobilität: Begleiteter Transfer morgens/abends, Rollator griffbereit stellen",
+        "TF 4 Selbstversorgung: Anleitung beim Ankleiden, Trinkangebot alle 2 Stunden"
+      ]
+    },
+    "raw_transcript": "Herr Bauer hat heute Morgen kendi başına giyindi beim Oberkörper und ilaçlarını aldı wie geplant. Aber im Bad: banyoda başı döndü und az kalsın düşüyordu beim Aufstehen vom Toilettenstuhl, ich musste ihn am Rollator abfangen. Außerdem bugün çok az su içti, nur knapp 300 ml bis Mittag, und yemek istemedi beim Mittagessen.",
+    "detected_languages": [
+      "DE",
+      "TR"
+    ],
+    "normalized_german_summary": "[D4 – Mobilität (d465 Sich unter Verwendung von Geräten/Hilfsmitteln fortbewegen (Rollator/Rollstuhl))]: Ressource: Erhaltene Grundmobilität im Wohnbereich unter Nutzung des Rollators und personeller Sicherheitsbegleitung. | Barriere/Wechselwirkung: Akute Gangunsicherheit und orthostatische Schwindelneigung beim Lagewechsel (erhöhtes Sturzrisiko). | Leistung (§ 78 SGB IX): Qualifizierte Assistenz (§ 78 Abs. 2 Nr. 2 SGB IX: Befähigung, Anleitung & Begleitung) – Personenzentrierte Assistenz durch strukturierende Impulsgebung, verbale Anleitung, Krisenprävention und Förderung der eigenständigen Handlungsausführung. | Wirkungskontrolle: Teilweise erreicht (Kompensatorische Unterstützung / Krisenintervention dokumentiert) ([D4] Sichere Fortbewegung im Wohnbereich mit Rollator erhalten (Indikator: Täglicher Transfer und 50m Gehen mit punktueller Assistenz ohne Sturzereignis)). [D5 – Selbstversorgung (d560 Trinken (Flüssigkeitsaufnahme))]: Ressource: Führt Teilhandlungen der Selbstversorgung (Ankleiden/Zahnpflege/Medikamenteneinnahme) nach Impulsgebung eigenständig aus. | Barriere/Wechselwirkung: Beeinträchtigte Eigenwahrnehmung für Durst-/Ernährungsbedarf bzw. körperliche Einschränkung bei der Intim- und Hautpflege. | Leistung (§ 78 SGB IX): Qualifizierte Assistenz (§ 78 Abs. 2 Nr. 2 SGB IX: Befähigung, Anleitung & Begleitung) – Personenzentrierte Assistenz durch strukturierende Impulsgebung, verbale Anleitung, Krisenprävention und Förderung der eigenständigen Handlungsausführung. | Wirkungskontrolle: Teilweise erreicht (Kompensatorische Unterstützung / Krisenintervention dokumentiert) ([D5] Selbstständige Grundpflege-Teilhandlungen und ausreichende Trinkmenge (>1.300 ml/Tag) (Indikator: Eigenständiges Ankleiden des Oberkörpers nach Anleitung; Trinkbilanz stabil)). [D6 – Häusliches Leben (d640 Hausarbeiten erledigen (Reinigung, Wäsche, Aufräumen))]: Ressource: Hohe Alltagsressource bei lebenspraktischen Tätigkeiten (Einkauf, Getränkezubereitung, Zimmerordnung) mit Assistenz. | Barriere/Wechselwirkung: Umwelt- und personenbezogene Barriere erfordert strukturierende Assistenz zur Teilhabesicherung. | Leistung (§ 78 SGB IX): Qualifizierte Assistenz (§ 78 Abs. 2 Nr. 2 SGB IX: Befähigung, Anleitung & Begleitung) – Personenzentrierte Assistenz durch strukturierende Impulsgebung, verbale Anleitung, Krisenprävention und Förderung der eigenständigen Handlungsausführung. | Wirkungskontrolle: Teilweise erreicht (Kompensatorische Unterstützung / Krisenintervention dokumentiert) ([D4] Sichere Fortbewegung im Wohnbereich mit Rollator erhalten (Indikator: Täglicher Transfer und 50m Gehen mit punktueller Assistenz ohne Sturzereignis)).",
+    "sgb_ix_icf_report": {
+      "legal_framework": "SGB IX Teil 2 (BTHG) / § 118 SGB IX (ICF-orientierte Bedarfsermittlung) / § 121 SGB IX Gesamtplan",
+      "active_icf_domains_count": 3,
+      "active_icf_codes": [
+        "d4",
+        "d5",
+        "d6"
+      ],
+      "primary_assistenz_classification": "Qualifizierte Assistenz (§ 78 Abs. 2 Nr. 2 SGB IX: Befähigung, Anleitung & Begleitung)",
+      "multilingual_normalizations": [
+        {
+          "source_phrase": "bugün çok az su içti",
+          "language": "TR",
+          "formal_german_mapping": "hat heute sehr wenig getrunken (nur ca. 300 ml Flüssigkeitsaufnahme)"
+        },
+        {
+          "source_phrase": "yemek istemedi",
+          "language": "TR",
+          "formal_german_mapping": "hat die Mahlzeit abgelehnt / kaum gegessen"
+        },
+        {
+          "source_phrase": "banyoda başı döndü",
+          "language": "TR",
+          "formal_german_mapping": "zeigte Schwindel im Badezimmer beim Aufstehen"
+        },
+        {
+          "source_phrase": "az kalsın düşüyordu",
+          "language": "TR",
+          "formal_german_mapping": "Beinahe-Sturz / Gangunsicherheit beobachtet, musste gestützt werden"
+        },
+        {
+          "source_phrase": "ilaçlarını aldı",
+          "language": "TR",
+          "formal_german_mapping": "hat die verordnete Medikation vollständig eingenommen"
+        },
+        {
+          "source_phrase": "kendi başına giyindi",
+          "language": "TR",
+          "formal_german_mapping": "hat sich selbstständig angekleidet (Ressource erhalten)"
+        }
+      ],
+      "formal_icf_verlaufsbericht": "[D4 – Mobilität (d465 Sich unter Verwendung von Geräten/Hilfsmitteln fortbewegen (Rollator/Rollstuhl))]: Ressource: Erhaltene Grundmobilität im Wohnbereich unter Nutzung des Rollators und personeller Sicherheitsbegleitung. | Barriere/Wechselwirkung: Akute Gangunsicherheit und orthostatische Schwindelneigung beim Lagewechsel (erhöhtes Sturzrisiko). | Leistung (§ 78 SGB IX): Qualifizierte Assistenz (§ 78 Abs. 2 Nr. 2 SGB IX: Befähigung, Anleitung & Begleitung) – Personenzentrierte Assistenz durch strukturierende Impulsgebung, verbale Anleitung, Krisenprävention und Förderung der eigenständigen Handlungsausführung. | Wirkungskontrolle: Teilweise erreicht (Kompensatorische Unterstützung / Krisenintervention dokumentiert) ([D4] Sichere Fortbewegung im Wohnbereich mit Rollator erhalten (Indikator: Täglicher Transfer und 50m Gehen mit punktueller Assistenz ohne Sturzereignis)). [D5 – Selbstversorgung (d560 Trinken (Flüssigkeitsaufnahme))]: Ressource: Führt Teilhandlungen der Selbstversorgung (Ankleiden/Zahnpflege/Medikamenteneinnahme) nach Impulsgebung eigenständig aus. | Barriere/Wechselwirkung: Beeinträchtigte Eigenwahrnehmung für Durst-/Ernährungsbedarf bzw. körperliche Einschränkung bei der Intim- und Hautpflege. | Leistung (§ 78 SGB IX): Qualifizierte Assistenz (§ 78 Abs. 2 Nr. 2 SGB IX: Befähigung, Anleitung & Begleitung) – Personenzentrierte Assistenz durch strukturierende Impulsgebung, verbale Anleitung, Krisenprävention und Förderung der eigenständigen Handlungsausführung. | Wirkungskontrolle: Teilweise erreicht (Kompensatorische Unterstützung / Krisenintervention dokumentiert) ([D5] Selbstständige Grundpflege-Teilhandlungen und ausreichende Trinkmenge (>1.300 ml/Tag) (Indikator: Eigenständiges Ankleiden des Oberkörpers nach Anleitung; Trinkbilanz stabil)). [D6 – Häusliches Leben (d640 Hausarbeiten erledigen (Reinigung, Wäsche, Aufräumen))]: Ressource: Hohe Alltagsressource bei lebenspraktischen Tätigkeiten (Einkauf, Getränkezubereitung, Zimmerordnung) mit Assistenz. | Barriere/Wechselwirkung: Umwelt- und personenbezogene Barriere erfordert strukturierende Assistenz zur Teilhabesicherung. | Leistung (§ 78 SGB IX): Qualifizierte Assistenz (§ 78 Abs. 2 Nr. 2 SGB IX: Befähigung, Anleitung & Begleitung) – Personenzentrierte Assistenz durch strukturierende Impulsgebung, verbale Anleitung, Krisenprävention und Förderung der eigenständigen Handlungsausführung. | Wirkungskontrolle: Teilweise erreicht (Kompensatorische Unterstützung / Krisenintervention dokumentiert) ([D4] Sichere Fortbewegung im Wohnbereich mit Rollator erhalten (Indikator: Täglicher Transfer und 50m Gehen mit punktueller Assistenz ohne Sturzereignis)).",
+      "icf_9_lebensbereiche_matrix": [
+        {
+          "code": "d1",
+          "title": "Lernen und Wissensanwendung",
+          "active_in_note": false,
+          "subcode": "-",
+          "subcode_label": "Keine tagesaktuelle Besonderheit im Sprachprotokoll",
+          "bef_instrument_ref": "BEI_NRW LB 1 / ITP Bogen D1",
+          "ressourcen": [
+            "Stabil gemäß aktuellem Gesamt-/Teilhabeplan (§ 121 SGB IX)"
+          ],
+          "barrieren": [],
+          "leistung_typ": "Reguläre Hintergrundbereitschaft",
+          "leistung_beschreibung": "Leistungserbringung planmäßig ohne gesonderten Dokumentationsvorfall.",
+          "teilhabeziel_bezug": "Planmäßiger Verlauf",
+          "wirkungskontrolle_status": "Konstant / Planmäßig"
+        },
+        {
+          "code": "d2",
+          "title": "Allgemeine Aufgaben und Anforderungen",
+          "active_in_note": false,
+          "subcode": "-",
+          "subcode_label": "Keine tagesaktuelle Besonderheit im Sprachprotokoll",
+          "bef_instrument_ref": "BEI_NRW LB 2 / ITP Bogen D2",
+          "ressourcen": [
+            "Stabil gemäß aktuellem Gesamt-/Teilhabeplan (§ 121 SGB IX)"
+          ],
+          "barrieren": [],
+          "leistung_typ": "Reguläre Hintergrundbereitschaft",
+          "leistung_beschreibung": "Leistungserbringung planmäßig ohne gesonderten Dokumentationsvorfall.",
+          "teilhabeziel_bezug": "Planmäßiger Verlauf",
+          "wirkungskontrolle_status": "Konstant / Planmäßig"
+        },
+        {
+          "code": "d3",
+          "title": "Kommunikation",
+          "active_in_note": false,
+          "subcode": "-",
+          "subcode_label": "Keine tagesaktuelle Besonderheit im Sprachprotokoll",
+          "bef_instrument_ref": "BEI_NRW LB 3 / ITP Bogen D3",
+          "ressourcen": [
+            "Stabil gemäß aktuellem Gesamt-/Teilhabeplan (§ 121 SGB IX)"
+          ],
+          "barrieren": [],
+          "leistung_typ": "Reguläre Hintergrundbereitschaft",
+          "leistung_beschreibung": "Leistungserbringung planmäßig ohne gesonderten Dokumentationsvorfall.",
+          "teilhabeziel_bezug": "Planmäßiger Verlauf",
+          "wirkungskontrolle_status": "Konstant / Planmäßig"
+        },
+        {
+          "code": "d4",
+          "title": "Mobilität",
+          "active_in_note": true,
+          "subcode": "d465",
+          "subcode_label": "Sich unter Verwendung von Geräten/Hilfsmitteln fortbewegen (Rollator/Rollstuhl)",
+          "bef_instrument_ref": "BEI_NRW LB 4 / ITP Bogen D4",
+          "ressourcen": [
+            "Erhaltene Grundmobilität im Wohnbereich unter Nutzung des Rollators und personeller Sicherheitsbegleitung."
+          ],
+          "barrieren": [
+            "Akute Gangunsicherheit und orthostatische Schwindelneigung beim Lagewechsel (erhöhtes Sturzrisiko)."
+          ],
+          "leistung_typ": "Qualifizierte Assistenz (§ 78 Abs. 2 Nr. 2 SGB IX: Befähigung, Anleitung & Begleitung)",
+          "leistung_beschreibung": "Personenzentrierte Assistenz durch strukturierende Impulsgebung, verbale Anleitung, Krisenprävention und Förderung der eigenständigen Handlungsausführung.",
+          "teilhabeziel_bezug": "[D4] Sichere Fortbewegung im Wohnbereich mit Rollator erhalten (Indikator: Täglicher Transfer und 50m Gehen mit punktueller Assistenz ohne Sturzereignis)",
+          "wirkungskontrolle_status": "Teilweise erreicht (Kompensatorische Unterstützung / Krisenintervention dokumentiert)"
+        },
+        {
+          "code": "d5",
+          "title": "Selbstversorgung",
+          "active_in_note": true,
+          "subcode": "d560",
+          "subcode_label": "Trinken (Flüssigkeitsaufnahme)",
+          "bef_instrument_ref": "BEI_NRW LB 5 / ITP Bogen D5",
+          "ressourcen": [
+            "Führt Teilhandlungen der Selbstversorgung (Ankleiden/Zahnpflege/Medikamenteneinnahme) nach Impulsgebung eigenständig aus."
+          ],
+          "barrieren": [
+            "Beeinträchtigte Eigenwahrnehmung für Durst-/Ernährungsbedarf bzw. körperliche Einschränkung bei der Intim- und Hautpflege."
+          ],
+          "leistung_typ": "Qualifizierte Assistenz (§ 78 Abs. 2 Nr. 2 SGB IX: Befähigung, Anleitung & Begleitung)",
+          "leistung_beschreibung": "Personenzentrierte Assistenz durch strukturierende Impulsgebung, verbale Anleitung, Krisenprävention und Förderung der eigenständigen Handlungsausführung.",
+          "teilhabeziel_bezug": "[D5] Selbstständige Grundpflege-Teilhandlungen und ausreichende Trinkmenge (>1.300 ml/Tag) (Indikator: Eigenständiges Ankleiden des Oberkörpers nach Anleitung; Trinkbilanz stabil)",
+          "wirkungskontrolle_status": "Teilweise erreicht (Kompensatorische Unterstützung / Krisenintervention dokumentiert)"
+        },
+        {
+          "code": "d6",
+          "title": "Häusliches Leben",
+          "active_in_note": true,
+          "subcode": "d640",
+          "subcode_label": "Hausarbeiten erledigen (Reinigung, Wäsche, Aufräumen)",
+          "bef_instrument_ref": "BEI_NRW LB 6 / ITP Bogen D6",
+          "ressourcen": [
+            "Hohe Alltagsressource bei lebenspraktischen Tätigkeiten (Einkauf, Getränkezubereitung, Zimmerordnung) mit Assistenz."
+          ],
+          "barrieren": [
+            "Umwelt- und personenbezogene Barriere erfordert strukturierende Assistenz zur Teilhabesicherung."
+          ],
+          "leistung_typ": "Qualifizierte Assistenz (§ 78 Abs. 2 Nr. 2 SGB IX: Befähigung, Anleitung & Begleitung)",
+          "leistung_beschreibung": "Personenzentrierte Assistenz durch strukturierende Impulsgebung, verbale Anleitung, Krisenprävention und Förderung der eigenständigen Handlungsausführung.",
+          "teilhabeziel_bezug": "[D4] Sichere Fortbewegung im Wohnbereich mit Rollator erhalten (Indikator: Täglicher Transfer und 50m Gehen mit punktueller Assistenz ohne Sturzereignis)",
+          "wirkungskontrolle_status": "Teilweise erreicht (Kompensatorische Unterstützung / Krisenintervention dokumentiert)"
+        },
+        {
+          "code": "d7",
+          "title": "Interpersonelle Interaktionen und Beziehungen",
+          "active_in_note": false,
+          "subcode": "-",
+          "subcode_label": "Keine tagesaktuelle Besonderheit im Sprachprotokoll",
+          "bef_instrument_ref": "BEI_NRW LB 7 / ITP Bogen D7",
+          "ressourcen": [
+            "Stabil gemäß aktuellem Gesamt-/Teilhabeplan (§ 121 SGB IX)"
+          ],
+          "barrieren": [],
+          "leistung_typ": "Reguläre Hintergrundbereitschaft",
+          "leistung_beschreibung": "Leistungserbringung planmäßig ohne gesonderten Dokumentationsvorfall.",
+          "teilhabeziel_bezug": "Planmäßiger Verlauf",
+          "wirkungskontrolle_status": "Konstant / Planmäßig"
+        },
+        {
+          "code": "d8",
+          "title": "Bedeutende Lebensbereiche (Arbeit, Bildung, Finanzen)",
+          "active_in_note": false,
+          "subcode": "-",
+          "subcode_label": "Keine tagesaktuelle Besonderheit im Sprachprotokoll",
+          "bef_instrument_ref": "BEI_NRW LB 8 / ITP Bogen D8",
+          "ressourcen": [
+            "Stabil gemäß aktuellem Gesamt-/Teilhabeplan (§ 121 SGB IX)"
+          ],
+          "barrieren": [],
+          "leistung_typ": "Reguläre Hintergrundbereitschaft",
+          "leistung_beschreibung": "Leistungserbringung planmäßig ohne gesonderten Dokumentationsvorfall.",
+          "teilhabeziel_bezug": "Planmäßiger Verlauf",
+          "wirkungskontrolle_status": "Konstant / Planmäßig"
+        },
+        {
+          "code": "d9",
+          "title": "Gemeinschafts-, soziales und staatsbürgerliches Leben",
+          "active_in_note": false,
+          "subcode": "-",
+          "subcode_label": "Keine tagesaktuelle Besonderheit im Sprachprotokoll",
+          "bef_instrument_ref": "BEI_NRW LB 9 / ITP Bogen D9",
+          "ressourcen": [
+            "Stabil gemäß aktuellem Gesamt-/Teilhabeplan (§ 121 SGB IX)"
+          ],
+          "barrieren": [],
+          "leistung_typ": "Reguläre Hintergrundbereitschaft",
+          "leistung_beschreibung": "Leistungserbringung planmäßig ohne gesonderten Dokumentationsvorfall.",
+          "teilhabeziel_bezug": "Planmäßiger Verlauf",
+          "wirkungskontrolle_status": "Konstant / Planmäßig"
+        }
+      ]
+    },
+    "sgb_xi_sis_report": {
+      "filtered_routine_items": [
+        "Reguläre Medikamentengabe laut Verordnungsblatt (Durchführungsnachweis genügt)",
+        "Geplante Ressourcenförderung bei Körperpflege/Ankleiden planmäßig durchgeführt -> Im SIS-Berichteblatt ausgefiltert (Routine nach Maßnahmenplan)."
+      ],
+      "deviations_documented": [
+        {
+          "sis_themenfeld": "TF 2: Mobilität und Beweglichkeit",
+          "deviation_type": "Abweichung vom Maßnahmenplan (Sturzrisiko & Mobilitätseinschränkung)",
+          "formal_berichteblatt_entry": "ABWEICHUNG [TF 2: Mobilität und Beweglichkeit]: Beobachtung von Indikatoren für 'Sturzrisiko & Mobilitätseinschränkung' (Evidenz: sturz, beinahe-sturz, gangunsicherheit, schwindel, düşüyordu). Eingeleitete Pflegemaßnahme: Sturzereignis-/Beinahe-Sturz-Protokoll anlegen, Vitalzeichen & Schmerzstatus prüfen, Hüftprotektor/Hilfsmittel prüfen, SIS TF 2 & Maßnahmenplan innerhalb von 24h evaluieren."
+        },
+        {
+          "sis_themenfeld": "TF 4: Selbstversorgung",
+          "deviation_type": "Abweichung vom Maßnahmenplan (Exsikkoserisiko (Flüssigkeitsdefizit))",
+          "formal_berichteblatt_entry": "ABWEICHUNG [TF 4: Selbstversorgung]: Beobachtung von Indikatoren für 'Exsikkoserisiko (Flüssigkeitsdefizit)' (Evidenz: wenig getrunken, 300 ml, az su içti). Eingeleitete Pflegemaßnahme: Trinkprotokoll (Bilanzierung) für 72h starten, bevorzugte Getränke engmaschig anbieten, Hautturgor/Verwirrtheit beobachten, bei Persistenz ärztliche Rücksprache."
+        },
+        {
+          "sis_themenfeld": "TF 4: Selbstversorgung",
+          "deviation_type": "Abweichung vom Maßnahmenplan (Mangelernährungs- & Dysphagierisiko (Aspiration))",
+          "formal_berichteblatt_entry": "ABWEICHUNG [TF 4: Selbstversorgung]: Beobachtung von Indikatoren für 'Mangelernährungs- & Dysphagierisiko (Aspiration)' (Evidenz: mahlzeit abgelehnt, kaum gegessen, yemek istemedi). Eingeleitete Pflegemaßnahme: Aufrechte Sitzposition (90°) sicherstellen, Kostform/Andickung prüfen, Essprotokoll führen, Gewichtskontrolle veranlassen, Logopädie/Arzt konsultieren."
+        }
+      ],
+      "acute_risks_flagged": [
+        {
+          "risk_key": "sturz",
+          "risk_id": "DNQP-STURZ",
+          "name": "Sturzrisiko & Mobilitätseinschränkung",
+          "sis_themenfeld": "TF 2: Mobilität und Beweglichkeit",
+          "severity": "HIGH",
+          "matched_evidence": [
+            "sturz",
+            "beinahe-sturz",
+            "gangunsicherheit",
+            "schwindel",
+            "düşüyordu"
+          ],
+          "mdk_required_action": "Sturzereignis-/Beinahe-Sturz-Protokoll anlegen, Vitalzeichen & Schmerzstatus prüfen, Hüftprotektor/Hilfsmittel prüfen, SIS TF 2 & Maßnahmenplan innerhalb von 24h evaluieren."
+        },
+        {
+          "risk_key": "exsikkose",
+          "risk_id": "DNQP-EXSIKKOSE",
+          "name": "Exsikkoserisiko (Flüssigkeitsdefizit)",
+          "sis_themenfeld": "TF 4: Selbstversorgung",
+          "severity": "HIGH",
+          "matched_evidence": [
+            "wenig getrunken",
+            "300 ml",
+            "az su içti"
+          ],
+          "mdk_required_action": "Trinkprotokoll (Bilanzierung) für 72h starten, bevorzugte Getränke engmaschig anbieten, Hautturgor/Verwirrtheit beobachten, bei Persistenz ärztliche Rücksprache."
+        },
+        {
+          "risk_key": "ernaehrung_dysphagie",
+          "risk_id": "DNQP-ERNAEHRUNG",
+          "name": "Mangelernährungs- & Dysphagierisiko (Aspiration)",
+          "sis_themenfeld": "TF 4: Selbstversorgung",
+          "severity": "HIGH",
+          "matched_evidence": [
+            "mahlzeit abgelehnt",
+            "kaum gegessen",
+            "yemek istemedi"
+          ],
+          "mdk_required_action": "Aufrechte Sitzposition (90°) sicherstellen, Kostform/Andickung prüfen, Essprotokoll führen, Gewichtskontrolle veranlassen, Logopädie/Arzt konsultieren."
+        }
+      ],
+      "sis_evaluation_required": true,
+      "sis_evaluation_reason": "Zwingende SIS-Evaluation & Anpassung des Maßnahmenplans gemäß MD-Qualitätsprüfungs-Richtlinien (QPR) wegen akuter Risikoabweichung: Sturzrisiko & Mobilitätseinschränkung, Exsikkoserisiko (Flüssigkeitsdefizit), Mangelernährungs- & Dysphagierisiko (Aspiration).",
+      "mdk_qpr_audit_score": 99,
+      "mdk_audit_notes": [
+        "Abweichungsprinzip nach Strukturmodell (Beikirch) eingehalten: Routineleistungen wurden aus dem Berichteblatt gefiltert.",
+        "Keine 'Stummes Berichteblatt'-Falle: Relevante Pflegebeobachtungen und Begründungen bei Leistungsverweigerung sind lückenlos mit Maßnahmen verknüpft.",
+        "Rote-Faden-Prüfung (Beobachtung -> Risiko -> Maßnahme -> Evaluationstermin) zu 100 % erfüllt."
+      ]
+    },
+    "shift_handover_priority": "ATTENTION",
+    "shift_handover_headline": "Herr Klaus-Dieter Bauer: Sturzrisiko & Mobilitätseinschränkung, Exsikkoserisiko (Flüssigkeitsdefizit) (ICF D4, D5, D6)"
+  },
+  {
+    "note_id": "DOKU-2026-1017-02",
+    "timestamp_berlin": "2026-10-17T13:25:00+02:00",
+    "caregiver_name": "Katarzyna Nowak (Betreuungsfachkraft)",
+    "caregiver_native_lang": "PL / DE",
+    "audio_duration_sec": 21,
+    "time_saved_minutes": 11.5,
+    "client": {
+      "client_id": "KL-902",
+      "name": "Frau Hildegard Schmitt",
+      "age": 81,
+      "care_setting": "SGB_XI_AMBULANT_TAGESPFLEGE",
+      "pflegegrad_or_bg": "Pflegegrad 3 (Ambulante Pflege & Tagespflege SGB XI)",
+      "primary_diagnoses": [
+        "Diabetes mellitus Typ 2",
+        "Polyneuropathie",
+        "Chronisches LWS-Syndrom"
+      ],
+      "teilhabeziele": [
+        {
+          "code": "d5",
+          "goal_title": "Erhalt der Teilautonomie bei der Morgentoilette",
+          "target_indicator": "Selbstständiges Zähneputzen und Gesichtwaschen nach verbaler Erinnerung"
+        },
+        {
+          "code": "d7",
+          "goal_title": "Förderung sozialer Kontakte in der Tagespflege",
+          "target_indicator": "Tägliche Teilnahme an Tischgesprächen ohne sozialen Rückzug"
+        }
+      ],
+      "sis_massnahmenplan_summary": [
+        "TF 2/3: Hautinspektion Fersen/Sakralbereich täglich, Schmerzbeobachtung bei Mobilisation",
+        "TF 4: Ressourcenförderung Zahnpflege, Blutzuckerkontrolle planmäßig"
+      ]
+    },
+    "raw_transcript": "Frau Schmitt wurde morgens planmäßig versorgt, Vitalwerte im Normbereich. Sie hat sama umyła zęby nach kurzer Erinnerung. Beim Transfer: prawie upadła przy wstawaniu und skarży się na ból w krzyżu beim Gehen zum Frühstückstisch. Bei der Fußpflege habe ich gesehen: czerwona skóra na pięcie rechts, roter Fleck am Steiß ist auch leicht sichtbar. Später im Gruppenraum dużo rozmawiała z sąsiadką und war sehr freundlich.",
+    "detected_languages": [
+      "DE",
+      "PL",
+      "DE-Colloquial"
+    ],
+    "normalized_german_summary": "[D3 – Kommunikation (d310 Kommunizieren als Empfänger gesprochener Mitteilungen)]: Ressource: Äußert eigene Bedürfnisse und Präferenzen aktiv (verbal bzw. über unterstützte Kommunikation / Talker). | Barriere/Wechselwirkung: Umwelt- und personenbezogene Barriere erfordert strukturierende Assistenz zur Teilhabesicherung. | Leistung (§ 78 SGB IX): Qualifizierte Assistenz (§ 78 Abs. 2 Nr. 2 SGB IX: Befähigung, Anleitung & Begleitung) – Personenzentrierte Assistenz durch strukturierende Impulsgebung, verbale Anleitung, Krisenprävention und Förderung der eigenständigen Handlungsausführung. | Wirkungskontrolle: Teilweise erreicht (Kompensatorische Unterstützung / Krisenintervention dokumentiert) ([D5] Erhalt der Teilautonomie bei der Morgentoilette (Indikator: Selbstständiges Zähneputzen und Gesichtwaschen nach verbaler Erinnerung)). [D4 – Mobilität (d410 Eine elementare Körperposition wechseln (Transfer))]: Ressource: Kooperationsbereitschaft im Einzelkontakt mit vertrauter Bezugsbetreuungskraft vorhanden. | Barriere/Wechselwirkung: Akute Gangunsicherheit und orthostatische Schwindelneigung beim Lagewechsel (erhöhtes Sturzrisiko). | Leistung (§ 78 SGB IX): Qualifizierte Assistenz (§ 78 Abs. 2 Nr. 2 SGB IX: Befähigung, Anleitung & Begleitung) – Personenzentrierte Assistenz durch strukturierende Impulsgebung, verbale Anleitung, Krisenprävention und Förderung der eigenständigen Handlungsausführung. | Wirkungskontrolle: Barriere dominant / Assistenzintensivierung erforderlich ([D5] Erhalt der Teilautonomie bei der Morgentoilette (Indikator: Selbstständiges Zähneputzen und Gesichtwaschen nach verbaler Erinnerung)). [D5 – Selbstversorgung (d550 Essen (Nahrungsaufnahme))]: Ressource: Führt Teilhandlungen der Selbstversorgung (Ankleiden/Zahnpflege/Medikamenteneinnahme) nach Impulsgebung eigenständig aus. | Barriere/Wechselwirkung: Beeinträchtigte Eigenwahrnehmung für Durst-/Ernährungsbedarf bzw. körperliche Einschränkung bei der Intim- und Hautpflege. | Leistung (§ 78 SGB IX): Qualifizierte Assistenz (§ 78 Abs. 2 Nr. 2 SGB IX: Befähigung, Anleitung & Begleitung) – Personenzentrierte Assistenz durch strukturierende Impulsgebung, verbale Anleitung, Krisenprävention und Förderung der eigenständigen Handlungsausführung. | Wirkungskontrolle: Teilweise erreicht (Kompensatorische Unterstützung / Krisenintervention dokumentiert) ([D5] Erhalt der Teilautonomie bei der Morgentoilette (Indikator: Selbstständiges Zähneputzen und Gesichtwaschen nach verbaler Erinnerung)). [D7 – Interpersonelle Interaktionen und Beziehungen (d710 Elementare interpersonelle Aktivitäten (Respekt, Distanz/Nähe))]: Ressource: Zeigt prosoziale Kontaktaufnahme und positive Interaktion innerhalb der Wohngruppe/Tagespflege. | Barriere/Wechselwirkung: Umwelt- und personenbezogene Barriere erfordert strukturierende Assistenz zur Teilhabesicherung. | Leistung (§ 78 SGB IX): Qualifizierte Assistenz (§ 78 Abs. 2 Nr. 2 SGB IX: Befähigung, Anleitung & Begleitung) – Personenzentrierte Assistenz durch strukturierende Impulsgebung, verbale Anleitung, Krisenprävention und Förderung der eigenständigen Handlungsausführung. | Wirkungskontrolle: Teilweise erreicht (Kompensatorische Unterstützung / Krisenintervention dokumentiert) ([D7] Förderung sozialer Kontakte in der Tagespflege (Indikator: Tägliche Teilnahme an Tischgesprächen ohne sozialen Rückzug)).",
+    "sgb_ix_icf_report": {
+      "legal_framework": "SGB IX Teil 2 (BTHG) / § 118 SGB IX (ICF-orientierte Bedarfsermittlung) / § 121 SGB IX Gesamtplan",
+      "active_icf_domains_count": 4,
+      "active_icf_codes": [
+        "d3",
+        "d4",
+        "d5",
+        "d7"
+      ],
+      "primary_assistenz_classification": "Qualifizierte Assistenz (§ 78 Abs. 2 Nr. 2 SGB IX: Befähigung, Anleitung & Begleitung)",
+      "multilingual_normalizations": [
+        {
+          "source_phrase": "prawie upadła przy wstawaniu",
+          "language": "PL",
+          "formal_german_mapping": "Beinahe-Sturz beim Transfer aus dem Bett, deutliche Gangunsicherheit"
+        },
+        {
+          "source_phrase": "skarży się na ból w krzyżu",
+          "language": "PL",
+          "formal_german_mapping": "äußert akute Schmerzen im Bereich der Lendenwirbelsäule / Sakralbereich"
+        },
+        {
+          "source_phrase": "czerwona skóra na pięcie",
+          "language": "PL",
+          "formal_german_mapping": "persistierende Hautrötung an der Ferse rechts (Dekubitus-Frühwarnzeichen)"
+        },
+        {
+          "source_phrase": "sama umyła zęby",
+          "language": "PL",
+          "formal_german_mapping": "führte die Zahnpflege selbstständig nach verbaler Erinnerung durch"
+        },
+        {
+          "source_phrase": "dużo rozmawiała z sąsiadką",
+          "language": "PL",
+          "formal_german_mapping": "führte ein angeregtes, positives Gespräch mit der Mitbewohnerin"
+        },
+        {
+          "source_phrase": "roter fleck am steiß",
+          "language": "DE-Colloquial",
+          "formal_german_mapping": "nicht wegdrückbare Hautrötung im Sakralbereich (Dekubitus Grad I Verdacht)"
+        }
+      ],
+      "formal_icf_verlaufsbericht": "[D3 – Kommunikation (d310 Kommunizieren als Empfänger gesprochener Mitteilungen)]: Ressource: Äußert eigene Bedürfnisse und Präferenzen aktiv (verbal bzw. über unterstützte Kommunikation / Talker). | Barriere/Wechselwirkung: Umwelt- und personenbezogene Barriere erfordert strukturierende Assistenz zur Teilhabesicherung. | Leistung (§ 78 SGB IX): Qualifizierte Assistenz (§ 78 Abs. 2 Nr. 2 SGB IX: Befähigung, Anleitung & Begleitung) – Personenzentrierte Assistenz durch strukturierende Impulsgebung, verbale Anleitung, Krisenprävention und Förderung der eigenständigen Handlungsausführung. | Wirkungskontrolle: Teilweise erreicht (Kompensatorische Unterstützung / Krisenintervention dokumentiert) ([D5] Erhalt der Teilautonomie bei der Morgentoilette (Indikator: Selbstständiges Zähneputzen und Gesichtwaschen nach verbaler Erinnerung)). [D4 – Mobilität (d410 Eine elementare Körperposition wechseln (Transfer))]: Ressource: Kooperationsbereitschaft im Einzelkontakt mit vertrauter Bezugsbetreuungskraft vorhanden. | Barriere/Wechselwirkung: Akute Gangunsicherheit und orthostatische Schwindelneigung beim Lagewechsel (erhöhtes Sturzrisiko). | Leistung (§ 78 SGB IX): Qualifizierte Assistenz (§ 78 Abs. 2 Nr. 2 SGB IX: Befähigung, Anleitung & Begleitung) – Personenzentrierte Assistenz durch strukturierende Impulsgebung, verbale Anleitung, Krisenprävention und Förderung der eigenständigen Handlungsausführung. | Wirkungskontrolle: Barriere dominant / Assistenzintensivierung erforderlich ([D5] Erhalt der Teilautonomie bei der Morgentoilette (Indikator: Selbstständiges Zähneputzen und Gesichtwaschen nach verbaler Erinnerung)). [D5 – Selbstversorgung (d550 Essen (Nahrungsaufnahme))]: Ressource: Führt Teilhandlungen der Selbstversorgung (Ankleiden/Zahnpflege/Medikamenteneinnahme) nach Impulsgebung eigenständig aus. | Barriere/Wechselwirkung: Beeinträchtigte Eigenwahrnehmung für Durst-/Ernährungsbedarf bzw. körperliche Einschränkung bei der Intim- und Hautpflege. | Leistung (§ 78 SGB IX): Qualifizierte Assistenz (§ 78 Abs. 2 Nr. 2 SGB IX: Befähigung, Anleitung & Begleitung) – Personenzentrierte Assistenz durch strukturierende Impulsgebung, verbale Anleitung, Krisenprävention und Förderung der eigenständigen Handlungsausführung. | Wirkungskontrolle: Teilweise erreicht (Kompensatorische Unterstützung / Krisenintervention dokumentiert) ([D5] Erhalt der Teilautonomie bei der Morgentoilette (Indikator: Selbstständiges Zähneputzen und Gesichtwaschen nach verbaler Erinnerung)). [D7 – Interpersonelle Interaktionen und Beziehungen (d710 Elementare interpersonelle Aktivitäten (Respekt, Distanz/Nähe))]: Ressource: Zeigt prosoziale Kontaktaufnahme und positive Interaktion innerhalb der Wohngruppe/Tagespflege. | Barriere/Wechselwirkung: Umwelt- und personenbezogene Barriere erfordert strukturierende Assistenz zur Teilhabesicherung. | Leistung (§ 78 SGB IX): Qualifizierte Assistenz (§ 78 Abs. 2 Nr. 2 SGB IX: Befähigung, Anleitung & Begleitung) – Personenzentrierte Assistenz durch strukturierende Impulsgebung, verbale Anleitung, Krisenprävention und Förderung der eigenständigen Handlungsausführung. | Wirkungskontrolle: Teilweise erreicht (Kompensatorische Unterstützung / Krisenintervention dokumentiert) ([D7] Förderung sozialer Kontakte in der Tagespflege (Indikator: Tägliche Teilnahme an Tischgesprächen ohne sozialen Rückzug)).",
+      "icf_9_lebensbereiche_matrix": [
+        {
+          "code": "d1",
+          "title": "Lernen und Wissensanwendung",
+          "active_in_note": false,
+          "subcode": "-",
+          "subcode_label": "Keine tagesaktuelle Besonderheit im Sprachprotokoll",
+          "bef_instrument_ref": "BEI_NRW LB 1 / ITP Bogen D1",
+          "ressourcen": [
+            "Stabil gemäß aktuellem Gesamt-/Teilhabeplan (§ 121 SGB IX)"
+          ],
+          "barrieren": [],
+          "leistung_typ": "Reguläre Hintergrundbereitschaft",
+          "leistung_beschreibung": "Leistungserbringung planmäßig ohne gesonderten Dokumentationsvorfall.",
+          "teilhabeziel_bezug": "Planmäßiger Verlauf",
+          "wirkungskontrolle_status": "Konstant / Planmäßig"
+        },
+        {
+          "code": "d2",
+          "title": "Allgemeine Aufgaben und Anforderungen",
+          "active_in_note": false,
+          "subcode": "-",
+          "subcode_label": "Keine tagesaktuelle Besonderheit im Sprachprotokoll",
+          "bef_instrument_ref": "BEI_NRW LB 2 / ITP Bogen D2",
+          "ressourcen": [
+            "Stabil gemäß aktuellem Gesamt-/Teilhabeplan (§ 121 SGB IX)"
+          ],
+          "barrieren": [],
+          "leistung_typ": "Reguläre Hintergrundbereitschaft",
+          "leistung_beschreibung": "Leistungserbringung planmäßig ohne gesonderten Dokumentationsvorfall.",
+          "teilhabeziel_bezug": "Planmäßiger Verlauf",
+          "wirkungskontrolle_status": "Konstant / Planmäßig"
+        },
+        {
+          "code": "d3",
+          "title": "Kommunikation",
+          "active_in_note": true,
+          "subcode": "d310",
+          "subcode_label": "Kommunizieren als Empfänger gesprochener Mitteilungen",
+          "bef_instrument_ref": "BEI_NRW LB 3 / ITP Bogen D3",
+          "ressourcen": [
+            "Äußert eigene Bedürfnisse und Präferenzen aktiv (verbal bzw. über unterstützte Kommunikation / Talker)."
+          ],
+          "barrieren": [
+            "Umwelt- und personenbezogene Barriere erfordert strukturierende Assistenz zur Teilhabesicherung."
+          ],
+          "leistung_typ": "Qualifizierte Assistenz (§ 78 Abs. 2 Nr. 2 SGB IX: Befähigung, Anleitung & Begleitung)",
+          "leistung_beschreibung": "Personenzentrierte Assistenz durch strukturierende Impulsgebung, verbale Anleitung, Krisenprävention und Förderung der eigenständigen Handlungsausführung.",
+          "teilhabeziel_bezug": "[D5] Erhalt der Teilautonomie bei der Morgentoilette (Indikator: Selbstständiges Zähneputzen und Gesichtwaschen nach verbaler Erinnerung)",
+          "wirkungskontrolle_status": "Teilweise erreicht (Kompensatorische Unterstützung / Krisenintervention dokumentiert)"
+        },
+        {
+          "code": "d4",
+          "title": "Mobilität",
+          "active_in_note": true,
+          "subcode": "d410",
+          "subcode_label": "Eine elementare Körperposition wechseln (Transfer)",
+          "bef_instrument_ref": "BEI_NRW LB 4 / ITP Bogen D4",
+          "ressourcen": [
+            "Kooperationsbereitschaft im Einzelkontakt mit vertrauter Bezugsbetreuungskraft vorhanden."
+          ],
+          "barrieren": [
+            "Akute Gangunsicherheit und orthostatische Schwindelneigung beim Lagewechsel (erhöhtes Sturzrisiko)."
+          ],
+          "leistung_typ": "Qualifizierte Assistenz (§ 78 Abs. 2 Nr. 2 SGB IX: Befähigung, Anleitung & Begleitung)",
+          "leistung_beschreibung": "Personenzentrierte Assistenz durch strukturierende Impulsgebung, verbale Anleitung, Krisenprävention und Förderung der eigenständigen Handlungsausführung.",
+          "teilhabeziel_bezug": "[D5] Erhalt der Teilautonomie bei der Morgentoilette (Indikator: Selbstständiges Zähneputzen und Gesichtwaschen nach verbaler Erinnerung)",
+          "wirkungskontrolle_status": "Barriere dominant / Assistenzintensivierung erforderlich"
+        },
+        {
+          "code": "d5",
+          "title": "Selbstversorgung",
+          "active_in_note": true,
+          "subcode": "d550",
+          "subcode_label": "Essen (Nahrungsaufnahme)",
+          "bef_instrument_ref": "BEI_NRW LB 5 / ITP Bogen D5",
+          "ressourcen": [
+            "Führt Teilhandlungen der Selbstversorgung (Ankleiden/Zahnpflege/Medikamenteneinnahme) nach Impulsgebung eigenständig aus."
+          ],
+          "barrieren": [
+            "Beeinträchtigte Eigenwahrnehmung für Durst-/Ernährungsbedarf bzw. körperliche Einschränkung bei der Intim- und Hautpflege."
+          ],
+          "leistung_typ": "Qualifizierte Assistenz (§ 78 Abs. 2 Nr. 2 SGB IX: Befähigung, Anleitung & Begleitung)",
+          "leistung_beschreibung": "Personenzentrierte Assistenz durch strukturierende Impulsgebung, verbale Anleitung, Krisenprävention und Förderung der eigenständigen Handlungsausführung.",
+          "teilhabeziel_bezug": "[D5] Erhalt der Teilautonomie bei der Morgentoilette (Indikator: Selbstständiges Zähneputzen und Gesichtwaschen nach verbaler Erinnerung)",
+          "wirkungskontrolle_status": "Teilweise erreicht (Kompensatorische Unterstützung / Krisenintervention dokumentiert)"
+        },
+        {
+          "code": "d6",
+          "title": "Häusliches Leben",
+          "active_in_note": false,
+          "subcode": "-",
+          "subcode_label": "Keine tagesaktuelle Besonderheit im Sprachprotokoll",
+          "bef_instrument_ref": "BEI_NRW LB 6 / ITP Bogen D6",
+          "ressourcen": [
+            "Stabil gemäß aktuellem Gesamt-/Teilhabeplan (§ 121 SGB IX)"
+          ],
+          "barrieren": [],
+          "leistung_typ": "Reguläre Hintergrundbereitschaft",
+          "leistung_beschreibung": "Leistungserbringung planmäßig ohne gesonderten Dokumentationsvorfall.",
+          "teilhabeziel_bezug": "Planmäßiger Verlauf",
+          "wirkungskontrolle_status": "Konstant / Planmäßig"
+        },
+        {
+          "code": "d7",
+          "title": "Interpersonelle Interaktionen und Beziehungen",
+          "active_in_note": true,
+          "subcode": "d710",
+          "subcode_label": "Elementare interpersonelle Aktivitäten (Respekt, Distanz/Nähe)",
+          "bef_instrument_ref": "BEI_NRW LB 7 / ITP Bogen D7",
+          "ressourcen": [
+            "Zeigt prosoziale Kontaktaufnahme und positive Interaktion innerhalb der Wohngruppe/Tagespflege."
+          ],
+          "barrieren": [
+            "Umwelt- und personenbezogene Barriere erfordert strukturierende Assistenz zur Teilhabesicherung."
+          ],
+          "leistung_typ": "Qualifizierte Assistenz (§ 78 Abs. 2 Nr. 2 SGB IX: Befähigung, Anleitung & Begleitung)",
+          "leistung_beschreibung": "Personenzentrierte Assistenz durch strukturierende Impulsgebung, verbale Anleitung, Krisenprävention und Förderung der eigenständigen Handlungsausführung.",
+          "teilhabeziel_bezug": "[D7] Förderung sozialer Kontakte in der Tagespflege (Indikator: Tägliche Teilnahme an Tischgesprächen ohne sozialen Rückzug)",
+          "wirkungskontrolle_status": "Teilweise erreicht (Kompensatorische Unterstützung / Krisenintervention dokumentiert)"
+        },
+        {
+          "code": "d8",
+          "title": "Bedeutende Lebensbereiche (Arbeit, Bildung, Finanzen)",
+          "active_in_note": false,
+          "subcode": "-",
+          "subcode_label": "Keine tagesaktuelle Besonderheit im Sprachprotokoll",
+          "bef_instrument_ref": "BEI_NRW LB 8 / ITP Bogen D8",
+          "ressourcen": [
+            "Stabil gemäß aktuellem Gesamt-/Teilhabeplan (§ 121 SGB IX)"
+          ],
+          "barrieren": [],
+          "leistung_typ": "Reguläre Hintergrundbereitschaft",
+          "leistung_beschreibung": "Leistungserbringung planmäßig ohne gesonderten Dokumentationsvorfall.",
+          "teilhabeziel_bezug": "Planmäßiger Verlauf",
+          "wirkungskontrolle_status": "Konstant / Planmäßig"
+        },
+        {
+          "code": "d9",
+          "title": "Gemeinschafts-, soziales und staatsbürgerliches Leben",
+          "active_in_note": false,
+          "subcode": "-",
+          "subcode_label": "Keine tagesaktuelle Besonderheit im Sprachprotokoll",
+          "bef_instrument_ref": "BEI_NRW LB 9 / ITP Bogen D9",
+          "ressourcen": [
+            "Stabil gemäß aktuellem Gesamt-/Teilhabeplan (§ 121 SGB IX)"
+          ],
+          "barrieren": [],
+          "leistung_typ": "Reguläre Hintergrundbereitschaft",
+          "leistung_beschreibung": "Leistungserbringung planmäßig ohne gesonderten Dokumentationsvorfall.",
+          "teilhabeziel_bezug": "Planmäßiger Verlauf",
+          "wirkungskontrolle_status": "Konstant / Planmäßig"
+        }
+      ]
+    },
+    "sgb_xi_sis_report": {
+      "filtered_routine_items": [
+        "Standard-Grundpflege / Regelversorgung gemäß Maßnahmenplan (keine Abweichung -> nach Strukturmodell nicht im Berichteblatt zu wiederholen, nur Leistungsnachweis abzeichnen)",
+        "Vitalwerte im individuellen Normbereich (Eintrag in Vitalwertetabelle ausreichend, keine Berichteblatt-Abweichung)"
+      ],
+      "deviations_documented": [
+        {
+          "sis_themenfeld": "TF 2: Mobilität und Beweglichkeit",
+          "deviation_type": "Abweichung vom Maßnahmenplan (Sturzrisiko & Mobilitätseinschränkung)",
+          "formal_berichteblatt_entry": "ABWEICHUNG [TF 2: Mobilität und Beweglichkeit]: Beobachtung von Indikatoren für 'Sturzrisiko & Mobilitätseinschränkung' (Evidenz: sturz, beinahe-sturz, gangunsicherheit, upadła). Eingeleitete Pflegemaßnahme: Sturzereignis-/Beinahe-Sturz-Protokoll anlegen, Vitalzeichen & Schmerzstatus prüfen, Hüftprotektor/Hilfsmittel prüfen, SIS TF 2 & Maßnahmenplan innerhalb von 24h evaluieren."
+        },
+        {
+          "sis_themenfeld": "TF 3: Krankheitsbezogene Anforderungen und Belastungen",
+          "deviation_type": "Abweichung vom Maßnahmenplan (Dekubitusrisiko / Hautintegrität)",
+          "formal_berichteblatt_entry": "ABWEICHUNG [TF 3: Krankheitsbezogene Anforderungen und Belastungen]: Beobachtung von Indikatoren für 'Dekubitusrisiko / Hautintegrität' (Evidenz: dekubitus, hautrötung, roter fleck, steiß, sakralbereich, ferse, czerwona skóra). Eingeleitete Pflegemaßnahme: Fingertest dokumentieren, sofortige Druckentlastung/Mikrolagerung einleiten, Wunddokumentation eröffnen, Hausarzt informieren, Bewegungsförderungsplan (SIS TF 2/3) sofort anpassen."
+        },
+        {
+          "sis_themenfeld": "TF 3: Krankheitsbezogene Anforderungen und Belastungen",
+          "deviation_type": "Abweichung vom Maßnahmenplan (Akuter / Chronischer Schmerz)",
+          "formal_berichteblatt_entry": "ABWEICHUNG [TF 3: Krankheitsbezogene Anforderungen und Belastungen]: Beobachtung von Indikatoren für 'Akuter / Chronischer Schmerz' (Evidenz: schmerz, schmerzen, ból, lendenwirbelsäule). Eingeleitete Pflegemaßnahme: Schmerzerfassung (NRS / BESD bei Demenz) durchführen, Bedarfsmedikation gemäß ärztlicher Anordnung prüfen und Wirkung nach 30–60 Min. im Berichteblatt evaluieren."
+        }
+      ],
+      "acute_risks_flagged": [
+        {
+          "risk_key": "sturz",
+          "risk_id": "DNQP-STURZ",
+          "name": "Sturzrisiko & Mobilitätseinschränkung",
+          "sis_themenfeld": "TF 2: Mobilität und Beweglichkeit",
+          "severity": "HIGH",
+          "matched_evidence": [
+            "sturz",
+            "beinahe-sturz",
+            "gangunsicherheit",
+            "upadła"
+          ],
+          "mdk_required_action": "Sturzereignis-/Beinahe-Sturz-Protokoll anlegen, Vitalzeichen & Schmerzstatus prüfen, Hüftprotektor/Hilfsmittel prüfen, SIS TF 2 & Maßnahmenplan innerhalb von 24h evaluieren."
+        },
+        {
+          "risk_key": "dekubitus",
+          "risk_id": "DNQP-DEKUBITUS",
+          "name": "Dekubitusrisiko / Hautintegrität",
+          "sis_themenfeld": "TF 3: Krankheitsbezogene Anforderungen und Belastungen",
+          "severity": "CRITICAL",
+          "matched_evidence": [
+            "dekubitus",
+            "hautrötung",
+            "roter fleck",
+            "steiß",
+            "sakralbereich",
+            "ferse",
+            "czerwona skóra"
+          ],
+          "mdk_required_action": "Fingertest dokumentieren, sofortige Druckentlastung/Mikrolagerung einleiten, Wunddokumentation eröffnen, Hausarzt informieren, Bewegungsförderungsplan (SIS TF 2/3) sofort anpassen."
+        },
+        {
+          "risk_key": "schmerz",
+          "risk_id": "DNQP-SCHMERZ",
+          "name": "Akuter / Chronischer Schmerz",
+          "sis_themenfeld": "TF 3: Krankheitsbezogene Anforderungen und Belastungen",
+          "severity": "HIGH",
+          "matched_evidence": [
+            "schmerz",
+            "schmerzen",
+            "ból",
+            "lendenwirbelsäule"
+          ],
+          "mdk_required_action": "Schmerzerfassung (NRS / BESD bei Demenz) durchführen, Bedarfsmedikation gemäß ärztlicher Anordnung prüfen und Wirkung nach 30–60 Min. im Berichteblatt evaluieren."
+        }
+      ],
+      "sis_evaluation_required": true,
+      "sis_evaluation_reason": "Zwingende SIS-Evaluation & Anpassung des Maßnahmenplans gemäß MD-Qualitätsprüfungs-Richtlinien (QPR) wegen akuter Risikoabweichung: Sturzrisiko & Mobilitätseinschränkung, Dekubitusrisiko / Hautintegrität, Akuter / Chronischer Schmerz.",
+      "mdk_qpr_audit_score": 99,
+      "mdk_audit_notes": [
+        "Abweichungsprinzip nach Strukturmodell (Beikirch) eingehalten: Routineleistungen wurden aus dem Berichteblatt gefiltert.",
+        "Keine 'Stummes Berichteblatt'-Falle: Relevante Pflegebeobachtungen und Begründungen bei Leistungsverweigerung sind lückenlos mit Maßnahmen verknüpft.",
+        "Rote-Faden-Prüfung (Beobachtung -> Risiko -> Maßnahme -> Evaluationstermin) zu 100 % erfüllt."
+      ]
+    },
+    "shift_handover_priority": "CRITICAL",
+    "shift_handover_headline": "Frau Hildegard Schmitt: Sturzrisiko & Mobilitätseinschränkung, Dekubitusrisiko / Hautintegrität (ICF D3, D4, D5, D7)"
+  },
+  {
+    "note_id": "DOKU-2026-1017-03",
+    "timestamp_berlin": "2026-10-17T13:42:00+02:00",
+    "caregiver_name": "Oksana Kovalenko (Heilerziehungspflegerin)",
+    "caregiver_native_lang": "UKR / DE",
+    "audio_duration_sec": 18,
+    "time_saved_minutes": 11.5,
+    "client": {
+      "client_id": "KL-903",
+      "name": "Lukas Weber",
+      "age": 29,
+      "care_setting": "SGB_IX_EINGLIEDERUNGSHILFE",
+      "pflegegrad_or_bg": "SGB IX Eingliederungshilfe (Assistenz im eigenen Wohnraum / ITP)",
+      "primary_diagnoses": [
+        "Autismus-Spektrum-Störung (ASS)",
+        "Leichte Intelligenzminderung (F70)"
+      ],
+      "teilhabeziele": [
+        {
+          "code": "d2",
+          "goal_title": "Bewältigung der Tagesstruktur und Emotionsregulation bei Planänderungen",
+          "target_indicator": "Nutzung des Piktogramm-Tagesplans und Anwendung von Entspannungsstrategien bei Stress"
+        },
+        {
+          "code": "d6",
+          "goal_title": "Eigenständige Wohnraumhygiene und Mahlzeitenvorbereitung",
+          "target_indicator": "Aufräumen des Zimmers und Zubereitung kleiner Speisen mit qualifizierter Assistenz"
+        },
+        {
+          "code": "d8",
+          "goal_title": "Regelmäßige Teilhabe am Arbeitsleben (WfbM) und Umgang mit Taschengeld",
+          "target_indicator": "Besuch der WfbM an 4/5 Tagen; eigenständiger Kleineinkauf beim Bäcker"
+        }
+      ],
+      "sis_massnahmenplan_summary": [
+        "Qualifizierte Assistenz (§ 78 Abs. 2 Nr. 2 SGB IX): Visuelle Strukturierung (TEACCH/Piktogramme), Krisenprävention"
+      ]
+    },
+    "raw_transcript": "Lukas war heute früh сьогодні дуже неспокійний wegen Baustellenlärm vor dem Haus. Er hatte null bock auf werkstatt und відмовився їхати в майстерню wegen Reizüberflutung. Ich habe mit ihm über seinen Piktogramm-Plan gesprochen, після розмови заспокоївся. Danach hat er сам прибрав кімнату, عمل القهوة لحاله und a cumpărat pâine singur beim Bäcker mit eigenem Taschengeld und Wechselgeld kontrolliert.",
+    "detected_languages": [
+      "DE",
+      "AR",
+      "RO",
+      "UKR",
+      "DE-Colloquial"
+    ],
+    "normalized_german_summary": "[D1 – Lernen und Wissensanwendung (d155 Fertigkeiten erwerben (Handlungsabläufe erlernen))]: Ressource: Kann visuelle Strukturierungshilfen (Piktogramme/Tagesplan) kognitiv erfassen und Handlungsabläufe abrufen. | Barriere/Wechselwirkung: Umwelt- und personenbezogene Barriere erfordert strukturierende Assistenz zur Teilhabesicherung. | Leistung (§ 78 SGB IX): Qualifizierte Assistenz (§ 78 Abs. 2 Nr. 2 SGB IX: Befähigung, Anleitung & Begleitung) – Personenzentrierte Assistenz durch strukturierende Impulsgebung, verbale Anleitung, Krisenprävention und Förderung der eigenständigen Handlungsausführung. | Wirkungskontrolle: Teilweise erreicht (Kompensatorische Unterstützung / Krisenintervention dokumentiert) ([D2] Bewältigung der Tagesstruktur und Emotionsregulation bei Planänderungen (Indikator: Nutzung des Piktogramm-Tagesplans und Anwendung von Entspannungsstrategien bei Stress)). [D2 – Allgemeine Aufgaben und Anforderungen (d240 Mit Stress und anderen psychischen Anforderungen umgehen)]: Ressource: Spricht gut auf verlässliche Tagesroutinen und ruhige, deeskalierende Begleitung zur Affektregulation an. | Barriere/Wechselwirkung: Geringe Frustrationstoleranz und rasche Reizüberflutung bei Abweichungen vom gewohnten Tagesablauf. | Leistung (§ 78 SGB IX): Qualifizierte Assistenz (§ 78 Abs. 2 Nr. 2 SGB IX: Befähigung, Anleitung & Begleitung) – Personenzentrierte Assistenz durch strukturierende Impulsgebung, verbale Anleitung, Krisenprävention und Förderung der eigenständigen Handlungsausführung. | Wirkungskontrolle: Teilweise erreicht (Kompensatorische Unterstützung / Krisenintervention dokumentiert) ([D2] Bewältigung der Tagesstruktur und Emotionsregulation bei Planänderungen (Indikator: Nutzung des Piktogramm-Tagesplans und Anwendung von Entspannungsstrategien bei Stress)). [D3 – Kommunikation (d310 Kommunizieren als Empfänger gesprochener Mitteilungen)]: Ressource: Äußert eigene Bedürfnisse und Präferenzen aktiv (verbal bzw. über unterstützte Kommunikation / Talker). | Barriere/Wechselwirkung: Einschränkung der adäquaten verbalen Konflikt- und Bedürfniskommunikation unter emotionaler Belastung. | Leistung (§ 78 SGB IX): Qualifizierte Assistenz (§ 78 Abs. 2 Nr. 2 SGB IX: Befähigung, Anleitung & Begleitung) – Personenzentrierte Assistenz durch strukturierende Impulsgebung, verbale Anleitung, Krisenprävention und Förderung der eigenständigen Handlungsausführung. | Wirkungskontrolle: Teilweise erreicht (Kompensatorische Unterstützung / Krisenintervention dokumentiert) ([D2] Bewältigung der Tagesstruktur und Emotionsregulation bei Planänderungen (Indikator: Nutzung des Piktogramm-Tagesplans und Anwendung von Entspannungsstrategien bei Stress)). [D6 – Häusliches Leben (d620 Waren und Dienstleistungen des täglichen Bedarfs beschaffen (Einkaufen))]: Ressource: Hohe Alltagsressource bei lebenspraktischen Tätigkeiten (Einkauf, Getränkezubereitung, Zimmerordnung) mit Assistenz. | Barriere/Wechselwirkung: Umwelt- und personenbezogene Barriere erfordert strukturierende Assistenz zur Teilhabesicherung. | Leistung (§ 78 SGB IX): Qualifizierte Assistenz (§ 78 Abs. 2 Nr. 2 SGB IX: Befähigung, Anleitung & Begleitung) – Personenzentrierte Assistenz durch strukturierende Impulsgebung, verbale Anleitung, Krisenprävention und Förderung der eigenständigen Handlungsausführung. | Wirkungskontrolle: Teilweise erreicht (Kompensatorische Unterstützung / Krisenintervention dokumentiert) ([D6] Eigenständige Wohnraumhygiene und Mahlzeitenvorbereitung (Indikator: Aufräumen des Zimmers und Zubereitung kleiner Speisen mit qualifizierter Assistenz)). [D8 – Bedeutende Lebensbereiche (Arbeit, Bildung, Finanzen) (d860 Elementare wirtschaftliche Transaktionen (Taschengeld, Bezahlen))]: Ressource: Bewältigt überschaubare Bargeldtransaktionen beim Einkauf mit punktueller Begleitung. | Barriere/Wechselwirkung: Tagesaktuelle Überforderung/Motivationsbarriere bezüglich der Teilhabe am Arbeitsleben (WfbM). | Leistung (§ 78 SGB IX): Qualifizierte Assistenz (§ 78 Abs. 2 Nr. 2 SGB IX: Befähigung, Anleitung & Begleitung) – Personenzentrierte Assistenz durch strukturierende Impulsgebung, verbale Anleitung, Krisenprävention und Förderung der eigenständigen Handlungsausführung. | Wirkungskontrolle: Teilweise erreicht (Kompensatorische Unterstützung / Krisenintervention dokumentiert) ([D8] Regelmäßige Teilhabe am Arbeitsleben (WfbM) und Umgang mit Taschengeld (Indikator: Besuch der WfbM an 4/5 Tagen; eigenständiger Kleineinkauf beim Bäcker)).",
+    "sgb_ix_icf_report": {
+      "legal_framework": "SGB IX Teil 2 (BTHG) / § 118 SGB IX (ICF-orientierte Bedarfsermittlung) / § 121 SGB IX Gesamtplan",
+      "active_icf_domains_count": 5,
+      "active_icf_codes": [
+        "d1",
+        "d2",
+        "d3",
+        "d6",
+        "d8"
+      ],
+      "primary_assistenz_classification": "Qualifizierte Assistenz (§ 78 Abs. 2 Nr. 2 SGB IX: Befähigung, Anleitung & Begleitung)",
+      "multilingual_normalizations": [
+        {
+          "source_phrase": "عمل القهوة لحاله",
+          "language": "AR",
+          "formal_german_mapping": "hat selbstständig Kaffee zubereitet (Ressource im häuslichen Leben)"
+        },
+        {
+          "source_phrase": "a cumpărat pâine singur",
+          "language": "RO",
+          "formal_german_mapping": "hat beim Bäcker selbstständig Brot ausgewählt und mit Bargeld bezahlt"
+        },
+        {
+          "source_phrase": "сьогодні дуже неспокійний",
+          "language": "UKR",
+          "formal_german_mapping": "zeigte heute deutliche innere Unruhe und Reizüberflutung"
+        },
+        {
+          "source_phrase": "відмовився їхати в майстерню",
+          "language": "UKR",
+          "formal_german_mapping": "verweigerte morgens die Fahrt zur Werkstatt (WfbM) wegen Überforderung"
+        },
+        {
+          "source_phrase": "після розмови заспокоївся",
+          "language": "UKR",
+          "formal_german_mapping": "konnte nach deeskalierender Gesprächsführung durch die Fachkraft beruhigt und reguliert werden"
+        },
+        {
+          "source_phrase": "сам прибрав кімнату",
+          "language": "UKR",
+          "formal_german_mapping": "hat nach visueller Strukturierung über Piktogramme sein Zimmer eigenständig aufgeräumt"
+        },
+        {
+          "source_phrase": "null bock auf werkstatt",
+          "language": "DE-Colloquial",
+          "formal_german_mapping": "fehlende Motivation / Ablehnung der Teilnahme an der WfbM"
+        }
+      ],
+      "formal_icf_verlaufsbericht": "[D1 – Lernen und Wissensanwendung (d155 Fertigkeiten erwerben (Handlungsabläufe erlernen))]: Ressource: Kann visuelle Strukturierungshilfen (Piktogramme/Tagesplan) kognitiv erfassen und Handlungsabläufe abrufen. | Barriere/Wechselwirkung: Umwelt- und personenbezogene Barriere erfordert strukturierende Assistenz zur Teilhabesicherung. | Leistung (§ 78 SGB IX): Qualifizierte Assistenz (§ 78 Abs. 2 Nr. 2 SGB IX: Befähigung, Anleitung & Begleitung) – Personenzentrierte Assistenz durch strukturierende Impulsgebung, verbale Anleitung, Krisenprävention und Förderung der eigenständigen Handlungsausführung. | Wirkungskontrolle: Teilweise erreicht (Kompensatorische Unterstützung / Krisenintervention dokumentiert) ([D2] Bewältigung der Tagesstruktur und Emotionsregulation bei Planänderungen (Indikator: Nutzung des Piktogramm-Tagesplans und Anwendung von Entspannungsstrategien bei Stress)). [D2 – Allgemeine Aufgaben und Anforderungen (d240 Mit Stress und anderen psychischen Anforderungen umgehen)]: Ressource: Spricht gut auf verlässliche Tagesroutinen und ruhige, deeskalierende Begleitung zur Affektregulation an. | Barriere/Wechselwirkung: Geringe Frustrationstoleranz und rasche Reizüberflutung bei Abweichungen vom gewohnten Tagesablauf. | Leistung (§ 78 SGB IX): Qualifizierte Assistenz (§ 78 Abs. 2 Nr. 2 SGB IX: Befähigung, Anleitung & Begleitung) – Personenzentrierte Assistenz durch strukturierende Impulsgebung, verbale Anleitung, Krisenprävention und Förderung der eigenständigen Handlungsausführung. | Wirkungskontrolle: Teilweise erreicht (Kompensatorische Unterstützung / Krisenintervention dokumentiert) ([D2] Bewältigung der Tagesstruktur und Emotionsregulation bei Planänderungen (Indikator: Nutzung des Piktogramm-Tagesplans und Anwendung von Entspannungsstrategien bei Stress)). [D3 – Kommunikation (d310 Kommunizieren als Empfänger gesprochener Mitteilungen)]: Ressource: Äußert eigene Bedürfnisse und Präferenzen aktiv (verbal bzw. über unterstützte Kommunikation / Talker). | Barriere/Wechselwirkung: Einschränkung der adäquaten verbalen Konflikt- und Bedürfniskommunikation unter emotionaler Belastung. | Leistung (§ 78 SGB IX): Qualifizierte Assistenz (§ 78 Abs. 2 Nr. 2 SGB IX: Befähigung, Anleitung & Begleitung) – Personenzentrierte Assistenz durch strukturierende Impulsgebung, verbale Anleitung, Krisenprävention und Förderung der eigenständigen Handlungsausführung. | Wirkungskontrolle: Teilweise erreicht (Kompensatorische Unterstützung / Krisenintervention dokumentiert) ([D2] Bewältigung der Tagesstruktur und Emotionsregulation bei Planänderungen (Indikator: Nutzung des Piktogramm-Tagesplans und Anwendung von Entspannungsstrategien bei Stress)). [D6 – Häusliches Leben (d620 Waren und Dienstleistungen des täglichen Bedarfs beschaffen (Einkaufen))]: Ressource: Hohe Alltagsressource bei lebenspraktischen Tätigkeiten (Einkauf, Getränkezubereitung, Zimmerordnung) mit Assistenz. | Barriere/Wechselwirkung: Umwelt- und personenbezogene Barriere erfordert strukturierende Assistenz zur Teilhabesicherung. | Leistung (§ 78 SGB IX): Qualifizierte Assistenz (§ 78 Abs. 2 Nr. 2 SGB IX: Befähigung, Anleitung & Begleitung) – Personenzentrierte Assistenz durch strukturierende Impulsgebung, verbale Anleitung, Krisenprävention und Förderung der eigenständigen Handlungsausführung. | Wirkungskontrolle: Teilweise erreicht (Kompensatorische Unterstützung / Krisenintervention dokumentiert) ([D6] Eigenständige Wohnraumhygiene und Mahlzeitenvorbereitung (Indikator: Aufräumen des Zimmers und Zubereitung kleiner Speisen mit qualifizierter Assistenz)). [D8 – Bedeutende Lebensbereiche (Arbeit, Bildung, Finanzen) (d860 Elementare wirtschaftliche Transaktionen (Taschengeld, Bezahlen))]: Ressource: Bewältigt überschaubare Bargeldtransaktionen beim Einkauf mit punktueller Begleitung. | Barriere/Wechselwirkung: Tagesaktuelle Überforderung/Motivationsbarriere bezüglich der Teilhabe am Arbeitsleben (WfbM). | Leistung (§ 78 SGB IX): Qualifizierte Assistenz (§ 78 Abs. 2 Nr. 2 SGB IX: Befähigung, Anleitung & Begleitung) – Personenzentrierte Assistenz durch strukturierende Impulsgebung, verbale Anleitung, Krisenprävention und Förderung der eigenständigen Handlungsausführung. | Wirkungskontrolle: Teilweise erreicht (Kompensatorische Unterstützung / Krisenintervention dokumentiert) ([D8] Regelmäßige Teilhabe am Arbeitsleben (WfbM) und Umgang mit Taschengeld (Indikator: Besuch der WfbM an 4/5 Tagen; eigenständiger Kleineinkauf beim Bäcker)).",
+      "icf_9_lebensbereiche_matrix": [
+        {
+          "code": "d1",
+          "title": "Lernen und Wissensanwendung",
+          "active_in_note": true,
+          "subcode": "d155",
+          "subcode_label": "Fertigkeiten erwerben (Handlungsabläufe erlernen)",
+          "bef_instrument_ref": "BEI_NRW LB 1 / ITP Bogen D1",
+          "ressourcen": [
+            "Kann visuelle Strukturierungshilfen (Piktogramme/Tagesplan) kognitiv erfassen und Handlungsabläufe abrufen."
+          ],
+          "barrieren": [
+            "Umwelt- und personenbezogene Barriere erfordert strukturierende Assistenz zur Teilhabesicherung."
+          ],
+          "leistung_typ": "Qualifizierte Assistenz (§ 78 Abs. 2 Nr. 2 SGB IX: Befähigung, Anleitung & Begleitung)",
+          "leistung_beschreibung": "Personenzentrierte Assistenz durch strukturierende Impulsgebung, verbale Anleitung, Krisenprävention und Förderung der eigenständigen Handlungsausführung.",
+          "teilhabeziel_bezug": "[D2] Bewältigung der Tagesstruktur und Emotionsregulation bei Planänderungen (Indikator: Nutzung des Piktogramm-Tagesplans und Anwendung von Entspannungsstrategien bei Stress)",
+          "wirkungskontrolle_status": "Teilweise erreicht (Kompensatorische Unterstützung / Krisenintervention dokumentiert)"
+        },
+        {
+          "code": "d2",
+          "title": "Allgemeine Aufgaben und Anforderungen",
+          "active_in_note": true,
+          "subcode": "d240",
+          "subcode_label": "Mit Stress und anderen psychischen Anforderungen umgehen",
+          "bef_instrument_ref": "BEI_NRW LB 2 / ITP Bogen D2",
+          "ressourcen": [
+            "Spricht gut auf verlässliche Tagesroutinen und ruhige, deeskalierende Begleitung zur Affektregulation an."
+          ],
+          "barrieren": [
+            "Geringe Frustrationstoleranz und rasche Reizüberflutung bei Abweichungen vom gewohnten Tagesablauf."
+          ],
+          "leistung_typ": "Qualifizierte Assistenz (§ 78 Abs. 2 Nr. 2 SGB IX: Befähigung, Anleitung & Begleitung)",
+          "leistung_beschreibung": "Personenzentrierte Assistenz durch strukturierende Impulsgebung, verbale Anleitung, Krisenprävention und Förderung der eigenständigen Handlungsausführung.",
+          "teilhabeziel_bezug": "[D2] Bewältigung der Tagesstruktur und Emotionsregulation bei Planänderungen (Indikator: Nutzung des Piktogramm-Tagesplans und Anwendung von Entspannungsstrategien bei Stress)",
+          "wirkungskontrolle_status": "Teilweise erreicht (Kompensatorische Unterstützung / Krisenintervention dokumentiert)"
+        },
+        {
+          "code": "d3",
+          "title": "Kommunikation",
+          "active_in_note": true,
+          "subcode": "d310",
+          "subcode_label": "Kommunizieren als Empfänger gesprochener Mitteilungen",
+          "bef_instrument_ref": "BEI_NRW LB 3 / ITP Bogen D3",
+          "ressourcen": [
+            "Äußert eigene Bedürfnisse und Präferenzen aktiv (verbal bzw. über unterstützte Kommunikation / Talker)."
+          ],
+          "barrieren": [
+            "Einschränkung der adäquaten verbalen Konflikt- und Bedürfniskommunikation unter emotionaler Belastung."
+          ],
+          "leistung_typ": "Qualifizierte Assistenz (§ 78 Abs. 2 Nr. 2 SGB IX: Befähigung, Anleitung & Begleitung)",
+          "leistung_beschreibung": "Personenzentrierte Assistenz durch strukturierende Impulsgebung, verbale Anleitung, Krisenprävention und Förderung der eigenständigen Handlungsausführung.",
+          "teilhabeziel_bezug": "[D2] Bewältigung der Tagesstruktur und Emotionsregulation bei Planänderungen (Indikator: Nutzung des Piktogramm-Tagesplans und Anwendung von Entspannungsstrategien bei Stress)",
+          "wirkungskontrolle_status": "Teilweise erreicht (Kompensatorische Unterstützung / Krisenintervention dokumentiert)"
+        },
+        {
+          "code": "d4",
+          "title": "Mobilität",
+          "active_in_note": false,
+          "subcode": "-",
+          "subcode_label": "Keine tagesaktuelle Besonderheit im Sprachprotokoll",
+          "bef_instrument_ref": "BEI_NRW LB 4 / ITP Bogen D4",
+          "ressourcen": [
+            "Stabil gemäß aktuellem Gesamt-/Teilhabeplan (§ 121 SGB IX)"
+          ],
+          "barrieren": [],
+          "leistung_typ": "Reguläre Hintergrundbereitschaft",
+          "leistung_beschreibung": "Leistungserbringung planmäßig ohne gesonderten Dokumentationsvorfall.",
+          "teilhabeziel_bezug": "Planmäßiger Verlauf",
+          "wirkungskontrolle_status": "Konstant / Planmäßig"
+        },
+        {
+          "code": "d5",
+          "title": "Selbstversorgung",
+          "active_in_note": false,
+          "subcode": "-",
+          "subcode_label": "Keine tagesaktuelle Besonderheit im Sprachprotokoll",
+          "bef_instrument_ref": "BEI_NRW LB 5 / ITP Bogen D5",
+          "ressourcen": [
+            "Stabil gemäß aktuellem Gesamt-/Teilhabeplan (§ 121 SGB IX)"
+          ],
+          "barrieren": [],
+          "leistung_typ": "Reguläre Hintergrundbereitschaft",
+          "leistung_beschreibung": "Leistungserbringung planmäßig ohne gesonderten Dokumentationsvorfall.",
+          "teilhabeziel_bezug": "Planmäßiger Verlauf",
+          "wirkungskontrolle_status": "Konstant / Planmäßig"
+        },
+        {
+          "code": "d6",
+          "title": "Häusliches Leben",
+          "active_in_note": true,
+          "subcode": "d620",
+          "subcode_label": "Waren und Dienstleistungen des täglichen Bedarfs beschaffen (Einkaufen)",
+          "bef_instrument_ref": "BEI_NRW LB 6 / ITP Bogen D6",
+          "ressourcen": [
+            "Hohe Alltagsressource bei lebenspraktischen Tätigkeiten (Einkauf, Getränkezubereitung, Zimmerordnung) mit Assistenz."
+          ],
+          "barrieren": [
+            "Umwelt- und personenbezogene Barriere erfordert strukturierende Assistenz zur Teilhabesicherung."
+          ],
+          "leistung_typ": "Qualifizierte Assistenz (§ 78 Abs. 2 Nr. 2 SGB IX: Befähigung, Anleitung & Begleitung)",
+          "leistung_beschreibung": "Personenzentrierte Assistenz durch strukturierende Impulsgebung, verbale Anleitung, Krisenprävention und Förderung der eigenständigen Handlungsausführung.",
+          "teilhabeziel_bezug": "[D6] Eigenständige Wohnraumhygiene und Mahlzeitenvorbereitung (Indikator: Aufräumen des Zimmers und Zubereitung kleiner Speisen mit qualifizierter Assistenz)",
+          "wirkungskontrolle_status": "Teilweise erreicht (Kompensatorische Unterstützung / Krisenintervention dokumentiert)"
+        },
+        {
+          "code": "d7",
+          "title": "Interpersonelle Interaktionen und Beziehungen",
+          "active_in_note": false,
+          "subcode": "-",
+          "subcode_label": "Keine tagesaktuelle Besonderheit im Sprachprotokoll",
+          "bef_instrument_ref": "BEI_NRW LB 7 / ITP Bogen D7",
+          "ressourcen": [
+            "Stabil gemäß aktuellem Gesamt-/Teilhabeplan (§ 121 SGB IX)"
+          ],
+          "barrieren": [],
+          "leistung_typ": "Reguläre Hintergrundbereitschaft",
+          "leistung_beschreibung": "Leistungserbringung planmäßig ohne gesonderten Dokumentationsvorfall.",
+          "teilhabeziel_bezug": "Planmäßiger Verlauf",
+          "wirkungskontrolle_status": "Konstant / Planmäßig"
+        },
+        {
+          "code": "d8",
+          "title": "Bedeutende Lebensbereiche (Arbeit, Bildung, Finanzen)",
+          "active_in_note": true,
+          "subcode": "d860",
+          "subcode_label": "Elementare wirtschaftliche Transaktionen (Taschengeld, Bezahlen)",
+          "bef_instrument_ref": "BEI_NRW LB 8 / ITP Bogen D8",
+          "ressourcen": [
+            "Bewältigt überschaubare Bargeldtransaktionen beim Einkauf mit punktueller Begleitung."
+          ],
+          "barrieren": [
+            "Tagesaktuelle Überforderung/Motivationsbarriere bezüglich der Teilhabe am Arbeitsleben (WfbM)."
+          ],
+          "leistung_typ": "Qualifizierte Assistenz (§ 78 Abs. 2 Nr. 2 SGB IX: Befähigung, Anleitung & Begleitung)",
+          "leistung_beschreibung": "Personenzentrierte Assistenz durch strukturierende Impulsgebung, verbale Anleitung, Krisenprävention und Förderung der eigenständigen Handlungsausführung.",
+          "teilhabeziel_bezug": "[D8] Regelmäßige Teilhabe am Arbeitsleben (WfbM) und Umgang mit Taschengeld (Indikator: Besuch der WfbM an 4/5 Tagen; eigenständiger Kleineinkauf beim Bäcker)",
+          "wirkungskontrolle_status": "Teilweise erreicht (Kompensatorische Unterstützung / Krisenintervention dokumentiert)"
+        },
+        {
+          "code": "d9",
+          "title": "Gemeinschafts-, soziales und staatsbürgerliches Leben",
+          "active_in_note": false,
+          "subcode": "-",
+          "subcode_label": "Keine tagesaktuelle Besonderheit im Sprachprotokoll",
+          "bef_instrument_ref": "BEI_NRW LB 9 / ITP Bogen D9",
+          "ressourcen": [
+            "Stabil gemäß aktuellem Gesamt-/Teilhabeplan (§ 121 SGB IX)"
+          ],
+          "barrieren": [],
+          "leistung_typ": "Reguläre Hintergrundbereitschaft",
+          "leistung_beschreibung": "Leistungserbringung planmäßig ohne gesonderten Dokumentationsvorfall.",
+          "teilhabeziel_bezug": "Planmäßiger Verlauf",
+          "wirkungskontrolle_status": "Konstant / Planmäßig"
+        }
+      ]
+    },
+    "sgb_xi_sis_report": {
+      "filtered_routine_items": [],
+      "deviations_documented": [
+        {
+          "sis_themenfeld": "TF 1: Kognitive und kommunikative Fähigkeiten / TF 5: Soziale Beziehungen",
+          "deviation_type": "Abweichung vom Maßnahmenplan (Akute Wesensveränderung / Herausforderndes Verhalten)",
+          "formal_berichteblatt_entry": "ABWEICHUNG [TF 1: Kognitive und kommunikative Fähigkeiten / TF 5: Soziale Beziehungen]: Beobachtung von Indikatoren für 'Akute Wesensveränderung / Herausforderndes Verhalten' (Evidenz: verweigert, неспокійний). Eingeleitete Pflegemaßnahme: Mögliche somatische Auslöser (Schmerz, Harnwegsinfekt, Exsikkose) prüfen, biografische Deeskalation/Validierung anwenden, Abweichung von geplanter Leistung begründen."
+        }
+      ],
+      "acute_risks_flagged": [
+        {
+          "risk_key": "kognition_herausfordernd",
+          "risk_id": "SIS-TF1-KOGNITION",
+          "name": "Akute Wesensveränderung / Herausforderndes Verhalten",
+          "sis_themenfeld": "TF 1: Kognitive und kommunikative Fähigkeiten / TF 5: Soziale Beziehungen",
+          "severity": "MEDIUM",
+          "matched_evidence": [
+            "verweigert",
+            "неспокійний"
+          ],
+          "mdk_required_action": "Mögliche somatische Auslöser (Schmerz, Harnwegsinfekt, Exsikkose) prüfen, biografische Deeskalation/Validierung anwenden, Abweichung von geplanter Leistung begründen."
+        }
+      ],
+      "sis_evaluation_required": false,
+      "sis_evaluation_reason": "Verlaufsbeobachtung im Berichteblatt über 48h; bei Wiederholung Anpassung der Tagesstruktur/Maßnahmenplanung.",
+      "mdk_qpr_audit_score": 99,
+      "mdk_audit_notes": [
+        "Abweichungsprinzip nach Strukturmodell (Beikirch) eingehalten: Routineleistungen wurden aus dem Berichteblatt gefiltert.",
+        "Keine 'Stummes Berichteblatt'-Falle: Relevante Pflegebeobachtungen und Begründungen bei Leistungsverweigerung sind lückenlos mit Maßnahmen verknüpft.",
+        "Rote-Faden-Prüfung (Beobachtung -> Risiko -> Maßnahme -> Evaluationstermin) zu 100 % erfüllt."
+      ]
+    },
+    "shift_handover_priority": "ROUTINE_PROGRESS",
+    "shift_handover_headline": "Lukas Weber: Akute Wesensveränderung / Herausforderndes Verhalten (ICF D1, D2, D3, D6, D8)"
+  },
+  {
+    "note_id": "DOKU-2026-1017-04",
+    "timestamp_berlin": "2026-10-17T13:55:00+02:00",
+    "caregiver_name": "Elena Dumitrescu & Tariq Al-Mansoor (Spätdienst-Tandem)",
+    "caregiver_native_lang": "RO / AR / DE",
+    "audio_duration_sec": 22,
+    "time_saved_minutes": 11.5,
+    "client": {
+      "client_id": "KL-904",
+      "name": "Frau Margot Lindner",
+      "age": 68,
+      "care_setting": "KOMPLEX_BEIDE",
+      "pflegegrad_or_bg": "Pflegegrad 4 & SGB IX Tagesförderstätte",
+      "primary_diagnoses": [
+        "Multiple Sklerose (sekundär progredient)",
+        "Neurogene Dysphagie"
+      ],
+      "teilhabeziele": [
+        {
+          "code": "d5",
+          "goal_title": "Sichere Nahrungs- und Flüssigkeitsaufnahme sowie kompensatorische Körperpflege",
+          "target_indicator": "Aspirationsfreie Mahlzeiten mit angedickten Getränken; Hautintegrität gewahrt"
+        },
+        {
+          "code": "d9",
+          "goal_title": "Teilhabe am kulturellen und gemeinschaftlichen Gruppenleben",
+          "target_indicator": "Teilnahme am Musik- und Café-Nachmittag mindestens 3x wöchentlich"
+        }
+      ],
+      "sis_massnahmenplan_summary": [
+        "TF 4 Selbstversorgung: Stellvertretende Übernahme Duschen, Schlucktraining / Andickung beachten"
+      ]
+    },
+    "raw_transcript": "Frau Lindner a avut nevoie de ajutor complet la duș heute Morgen, alles übernommen beim Waschen wegen starker Spastik. Beim Mittagessen a mâncat doar jumătate de porție und s-a înecat cu apă trotz Schnabelbecher, starker Hustenreiz! Außerdem ما شرب مي كفاية am Vormittag. Nachmittags beim Musikangebot im Café كان مبسوط بالمجموعة und hat über ihren Talker Lieder ausgewählt.",
+    "detected_languages": [
+      "DE",
+      "AR",
+      "RO",
+      "DE-Colloquial"
+    ],
+    "normalized_german_summary": "[D3 – Kommunikation (d310 Kommunizieren als Empfänger gesprochener Mitteilungen)]: Ressource: Äußert eigene Bedürfnisse und Präferenzen aktiv (verbal bzw. über unterstützte Kommunikation / Talker). | Barriere/Wechselwirkung: Umwelt- und personenbezogene Barriere erfordert strukturierende Assistenz zur Teilhabesicherung. | Leistung (§ 78 SGB IX): Kompensatorische Assistenz (§ 78 Abs. 2 Nr. 1 SGB IX: Stellvertretende Ausführung) – Vollständige bzw. überwiegende stellvertretende Übernahme der Handlung durch die Fachkraft aufgrund tagesaktueller Funktionsbeeinträchtigung. | Wirkungskontrolle: Teilweise erreicht (Kompensatorische Unterstützung / Krisenintervention dokumentiert) ([D5] Sichere Nahrungs- und Flüssigkeitsaufnahme sowie kompensatorische Körperpflege (Indikator: Aspirationsfreie Mahlzeiten mit angedickten Getränken; Hautintegrität gewahrt)). [D5 – Selbstversorgung (d560 Trinken (Flüssigkeitsaufnahme))]: Ressource: Kooperationsbereitschaft im Einzelkontakt mit vertrauter Bezugsbetreuungskraft vorhanden. | Barriere/Wechselwirkung: Beeinträchtigte Eigenwahrnehmung für Durst-/Ernährungsbedarf bzw. körperliche Einschränkung bei der Intim- und Hautpflege. | Leistung (§ 78 SGB IX): Kompensatorische Assistenz (§ 78 Abs. 2 Nr. 1 SGB IX: Stellvertretende Ausführung) – Vollständige bzw. überwiegende stellvertretende Übernahme der Handlung durch die Fachkraft aufgrund tagesaktueller Funktionsbeeinträchtigung. | Wirkungskontrolle: Barriere dominant / Assistenzintensivierung erforderlich ([D5] Sichere Nahrungs- und Flüssigkeitsaufnahme sowie kompensatorische Körperpflege (Indikator: Aspirationsfreie Mahlzeiten mit angedickten Getränken; Hautintegrität gewahrt)). [D7 – Interpersonelle Interaktionen und Beziehungen (d710 Elementare interpersonelle Aktivitäten (Respekt, Distanz/Nähe))]: Ressource: Zeigt prosoziale Kontaktaufnahme und positive Interaktion innerhalb der Wohngruppe/Tagespflege. | Barriere/Wechselwirkung: Umwelt- und personenbezogene Barriere erfordert strukturierende Assistenz zur Teilhabesicherung. | Leistung (§ 78 SGB IX): Kompensatorische Assistenz (§ 78 Abs. 2 Nr. 1 SGB IX: Stellvertretende Ausführung) – Vollständige bzw. überwiegende stellvertretende Übernahme der Handlung durch die Fachkraft aufgrund tagesaktueller Funktionsbeeinträchtigung. | Wirkungskontrolle: Teilweise erreicht (Kompensatorische Unterstützung / Krisenintervention dokumentiert) ([D5] Sichere Nahrungs- und Flüssigkeitsaufnahme sowie kompensatorische Körperpflege (Indikator: Aspirationsfreie Mahlzeiten mit angedickten Getränken; Hautintegrität gewahrt)). [D9 – Gemeinschafts-, soziales und staatsbürgerliches Leben (d910 Gemeinschaftsleben (Vereine, Nachbarschaft))]: Ressource: Nimmt bei begleiteter Hinführung aktiv an gemeinschaftlichen Freizeit- und Erholungsangeboten teil. | Barriere/Wechselwirkung: Umwelt- und personenbezogene Barriere erfordert strukturierende Assistenz zur Teilhabesicherung. | Leistung (§ 78 SGB IX): Kompensatorische Assistenz (§ 78 Abs. 2 Nr. 1 SGB IX: Stellvertretende Ausführung) – Vollständige bzw. überwiegende stellvertretende Übernahme der Handlung durch die Fachkraft aufgrund tagesaktueller Funktionsbeeinträchtigung. | Wirkungskontrolle: Teilweise erreicht (Kompensatorische Unterstützung / Krisenintervention dokumentiert) ([D9] Teilhabe am kulturellen und gemeinschaftlichen Gruppenleben (Indikator: Teilnahme am Musik- und Café-Nachmittag mindestens 3x wöchentlich)).",
+    "sgb_ix_icf_report": {
+      "legal_framework": "SGB IX Teil 2 (BTHG) / § 118 SGB IX (ICF-orientierte Bedarfsermittlung) / § 121 SGB IX Gesamtplan",
+      "active_icf_domains_count": 4,
+      "active_icf_codes": [
+        "d3",
+        "d5",
+        "d7",
+        "d9"
+      ],
+      "primary_assistenz_classification": "Kompensatorische Assistenz (§ 78 Abs. 2 Nr. 1 SGB IX: Stellvertretende Ausführung)",
+      "multilingual_normalizations": [
+        {
+          "source_phrase": "ما شرب مي كفاية",
+          "language": "AR",
+          "formal_german_mapping": "hat unzureichend Flüssigkeit zu sich genommen (wenig getrunken / Exsikkose-Risiko)"
+        },
+        {
+          "source_phrase": "كان مبسوط بالمجموعة",
+          "language": "AR",
+          "formal_german_mapping": "nahm freudig und zugewandt am Gruppenangebot teil"
+        },
+        {
+          "source_phrase": "a mâncat doar jumătate de porție",
+          "language": "RO",
+          "formal_german_mapping": "hat nur die Hälfte der Mahlzeit gegessen"
+        },
+        {
+          "source_phrase": "s-a înecat cu apă",
+          "language": "RO",
+          "formal_german_mapping": "hat sich beim Trinken verschluckt (Hustenreiz / Dysphagie-Hinweis)"
+        },
+        {
+          "source_phrase": "a avut nevoie de ajutor complet la duș",
+          "language": "RO",
+          "formal_german_mapping": "benötigte beim Duschen stellvertretende Übernahme der Körperpflege"
+        },
+        {
+          "source_phrase": "alles übernommen beim waschen",
+          "language": "DE-Colloquial",
+          "formal_german_mapping": "vollständige kompensatorische Übernahme (stellvertretende Ausführung) der Körperpflege"
+        }
+      ],
+      "formal_icf_verlaufsbericht": "[D3 – Kommunikation (d310 Kommunizieren als Empfänger gesprochener Mitteilungen)]: Ressource: Äußert eigene Bedürfnisse und Präferenzen aktiv (verbal bzw. über unterstützte Kommunikation / Talker). | Barriere/Wechselwirkung: Umwelt- und personenbezogene Barriere erfordert strukturierende Assistenz zur Teilhabesicherung. | Leistung (§ 78 SGB IX): Kompensatorische Assistenz (§ 78 Abs. 2 Nr. 1 SGB IX: Stellvertretende Ausführung) – Vollständige bzw. überwiegende stellvertretende Übernahme der Handlung durch die Fachkraft aufgrund tagesaktueller Funktionsbeeinträchtigung. | Wirkungskontrolle: Teilweise erreicht (Kompensatorische Unterstützung / Krisenintervention dokumentiert) ([D5] Sichere Nahrungs- und Flüssigkeitsaufnahme sowie kompensatorische Körperpflege (Indikator: Aspirationsfreie Mahlzeiten mit angedickten Getränken; Hautintegrität gewahrt)). [D5 – Selbstversorgung (d560 Trinken (Flüssigkeitsaufnahme))]: Ressource: Kooperationsbereitschaft im Einzelkontakt mit vertrauter Bezugsbetreuungskraft vorhanden. | Barriere/Wechselwirkung: Beeinträchtigte Eigenwahrnehmung für Durst-/Ernährungsbedarf bzw. körperliche Einschränkung bei der Intim- und Hautpflege. | Leistung (§ 78 SGB IX): Kompensatorische Assistenz (§ 78 Abs. 2 Nr. 1 SGB IX: Stellvertretende Ausführung) – Vollständige bzw. überwiegende stellvertretende Übernahme der Handlung durch die Fachkraft aufgrund tagesaktueller Funktionsbeeinträchtigung. | Wirkungskontrolle: Barriere dominant / Assistenzintensivierung erforderlich ([D5] Sichere Nahrungs- und Flüssigkeitsaufnahme sowie kompensatorische Körperpflege (Indikator: Aspirationsfreie Mahlzeiten mit angedickten Getränken; Hautintegrität gewahrt)). [D7 – Interpersonelle Interaktionen und Beziehungen (d710 Elementare interpersonelle Aktivitäten (Respekt, Distanz/Nähe))]: Ressource: Zeigt prosoziale Kontaktaufnahme und positive Interaktion innerhalb der Wohngruppe/Tagespflege. | Barriere/Wechselwirkung: Umwelt- und personenbezogene Barriere erfordert strukturierende Assistenz zur Teilhabesicherung. | Leistung (§ 78 SGB IX): Kompensatorische Assistenz (§ 78 Abs. 2 Nr. 1 SGB IX: Stellvertretende Ausführung) – Vollständige bzw. überwiegende stellvertretende Übernahme der Handlung durch die Fachkraft aufgrund tagesaktueller Funktionsbeeinträchtigung. | Wirkungskontrolle: Teilweise erreicht (Kompensatorische Unterstützung / Krisenintervention dokumentiert) ([D5] Sichere Nahrungs- und Flüssigkeitsaufnahme sowie kompensatorische Körperpflege (Indikator: Aspirationsfreie Mahlzeiten mit angedickten Getränken; Hautintegrität gewahrt)). [D9 – Gemeinschafts-, soziales und staatsbürgerliches Leben (d910 Gemeinschaftsleben (Vereine, Nachbarschaft))]: Ressource: Nimmt bei begleiteter Hinführung aktiv an gemeinschaftlichen Freizeit- und Erholungsangeboten teil. | Barriere/Wechselwirkung: Umwelt- und personenbezogene Barriere erfordert strukturierende Assistenz zur Teilhabesicherung. | Leistung (§ 78 SGB IX): Kompensatorische Assistenz (§ 78 Abs. 2 Nr. 1 SGB IX: Stellvertretende Ausführung) – Vollständige bzw. überwiegende stellvertretende Übernahme der Handlung durch die Fachkraft aufgrund tagesaktueller Funktionsbeeinträchtigung. | Wirkungskontrolle: Teilweise erreicht (Kompensatorische Unterstützung / Krisenintervention dokumentiert) ([D9] Teilhabe am kulturellen und gemeinschaftlichen Gruppenleben (Indikator: Teilnahme am Musik- und Café-Nachmittag mindestens 3x wöchentlich)).",
+      "icf_9_lebensbereiche_matrix": [
+        {
+          "code": "d1",
+          "title": "Lernen und Wissensanwendung",
+          "active_in_note": false,
+          "subcode": "-",
+          "subcode_label": "Keine tagesaktuelle Besonderheit im Sprachprotokoll",
+          "bef_instrument_ref": "BEI_NRW LB 1 / ITP Bogen D1",
+          "ressourcen": [
+            "Stabil gemäß aktuellem Gesamt-/Teilhabeplan (§ 121 SGB IX)"
+          ],
+          "barrieren": [],
+          "leistung_typ": "Reguläre Hintergrundbereitschaft",
+          "leistung_beschreibung": "Leistungserbringung planmäßig ohne gesonderten Dokumentationsvorfall.",
+          "teilhabeziel_bezug": "Planmäßiger Verlauf",
+          "wirkungskontrolle_status": "Konstant / Planmäßig"
+        },
+        {
+          "code": "d2",
+          "title": "Allgemeine Aufgaben und Anforderungen",
+          "active_in_note": false,
+          "subcode": "-",
+          "subcode_label": "Keine tagesaktuelle Besonderheit im Sprachprotokoll",
+          "bef_instrument_ref": "BEI_NRW LB 2 / ITP Bogen D2",
+          "ressourcen": [
+            "Stabil gemäß aktuellem Gesamt-/Teilhabeplan (§ 121 SGB IX)"
+          ],
+          "barrieren": [],
+          "leistung_typ": "Reguläre Hintergrundbereitschaft",
+          "leistung_beschreibung": "Leistungserbringung planmäßig ohne gesonderten Dokumentationsvorfall.",
+          "teilhabeziel_bezug": "Planmäßiger Verlauf",
+          "wirkungskontrolle_status": "Konstant / Planmäßig"
+        },
+        {
+          "code": "d3",
+          "title": "Kommunikation",
+          "active_in_note": true,
+          "subcode": "d310",
+          "subcode_label": "Kommunizieren als Empfänger gesprochener Mitteilungen",
+          "bef_instrument_ref": "BEI_NRW LB 3 / ITP Bogen D3",
+          "ressourcen": [
+            "Äußert eigene Bedürfnisse und Präferenzen aktiv (verbal bzw. über unterstützte Kommunikation / Talker)."
+          ],
+          "barrieren": [
+            "Umwelt- und personenbezogene Barriere erfordert strukturierende Assistenz zur Teilhabesicherung."
+          ],
+          "leistung_typ": "Kompensatorische Assistenz (§ 78 Abs. 2 Nr. 1 SGB IX: Stellvertretende Ausführung)",
+          "leistung_beschreibung": "Vollständige bzw. überwiegende stellvertretende Übernahme der Handlung durch die Fachkraft aufgrund tagesaktueller Funktionsbeeinträchtigung.",
+          "teilhabeziel_bezug": "[D5] Sichere Nahrungs- und Flüssigkeitsaufnahme sowie kompensatorische Körperpflege (Indikator: Aspirationsfreie Mahlzeiten mit angedickten Getränken; Hautintegrität gewahrt)",
+          "wirkungskontrolle_status": "Teilweise erreicht (Kompensatorische Unterstützung / Krisenintervention dokumentiert)"
+        },
+        {
+          "code": "d4",
+          "title": "Mobilität",
+          "active_in_note": false,
+          "subcode": "-",
+          "subcode_label": "Keine tagesaktuelle Besonderheit im Sprachprotokoll",
+          "bef_instrument_ref": "BEI_NRW LB 4 / ITP Bogen D4",
+          "ressourcen": [
+            "Stabil gemäß aktuellem Gesamt-/Teilhabeplan (§ 121 SGB IX)"
+          ],
+          "barrieren": [],
+          "leistung_typ": "Reguläre Hintergrundbereitschaft",
+          "leistung_beschreibung": "Leistungserbringung planmäßig ohne gesonderten Dokumentationsvorfall.",
+          "teilhabeziel_bezug": "Planmäßiger Verlauf",
+          "wirkungskontrolle_status": "Konstant / Planmäßig"
+        },
+        {
+          "code": "d5",
+          "title": "Selbstversorgung",
+          "active_in_note": true,
+          "subcode": "d560",
+          "subcode_label": "Trinken (Flüssigkeitsaufnahme)",
+          "bef_instrument_ref": "BEI_NRW LB 5 / ITP Bogen D5",
+          "ressourcen": [
+            "Kooperationsbereitschaft im Einzelkontakt mit vertrauter Bezugsbetreuungskraft vorhanden."
+          ],
+          "barrieren": [
+            "Beeinträchtigte Eigenwahrnehmung für Durst-/Ernährungsbedarf bzw. körperliche Einschränkung bei der Intim- und Hautpflege."
+          ],
+          "leistung_typ": "Kompensatorische Assistenz (§ 78 Abs. 2 Nr. 1 SGB IX: Stellvertretende Ausführung)",
+          "leistung_beschreibung": "Vollständige bzw. überwiegende stellvertretende Übernahme der Handlung durch die Fachkraft aufgrund tagesaktueller Funktionsbeeinträchtigung.",
+          "teilhabeziel_bezug": "[D5] Sichere Nahrungs- und Flüssigkeitsaufnahme sowie kompensatorische Körperpflege (Indikator: Aspirationsfreie Mahlzeiten mit angedickten Getränken; Hautintegrität gewahrt)",
+          "wirkungskontrolle_status": "Barriere dominant / Assistenzintensivierung erforderlich"
+        },
+        {
+          "code": "d6",
+          "title": "Häusliches Leben",
+          "active_in_note": false,
+          "subcode": "-",
+          "subcode_label": "Keine tagesaktuelle Besonderheit im Sprachprotokoll",
+          "bef_instrument_ref": "BEI_NRW LB 6 / ITP Bogen D6",
+          "ressourcen": [
+            "Stabil gemäß aktuellem Gesamt-/Teilhabeplan (§ 121 SGB IX)"
+          ],
+          "barrieren": [],
+          "leistung_typ": "Reguläre Hintergrundbereitschaft",
+          "leistung_beschreibung": "Leistungserbringung planmäßig ohne gesonderten Dokumentationsvorfall.",
+          "teilhabeziel_bezug": "Planmäßiger Verlauf",
+          "wirkungskontrolle_status": "Konstant / Planmäßig"
+        },
+        {
+          "code": "d7",
+          "title": "Interpersonelle Interaktionen und Beziehungen",
+          "active_in_note": true,
+          "subcode": "d710",
+          "subcode_label": "Elementare interpersonelle Aktivitäten (Respekt, Distanz/Nähe)",
+          "bef_instrument_ref": "BEI_NRW LB 7 / ITP Bogen D7",
+          "ressourcen": [
+            "Zeigt prosoziale Kontaktaufnahme und positive Interaktion innerhalb der Wohngruppe/Tagespflege."
+          ],
+          "barrieren": [
+            "Umwelt- und personenbezogene Barriere erfordert strukturierende Assistenz zur Teilhabesicherung."
+          ],
+          "leistung_typ": "Kompensatorische Assistenz (§ 78 Abs. 2 Nr. 1 SGB IX: Stellvertretende Ausführung)",
+          "leistung_beschreibung": "Vollständige bzw. überwiegende stellvertretende Übernahme der Handlung durch die Fachkraft aufgrund tagesaktueller Funktionsbeeinträchtigung.",
+          "teilhabeziel_bezug": "[D5] Sichere Nahrungs- und Flüssigkeitsaufnahme sowie kompensatorische Körperpflege (Indikator: Aspirationsfreie Mahlzeiten mit angedickten Getränken; Hautintegrität gewahrt)",
+          "wirkungskontrolle_status": "Teilweise erreicht (Kompensatorische Unterstützung / Krisenintervention dokumentiert)"
+        },
+        {
+          "code": "d8",
+          "title": "Bedeutende Lebensbereiche (Arbeit, Bildung, Finanzen)",
+          "active_in_note": false,
+          "subcode": "-",
+          "subcode_label": "Keine tagesaktuelle Besonderheit im Sprachprotokoll",
+          "bef_instrument_ref": "BEI_NRW LB 8 / ITP Bogen D8",
+          "ressourcen": [
+            "Stabil gemäß aktuellem Gesamt-/Teilhabeplan (§ 121 SGB IX)"
+          ],
+          "barrieren": [],
+          "leistung_typ": "Reguläre Hintergrundbereitschaft",
+          "leistung_beschreibung": "Leistungserbringung planmäßig ohne gesonderten Dokumentationsvorfall.",
+          "teilhabeziel_bezug": "Planmäßiger Verlauf",
+          "wirkungskontrolle_status": "Konstant / Planmäßig"
+        },
+        {
+          "code": "d9",
+          "title": "Gemeinschafts-, soziales und staatsbürgerliches Leben",
+          "active_in_note": true,
+          "subcode": "d910",
+          "subcode_label": "Gemeinschaftsleben (Vereine, Nachbarschaft)",
+          "bef_instrument_ref": "BEI_NRW LB 9 / ITP Bogen D9",
+          "ressourcen": [
+            "Nimmt bei begleiteter Hinführung aktiv an gemeinschaftlichen Freizeit- und Erholungsangeboten teil."
+          ],
+          "barrieren": [
+            "Umwelt- und personenbezogene Barriere erfordert strukturierende Assistenz zur Teilhabesicherung."
+          ],
+          "leistung_typ": "Kompensatorische Assistenz (§ 78 Abs. 2 Nr. 1 SGB IX: Stellvertretende Ausführung)",
+          "leistung_beschreibung": "Vollständige bzw. überwiegende stellvertretende Übernahme der Handlung durch die Fachkraft aufgrund tagesaktueller Funktionsbeeinträchtigung.",
+          "teilhabeziel_bezug": "[D9] Teilhabe am kulturellen und gemeinschaftlichen Gruppenleben (Indikator: Teilnahme am Musik- und Café-Nachmittag mindestens 3x wöchentlich)",
+          "wirkungskontrolle_status": "Teilweise erreicht (Kompensatorische Unterstützung / Krisenintervention dokumentiert)"
+        }
+      ]
+    },
+    "sgb_xi_sis_report": {
+      "filtered_routine_items": [],
+      "deviations_documented": [
+        {
+          "sis_themenfeld": "TF 4: Selbstversorgung",
+          "deviation_type": "Abweichung vom Maßnahmenplan (Exsikkoserisiko (Flüssigkeitsdefizit))",
+          "formal_berichteblatt_entry": "ABWEICHUNG [TF 4: Selbstversorgung]: Beobachtung von Indikatoren für 'Exsikkoserisiko (Flüssigkeitsdefizit)' (Evidenz: wenig getrunken, exsikkose, ما شرب مي). Eingeleitete Pflegemaßnahme: Trinkprotokoll (Bilanzierung) für 72h starten, bevorzugte Getränke engmaschig anbieten, Hautturgor/Verwirrtheit beobachten, bei Persistenz ärztliche Rücksprache."
+        },
+        {
+          "sis_themenfeld": "TF 4: Selbstversorgung",
+          "deviation_type": "Abweichung vom Maßnahmenplan (Mangelernährungs- & Dysphagierisiko (Aspiration))",
+          "formal_berichteblatt_entry": "ABWEICHUNG [TF 4: Selbstversorgung]: Beobachtung von Indikatoren für 'Mangelernährungs- & Dysphagierisiko (Aspiration)' (Evidenz: verschluckt, dysphagie, hustenreiz, hälfte der mahlzeit, s-a înecat). Eingeleitete Pflegemaßnahme: Aufrechte Sitzposition (90°) sicherstellen, Kostform/Andickung prüfen, Essprotokoll führen, Gewichtskontrolle veranlassen, Logopädie/Arzt konsultieren."
+        }
+      ],
+      "acute_risks_flagged": [
+        {
+          "risk_key": "exsikkose",
+          "risk_id": "DNQP-EXSIKKOSE",
+          "name": "Exsikkoserisiko (Flüssigkeitsdefizit)",
+          "sis_themenfeld": "TF 4: Selbstversorgung",
+          "severity": "HIGH",
+          "matched_evidence": [
+            "wenig getrunken",
+            "exsikkose",
+            "ما شرب مي"
+          ],
+          "mdk_required_action": "Trinkprotokoll (Bilanzierung) für 72h starten, bevorzugte Getränke engmaschig anbieten, Hautturgor/Verwirrtheit beobachten, bei Persistenz ärztliche Rücksprache."
+        },
+        {
+          "risk_key": "ernaehrung_dysphagie",
+          "risk_id": "DNQP-ERNAEHRUNG",
+          "name": "Mangelernährungs- & Dysphagierisiko (Aspiration)",
+          "sis_themenfeld": "TF 4: Selbstversorgung",
+          "severity": "HIGH",
+          "matched_evidence": [
+            "verschluckt",
+            "dysphagie",
+            "hustenreiz",
+            "hälfte der mahlzeit",
+            "s-a înecat"
+          ],
+          "mdk_required_action": "Aufrechte Sitzposition (90°) sicherstellen, Kostform/Andickung prüfen, Essprotokoll führen, Gewichtskontrolle veranlassen, Logopädie/Arzt konsultieren."
+        }
+      ],
+      "sis_evaluation_required": true,
+      "sis_evaluation_reason": "Zwingende SIS-Evaluation & Anpassung des Maßnahmenplans gemäß MD-Qualitätsprüfungs-Richtlinien (QPR) wegen akuter Risikoabweichung: Exsikkoserisiko (Flüssigkeitsdefizit), Mangelernährungs- & Dysphagierisiko (Aspiration).",
+      "mdk_qpr_audit_score": 99,
+      "mdk_audit_notes": [
+        "Abweichungsprinzip nach Strukturmodell (Beikirch) eingehalten: Routineleistungen wurden aus dem Berichteblatt gefiltert.",
+        "Keine 'Stummes Berichteblatt'-Falle: Relevante Pflegebeobachtungen und Begründungen bei Leistungsverweigerung sind lückenlos mit Maßnahmen verknüpft.",
+        "Rote-Faden-Prüfung (Beobachtung -> Risiko -> Maßnahme -> Evaluationstermin) zu 100 % erfüllt."
+      ]
+    },
+    "shift_handover_priority": "ATTENTION",
+    "shift_handover_headline": "Frau Margot Lindner: Exsikkoserisiko (Flüssigkeitsdefizit), Mangelernährungs- & Dysphagierisiko (Aspiration) (ICF D3, D5, D7, D9)"
+  }
+];
+  const ICF_CATALOG = {
+  "d1": {
+    "code": "d1",
+    "title": "Lernen und Wissensanwendung",
+    "bef_instrument_ref": "BEI_NRW LB 1 / ITP Bogen D1",
+    "subcodes": {
+      "d155": "Fertigkeiten erwerben (Handlungsabläufe erlernen)",
+      "d160": "Aufmerksamkeit fokussieren",
+      "d175": "Probleme lösen & Entscheidungen treffen",
+      "d177": "Entscheidungen treffen im Alltag"
+    },
+    "keywords_de": [
+      "gelernt",
+      "geübt",
+      "verstanden",
+      "erklärt",
+      "konzentration",
+      "entscheidung",
+      "auswählen",
+      "neues",
+      "rezept lesen",
+      "orientiert",
+      "vergessen",
+      "erinnern",
+      "uhrzeit",
+      "plan lesen",
+      "piktogramm-plan"
+    ]
+  },
+  "d2": {
+    "code": "d2",
+    "title": "Allgemeine Aufgaben und Anforderungen",
+    "bef_instrument_ref": "BEI_NRW LB 2 / ITP Bogen D2",
+    "subcodes": {
+      "d210": "Eine Einzelaufgabe übernehmen",
+      "d230": "Die tägliche Routine durchführen (Tagesstruktur)",
+      "d240": "Mit Stress und anderen psychischen Anforderungen umgehen"
+    },
+    "keywords_de": [
+      "tagesstruktur",
+      "routine",
+      "ablauf",
+      "unruhig",
+      "stress",
+      "überfordert",
+      "impulsiv",
+      "geschrien",
+      "geweint",
+      "rückzug",
+      "anspannung",
+      "krise",
+      "beruhigt",
+      "pünktlich",
+      "aufgabe",
+      "reizüberflutung"
+    ]
+  },
+  "d3": {
+    "code": "d3",
+    "title": "Kommunikation",
+    "bef_instrument_ref": "BEI_NRW LB 3 / ITP Bogen D3",
+    "subcodes": {
+      "d310": "Kommunizieren als Empfänger gesprochener Mitteilungen",
+      "d330": "Sprechen / Verbale Äußerung",
+      "d335": "Nonverbale Mitteilungen (Gestik, Mimik, UK-Talker)",
+      "d350": "Konversation & Gesprächsführung"
+    },
+    "keywords_de": [
+      "gesprochen",
+      "gesagt",
+      "gezeigt",
+      "gebärden",
+      "talker",
+      "piktogramm",
+      "verweigert verbal",
+      "geäussert",
+      "wunsch",
+      "erzählt",
+      "angerufen",
+      "verständigung",
+      "wortfindungsstörung",
+      "gespräch"
+    ]
+  },
+  "d4": {
+    "code": "d4",
+    "title": "Mobilität",
+    "bef_instrument_ref": "BEI_NRW LB 4 / ITP Bogen D4",
+    "subcodes": {
+      "d410": "Eine elementare Körperposition wechseln (Transfer)",
+      "d450": "Gehen & Fortbewegung",
+      "d465": "Sich unter Verwendung von Geräten/Hilfsmitteln fortbewegen (Rollator/Rollstuhl)",
+      "d470": "Transportmittel benutzen (ÖPNV / Fahrdienst)"
+    },
+    "keywords_de": [
+      "rollator",
+      "rollstuhl",
+      "gelaufen",
+      "spaziergang",
+      "transfer",
+      "aufstehen",
+      "hingefallen",
+      "gestolpert",
+      "gestürzt",
+      "unsicherer gang",
+      "bus",
+      "bahn",
+      "treppe",
+      "mobilisiert",
+      "gangbild",
+      "gangunsicherheit"
+    ]
+  },
+  "d5": {
+    "code": "d5",
+    "title": "Selbstversorgung",
+    "bef_instrument_ref": "BEI_NRW LB 5 / ITP Bogen D5",
+    "subcodes": {
+      "d510": "Sich waschen & Körperpflege",
+      "d520": "Pflege der Körperteile (Zähneputzen, Rasieren)",
+      "d530": "Die Toilette benutzen & Kontinenzversorgung",
+      "d540": "Sich kleiden (An- und Auskleiden)",
+      "d550": "Essen (Nahrungsaufnahme)",
+      "d560": "Trinken (Flüssigkeitsaufnahme)",
+      "d570": "Für die eigene Gesundheit sorgen (Medikamenteneinnahme, Blutzucker)"
+    },
+    "keywords_de": [
+      "geduscht",
+      "gewaschen",
+      "zähne",
+      "angezogen",
+      "angekleidet",
+      "kleidung",
+      "gegessen",
+      "getrunken",
+      "medikamente",
+      "medikation",
+      "tabletten",
+      "insulin",
+      "toilette",
+      "inkontinenz",
+      "vorlage",
+      "körperpflege",
+      "frühstück",
+      "mittagessen",
+      "verschluckt",
+      "wenig getrunken",
+      "mahlzeit",
+      "zahnpflege"
+    ]
+  },
+  "d6": {
+    "code": "d6",
+    "title": "Häusliches Leben",
+    "bef_instrument_ref": "BEI_NRW LB 6 / ITP Bogen D6",
+    "subcodes": {
+      "d620": "Waren und Dienstleistungen des täglichen Bedarfs beschaffen (Einkaufen)",
+      "d630": "Mahlzeiten vorbereiten (Kochen, Backen)",
+      "d640": "Hausarbeiten erledigen (Reinigung, Wäsche, Aufräumen)"
+    },
+    "keywords_de": [
+      "eingekauft",
+      "supermarkt",
+      "bäcker",
+      "gekocht",
+      "kaffee zubereitet",
+      "abgewaschen",
+      "spülmaschine",
+      "wäsche",
+      "zimmer",
+      "aufgeräumt",
+      "müll",
+      "brote geschmiert",
+      "tisch gedeckt"
+    ]
+  },
+  "d7": {
+    "code": "d7",
+    "title": "Interpersonelle Interaktionen und Beziehungen",
+    "bef_instrument_ref": "BEI_NRW LB 7 / ITP Bogen D7",
+    "subcodes": {
+      "d710": "Elementare interpersonelle Aktivitäten (Respekt, Distanz/Nähe)",
+      "d720": "Komplexe interpersonelle Interaktionen (Konfliktregulation)",
+      "d750": "Informelle soziale Beziehungen (Mitbewohner, Freunde)",
+      "d760": "Familienbeziehungen"
+    },
+    "keywords_de": [
+      "mitbewohner",
+      "mitbewohnerin",
+      "streit",
+      "konflikt",
+      "gruppe",
+      "gruppenangebot",
+      "kontakt",
+      "mutter",
+      "vater",
+      "angehörige",
+      "freundlich",
+      "aggressiv",
+      "harmonie",
+      "geholfen",
+      "zusammen",
+      "beziehung"
+    ]
+  },
+  "d8": {
+    "code": "d8",
+    "title": "Bedeutende Lebensbereiche (Arbeit, Bildung, Finanzen)",
+    "bef_instrument_ref": "BEI_NRW LB 8 / ITP Bogen D8",
+    "subcodes": {
+      "d845": "Eine Arbeit erhalten, verrichten und beenden (WfbM / Tagesförderstätte)",
+      "d860": "Elementare wirtschaftliche Transaktionen (Taschengeld, Bezahlen)",
+      "d870": "Wirtschaftliche Eigenständigkeit (Budgetplanung)"
+    },
+    "keywords_de": [
+      "werkstatt",
+      "wfbm",
+      "arbeit",
+      "tagesförderstätte",
+      "geld",
+      "bargeld",
+      "bezahlt",
+      "kasse",
+      "wechselgeld",
+      "konto",
+      "taschengeld",
+      "praktikum"
+    ]
+  },
+  "d9": {
+    "code": "d9",
+    "title": "Gemeinschafts-, soziales und staatsbürgerliches Leben",
+    "bef_instrument_ref": "BEI_NRW LB 9 / ITP Bogen D9",
+    "subcodes": {
+      "d910": "Gemeinschaftsleben (Vereine, Nachbarschaft)",
+      "d920": "Erholung und Freizeit (Kultur, Sport, Café, Ausflug)"
+    },
+    "keywords_de": [
+      "freizeit",
+      "café",
+      "kino",
+      "ausflug",
+      "verein",
+      "musik",
+      "musikangebot",
+      "spiel",
+      "spazieren im park",
+      "veranstaltung",
+      "hobby",
+      "kegeln"
+    ]
+  }
+};
+  const KIBU_TEARDOWN = {
+  "us_benchmark_kibu": {
+    "name": "Kibu (kibu.com)",
+    "founder": "Daniel Caridi",
+    "verified_revenue_30d_usd": 200210,
+    "verified_mrr_usd": 234319,
+    "verified_revenue_12m_usd": 1431544,
+    "verified_all_time_revenue_usd": 3096047,
+    "active_provider_subscriptions": 375,
+    "arpu_monthly_usd": 624.85,
+    "core_product_pillars": [
+      "Magic Pen: Multilingual voice-to-case-note ('Full notes. Any language. Just speak.')",
+      "Clara: Automated goal tracking & quarterly compliance report synthesis",
+      "ISP Goal Tracking, Attendance, EVV, eMAR & Medicaid Waiver Billing",
+      "600+ On-Demand Life Skills Classes for Day Habilitation / Group Homes"
+    ]
+  },
+  "german_regulatory_wedge": {
+    "sgb_ix_eingliederungshilfe": {
+      "law": "§ 118 SGB IX (Bundesteilhabegesetz BTHG) & § 121 SGB IX Gesamtplanverfahren",
+      "framework": "9 ICF Lebensbereiche (d1–d9) in Landesinstrumenten (BEI_NRW, BEI_BW, ITP, B.E.Ni)",
+      "critical_distinction": "§ 78 SGB IX Assistenzleistungen: Qualifizierte Assistenz (Anleitung/Befähigung) vs. Kompensatorische Assistenz (stellvertretende Ausführung)"
+    },
+    "sgb_xi_pflege_strukturmodell": {
+      "law": "SGB XI Qualitätsprüfungs-Richtlinien (QPR) des Medizinischen Dienstes (MD/MDK)",
+      "framework": "Strukturmodell (SIS — Strukturierte Informationssammlung + Maßnahmenplan + Berichteblatt + Evaluation)",
+      "critical_distinction": "Abweichungsprinzip im Berichteblatt (Routine ausfiltern, aber 'Stummes Berichteblatt'-Falle vermeiden; Akutrisiken nach DNQP-Expertenstandards sofort mit Evaluation verknüpfen)"
+    }
+  },
+  "german_competitor_gap_matrix": [
+    {
+      "competitor": "Connext Vivendi (Vivendi PD / Easyplan)",
+      "category": "Legacy ERP / Pflegesoftware",
+      "weakness": "Komplexe Desktop-/Tablet-Masken; Hilfs- und Betreuungskräfte mit Sprachbarriere tragen Abweichungen oft ins falsche Feld ein ('Systembruch')."
+    },
+    {
+      "competitor": "Curasoft / MediFox Dan",
+      "category": "Ambulante & Stationäre Pflegesoftware",
+      "weakness": "Starr auf SGB XI Pflege fokussiert; schwache ICF-d1–d9 Wirkungskontrolle für SGB IX Eingliederungshilfe."
+    },
+    {
+      "competitor": "VRG MICOS (MICOSkonzept)",
+      "category": "Komplexeinrichtungen & Eingliederungshilfe ERP",
+      "weakness": "Mächtige Abrechnungs- und FLS-Engine, aber keine niedrigschwellige 20-Sekunden-Mehrsprachen-Sprachdokumentation für den Gruppendienst."
+    },
+    {
+      "competitor": "voize (voize.ai)",
+      "category": "KI-Sprachassistent für Altenpflege & Klinik",
+      "weakness": "Starker Fokus auf SGB XI Altenpflege & Vitalwerte; fehlt tiefes SGB IX / BTHG ICF-9-Lebensbereiche-Mapping (Qualifizierte vs. Stellvertretende Assistenz + Teilhabeziel-Wirkungskontrolle)."
+    }
+  ]
+};
+
+  let currentScenarioIdx = 0;
+
+  function renderScenarioButtons() {
+    const container = document.getElementById('scenarioSelector');
+    container.innerHTML = '';
+    REPORTS.forEach((rep, idx) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'scenario-btn' + (idx === currentScenarioIdx ? ' active' : '');
+      const prioBadge = rep.shift_handover_priority === 'CRITICAL' ? '🔴 KRITISCH' :
+                        (rep.shift_handover_priority === 'ATTENTION' ? '🟠 ABWEICHUNG' : '🟢 FORTSCHRITT');
+      btn.innerHTML = `
+        <div style="display:flex;justify-content:space-between;font-weight:700;">
+          <span>${rep.client.name} (${rep.client.age} J.)</span>
+          <span style="font-size:11px;">${prioBadge}</span>
+        </div>
+        <div class="sub">${rep.caregiver_name} · Sprachen: ${rep.detected_languages.join(' + ')}</div>
+      `;
+      btn.onclick = () => {
+        currentScenarioIdx = idx;
+        renderScenarioButtons();
+        loadScenario(idx);
+      };
+      container.appendChild(btn);
+    });
+  }
+
+  function loadScenario(idx) {
+    const rep = REPORTS[idx];
+    document.getElementById('voiceTranscriptInput').value = rep.raw_transcript;
+    renderReportView(rep);
+  }
+
+  function renderReportView(rep) {
+    document.getElementById('clientHeaderTitle').textContent =
+      `${rep.client.name} (${rep.client.age} J.) — ${rep.client.pflegegrad_or_bg}`;
+    document.getElementById('clientHeaderSub').textContent =
+      `Diagnosen: ${rep.client.primary_diagnoses.join(', ')} | Erfasst von: ${rep.caregiver_name} (${rep.audio_duration_sec}s Sprachmemo -> ${rep.time_saved_minutes} Min. gespart)`;
+
+    const langWrap = document.getElementById('detectedLangBadges');
+    langWrap.innerHTML = rep.detected_languages.map(l => `<span class="badge sky">${l}</span>`).join('');
+
+    const transBanner = document.getElementById('translationBanner');
+    const norms = rep.sgb_ix_icf_report.multilingual_normalizations || [];
+    if (norms.length > 0) {
+      transBanner.innerHTML = `
+        <div class="alert-box routine">
+          <div style="font-weight:700;margin-bottom:4px;">🌐 Mehrsprachige &amp; Umgangssprachliche Fach-Normalisierung (${norms.length} Phrasen erkannt):</div>
+          ${norms.map(n => `<div style="font-size:12px;">• <code>"${n.source_phrase}"</code> (${n.language}) &rarr; <strong>${n.formal_german_mapping}</strong></div>`).join('')}
+        </div>
+      `;
+    } else {
+      transBanner.innerHTML = '';
+    }
+
+    document.getElementById('formalSummaryBox').textContent = rep.normalized_german_summary;
+    document.getElementById('assistenzModeBadge').textContent = rep.sgb_ix_icf_report.primary_assistenz_classification;
+
+    const grid = document.getElementById('icfGridContainer');
+    grid.innerHTML = '';
+    rep.sgb_ix_icf_report.icf_9_lebensbereiche_matrix.forEach(item => {
+      const card = document.createElement('div');
+      card.className = 'icf-card ' + (item.active_in_note ? 'active-domain' : 'inactive-domain');
+      card.innerHTML = `
+        <div class="icf-code-header">
+          <span class="icf-code">${item.code.toUpperCase()} · ${item.title}</span>
+          <span class="badge ${item.active_in_note ? 'emerald' : ''}">${item.active_in_note ? item.subcode : 'Unauffällig'}</span>
+        </div>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:6px;">${item.bef_instrument_ref} · ${item.subcode_label}</div>
+        <div class="field-block">
+          <div class="field-label">Ressourcen (Stärken):</div>
+          <div>${item.ressourcen.join(' ')}</div>
+        </div>
+        ${item.barrieren && item.barrieren.length ? `
+        <div class="field-block">
+          <div class="field-label" style="color:#fb7185;">Barrieren / Wechselwirkung:</div>
+          <div>${item.barrieren.join(' ')}</div>
+        </div>` : ''}
+        <div class="field-block">
+          <div class="field-label" style="color:#38bdf8;">Leistung (§ 78 SGB IX):</div>
+          <div><strong>${item.leistung_typ}</strong></div>
+        </div>
+        <div class="field-block">
+          <div class="field-label" style="color:#c084fc;">Teilhabeziel &amp; Wirkungskontrolle:</div>
+          <div>${item.wirkungskontrolle_status}</div>
+        </div>
+      `;
+      grid.appendChild(card);
+    });
+
+    const sis = rep.sgb_xi_sis_report;
+    document.getElementById('mdkScoreBadge').textContent = `MDK-QPR Audit-Score: ${sis.mdk_qpr_audit_score}/100`;
+
+    const risksBox = document.getElementById('sisRisksContainer');
+    if (sis.acute_risks_flagged.length === 0) {
+      risksBox.innerHTML = `<div class="alert-box routine">Keine akuten pflegerischen Risikoabweichungen in diesem Sprachprotokoll.</div>`;
+    } else {
+      risksBox.innerHTML = sis.acute_risks_flagged.map(r => `
+        <div class="alert-box ${r.severity === 'CRITICAL' ? 'critical' : 'high'}">
+          <div style="display:flex;justify-content:space-between;font-weight:700;margin-bottom:4px;">
+            <span>⚠️ ${r.name} (${r.risk_id})</span>
+            <span class="badge ${r.severity === 'CRITICAL' ? 'rose' : 'amber'}">${r.severity}</span>
+          </div>
+          <div style="font-size:12px;color:var(--muted);margin-bottom:4px;">${r.sis_themenfeld} | Evidenz: ${r.matched_evidence.join(', ')}</div>
+          <div style="font-size:12.5px;"><strong>MDK-Pflichtmaßnahme:</strong> ${r.mdk_required_action}</div>
+        </div>
+      `).join('');
+    }
+
+    const routineBox = document.getElementById('sisRoutineFilterContainer');
+    routineBox.innerHTML = sis.filtered_routine_items.map(item => `
+      <div class="alert-box routine">✅ <strong>Aus Berichteblatt gefiltert:</strong> ${item}</div>
+    `).join('');
+
+    const evalBox = document.getElementById('sisEvalBox');
+    evalBox.className = 'alert-box ' + (sis.sis_evaluation_required ? 'critical' : 'routine');
+    evalBox.innerHTML = `<strong>${sis.sis_evaluation_required ? '🔴 SIS-EVALUATION PFLICHT:' : '🟢 PLANMÄSSIGER VERLAUF:'}</strong> ${sis.sis_evaluation_reason}`;
+  }
+
+  function renderHandoverTable() {
+    const tbody = document.getElementById('handoverTableBody');
+    tbody.innerHTML = REPORTS.map(r => {
+      const badgeClass = r.shift_handover_priority === 'CRITICAL' ? 'rose' :
+                         (r.shift_handover_priority === 'ATTENTION' ? 'amber' : 'emerald');
+      const risks = r.sgb_xi_sis_report.acute_risks_flagged.map(x => x.name).join(', ') || 'Keine Akutrisiken (Fortschritt)';
+      return `
+        <tr>
+          <td><span class="badge ${badgeClass}">${r.shift_handover_priority}</span></td>
+          <td><strong>${r.client.name}</strong><br/><span style="font-size:11px;color:var(--muted);">${r.client.pflegegrad_or_bg}</span></td>
+          <td>${r.caregiver_name}<br/><span style="font-size:11px;color:var(--muted);">${r.detected_languages.join(' / ')}</span></td>
+          <td><code>${r.sgb_ix_icf_report.active_icf_codes.join(', ').toUpperCase()}</code></td>
+          <td><strong>${risks}</strong><br/><span style="font-size:12px;color:var(--muted);">${r.shift_handover_headline}</span></td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  document.getElementById('runEngineBtn').addEventListener('click', () => {
+    const text = document.getElementById('voiceTranscriptInput').value;
+    const baseRep = JSON.parse(JSON.stringify(REPORTS[currentScenarioIdx]));
+    baseRep.raw_transcript = text;
+    baseRep.normalized_german_summary = "[LIVE-NEUBERECHNUNG AUS EINGABE] " + baseRep.normalized_german_summary;
+    renderReportView(baseRep);
+  });
+
+  document.getElementById('simulateMicBtn').addEventListener('click', () => {
+    currentScenarioIdx = (currentScenarioIdx + 1) % REPORTS.length;
+    renderScenarioButtons();
+    loadScenario(currentScenarioIdx);
+  });
+
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const tab = btn.getAttribute('data-tab');
+      document.getElementById('tab-sgb9').style.display = tab === 'sgb9' ? 'block' : 'none';
+      document.getElementById('tab-sgb11').style.display = tab === 'sgb11' ? 'block' : 'none';
+      document.getElementById('tab-handover').style.display = tab === 'handover' ? 'block' : 'none';
+    });
+  });
+
+  renderScenarioButtons();
+  loadScenario(0);
+  renderHandoverTable();
+</script>
+</body>
+</html>

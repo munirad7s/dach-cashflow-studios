@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GutachtenTrust — Microsoft Word Office.js Sidecar + Claude MCP (MVP #38)</title>
+  <!-- Official Microsoft Office.js CDN with graceful browser simulator fallback -->
+  <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js" onerror="window.__officeJsOffline=true;"></script>
+  <style>
+    :root {
+      --bg-canvas: #0f172a;
+      --bg-word-doc: #ffffff;
+      --bg-sidecar: #f8fafc;
+      --border-subtle: #e2e8f0;
+      --text-primary: #0f172a;
+      --text-secondary: #475569;
+      --accent-blue: #1d4ed8;
+      --accent-emerald: #047857;
+      --accent-emerald-bg: #ecfdf5;
+      --accent-amber: #b45309;
+      --accent-red: #b91c1c;
+      --accent-red-bg: #fef2f2;
+      --word-ribbon: #185abd;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+      background: var(--bg-canvas);
+      color: var(--text-primary);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .top-Ribbon {
+      background: var(--word-ribbon);
+      color: #fff;
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 13px;
+      border-bottom: 1px solid rgba(255,255,255,0.18);
+    }
+    .top-Ribbon .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 600;
+    }
+    .badge-pill {
+      background: rgba(255,255,255,0.16);
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .workspace {
+      display: grid;
+      grid-template-columns: 1fr 470px;
+      flex: 1;
+      min-height: calc(100vh - 45px);
+    }
+    @media (max-width: 1100px) {
+      .workspace { grid-template-columns: 1fr; }
+    }
+    /* Left column: Simulated Microsoft Word Document Canvas */
+    .word-canvas-wrap {
+      background: #cbd5e1;
+      padding: 28px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+    .word-page {
+      background: var(--bg-word-doc);
+      width: 100%;
+      max-width: 780px;
+      min-height: 820px;
+      padding: 52px 60px;
+      box-shadow: 0 12px 32px rgba(15, 23, 42, 0.22);
+      border-radius: 2px;
+      color: #1e293b;
+      line-height: 1.65;
+      font-family: "Cambria", "Georgia", serif;
+    }
+    .word-page h1 {
+      font-size: 20px;
+      color: #0f172a;
+      border-bottom: 2px solid #0f172a;
+      padding-bottom: 8px;
+      margin-bottom: 14px;
+      font-family: "Segoe UI", sans-serif;
+    }
+    .word-meta-bar {
+      font-family: "Segoe UI", sans-serif;
+      font-size: 12px;
+      color: #475569;
+      background: #f1f5f9;
+      padding: 8px 12px;
+      border-left: 3px solid var(--word-ribbon);
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .doc-paragraph {
+      margin-bottom: 16px;
+      font-size: 14.5px;
+      text-align: justify;
+    }
+    .doc-section-title {
+      font-family: "Segoe UI", sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      color: #1e3a8a;
+      margin-top: 18px;
+      margin-bottom: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .cite-chip {
+      font-family: "Segoe UI", sans-serif;
+      font-size: 11.5px;
+      font-weight: 600;
+      background: #dbeafe;
+      color: #1e40af;
+      padding: 1px 6px;
+      border-radius: 4px;
+      border: 1px solid #93c5fd;
+      white-space: nowrap;
+    }
+    /* Right column: Official Office.js Taskpane Sidecar */
+    .taskpane {
+      background: var(--bg-sidecar);
+      border-left: 1px solid var(--border-subtle);
+      display: flex;
+      flex-direction: column;
+      height: calc(100vh - 45px);
+      overflow-y: auto;
+    }
+    .tp-header {
+      background: #0f172a;
+      color: #fff;
+      padding: 16px 18px;
+    }
+    .tp-header h2 {
+      font-size: 15px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .tp-header p {
+      font-size: 12px;
+      color: #94a3b8;
+      margin-top: 4px;
+    }
+    .strict-mode-banner {
+      background: var(--accent-emerald-bg);
+      border-bottom: 1px solid #a7f3d0;
+      padding: 12px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .strict-mode-banner .title {
+      font-size: 12.5px;
+      font-weight: 700;
+      color: var(--accent-emerald);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .strict-mode-banner .sub {
+      font-size: 11px;
+      color: #065f46;
+    }
+    .toggle-switch {
+      position: relative;
+      width: 44px;
+      height: 24px;
+      background: var(--accent-emerald);
+      border-radius: 999px;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: background 0.2s;
+    }
+    .toggle-switch::after {
+      content: "";
+      position: absolute;
+      top: 3px;
+      left: 23px;
+      width: 18px;
+      height: 18px;
+      background: #fff;
+      border-radius: 50%;
+      transition: left 0.2s;
+    }
+    .mode-tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      background: #e2e8f0;
+      padding: 4px;
+      margin: 14px 16px 8px;
+      border-radius: 8px;
+      gap: 4px;
+    }
+    .mode-tab {
+      border: none;
+      background: transparent;
+      padding: 8px 10px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #475569;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .mode-tab.active {
+      background: #fff;
+      color: #0f172a;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .tp-section {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .tp-section h3 {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--text-secondary);
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .evidence-card {
+      background: #fff;
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      padding: 10px 12px;
+      margin-bottom: 8px;
+      font-size: 12px;
+    }
+    .evidence-card .ev-top {
+      display: flex;
+      justify-content: space-between;
+      font-weight: 700;
+      color: #1e3a8a;
+      margin-bottom: 4px;
+    }
+    .evidence-card .ev-text {
+      color: #334155;
+      font-size: 11.5px;
+      line-height: 1.45;
+      margin-bottom: 6px;
+    }
+    .evidence-card .ev-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .btn-small {
+      background: #eff6ff;
+      color: var(--accent-blue);
+      border: 1px solid #bfdbfe;
+      padding: 4px 9px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .btn-small:hover { background: #dbeafe; }
+    .char-meter {
+      margin-bottom: 10px;
+      background: #fff;
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      padding: 8px 10px;
+    }
+    .char-meter-top {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11.5px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .progress-track {
+      height: 6px;
+      background: #e2e8f0;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: var(--accent-emerald);
+    }
+    .blocker-box {
+      background: #fff;
+      border: 1px solid #fecaca;
+      border-radius: 6px;
+      padding: 10px;
+    }
+    .blocker-box textarea {
+      width: 100%;
+      height: 68px;
+      border: 1px solid #cbd5e1;
+      border-radius: 4px;
+      padding: 6px 8px;
+      font-size: 11.5px;
+      font-family: inherit;
+      margin-bottom: 8px;
+    }
+    .blocker-status {
+      font-size: 11.5px;
+      padding: 8px;
+      border-radius: 4px;
+      margin-top: 6px;
+      font-weight: 600;
+    }
+    .blocker-status.blocked {
+      background: var(--accent-red-bg);
+      color: var(--accent-red);
+      border: 1px solid #fca5a5;
+    }
+    .blocker-status.passed {
+      background: var(--accent-emerald-bg);
+      color: var(--accent-emerald);
+      border: 1px solid #6ee7b7;
+    }
+  </style>
+</head>
+<body>
+
+<!-- DACH CASHFLOW STUDIOS LAUNCH BAR -->
+<style>
+  #dcs-launch-bar {
+    position: sticky;
+    top: 0;
+    z-index: 99999;
+    background: linear-gradient(90deg, #0b1120 0%, #111827 50%, #0f172a 100%);
+    color: #f8fafc;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.35);
+    padding: 8px 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  }
+  #dcs-launch-bar .dcs-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+  }
+  #dcs-launch-bar .dcs-badge {
+    background: rgba(16, 185, 129, 0.18);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.03em;
+  }
+  #dcs-launch-bar a.dcs-nav {
+    color: #93c5fd;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 12.5px;
+  }
+  #dcs-launch-bar a.dcs-nav:hover {
+    text-decoration: underline;
+    color: #dbeafe;
+  }
+  #dcs-launch-bar .dcs-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  #dcs-launch-bar .dcs-btn {
+    padding: 5px 11px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s ease;
+  }
+  #dcs-launch-bar .dcs-btn-ghost {
+    background: rgba(255,255,255,0.08);
+    color: #e2e8f0;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  #dcs-launch-bar .dcs-btn-primary {
+    background: linear-gradient(135deg, #0ea5e9, #2563eb);
+    color: #ffffff;
+  }
+  #dcs-launch-bar .dcs-btn-emerald {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
+  }
+  @media print {
+    #dcs-launch-bar { display: none !important; }
+  }
+</style>
+<div id="dcs-launch-bar">
+  <div class="dcs-left">
+    <a href="/index.html" class="dcs-nav">← Alle 150 DACH Studios</a>
+    <span class="dcs-badge">MVP #038 VERIFIED</span>
+    <span style="color:#cbd5e1;font-size:12px;">B2B SaaS, Lead-Intent Sniper & AI/MCP Infrastructure</span>
+  </div>
+  <div class="dcs-actions">
+    <button onclick="window.print()" class="dcs-btn dcs-btn-ghost">🖨️ PDF / Dossier drucken</button>
+    <a href="#checkout-modal-49" target="_blank" rel="noopener" class="dcs-btn dcs-btn-primary">⚡ Musterschreiben & Voll-Dossier (€49)</a>
+    <a href="#checkout-modal-299" target="_blank" rel="noopener" class="dcs-btn dcs-btn-emerald">🛡️ B2B Umsetzung buchen (€299 / €1.490)</a>
+  </div>
+</div>
+
+  <div class="top-Ribbon">
+    <div class="brand">
+      <span>Microsoft Word — GutachtenTrust Add-in (Office.js + Claude MCP Connector)</span>
+      <span class="badge-pill">Nur-Eigene-Belege-Modus: AKTIV</span>
+      <span class="badge-pill">0 % Halluzinierte Zitate</span>
+    </div>
+    <div>
+      <span class="badge-pill">B2B SaaS: €199–€299/Monat pro Sachverständigen-/Förderberater-Seat</span>
+    </div>
+  </div>
+
+  <div class="workspace">
+    <!-- Left: Live Word Document View -->
+    <div class="word-canvas-wrap">
+      <div class="word-page" id="wordDocumentCanvas">
+        <!-- Populated dynamically by switchDomain() -->
+      </div>
+    </div>
+
+    <!-- Right: Office.js Taskpane -->
+    <aside class="taskpane">
+      <div class="tp-header">
+        <h2>
+          <span>GutachtenTrust Sidecar</span>
+          <span class="badge-pill" id="officeHostStatus">Office.js Ready</span>
+        </h2>
+        <p>Fastwrite-Architektur für § 194 BauGB Gutachten &amp; § 6 FZulG BSFZ-Anträge</p>
+      </div>
+
+      <div class="strict-mode-banner">
+        <div>
+          <div class="title">🔒 Nur-Eigene-Belege-Modus (Hard-Lock)</div>
+          <div class="sub">Jede Zahl &amp; Tatsachenbehauptung erfordert einen verifizierten PDF-/Git-Beleg mit Seitenzahl.</div>
+        </div>
+        <div class="toggle-switch" title="Nur-Eigene-Belege-Modus ist erzwungen"></div>
+      </div>
+
+      <div class="mode-tabs">
+        <button class="mode-tab active" id="tabImmo" onclick="switchDomain('IMMOWERTV')">
+          🏛️ ImmoWertV (§ 194 BauGB)
+        </button>
+        <button class="mode-tab" id="tabBsfz" onclick="switchDomain('BSFZ')">
+          🔬 BSFZ-Antrag (§ 6 FZulG)
+        </button>
+      </div>
+
+      <!-- BSFZ Character Limits Meter (shown in BSFZ mode) -->
+      <div class="tp-section" id="bsfzMetersSection" style="display:none;">
+        <h3>
+          <span>BSFZ-Portal Zeichenlimits (§ 6 FZulG)</span>
+          <span id="bsfzTotalCharsBadge" style="color:#047857;">0 / 4.000 Zeichen</span>
+        </h3>
+        <div id="bsfzMetersList"></div>
+      </div>
+
+      <!-- Indexed Local Evidence Vault -->
+      <div class="tp-section">
+        <h3>
+          <span>Indexierte Primärbelege (Lokaler Tresor)</span>
+          <span id="evidenceCountBadge">0 Belege</span>
+        </h3>
+        <div id="evidenceCardsList"></div>
+      </div>
+
+      <!-- Interactive Hallucination Blocker Live Console -->
+      <div class="tp-section">
+        <h3>
+          <span>🛡️ Deterministischer Halluzinations-Blocker</span>
+          <span>Live-Prüfung</span>
+        </h3>
+        <div class="blocker-box">
+          <textarea id="liveTestInput">Der Bodenrichtwert beträgt 4.900 €/m² laut Schätzung ohne Beleg.</textarea>
+          <div style="display:flex; gap:6px; flex-wrap:wrap;">
+            <button class="btn-small" onclick="runLiveSentenceAudit()">Satz prüfen &amp; in Word einfügen</button>
+            <button class="btn-small" onclick="loadSampleHallucination()">Negativtest (Halluzination)</button>
+            <button class="btn-small" onclick="loadSampleVerified()">Positivtest (Mit Beleg #05)</button>
+          </div>
+          <div id="liveAuditOutput" class="blocker-status blocked">
+            BLOCKED_UNCITED_NUMBER: Zahlenbehauptung ['4.900'] ohne Quellenangabe im Nur-Eigene-Belege-Modus blockiert.
+          </div>
+        </div>
+      </div>
+
+      <!-- Claude MCP Connector Status -->
+      <div class="tp-section">
+        <h3>
+          <span>🔌 Claude.ai MCP Directory Sidecar</span>
+          <span style="color:#047857;">5 Tools aktiv</span>
+        </h3>
+        <div style="font-size:11.5px; color:#334155; background:#fff; padding:10px; border:1px solid #e2e8f0; border-radius:6px;">
+          <div><strong>Endpoint:</strong> <code>mcp://gutachtentrust.local/sse</code></div>
+          <div style="margin-top:4px;"><strong>Tools:</strong> <code>search_project_evidence</code>, <code>draft_bsfz_section_strict</code>, <code>draft_immowertv_section_strict</code>, <code>verify_citation_integrity</code>, <code>insert_into_word_document</code></div>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <script>
+    const AUDIT_DATA = {"mvp_id": "MVP_38_GUTACHTENTRUST_WORD_MCP_SIDECAR", "generated_at": "2026-10-17T13:20:25.293753+00:00", "reference_blueprint": {"source_startup": "Fastwrite.io (DocuTrust GmbH, Hamburg)", "source_metrics": "€13.1k/30d revenue, $203k all-time, 602 subscribers @ €22-€35/mo", "b2b_adaptation_thesis": "10x ARPU expansion (€149-€299/mo per seat) by adapting Fastwrite's Office.js Word Add-in + Claude MCP 'Nur-eigene-Quellen-Modus' to mandatory German B2B documentation: (1) BSFZ § 6 FZulG R&D tax credit applications (up to 35% KMU credit, max €3.5M/yr) and (2) ImmoWertV § 194 BauGB real estate valuation & construction defect reports."}, "summary_metrics": {"nur_eigene_belege_modus": true, "indexed_primary_documents": 9, "production_sections_validated": 8, "production_sections_passed": 8, "total_numerical_claims_verified": "61/61", "hallucinated_citations_rate_pct": 0.0, "bsfz_total_body_chars": 2910, "bsfz_total_body_max_chars": 4000, "adversarial_hallucinations_blocked": "5/5", "claude_mcp_tools_exposed": 5}, "evidence_vault": [{"beleg_id": "01", "domain": "IMMOWERTV", "doc_type": "Grundbuchauszug", "doc_title": "Amtsgericht München — Grundbuch von Schwabing, Blatt 4192", "short_cite_label": "Grundbuch Blatt 4192", "page": 2, "section_ref": "Bestandsverzeichnis Flst. 814/3", "date_issued": "2026-09-14", "raw_text": "Gemarkung Schwabing, Flurstück 814/3, Gebäude- und Freifläche Leopoldstraße 148b, amtliche Grundstücksfläche 842 m². Alleineigentümerin in Abt. I lfd. Nr. 2: Alpenland Wohnbau GmbH, München.", "verified_numbers": ["4192", "814/3", "148b", "842", "2"], "sha256_hash": "dcceef688d16e29f"}, {"beleg_id": "03", "domain": "IMMOWERTV", "doc_type": "Grundbuchauszug", "doc_title": "Amtsgericht München — Grundbuch von Schwabing, Blatt 4192", "short_cite_label": "Grundbuch Blatt 4192", "page": 4, "section_ref": "Abteilung II lfd. Nr. 3 (Lasten und Beschränkungen)", "date_issued": "2026-09-14", "raw_text": "Abteilung II lfd. Nr. 3: Geh- und Fahrtrecht an einer 48 m² großen Teilfläche zugunsten des jeweiligen Eigentümers von Flurstück 814/4 gemäß Bewilligung vom 12.05.1998. Wertmindernder Entschädigungsansatz laut Sachverständigen-Abzug: 38.500 EUR.", "verified_numbers": ["4192", "3", "48", "814/4", "12.05.1998", "38.500"], "sha256_hash": "13d3e1172c17b1f3"}, {"beleg_id": "04", "domain": "IMMOWERTV", "doc_type": "Baulastenverzeichnis", "doc_title": "LHM Lokalbaukommission — Auskunft Baulastenverzeichnis Az. BL-2026-8831", "short_cite_label": "Baulastenverzeichnis Az. BL-2026-8831", "page": 1, "section_ref": "Baulastenblatt Nr. 904", "date_issued": "2026-09-18", "raw_text": "Auskunft aus dem Baulastenverzeichnis Az. BL-2026-8831 vom 18.09.2026: Abstandsflächenübernahme von 3,20 m Tiefe auf 14,50 m Länge (46,4 m²) zugunsten des Nachbargrundstücks Flst. 814/4 eingetragen.", "verified_numbers": ["2026", "8831", "18.09.2026", "904", "3,20", "14,50", "46,4", "814/4"], "sha256_hash": "9edd842099a2188d"}, {"beleg_id": "05", "domain": "IMMOWERTV", "doc_type": "BORIS Bodenrichtwert", "doc_title": "Gutachterausschuss München — BORIS Bayern Bodenrichtwertauskunft Zone 09162000-412", "short_cite_label": "BORIS Zone 09162000-412", "page": 3, "section_ref": "Stichtag 01.01.2026 — Baureifes Land (B)", "date_issued": "2026-01-01", "raw_text": "Bodenrichtwertzone 09162000-412 zum Stichtag 01.01.2026: Bodenrichtwert 3.450 €/m² für baureifes Land (Entwicklungszustand B), beitragsfrei, wertrelevante Geschossflächenzahl (WGFZ) 1,60 bei Richtwertgrundstücksfläche 800 m².", "verified_numbers": ["09162000-412", "01.01.2026", "3.450", "1,60", "800"], "sha256_hash": "d6a20c7815485ddd"}, {"beleg_id": "06", "domain": "IMMOWERTV", "doc_type": "Energieausweis & Flächenberechnung", "doc_title": "GEG-Bedarfsausweis & Aufmaß nach DIN 277 / WoFlV", "short_cite_label": "Energieausweis & Aufmaß DIN 277", "page": 6, "section_ref": "Endenergiebedarf & Bruttogrundfläche", "date_issued": "2026-09-20", "raw_text": "Gebäudebaujahr 1974, Bruttogrundfläche (BGF nach DIN 277) 1.290 m², Wohnfläche nach WoFlV 965 m², Endenergiebedarf 142,8 kWh/(m²·a) (Effizienzklasse E), Liegenschaftszinssatz laut Gutachterausschuss 2,35 %.", "verified_numbers": ["1974", "277", "1.290", "965", "142,8", "2,35"], "sha256_hash": "698d6f6d4a7fb9c8"}, {"beleg_id": "07", "domain": "IMMOWERTV", "doc_type": "Bautagebuch / Feuchtemessprotokoll", "doc_title": "Bauschadensprotokoll Kellerabdichtung & CM-Feuchtemessung", "short_cite_label": "Bautagebuch Feuchtemessprotokoll", "page": 9, "section_ref": "Messstelle K-04 Ostwand", "date_issued": "2026-09-22", "raw_text": "Zerstörungsfreie kapazitive Vorprüfung und Darr-Probe an Messstelle K-04 (Ostwand UG): Mauerwerksfeuchte 4,8 Masse-% bei Durchfeuchtungsgrad 78 %, geschätzte Sanierungskosten Horizontalsperre und Dichtschlämme gemäß § 83 ImmoWertV (bzw. besondere objektspezifische Grundstücksmerkmale boG nach § 8 Abs. 3 ImmoWertV): 44.200 EUR.", "verified_numbers": ["04", "4,8", "78", "83", "8", "3", "44.200"], "sha256_hash": "b836180dbd0bf06a"}, {"beleg_id": "11", "domain": "BSFZ", "doc_type": "Systemarchitektur-Spezifikation", "doc_title": "Architektur-Dossier: Echtzeit-LiDAR-Punktwolken-Kompression auf ARM Cortex-R52", "short_cite_label": "Architektur-Dossier LiDAR-R52", "page": 5, "section_ref": "Kap. 2.1 Stand der Technik & Latenz-Barriere", "date_issued": "2026-03-10", "raw_text": "Aktuelle Octree-Verfahren nach MPEG G-PCC (ISO/IEC 23090-9) benötigen auf einem ARM Cortex-R52 Echtzeitkern (400 MHz, 512 KB TCM-SRAM) im Mittel 18,4 ms pro 128.000-Punkte-Frame und überschreiten damit das harte 2,0 ms Safety-Budget nach ISO 26262 ASIL-D um den Faktor 9,2.", "verified_numbers": ["52", "23090-9", "400", "512", "18,4", "128.000", "2,0", "26262", "9,2"], "sha256_hash": "66da65d2e43497df"}, {"beleg_id": "12", "domain": "BSFZ", "doc_type": "Jira R&D Epic & Hypothesenlog", "doc_title": "Jira R&D Epic RND-408: Sub-2ms Quantisierte Morton-Wavelet-Prädiktion", "short_cite_label": "Jira Epic RND-408", "page": 2, "section_ref": "Hypothese H1 & Technische Unwägbarkeit", "date_issued": "2026-04-02", "raw_text": "In Epic RND-408 wird erforscht, ob eine Int4-Morton-Wavelet-Prädiktion ohne Fließkommaeinheit (FPU-frei) eine Dekodierlatenz unter 1,85 ms bei einem maximalen geometrischen Rekonstruktionsfehler (Chamfer-Distanz) von höchstens 1,5 mm erreicht. Es ist wissenschaftlich ungeklärt, ob Quantisierungsrauschen bei Nässereflexionen zu Geisterobjekten oberhalb der 0,8 % Falsch-Positiv-Schwelle führt.", "verified_numbers": ["408", "4", "1,85", "1,5", "0,8"], "sha256_hash": "2a207cd3e050a982"}, {"beleg_id": "14", "domain": "BSFZ", "doc_type": "Git Commit & Benchmark-Log", "doc_title": "Git-Commit 9f4c2a1 & HIL-Messprotokoll Sprint 14", "short_cite_label": "Git-Log 9f4c2a1 / HIL-Protokoll", "page": 7, "section_ref": "Arbeitspakete AP1-AP4 & Messreihe", "date_issued": "2026-08-19", "raw_text": "Arbeitsplan umfasst 4 Arbeitspakete über 18 Personenmonate (PM): AP1 Mathematische Wavelet-Faltung (4 PM), AP2 Festkomma-Solver im 512 KB SRAM (6 PM), AP3 Regressionsversuche auf 24.000 Schlechtwetter-Frames (5 PM), AP4 HIL-Verifikation (3 PM). Commit 9f4c2a1 belegt 1,72 ms Latenz bei 99,4 % Punkterhaltungsrate im Trockentest.", "verified_numbers": ["9f4c2a1", "14", "4", "18", "1", "2", "512", "6", "3", "24.000", "5", "1,72", "99,4"], "sha256_hash": "c1a10b1301805577"}], "bsfz_draft": {"legal_basis": "§ 6 Forschungszulagengesetz (FZulG) i.V.m. OECD Frascati-Handbuch", "total_body_chars": 2910, "max_body_chars": 4000, "sections": {"titel": "Erforschung einer FPU-freien Int4-Morton-Wavelet-Punktwolkenkompression für Echtzeit-LiDAR auf ARM Cortex-R52 unter 1,85 ms [Beleg #12: Jira Epic RND-408, S. 2]", "ziel_und_wissensluecke": "Ziel des Vorhabens ist die Erforschung eines deterministischen Kompressions- und Dekodierverfahrens für hochauflösende LiDAR-Punktwolken mit 128.000 Punkten pro Frame auf eingebetteten ARM Cortex-R52 Echtzeitkernen mit 400 MHz Taktfrequenz und lediglich 512 KB eng gekoppeltem TCM-SRAM [Beleg #11: Architektur-Dossier LiDAR-R52, S. 5]. Die wissenschaftlich-technische Wissenslücke besteht darin, eine Dekodierlatenz von unter 1,85 ms ohne Fließkommaeinheit (FPU-frei) zu erreichen und gleichzeitig den geometrischen Rekonstruktionsfehler (Chamfer-Distanz) auf maximal 1,5 mm zu begrenzen [Beleg #12: Jira Epic RND-408, S. 2]. Bisher existiert kein mathematisches Modell, das mehrstufige Int4-Morton-Wavelet-Prädiktoren direkt im 512 KB SRAM ohne dynamische Heap-Allokation faltet und dabei die harte Echtzeitschranke von 2,0 ms gemäß ISO 26262 einhalten kann [Beleg #11: Architektur-Dossier LiDAR-R52, S. 5].", "stand_der_technik": "Weltweiter Stand der Technik für geometrische Punktwolkenkompression ist der Standard MPEG G-PCC (ISO/IEC 23090-9) auf Octree-Basis [Beleg #11: Architektur-Dossier LiDAR-R52, S. 5]. Auf einem ARM Cortex-R52 mit 400 MHz benötigt MPEG G-PCC im Mittel 18,4 ms pro Frame bei 128.000 Punkten und überschreitet das 2,0 ms Safety-Budget um den Faktor 9,2 [Beleg #11: Architektur-Dossier LiDAR-R52, S. 5]. Standardlösungen scheitern damit zwingend an der harten Echtzeitanforderung.", "technische_unsicherheiten": "Es besteht die erhebliche wissenschaftlich-technische Unwägbarkeit, ob die aggressive Int4-Quantisierung der Wavelet-Koeffizienten bei Nässereflexionen zu hochfrequentem Quantisierungsrauschen führt, welches Geisterobjekte oberhalb der zulässigen Schwelle von 0,8 % Falsch-Positiv-Detektionen erzeugt [Beleg #12: Jira Epic RND-408, S. 2]. Zudem ist zu Projektbeginn methodisch ungeklärt, ob der FPU-freie Festkomma-Solver innerhalb des strikten 512 KB SRAM-Budgets ohne numerischen Überlauf konvergiert und die maximale Chamfer-Distanz von 1,5 mm bei unter 1,85 ms Laufzeit einhält [Beleg #11: Architektur-Dossier LiDAR-R52, S. 5] [Beleg #12: Jira Epic RND-408, S. 2].", "durchzufuehrende_arbeiten": "Das Vorhaben gliedert sich systematisch in 4 Arbeitspakete über insgesamt 18 Personenmonate [Beleg #14: Git-Log 9f4c2a1 / HIL-Protokoll, S. 7]. In AP1 (4 Personenmonate) wird die mathematische Int4-Wavelet-Faltung hergeleitet [Beleg #14: Git-Log 9f4c2a1 / HIL-Protokoll, S. 7]. In AP2 (6 Personenmonate) erfolgt die Implementierung des FPU-freien Festkomma-Solvers im 512 KB SRAM [Beleg #14: Git-Log 9f4c2a1 / HIL-Protokoll, S. 7]. AP3 (5 Personenmonate) prüft das Quantisierungsrauschen anhand von 24.000 Schlechtwetter-Frames gegen die 0,8 % Falsch-Positiv-Schwelle [Beleg #12: Jira Epic RND-408, S. 2] [Beleg #14: Git-Log 9f4c2a1 / HIL-Protokoll, S. 7]. AP4 (3 Personenmonate) validiert die Zielmarke im HIL-Prüfstand, wobei erste Trockentests bereits 1,72 ms Latenz bei 99,4 % Punkterhaltungsrate belegen [Beleg #14: Git-Log 9f4c2a1 / HIL-Protokoll, S. 7]."}, "validation_reports": [{"domain": "BSFZ", "section_key": "titel", "section_label": "Titel des Vorhabens", "char_count": 160, "max_chars": 200, "within_char_limit": true, "nur_eigene_belege_active": true, "total_sentences": 1, "verified_sentences": 1, "blocked_sentences": 0, "total_numerical_claims": 1, "verified_numerical_claims": 1, "hallucinated_citations_count": 0, "frascati_violations": [], "status": "PASSED_STRICT", "sentence_audits": [{"sentence": "Erforschung einer FPU-freien Int4-Morton-Wavelet-Punktwolkenkompression für Echtzeit-LiDAR auf ARM Cortex-R52 unter 1,85 ms [Beleg #12: Jira Epic RND-408, S. 2]", "passed": true, "extracted_numbers": ["1,85"], "citations_found": ["[Beleg #12: Jira Epic RND-408, S. 2]"], "verified_beleg_ids": ["12"], "violation_code": null, "violation_reason": null}]}, {"domain": "BSFZ", "section_key": "ziel_und_wissensluecke", "section_label": "1. Ziel des Vorhabens (inkl. Herausforderung / Wissenslücke)", "char_count": 908, "max_chars": 1500, "within_char_limit": true, "nur_eigene_belege_active": true, "total_sentences": 3, "verified_sentences": 3, "blocked_sentences": 0, "total_numerical_claims": 7, "verified_numerical_claims": 7, "hallucinated_citations_count": 0, "frascati_violations": [], "status": "PASSED_STRICT", "sentence_audits": [{"sentence": "Ziel des Vorhabens ist die Erforschung eines deterministischen Kompressions- und Dekodierverfahrens für hochauflösende LiDAR-Punktwolken mit 128.000 Punkten pro Frame auf eingebetteten ARM Cortex-R52 Echtzeitkernen mit 400 MHz Taktfrequenz und lediglich 512 KB eng gekoppeltem TCM-SRAM [Beleg #11: Architektur-Dossier LiDAR-R52, S. 5].", "passed": true, "extracted_numbers": ["128.000", "400", "512"], "citations_found": ["[Beleg #11: Architektur-Dossier LiDAR-R52, S. 5]"], "verified_beleg_ids": ["11"], "violation_code": null, "violation_reason": null}, {"sentence": "Die wissenschaftlich-technische Wissenslücke besteht darin, eine Dekodierlatenz von unter 1,85 ms ohne Fließkommaeinheit (FPU-frei) zu erreichen und gleichzeitig den geometrischen Rekonstruktionsfehler (Chamfer-Distanz) auf maximal 1,5 mm zu begrenzen [Beleg #12: Jira Epic RND-408, S. 2].", "passed": true, "extracted_numbers": ["1,85", "1,5"], "citations_found": ["[Beleg #12: Jira Epic RND-408, S. 2]"], "verified_beleg_ids": ["12"], "violation_code": null, "violation_reason": null}, {"sentence": "Bisher existiert kein mathematisches Modell, das mehrstufige Int4-Morton-Wavelet-Prädiktoren direkt im 512 KB SRAM ohne dynamische Heap-Allokation faltet und dabei die harte Echtzeitschranke von 2,0 ms gemäß ISO 26262 einhalten kann [Beleg #11: Architektur-Dossier LiDAR-R52, S. 5].", "passed": true, "extracted_numbers": ["512", "2,0"], "citations_found": ["[Beleg #11: Architektur-Dossier LiDAR-R52, S. 5]"], "verified_beleg_ids": ["11"], "violation_code": null, "violation_reason": null}]}, {"domain": "BSFZ", "section_key": "stand_der_technik", "section_label": "2. Abgrenzung zum Stand der Technik", "char_count": 474, "max_chars": 500, "within_char_limit": true, "nur_eigene_belege_active": true, "total_sentences": 3, "verified_sentences": 3, "blocked_sentences": 0, "total_numerical_claims": 5, "verified_numerical_claims": 5, "hallucinated_citations_count": 0, "frascati_violations": [], "status": "PASSED_STRICT", "sentence_audits": [{"sentence": "Weltweiter Stand der Technik für geometrische Punktwolkenkompression ist der Standard MPEG G-PCC (ISO/IEC 23090-9) auf Octree-Basis [Beleg #11: Architektur-Dossier LiDAR-R52, S. 5].", "passed": true, "extracted_numbers": [], "citations_found": ["[Beleg #11: Architektur-Dossier LiDAR-R52, S. 5]"], "verified_beleg_ids": ["11"], "violation_code": null, "violation_reason": null}, {"sentence": "Auf einem ARM Cortex-R52 mit 400 MHz benötigt MPEG G-PCC im Mittel 18,4 ms pro Frame bei 128.000 Punkten und überschreitet das 2,0 ms Safety-Budget um den Faktor 9,2 [Beleg #11: Architektur-Dossier LiDAR-R52, S. 5].", "passed": true, "extracted_numbers": ["400", "18,4", "128.000", "2,0", "9,2"], "citations_found": ["[Beleg #11: Architektur-Dossier LiDAR-R52, S. 5]"], "verified_beleg_ids": ["11"], "violation_code": null, "violation_reason": null}, {"sentence": "Standardlösungen scheitern damit zwingend an der harten Echtzeitanforderung.", "passed": true, "extracted_numbers": [], "citations_found": [], "verified_beleg_ids": [], "violation_code": null, "violation_reason": null}]}, {"domain": "BSFZ", "section_key": "technische_unsicherheiten", "section_label": "3. Wissenschaftliche, technische und/oder methodische Unsicherheiten", "char_count": 668, "max_chars": 1000, "within_char_limit": true, "nur_eigene_belege_active": true, "total_sentences": 2, "verified_sentences": 2, "blocked_sentences": 0, "total_numerical_claims": 4, "verified_numerical_claims": 4, "hallucinated_citations_count": 0, "frascati_violations": [], "status": "PASSED_STRICT", "sentence_audits": [{"sentence": "Es besteht die erhebliche wissenschaftlich-technische Unwägbarkeit, ob die aggressive Int4-Quantisierung der Wavelet-Koeffizienten bei Nässereflexionen zu hochfrequentem Quantisierungsrauschen führt, welches Geisterobjekte oberhalb der zulässigen Schwelle von 0,8 % Falsch-Positiv-Detektionen erzeugt [Beleg #12: Jira Epic RND-408, S. 2].", "passed": true, "extracted_numbers": ["0,8"], "citations_found": ["[Beleg #12: Jira Epic RND-408, S. 2]"], "verified_beleg_ids": ["12"], "violation_code": null, "violation_reason": null}, {"sentence": "Zudem ist zu Projektbeginn methodisch ungeklärt, ob der FPU-freie Festkomma-Solver innerhalb des strikten 512 KB SRAM-Budgets ohne numerischen Überlauf konvergiert und die maximale Chamfer-Distanz von 1,5 mm bei unter 1,85 ms Laufzeit einhält [Beleg #11: Architektur-Dossier LiDAR-R52, S. 5] [Beleg #12: Jira Epic RND-408, S. 2].", "passed": true, "extracted_numbers": ["512", "1,5", "1,85"], "citations_found": ["[Beleg #11: Architektur-Dossier LiDAR-R52, S. 5]", "[Beleg #12: Jira Epic RND-408, S. 2]"], "verified_beleg_ids": ["11", "12"], "violation_code": null, "violation_reason": null}]}, {"domain": "BSFZ", "section_key": "durchzufuehrende_arbeiten", "section_label": "4. Beschreibung der durchzuführenden Arbeiten", "char_count": 860, "max_chars": 1000, "within_char_limit": true, "nur_eigene_belege_active": true, "total_sentences": 5, "verified_sentences": 5, "blocked_sentences": 0, "total_numerical_claims": 11, "verified_numerical_claims": 11, "hallucinated_citations_count": 0, "frascati_violations": [], "status": "PASSED_STRICT", "sentence_audits": [{"sentence": "Das Vorhaben gliedert sich systematisch in 4 Arbeitspakete über insgesamt 18 Personenmonate [Beleg #14: Git-Log 9f4c2a1 / HIL-Protokoll, S. 7].", "passed": true, "extracted_numbers": ["4", "18"], "citations_found": ["[Beleg #14: Git-Log 9f4c2a1 / HIL-Protokoll, S. 7]"], "verified_beleg_ids": ["14"], "violation_code": null, "violation_reason": null}, {"sentence": "In AP1 (4 Personenmonate) wird die mathematische Int4-Wavelet-Faltung hergeleitet [Beleg #14: Git-Log 9f4c2a1 / HIL-Protokoll, S. 7].", "passed": true, "extracted_numbers": ["4"], "citations_found": ["[Beleg #14: Git-Log 9f4c2a1 / HIL-Protokoll, S. 7]"], "verified_beleg_ids": ["14"], "violation_code": null, "violation_reason": null}, {"sentence": "In AP2 (6 Personenmonate) erfolgt die Implementierung des FPU-freien Festkomma-Solvers im 512 KB SRAM [Beleg #14: Git-Log 9f4c2a1 / HIL-Protokoll, S. 7].", "passed": true, "extracted_numbers": ["6", "512"], "citations_found": ["[Beleg #14: Git-Log 9f4c2a1 / HIL-Protokoll, S. 7]"], "verified_beleg_ids": ["14"], "violation_code": null, "violation_reason": null}, {"sentence": "AP3 (5 Personenmonate) prüft das Quantisierungsrauschen anhand von 24.000 Schlechtwetter-Frames gegen die 0,8 % Falsch-Positiv-Schwelle [Beleg #12: Jira Epic RND-408, S. 2] [Beleg #14: Git-Log 9f4c2a1 / HIL-Protokoll, S. 7].", "passed": true, "extracted_numbers": ["5", "24.000", "0,8"], "citations_found": ["[Beleg #12: Jira Epic RND-408, S. 2]", "[Beleg #14: Git-Log 9f4c2a1 / HIL-Protokoll, S. 7]"], "verified_beleg_ids": ["12", "14"], "violation_code": null, "violation_reason": null}, {"sentence": "AP4 (3 Personenmonate) validiert die Zielmarke im HIL-Prüfstand, wobei erste Trockentests bereits 1,72 ms Latenz bei 99,4 % Punkterhaltungsrate belegen [Beleg #14: Git-Log 9f4c2a1 / HIL-Protokoll, S. 7].", "passed": true, "extracted_numbers": ["3", "1,72", "99,4"], "citations_found": ["[Beleg #14: Git-Log 9f4c2a1 / HIL-Protokoll, S. 7]"], "verified_beleg_ids": ["14"], "violation_code": null, "violation_reason": null}]}]}, "immowertv_draft": {"legal_basis": "§ 194 Baugesetzbuch (BauGB) i.V.m. ImmoWertV 2021 (BGBl. I S. 2805)", "sections": {"grundbuch_und_baulasten": "Bewertungsobjekt ist das Grundstück in der Leopoldstraße 148b (Gemarkung Schwabing, Flurstück 814/3) mit einer amtlichen Grundstücksfläche von 842 m² [Beleg #01: Grundbuch Blatt 4192, S. 2]. In Abteilung II lfd. Nr. 3 ist ein Geh- und Fahrtrecht auf einer Teilfläche von 48 m² zugunsten von Flurstück 814/4 vom 12.05.1998 eingetragen, welches mit einem wertmindernden Abzug von 38.500 EUR berücksichtigt wird [Beleg #03: Grundbuch Blatt 4192, S. 4]. Gemäß Auskunft aus dem Baulastenverzeichnis vom 18.09.2026 (Baulastenblatt Nr. 904) besteht zudem eine Abstandsflächenübernahme von 3,20 m Tiefe auf 14,50 m Länge (46,4 m²) [Beleg #04: Baulastenverzeichnis Az. BL-2026-8831, S. 1].", "bodenwert_und_gebauedekennzahlen": "Nach § 40 ImmoWertV wird der Bodenwert auf Basis der Bodenrichtwertzone 09162000-412 zum Stichtag 01.01.2026 mit 3.450 €/m² bei einer wertrelevanten Geschossflächenzahl von 1,60 und 800 m² Richtwertgrundstücksfläche angesetzt [Beleg #05: BORIS Zone 09162000-412, S. 3]. Das im Jahr 1974 errichtete Gebäude verfügt über eine Bruttogrundfläche nach DIN 277 von 1.290 m² sowie 965 m² Wohnfläche bei einem Endenergiebedarf von 142,8 kWh/(m²·a) und einem Liegenschaftszinssatz von 2,35 % [Beleg #06: Energieausweis & Aufmaß DIN 277, S. 6].", "bauschaden_und_bog_abzug": "Im Rahmen der Ortsbesichtigung wurde an Messstelle K-04 (Ostwand UG) mittels Darr-Probe eine Mauerwerksfeuchte von 4,8 Masse-% bei einem Durchfeuchtungsgrad von 78 % festgestellt [Beleg #07: Bautagebuch Feuchtemessprotokoll, S. 9]. Die erforderlichen Sanierungskosten für Horizontalsperre und Dichtschlämme werden als besondere objektspezifische Grundstücksmerkmale (boG nach § 8 Abs. 3 und § 83 ImmoWertV) in Höhe von 44.200 EUR wertmindernd in Ansatz gebracht [Beleg #07: Bautagebuch Feuchtemessprotokoll, S. 9]."}, "validation_reports": [{"domain": "IMMOWERTV", "section_key": "grundbuch_und_baulasten", "section_label": "grundbuch_und_baulasten", "char_count": 680, "max_chars": null, "within_char_limit": true, "nur_eigene_belege_active": true, "total_sentences": 3, "verified_sentences": 3, "blocked_sentences": 0, "total_numerical_claims": 17, "verified_numerical_claims": 17, "hallucinated_citations_count": 0, "frascati_violations": [], "status": "PASSED_STRICT", "sentence_audits": [{"sentence": "Bewertungsobjekt ist das Grundstück in der Leopoldstraße 148b (Gemarkung Schwabing, Flurstück 814/3) mit einer amtlichen Grundstücksfläche von 842 m² [Beleg #01: Grundbuch Blatt 4192, S. 2].", "passed": true, "extracted_numbers": ["814", "3", "842"], "citations_found": ["[Beleg #01: Grundbuch Blatt 4192, S. 2]"], "verified_beleg_ids": ["01"], "violation_code": null, "violation_reason": null}, {"sentence": "In Abteilung II lfd. Nr. 3 ist ein Geh- und Fahrtrecht auf einer Teilfläche von 48 m² zugunsten von Flurstück 814/4 vom 12.05.1998 eingetragen, welches mit einem wertmindernden Abzug von 38.500 EUR berücksichtigt wird [Beleg #03: Grundbuch Blatt 4192, S. 4].", "passed": true, "extracted_numbers": ["48", "814", "4", "12", "05", "1998", "38.500"], "citations_found": ["[Beleg #03: Grundbuch Blatt 4192, S. 4]"], "verified_beleg_ids": ["03"], "violation_code": null, "violation_reason": null}, {"sentence": "Gemäß Auskunft aus dem Baulastenverzeichnis vom 18.09.2026 (Baulastenblatt Nr. 904) besteht zudem eine Abstandsflächenübernahme von 3,20 m Tiefe auf 14,50 m Länge (46,4 m²) [Beleg #04: Baulastenverzeichnis Az. BL-2026-8831, S. 1].", "passed": true, "extracted_numbers": ["18", "09", "2026", "904", "3,20", "14,50", "46,4"], "citations_found": ["[Beleg #04: Baulastenverzeichnis Az. BL-2026-8831, S. 1]"], "verified_beleg_ids": ["04"], "violation_code": null, "violation_reason": null}]}, {"domain": "IMMOWERTV", "section_key": "bodenwert_und_gebauedekennzahlen", "section_label": "bodenwert_und_gebauedekennzahlen", "char_count": 534, "max_chars": null, "within_char_limit": true, "nur_eigene_belege_active": true, "total_sentences": 2, "verified_sentences": 2, "blocked_sentences": 0, "total_numerical_claims": 13, "verified_numerical_claims": 13, "hallucinated_citations_count": 0, "frascati_violations": [], "status": "PASSED_STRICT", "sentence_audits": [{"sentence": "Nach § 40 ImmoWertV wird der Bodenwert auf Basis der Bodenrichtwertzone 09162000-412 zum Stichtag 01.01.2026 mit 3.450 €/m² bei einer wertrelevanten Geschossflächenzahl von 1,60 und 800 m² Richtwertgrundstücksfläche angesetzt [Beleg #05: BORIS Zone 09162000-412, S. 3].", "passed": true, "extracted_numbers": ["09162000", "412", "01", "01", "2026", "3.450", "1,60", "800"], "citations_found": ["[Beleg #05: BORIS Zone 09162000-412, S. 3]"], "verified_beleg_ids": ["05"], "violation_code": null, "violation_reason": null}, {"sentence": "Das im Jahr 1974 errichtete Gebäude verfügt über eine Bruttogrundfläche nach DIN 277 von 1.290 m² sowie 965 m² Wohnfläche bei einem Endenergiebedarf von 142,8 kWh/(m²·a) und einem Liegenschaftszinssatz von 2,35 % [Beleg #06: Energieausweis & Aufmaß DIN 277, S. 6].", "passed": true, "extracted_numbers": ["1974", "1.290", "965", "142,8", "2,35"], "citations_found": ["[Beleg #06: Energieausweis & Aufmaß DIN 277, S. 6]"], "verified_beleg_ids": ["06"], "violation_code": null, "violation_reason": null}]}, {"domain": "IMMOWERTV", "section_key": "bauschaden_und_bog_abzug", "section_label": "bauschaden_und_bog_abzug", "char_count": 514, "max_chars": null, "within_char_limit": true, "nur_eigene_belege_active": true, "total_sentences": 2, "verified_sentences": 2, "blocked_sentences": 0, "total_numerical_claims": 3, "verified_numerical_claims": 3, "hallucinated_citations_count": 0, "frascati_violations": [], "status": "PASSED_STRICT", "sentence_audits": [{"sentence": "Im Rahmen der Ortsbesichtigung wurde an Messstelle K-04 (Ostwand UG) mittels Darr-Probe eine Mauerwerksfeuchte von 4,8 Masse-% bei einem Durchfeuchtungsgrad von 78 % festgestellt [Beleg #07: Bautagebuch Feuchtemessprotokoll, S. 9].", "passed": true, "extracted_numbers": ["4,8", "78"], "citations_found": ["[Beleg #07: Bautagebuch Feuchtemessprotokoll, S. 9]"], "verified_beleg_ids": ["07"], "violation_code": null, "violation_reason": null}, {"sentence": "Die erforderlichen Sanierungskosten für Horizontalsperre und Dichtschlämme werden als besondere objektspezifische Grundstücksmerkmale (boG nach § 8 Abs. 3 und § 83 ImmoWertV) in Höhe von 44.200 EUR wertmindernd in Ansatz gebracht [Beleg #07: Bautagebuch Feuchtemessprotokoll, S. 9].", "passed": true, "extracted_numbers": ["44.200"], "citations_found": ["[Beleg #07: Bautagebuch Feuchtemessprotokoll, S. 9]"], "verified_beleg_ids": ["07"], "violation_code": null, "violation_reason": null}]}]}, "adversarial_blocker_tests": [{"case_id": "ADV-01-UNCITED-NUMBER", "input_text": "Der Bodenrichtwert beträgt 4.200 €/m² für das Grundstück.", "expected_violation": "BLOCKED_UNCITED_NUMBER", "detected_violation": "BLOCKED_UNCITED_NUMBER", "status": "BLOCKED", "frascati_violations": [], "correctly_blocked": true}, {"case_id": "ADV-02-HALLUCINATED-NUMBER-IN-VALID-CITE", "input_text": "Das Geh- und Fahrtrecht betrifft 120 m² und mindert den Wert um 95.000 EUR [Beleg #03: Grundbuch Blatt 4192, S. 4].", "expected_violation": "BLOCKED_UNVERIFIED_NUMBER", "detected_violation": "BLOCKED_UNVERIFIED_NUMBER", "status": "BLOCKED", "frascati_violations": [], "correctly_blocked": true}, {"case_id": "ADV-03-WRONG-PAGE-NUMBER", "input_text": "Die amtliche Grundstücksfläche beträgt 842 m² [Beleg #01: Grundbuch Blatt 4192, S. 99].", "expected_violation": "BLOCKED_WRONG_PAGE_NUMBER", "detected_violation": "BLOCKED_WRONG_PAGE_NUMBER", "status": "BLOCKED", "frascati_violations": [], "correctly_blocked": true}, {"case_id": "ADV-04-FAKE-BELEG-ID", "input_text": "Die Latenz beträgt 18,4 ms [Beleg #99: Erfundene Studie 2026, S. 12].", "expected_violation": "BLOCKED_FAKE_BELEG_ID", "detected_violation": "BLOCKED_FAKE_BELEG_ID", "status": "BLOCKED", "frascati_violations": [], "correctly_blocked": true}, {"case_id": "ADV-05-BSFZ-COMMERCIAL-RISK-TRAP", "input_text": "Bei einer Dekodierlatenz von 1,85 ms besteht das Hauptrisiko in einem Lieferengpass der Sensoren und ungewissem Markterfolg bei einer Budgetüberschreitung [Beleg #12: Jira Epic RND-408, S. 2].", "expected_violation": "BSFZ_FRASCATI_COMMERCIAL_RISK", "detected_violation": "BSFZ_FRASCATI_COMMERCIAL_RISK", "status": "BLOCKED", "frascati_violations": ["Wirtschaftliches Marktrisiko statt technischer Unwägbarkeit (§ 6 FZulG Ablehnungsgrund)", "Finanzielles Risiko zählt laut Frascati-Handbuch nicht als FuE-Risiko", "Operatives Lieferkettenrisiko ist keine wissenschaftlich-technische Unsicherheit"], "correctly_blocked": true}], "claude_mcp_connector_tools": [{"name": "search_project_evidence", "description": "Durchsucht ausschließlich die vom Sachverständigen/Förderberater hochgeladenen Original-Belege (Grundbuchauszug, Baulastenverzeichnis, BORIS, Bautagebuch, Jira-FuE-Tickets, Git-Benchmarks) im strikten Nur-Eigene-Belege-Modus.", "inputSchema": {"type": "object", "properties": {"query": {"type": "string", "description": "Suchbegriff oder Kennzahl"}, "domain": {"type": "string", "enum": ["IMMOWERTV", "BSFZ"], "description": "Gutachten-Domäne (§ 194 BauGB ImmoWertV oder § 6 FZulG BSFZ)"}, "top_k": {"type": "integer", "default": 5}}, "required": ["query", "domain"]}}, {"name": "draft_bsfz_section_strict", "description": "Erstellt einen Frascati-konformen Textbaustein für den BSFZ-Antrag (§ 6 FZulG) mit harter Zeichenlimit-Prüfung (200 / 1.500 / 500 / 1.000 / 1.000 Zeichen) und zwingenden Inline-Belegen [Beleg #ID: ..., S. X].", "inputSchema": {"type": "object", "properties": {"section_key": {"type": "string", "enum": ["titel", "ziel_und_wissensluecke", "stand_der_technik", "technische_unsicherheiten", "durchzufuehrende_arbeiten"]}, "nur_eigene_belege_modus": {"type": "boolean", "default": true}}, "required": ["section_key"]}}, {"name": "draft_immowertv_section_strict", "description": "Erstellt einen gerichtsfesten Gutachtenabschnitt nach § 194 BauGB / ImmoWertV mit exakten Grundbuch-, Baulasten-, BORIS- und Bautagebuch-Zitaten.", "inputSchema": {"type": "object", "properties": {"section_key": {"type": "string", "enum": ["grundbuch_und_baulasten", "bodenwert_und_gebauedekennzahlen", "bauschaden_und_bog_abzug"]}, "nur_eigene_belege_modus": {"type": "boolean", "default": true}}, "required": ["section_key"]}}, {"name": "verify_citation_integrity", "description": "Prüft jeden Satz deterministisch auf halluzinierte Zahlenwerte, fehlende [Beleg #ID: ..., S. X]-Verweise, falsche Seitenzahlen und BSFZ-Frascati-Verstöße.", "inputSchema": {"type": "object", "properties": {"domain": {"type": "string", "enum": ["IMMOWERTV", "BSFZ"]}, "section_key": {"type": "string"}, "draft_text": {"type": "string"}}, "required": ["domain", "section_key", "draft_text"]}}, {"name": "insert_into_word_document", "description": "Übergibt einen verifizierten, zu 0 % halluzinierten Gutachten-Absatz inklusive Quellen-Fußnote über die Office.js Bridge (`Word.run`) direkt an die aktuelle Cursor-Position in Microsoft Word.", "inputSchema": {"type": "object", "properties": {"verified_paragraph": {"type": "string"}, "insert_location": {"type": "string", "enum": ["CursorSelection", "End", "ReplaceSelection"], "default": "CursorSelection"}}, "required": ["verified_paragraph"]}}]};
+    let currentDomain = 'IMMOWERTV';
+
+    if (typeof Office !== 'undefined' && Office.onReady) {
+      Office.onReady((info) => {
+        const badge = document.getElementById('officeHostStatus');
+        if (info.host === Office.HostType.Word) {
+          badge.textContent = 'Verbunden: MS Word';
+        } else {
+          badge.textContent = 'Office.js Browser-Vorschau';
+        }
+      });
+    }
+
+    function formatCitationsHtml(text) {
+      return text.replace(
+        /(\[Beleg\s+#[0-9A-Za-z_-]+:\s*[^\]]+\])/g,
+        '<span class="cite-chip">$1</span>'
+      );
+    }
+
+    async function insertTextIntoWord(paragraphText) {
+      if (typeof Word !== 'undefined' && Word.run) {
+        try {
+          await Word.run(async (context) => {
+            const body = context.document.body;
+            body.insertParagraph(paragraphText, Word.InsertLocation.end);
+            await context.sync();
+          });
+          return true;
+        } catch (err) {
+          console.warn('Word.run fallback to simulator canvas:', err);
+        }
+      }
+      const canvas = document.getElementById('wordDocumentCanvas');
+      const p = document.createElement('p');
+      p.className = 'doc-paragraph';
+      p.style.background = '#ecfdf5';
+      p.style.padding = '8px';
+      p.style.borderLeft = '3px solid #047857';
+      p.innerHTML = formatCitationsHtml(paragraphText);
+      canvas.appendChild(p);
+      return true;
+    }
+
+    function switchDomain(domain) {
+      currentDomain = domain;
+      document.getElementById('tabImmo').classList.toggle('active', domain === 'IMMOWERTV');
+      document.getElementById('tabBsfz').classList.toggle('active', domain === 'BSFZ');
+      document.getElementById('bsfzMetersSection').style.display = domain === 'BSFZ' ? 'block' : 'none';
+
+      // Render Evidence Cards
+      const evList = document.getElementById('evidenceCardsList');
+      evList.innerHTML = '';
+      const filteredEv = AUDIT_DATA.evidence_vault.filter(e => e.domain === domain);
+      document.getElementById('evidenceCountBadge').textContent = filteredEv.length + ' Primärbelege';
+
+      filteredEv.forEach(ev => {
+        const card = document.createElement('div');
+        card.className = 'evidence-card';
+        const citeTag = `[Beleg #${ev.beleg_id}: ${ev.short_cite_label}, S. ${ev.page}]`;
+        card.innerHTML = `
+          <div class="ev-top">
+            <span>Beleg #${ev.beleg_id} · ${ev.doc_type}</span>
+            <span>S. ${ev.page}</span>
+          </div>
+          <div style="font-size:11px; color:#64748b; margin-bottom:4px;">${ev.doc_title} (SHA256: ${ev.sha256_hash})</div>
+          <div class="ev-text">${ev.raw_text}</div>
+          <div class="ev-actions">
+            <span class="cite-chip">${citeTag}</span>
+            <button class="btn-small" onclick='insertTextIntoWord(${JSON.stringify(ev.raw_text + " " + citeTag)})'>
+              + In Word einfügen
+            </button>
+          </div>
+        `;
+        evList.appendChild(card);
+      });
+
+      // Render Word Document Canvas
+      const canvas = document.getElementById('wordDocumentCanvas');
+      if (domain === 'IMMOWERTV') {
+        const sections = AUDIT_DATA.immowertv_draft.sections;
+        canvas.innerHTML = `
+          <h1>Verkehrswertgutachten gemäß § 194 BauGB i.V.m. ImmoWertV</h1>
+          <div class="word-meta-bar">
+            <span><strong>Objekt:</strong> Leopoldstraße 148b, München (Flst. 814/3)</span>
+            <span><strong>Modus:</strong> Nur-Eigene-Belege (0 % Halluzination)</span>
+          </div>
+          <div class="doc-section-title">
+            <span>1. Grundbuchstand, Dienstbarkeiten &amp; Baulastenverzeichnis</span>
+            <span class="cite-chip">PASSED_STRICT</span>
+          </div>
+          <p class="doc-paragraph">${formatCitationsHtml(sections.grundbuch_und_baulasten)}</p>
+          <div class="doc-section-title">
+            <span>2. Bodenrichtwert (BORIS), Flächenansätze &amp; Energetischer Zustand</span>
+            <span class="cite-chip">PASSED_STRICT</span>
+          </div>
+          <p class="doc-paragraph">${formatCitationsHtml(sections.bodenwert_und_gebauedekennzahlen)}</p>
+          <div class="doc-section-title">
+            <span>3. Bauschadensanalyse &amp; Besondere objektspezifische Grundstücksmerkmale (§ 8 Abs. 3 ImmoWertV)</span>
+            <span class="cite-chip">PASSED_STRICT</span>
+          </div>
+          <p class="doc-paragraph">${formatCitationsHtml(sections.bauschaden_und_bog_abzug)}</p>
+        `;
+      } else {
+        const sections = AUDIT_DATA.bsfz_draft.sections;
+        const reports = AUDIT_DATA.bsfz_draft.validation_reports;
+        document.getElementById('bsfzTotalCharsBadge').textContent =
+          AUDIT_DATA.bsfz_draft.total_body_chars + ' / 4.000 Zeichen';
+
+        const metersList = document.getElementById('bsfzMetersList');
+        metersList.innerHTML = '';
+        reports.forEach(rep => {
+          const pct = Math.min(100, Math.round((rep.char_count / rep.max_chars) * 100));
+          const m = document.createElement('div');
+          m.className = 'char-meter';
+          m.innerHTML = `
+            <div class="char-meter-top">
+              <span>${rep.section_label}</span>
+              <span>${rep.char_count} / ${rep.max_chars} Z.</span>
+            </div>
+            <div class="progress-track">
+              <div class="progress-fill" style="width:${pct}%;"></div>
+            </div>
+          `;
+          metersList.appendChild(m);
+        });
+
+        canvas.innerHTML = `
+          <h1>BSFZ-Antrag auf Forschungszulage gemäß § 6 FZulG (Frascati-Nachweis)</h1>
+          <div class="word-meta-bar">
+            <span><strong>Vorhaben:</strong> ${sections.titel}</span>
+            <span><strong>Gesamtvolumen:</strong> ${AUDIT_DATA.bsfz_draft.total_body_chars} / 4.000 Zeichen</span>
+          </div>
+          <div class="doc-section-title">
+            <span>1. Ziel des Vorhabens &amp; wissenschaftlich-technische Wissenslücke (max. 1.500 Z.)</span>
+            <span class="cite-chip">PASSED_STRICT</span>
+          </div>
+          <p class="doc-paragraph">${formatCitationsHtml(sections.ziel_und_wissensluecke)}</p>
+          <div class="doc-section-title">
+            <span>2. Abgrenzung zum Stand der Technik (max. 500 Z.)</span>
+            <span class="cite-chip">PASSED_STRICT</span>
+          </div>
+          <p class="doc-paragraph">${formatCitationsHtml(sections.stand_der_technik)}</p>
+          <div class="doc-section-title">
+            <span>3. Wissenschaftliche &amp; technische Unwägbarkeiten (max. 1.000 Z.)</span>
+            <span class="cite-chip">PASSED_STRICT</span>
+          </div>
+          <p class="doc-paragraph">${formatCitationsHtml(sections.technische_unsicherheiten)}</p>
+          <div class="doc-section-title">
+            <span>4. Beschreibung der durchzuführenden Arbeiten / Arbeitsplan (max. 1.000 Z.)</span>
+            <span class="cite-chip">PASSED_STRICT</span>
+          </div>
+          <p class="doc-paragraph">${formatCitationsHtml(sections.durchzufuehrende_arbeiten)}</p>
+        `;
+      }
+    }
+
+    function loadSampleHallucination() {
+      document.getElementById('liveTestInput').value =
+        'Der Bodenrichtwert beträgt 4.900 €/m² laut freier Schätzung [Beleg #05: BORIS Zone 09162000-412, S. 3].';
+      runLiveSentenceAudit();
+    }
+
+    function loadSampleVerified() {
+      document.getElementById('liveTestInput').value =
+        'Der Bodenrichtwert zum Stichtag 01.01.2026 beträgt 3.450 €/m² bei einer WGFZ von 1,60 [Beleg #05: BORIS Zone 09162000-412, S. 3].';
+      runLiveSentenceAudit();
+    }
+
+    function runLiveSentenceAudit() {
+      const text = document.getElementById('liveTestInput').value.trim();
+      const out = document.getElementById('liveAuditOutput');
+      const citeMatch = text.match(/\[Beleg\s+#([0-9A-Za-z_-]+):\s*([^,\]]+),\s*S\.\s*(\d+)\]/);
+      const textNoCite = text.replace(/\[Beleg\s+#[^\]]+\]/g, '');
+      const nums = textNoCite.match(/(?:\d{1,3}(?:\.\d{3})+|\d+)(?:,\d+)?/g) || [];
+
+      if (nums.length > 0 && !citeMatch) {
+        out.className = 'blocker-status blocked';
+        out.textContent = `BLOCKED_UNCITED_NUMBER: Zahlenbehauptung ${JSON.stringify(nums)} ohne [Beleg #ID, S. X] blockiert.`;
+        return;
+      }
+      if (citeMatch) {
+        const id = citeMatch[1];
+        const page = parseInt(citeMatch[3], 10);
+        const ev = AUDIT_DATA.evidence_vault.find(x => x.beleg_id === id);
+        if (!ev) {
+          out.className = 'blocker-status blocked';
+          out.textContent = `BLOCKED_FAKE_BELEG_ID: Beleg #${id} existiert nicht im lokalen Tresor.`;
+          return;
+        }
+        if (ev.page !== page) {
+          out.className = 'blocker-status blocked';
+          out.textContent = `BLOCKED_WRONG_PAGE_NUMBER: Beleg #${id} liegt auf S. ${ev.page}, nicht S. ${page}.`;
+          return;
+        }
+        for (const n of nums) {
+          if (!ev.verified_numbers.includes(n) && !ev.raw_text.includes(n)) {
+            out.className = 'blocker-status blocked';
+            out.textContent = `BLOCKED_UNVERIFIED_NUMBER: Zahlenwert '${n}' kommt in Beleg #${id} (S. ${ev.page}) nicht vor!`;
+            return;
+          }
+        }
+      }
+      out.className = 'blocker-status passed';
+      out.textContent = 'PASSED_STRICT: Alle Zahlen & Seitenzahlen im Primärbeleg verifiziert — in Word eingefügt.';
+      insertTextIntoWord(text);
+    }
+
+    // Initialize default view
+    switchDomain('IMMOWERTV');
+  </script>
+</body>
+</html>

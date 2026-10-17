@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MVP #149 — DACH § 7 & § 11 BUrlG Urlaubsabgeltungs-, Verfalls-Abwehr- & Mitwirkungsobliegenheits-Studio</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --card: #131b33;
+      --card-alt: #182342;
+      --border: #2a3966;
+      --accent: #38bdf8;
+      --accent-green: #10b981;
+      --accent-amber: #f59e0b;
+      --accent-red: #ef4444;
+      --accent-purple: #a855f7;
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.55;
+    }
+    header {
+      background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 28px 24px;
+    }
+    .container {
+      max-width: 1380px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 11px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      background: rgba(56, 189, 248, 0.14);
+      color: var(--accent);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+    }
+    .badge.green {
+      background: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+      border-color: rgba(16, 185, 129, 0.35);
+    }
+    .badge.amber {
+      background: rgba(245, 158, 11, 0.15);
+      color: #fbbf24;
+      border-color: rgba(245, 158, 11, 0.35);
+    }
+    .badge.purple {
+      background: rgba(168, 85, 247, 0.15);
+      color: #c084fc;
+      border-color: rgba(168, 85, 247, 0.35);
+    }
+    h1 {
+      margin: 0 0 10px 0;
+      font-size: 26px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14.5px;
+      max-width: 1120px;
+    }
+    .mode-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 22px 0;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--card);
+      padding: 14px 18px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+    .btn-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    button {
+      cursor: pointer;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--card-alt);
+      color: var(--text);
+      padding: 9px 14px;
+      font-size: 13px;
+      font-weight: 600;
+      transition: all 0.15s ease;
+    }
+    button:hover {
+      border-color: var(--accent);
+      background: rgba(56, 189, 248, 0.12);
+    }
+    button.active {
+      background: var(--accent);
+      color: #090d16;
+      border-color: var(--accent);
+      font-weight: 700;
+    }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1.05fr 1.25fr;
+      gap: 20px;
+      margin-bottom: 24px;
+    }
+    @media (max-width: 1080px) {
+      .grid-2 { grid-template-columns: 1fr; }
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    .card h2 {
+      margin: 0 0 14px 0;
+      font-size: 17px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+      padding-bottom: 10px;
+    }
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+    @media (max-width: 960px) {
+      .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    .kpi {
+      background: var(--card-alt);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 15px;
+    }
+    .kpi .label {
+      font-size: 12px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 6px;
+    }
+    .kpi .val {
+      font-size: 24px;
+      font-weight: 800;
+    }
+    .kpi .sub {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+    .val.green { color: #34d399; }
+    .val.accent { color: var(--accent); }
+    .val.amber { color: #fbbf24; }
+    .val.red { color: #f87171; }
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      margin-bottom: 10px;
+    }
+    label {
+      font-size: 12.5px;
+      font-weight: 600;
+      color: #cbd5e1;
+    }
+    input, select {
+      background: #0b1020;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      padding: 8px 11px;
+      font-size: 13.5px;
+    }
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    th, td {
+      padding: 10px 8px;
+      text-align: left;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+      vertical-align: middle;
+    }
+    th {
+      color: var(--muted);
+      font-weight: 600;
+      font-size: 11.5px;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      background: rgba(15, 23, 42, 0.55);
+    }
+    .pill {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 11.5px;
+      font-weight: 700;
+    }
+    .pill.survive {
+      background: rgba(16, 185, 129, 0.18);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.4);
+    }
+    .pill.forfeit {
+      background: rgba(239, 68, 68, 0.16);
+      color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.4);
+    }
+    .alert-box {
+      border-radius: 10px;
+      padding: 13px 16px;
+      margin-top: 12px;
+      font-size: 13px;
+      border: 1px solid var(--border);
+      background: rgba(56, 189, 248, 0.08);
+    }
+    .alert-box.warn {
+      background: rgba(245, 158, 11, 0.11);
+      border-color: rgba(245, 158, 11, 0.45);
+      color: #fde68a;
+    }
+    .alert-box.danger {
+      background: rgba(239, 68, 68, 0.12);
+      border-color: rgba(239, 68, 68, 0.45);
+      color: #fecaca;
+    }
+    .alert-box.success {
+      background: rgba(16, 185, 129, 0.11);
+      border-color: rgba(16, 185, 129, 0.45);
+      color: #a7f3d0;
+    }
+    textarea {
+      width: 100%;
+      min-height: 290px;
+      background: #070b16;
+      color: #e2e8f0;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+      font-family: 'JetBrains Mono', Consolas, monospace;
+      font-size: 12.5px;
+      line-height: 1.5;
+      resize: vertical;
+    }
+    .pillar-list {
+      margin: 0;
+      padding-left: 18px;
+      font-size: 13px;
+      color: #cbd5e1;
+    }
+    .pillar-list li {
+      margin-bottom: 6px;
+    }
+    .hidden {
+      display: none !important;
+    }
+  </style>
+</head>
+<body>
+
+<!-- DACH CASHFLOW STUDIOS LAUNCH BAR -->
+<style>
+  #dcs-launch-bar {
+    position: sticky;
+    top: 0;
+    z-index: 99999;
+    background: linear-gradient(90deg, #0b1120 0%, #111827 50%, #0f172a 100%);
+    color: #f8fafc;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.35);
+    padding: 8px 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  }
+  #dcs-launch-bar .dcs-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+  }
+  #dcs-launch-bar .dcs-badge {
+    background: rgba(16, 185, 129, 0.18);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.03em;
+  }
+  #dcs-launch-bar a.dcs-nav {
+    color: #93c5fd;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 12.5px;
+  }
+  #dcs-launch-bar a.dcs-nav:hover {
+    text-decoration: underline;
+    color: #dbeafe;
+  }
+  #dcs-launch-bar .dcs-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  #dcs-launch-bar .dcs-btn {
+    padding: 5px 11px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s ease;
+  }
+  #dcs-launch-bar .dcs-btn-ghost {
+    background: rgba(255,255,255,0.08);
+    color: #e2e8f0;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  #dcs-launch-bar .dcs-btn-primary {
+    background: linear-gradient(135deg, #0ea5e9, #2563eb);
+    color: #ffffff;
+  }
+  #dcs-launch-bar .dcs-btn-emerald {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
+  }
+  @media print {
+    #dcs-launch-bar { display: none !important; }
+  }
+</style>
+<div id="dcs-launch-bar">
+  <div class="dcs-left">
+    <a href="/index.html" class="dcs-nav">← Alle 150 DACH Studios</a>
+    <span class="dcs-badge">MVP #149 VERIFIED</span>
+    <span style="color:#cbd5e1;font-size:12px;">DACH LegalTech, Labor Law & Consumer Claims</span>
+  </div>
+  <div class="dcs-actions">
+    <button onclick="window.print()" class="dcs-btn dcs-btn-ghost">🖨️ PDF / Dossier drucken</button>
+    <a href="#checkout-modal-49" target="_blank" rel="noopener" class="dcs-btn dcs-btn-primary">⚡ Musterschreiben & Voll-Dossier (€49)</a>
+    <a href="#checkout-modal-299" target="_blank" rel="noopener" class="dcs-btn dcs-btn-emerald">🛡️ B2B Umsetzung buchen (€299 / €1.490)</a>
+  </div>
+</div>
+
+  <header>
+    <div class="container">
+      <div class="badge-row">
+        <span class="badge">MVP #149 · DACH Arbeitsrecht Cash-Engine</span>
+        <span class="badge green">Pillar 1: BAG 9 AZR 541/15 & 9 AZR 266/20 (0% Verfall & 0% § 195 BGB Verjährung ohne Warnhinweis)</span>
+        <span class="badge amber">Pillar 2: BAG 9 AZR 245/19 (Kein 15-Monats-Verfall bei unterjähriger Langzeiterkrankung)</span>
+        <span class="badge purple">Pillar 3: § 11 Abs. 1 BUrlG (13-Wochen / 65-Tage-Teiler) & BAG 9 AZR 104/24 (Tatsachenvergleich-Schutz)</span>
+      </div>
+      <h1>§ 7 Abs. 3 & 4 BUrlG Urlaubsabgeltungs-, Verfalls-Abwehr- & Mitwirkungsobliegenheits-Studio</h1>
+      <p class="subtitle">
+        Interaktiver Dual-Mode-Rechner (Arbeitnehmer-Nachforderungs-Engine &amp; HR-Compliance-Warnhinweis-Generator) auf Basis von
+        EuGH C-684/16, BAG 9 AZR 541/15 (Rz. 42), BAG 9 AZR 266/20, BAG 9 AZR 245/19 und BAG 9 AZR 104/24.
+        Kombiniert nahtlos mit <strong>MVP #98 (Kündigungsschutz &amp; Abfindung)</strong> und <strong>MVP #123 (Krankengeld &amp; Aussteuerung)</strong>.
+      </p>
+    </div>
+  </header>
+
+  <main class="container" style="padding-top: 18px; padding-bottom: 48px;">
+    <div class="mode-bar">
+      <div class="btn-group">
+        <button id="btnModeEmployee" class="active" onclick="switchMode('employee')">
+          ⚖️ Modus A: Arbeitnehmer Urlaubsabgeltungs- &amp; Verfalls-Abwehr-Rechner
+        </button>
+        <button id="btnModeHR" onclick="switchMode('hr')">
+          🛡️ Modus B: HR / Arbeitgeber Mitwirkungsobliegenheits-Generator (BAG 9 AZR 541/15 Rz. 42)
+        </button>
+      </div>
+      <div class="btn-group">
+        <span style="font-size:12px; color:var(--muted); align-self:center; margin-right:4px;">Benchmark-Fälle:</span>
+        <button id="btnPreset1" class="active" onclick="loadPreset(1)">
+          Fall 1: 5 Jahre Resturlaub (Lohnzettel-Falle · 15.300 €)
+        </button>
+        <button id="btnPreset2" onclick="loadPreset(2)">
+          Fall 2: Langzeitkrank &amp; Aussteuerung (BAG 9 AZR 245/19 · 13.650 €)
+        </button>
+        <button id="btnPreset3" onclick="loadPreset(3)">
+          Fall 3: HR-konformer Warnhinweis (Nur Austrittsjahr · 3.000 €)
+        </button>
+      </div>
+    </div>
+
+    <div class="kpi-grid">
+      <div class="kpi">
+        <div class="label">Unverfallbare Urlaubstage (§ 7 BUrlG)</div>
+        <div class="val green" id="kpiTotalDays">51,0 Tage</div>
+        <div class="sub" id="kpiDaysSplit">Gesetzlich: 10,0 d · Mehrurlaub: 41,0 d</div>
+      </div>
+      <div class="kpi">
+        <div class="label">§ 11 BUrlG Tagessatz (13 Wo. ÷ 65 AT)</div>
+        <div class="val accent" id="kpiDailyRate">300,00 € / Tag</div>
+        <div class="sub" id="kpiDailyUplift">+106,67 € / Tag ggü. naiver /30-Formel</div>
+      </div>
+      <div class="kpi">
+        <div class="label">Brutto-Urlaubsabgeltung (§ 7 Abs. 4 BUrlG)</div>
+        <div class="val green" id="kpiTotalPayout">15.300,00 €</div>
+        <div class="sub" id="kpiRefEarnings">13-Wochen-Referenzverdienst: 19.500,00 €</div>
+      </div>
+      <div class="kpi">
+        <div class="label">Durch BAG-Rechtsprechung gerettete Vorjahre</div>
+        <div class="val amber" id="kpiSavedPriorEur">10.800,00 €</div>
+        <div class="sub" id="kpiSavedPriorSub">Vom Arbeitgeber fälschlich als „verfallen/verjährt“ deklariert</div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <h2>
+          <span>1. § 11 Abs. 1 BUrlG Verdienst- &amp; Vertrags-Audit</span>
+          <span class="badge purple">13-Wochen-Regel</span>
+        </h2>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="inpFixedGross">Monatliches Brutto-Festgehalt (€)</label>
+            <input type="number" id="inpFixedGross" value="5800" step="50" oninput="recalc()" />
+          </div>
+          <div class="form-group">
+            <label for="inpVariableGross">Ø Laufende Provisionen / Boni / Sachbezüge (€/Monat)</label>
+            <input type="number" id="inpVariableGross" value="700" step="25" oninput="recalc()" />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="inpOvertimeExcluded">Ø Überstundenvergütung (€/Monat — § 11 Abs. 1 exkl.)</label>
+            <input type="number" id="inpOvertimeExcluded" value="450" step="25" oninput="recalc()" />
+          </div>
+          <div class="form-group">
+            <label for="inpWorkdaysWeek">Arbeitstage pro Woche (§ 3 BUrlG)</label>
+            <select id="inpWorkdaysWeek" onchange="recalc()">
+              <option value="5" selected>5-Tage-Woche (Teiler 65 AT · 20 d Mindesturlaub)</option>
+              <option value="6">6-Tage-Woche (Teiler 78 AT · 24 d Mindesturlaub)</option>
+              <option value="4">4-Tage-Woche (Teiler 52 AT · 16 d Mindesturlaub)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="inpDiffClause">Vertraglicher Mehrurlaub (Tage über 20 d): Differenzierungsklausel im Arbeitsvertrag?</label>
+          <select id="inpDiffClause" onchange="recalc()">
+            <option value="false" selected>NEIN — Keine explizite Trennung im Arbeitsvertrag (Gleichlauf: Mehrurlaub verfällt ebenfalls NICHT!)</option>
+            <option value="true">JA — Deutliche Differenzierungsklausel vorhanden (Mehrurlaub verfällt nach Vertragsfristen)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="inpSettlementTrap">Aufhebungsvertrag / Abwicklungs-Klausel-Check (BAG 9 AZR 104/24)</label>
+          <select id="inpSettlementTrap" onchange="recalc()">
+            <option value="NONE" selected>Kein Aufhebungsvertrag / Noch nicht unterschrieben</option>
+            <option value="BOILERPLATE_IN_NATURA_DURING_SICKNESS">Klausel „Urlaub wurde in Natur gewährt“ trotz Krankheit / klarer Zeiterfassung (UNWIRKSAM!)</option>
+            <option value="IRREVOCABLE_FREISTELLUNG_WITH_ANRECHNUNG">Freistellungsklausel (widerruflich oder krank während Freistellung nach § 9 BUrlG)</option>
+            <option value="GENUINE_FACTUAL_UNCERTAINTY_SETTLEMENT">Echter Tatsachenvergleich (§ 779 BGB) bei beidseitiger Ungewissheit über Urlaubstage</option>
+          </select>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="inpAusschlussfrist">Vertragliche Ausschlussfrist nach Austritt (Monate)</label>
+            <select id="inpAusschlussfrist" onchange="recalc()">
+              <option value="3" selected>3 Monate ab Beendigung (§ 7 Abs. 4 BUrlG Fälligkeit)</option>
+              <option value="6">6 Monate (Tarifvertrag / TVöD)</option>
+              <option value="0">Keine wirksame Ausschlussfrist</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="inpEmployeeName">Name Arbeitnehmer:in (für Schriftsatz)</label>
+            <input type="text" id="inpEmployeeName" value="Alex Beispiel" oninput="recalc()" />
+          </div>
+        </div>
+
+        <div id="boxSettlementAnalysis" class="alert-box success"></div>
+        <div id="boxAusschlussfrist" class="alert-box warn"></div>
+      </div>
+
+      <div class="card">
+        <h2>
+          <span>2. § 11 BUrlG Berechnungs-Nachweis &amp; 3-Säulen-Rechtsprüfung</span>
+          <span class="badge green">EuGH &amp; BAG Leitentscheidungen</span>
+        </h2>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Rechengröße (§ 11 Abs. 1 &amp; § 7 Abs. 4 BUrlG)</th>
+              <th>Formel / Rechtsgrundlage</th>
+              <th>Betrag / Wert</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Anrechenbarer Monatsverdienst</td>
+              <td>Festgehalt + laufende Provisionen/Zulagen (ohne Überstunden)</td>
+              <td id="tblMonthlyRel" style="font-weight:700;">6.500,00 €</td>
+            </tr>
+            <tr>
+              <td>13-Wochen-Referenzverdienst (Quartal)</td>
+              <td>Monatsverdienst × 3,0 Monate (91 Kalendertage)</td>
+              <td id="tbl13Weeks" style="font-weight:700; color:var(--accent);">19.500,00 €</td>
+            </tr>
+            <tr>
+              <td>Gesetzlicher Arbeitstage-Teiler</td>
+              <td>13 Wochen × Arbeitstage/Woche (§ 11 Abs. 1 BUrlG)</td>
+              <td id="tblDivisor" style="font-weight:700;">65 Arbeitstage</td>
+            </tr>
+            <tr>
+              <td><strong>Exakter § 11 BUrlG Urlaubstagessatz</strong></td>
+              <td><strong>13-Wochen-Verdienst ÷ Arbeitstage-Teiler</strong></td>
+              <td id="tblExactDaily" style="font-weight:800; color:#34d399; font-size:15px;">300,00 € / Tag</td>
+            </tr>
+            <tr>
+              <td>Häufiger Arbeitgeber-Rechenfehler („Monatsgehalt ÷ 30“)</td>
+              <td>Unzulässige Kalendertags-Division ohne Variable</td>
+              <td id="tblNaiveDaily" style="color:#f87171;">193,33 € / Tag</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div style="margin-top: 16px;">
+          <ul class="pillar-list">
+            <li>
+              <strong>Säule 1 — 85%-Fehlerquote bei Arbeitgeber-Warnhinweisen (BAG 9 AZR 541/15 Rz. 42 &amp; 9 AZR 266/20):</strong>
+              Weder der Ausweis des Resturlaubs auf der Lohnabrechnung noch pauschale Intranet-/Handbuch-Klauseln genügen!
+              Ohne individuellen Warnhinweis in Textform zu Jahresbeginn (exakte Tage + Aufforderung + Verfallswarnung) gibt es
+              <strong>weder einen Verfall am 31.12./31.03. noch eine 3-jährige Verjährung nach § 195 BGB</strong>.
+            </li>
+            <li>
+              <strong>Säule 2 — Langzeiterkrankung &amp; 15-Monats-Ausnahme (BAG 9 AZR 245/19):</strong>
+              Hat der/die Arbeitnehmer:in im Urlaubsjahr auch nur wenige Wochen/Monate gearbeitet, bevor die Langzeiterkrankung eintrat,
+              verfällt der Urlaub dieses Jahres <strong>selbst nach Ablauf von 15 Monaten (31.03. des übernächsten Jahres) NICHT</strong>,
+              sofern der Arbeitgeber vor Krankheitsbeginn keinen formgerechten Warnhinweis erteilt hat!
+            </li>
+            <li>
+              <strong>Säule 3 — Tilgungsreihenfolge (§ 366 Abs. 2 BGB analog) &amp; Tatsachenvergleich (BAG 9 AZR 104/24):</strong>
+              Genommene Urlaubstage tilgen zuerst den gesetzlichen Mindesturlaub (20 d), sodass selbst bei Differenzierungsklausel
+              bei unterjähriger Krankheit zuerst der geschützte Mindesturlaub offenbleibt. Pauschale Klauseln „Urlaub in Natur gewährt“
+              sind bei nachweisbarer Krankheit nach § 13 Abs. 1 S. 3 BUrlG i.V.m. § 134 BGB nichtig.
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>
+        <span>3. Mehrjahres-Urlaubskonto &amp; Mitwirkungsobliegenheits-Prüfung (2022–2026)</span>
+        <span class="badge amber">Tilgungsbestimmung: Genommene Tage tilgen zuerst gesetzlichen Mindesturlaub</span>
+      </h2>
+      <div style="overflow-x:auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>Urlaubsjahr</th>
+              <th>Vertragsurlaub (Tage)</th>
+              <th>Genommen (in Natur)</th>
+              <th>Arbeitgeber-Warnhinweis im Januar (BAG 9 AZR 541/15)</th>
+              <th>Krankheits-Profil (BAG 9 AZR 245/19)</th>
+              <th>Offen Gesetzl. / Mehrurlaub</th>
+              <th>Überlebende Tage (§ 7 BUrlG)</th>
+              <th>Rechtsgrund &amp; Verjährungsschutz</th>
+              <th>Abgeltung (€)</th>
+            </tr>
+          </thead>
+          <tbody id="multiYearBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div id="cardEmployeeGenerator" class="card">
+      <h2>
+        <span>4. Modus A — Beziffertes § 7 Abs. 4 BUrlG Urlaubsabgeltungs-Anspruchsschreiben (Ausschlussfristen-sicher)</span>
+        <button onclick="copyText('txtEmployeeClaim')">📋 Anspruchsschreiben kopieren</button>
+      </h2>
+      <p style="font-size:13px; color:var(--muted); margin-top:0;">
+        Sofort versandfertiges Aufforderungsschreiben in Textform (§ 126b BGB) zur Wahrung tarif-/arbeitsvertraglicher Ausschlussfristen
+        inkl. exakter § 11 BUrlG 13-Wochen-Berechnung und Zitierung von BAG 9 AZR 541/15, 9 AZR 266/20, 9 AZR 245/19 &amp; 9 AZR 104/24.
+      </p>
+      <textarea id="txtEmployeeClaim" readonly></textarea>
+    </div>
+
+    <div id="cardHRGenerator" class="card hidden">
+      <h2>
+        <span>4. Modus B — Rechtssicherer HR-Individual-Warnhinweis nach BAG 9 AZR 541/15 (Rz. 42) &amp; Vertragsklausel</span>
+        <button onclick="copyText('txtHRWarning')">📋 HR-Hinweisschreiben kopieren</button>
+      </h2>
+      <p style="font-size:13px; color:var(--muted); margin-top:0;">
+        Erfüllt alle 3 zwingenden BAG-Kriterien (individuelle Bezifferung + formelle Aufforderung + unmissverständliche Verfallsbelehrung)
+        inkl. Empfangsbekenntnis und Muster-Differenzierungsklausel für den vertraglichen Mehrurlaub.
+      </p>
+      <textarea id="txtHRWarning" readonly></textarea>
+    </div>
+  </main>
+
+  <script>
+    const MANIFEST = {"mvp_id": "MVP_149", "title": "DACH § 7 Abs. 3 & 4 BUrlG & EuGH C-684/16 / BAG 9 AZR 541/15 & 9 AZR 266/20 Urlaubs-Verfalls-Abwehr, Langzeiterkrankungs-15-Monats-Regel (BAG 9 AZR 245/19) & § 11 BUrlG Urlaubsabgeltungs-Rechner", "legal_pillars": {"pillar_1_non_forfeiture_and_non_limitation": {"statutes": ["§ 1 BUrlG", "§ 3 Abs. 1 BUrlG", "§ 7 Abs. 3 & 4 BUrlG", "§§ 195, 199 BGB"], "rulings": ["EuGH, Urt. v. 06.11.2018 – C-684/16 (Max-Planck / Shimizu)", "BAG, Urt. v. 19.02.2019 – 9 AZR 541/15 (Mitwirkungsobliegenheit & Rz. 42 Anforderungen)", "BAG, Urt. v. 20.12.2022 – 9 AZR 266/20 (EuGH C-120/21: Keine § 195 BGB Verjährung ohne Warnhinweis)"], "core_rule": "0% forfeiture on Dec 31 / March 31 and 0% 3-year § 195 BGB limitation unless the employer proves an individual, transparent text-form warning at the beginning of the vacation year stating exact open days, formally requesting the employee to take them, and warning of forfeiture.", "contractual_extra_vacation_rule": "Contractual extra vacation (Mehrurlaub) follows the exact same non-forfeiture regime unless the employment contract contains a clear, transparent differentiation clause (Gleichlauf-Grundsatz)."}, "pillar_2_long_term_sickness_15_month_carveout": {"rulings": ["BAG, Urt. v. 20.12.2022 / 31.01.2023 – 9 AZR 245/19 (EuGH C-518/20 & C-727/20: Kein 15-Monats-Verfall bei unterjähriger Erkrankung ohne vorherigen Warnhinweis)"], "core_rule": "While vacation from a calendar year of continuous full-year sickness expires 15 months after the end of the vacation year (March 31 of the second following year), vacation from a year in which the employee actually worked part of the year before falling sick NEVER expires even after 15 months if the employer failed to issue the Mitwirkungsobliegenheit warning before the sickness began."}, "pillar_3_cash_payout_formula_and_settlement_trap": {"statutes": ["§ 7 Abs. 4 BUrlG", "§ 11 Abs. 1 BUrlG", "§ 13 Abs. 1 S. 3 BUrlG", "§ 134 BGB"], "rulings": ["BAG, Urt. v. 03.06.2025 – 9 AZR 104/24 (Unwirksamkeit pauschaler 'Urlaub in Natur gewährt'-Tatsachenvergleiche nach § 13 Abs. 1 S. 3 BUrlG i.V.m. § 134 BGB)"], "formula": "Urlaubsabgeltung = ((Fixed Monthly Gross + Avg Variable Commissions/Allowances) * 3 Months [13 Weeks]) / (13 * Workdays_Per_Week [65 at 5-day week]) * Open Surviving Vacation Days", "settlement_trap_rule": "Boilerplate clauses in termination/settlement agreements stating 'Urlaub wurde in Natur gewährt' (Tatsachenvergleich) are void under § 13 Abs. 1 S. 3 BUrlG i.V.m. § 134 BGB when there was no genuine factual uncertainty (BAG, Urt. v. 03.06.2025 – 9 AZR 104/24)."}}, "warning_defect_catalog": [{"code": "NO_WARNING_AT_ALL", "label": "Kein jährlicher Hinweis erfolgt (Schweigen des Arbeitgebers)", "is_valid_warning": false, "legal_defect": "Vollständiges Fehlen der Initiativlast (BAG 9 AZR 541/15 & 9 AZR 266/20): 0 % Verfall am 31.12./31.03. und 0 % Verjährungsbeginn nach §§ 195, 199 BGB."}, {"code": "PAYSLIP_BALANCE_ONLY", "label": "Resturlaub nur auf monatlicher Lohn-/Gehaltsabrechnung ausgewiesen", "is_valid_warning": false, "legal_defect": "Unwirksam (BAG 9 AZR 541/15 Rz. 42): Reine Ausweisung auf der Lohnabrechnung enthält weder eine formelle Aufforderung zur Urlaubsnahme noch eine unmissverständliche Verfallsbelehrung."}, {"code": "GENERIC_INTRANET_OR_HANDBOOK", "label": "Pauschale Rundmail / Intranet-Notiz / Aushang ohne konkreten individuellen Resturlaubsstand", "is_valid_warning": false, "legal_defect": "Unwirksam (BAG 9 AZR 541/15 Rz. 42): Abstrakte Angaben im Arbeitsvertrag, Merkblatt oder Kollektiv-Rundschreiben genügen der individuellen Transparenzpflicht nicht."}, {"code": "WARNING_WITHOUT_EXACT_DAYS_OR_CONSEQUENCE", "label": "Individuelles Schreiben ohne exakte Bezifferung der Urlaubstage oder ohne klaren Verfallshinweis", "is_valid_warning": false, "legal_defect": "Unwirksam: Arbeitgeber muss (1) exakte Anzahl offener Tage beziffern, (2) zur rechtzeitigen Beantragung auffordern und (3) unmissverständlich warnen, dass der Urlaub sonst ersatzlos verfällt."}, {"code": "VALID_INDIVIDUAL_TEXTFORM_WARNING", "label": "Formgerechter individueller Warnhinweis in Textform zu Jahresbeginn (alle 3 BAG-Kriterien erfüllt)", "is_valid_warning": true, "legal_defect": "Wirksame Erfüllung der Mitwirkungsobliegenheit: Gesetzlicher und vertraglicher Urlaub verfällt regulär zum 31.12. bzw. 31.03. (sofern keine Arbeitsunfähigkeit entgegenstand)."}], "benchmark_scenarios": {"scenario_1_multi_year_non_forfeiture": {"monthly_gross_fixed_eur": 5800.0, "avg_monthly_variable_bonus_commissions_eur": 700.0, "avg_monthly_overtime_pay_excluded_eur": 450.0, "workdays_per_week": 5, "has_explicit_mehrurlaub_differentiation_clause": false, "settlement_clause_type": "NONE", "contractual_ausschlussfrist_months": 3, "evaluation_year": 2026, "reference_13_weeks_earnings_eur": 19500.0, "reference_workdays_divisor": 65, "daily_vacation_rate_eur": 300.0, "naive_monthly_div_30_daily_rate_eur": 193.33, "daily_rate_uplift_vs_naive_eur": 106.67, "year_results": [{"year": 2022, "statutory_entitlement_days": 20.0, "contractual_extra_entitlement_days": 10.0, "days_taken_FirstIn_Statutory": 20.0, "days_taken_Contractual": 2.0, "open_statutory_days_raw": 0.0, "open_contractual_extra_days_raw": 8.0, "warning_valid": false, "sickness_profile": "NONE_OR_SHORT", "statutory_days_surviving": 0.0, "contractual_extra_days_surviving": 8.0, "total_days_surviving": 8.0, "forfeiture_shield_reason": "0 % Verfall nach § 7 Abs. 3 BUrlG (BAG 9 AZR 541/15 / EuGH C-684/16): Mangels individueller, transparenter Aufforderung und Verfallswarnung zu Jahresbeginn ist der Urlaub automatisch zum Jahresende übertragen worden. | Gleichlauf für vertraglichen Mehrurlaub: Mangels deutlicher Differenzierungsklausel im Arbeitsvertrag gilt die BAG-Mitwirkungsobliegenheit identisch für alle Mehrurlaubstage!", "limitation_shield_reason": "0 % Verjährung trotz 4 Jahren Rückstand (BAG 9 AZR 266/20): Die 3-jährige Verjährungsfrist (§§ 195, 199 BGB) beginnt erst am Jahresende eines formgerechten Warnhinweises zu laufen!", "cash_payout_eur": 2400.0}, {"year": 2023, "statutory_entitlement_days": 20.0, "contractual_extra_entitlement_days": 10.0, "days_taken_FirstIn_Statutory": 20.0, "days_taken_Contractual": 0.0, "open_statutory_days_raw": 0.0, "open_contractual_extra_days_raw": 10.0, "warning_valid": false, "sickness_profile": "NONE_OR_SHORT", "statutory_days_surviving": 0.0, "contractual_extra_days_surviving": 10.0, "total_days_surviving": 10.0, "forfeiture_shield_reason": "0 % Verfall nach § 7 Abs. 3 BUrlG (BAG 9 AZR 541/15 / EuGH C-684/16): Mangels individueller, transparenter Aufforderung und Verfallswarnung zu Jahresbeginn ist der Urlaub automatisch zum Jahresende übertragen worden. | Gleichlauf für vertraglichen Mehrurlaub: Mangels deutlicher Differenzierungsklausel im Arbeitsvertrag gilt die BAG-Mitwirkungsobliegenheit identisch für alle Mehrurlaubstage!", "limitation_shield_reason": "0 % Verjährung trotz 3 Jahren Rückstand (BAG 9 AZR 266/20): Die 3-jährige Verjährungsfrist (§§ 195, 199 BGB) beginnt erst am Jahresende eines formgerechten Warnhinweises zu laufen!", "cash_payout_eur": 3000.0}, {"year": 2024, "statutory_entitlement_days": 20.0, "contractual_extra_entitlement_days": 10.0, "days_taken_FirstIn_Statutory": 20.0, "days_taken_Contractual": 4.0, "open_statutory_days_raw": 0.0, "open_contractual_extra_days_raw": 6.0, "warning_valid": false, "sickness_profile": "NONE_OR_SHORT", "statutory_days_surviving": 0.0, "contractual_extra_days_surviving": 6.0, "total_days_surviving": 6.0, "forfeiture_shield_reason": "0 % Verfall nach § 7 Abs. 3 BUrlG (BAG 9 AZR 541/15 / EuGH C-684/16): Mangels individueller, transparenter Aufforderung und Verfallswarnung zu Jahresbeginn ist der Urlaub automatisch zum Jahresende übertragen worden. | Gleichlauf für vertraglichen Mehrurlaub: Mangels deutlicher Differenzierungsklausel im Arbeitsvertrag gilt die BAG-Mitwirkungsobliegenheit identisch für alle Mehrurlaubstage!", "limitation_shield_reason": "0 % Verjährung trotz 2 Jahren Rückstand (BAG 9 AZR 266/20): Die 3-jährige Verjährungsfrist (§§ 195, 199 BGB) beginnt erst am Jahresende eines formgerechten Warnhinweises zu laufen!", "cash_payout_eur": 1800.0}, {"year": 2025, "statutory_entitlement_days": 20.0, "contractual_extra_entitlement_days": 10.0, "days_taken_FirstIn_Statutory": 18.0, "days_taken_Contractual": 0.0, "open_statutory_days_raw": 2.0, "open_contractual_extra_days_raw": 10.0, "warning_valid": false, "sickness_profile": "NONE_OR_SHORT", "statutory_days_surviving": 2.0, "contractual_extra_days_surviving": 10.0, "total_days_surviving": 12.0, "forfeiture_shield_reason": "0 % Verfall nach § 7 Abs. 3 BUrlG (BAG 9 AZR 541/15 / EuGH C-684/16): Mangels individueller, transparenter Aufforderung und Verfallswarnung zu Jahresbeginn ist der Urlaub automatisch zum Jahresende übertragen worden. | Gleichlauf für vertraglichen Mehrurlaub: Mangels deutlicher Differenzierungsklausel im Arbeitsvertrag gilt die BAG-Mitwirkungsobliegenheit identisch für alle Mehrurlaubstage!", "limitation_shield_reason": "0 % Verjährung trotz 1 Jahren Rückstand (BAG 9 AZR 266/20): Die 3-jährige Verjährungsfrist (§§ 195, 199 BGB) beginnt erst am Jahresende eines formgerechten Warnhinweises zu laufen!", "cash_payout_eur": 3600.0}, {"year": 2026, "statutory_entitlement_days": 20.0, "contractual_extra_entitlement_days": 10.0, "days_taken_FirstIn_Statutory": 15.0, "days_taken_Contractual": 0.0, "open_statutory_days_raw": 5.0, "open_contractual_extra_days_raw": 10.0, "warning_valid": false, "sickness_profile": "NONE_OR_SHORT", "statutory_days_surviving": 5.0, "contractual_extra_days_surviving": 10.0, "total_days_surviving": 15.0, "forfeiture_shield_reason": "Laufendes Austrittsjahr (§ 7 Abs. 4 BUrlG): Offener Urlaub im Beendigungsjahr ist zwingend in Geld abzugelten (bei Ausscheiden nach dem 30.06. voller Jahresanspruch nach § 4 BUrlG).", "limitation_shield_reason": "Keine Verjährung (Fälligkeit der Urlaubsabgeltung entsteht erst mit Beendigung des Arbeitsverhältnisses).", "cash_payout_eur": 4500.0}], "total_surviving_statutory_days": 7.0, "total_surviving_contractual_extra_days": 44.0, "total_surviving_days": 51.0, "total_forfeited_days": 0.0, "gross_statutory_payout_eur": 2100.0, "gross_contractual_extra_payout_eur": 13200.0, "total_gross_urlaubsabgeltung_eur": 15300.0, "employer_falsely_claimed_forfeited_eur": 10800.0, "settlement_clause_valid": false, "settlement_legal_analysis": "Kein wirksamer Verzicht möglich (§ 13 Abs. 1 S. 3 BUrlG): Der gesetzliche Mindesturlaub und dessen Abgeltung sind im laufenden Arbeitsverhältnis unabdingbar; allgemeine Ausgleichsklauseln ohne echte Gegenleistung greifen für den Mindesturlaub nicht.", "ausschlussfrist_warning": "ACHTUNG AUSSCHLUSSFRIST (3 Monate nach BAG 9 AZR 45/19): Während der Urlaubsanspruch im laufenden Arbeitsverhältnis NICHT verfällt, wandelt er sich am rechtlichen Beendigungstag (§ 7 Abs. 4 BUrlG) in einen reinen Geldanspruch (Urlaubsabgeltung) um! Dieser Geldanspruch unterliegt arbeits-/tarifvertraglichen Ausschlussfristen (meist 3 Monate ab Beendigung) und muss daher SOFORT nach Austritt in Textform beziffert geltend gemacht werden!"}, "scenario_2_langzeiterkrankung_245_19": {"monthly_gross_fixed_eur": 4550.0, "avg_monthly_variable_bonus_commissions_eur": 0.0, "avg_monthly_overtime_pay_excluded_eur": 0.0, "workdays_per_week": 5, "has_explicit_mehrurlaub_differentiation_clause": true, "settlement_clause_type": "BOILERPLATE_IN_NATURA_DURING_SICKNESS", "contractual_ausschlussfrist_months": 3, "evaluation_year": 2026, "reference_13_weeks_earnings_eur": 13650.0, "reference_workdays_divisor": 65, "daily_vacation_rate_eur": 210.0, "naive_monthly_div_30_daily_rate_eur": 151.67, "daily_rate_uplift_vs_naive_eur": 58.33, "year_results": [{"year": 2023, "statutory_entitlement_days": 20.0, "contractual_extra_entitlement_days": 10.0, "days_taken_FirstIn_Statutory": 14.0, "days_taken_Contractual": 0.0, "open_statutory_days_raw": 6.0, "open_contractual_extra_days_raw": 10.0, "warning_valid": false, "sickness_profile": "FULL_YEAR_CONTINUOUSLY_SICK", "statutory_days_surviving": 0.0, "contractual_extra_days_surviving": 0.0, "total_days_surviving": 0.0, "forfeiture_shield_reason": "Verfall nach 15 Monaten zum 31.03. des übernächsten Jahres (BAG 9 AZR 245/19 Fall A): Da durchgehend ab 01.01. das gesamte Urlaubsjahr arbeitsunfähig, hätte auch ein Arbeitgeber-Warnhinweis keine Urlaubsnahme ermöglicht (Kausalitätsausnahme). | ABER: Vertraglicher Mehrurlaub verfällt aufgrund wirksamer vertraglicher Differenzierungsklausel.", "limitation_shield_reason": "Bereits nach 15-Monats-Frist erloschen (EuGH C-214/10 KHS / BAG 9 AZR 245/19).", "cash_payout_eur": 0.0}, {"year": 2024, "statutory_entitlement_days": 20.0, "contractual_extra_entitlement_days": 10.0, "days_taken_FirstIn_Statutory": 5.0, "days_taken_Contractual": 0.0, "open_statutory_days_raw": 15.0, "open_contractual_extra_days_raw": 10.0, "warning_valid": false, "sickness_profile": "PARTIAL_YEAR_WORKED_THEN_SICK", "statutory_days_surviving": 15.0, "contractual_extra_days_surviving": 0.0, "total_days_surviving": 15.0, "forfeiture_shield_reason": "KEIN 15-Monats-Verfall (BAG 9 AZR 245/19 / EuGH C-518/20 Carve-Out!): Da im Urlaubsjahr vor Erkrankung tatsächlich gearbeitet wurde und der Arbeitgeber vor Krankheitsbeginn KEINEN formgerechten Warnhinweis erteilt hat, bleibt der Urlaub aus diesem Jahr zeitlich unbegrenzt (auch über 15 Monate hinaus!) erhalten. | ABER: Vertraglicher Mehrurlaub verfällt aufgrund wirksamer vertraglicher Differenzierungsklausel.", "limitation_shield_reason": "KEINE 3-Jahres-Verjährung nach § 195 BGB (BAG 9 AZR 266/20): Verjährungsfrist (§ 199 Abs. 1 BGB) hat mangels Mitwirkungsobliegenheit nie begonnen!", "cash_payout_eur": 3150.0}, {"year": 2025, "statutory_entitlement_days": 20.0, "contractual_extra_entitlement_days": 10.0, "days_taken_FirstIn_Statutory": 0.0, "days_taken_Contractual": 0.0, "open_statutory_days_raw": 20.0, "open_contractual_extra_days_raw": 10.0, "warning_valid": false, "sickness_profile": "FULL_YEAR_CONTINUOUSLY_SICK", "statutory_days_surviving": 20.0, "contractual_extra_days_surviving": 0.0, "total_days_surviving": 20.0, "forfeiture_shield_reason": "Noch innerhalb des 15-Monats-Übertragungszeitraums bei durchgehender Langzeiterkrankung (verfällt erst am 31.03.2027). | ABER: Vertraglicher Mehrurlaub verfällt aufgrund wirksamer vertraglicher Differenzierungsklausel.", "limitation_shield_reason": "Innerhalb der 15-Monats-Frist voll geschützt.", "cash_payout_eur": 4200.0}, {"year": 2026, "statutory_entitlement_days": 20.0, "contractual_extra_entitlement_days": 10.0, "days_taken_FirstIn_Statutory": 0.0, "days_taken_Contractual": 0.0, "open_statutory_days_raw": 20.0, "open_contractual_extra_days_raw": 10.0, "warning_valid": false, "sickness_profile": "FULL_YEAR_CONTINUOUSLY_SICK", "statutory_days_surviving": 20.0, "contractual_extra_days_surviving": 10.0, "total_days_surviving": 30.0, "forfeiture_shield_reason": "Laufendes Austrittsjahr (§ 7 Abs. 4 BUrlG): Offener Urlaub im Beendigungsjahr ist zwingend in Geld abzugelten (bei Ausscheiden nach dem 30.06. voller Jahresanspruch nach § 4 BUrlG).", "limitation_shield_reason": "Keine Verjährung (Fälligkeit der Urlaubsabgeltung entsteht erst mit Beendigung des Arbeitsverhältnisses).", "cash_payout_eur": 6300.0}], "total_surviving_statutory_days": 55.0, "total_surviving_contractual_extra_days": 10.0, "total_surviving_days": 65.0, "total_forfeited_days": 36.0, "gross_statutory_payout_eur": 11550.0, "gross_contractual_extra_payout_eur": 2100.0, "total_gross_urlaubsabgeltung_eur": 13650.0, "employer_falsely_claimed_forfeited_eur": 7350.0, "settlement_clause_valid": false, "settlement_legal_analysis": "UNWIRKSAM nach § 13 Abs. 1 S. 3 BUrlG i.V.m. § 134 BGB (BAG, Urt. v. 03.06.2025 – 9 AZR 104/24): Die Klausel 'Urlaub wurde in Natur gewährt' im Aufhebungsvertrag/Vergleich ist ein unzulässiger Schein-Tatsachenvergleich, wenn wegen Arbeitsunfähigkeit oder klarer Zeiterfassung gar keine tatsächliche Ungewissheit bestand. Der volle Urlaubsabgeltungsanspruch bleibt bestehen!", "ausschlussfrist_warning": "ACHTUNG AUSSCHLUSSFRIST (3 Monate nach BAG 9 AZR 45/19): Während der Urlaubsanspruch im laufenden Arbeitsverhältnis NICHT verfällt, wandelt er sich am rechtlichen Beendigungstag (§ 7 Abs. 4 BUrlG) in einen reinen Geldanspruch (Urlaubsabgeltung) um! Dieser Geldanspruch unterliegt arbeits-/tarifvertraglichen Ausschlussfristen (meist 3 Monate ab Beendigung) und muss daher SOFORT nach Austritt in Textform beziffert geltend gemacht werden!"}, "scenario_3_hr_compliant_warning": {"monthly_gross_fixed_eur": 5800.0, "avg_monthly_variable_bonus_commissions_eur": 700.0, "avg_monthly_overtime_pay_excluded_eur": 0.0, "workdays_per_week": 5, "has_explicit_mehrurlaub_differentiation_clause": true, "settlement_clause_type": "NONE", "contractual_ausschlussfrist_months": 3, "evaluation_year": 2026, "reference_13_weeks_earnings_eur": 19500.0, "reference_workdays_divisor": 65, "daily_vacation_rate_eur": 300.0, "naive_monthly_div_30_daily_rate_eur": 193.33, "daily_rate_uplift_vs_naive_eur": 106.67, "year_results": [{"year": 2023, "statutory_entitlement_days": 20.0, "contractual_extra_entitlement_days": 10.0, "days_taken_FirstIn_Statutory": 20.0, "days_taken_Contractual": 2.0, "open_statutory_days_raw": 0.0, "open_contractual_extra_days_raw": 8.0, "warning_valid": true, "sickness_profile": "NONE_OR_SHORT", "statutory_days_surviving": 0.0, "contractual_extra_days_surviving": 0.0, "total_days_surviving": 0.0, "forfeiture_shield_reason": "Regulärer Verfall nach § 7 Abs. 3 BUrlG: Arbeitgeber hat die formelle Mitwirkungsobliegenheit (BAG 9 AZR 541/15 Rz. 42) nachweislich erfüllt. | ABER: Vertraglicher Mehrurlaub verfällt aufgrund wirksamer vertraglicher Differenzierungsklausel.", "limitation_shield_reason": "Anspruch bereits mit Ablauf des Urlaubsjahres/Übertragungszeitraums untergegangen.", "cash_payout_eur": 0.0}, {"year": 2024, "statutory_entitlement_days": 20.0, "contractual_extra_entitlement_days": 10.0, "days_taken_FirstIn_Statutory": 20.0, "days_taken_Contractual": 5.0, "open_statutory_days_raw": 0.0, "open_contractual_extra_days_raw": 5.0, "warning_valid": true, "sickness_profile": "NONE_OR_SHORT", "statutory_days_surviving": 0.0, "contractual_extra_days_surviving": 0.0, "total_days_surviving": 0.0, "forfeiture_shield_reason": "Regulärer Verfall nach § 7 Abs. 3 BUrlG: Arbeitgeber hat die formelle Mitwirkungsobliegenheit (BAG 9 AZR 541/15 Rz. 42) nachweislich erfüllt. | ABER: Vertraglicher Mehrurlaub verfällt aufgrund wirksamer vertraglicher Differenzierungsklausel.", "limitation_shield_reason": "Anspruch bereits mit Ablauf des Urlaubsjahres/Übertragungszeitraums untergegangen.", "cash_payout_eur": 0.0}, {"year": 2025, "statutory_entitlement_days": 20.0, "contractual_extra_entitlement_days": 10.0, "days_taken_FirstIn_Statutory": 20.0, "days_taken_Contractual": 4.0, "open_statutory_days_raw": 0.0, "open_contractual_extra_days_raw": 6.0, "warning_valid": true, "sickness_profile": "NONE_OR_SHORT", "statutory_days_surviving": 0.0, "contractual_extra_days_surviving": 0.0, "total_days_surviving": 0.0, "forfeiture_shield_reason": "Regulärer Verfall nach § 7 Abs. 3 BUrlG: Arbeitgeber hat die formelle Mitwirkungsobliegenheit (BAG 9 AZR 541/15 Rz. 42) nachweislich erfüllt. | ABER: Vertraglicher Mehrurlaub verfällt aufgrund wirksamer vertraglicher Differenzierungsklausel.", "limitation_shield_reason": "Anspruch bereits mit Ablauf des Urlaubsjahres/Übertragungszeitraums untergegangen.", "cash_payout_eur": 0.0}, {"year": 2026, "statutory_entitlement_days": 20.0, "contractual_extra_entitlement_days": 10.0, "days_taken_FirstIn_Statutory": 20.0, "days_taken_Contractual": 0.0, "open_statutory_days_raw": 0.0, "open_contractual_extra_days_raw": 10.0, "warning_valid": true, "sickness_profile": "NONE_OR_SHORT", "statutory_days_surviving": 0.0, "contractual_extra_days_surviving": 10.0, "total_days_surviving": 10.0, "forfeiture_shield_reason": "Laufendes Austrittsjahr (§ 7 Abs. 4 BUrlG): Offener Urlaub im Beendigungsjahr ist zwingend in Geld abzugelten (bei Ausscheiden nach dem 30.06. voller Jahresanspruch nach § 4 BUrlG).", "limitation_shield_reason": "Keine Verjährung (Fälligkeit der Urlaubsabgeltung entsteht erst mit Beendigung des Arbeitsverhältnisses).", "cash_payout_eur": 3000.0}], "total_surviving_statutory_days": 0.0, "total_surviving_contractual_extra_days": 10.0, "total_surviving_days": 10.0, "total_forfeited_days": 19.0, "gross_statutory_payout_eur": 0.0, "gross_contractual_extra_payout_eur": 3000.0, "total_gross_urlaubsabgeltung_eur": 3000.0, "employer_falsely_claimed_forfeited_eur": 0.0, "settlement_clause_valid": false, "settlement_legal_analysis": "Kein wirksamer Verzicht möglich (§ 13 Abs. 1 S. 3 BUrlG): Der gesetzliche Mindesturlaub und dessen Abgeltung sind im laufenden Arbeitsverhältnis unabdingbar; allgemeine Ausgleichsklauseln ohne echte Gegenleistung greifen für den Mindesturlaub nicht.", "ausschlussfrist_warning": "ACHTUNG AUSSCHLUSSFRIST (3 Monate nach BAG 9 AZR 45/19): Während der Urlaubsanspruch im laufenden Arbeitsverhältnis NICHT verfällt, wandelt er sich am rechtlichen Beendigungstag (§ 7 Abs. 4 BUrlG) in einen reinen Geldanspruch (Urlaubsabgeltung) um! Dieser Geldanspruch unterliegt arbeits-/tarifvertraglichen Ausschlussfristen (meist 3 Monate ab Beendigung) und muss daher SOFORT nach Austritt in Textform beziffert geltend gemacht werden!"}}};
+
+    let currentMode = 'employee';
+    let rowsState = [];
+
+    const WARNING_OPTIONS = [
+      { code: 'NO_WARNING_AT_ALL', label: '❌ Kein jährlicher Hinweis erfolgt (Schweigen)' },
+      { code: 'PAYSLIP_BALANCE_ONLY', label: '❌ Nur auf Lohnabrechnung ausgewiesen (BAG Rz. 42 unwirksam!)' },
+      { code: 'GENERIC_INTRANET_OR_HANDBOOK', label: '❌ Pauschale Rundmail / Intranet / Merkblatt (unwirksam!)' },
+      { code: 'WARNING_WITHOUT_EXACT_DAYS_OR_CONSEQUENCE', label: '❌ Schreiben ohne exakte Tage / ohne Verfallswarnung (unwirksam!)' },
+      { code: 'VALID_INDIVIDUAL_TEXTFORM_WARNING', label: '✅ Formgerechter individueller Warnhinweis in Textform (alle 3 Kriterien)' }
+    ];
+
+    const SICKNESS_OPTIONS = [
+      { code: 'NONE_OR_SHORT', label: 'Regulär gearbeitet (keine Langzeiterkrankung)' },
+      { code: 'PARTIAL_YEAR_WORKED_THEN_SICK', label: 'Unterjährig gearbeitet -> dann langzeitkrank (BAG 9 AZR 245/19 Carve-Out!)' },
+      { code: 'FULL_YEAR_CONTINUOUSLY_SICK', label: 'Durchgehend ab 01.01. das gesamte Jahr krank (15-Monats-Regel)' }
+    ];
+
+    function fmtEUR(val) {
+      return val.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
+    }
+
+    function fmtDays(val) {
+      return val.toLocaleString('de-DE', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + ' d';
+    }
+
+    function switchMode(mode) {
+      currentMode = mode;
+      document.getElementById('btnModeEmployee').classList.toggle('active', mode === 'employee');
+      document.getElementById('btnModeHR').classList.toggle('active', mode === 'hr');
+      document.getElementById('cardEmployeeGenerator').classList.toggle('hidden', mode !== 'employee');
+      document.getElementById('cardHRGenerator').classList.toggle('hidden', mode !== 'hr');
+    }
+
+    function loadPreset(num) {
+      document.getElementById('btnPreset1').classList.toggle('active', num === 1);
+      document.getElementById('btnPreset2').classList.toggle('active', num === 2);
+      document.getElementById('btnPreset3').classList.toggle('active', num === 3);
+
+      if (num === 1) {
+        document.getElementById('inpFixedGross').value = 5800;
+        document.getElementById('inpVariableGross').value = 700;
+        document.getElementById('inpOvertimeExcluded').value = 450;
+        document.getElementById('inpWorkdaysWeek').value = '5';
+        document.getElementById('inpDiffClause').value = 'false';
+        document.getElementById('inpSettlementTrap').value = 'NONE';
+        document.getElementById('inpAusschlussfrist').value = '3';
+        rowsState = [
+          { year: 2022, contractual: 30, taken: 22, warning: 'PAYSLIP_BALANCE_ONLY', sickness: 'NONE_OR_SHORT', isExit: false },
+          { year: 2023, contractual: 30, taken: 20, warning: 'PAYSLIP_BALANCE_ONLY', sickness: 'NONE_OR_SHORT', isExit: false },
+          { year: 2024, contractual: 30, taken: 24, warning: 'GENERIC_INTRANET_OR_HANDBOOK', sickness: 'NONE_OR_SHORT', isExit: false },
+          { year: 2025, contractual: 30, taken: 18, warning: 'PAYSLIP_BALANCE_ONLY', sickness: 'NONE_OR_SHORT', isExit: false },
+          { year: 2026, contractual: 30, taken: 15, warning: 'PAYSLIP_BALANCE_ONLY', sickness: 'NONE_OR_SHORT', isExit: true }
+        ];
+      } else if (num === 2) {
+        document.getElementById('inpFixedGross').value = 4550;
+        document.getElementById('inpVariableGross').value = 0;
+        document.getElementById('inpOvertimeExcluded').value = 0;
+        document.getElementById('inpWorkdaysWeek').value = '5';
+        document.getElementById('inpDiffClause').value = 'true';
+        document.getElementById('inpSettlementTrap').value = 'BOILERPLATE_IN_NATURA_DURING_SICKNESS';
+        document.getElementById('inpAusschlussfrist').value = '3';
+        rowsState = [
+          { year: 2023, contractual: 30, taken: 14, warning: 'NO_WARNING_AT_ALL', sickness: 'FULL_YEAR_CONTINUOUSLY_SICK', isExit: false },
+          { year: 2024, contractual: 30, taken: 5, warning: 'NO_WARNING_AT_ALL', sickness: 'PARTIAL_YEAR_WORKED_THEN_SICK', isExit: false },
+          { year: 2025, contractual: 30, taken: 0, warning: 'NO_WARNING_AT_ALL', sickness: 'FULL_YEAR_CONTINUOUSLY_SICK', isExit: false },
+          { year: 2026, contractual: 30, taken: 0, warning: 'NO_WARNING_AT_ALL', sickness: 'FULL_YEAR_CONTINUOUSLY_SICK', isExit: true }
+        ];
+      } else {
+        document.getElementById('inpFixedGross').value = 5800;
+        document.getElementById('inpVariableGross').value = 700;
+        document.getElementById('inpOvertimeExcluded').value = 0;
+        document.getElementById('inpWorkdaysWeek').value = '5';
+        document.getElementById('inpDiffClause').value = 'true';
+        document.getElementById('inpSettlementTrap').value = 'NONE';
+        document.getElementById('inpAusschlussfrist').value = '3';
+        rowsState = [
+          { year: 2023, contractual: 30, taken: 22, warning: 'VALID_INDIVIDUAL_TEXTFORM_WARNING', sickness: 'NONE_OR_SHORT', isExit: false },
+          { year: 2024, contractual: 30, taken: 25, warning: 'VALID_INDIVIDUAL_TEXTFORM_WARNING', sickness: 'NONE_OR_SHORT', isExit: false },
+          { year: 2025, contractual: 30, taken: 24, warning: 'VALID_INDIVIDUAL_TEXTFORM_WARNING', sickness: 'NONE_OR_SHORT', isExit: false },
+          { year: 2026, contractual: 30, taken: 20, warning: 'VALID_INDIVIDUAL_TEXTFORM_WARNING', sickness: 'NONE_OR_SHORT', isExit: true }
+        ];
+      }
+      renderRows();
+      recalc();
+    }
+
+    function renderRows() {
+      const tbody = document.getElementById('multiYearBody');
+      tbody.innerHTML = '';
+      rowsState.forEach((r, idx) => {
+        const tr = document.createElement('tr');
+        const warnSelect = WARNING_OPTIONS.map(o =>
+          `<option value="${o.code}" ${r.warning === o.code ? 'selected' : ''}>${o.label}</option>`
+        ).join('');
+        const sickSelect = SICKNESS_OPTIONS.map(o =>
+          `<option value="${o.code}" ${r.sickness === o.code ? 'selected' : ''}>${o.label}</option>`
+        ).join('');
+
+        tr.innerHTML = `
+          <td><strong>${r.year}</strong> ${r.isExit ? '<span class="badge">Austrittsjahr</span>' : ''}</td>
+          <td><input type="number" style="width:74px" value="${r.contractual}" min="0" max="60" step="1" onchange="updateRow(${idx}, 'contractual', this.value)" /></td>
+          <td><input type="number" style="width:74px" value="${r.taken}" min="0" max="60" step="0.5" onchange="updateRow(${idx}, 'taken', this.value)" /></td>
+          <td><select style="width:270px" onchange="updateRow(${idx}, 'warning', this.value)">${warnSelect}</select></td>
+          <td><select style="width:250px" onchange="updateRow(${idx}, 'sickness', this.value)">${sickSelect}</select></td>
+          <td id="cellOpen_${idx}"></td>
+          <td id="cellSurv_${idx}"></td>
+          <td id="cellReason_${idx}" style="font-size:12px; color:#cbd5e1; max-width:290px;"></td>
+          <td id="cellPayout_${idx}" style="font-weight:800;"></td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function updateRow(idx, field, val) {
+      if (field === 'contractual' || field === 'taken') {
+        rowsState[idx][field] = parseFloat(val) || 0;
+      } else {
+        rowsState[idx][field] = val;
+      }
+      recalc();
+    }
+
+    function recalc() {
+      const fixedGross = parseFloat(document.getElementById('inpFixedGross').value) || 0;
+      const varGross = parseFloat(document.getElementById('inpVariableGross').value) || 0;
+      const workdaysWeek = parseInt(document.getElementById('inpWorkdaysWeek').value, 10) || 5;
+      const hasDiffClause = document.getElementById('inpDiffClause').value === 'true';
+      const settlementType = document.getElementById('inpSettlementTrap').value;
+      const ausschlussMonths = parseInt(document.getElementById('inpAusschlussfrist').value, 10) || 0;
+      const empName = document.getElementById('inpEmployeeName').value || 'Alex Beispiel';
+
+      const monthlyRelevant = fixedGross + varGross;
+      const ref13Weeks = Math.round(monthlyRelevant * 3.0 * 100) / 100;
+      const divisor = 13 * workdaysWeek;
+      const dailyRate = Math.round((ref13Weeks / divisor) * 100) / 100;
+      const naiveDaily = Math.round((fixedGross / 30.0) * 100) / 100;
+      const uplift = Math.round((dailyRate - naiveDaily) * 100) / 100;
+
+      const baseStatutory = Math.round(((24.0 / 6.0) * workdaysWeek) * 100) / 100;
+      const evalYear = 2026;
+
+      let totalStatSurv = 0;
+      let totalExtraSurv = 0;
+      let savedPriorEur = 0;
+      let detailLines = [];
+
+      rowsState.forEach((r, idx) => {
+        const statEnt = baseStatutory;
+        const extraEnt = Math.max(0, r.contractual - statEnt);
+        const takenStat = Math.min(statEnt, r.taken);
+        const remTaken = Math.max(0, r.taken - takenStat);
+        const takenExtra = Math.min(extraEnt, remTaken);
+
+        const openStat = Math.max(0, statEnt - takenStat);
+        const openExtra = Math.max(0, extraEnt - takenExtra);
+
+        const warningValid = r.warning === 'VALID_INDIVIDUAL_TEXTFORM_WARNING';
+        const exceeded15m = (evalYear - r.year) >= 2;
+
+        let statSurv = 0;
+        let extraSurv = 0;
+        let reasonText = '';
+
+        if (r.isExit) {
+          statSurv = openStat;
+          extraSurv = openExtra;
+          reasonText = 'Laufendes Austrittsjahr (§ 7 Abs. 4 BUrlG): Volle Abgeltung bei Ausscheiden in 2. Jahreshälfte (§ 4 BUrlG).';
+        } else if (r.sickness === 'FULL_YEAR_CONTINUOUSLY_SICK') {
+          if (exceeded15m) {
+            statSurv = 0;
+            extraSurv = 0;
+            reasonText = 'Verfall nach 15 Monaten zum 31.03.' + (r.year + 2) + ' (BAG 9 AZR 245/19 Fall A: durchgehend ab 01.01. krank).';
+          } else {
+            statSurv = openStat;
+            extraSurv = hasDiffClause ? 0 : openExtra;
+            reasonText = 'Geschützt innerhalb der 15-Monats-Frist (bis 31.03.' + (r.year + 2) + ').' + (hasDiffClause ? ' Mehrurlaub verfällt per Klausel.' : '');
+          }
+        } else if (r.sickness === 'PARTIAL_YEAR_WORKED_THEN_SICK') {
+          if (!warningValid) {
+            statSurv = openStat;
+            extraSurv = hasDiffClause ? 0 : openExtra;
+            reasonText = 'BAG 9 AZR 245/19 Carve-Out: Unterjährig vor Erkrankung gearbeitet + kein Warnhinweis -> KEIN 15-Monats-Verfall!';
+          } else {
+            statSurv = exceeded15m ? 0 : openStat;
+            extraSurv = (!exceeded15m && !hasDiffClause) ? openExtra : 0;
+            reasonText = exceeded15m ? 'Verfall nach 15 Monaten (Warnhinweis lag vor Erkrankung vor).' : 'Innerhalb 15-Monats-Frist.';
+          }
+        } else {
+          if (!warningValid) {
+            statSurv = openStat;
+            extraSurv = hasDiffClause ? 0 : openExtra;
+            reasonText = '0% Verfall & 0% Verjährung (BAG 9 AZR 541/15 & 9 AZR 266/20): Kein formgerechter Warnhinweis!';
+          } else {
+            statSurv = 0;
+            extraSurv = 0;
+            reasonText = 'Regulär verfallen (§ 7 Abs. 3 BUrlG): Formgerechter Warnhinweis erteilt.';
+          }
+        }
+
+        if (settlementType === 'GENUINE_FACTUAL_UNCERTAINTY_SETTLEMENT') {
+          statSurv = 0;
+          extraSurv = 0;
+          reasonText = 'Erloschen durch echten Tatsachenvergleich (§ 779 BGB).';
+        }
+
+        const totSurv = Math.round((statSurv + extraSurv) * 100) / 100;
+        const payout = Math.round(totSurv * dailyRate * 100) / 100;
+
+        totalStatSurv += statSurv;
+        totalExtraSurv += extraSurv;
+        if (!r.isExit) {
+          savedPriorEur += payout;
+        }
+
+        if (totSurv > 0) {
+          detailLines.push(`- Urlaubsjahr ${r.year}: ${fmtDays(totSurv)} offen (Gesetzlich: ${fmtDays(statSurv)}, Mehrurlaub: ${fmtDays(extraSurv)}) × ${fmtEUR(dailyRate)} = ${fmtEUR(payout)}`);
+        }
+
+        document.getElementById(`cellOpen_${idx}`).innerHTML = `${fmtDays(openStat)} / ${fmtDays(openExtra)}`;
+        document.getElementById(`cellSurv_${idx}`).innerHTML = totSurv > 0
+          ? `<span class="pill survive">${fmtDays(totSurv)} aktiv</span>`
+          : `<span class="pill forfeit">0,0 d (verfallen)</span>`;
+        document.getElementById(`cellReason_${idx}`).textContent = reasonText;
+        document.getElementById(`cellPayout_${idx}`).textContent = fmtEUR(payout);
+        document.getElementById(`cellPayout_${idx}`).style.color = totSurv > 0 ? '#34d399' : '#64748b';
+      });
+
+      const totalSurvDays = Math.round((totalStatSurv + totalExtraSurv) * 100) / 100;
+      const totalPayout = Math.round(totalSurvDays * dailyRate * 100) / 100;
+
+      document.getElementById('kpiTotalDays').textContent = fmtDays(totalSurvDays);
+      document.getElementById('kpiDaysSplit').textContent = `Gesetzlich: ${fmtDays(totalStatSurv)} · Mehrurlaub: ${fmtDays(totalExtraSurv)}`;
+      document.getElementById('kpiDailyRate').textContent = fmtEUR(dailyRate) + ' / Tag';
+      document.getElementById('kpiDailyUplift').textContent = `+${fmtEUR(uplift)} / Tag ggü. naiver /30-Formel (${fmtEUR(naiveDaily)})`;
+      document.getElementById('kpiTotalPayout').textContent = fmtEUR(totalPayout);
+      document.getElementById('kpiRefEarnings').textContent = `13-Wochen-Referenzverdienst: ${fmtEUR(ref13Weeks)}`;
+      document.getElementById('kpiSavedPriorEur').textContent = fmtEUR(savedPriorEur);
+
+      document.getElementById('tblMonthlyRel').textContent = fmtEUR(monthlyRelevant);
+      document.getElementById('tbl13Weeks').textContent = fmtEUR(ref13Weeks);
+      document.getElementById('tblDivisor').textContent = `${divisor} Arbeitstage`;
+      document.getElementById('tblExactDaily').textContent = fmtEUR(dailyRate) + ' / Tag';
+      document.getElementById('tblNaiveDaily').textContent = fmtEUR(naiveDaily) + ' / Tag';
+
+      const boxSettle = document.getElementById('boxSettlementAnalysis');
+      if (settlementType === 'BOILERPLATE_IN_NATURA_DURING_SICKNESS') {
+        boxSettle.className = 'alert-box danger';
+        boxSettle.innerHTML = '<strong>⚖️ Schutzschild aktiv (BAG, Urt. v. 03.06.2025 – 9 AZR 104/24):</strong> Die Klausel „Urlaub wurde in Natur gewährt“ im Aufhebungsvertrag ist bei nachweisbarer Krankheit oder klarer Zeiterfassung ein unwirksamer Schein-Tatsachenvergleich und nach <strong>§ 13 Abs. 1 S. 3 BUrlG i.V.m. § 134 BGB nichtig</strong>! Ihr Abgeltungsanspruch i.H.v. ' + fmtEUR(totalPayout) + ' bleibt voll durchsetzbar.';
+      } else if (settlementType === 'IRREVOCABLE_FREISTELLUNG_WITH_ANRECHNUNG') {
+        boxSettle.className = 'alert-box warn';
+        boxSettle.innerHTML = '<strong>⚠️ Freistellungs-Prüfung (§ 7 Abs. 3 &amp; § 9 BUrlG):</strong> Eine bloß widerrufliche Freistellung erfüllt den Urlaubsanspruch nicht. Ebenso bleiben Krankheitstage während der Freistellung (§ 9 BUrlG) sowie Vorjahres-Urlaubstage, welche die Freistellungsdauer übersteigen, voll abzugelten!';
+      } else if (settlementType === 'GENUINE_FACTUAL_UNCERTAINTY_SETTLEMENT') {
+        boxSettle.className = 'alert-box danger';
+        boxSettle.innerHTML = '<strong>⛔ Echter Tatsachenvergleich (§ 779 BGB):</strong> Bei echter, beiderseitiger Ungewissheit über genommene Urlaubstage schließt der Tatsachenvergleich die Nachforderung aus.';
+      } else {
+        boxSettle.className = 'alert-box success';
+        boxSettle.innerHTML = '<strong>✅ Unabdingbarkeit (§ 13 Abs. 1 S. 3 BUrlG):</strong> Im laufenden Arbeitsverhältnis kann auf den gesetzlichen Mindesturlaub nicht wirksam verzichtet werden.';
+      }
+
+      const boxAus = document.getElementById('boxAusschlussfrist');
+      if (ausschlussMonths > 0) {
+        boxAus.innerHTML = `<strong>⏱️ WICHTIG — Vertragliche Ausschlussfrist (${ausschlussMonths} Monate ab Beendigung, BAG 9 AZR 45/19):</strong> Während der Urlaubsanspruch selbst ohne Warnhinweis nicht verfällt, unterliegt der <em>Geldanspruch auf Urlaubsabgeltung (§ 7 Abs. 4 BUrlG)</em> ab dem rechtlichen Beendigungstag der ${ausschlussMonths}-monatigen Ausschlussfrist! Senden Sie das untenstehende Anspruchsschreiben sofort nach Austritt.`;
+      } else {
+        boxAus.innerHTML = '<strong>✅ Keine vertragliche Ausschlussfrist:</strong> Es gilt die 3-jährige Verjährungsfrist ab Beendigung des Arbeitsverhältnisses.';
+      }
+
+      const claimText = `An die Geschäftsführung / Personalabteilung (per E-Mail vorab & Einwurf-Einschreiben)
+
+Betreff: Bezifferte Geltendmachung von Urlaubsabgeltung gemäß § 7 Abs. 4 i.V.m. § 11 Abs. 1 BUrlG
+Arbeitsverhältnis: ${empName}
+
+Sehr geehrte Damen und Herren,
+
+mit rechtlicher Beendigung meines Arbeitsverhältnisses wandeln sich meine bis zum Beendigungszeitpunkt noch offenen Urlaubsansprüche kraft Gesetzes (§ 7 Abs. 4 BUrlG) in einen finanziellen Abgeltungsanspruch um. Zur Wahrung etwaiger arbeits- bzw. tarifvertraglicher Ausschlussfristen mache ich hiermit meinen Anspruch auf Zahlung der Brutto-Urlaubsabgeltung in Höhe von insgesamt
+
+    ${fmtEUR(totalPayout)} brutto (für ${fmtDays(totalSurvDays)} offene Urlaubstage)
+
+ordnungs- und fristgemäß geltend.
+
+1. Unverfallbarkeit & Nicht-Verjährung der Vorjahres-Urlaubsansprüche (BAG 9 AZR 541/15, 9 AZR 266/20 & 9 AZR 245/19)
+Nach der gefestigten Rechtsprechung des Europäischen Gerichtshofs (EuGH, Urt. v. 06.11.2018 – C-684/16) sowie des Bundesarbeitsgerichts (BAG, Urt. v. 19.02.2019 – 9 AZR 541/15; BAG, Urt. v. 20.12.2022 – 9 AZR 266/20) verfallen Urlaubsansprüche weder zum Jahresende (§ 7 Abs. 3 BUrlG) noch unterliegen sie der dreijährigen Verjährung nach §§ 195, 199 BGB, solange der Arbeitgeber seiner individuellen Aufforderungs- und Hinweisobliegenheit nicht formgerecht zu Beginn des jeweiligen Urlaubsjahres nachgekommen ist.
+Ein bloßer Ausweis des Resturlaubs auf der Gehaltsabrechnung oder allgemeine Hinweise im Arbeitsvertrag/Intranet genügen hierfür ausdrücklich nicht (BAG 9 AZR 541/15, Rz. 42). Soweit Urlaubsjahre mit unterjährigem Eintritt einer Arbeitsunfähigkeit betroffen sind, tritt mangels vorherigen Warnhinweises auch nach Ablauf von 15 Monaten kein Verfall ein (BAG, Urt. v. 20.12.2022 / 31.01.2023 – 9 AZR 245/19).${!hasDiffClause ? ' Mangels einer transparenten Differenzierungsklausel im Arbeitsvertrag erstreckt sich dieser Verfallsschutz im Gleichlauf auch auf den gesamten vertraglichen Mehrurlaub.' : ''}${settlementType === 'BOILERPLATE_IN_NATURA_DURING_SICKNESS' ? '\n\nHinweis zu § 13 Abs. 1 S. 3 BUrlG: Eine pauschale Klausel, wonach der Urlaub in Natur gewährt worden sei, ist mangels tatsächlicher Ungewissheit als unzulässiger Schein-Tatsachenvergleich nach § 13 Abs. 1 S. 3 BUrlG i.V.m. § 134 BGB nichtig (BAG, Urt. v. 03.06.2025 – 9 AZR 104/24).' : ''}
+
+2. Exakte Berechnung nach § 11 Abs. 1 BUrlG (13-Wochen-Referenzprinzip)
+- Maßgebliches Monatsbrutto inkl. laufender variabler Vergütung: ${fmtEUR(monthlyRelevant)}
+- Referenzverdienst der letzten 13 Wochen (3,0 Monate): ${fmtEUR(ref13Weeks)}
+- Gesetzlicher Arbeitstage-Teiler (13 Wochen × ${workdaysWeek} Arbeitstage/Woche): ${divisor} Arbeitstage
+- Tagessatz pro Urlaubstag (§ 11 Abs. 1 BUrlG): ${fmtEUR(dailyRate)}
+
+3. Aufstellung der abzugeltenden Urlaubstage nach Urlaubsjahren:
+${detailLines.join('\n')}
+
+Gesamtsumme Brutto-Urlaubsabgeltung: ${fmtEUR(totalPayout)}
+
+Ich fordere Sie auf, den vorgenannten Bruttobetrag abzüglich der gesetzlichen Abzüge bis spätestens zum 15. des kommenden Monats abzurechnen und auf mein bekanntes Gehaltskonto auszuzahlen.
+
+Mit freundlichen Grüßen
+
+${empName}`;
+
+      document.getElementById('txtEmployeeClaim').value = claimText;
+
+      const hrText = `VERBINDLICHES HINWEISSCHREIBEN ZUR URLAUBSNAHME (ERFÜLLUNG DER MITWIRKUNGSOBLIEGENHEIT NACH § 7 ABS. 3 BURLG I.V.M. BAG 9 AZR 541/15 RZ. 42)
+
+Empfänger/in: ${empName}
+Datum: 15. Januar ${evalYear} (Zustellung in Textform gegen Empfangsnachweis)
+
+Betreff: Ihr konkreter Urlaubsanspruch für das Kalenderjahr ${evalYear} – Aufforderung zur Urlaubsnahme & Belehrung über den Verfall
+
+Sehr geehrte/r ${empName},
+
+um sicherzustellen, dass Sie Ihren gesetzlichen und vertraglichen Erholungsurlaub im laufenden Kalenderjahr ${evalYear} vollständig zur Erholung nutzen können, informieren wir Sie hiermit individuell und transparent über Ihren aktuellen Urlaubsanspruch:
+
+1. Konkrete Bezifferung Ihres Urlaubsanspruchs (Kriterium 1 nach BAG 9 AZR 541/15 Rz. 42):
+- Gesetzlicher Mindesturlaub (§ 3 BUrlG) für ${evalYear}: ${fmtDays(baseStatutory)}
+- Vertraglicher Mehrurlaub für ${evalYear}: ${fmtDays(Math.max(0, 30 - baseStatutory))}
+- Übertragener Resturlaub aus Vorjahren: 0,0 Arbeitstage
+- Ihr gesamter verfügbarer Urlaubsanspruch für ${evalYear}: 30,0 Arbeitstage
+
+2. Formelle Aufforderung zur rechtzeitigen Beantragung (Kriterium 2 nach BAG 9 AZR 541/15 Rz. 42):
+Wir fordern Sie hiermit ausdrücklich auf, Ihren gesamten oben genannten Jahresurlaub so rechtzeitig im laufenden Kalenderjahr ${evalYear} zu beantragen und zu nehmen, dass dieser vollständig bis zum 31. Dezember ${evalYear} eingebracht werden kann. Bitte reichen Sie Ihre Urlaubswünsche frühzeitig über unser Zeiterfassungssystem / bei Ihrer Führungskraft ein.
+
+3. Unmissverständliche Belehrung über den ersatzlosen Verfall (Kriterium 3 nach BAG 9 AZR 541/15 Rz. 42):
+Wir weisen Sie ausdrücklich und unmissverständlich darauf hin, dass Ihr Urlaubsanspruch für das Kalenderjahr ${evalYear} grundsätzlich mit Ablauf des 31. Dezember ${evalYear} ersatzlos verfällt (§ 7 Abs. 3 Satz 1 BUrlG), wenn Sie ihn bis dahin nicht beantragt und genommen haben, obwohl Sie dazu gesundheitlich und betrieblich in der Lage waren.
+Eine Übertragung in das erste Quartal des Folgejahres (bis zum 31. März ${evalYear + 1}) erfolgt ausschließlich dann, wenn dringende betriebliche oder in Ihrer Person liegende Gründe (insbesondere Arbeitsunfähigkeit) dies rechtfertigen; in diesem Ausnahmefall verfällt der übertragene Urlaub endgültig mit Ablauf des 31. März ${evalYear + 1}, sofern keine fortdauernde Arbeitsunfähigkeit vorliegt.
+
+--------------------------------------------------------------------------------
+MUSTER-DIFFERENZIERUNGSKLAUSEL FÜR ARBEITSVERTRÄGE (Trennung Gesetzlicher Mindesturlaub vs. Mehrurlaub):
+„§ X Erholungsurlaub & eigenständiges Fristenregime für den vertraglichen Mehrurlaub
+(1) Der/die Arbeitnehmer/in erhält bei einer ${workdaysWeek}-Tage-Woche einen gesetzlichen Mindesturlaub von ${fmtDays(baseStatutory)} pro Kalenderjahr.
+(2) Darüber hinaus gewährt der Arbeitgeber einen freiwilligen vertraglichen Mehrurlaub von ${fmtDays(Math.max(0, 30 - baseStatutory))} pro Kalenderjahr. Für diesen vertraglichen Mehrurlaub gilt abweichend vom gesetzlichen Mindesturlaub Folgendes:
+  a) Genommener Urlaub wird stets zuerst auf den gesetzlichen Mindesturlaub angerechnet (§ 366 Abs. 2 BGB).
+  b) Der vertragliche Mehrurlaub verfällt mit Ablauf des 31.12. des Urlaubsjahres (bzw. bei ausdrücklich genehmigter Übertragung am 31.03. des Folgejahres) auch dann automatisch und unabhängig von einem vorherigen Hinweis des Arbeitgebers sowie unabhängig von einer bestehenden Arbeitsunfähigkeit.
+  c) Bei Ausscheiden aus dem Arbeitsverhältnis besteht kein Anspruch auf Abgeltung des vertraglichen Mehrurlaubs.“`;
+
+      document.getElementById('txtHRWarning').value = hrText;
+    }
+
+    function copyText(id) {
+      const el = document.getElementById(id);
+      el.select();
+      document.execCommand('copy');
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      loadPreset(1);
+    });
+  </script>
+</body>
+</html>

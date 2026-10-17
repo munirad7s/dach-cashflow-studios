@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MILESTONE MVP #145 — DACH §§ 9, 15 & 15a UStG Gewerbeimmobilien-Vorsteuer & 10-Jahres-Berichtigungs-Studio</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --panel: #121a30;
+      --panel-alt: #182340;
+      --border: #283862;
+      --text: #eef3ff;
+      --muted: #9fb0d6;
+      --accent: #38bdf8;
+      --emerald: #10b981;
+      --amber: #f59e0b;
+      --danger: #f43f5e;
+      --purple: #a855f7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: radial-gradient(circle at top right, #172554 0%, var(--bg) 55%);
+      color: var(--text);
+      line-height: 1.5;
+      padding: 24px;
+    }
+    .container { max-width: 1480px; margin: 0 auto; }
+    header {
+      background: linear-gradient(135deg, rgba(30,41,59,0.92), rgba(15,23,42,0.96));
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px 28px;
+      margin-bottom: 22px;
+      box-shadow: 0 18px 40px rgba(0,0,0,0.4);
+    }
+    .badge-row { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; }
+    .badge {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      padding: 5px 12px;
+      border-radius: 999px;
+      background: rgba(56, 189, 248, 0.14);
+      color: var(--accent);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+    }
+    .badge.gold {
+      background: rgba(245, 158, 11, 0.16);
+      color: #fbbf24;
+      border-color: rgba(245, 158, 11, 0.45);
+    }
+    .badge.danger {
+      background: rgba(244, 63, 94, 0.16);
+      color: #fb7185;
+      border-color: rgba(244, 63, 94, 0.45);
+    }
+    h1 { margin: 0 0 8px 0; font-size: 26px; font-weight: 800; letter-spacing: -0.02em; }
+    .subtitle { margin: 0; color: var(--muted); font-size: 14.5px; }
+    .preset-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 18px;
+    }
+    .preset-btn {
+      background: var(--panel-alt);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 15px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.16s ease;
+    }
+    .preset-btn:hover, .preset-btn.active {
+      background: rgba(56, 189, 248, 0.2);
+      border-color: var(--accent);
+      color: #fff;
+    }
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 14px;
+      margin-bottom: 22px;
+    }
+    .kpi-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px;
+      position: relative;
+      overflow: hidden;
+    }
+    .kpi-label { font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); margin-bottom: 6px; }
+    .kpi-value { font-size: 25px; font-weight: 800; margin-bottom: 4px; }
+    .kpi-sub { font-size: 12.5px; color: var(--muted); }
+    .grid-main {
+      display: grid;
+      grid-template-columns: 440px 1fr;
+      gap: 20px;
+      margin-bottom: 22px;
+    }
+    @media (max-width: 1120px) {
+      .grid-main { grid-template-columns: 1fr; }
+    }
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px;
+    }
+    .panel h2 {
+      margin: 0 0 14px 0;
+      font-size: 17px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 10px;
+    }
+    .form-group { margin-bottom: 13px; }
+    .form-group label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--muted);
+      margin-bottom: 5px;
+    }
+    .form-group input, .form-group select {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 9px 11px;
+      border-radius: 8px;
+      font-size: 13.5px;
+    }
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .gate-banner {
+      padding: 12px 14px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 14px;
+    }
+    .gate-ok {
+      background: rgba(16, 185, 129, 0.14);
+      border: 1px solid rgba(16, 185, 129, 0.45);
+      color: #6ee7b7;
+    }
+    .gate-fail {
+      background: rgba(244, 63, 94, 0.16);
+      border: 1px solid rgba(244, 63, 94, 0.5);
+      color: #fda4af;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12.5px;
+      margin-top: 10px;
+    }
+    th, td {
+      padding: 9px 10px;
+      text-align: right;
+      border-bottom: 1px solid rgba(40, 56, 98, 0.65);
+    }
+    th:first-child, td:first-child { text-align: left; }
+    th {
+      background: var(--panel-alt);
+      color: var(--muted);
+      font-weight: 700;
+      text-transform: uppercase;
+      font-size: 11px;
+      letter-spacing: 0.04em;
+    }
+    tr.clawback-active { background: rgba(244, 63, 94, 0.09); }
+    .bar-track {
+      width: 100%;
+      height: 14px;
+      background: #0b1020;
+      border-radius: 999px;
+      overflow: hidden;
+      display: flex;
+      border: 1px solid var(--border);
+      margin: 8px 0 14px 0;
+    }
+    .bar-safe { background: linear-gradient(90deg, #10b981, #34d399); height: 100%; }
+    .bar-clawback { background: linear-gradient(90deg, #f43f5e, #fb7185); height: 100%; }
+    .clause-box {
+      background: #080d1a;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+      font-family: 'JetBrains Mono', Consolas, monospace;
+      font-size: 12px;
+      white-space: pre-wrap;
+      color: #cbd5e1;
+      margin-top: 10px;
+    }
+    .pill-check {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12.5px;
+      cursor: pointer;
+      user-select: none;
+      margin-top: 4px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- DACH CASHFLOW STUDIOS LAUNCH BAR -->
+<style>
+  #dcs-launch-bar {
+    position: sticky;
+    top: 0;
+    z-index: 99999;
+    background: linear-gradient(90deg, #0b1120 0%, #111827 50%, #0f172a 100%);
+    color: #f8fafc;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.35);
+    padding: 8px 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  }
+  #dcs-launch-bar .dcs-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+  }
+  #dcs-launch-bar .dcs-badge {
+    background: rgba(16, 185, 129, 0.18);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.03em;
+  }
+  #dcs-launch-bar a.dcs-nav {
+    color: #93c5fd;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 12.5px;
+  }
+  #dcs-launch-bar a.dcs-nav:hover {
+    text-decoration: underline;
+    color: #dbeafe;
+  }
+  #dcs-launch-bar .dcs-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  #dcs-launch-bar .dcs-btn {
+    padding: 5px 11px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s ease;
+  }
+  #dcs-launch-bar .dcs-btn-ghost {
+    background: rgba(255,255,255,0.08);
+    color: #e2e8f0;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  #dcs-launch-bar .dcs-btn-primary {
+    background: linear-gradient(135deg, #0ea5e9, #2563eb);
+    color: #ffffff;
+  }
+  #dcs-launch-bar .dcs-btn-emerald {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
+  }
+  @media print {
+    #dcs-launch-bar { display: none !important; }
+  }
+</style>
+<div id="dcs-launch-bar">
+  <div class="dcs-left">
+    <a href="/index.html" class="dcs-nav">← Alle 150 DACH Studios</a>
+    <span class="dcs-badge">MVP #145 VERIFIED</span>
+    <span style="color:#cbd5e1;font-size:12px;">DACH Tax, Corporate & Accounting Arbitrage</span>
+  </div>
+  <div class="dcs-actions">
+    <button onclick="window.print()" class="dcs-btn dcs-btn-ghost">🖨️ PDF / Dossier drucken</button>
+    <a href="#checkout-modal-49" target="_blank" rel="noopener" class="dcs-btn dcs-btn-primary">⚡ Musterschreiben & Voll-Dossier (€49)</a>
+    <a href="#checkout-modal-299" target="_blank" rel="noopener" class="dcs-btn dcs-btn-emerald">🛡️ B2B Umsetzung buchen (€299 / €1.490)</a>
+  </div>
+</div>
+
+  <div class="container">
+    <header>
+      <div class="badge-row">
+        <span class="badge gold">MILESTONE MVP #145</span>
+        <span class="badge">§ 4 Nr. 12a & § 9 Abs. 1 & 2 UStG (95%-Grenze)</span>
+        <span class="badge">§ 15 Abs. 4 S. 3 UStG Flächenschlüssel</span>
+        <span class="badge danger">§ 15a Abs. 1 S. 2 UStG 120-Monate-Rückforderungsfalle</span>
+        <span class="badge">§ 1 Abs. 1a UStG GiG Fußstapfentheorie</span>
+      </div>
+      <h1>DACH Gewerbeimmobilien-Umsatzsteuer-Options-, 19%-Bau-Vorsteuer- & 10-Jahres-Berichtigungs-Simulator</h1>
+      <p class="subtitle">
+        Deterministische Simulation für Immobilien-GmbHs, Family Offices & Projektentwickler:
+        Sofortige 19%-Bau-Vorsteuererstattung (§ 15 UStG), Flächenschlüssel bei Wohn-/Geschäftshäusern (§ 15 Abs. 4 UStG),
+        pro-rata-temporis Rückzahlungsfalle über 120 Monate bei Neuvermietung an Ärzte/Banken/Behörden (§ 15a UStG) & Mietaufschlags-Kalkulator.
+      </p>
+      <div class="preset-bar" id="presetBar"></div>
+    </header>
+
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label">Pillar 1: Sofort-Vorsteuerabzug (Jahr 1)</div>
+        <div class="kpi-value" id="kpiClaimedVat" style="color: var(--emerald);">€0</div>
+        <div class="kpi-sub" id="kpiClaimedSub">Direkt Gewerbe (100%) + Gemeinkosten nach Schlüssel</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Nicht abziehbare Vorsteuer (Kostenblock)</div>
+        <div class="kpi-value" id="kpiNonDedVat" style="color: var(--amber);">€0</div>
+        <div class="kpi-sub" id="kpiKeyUsed">Flächenschlüssel § 15 Abs. 4 S. 3 UStG</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Pillar 2: § 15a UStG Rückzahlung ans Finanzamt</div>
+        <div class="kpi-value" id="kpiClawbackTotal" style="color: var(--danger);">€0</div>
+        <div class="kpi-sub" id="kpiClawbackFraction">Restlaufzeit: 78 / 120 Monate (65,0%)</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Jährliche § 15a-Tilgungsrate (1/10 p.a.)</div>
+        <div class="kpi-value" id="kpiAnnualClawback" style="color: #fb7185;">€0 / Jahr</div>
+        <div class="kpi-sub" id="kpiMonthlyDamage">Monatlicher Vorsteuer-Schaden</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Pillar 3: Nötiger Mietaufschlag (Kompensation)</div>
+        <div class="kpi-value" id="kpiRentMarkup" style="color: var(--accent);">+€0 / Mon.</div>
+        <div class="kpi-sub" id="kpiNewRentTarget">Zielmiete für steuerfreien Nachmieter</div>
+      </div>
+    </div>
+
+    <div class="grid-main">
+      <!-- LEFT CONTROLS -->
+      <div class="panel">
+        <h2>1. Gebäude-, Baukosten- & Mieter-Parameter</h2>
+
+        <div class="form-group">
+          <label>Erstmieter bei Bau / Sanierung (§ 9 Abs. 1 & 2 UStG Gate)</label>
+          <select id="selInitialTenant" onchange="recalcAll()"></select>
+        </div>
+        <div id="bannerInitialGate" class="gate-banner gate-ok"></div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Gewerbefläche optiert (m²)</label>
+            <input type="number" id="inpCommArea" value="600" min="0" step="10" oninput="recalcAll()" />
+          </div>
+          <div class="form-group">
+            <label>Wohn-/Steuerfrei-Fläche (m²)</label>
+            <input type="number" id="inpResArea" value="0" min="0" step="10" oninput="recalcAll()" />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Gewerbemiete Netto (€/Mon.)</label>
+            <input type="number" id="inpCommRent" value="10000" min="0" step="250" oninput="recalcAll()" />
+          </div>
+          <div class="form-group">
+            <label>Wohnmiete steuerfrei (€/Mon.)</label>
+            <input type="number" id="inpResRent" value="0" min="0" step="250" oninput="recalcAll()" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Direkte Baukosten Gewerbeeinheit Netto (€) <span>100% Zuordnung</span></label>
+          <input type="number" id="inpDirectCommNet" value="1000000" min="0" step="25000" oninput="recalcAll()" />
+        </div>
+        <div class="form-group">
+          <label>Direkte Baukosten Wohnungen Netto (€) <span>0% Vorsteuer</span></label>
+          <input type="number" id="inpDirectResNet" value="0" min="0" step="25000" oninput="recalcAll()" />
+        </div>
+        <div class="form-group">
+          <label>Gemeinkosten Dach / Fassade / Heizung Netto (€) <span>§ 15 Abs. 4 UStG</span></label>
+          <input type="number" id="inpCommonNet" value="0" min="0" step="25000" oninput="recalcAll()" />
+          <label class="pill-check">
+            <input type="checkbox" id="chkFitoutDivergence" onchange="recalcAll()" style="width:auto;" />
+            Erhebliches Ausstattungsgefälle (Umsatzschlüssel statt Flächenschlüssel nach BFH XI R 7/20)
+          </label>
+        </div>
+
+        <h2 style="margin-top: 20px;">2. § 15a UStG Nutzungsänderung (120-Monate-Uhr)</h2>
+        <div class="form-group">
+          <label>
+            <span>Zeitpunkt Mieterwechsel / Optionsverlust</span>
+            <strong id="lblMonthChange" style="color: var(--accent);">Monat 42 (3,5 Jahre)</strong>
+          </label>
+          <input type="range" id="rngMonthChange" min="0" max="120" value="42" oninput="recalcAll()" />
+        </div>
+
+        <div class="form-group">
+          <label>Neuer Mieter / Anschlussnutzung ab Wechselmonat</label>
+          <select id="selNewTenant" onchange="recalcAll()"></select>
+        </div>
+        <div id="bannerNewGate" class="gate-banner gate-fail"></div>
+
+        <h2 style="margin-top: 20px;">3. § 1 Abs. 1a UStG Immobilien-Exit (GiG-Prüfung)</h2>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Verkaufspreis Netto (€)</label>
+            <input type="number" id="inpSalePrice" value="2800000" min="0" step="100000" oninput="recalcAll()" />
+          </div>
+          <div class="form-group">
+            <label>Exit-Szenario im Notarvertrag</label>
+            <select id="selGiGMode" onchange="recalcAll()">
+              <option value="gig_clean">Vermietet verkauft (GiG § 1 Abs. 1a UStG sauber)</option>
+              <option value="gig_14c_error">GiG, aber fälschlich 19% USt im Vertrag (§ 14c-Falle!)</option>
+              <option value="vacant_exempt">Leerverkauf steuerfrei ohne Option (§ 15a-Vollrückzahlung!)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT ANALYSIS & TABLES -->
+      <div class="panel">
+        <h2>
+          <span>120-Monate Pro-Rata-Temporis Vorsteuer-Überwachung (§ 15a Abs. 1 Satz 2 UStG)</span>
+          <span id="lblBagatelleStatus" style="font-size: 12px; color: var(--emerald);"></span>
+        </h2>
+
+        <div style="display:flex; justify-content:space-between; font-size:12.5px; color:var(--muted);">
+          <span id="barLabelSafe">Unangreifbar verdient: 42/120 Monate (35,0%)</span>
+          <span id="barLabelClawback" style="color:#fb7185;">§ 15a Rückforderung: 78/120 Monate (65,0%)</span>
+        </div>
+        <div class="bar-track">
+          <div class="bar-safe" id="barSafe" style="width: 35%;"></div>
+          <div class="bar-clawback" id="barClawback" style="width: 65%;"></div>
+        </div>
+
+        <div style="overflow-x:auto;">
+          <table>
+            <thead>
+              <tr>
+                <th>Überwachungsjahr</th>
+                <th>Monate optiert</th>
+                <th>Monate schädlich</th>
+                <th>Optierte Quote</th>
+                <th>1/10 Vorsteuer-Topf</th>
+                <th>§ 44 Abs. 2 UStDV</th>
+                <th>§ 15a Rückzahlung (Jahr)</th>
+                <th>Kumulierte Rückzahlung</th>
+              </tr>
+            </thead>
+            <tbody id="tbl15aBody"></tbody>
+          </table>
+        </div>
+
+        <h2 style="margin-top: 22px;">Pillar 3A: § 1 Abs. 1a & § 15a Abs. 10 UStG Exit-Audit (Geschäftsveräußerung im Ganzen)</h2>
+        <div id="boxGiGAudit" class="gate-banner gate-ok" style="line-height: 1.55;"></div>
+
+        <h2 style="margin-top: 18px;">Pillar 3B: Kopierfertige Mietvertragsklausel (§ 9 UStG Nachweispflicht & § 15a-Mietaufschlag)</h2>
+        <div class="clause-box" id="boxLeaseClause"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const PRESET_SCENARIOS = [{"scenario_id": "flagship_190k_arzt_falle_42m", "scenario_name_de": "Szenario A: Die 123.500 € Arztpraxis-Falle nach 42 Monaten (§ 15a UStG Klassiker)", "subtitle_de": "1,0 Mio. € Gewerbebau (190.000 € Vorsteuerabzug) -> IT-Agentur zieht nach 3,5 Jahren (42 Mon.) aus -> Zahnarzt (§ 4 Nr. 14 UStG) zieht ein -> 78/120 Rückzahlung!", "allocation": {"commercial_area_sqm": 600.0, "residential_exempt_area_sqm": 0.0, "total_area_sqm": 600.0, "commercial_rent_net_monthly_eur": 10000.0, "residential_rent_monthly_eur": 0.0, "flaechenschluessel_pct": 100.0, "umsatzschluessel_pct": 100.0, "applied_key_type": "FLAECHENSCHLUESSEL_15_4_S3", "substantial_fitout_divergence": false, "direct_commercial_net_eur": 1000000.0, "direct_commercial_vat_eur": 190000.0, "direct_residential_net_eur": 0.0, "direct_residential_vat_eur": 0.0, "common_roof_facade_heating_net_eur": 0.0, "common_roof_facade_heating_vat_eur": 0.0, "deductible_direct_commercial_vat_eur": 190000.0, "deductible_common_vat_eur": 0.0, "non_deductible_vat_cost_eur": 0.0, "total_claimable_input_vat_year1_eur": 190000.0, "legal_basis_summary": "Zwingender Vorrang des objektbezogenen Flächenschlüssels nach § 15 Abs. 4 Satz 3 UStG i.V.m. UStAE Abschn. 15.17 Abs. 7 & BFH-Rechtsprechung."}, "clawback": {"initial_tenant_code": "it_beratung_kanzlei", "new_tenant_code": "arzt_zahnarzt_4_14", "initial_option_valid_9_2": true, "new_option_valid_9_2": false, "total_monitored_input_vat_eur": 190000.0, "bagatelle_44_1_exempt": false, "months_before_change": 42, "months_remaining_in_120m_window": 78, "remaining_fraction_str": "78/120", "clawback_share_pct": 65.0, "total_clawback_repayment_eur": 123500.0, "annual_clawback_installment_eur": 19000.0, "monthly_clawback_damage_eur": 1583.33, "base_monthly_net_rent_eur": 10000.0, "required_monthly_rent_surcharge_eur": 1583.33, "required_rent_markup_pct": 15.83, "adjusted_monthly_rent_for_exempt_tenant_eur": 11583.33, "yearly_schedule": [{"year_index": 1, "months_opted_in_year": 12, "months_exempt_in_year": 0, "effective_opted_share_pct": 100.0, "original_opted_share_pct": 100.0, "delta_percentage_points": 0.0, "one_tenth_vat_pool_eur": 19000.0, "bagatelle_44_2_exempt": true, "clawback_repayment_eur": 0.0, "cumulative_clawback_eur": 0.0, "remaining_unadjusted_vat_pool_eur": 171000.0}, {"year_index": 2, "months_opted_in_year": 12, "months_exempt_in_year": 0, "effective_opted_share_pct": 100.0, "original_opted_share_pct": 100.0, "delta_percentage_points": 0.0, "one_tenth_vat_pool_eur": 19000.0, "bagatelle_44_2_exempt": true, "clawback_repayment_eur": 0.0, "cumulative_clawback_eur": 0.0, "remaining_unadjusted_vat_pool_eur": 152000.0}, {"year_index": 3, "months_opted_in_year": 12, "months_exempt_in_year": 0, "effective_opted_share_pct": 100.0, "original_opted_share_pct": 100.0, "delta_percentage_points": 0.0, "one_tenth_vat_pool_eur": 19000.0, "bagatelle_44_2_exempt": true, "clawback_repayment_eur": 0.0, "cumulative_clawback_eur": 0.0, "remaining_unadjusted_vat_pool_eur": 133000.0}, {"year_index": 4, "months_opted_in_year": 6, "months_exempt_in_year": 6, "effective_opted_share_pct": 50.0, "original_opted_share_pct": 100.0, "delta_percentage_points": 50.0, "one_tenth_vat_pool_eur": 19000.0, "bagatelle_44_2_exempt": false, "clawback_repayment_eur": 9500.0, "cumulative_clawback_eur": 9500.0, "remaining_unadjusted_vat_pool_eur": 114000.0}, {"year_index": 5, "months_opted_in_year": 0, "months_exempt_in_year": 12, "effective_opted_share_pct": 0.0, "original_opted_share_pct": 100.0, "delta_percentage_points": 100.0, "one_tenth_vat_pool_eur": 19000.0, "bagatelle_44_2_exempt": false, "clawback_repayment_eur": 19000.0, "cumulative_clawback_eur": 28500.0, "remaining_unadjusted_vat_pool_eur": 95000.0}, {"year_index": 6, "months_opted_in_year": 0, "months_exempt_in_year": 12, "effective_opted_share_pct": 0.0, "original_opted_share_pct": 100.0, "delta_percentage_points": 100.0, "one_tenth_vat_pool_eur": 19000.0, "bagatelle_44_2_exempt": false, "clawback_repayment_eur": 19000.0, "cumulative_clawback_eur": 47500.0, "remaining_unadjusted_vat_pool_eur": 76000.0}, {"year_index": 7, "months_opted_in_year": 0, "months_exempt_in_year": 12, "effective_opted_share_pct": 0.0, "original_opted_share_pct": 100.0, "delta_percentage_points": 100.0, "one_tenth_vat_pool_eur": 19000.0, "bagatelle_44_2_exempt": false, "clawback_repayment_eur": 19000.0, "cumulative_clawback_eur": 66500.0, "remaining_unadjusted_vat_pool_eur": 57000.0}, {"year_index": 8, "months_opted_in_year": 0, "months_exempt_in_year": 12, "effective_opted_share_pct": 0.0, "original_opted_share_pct": 100.0, "delta_percentage_points": 100.0, "one_tenth_vat_pool_eur": 19000.0, "bagatelle_44_2_exempt": false, "clawback_repayment_eur": 19000.0, "cumulative_clawback_eur": 85500.0, "remaining_unadjusted_vat_pool_eur": 38000.0}, {"year_index": 9, "months_opted_in_year": 0, "months_exempt_in_year": 12, "effective_opted_share_pct": 0.0, "original_opted_share_pct": 100.0, "delta_percentage_points": 100.0, "one_tenth_vat_pool_eur": 19000.0, "bagatelle_44_2_exempt": false, "clawback_repayment_eur": 19000.0, "cumulative_clawback_eur": 104500.0, "remaining_unadjusted_vat_pool_eur": 19000.0}, {"year_index": 10, "months_opted_in_year": 0, "months_exempt_in_year": 12, "effective_opted_share_pct": 0.0, "original_opted_share_pct": 100.0, "delta_percentage_points": 100.0, "one_tenth_vat_pool_eur": 19000.0, "bagatelle_44_2_exempt": false, "clawback_repayment_eur": 19000.0, "cumulative_clawback_eur": 123500.0, "remaining_unadjusted_vat_pool_eur": 0.0}], "indemnity_clause_de": "§ X Umsatzsteueroption & § 15a UStG-Ausgleichsklausel:\n(1) Der Vermieter hat hinsichtlich der Herstellungskosten der Mietsache (Vorsteuervolumen: EUR 190,000.00) zur Umsatzsteuerpflicht nach § 9 Abs. 1 UStG optiert.\n(2) Der Mieter versichert, die Mieträume während der gesamten Mietzeit ausschließlich (mindestens zu 95% gem. § 9 Abs. 2 UStG i.V.m. Abschn. 9.2 Abs. 3 UStAE) für Umsätze zu verwenden, die den Vorsteuerabzug nicht ausschließen, und hierüber jährlich bis zum 31.01. einen Steuerberater-Bestätigungsvermerk vorzulegen.\n(3) Ändert sich die Nutzung durch den Mieter oder erfolgt eine Neuvermietung an einen vorsteuerunschädlichen/steuerfreien Mieter (Arztpraxis / Zahnarzt / MVZ / Psychotherapeut (§ 4 Nr. 14 UStG)) nach Monat 42 (Restlaufzeit: 78/120 Monate = 65.00%), so entsteht ein Vorsteuerberichtigungsschaden nach § 15a Abs. 1 Satz 2 UStG in Höhe von insgesamt EUR 123,500.00 (EUR 19,000.00 p.a. bzw. EUR 1,583.33/Monat).\n(4) Zum vollständigen Barwertausgleich dieses § 15a-Schadens erhöht sich die monatliche Nettokaltmiete von EUR 10,000.00 um einen umsatzsteuerfreien § 15a-Kompensationsaufschlag von EUR 1,583.33/Monat (+15.83%) auf EUR 11,583.33/Monat."}, "gig_audit": {"sale_month_in_120m_window": 42, "is_rented_property_transfer": true, "buyer_continues_letting_enterprise": true, "seller_improperly_opted_to_vat_in_notary_deed": false, "sale_price_net_eur": 2800000.0, "improper_14c_vat_in_deed_eur": 0.0, "qualifies_as_gig_1_1a_ustg": true, "remaining_months_transferred_to_buyer": 78, "latent_15a_rucksack_transferred_eur": 123500.0, "seller_14c_unberechtigte_ust_risk_eur": 0.0, "seller_15a_clawback_if_tax_exempt_non_gig_sale_eur": 0.0, "notary_clause_recommendation_de": "OPTIMAL (§ 1 Abs. 1a & § 15a Abs. 10 UStG Fußstapfentheorie): Nicht steuerbare Geschäftsveräußerung im Ganzen (GiG). Keine § 15a-Rückzahlung beim Verkäufer! Der Käufer übernimmt den laufenden 10-Jahres-Überwachungszeitraum (Restlaufzeit: 78/120 Monate; latenter § 15a-Rucksack: EUR 123,500.00). Verkäufer muss nach § 15a Abs. 10 S. 2 UStG die Angaben zur Vorsteuerhistorie im Notarvertrag dokumentieren + vorsorgliche Hilfsoption nach § 9 Abs. 3 UStG erklären."}}, {"scenario_id": "mixed_use_300_700_flaechenschluessel", "scenario_name_de": "Szenario B: Wohn- & Geschäftshaus (300 m² EG Gewerbe / 700 m² OG Wohnen)", "subtitle_de": "Direkte Zuordnung EG (100% Vorsteuer) + 30% Flächenschlüssel Dach/Fassade/Heizung (§ 15 Abs. 4 S. 3 UStG) + Bankfilial-Wechsel nach 60 Monaten", "allocation": {"commercial_area_sqm": 300.0, "residential_exempt_area_sqm": 700.0, "total_area_sqm": 1000.0, "commercial_rent_net_monthly_eur": 7500.0, "residential_rent_monthly_eur": 8500.0, "flaechenschluessel_pct": 30.0, "umsatzschluessel_pct": 46.88, "applied_key_type": "FLAECHENSCHLUESSEL_15_4_S3", "substantial_fitout_divergence": false, "direct_commercial_net_eur": 400000.0, "direct_commercial_vat_eur": 76000.0, "direct_residential_net_eur": 250000.0, "direct_residential_vat_eur": 47500.0, "common_roof_facade_heating_net_eur": 500000.0, "common_roof_facade_heating_vat_eur": 95000.0, "deductible_direct_commercial_vat_eur": 76000.0, "deductible_common_vat_eur": 28500.0, "non_deductible_vat_cost_eur": 114000.0, "total_claimable_input_vat_year1_eur": 104500.0, "legal_basis_summary": "Zwingender Vorrang des objektbezogenen Flächenschlüssels nach § 15 Abs. 4 Satz 3 UStG i.V.m. UStAE Abschn. 15.17 Abs. 7 & BFH-Rechtsprechung."}, "clawback": {"initial_tenant_code": "einzelhandel_gastro", "new_tenant_code": "bank_versicherung_4_8_11", "initial_option_valid_9_2": true, "new_option_valid_9_2": false, "total_monitored_input_vat_eur": 104500.0, "bagatelle_44_1_exempt": false, "months_before_change": 60, "months_remaining_in_120m_window": 60, "remaining_fraction_str": "60/120", "clawback_share_pct": 50.0, "total_clawback_repayment_eur": 52250.0, "annual_clawback_installment_eur": 10450.0, "monthly_clawback_damage_eur": 870.83, "base_monthly_net_rent_eur": 7500.0, "required_monthly_rent_surcharge_eur": 870.83, "required_rent_markup_pct": 11.61, "adjusted_monthly_rent_for_exempt_tenant_eur": 8370.83, "yearly_schedule": [{"year_index": 1, "months_opted_in_year": 12, "months_exempt_in_year": 0, "effective_opted_share_pct": 100.0, "original_opted_share_pct": 100.0, "delta_percentage_points": 0.0, "one_tenth_vat_pool_eur": 10450.0, "bagatelle_44_2_exempt": true, "clawback_repayment_eur": 0.0, "cumulative_clawback_eur": 0.0, "remaining_unadjusted_vat_pool_eur": 94050.0}, {"year_index": 2, "months_opted_in_year": 12, "months_exempt_in_year": 0, "effective_opted_share_pct": 100.0, "original_opted_share_pct": 100.0, "delta_percentage_points": 0.0, "one_tenth_vat_pool_eur": 10450.0, "bagatelle_44_2_exempt": true, "clawback_repayment_eur": 0.0, "cumulative_clawback_eur": 0.0, "remaining_unadjusted_vat_pool_eur": 83600.0}, {"year_index": 3, "months_opted_in_year": 12, "months_exempt_in_year": 0, "effective_opted_share_pct": 100.0, "original_opted_share_pct": 100.0, "delta_percentage_points": 0.0, "one_tenth_vat_pool_eur": 10450.0, "bagatelle_44_2_exempt": true, "clawback_repayment_eur": 0.0, "cumulative_clawback_eur": 0.0, "remaining_unadjusted_vat_pool_eur": 73150.0}, {"year_index": 4, "months_opted_in_year": 12, "months_exempt_in_year": 0, "effective_opted_share_pct": 100.0, "original_opted_share_pct": 100.0, "delta_percentage_points": 0.0, "one_tenth_vat_pool_eur": 10450.0, "bagatelle_44_2_exempt": true, "clawback_repayment_eur": 0.0, "cumulative_clawback_eur": 0.0, "remaining_unadjusted_vat_pool_eur": 62700.0}, {"year_index": 5, "months_opted_in_year": 12, "months_exempt_in_year": 0, "effective_opted_share_pct": 100.0, "original_opted_share_pct": 100.0, "delta_percentage_points": 0.0, "one_tenth_vat_pool_eur": 10450.0, "bagatelle_44_2_exempt": true, "clawback_repayment_eur": 0.0, "cumulative_clawback_eur": 0.0, "remaining_unadjusted_vat_pool_eur": 52250.0}, {"year_index": 6, "months_opted_in_year": 0, "months_exempt_in_year": 12, "effective_opted_share_pct": 0.0, "original_opted_share_pct": 100.0, "delta_percentage_points": 100.0, "one_tenth_vat_pool_eur": 10450.0, "bagatelle_44_2_exempt": false, "clawback_repayment_eur": 10450.0, "cumulative_clawback_eur": 10450.0, "remaining_unadjusted_vat_pool_eur": 41800.0}, {"year_index": 7, "months_opted_in_year": 0, "months_exempt_in_year": 12, "effective_opted_share_pct": 0.0, "original_opted_share_pct": 100.0, "delta_percentage_points": 100.0, "one_tenth_vat_pool_eur": 10450.0, "bagatelle_44_2_exempt": false, "clawback_repayment_eur": 10450.0, "cumulative_clawback_eur": 20900.0, "remaining_unadjusted_vat_pool_eur": 31350.0}, {"year_index": 8, "months_opted_in_year": 0, "months_exempt_in_year": 12, "effective_opted_share_pct": 0.0, "original_opted_share_pct": 100.0, "delta_percentage_points": 100.0, "one_tenth_vat_pool_eur": 10450.0, "bagatelle_44_2_exempt": false, "clawback_repayment_eur": 10450.0, "cumulative_clawback_eur": 31350.0, "remaining_unadjusted_vat_pool_eur": 20900.0}, {"year_index": 9, "months_opted_in_year": 0, "months_exempt_in_year": 12, "effective_opted_share_pct": 0.0, "original_opted_share_pct": 100.0, "delta_percentage_points": 100.0, "one_tenth_vat_pool_eur": 10450.0, "bagatelle_44_2_exempt": false, "clawback_repayment_eur": 10450.0, "cumulative_clawback_eur": 41800.0, "remaining_unadjusted_vat_pool_eur": 10450.0}, {"year_index": 10, "months_opted_in_year": 0, "months_exempt_in_year": 12, "effective_opted_share_pct": 0.0, "original_opted_share_pct": 100.0, "delta_percentage_points": 100.0, "one_tenth_vat_pool_eur": 10450.0, "bagatelle_44_2_exempt": false, "clawback_repayment_eur": 10450.0, "cumulative_clawback_eur": 52250.0, "remaining_unadjusted_vat_pool_eur": 0.0}], "indemnity_clause_de": "§ X Umsatzsteueroption & § 15a UStG-Ausgleichsklausel:\n(1) Der Vermieter hat hinsichtlich der Herstellungskosten der Mietsache (Vorsteuervolumen: EUR 104,500.00) zur Umsatzsteuerpflicht nach § 9 Abs. 1 UStG optiert.\n(2) Der Mieter versichert, die Mieträume während der gesamten Mietzeit ausschließlich (mindestens zu 95% gem. § 9 Abs. 2 UStG i.V.m. Abschn. 9.2 Abs. 3 UStAE) für Umsätze zu verwenden, die den Vorsteuerabzug nicht ausschließen, und hierüber jährlich bis zum 31.01. einen Steuerberater-Bestätigungsvermerk vorzulegen.\n(3) Ändert sich die Nutzung durch den Mieter oder erfolgt eine Neuvermietung an einen vorsteuerunschädlichen/steuerfreien Mieter (Bankfiliale / Finanzdienstleister / Versicherungsmakler (§ 4 Nr. 8 / Nr. 11 UStG)) nach Monat 60 (Restlaufzeit: 60/120 Monate = 50.00%), so entsteht ein Vorsteuerberichtigungsschaden nach § 15a Abs. 1 Satz 2 UStG in Höhe von insgesamt EUR 52,250.00 (EUR 10,450.00 p.a. bzw. EUR 870.83/Monat).\n(4) Zum vollständigen Barwertausgleich dieses § 15a-Schadens erhöht sich die monatliche Nettokaltmiete von EUR 7,500.00 um einen umsatzsteuerfreien § 15a-Kompensationsaufschlag von EUR 870.83/Monat (+11.61%) auf EUR 8,370.83/Monat."}, "gig_audit": {"sale_month_in_120m_window": 60, "is_rented_property_transfer": true, "buyer_continues_letting_enterprise": true, "seller_improperly_opted_to_vat_in_notary_deed": true, "sale_price_net_eur": 3500000.0, "improper_14c_vat_in_deed_eur": 665000.0, "qualifies_as_gig_1_1a_ustg": true, "remaining_months_transferred_to_buyer": 60, "latent_15a_rucksack_transferred_eur": 52250.0, "seller_14c_unberechtigte_ust_risk_eur": 665000.0, "seller_15a_clawback_if_tax_exempt_non_gig_sale_eur": 0.0, "notary_clause_recommendation_de": "WARNUNG (§ 14c Abs. 1 UStG Notarfalle bei GiG!): Die Veräußerung einer vermieteten Immobilie unter Fortführung der Vermietung durch den Erwerber ist kraft Gesetzes eine NICHT STEUERBARE Geschäftsveräußerung im Ganzen (§ 1 Abs. 1a UStG). Ein offener Ausweis von 19% USt (EUR 665,000.00) im Kaufvertrag führt zu § 14c Abs. 1 UStG Steuerschuld beim Verkäufer bei gleichzeitigem Versagen des Vorsteuerabzugs beim Käufer! Zwingend auf nicht steuerbare GiG umstellen + Hilfsweise-Option (§ 9 Abs. 1 & 3 UStG) für den Fall der Verneinung einer GiG aufnehmen."}}, {"scenario_id": "med_center_95pct_bagatelle_und_exit", "scenario_name_de": "Szenario C: Ärztehaus / Labor (95%-Bagatellgrenze UStAE 9.2 Abs. 3 & 24-Monats-Kippe)", "subtitle_de": "Großprojekt (433.200 € Vorsteuervolumen) -> Umstellung von 95,5% Labor auf 25% Privatklinik/Heilbehandlung nach 24 Monaten (96/120 Rückforderung = 346.560 €)", "allocation": {"commercial_area_sqm": 1200.0, "residential_exempt_area_sqm": 300.0, "total_area_sqm": 1500.0, "commercial_rent_net_monthly_eur": 24000.0, "residential_rent_monthly_eur": 3600.0, "flaechenschluessel_pct": 80.0, "umsatzschluessel_pct": 86.96, "applied_key_type": "FLAECHENSCHLUESSEL_15_4_S3", "substantial_fitout_divergence": false, "direct_commercial_net_eur": 1800000.0, "direct_commercial_vat_eur": 342000.0, "direct_residential_net_eur": 200000.0, "direct_residential_vat_eur": 38000.0, "common_roof_facade_heating_net_eur": 600000.0, "common_roof_facade_heating_vat_eur": 114000.0, "deductible_direct_commercial_vat_eur": 342000.0, "deductible_common_vat_eur": 91200.0, "non_deductible_vat_cost_eur": 60800.0, "total_claimable_input_vat_year1_eur": 433200.0, "legal_basis_summary": "Zwingender Vorrang des objektbezogenen Flächenschlüssels nach § 15 Abs. 4 Satz 3 UStG i.V.m. UStAE Abschn. 15.17 Abs. 7 & BFH-Rechtsprechung."}, "clawback": {"initial_tenant_code": "labor_apotheke_grenzfall", "new_tenant_code": "physio_heilpraktiker_mix", "initial_option_valid_9_2": true, "new_option_valid_9_2": false, "total_monitored_input_vat_eur": 433200.0, "bagatelle_44_1_exempt": false, "months_before_change": 24, "months_remaining_in_120m_window": 96, "remaining_fraction_str": "96/120", "clawback_share_pct": 80.0, "total_clawback_repayment_eur": 346560.0, "annual_clawback_installment_eur": 43320.0, "monthly_clawback_damage_eur": 3610.0, "base_monthly_net_rent_eur": 24000.0, "required_monthly_rent_surcharge_eur": 3610.0, "required_rent_markup_pct": 15.04, "adjusted_monthly_rent_for_exempt_tenant_eur": 27610.0, "yearly_schedule": [{"year_index": 1, "months_opted_in_year": 12, "months_exempt_in_year": 0, "effective_opted_share_pct": 100.0, "original_opted_share_pct": 100.0, "delta_percentage_points": 0.0, "one_tenth_vat_pool_eur": 43320.0, "bagatelle_44_2_exempt": true, "clawback_repayment_eur": 0.0, "cumulative_clawback_eur": 0.0, "remaining_unadjusted_vat_pool_eur": 389880.0}, {"year_index": 2, "months_opted_in_year": 12, "months_exempt_in_year": 0, "effective_opted_share_pct": 100.0, "original_opted_share_pct": 100.0, "delta_percentage_points": 0.0, "one_tenth_vat_pool_eur": 43320.0, "bagatelle_44_2_exempt": true, "clawback_repayment_eur": 0.0, "cumulative_clawback_eur": 0.0, "remaining_unadjusted_vat_pool_eur": 346560.0}, {"year_index": 3, "months_opted_in_year": 0, "months_exempt_in_year": 12, "effective_opted_share_pct": 0.0, "original_opted_share_pct": 100.0, "delta_percentage_points": 100.0, "one_tenth_vat_pool_eur": 43320.0, "bagatelle_44_2_exempt": false, "clawback_repayment_eur": 43320.0, "cumulative_clawback_eur": 43320.0, "remaining_unadjusted_vat_pool_eur": 303240.0}, {"year_index": 4, "months_opted_in_year": 0, "months_exempt_in_year": 12, "effective_opted_share_pct": 0.0, "original_opted_share_pct": 100.0, "delta_percentage_points": 100.0, "one_tenth_vat_pool_eur": 43320.0, "bagatelle_44_2_exempt": false, "clawback_repayment_eur": 43320.0, "cumulative_clawback_eur": 86640.0, "remaining_unadjusted_vat_pool_eur": 259920.0}, {"year_index": 5, "months_opted_in_year": 0, "months_exempt_in_year": 12, "effective_opted_share_pct": 0.0, "original_opted_share_pct": 100.0, "delta_percentage_points": 100.0, "one_tenth_vat_pool_eur": 43320.0, "bagatelle_44_2_exempt": false, "clawback_repayment_eur": 43320.0, "cumulative_clawback_eur": 129960.0, "remaining_unadjusted_vat_pool_eur": 216600.0}, {"year_index": 6, "months_opted_in_year": 0, "months_exempt_in_year": 12, "effective_opted_share_pct": 0.0, "original_opted_share_pct": 100.0, "delta_percentage_points": 100.0, "one_tenth_vat_pool_eur": 43320.0, "bagatelle_44_2_exempt": false, "clawback_repayment_eur": 43320.0, "cumulative_clawback_eur": 173280.0, "remaining_unadjusted_vat_pool_eur": 173280.0}, {"year_index": 7, "months_opted_in_year": 0, "months_exempt_in_year": 12, "effective_opted_share_pct": 0.0, "original_opted_share_pct": 100.0, "delta_percentage_points": 100.0, "one_tenth_vat_pool_eur": 43320.0, "bagatelle_44_2_exempt": false, "clawback_repayment_eur": 43320.0, "cumulative_clawback_eur": 216600.0, "remaining_unadjusted_vat_pool_eur": 129960.0}, {"year_index": 8, "months_opted_in_year": 0, "months_exempt_in_year": 12, "effective_opted_share_pct": 0.0, "original_opted_share_pct": 100.0, "delta_percentage_points": 100.0, "one_tenth_vat_pool_eur": 43320.0, "bagatelle_44_2_exempt": false, "clawback_repayment_eur": 43320.0, "cumulative_clawback_eur": 259920.0, "remaining_unadjusted_vat_pool_eur": 86640.0}, {"year_index": 9, "months_opted_in_year": 0, "months_exempt_in_year": 12, "effective_opted_share_pct": 0.0, "original_opted_share_pct": 100.0, "delta_percentage_points": 100.0, "one_tenth_vat_pool_eur": 43320.0, "bagatelle_44_2_exempt": false, "clawback_repayment_eur": 43320.0, "cumulative_clawback_eur": 303240.0, "remaining_unadjusted_vat_pool_eur": 43320.0}, {"year_index": 10, "months_opted_in_year": 0, "months_exempt_in_year": 12, "effective_opted_share_pct": 0.0, "original_opted_share_pct": 100.0, "delta_percentage_points": 100.0, "one_tenth_vat_pool_eur": 43320.0, "bagatelle_44_2_exempt": false, "clawback_repayment_eur": 43320.0, "cumulative_clawback_eur": 346560.0, "remaining_unadjusted_vat_pool_eur": 0.0}], "indemnity_clause_de": "§ X Umsatzsteueroption & § 15a UStG-Ausgleichsklausel:\n(1) Der Vermieter hat hinsichtlich der Herstellungskosten der Mietsache (Vorsteuervolumen: EUR 433,200.00) zur Umsatzsteuerpflicht nach § 9 Abs. 1 UStG optiert.\n(2) Der Mieter versichert, die Mieträume während der gesamten Mietzeit ausschließlich (mindestens zu 95% gem. § 9 Abs. 2 UStG i.V.m. Abschn. 9.2 Abs. 3 UStAE) für Umsätze zu verwenden, die den Vorsteuerabzug nicht ausschließen, und hierüber jährlich bis zum 31.01. einen Steuerberater-Bestätigungsvermerk vorzulegen.\n(3) Ändert sich die Nutzung durch den Mieter oder erfolgt eine Neuvermietung an einen vorsteuerunschädlichen/steuerfreien Mieter (Physiotherapie / Privatklinik mit 25% Wellness/Selbstzahler & 75% Heilbehandlung) nach Monat 24 (Restlaufzeit: 96/120 Monate = 80.00%), so entsteht ein Vorsteuerberichtigungsschaden nach § 15a Abs. 1 Satz 2 UStG in Höhe von insgesamt EUR 346,560.00 (EUR 43,320.00 p.a. bzw. EUR 3,610.00/Monat).\n(4) Zum vollständigen Barwertausgleich dieses § 15a-Schadens erhöht sich die monatliche Nettokaltmiete von EUR 24,000.00 um einen umsatzsteuerfreien § 15a-Kompensationsaufschlag von EUR 3,610.00/Monat (+15.04%) auf EUR 27,610.00/Monat."}, "gig_audit": {"sale_month_in_120m_window": 24, "is_rented_property_transfer": false, "buyer_continues_letting_enterprise": false, "seller_improperly_opted_to_vat_in_notary_deed": false, "sale_price_net_eur": 6200000.0, "improper_14c_vat_in_deed_eur": 0.0, "qualifies_as_gig_1_1a_ustg": false, "remaining_months_transferred_to_buyer": 0, "latent_15a_rucksack_transferred_eur": 0.0, "seller_14c_unberechtigte_ust_risk_eur": 0.0, "seller_15a_clawback_if_tax_exempt_non_gig_sale_eur": 346560.0, "notary_clause_recommendation_de": "ACHTUNG (§ 4 Nr. 9 lit. a UStG Steuerfreier Einzelverkauf ohne GiG): Da keine Vermietungsfortführung (keine GiG nach § 1 Abs. 1a UStG) vorliegt, löst ein steuerfreier Verkauf im Monat 24 beim Verkäufer sofort eine § 15a-Vorsteuerberichtigung über 96/120 Monate = EUR 346,560.00 aus! Lösung: Im notariellen Kaufvertrag zwingend nach § 9 Abs. 1 & Abs. 3 Satz 2 UStG zur Umsatzsteuer optieren (§ 13b Abs. 2 Nr. 3 UStG Reverse-Charge für den gewerblichen Erwerber)."}}];
+    const TENANTS = {"it_beratung_kanzlei": {"code": "it_beratung_kanzlei", "label_de": "IT-Systemhaus / Steuerkanzlei / Ingenieurbüro (100% regelbesteuert)", "legal_norm": "§ 2 Abs. 1 UStG i.V.m. § 15 Abs. 1 Satz 1 Nr. 1 UStG", "deductible_turnover_pct": 100.0, "is_entrepreneur_ustg_2": true, "risk_tier": "SAFE_OPTION_ELIGIBLE", "explanation_de": "100% steuerpflichtige Ausgangsumsätze. § 9 Abs. 1 & 2 UStG Option uneingeschränkt zulässig."}, "einzelhandel_gastro": {"code": "einzelhandel_gastro", "label_de": "Einzelhandel / Flagship-Store / Gastronomie / Logistik (98% regelbesteuert)", "legal_norm": "§ 9 Abs. 2 S. 1 UStG i.V.m. UStAE Abschn. 9.2 Abs. 3 (5%-Bagatellgrenze)", "deductible_turnover_pct": 98.0, "is_entrepreneur_ustg_2": true, "risk_tier": "SAFE_BAGATELLE_BUFFER", "explanation_de": "98% abzugsberechtigte Umsätze (>= 95% Schwelle nach UStAE 9.2 Abs. 3). Option voll wirksam."}, "labor_apotheke_grenzfall": {"code": "labor_apotheke_grenzfall", "label_de": "Medizinisches Labor / Sanitätshaus mit 95,5% steuerpflichtigen Umsätzen", "legal_norm": "UStAE Abschn. 9.2 Abs. 3 (Hart an der 95%-Mindestquote / 5%-Bagatellgrenze)", "deductible_turnover_pct": 95.5, "is_entrepreneur_ustg_2": true, "risk_tier": "WATCHLIST_95_THRESHOLD", "explanation_de": "Knapp über 95,0% Mindestquote. Jährlicher Nachweis im Mietvertrag zwingend, sonst § 15a-Kippe!"}, "physio_heilpraktiker_mix": {"code": "physio_heilpraktiker_mix", "label_de": "Physiotherapie / Privatklinik mit 25% Wellness/Selbstzahler & 75% Heilbehandlung", "legal_norm": "§ 4 Nr. 14 UStG i.V.m. § 9 Abs. 2 UStG (Option verboten, da < 95%!)", "deductible_turnover_pct": 25.0, "is_entrepreneur_ustg_2": true, "risk_tier": "FATAL_15A_TRAP", "explanation_de": "Nur 25% steuerpflichtige Umsätze (< 95%). § 9 Abs. 2 UStG verbietet die Option zu 100% auf dieser Teilfläche!"}, "arzt_zahnarzt_4_14": {"code": "arzt_zahnarzt_4_14", "label_de": "Arztpraxis / Zahnarzt / MVZ / Psychotherapeut (§ 4 Nr. 14 UStG)", "legal_norm": "§ 4 Nr. 14 lit. a UStG i.V.m. § 15 Abs. 2 S. 1 Nr. 1 & § 9 Abs. 2 UStG", "deductible_turnover_pct": 2.0, "is_entrepreneur_ustg_2": true, "risk_tier": "FATAL_15A_TRAP", "explanation_de": "Heilbehandlungen sind nach § 4 Nr. 14 UStG umsatzsteuerfrei (Ausschlussumsatz). Option nach § 9 Abs. 2 UStG nichtig!"}, "bank_versicherung_4_8_11": {"code": "bank_versicherung_4_8_11", "label_de": "Bankfiliale / Finanzdienstleister / Versicherungsmakler (§ 4 Nr. 8 / Nr. 11 UStG)", "legal_norm": "§ 4 Nr. 8 & Nr. 11 UStG i.V.m. § 9 Abs. 2 UStG", "deductible_turnover_pct": 5.0, "is_entrepreneur_ustg_2": true, "risk_tier": "FATAL_15A_TRAP", "explanation_de": "Finanz- und Versicherungsumsätze schließen den Vorsteuerabzug aus. § 9 Abs. 2 UStG sperrt die Option komplett!"}, "kleinunternehmer_19": {"code": "kleinunternehmer_19", "label_de": "Start-up / Atelier / Kleinunternehmer (§ 19 UStG)", "legal_norm": "§ 19 Abs. 1 UStG i.V.m. § 9 Abs. 2 UStG", "deductible_turnover_pct": 0.0, "is_entrepreneur_ustg_2": true, "risk_tier": "FATAL_15A_TRAP", "explanation_de": "Kleinunternehmer nach § 19 UStG sind vom Vorsteuerabzug ausgeschlossen. § 9 Abs. 2 UStG sperrt die Option!"}, "behoerde_verein_wohnen": {"code": "behoerde_verein_wohnen", "label_de": "Wohnraummieter / Behörde (Hoheitsbetrieb) / Gemeinnütziger Verein (nichtunternehmerisch)", "legal_norm": "§ 4 Nr. 12 lit. a UStG & § 9 Abs. 1 UStG (Kein Unternehmer für sein Unternehmen)", "deductible_turnover_pct": 0.0, "is_entrepreneur_ustg_2": false, "risk_tier": "FATAL_15A_TRAP", "explanation_de": "Schon § 9 Abs. 1 UStG scheitert: Mieter ist kein Unternehmer bzw. mietet nicht für sein Unternehmen."}};
+
+    function fmtEUR(val) {
+      return new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR', maximumFractionDigits: 2 }).format(val);
+    }
+
+    function initStudio() {
+      const selInit = document.getElementById('selInitialTenant');
+      const selNew = document.getElementById('selNewTenant');
+      Object.values(TENANTS).forEach(t => {
+        const o1 = document.createElement('option');
+        o1.value = t.code;
+        o1.textContent = `${t.label_de} [${t.deductible_turnover_pct.toFixed(1)}%]`;
+        selInit.appendChild(o1);
+
+        const o2 = document.createElement('option');
+        o2.value = t.code;
+        o2.textContent = `${t.label_de} [${t.deductible_turnover_pct.toFixed(1)}%]`;
+        selNew.appendChild(o2);
+      });
+
+      const presetBar = document.getElementById('presetBar');
+      PRESET_SCENARIOS.forEach((s, idx) => {
+        const btn = document.createElement('button');
+        btn.className = 'preset-btn' + (idx === 0 ? ' active' : '');
+        btn.textContent = s.scenario_name_de;
+        btn.onclick = () => loadScenario(idx);
+        presetBar.appendChild(btn);
+      });
+
+      loadScenario(0);
+    }
+
+    function loadScenario(idx) {
+      document.querySelectorAll('.preset-btn').forEach((b, i) => {
+        b.classList.toggle('active', i === idx);
+      });
+      const s = PRESET_SCENARIOS[idx];
+      document.getElementById('selInitialTenant').value = s.clawback.initial_tenant_code;
+      document.getElementById('selNewTenant').value = s.clawback.new_tenant_code;
+      document.getElementById('inpCommArea').value = s.allocation.commercial_area_sqm;
+      document.getElementById('inpResArea').value = s.allocation.residential_exempt_area_sqm;
+      document.getElementById('inpCommRent').value = s.allocation.commercial_rent_net_monthly_eur;
+      document.getElementById('inpResRent').value = s.allocation.residential_rent_monthly_eur;
+      document.getElementById('inpDirectCommNet').value = s.allocation.direct_commercial_net_eur;
+      document.getElementById('inpDirectResNet').value = s.allocation.direct_residential_net_eur;
+      document.getElementById('inpCommonNet').value = s.allocation.common_roof_facade_heating_net_eur;
+      document.getElementById('chkFitoutDivergence').checked = s.allocation.substantial_fitout_divergence;
+      document.getElementById('rngMonthChange').value = s.clawback.months_before_change;
+      document.getElementById('inpSalePrice').value = s.gig_audit.sale_price_net_eur;
+
+      if (!s.gig_audit.is_rented_property_transfer) {
+        document.getElementById('selGiGMode').value = 'vacant_exempt';
+      } else if (s.gig_audit.seller_improperly_opted_to_vat_in_notary_deed) {
+        document.getElementById('selGiGMode').value = 'gig_14c_error';
+      } else {
+        document.getElementById('selGiGMode').value = 'gig_clean';
+      }
+      recalcAll();
+    }
+
+    function checkOptionGate(code) {
+      const t = TENANTS[code];
+      if (!t.is_entrepreneur_ustg_2) {
+        return { valid: false, msg: `SPERRE § 9 Abs. 1 UStG: ${t.explanation_de}` };
+      }
+      if (t.deductible_turnover_pct >= 95.0) {
+        return { valid: true, msg: `OPTION ZULÄSSIG (§ 9 Abs. 2 UStG i.V.m. UStAE 9.2 Abs. 3): ${t.deductible_turnover_pct.toFixed(1)}% >= 95,0% Mindestquote.` };
+      }
+      return { valid: false, msg: `OPTION VERBOTEN (§ 9 Abs. 2 S. 1 UStG): Nur ${t.deductible_turnover_pct.toFixed(1)}% abzugsberechtigte Umsätze (< 95,0% Grenze).` };
+    }
+
+    function recalcAll() {
+      const initCode = document.getElementById('selInitialTenant').value;
+      const newCode = document.getElementById('selNewTenant').value;
+      const commArea = parseFloat(document.getElementById('inpCommArea').value) || 0;
+      const resArea = parseFloat(document.getElementById('inpResArea').value) || 0;
+      const commRent = parseFloat(document.getElementById('inpCommRent').value) || 0;
+      const resRent = parseFloat(document.getElementById('inpResRent').value) || 0;
+      const directCommNet = parseFloat(document.getElementById('inpDirectCommNet').value) || 0;
+      const directResNet = parseFloat(document.getElementById('inpDirectResNet').value) || 0;
+      const commonNet = parseFloat(document.getElementById('inpCommonNet').value) || 0;
+      const fitoutDiv = document.getElementById('chkFitoutDivergence').checked;
+      const monthChange = parseInt(document.getElementById('rngMonthChange').value, 10) || 0;
+      const salePrice = parseFloat(document.getElementById('inpSalePrice').value) || 0;
+      const gigMode = document.getElementById('selGiGMode').value;
+
+      const initGate = checkOptionGate(initCode);
+      const newGate = checkOptionGate(newCode);
+
+      const bInit = document.getElementById('bannerInitialGate');
+      bInit.className = 'gate-banner ' + (initGate.valid ? 'gate-ok' : 'gate-fail');
+      bInit.textContent = initGate.msg;
+
+      const bNew = document.getElementById('bannerNewGate');
+      bNew.className = 'gate-banner ' + (newGate.valid ? 'gate-ok' : 'gate-fail');
+      bNew.textContent = newGate.msg;
+
+      const totalArea = Math.max(commArea + resArea, 1);
+      const flaechenPct = (commArea / totalArea) * 100.0;
+      const totalRent = Math.max(commRent + resRent, 1);
+      const umsatzPct = (commRent / totalRent) * 100.0;
+
+      const chosenKeyPct = fitoutDiv ? umsatzPct : flaechenPct;
+      const effectiveCommonPct = initGate.valid ? chosenKeyPct : 0.0;
+
+      const directCommVat = directCommNet * 0.19;
+      const directResVat = directResNet * 0.19;
+      const commonVat = commonNet * 0.19;
+
+      const dedDirectCommVat = initGate.valid ? directCommVat : 0.0;
+      const dedCommonVat = commonVat * (effectiveCommonPct / 100.0);
+      const totalClaimedVat = dedDirectCommVat + dedCommonVat;
+      const totalVatPaid = directCommVat + directResVat + commonVat;
+      const nonDedVat = totalVatPaid - totalClaimedVat;
+
+      document.getElementById('kpiClaimedVat').textContent = fmtEUR(totalClaimedVat);
+      document.getElementById('kpiClaimedSub').textContent =
+        `Direkt Gewerbe: ${fmtEUR(dedDirectCommVat)} + Gemeinkosten (${effectiveCommonPct.toFixed(1)}%): ${fmtEUR(dedCommonVat)}`;
+      document.getElementById('kpiNonDedVat').textContent = fmtEUR(nonDedVat);
+      document.getElementById('kpiKeyUsed').textContent = fitoutDiv
+        ? `Objektbezogener Umsatzschlüssel (${umsatzPct.toFixed(1)}%) vs. Fläche (${flaechenPct.toFixed(1)}%)`
+        : `Flächenschlüssel § 15 Abs. 4 S. 3 UStG (${flaechenPct.toFixed(1)}%) vs. Umsatz (${umsatzPct.toFixed(1)}%)`;
+
+      const yearsChange = (monthChange / 12.0).toFixed(2);
+      document.getElementById('lblMonthChange').textContent = `Monat ${monthChange} (${yearsChange} Jahre)`;
+
+      const bagatelle44_1 = totalClaimedVat <= 1000.0;
+      document.getElementById('lblBagatelleStatus').textContent = bagatelle44_1
+        ? '§ 44 Abs. 1 UStDV Bagatellgrenze (<= 1.000 € Vorsteuer): Keine Berichtigung!'
+        : '§ 15a Abs. 1 S. 2 UStG aktiv (> 1.000 € Vorsteuer nach § 44 Abs. 1 UStDV)';
+
+      const remMonths = 120 - monthChange;
+      const tbody = document.getElementById('tbl15aBody');
+      tbody.innerHTML = '';
+
+      let cumClawback = 0.0;
+      const oneTenth = totalClaimedVat / 10.0;
+
+      for (let yr = 1; yr <= 10; yr++) {
+        const startM = (yr - 1) * 12;
+        const endM = yr * 12;
+        let mOpted = 0;
+        if (monthChange >= endM) {
+          mOpted = initGate.valid ? 12 : 0;
+        } else if (monthChange <= startM) {
+          mOpted = newGate.valid ? 12 : 0;
+        } else {
+          const m1 = monthChange - startM;
+          const m2 = 12 - m1;
+          mOpted = (initGate.valid ? m1 : 0) + (newGate.valid ? m2 : 0);
+        }
+        const mExempt = 12 - mOpted;
+        const origPct = initGate.valid ? 100.0 : 0.0;
+        const effPct = (mOpted / 12.0) * 100.0;
+        const deltaPts = Math.max(0.0, origPct - effPct);
+        const rawYrClawback = totalClaimedVat * (deltaPts / 100.0) / 10.0;
+        const bag44_2 = (deltaPts < 10.0) && (rawYrClawback <= 1000.0);
+        const yrClawback = (bagatelle44_1 || bag44_2 || !initGate.valid) ? 0.0 : rawYrClawback;
+        cumClawback += yrClawback;
+
+        const tr = document.createElement('tr');
+        if (yrClawback > 0.01) tr.className = 'clawback-active';
+        tr.innerHTML = `
+          <td><strong>Jahr ${yr}</strong> (Mon. ${startM + 1}–${endM})</td>
+          <td>${mOpted} Mon.</td>
+          <td>${mExempt} Mon.</td>
+          <td>${effPct.toFixed(1)}%</td>
+          <td>${fmtEUR(oneTenth)}</td>
+          <td>${bag44_2 && deltaPts > 0 ? 'Frei (<10% & <=1T€)' : 'Steuerpflichtig'}</td>
+          <td style="color:${yrClawback > 0 ? '#fb7185' : '#9fb0d6'}; font-weight:700;">${yrClawback > 0 ? '-' + fmtEUR(yrClawback) : '€0,00'}</td>
+          <td style="font-weight:700;">${fmtEUR(cumClawback)}</td>
+        `;
+        tbody.appendChild(tr);
+      }
+
+      const clawbackTriggered = initGate.valid && !newGate.valid && !bagatelle44_1 && remMonths > 0;
+      const clawbackPct = clawbackTriggered ? (remMonths / 120.0) * 100.0 : 0.0;
+      const safePct = 100.0 - clawbackPct;
+
+      document.getElementById('barSafe').style.width = `${safePct}%`;
+      document.getElementById('barClawback').style.width = `${clawbackPct}%`;
+      document.getElementById('barLabelSafe').textContent = `Unangreifbar verdient: ${120 - (clawbackTriggered ? remMonths : 0)}/120 Monate (${safePct.toFixed(1)}%)`;
+      document.getElementById('barLabelClawback').textContent = `§ 15a Rückforderung: ${clawbackTriggered ? remMonths : 0}/120 Monate (${clawbackPct.toFixed(1)}% = ${fmtEUR(cumClawback)})`;
+
+      const annualInstallment = clawbackTriggered ? oneTenth : 0.0;
+      const monthlyDamage = (clawbackTriggered && remMonths > 0) ? (cumClawback / remMonths) : 0.0;
+      const rentMarkupPct = commRent > 0 ? (monthlyDamage / commRent) * 100.0 : 0.0;
+      const targetRent = commRent + monthlyDamage;
+
+      document.getElementById('kpiClawbackTotal').textContent = fmtEUR(cumClawback);
+      document.getElementById('kpiClawbackFraction').textContent =
+        `Restlaufzeit: ${clawbackTriggered ? remMonths : 0} / 120 Monate (${clawbackPct.toFixed(1)}%)`;
+      document.getElementById('kpiAnnualClawback').textContent = `${fmtEUR(annualInstallment)} / Jahr`;
+      document.getElementById('kpiMonthlyDamage').textContent = `Monatlicher § 15a-Schaden: ${fmtEUR(monthlyDamage)}`;
+      document.getElementById('kpiRentMarkup').textContent = `+${fmtEUR(monthlyDamage)} (+${rentMarkupPct.toFixed(1)}%)`;
+      document.getElementById('kpiNewRentTarget').textContent = `Zielmiete steuerfrei: ${fmtEUR(targetRent)} / Mon.`;
+
+      // GiG Audit Box
+      const gigBox = document.getElementById('boxGiGAudit');
+      const latentRucksack = totalClaimedVat * (remMonths / 120.0);
+      if (gigMode === 'gig_clean') {
+        gigBox.className = 'gate-banner gate-ok';
+        gigBox.textContent =
+          `OPTIMAL (§ 1 Abs. 1a & § 15a Abs. 10 UStG Fußstapfentheorie): Nicht steuerbare Geschäftsveräußerung im Ganzen (GiG). ` +
+          `Keine § 15a-Rückzahlung beim Verkäufer im Monat ${monthChange}! Der Erwerber tritt in die Rechtsnachfolge ein und übernimmt ` +
+          `den laufenden 10-Jahres-Überwachungszeitraum für die verbleibenden ${remMonths}/120 Monate (latenter § 15a-Rucksack: ${fmtEUR(latentRucksack)}). ` +
+          `Zwingend Vorsteuer-Dokumentation nach § 15a Abs. 10 S. 2 UStG + vorsorgliche Hilfsoption (§ 9 Abs. 1 & 3 UStG) in den Notarvertrag aufnehmen!`;
+      } else if (gigMode === 'gig_14c_error') {
+        const err14c = salePrice * 0.19;
+        gigBox.className = 'gate-banner gate-fail';
+        gigBox.textContent =
+          `WARNUNG (§ 14c Abs. 1 UStG Notarfalle bei GiG!): Die Veräußerung einer vermieteten Gewerbeimmobilie an einen Fortführungs-Erwerber ist kraft Gesetzes ` +
+          `nicht steuerbar (§ 1 Abs. 1a UStG). Wird im Notarvertrag irrtümlich zur Umsatzsteuer optiert und 19% USt (${fmtEUR(err14c)}) offen ausgewiesen, ` +
+          `schuldet der Verkäufer diesen Betrag nach § 14c Abs. 1 UStG, während dem Käufer der Vorsteuerabzug versagt wird!`;
+      } else {
+        gigBox.className = 'gate-banner gate-fail';
+        gigBox.textContent =
+          `ACHTUNG (Steuerfreier Einzelverkauf nach § 4 Nr. 9a UStG ohne GiG): Da keine Vermietungsfortführung vorliegt, löst ein steuerfreier Verkauf im Monat ${monthChange} ` +
+          `beim Verkäufer sofort eine § 15a-Vorsteuerberichtigung über ${remMonths}/120 Monate = ${fmtEUR(latentRucksack)} aus! ` +
+          `Lösung: Im Notarvertrag nach § 9 Abs. 1 & Abs. 3 S. 2 UStG zur Umsatzsteuer optieren (§ 13b Abs. 2 Nr. 3 UStG Reverse-Charge).`;
+      }
+
+      // Lease Clause
+      const newTenantObj = TENANTS[newCode];
+      document.getElementById('boxLeaseClause').textContent =
+        `§ X Umsatzsteueroption (§ 9 UStG) & § 15a UStG-Schadensersatz- / Mietaufschlagsklausel:
+` +
+        `(1) Der Vermieter hat hinsichtlich der Herstellungs-/Sanierungskosten des Mietobjekts (überwachtes Vorsteuervolumen: ${fmtEUR(totalClaimedVat)}) ` +
+        `zur Umsatzsteuerpflicht gemäß § 9 Abs. 1 UStG optiert.
+` +
+        `(2) Der Mieter verpflichtet sich, die Mieträume ausschließlich (zu mindestens 95,0% gem. § 9 Abs. 2 S. 1 UStG i.V.m. Abschn. 9.2 Abs. 3 UStAE) ` +
+        `für Umsätze zu verwenden, die den Vorsteuerabzug nicht ausschließen, und hierüber jährlich eine Steuerberater-Bestätigung vorzulegen.
+` +
+        `(3) Bei Nutzungsänderung oder Neuvermietung an einen umsatzsteuerschädlichen Mieter (${newTenantObj.label_de}) nach Monat ${monthChange} ` +
+        `(Restüberwachungszeitraum: ${remMonths}/120 Monate = ${clawbackPct.toFixed(2)}%) entsteht ein Vorsteuerberichtigungsschaden nach § 15a Abs. 1 Satz 2 UStG ` +
+        `in Höhe von insgesamt ${fmtEUR(cumClawback)} (${fmtEUR(annualInstallment)} p.a. bzw. ${fmtEUR(monthlyDamage)}/Monat).
+` +
+        `(4) Zum Ausgleich dieses § 15a-Schadens erhöht sich die monatliche Nettokaltmiete von ${fmtEUR(commRent)} um einen umsatzsteuerfreien ` +
+        `Kompensationsaufschlag von ${fmtEUR(monthlyDamage)}/Monat (+${rentMarkupPct.toFixed(2)}%) auf ${fmtEUR(targetRent)}/Monat.`;
+    }
+
+    window.addEventListener('DOMContentLoaded', initStudio);
+  </script>
+</body>
+</html>

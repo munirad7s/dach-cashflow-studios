@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MVP #87 — DACH § 35a EStG Handwerker-Steuerbonus & WEG/Mieter-Bescheinigungs-Studio</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card: #ffffff;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --accent: #0284c7;
+      --emerald: #059669;
+      --amber: #d97706;
+      --red: #dc2626;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #f8fafc;
+      color: #0f172a;
+      line-height: 1.5;
+    }
+    header {
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      color: #fff;
+      padding: 28px 32px;
+      border-bottom: 4px solid #10b981;
+    }
+    header h1 { margin: 0 0 8px 0; font-size: 1.55rem; }
+    header p { margin: 0; color: #cbd5e1; font-size: 0.95rem; }
+    .container { max-width: 1380px; margin: 24px auto; padding: 0 20px 48px; }
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .kpi-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px 20px;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+    }
+    .kpi-label { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); font-weight: 700; }
+    .kpi-val { font-size: 1.85rem; font-weight: 800; margin: 6px 0 4px; color: #0f172a; }
+    .kpi-sub { font-size: 0.83rem; color: var(--muted); }
+    .section-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 22px 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+    }
+    .section-card h2 {
+      margin: 0 0 6px 0;
+      font-size: 1.2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .bucket-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+      gap: 16px;
+      margin-top: 14px;
+    }
+    .bucket-box {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px;
+      background: #f8fafc;
+    }
+    .progress-track {
+      height: 12px;
+      background: #e2e8f0;
+      border-radius: 999px;
+      overflow: hidden;
+      margin: 10px 0;
+    }
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, #0284c7, #10b981);
+      border-radius: 999px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      font-size: 0.88rem;
+    }
+    th, td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #f1f5f9;
+      font-weight: 700;
+      color: #334155;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+    td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .pill {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 0.74rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .muted { color: var(--muted); font-size: 0.8rem; }
+    .snippet-box {
+      margin-top: 6px;
+      padding: 8px 10px;
+      background: #f8fafc;
+      border-left: 3px solid #2563eb;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 0.77rem;
+      color: #1e293b;
+    }
+    .sim-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+      margin-top: 14px;
+    }
+    .sim-box {
+      background: #f1f5f9;
+      padding: 14px 16px;
+      border-radius: 10px;
+    }
+    .sim-box label { display: block; font-weight: 600; font-size: 0.85rem; margin-bottom: 6px; }
+    .sim-box input[type=range] { width: 100%; }
+  </style>
+</head>
+<body>
+
+<!-- DACH CASHFLOW STUDIOS LAUNCH BAR -->
+<style>
+  #dcs-launch-bar {
+    position: sticky;
+    top: 0;
+    z-index: 99999;
+    background: linear-gradient(90deg, #0b1120 0%, #111827 50%, #0f172a 100%);
+    color: #f8fafc;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.35);
+    padding: 8px 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  }
+  #dcs-launch-bar .dcs-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+  }
+  #dcs-launch-bar .dcs-badge {
+    background: rgba(16, 185, 129, 0.18);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.03em;
+  }
+  #dcs-launch-bar a.dcs-nav {
+    color: #93c5fd;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 12.5px;
+  }
+  #dcs-launch-bar a.dcs-nav:hover {
+    text-decoration: underline;
+    color: #dbeafe;
+  }
+  #dcs-launch-bar .dcs-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  #dcs-launch-bar .dcs-btn {
+    padding: 5px 11px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s ease;
+  }
+  #dcs-launch-bar .dcs-btn-ghost {
+    background: rgba(255,255,255,0.08);
+    color: #e2e8f0;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  #dcs-launch-bar .dcs-btn-primary {
+    background: linear-gradient(135deg, #0ea5e9, #2563eb);
+    color: #ffffff;
+  }
+  #dcs-launch-bar .dcs-btn-emerald {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
+  }
+  @media print {
+    #dcs-launch-bar { display: none !important; }
+  }
+</style>
+<div id="dcs-launch-bar">
+  <div class="dcs-left">
+    <a href="/index.html" class="dcs-nav">← Alle 150 DACH Studios</a>
+    <span class="dcs-badge">MVP #087 VERIFIED</span>
+    <span style="color:#cbd5e1;font-size:12px;">DACH Tax, Corporate & Accounting Arbitrage</span>
+  </div>
+  <div class="dcs-actions">
+    <button onclick="window.print()" class="dcs-btn dcs-btn-ghost">🖨️ PDF / Dossier drucken</button>
+    <a href="#checkout-modal-49" target="_blank" rel="noopener" class="dcs-btn dcs-btn-primary">⚡ Musterschreiben & Voll-Dossier (€49)</a>
+    <a href="#checkout-modal-299" target="_blank" rel="noopener" class="dcs-btn dcs-btn-emerald">🛡️ B2B Umsetzung buchen (€299 / €1.490)</a>
+  </div>
+</div>
+
+  <header>
+    <h1>DACH § 35a EStG Handwerker-Steuerbonus, Rechnungs-Sanierer & WEG/Mieter-Bescheinigungs-Studio (MVP #87)</h1>
+    <p>Deterministischer 3-Topf-Direktabzugs-Rechner (bis zu 5.710,00 €/Jahr von der Einkommensteuerschuld) · BMF-Schreiben v. 09.11.2016 / 01.09.2021 · KfW-458-Splitting & Muster-Bescheinigung</p>
+  </header>
+
+  <div class="container">
+    <!-- KPI SUMMARY -->
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label">Status Quo Steuerabzug (vor Sanierung)</div>
+        <div class="kpi-val">656.00 €</div>
+        <div class="kpi-sub">Nur formal korrekte Direktrechnungen ohne Nebenkosten-Extrakt</div>
+      </div>
+      <div class="kpi-card" style="border-color:#10b981;background:#ecfdf5;">
+        <div class="kpi-label" style="color:#065f46;">Sanierter § 35a Direkt-Steuerbonus</div>
+        <div class="kpi-val" style="color:#047857;">2,036.73 €</div>
+        <div class="kpi-sub"><strong>+1,380.73 €</strong> zusätzlicher Direktabzug von der Steuerschuld gerettet!</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Davon aus Nebenkostenabrechnung (§ 35a-Bescheinigung)</div>
+        <div class="kpi-val" style="color:#0284c7;">506.73 €</div>
+        <div class="kpi-sub">Hausmeister, Reinigung, Garten, Winterdienst, Schornsteinfeger & Wartung</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Verbleibender § 35a Freibetrags-Puffer (2026)</div>
+        <div class="kpi-val">3,673.27 €</div>
+        <div class="kpi-sub">Gesetzliches Haushalts-Maximum: <strong>5.710,00 € / Jahr</strong></div>
+      </div>
+    </div>
+
+    <!-- 1. 3-BUCKET BREAKDOWN -->
+    <div class="section-card">
+      <h2>
+        <span>1. Die 3 gesetzlichen Fördertöpfe nach § 35a Abs. 1–3 EStG (Haushalt: Familie Markus & Julia Lindner)</span>
+        <span class="pill" style="background:#dbeafe;color:#1e40af;">ELSTER Anlage Haushaltsnahe Aufwendungen</span>
+      </h2>
+      <div class="bucket-grid">
+        <!-- Bucket 1 -->
+        <div class="bucket-box">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <strong>Topf 1: § 35a Abs. 1 EStG</strong>
+            <span class="pill" style="background:#e0f2fe;color:#0369a1;">Max. 510,00 € Steuerabzug</span>
+          </div>
+          <div class="muted" style="margin-top:4px;">Geringfügige Beschäftigung im Privathaushalt (Haushaltsscheck / Minijob) (Anlage Haushaltsnahe Aufwendungen, Zeile 4)</div>
+          <div class="progress-track">
+            <div class="progress-bar" style="width:94.1%;"></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:0.85rem;">
+            <span>Begünstigte Aufwendungen: <strong>2,400.00 €</strong> / 2.550,00 €</span>
+            <span style="color:#047857;font-weight:700;">Bonus: 480.00 €</span>
+          </div>
+          <div class="muted" style="margin-top:4px;">Rest-Potenzial Topf 1: 30.00 € (150.00 € Lohnbasis)</div>
+        </div>
+
+        <!-- Bucket 2 -->
+        <div class="bucket-box">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <strong>Topf 2: § 35a Abs. 2 EStG</strong>
+            <span class="pill" style="background:#e0f2fe;color:#0369a1;">Max. 4.000,00 € Steuerabzug</span>
+          </div>
+          <div class="muted" style="margin-top:4px;">Sozialversicherungspflichtige Haushaltshilfen, haushaltsnahe Dienstleistungen & Pflegeleistungen (Anlage Haushaltsnahe Aufwendungen, Zeilen 5–6)</div>
+          <div class="progress-track">
+            <div class="progress-bar" style="width:10.5%;"></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:0.85rem;">
+            <span>Begünstigte Aufwendungen: <strong>2,108.05 €</strong> / 20.000,00 €</span>
+            <span style="color:#047857;font-weight:700;">Bonus: 421.61 €</span>
+          </div>
+          <div class="muted" style="margin-top:4px;">Rest-Potenzial Topf 2: 3,578.39 € (17,891.95 € Lohnbasis)</div>
+        </div>
+
+        <!-- Bucket 3 -->
+        <div class="bucket-box">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <strong>Topf 3: § 35a Abs. 3 EStG</strong>
+            <span class="pill" style="background:#e0f2fe;color:#0369a1;">Max. 1.200,00 € Steuerabzug</span>
+          </div>
+          <div class="muted" style="margin-top:4px;">Handwerkerleistungen für Renovierungs-, Erhaltungs- und Modernisierungsmaßnahmen (Anlage Haushaltsnahe Aufwendungen, Zeile 7)</div>
+          <div class="progress-track">
+            <div class="progress-bar" style="width:94.6%;"></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:0.85rem;">
+            <span>Begünstigte Aufwendungen: <strong>5,675.60 €</strong> / 6.000,00 €</span>
+            <span style="color:#047857;font-weight:700;">Bonus: 1,135.12 €</span>
+          </div>
+          <div class="muted" style="margin-top:4px;">Rest-Potenzial Topf 3: 64.88 € (324.40 € Lohnbasis)</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. INTERACTIVE LIVE SIMULATOR -->
+    <div class="section-card">
+      <h2>
+        <span>2. Interaktiver § 35a EStG Live-Simulator (5.710-€-Maximal-Rechner)</span>
+        <span class="muted">Echtzeit-Berechnung mit gesetzlichen Höchstbeträgen</span>
+      </h2>
+      <div class="sim-grid">
+        <div class="sim-box">
+          <label for="sim_b1">Topf 1 (§ 35a Abs. 1 Minijob-Haushaltshilfe): <span id="lbl_b1">2400</span> €</label>
+          <input type="range" id="sim_b1" min="0" max="4000" step="50" value="2400" oninput="updateSim()" />
+          <div class="muted">20 % von max. 2.550 € = <strong id="cred_b1">480.00 €</strong> Steuerabzug</div>
+        </div>
+        <div class="sim-box">
+          <label for="sim_b2">Topf 2 (§ 35a Abs. 2 Haushaltsnahe Dienstl. & Pflege): <span id="lbl_b2">2108</span> €</label>
+          <input type="range" id="sim_b2" min="0" max="25000" step="100" value="2108" oninput="updateSim()" />
+          <div class="muted">20 % von max. 20.000 € = <strong id="cred_b2">421.61 €</strong> Steuerabzug</div>
+        </div>
+        <div class="sim-box">
+          <label for="sim_b3">Topf 3 (§ 35a Abs. 3 Handwerker-Arbeits-/Fahrtkosten): <span id="lbl_b3">5676</span> €</label>
+          <input type="range" id="sim_b3" min="0" max="10000" step="100" value="5676" oninput="updateSim()" />
+          <div class="muted">20 % von max. 6.000 € = <strong id="cred_b3">1,135.12 €</strong> Steuerabzug</div>
+        </div>
+        <div class="sim-box" style="background:#ecfdf5;border:1px solid #10b981;">
+          <div class="kpi-label" style="color:#065f46;">Simulierter Direktabzug von der Steuerschuld</div>
+          <div id="sim_total_cred" style="font-size:1.75rem;font-weight:800;color:#047857;margin-top:4px;">2,036.73 € / Jahr</div>
+          <div id="sim_cap_note" class="muted">von max. 5.710,00 € gesetzlichem Höchstbetrag</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. INVOICE SANITIZER -->
+    <div class="section-card">
+      <h2>
+        <span>3. Handwerker-Rechnungs-Sanierer (Lohn/Material-Split, KfW-458-Abgrenzung & Barzahlungs-Prüfung)</span>
+        <span class="pill" style="background:#fef3c7;color:#92400e;">BMF-Schreiben Rn. 32, 39–46</span>
+      </h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Rechnung / Betrieb</th>
+            <th>Förder-Topf</th>
+            <th class="num">Rechnungsbetrag (Brutto)</th>
+            <th class="num">Status Quo Anerkannt</th>
+            <th class="num">Sanierte Lohn-/Fahrtbasis</th>
+            <th class="num">20 % Steuerbonus</th>
+            <th>Prüfstatus</th>
+            <th>Sanierungs-Maßnahme & Korrekturtext</th>
+          </tr>
+        </thead>
+        <tbody>
+          
+        <tr>
+          <td><strong>RE-2026-0142</strong><br><span class="muted">Minijob-Zentrale (Haushaltsscheck: Maria Kowalski)</span></td>
+          <td><span class="pill" style="color:#0f172a;background:#e2e8f0;">§ 35a Abs. 1 EStG</span></td>
+          <td class="num">2,400.00 €</td>
+          <td class="num">2,400.00 €</td>
+          <td class="num"><strong>2,400.00 €</strong></td>
+          <td class="num" style="color:#047857;font-weight:700;">480.00 €<br><span class="muted">(0,00 € gerettet)</span></td>
+          <td><span class="pill" style="color:#065f46;background:#d1fae5;">§ 35a-KONFORM</span></td>
+          <td style="font-size:0.82rem;line-height:1.35;">
+            Rechnung § 35a-konform: Arbeits-/Fahrt-/Maschinenkosten (2,400.00 € brutto) separat ausgewiesen und unbar (lastschrift) gezahlt.
+            <details style="margin-top:4px;">
+              <summary style="cursor:pointer;color:#2563eb;font-weight:600;">Muster-Korrekturanforderung anzeigen</summary>
+              <div class="snippet-box">Keine Korrektur erforderlich — direkt in ELSTER übernehmbar.</div>
+            </details>
+          </td>
+        </tr>
+        
+        <tr>
+          <td><strong>RE-2026-0889</strong><br><span class="muted">Meisterbetrieb Farben-Weber GmbH</span></td>
+          <td><span class="pill" style="color:#0f172a;background:#e2e8f0;">§ 35a Abs. 3 EStG</span></td>
+          <td class="num">3,500.00 €</td>
+          <td class="num">0.00 €</td>
+          <td class="num"><strong>2,520.00 €</strong></td>
+          <td class="num" style="color:#047857;font-weight:700;">504.00 €<br><span class="muted">(+504.00 € gerettet)</span></td>
+          <td><span class="pill" style="color:#92400e;background:#fef3c7;">PAUSCHAL-RECHNUNG SANIEREN</span></td>
+          <td style="font-size:0.82rem;line-height:1.35;">
+            Rechnungskorrektur nach BMF Rn. 40 anfordern (prozentuale oder betragsmäßige Aufteilung genügt): Branchenüblicher Arbeits-/Fahrt-/Maschinenanteil (72 %) = 2,520.00 € brutto -> sichert 504.00 € Steuerbonus.
+            <details style="margin-top:4px;">
+              <summary style="cursor:pointer;color:#2563eb;font-weight:600;">Muster-Korrekturanforderung anzeigen</summary>
+              <div class="snippet-box">Sehr geehrte Damen und Herren (Meisterbetrieb Farben-Weber GmbH), für den Einkommensteuerabzug nach § 35a Abs. 3 EStG benötigen wir zu Ihrer Pauschalrechnung RE-2026-0889 (3,500.00 € brutto) gemäß BMF-Schreiben vom 09.11.2016 (Rn. 40) eine kurze Aufschlüsselung des im Rechnungsbetrag enthaltenen Brutto-Anteils für Arbeits-, Fahrt- und Maschinenkosten (Richtwert ca. 2,520.00 € / 72 %) sowie Materialkosten (ca. 980.00 €).</div>
+            </details>
+          </td>
+        </tr>
+        
+        <tr>
+          <td><strong>RE-2026-1104</strong><br><span class="muted">SHK Haustechnik Franken GmbH & Co. KG</span></td>
+          <td><span class="pill" style="color:#0f172a;background:#e2e8f0;">§ 35a Abs. 3 EStG</span></td>
+          <td class="num">19,800.00 €</td>
+          <td class="num">0.00 €</td>
+          <td class="num"><strong>1,850.00 €</strong></td>
+          <td class="num" style="color:#047857;font-weight:700;">370.00 €<br><span class="muted">(+370.00 € gerettet)</span></td>
+          <td><span class="pill" style="color:#1e40af;background:#dbeafe;">KfW-MASSNAHMEN-SPLITTING</span></td>
+          <td style="font-size:0.82rem;line-height:1.35;">
+            Maßnahmen-Splitting nach BMF Rn. 32: Eigenständige, nicht geförderte Begleitgewerke (Ungeförderte Gäste-WC-Sanitärerneuerung & Hauptzählerschrank-Umrüstung (Arbeits- & Fahrtkosten)) auf separate Rechnung ohne Förderbezug ausstellen lassen -> rettet 1,850.00 € Bemessungsgrundlage (370.00 € Direkt-Steuerabzug).
+            <details style="margin-top:4px;">
+              <summary style="cursor:pointer;color:#2563eb;font-weight:600;">Muster-Korrekturanforderung anzeigen</summary>
+              <div class="snippet-box">Sehr geehrte Damen und Herren (SHK Haustechnik Franken GmbH & Co. KG), bitte teilen Sie die Rechnung RE-2026-1104 gemäß BMF-Schreiben zu § 35a EStG Rn. 32 in zwei getrennte Abrechnungen auf: (1) Geförderte Hauptmaßnahme (KfW-Zuschuss Nr. 458 (BEG Heizungsförderung)) und (2) Eigenständige, ungeförderte Nebenarbeiten (Ungeförderte Gäste-WC-Sanitärerneuerung & Hauptzählerschrank-Umrüstung (Arbeits- & Fahrtkosten)) mit ausgewiesenem Arbeits-/Fahrtkostenanteil i.H.v. 1,850.00 € brutto.</div>
+            </details>
+          </td>
+        </tr>
+        
+        <tr>
+          <td><strong>RE-2026-1410</strong><br><span class="muted">Elektro-Technik Süd GmbH</span></td>
+          <td><span class="pill" style="color:#0f172a;background:#e2e8f0;">§ 35a Abs. 3 EStG</span></td>
+          <td class="num">1,680.00 €</td>
+          <td class="num">880.00 €</td>
+          <td class="num"><strong>880.00 €</strong></td>
+          <td class="num" style="color:#047857;font-weight:700;">176.00 €<br><span class="muted">(0,00 € gerettet)</span></td>
+          <td><span class="pill" style="color:#065f46;background:#d1fae5;">§ 35a-KONFORM</span></td>
+          <td style="font-size:0.82rem;line-height:1.35;">
+            Rechnung § 35a-konform: Arbeits-/Fahrt-/Maschinenkosten (880.00 € brutto) separat ausgewiesen und unbar (ueberweisung) gezahlt.
+            <details style="margin-top:4px;">
+              <summary style="cursor:pointer;color:#2563eb;font-weight:600;">Muster-Korrekturanforderung anzeigen</summary>
+              <div class="snippet-box">Keine Korrektur erforderlich — direkt in ELSTER übernehmbar.</div>
+            </details>
+          </td>
+        </tr>
+        
+        <tr>
+          <td><strong>QUITT-2026-09</strong><br><span class="muted">Gartenservice Grün & Schnell</span></td>
+          <td><span class="pill" style="color:#0f172a;background:#e2e8f0;">§ 35a Abs. 2 EStG</span></td>
+          <td class="num">420.00 €</td>
+          <td class="num">0.00 €</td>
+          <td class="num"><strong>0.00 €</strong></td>
+          <td class="num" style="color:#047857;font-weight:700;">0.00 €<br><span class="muted">(0,00 € gerettet)</span></td>
+          <td><span class="pill" style="color:#991b1b;background:#fee2e2;">BARZAHLUNG (0 € VERLUST)</span></td>
+          <td style="font-size:0.82rem;line-height:1.35;">
+            Nicht heilbar für bereits bar gezahlte Beträge. Sofern noch offen oder Anzahlung: Zwingend per Überweisung, SEPA-Lastschrift oder EC-Karte auf das Empfängerkonto zahlen.
+            <details style="margin-top:4px;">
+              <summary style="cursor:pointer;color:#2563eb;font-weight:600;">Muster-Korrekturanforderung anzeigen</summary>
+              <div class="snippet-box">WARNUNG: Barzahlung nach § 35a Abs. 5 Satz 3 EStG gesetzlich ausgeschlossen.</div>
+            </details>
+          </td>
+        </tr>
+        
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 4. OFFICIAL BMF-PATTERN § 35a BESCHEINIGUNG (NEBENKOSTEN / HAUSGELD) -->
+    <div class="section-card">
+      <h2>
+        <span>4. Bescheinigung nach § 35a EStG (BMF-Muster) zur Wohnnebenkosten- / WEG-Hausgeldabrechnung 2026</span>
+        <span class="pill" style="background:#d1fae5;color:#065f46;">Direkt übernehmbar in ELSTER</span>
+      </h2>
+      <div style="background:#f8fafc;border:1px solid #cbd5e1;border-radius:8px;padding:12px 16px;margin-bottom:12px;font-size:0.86rem;">
+        <strong>Verwalter / Vermieter:</strong> Noris Immobilien- & WEG-Verwaltung GmbH &nbsp;|&nbsp;
+        <strong>Objekt / Einheit:</strong> Pirckheimerstr. 68, 90408 Nürnberg (WE 07 (3. OG links, 95,0 m² / 1.000,0 m²)) &nbsp;|&nbsp;
+        <strong>Steuerpflichtiger Haushalt:</strong> Familie Markus & Julia Lindner &nbsp;|&nbsp;
+        <strong>Zahlungsweg:</strong> Unbar (Überweisung / SEPA-Hausgeldkonto bestätigt)
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Position / Leistungsart</th>
+            <th>Ausführender Betrieb & Anschrift</th>
+            <th>§ 35a-Topf</th>
+            <th class="num">Gesamtkosten Objekt (Brutto)</th>
+            <th class="num">Davon Lohn/Fahrt Objekt (Brutto)</th>
+            <th>Umlageschlüssel</th>
+            <th class="num">Ihr Arbeits-/Fahrtanteil (ELSTER)</th>
+            <th class="num">Ihr 20 % Steuerbonus</th>
+          </tr>
+        </thead>
+        <tbody>
+          
+        <tr>
+          <td><strong>NK-01</strong> — Treppenhaus- und Glasreinigung (wöchentlich)</td>
+          <td>CleanProfi Gebäudereinigung GmbH<br><span class="muted">Frankenstr. 140, 90461 Nürnberg</span></td>
+          <td><span class="pill" style="color:#1e3a8a;background:#dbeafe;">§ 35a Abs. 2 EStG</span></td>
+          <td class="num">7,800.00 €</td>
+          <td class="num">7,020.00 €</td>
+          <td>95 / 1000 m² Wohnfläche (9.50 %)</td>
+          <td class="num"><strong>666.90 €</strong></td>
+          <td class="num" style="color:#047857;font-weight:700;">133.38 €</td>
+        </tr>
+        
+        <tr>
+          <td><strong>NK-02</strong> — Hausmeisterservice / Objektbetreuung (ohne Reparaturen)</td>
+          <td>Hauswartung Noris e.K.<br><span class="muted">Katzwanger Str. 31, 90461 Nürnberg</span></td>
+          <td><span class="pill" style="color:#1e3a8a;background:#dbeafe;">§ 35a Abs. 2 EStG</span></td>
+          <td class="num">9,200.00 €</td>
+          <td class="num">8,740.00 €</td>
+          <td>95 / 1000 m² Wohnfläche (9.50 %)</td>
+          <td class="num"><strong>830.30 €</strong></td>
+          <td class="num" style="color:#047857;font-weight:700;">166.06 €</td>
+        </tr>
+        
+        <tr>
+          <td><strong>NK-03</strong> — Gartenpflege & Grünanlagenbetreuung</td>
+          <td>GaLaBau Mittelfranken GmbH<br><span class="muted">Sigmundstr. 88, 90431 Nürnberg</span></td>
+          <td><span class="pill" style="color:#1e3a8a;background:#dbeafe;">§ 35a Abs. 2 EStG</span></td>
+          <td class="num">4,600.00 €</td>
+          <td class="num">3,910.00 €</td>
+          <td>95 / 1000 m² Wohnfläche (9.50 %)</td>
+          <td class="num"><strong>371.45 €</strong></td>
+          <td class="num" style="color:#047857;font-weight:700;">74.29 €</td>
+        </tr>
+        
+        <tr>
+          <td><strong>NK-04</strong> — Winterdienst & Gehwegräumung (ohne Streugut)</td>
+          <td>Winterdienst Franken GmbH<br><span class="muted">Hafenstr. 19, 90768 Fürth</span></td>
+          <td><span class="pill" style="color:#1e3a8a;background:#dbeafe;">§ 35a Abs. 2 EStG</span></td>
+          <td class="num">2,800.00 €</td>
+          <td class="num">2,520.00 €</td>
+          <td>95 / 1000 m² Wohnfläche (9.50 %)</td>
+          <td class="num"><strong>239.40 €</strong></td>
+          <td class="num" style="color:#047857;font-weight:700;">47.88 €</td>
+        </tr>
+        
+        <tr>
+          <td><strong>NK-05</strong> — Schornsteinfeger (Kehr-, Mess- & Überprüfungsarbeiten)</td>
+          <td>Bevollm. Bezirksschornsteinfeger M. Kraus<br><span class="muted">Pirckheimerstr. 64, 90408 Nürnberg</span></td>
+          <td><span class="pill" style="color:#1e3a8a;background:#dbeafe;">§ 35a Abs. 3 EStG</span></td>
+          <td class="num">960.00 €</td>
+          <td class="num">960.00 €</td>
+          <td>95 / 1000 m² Wohnfläche (9.50 %)</td>
+          <td class="num"><strong>91.20 €</strong></td>
+          <td class="num" style="color:#047857;font-weight:700;">18.24 €</td>
+        </tr>
+        
+        <tr>
+          <td><strong>NK-06</strong> — Wartung Zentralheizung & Personenaufzug (reiner Wartungslohn)</td>
+          <td>ThermoLift Service Süd GmbH<br><span class="muted">Kohlenhofstr. 12, 90443 Nürnberg</span></td>
+          <td><span class="pill" style="color:#1e3a8a;background:#dbeafe;">§ 35a Abs. 3 EStG</span></td>
+          <td class="num">4,400.00 €</td>
+          <td class="num">3,520.00 €</td>
+          <td>95 / 1000 m² Wohnfläche (9.50 %)</td>
+          <td class="num"><strong>334.40 €</strong></td>
+          <td class="num" style="color:#047857;font-weight:700;">66.88 €</td>
+        </tr>
+        
+        </tbody>
+        <tfoot>
+          <tr style="background:#f1f5f9;font-weight:700;">
+            <td colspan="3">SUMME BESCHEINIGUNG NACH § 35a EStG (2026)</td>
+            <td class="num">29,760.00 €</td>
+            <td class="num">26,670.00 €</td>
+            <td>9,50 % Wohnflächenanteil</td>
+            <td class="num">2,533.65 €</td>
+            <td class="num" style="color:#047857;">506.73 €</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    const REPORT_DATA = {
+  "tax_year": 2026,
+  "household_name": "Familie Markus & Julia Lindner",
+  "property_address": "Pirckheimerstr. 68, 90408 Nürnberg",
+  "landlord_or_weg_manager": "Noris Immobilien- & WEG-Verwaltung GmbH",
+  "unit_identifier": "WE 07 (3. OG links, 95,0 m² / 1.000,0 m²)",
+  "sanitized_invoices": [
+    {
+      "invoice_id": "RE-2026-0142",
+      "vendor_name": "Minijob-Zentrale (Haushaltsscheck: Maria Kowalski)",
+      "category_key": "minijob_haushalt",
+      "bucket": "abs1_minijob",
+      "paragraph": "§ 35a Abs. 1 EStG",
+      "gross_total_eur": 2400.0,
+      "currently_eligible_basis_eur": 2400.0,
+      "sanitized_eligible_basis_eur": 2400.0,
+      "immediate_tax_credit_eur": 480.0,
+      "sanitized_tax_credit_eur": 480.0,
+      "rescued_tax_credit_delta_eur": 0.0,
+      "status_code": "OK_ELIGIBLE",
+      "traps_detected": [],
+      "remediation_action": "Rechnung § 35a-konform: Arbeits-/Fahrt-/Maschinenkosten (2,400.00 € brutto) separat ausgewiesen und unbar (lastschrift) gezahlt.",
+      "correction_letter_snippet": "Keine Korrektur erforderlich — direkt in ELSTER übernehmbar."
+    },
+    {
+      "invoice_id": "RE-2026-0889",
+      "vendor_name": "Meisterbetrieb Farben-Weber GmbH",
+      "category_key": "malerarbeiten",
+      "bucket": "abs3_handwerker",
+      "paragraph": "§ 35a Abs. 3 EStG",
+      "gross_total_eur": 3500.0,
+      "currently_eligible_basis_eur": 0.0,
+      "sanitized_eligible_basis_eur": 2520.0,
+      "immediate_tax_credit_eur": 0.0,
+      "sanitized_tax_credit_eur": 504.0,
+      "rescued_tax_credit_delta_eur": 504.0,
+      "status_code": "NEEDS_INVOICE_SPLIT_CORRECTION",
+      "traps_detected": [
+        "PAUSCHALRECHNUNG OHNE LOHN-/MATERIAL-AUFTEILUNG (BMF Rn. 39–40): Ohne getrennten Ausweis der Arbeits-, Fahrt- und Maschinenkosten (inkl. anteiliger USt) droht 0 € Anerkennung."
+      ],
+      "remediation_action": "Rechnungskorrektur nach BMF Rn. 40 anfordern (prozentuale oder betragsmäßige Aufteilung genügt): Branchenüblicher Arbeits-/Fahrt-/Maschinenanteil (72 %) = 2,520.00 € brutto -> sichert 504.00 € Steuerbonus.",
+      "correction_letter_snippet": "Sehr geehrte Damen und Herren (Meisterbetrieb Farben-Weber GmbH), für den Einkommensteuerabzug nach § 35a Abs. 3 EStG benötigen wir zu Ihrer Pauschalrechnung RE-2026-0889 (3,500.00 € brutto) gemäß BMF-Schreiben vom 09.11.2016 (Rn. 40) eine kurze Aufschlüsselung des im Rechnungsbetrag enthaltenen Brutto-Anteils für Arbeits-, Fahrt- und Maschinenkosten (Richtwert ca. 2,520.00 € / 72 %) sowie Materialkosten (ca. 980.00 €)."
+    },
+    {
+      "invoice_id": "RE-2026-1104",
+      "vendor_name": "SHK Haustechnik Franken GmbH & Co. KG",
+      "category_key": "badsanierung_shk",
+      "bucket": "abs3_handwerker",
+      "paragraph": "§ 35a Abs. 3 EStG",
+      "gross_total_eur": 19800.0,
+      "currently_eligible_basis_eur": 0.0,
+      "sanitized_eligible_basis_eur": 1850.0,
+      "immediate_tax_credit_eur": 0.0,
+      "sanitized_tax_credit_eur": 370.0,
+      "rescued_tax_credit_delta_eur": 370.0,
+      "status_code": "NEEDS_KFW_MEASURE_SPLIT",
+      "traps_detected": [
+        "DOPPELFOERDERUNGSVERBOT (§ 35a Abs. 3 Satz 2 EStG): Öffentliche Förderung (KfW-Zuschuss Nr. 458 (BEG Heizungsförderung)) sperrt die geförderte Maßnahme komplett für § 35a EStG."
+      ],
+      "remediation_action": "Maßnahmen-Splitting nach BMF Rn. 32: Eigenständige, nicht geförderte Begleitgewerke (Ungeförderte Gäste-WC-Sanitärerneuerung & Hauptzählerschrank-Umrüstung (Arbeits- & Fahrtkosten)) auf separate Rechnung ohne Förderbezug ausstellen lassen -> rettet 1,850.00 € Bemessungsgrundlage (370.00 € Direkt-Steuerabzug).",
+      "correction_letter_snippet": "Sehr geehrte Damen und Herren (SHK Haustechnik Franken GmbH & Co. KG), bitte teilen Sie die Rechnung RE-2026-1104 gemäß BMF-Schreiben zu § 35a EStG Rn. 32 in zwei getrennte Abrechnungen auf: (1) Geförderte Hauptmaßnahme (KfW-Zuschuss Nr. 458 (BEG Heizungsförderung)) und (2) Eigenständige, ungeförderte Nebenarbeiten (Ungeförderte Gäste-WC-Sanitärerneuerung & Hauptzählerschrank-Umrüstung (Arbeits- & Fahrtkosten)) mit ausgewiesenem Arbeits-/Fahrtkostenanteil i.H.v. 1,850.00 € brutto."
+    },
+    {
+      "invoice_id": "RE-2026-1410",
+      "vendor_name": "Elektro-Technik Süd GmbH",
+      "category_key": "elektro_wallbox",
+      "bucket": "abs3_handwerker",
+      "paragraph": "§ 35a Abs. 3 EStG",
+      "gross_total_eur": 1680.0,
+      "currently_eligible_basis_eur": 880.0,
+      "sanitized_eligible_basis_eur": 880.0,
+      "immediate_tax_credit_eur": 176.0,
+      "sanitized_tax_credit_eur": 176.0,
+      "rescued_tax_credit_delta_eur": 0.0,
+      "status_code": "OK_ELIGIBLE",
+      "traps_detected": [],
+      "remediation_action": "Rechnung § 35a-konform: Arbeits-/Fahrt-/Maschinenkosten (880.00 € brutto) separat ausgewiesen und unbar (ueberweisung) gezahlt.",
+      "correction_letter_snippet": "Keine Korrektur erforderlich — direkt in ELSTER übernehmbar."
+    },
+    {
+      "invoice_id": "QUITT-2026-09",
+      "vendor_name": "Gartenservice Grün & Schnell",
+      "category_key": "gartenpflege",
+      "bucket": "abs2_dienstleistungen",
+      "paragraph": "§ 35a Abs. 2 EStG",
+      "gross_total_eur": 420.0,
+      "currently_eligible_basis_eur": 0.0,
+      "sanitized_eligible_basis_eur": 0.0,
+      "immediate_tax_credit_eur": 0.0,
+      "sanitized_tax_credit_eur": 0.0,
+      "rescued_tax_credit_delta_eur": 0.0,
+      "status_code": "REJECTED_CASH_PAYMENT",
+      "traps_detected": [
+        "BARZAHLUNGSVERBOT (§ 35a Abs. 5 Satz 3 EStG): Barzahlung gegen Quittung führt zu 100 % Verlust der Steuerermäßigung (BFH VI R 14/08)."
+      ],
+      "remediation_action": "Nicht heilbar für bereits bar gezahlte Beträge. Sofern noch offen oder Anzahlung: Zwingend per Überweisung, SEPA-Lastschrift oder EC-Karte auf das Empfängerkonto zahlen.",
+      "correction_letter_snippet": "WARNUNG: Barzahlung nach § 35a Abs. 5 Satz 3 EStG gesetzlich ausgeschlossen."
+    }
+  ],
+  "bescheinigung_lines": [
+    {
+      "pos_id": "NK-01",
+      "bezeichnung": "Treppenhaus- und Glasreinigung (wöchentlich)",
+      "bucket": "abs2_dienstleistungen",
+      "paragraph": "§ 35a Abs. 2 EStG",
+      "dienstleister_name": "CleanProfi Gebäudereinigung GmbH",
+      "dienstleister_anschrift": "Frankenstr. 140, 90461 Nürnberg",
+      "gesamtkosten_objekt_brutto_eur": 7800.0,
+      "beguenstigter_anteil_objekt_brutto_eur": 7020.0,
+      "umlageschluessel_label": "95 / 1000 m² Wohnfläche (9.50 %)",
+      "anteil_haushalt_brutto_eur": 741.0,
+      "beguenstigter_arbeitsanteil_haushalt_brutto_eur": 666.9,
+      "steuerbonus_20pct_eur": 133.38
+    },
+    {
+      "pos_id": "NK-02",
+      "bezeichnung": "Hausmeisterservice / Objektbetreuung (ohne Reparaturen)",
+      "bucket": "abs2_dienstleistungen",
+      "paragraph": "§ 35a Abs. 2 EStG",
+      "dienstleister_name": "Hauswartung Noris e.K.",
+      "dienstleister_anschrift": "Katzwanger Str. 31, 90461 Nürnberg",
+      "gesamtkosten_objekt_brutto_eur": 9200.0,
+      "beguenstigter_anteil_objekt_brutto_eur": 8740.0,
+      "umlageschluessel_label": "95 / 1000 m² Wohnfläche (9.50 %)",
+      "anteil_haushalt_brutto_eur": 874.0,
+      "beguenstigter_arbeitsanteil_haushalt_brutto_eur": 830.3,
+      "steuerbonus_20pct_eur": 166.06
+    },
+    {
+      "pos_id": "NK-03",
+      "bezeichnung": "Gartenpflege & Grünanlagenbetreuung",
+      "bucket": "abs2_dienstleistungen",
+      "paragraph": "§ 35a Abs. 2 EStG",
+      "dienstleister_name": "GaLaBau Mittelfranken GmbH",
+      "dienstleister_anschrift": "Sigmundstr. 88, 90431 Nürnberg",
+      "gesamtkosten_objekt_brutto_eur": 4600.0,
+      "beguenstigter_anteil_objekt_brutto_eur": 3910.0,
+      "umlageschluessel_label": "95 / 1000 m² Wohnfläche (9.50 %)",
+      "anteil_haushalt_brutto_eur": 437.0,
+      "beguenstigter_arbeitsanteil_haushalt_brutto_eur": 371.45,
+      "steuerbonus_20pct_eur": 74.29
+    },
+    {
+      "pos_id": "NK-04",
+      "bezeichnung": "Winterdienst & Gehwegräumung (ohne Streugut)",
+      "bucket": "abs2_dienstleistungen",
+      "paragraph": "§ 35a Abs. 2 EStG",
+      "dienstleister_name": "Winterdienst Franken GmbH",
+      "dienstleister_anschrift": "Hafenstr. 19, 90768 Fürth",
+      "gesamtkosten_objekt_brutto_eur": 2800.0,
+      "beguenstigter_anteil_objekt_brutto_eur": 2520.0,
+      "umlageschluessel_label": "95 / 1000 m² Wohnfläche (9.50 %)",
+      "anteil_haushalt_brutto_eur": 266.0,
+      "beguenstigter_arbeitsanteil_haushalt_brutto_eur": 239.4,
+      "steuerbonus_20pct_eur": 47.88
+    },
+    {
+      "pos_id": "NK-05",
+      "bezeichnung": "Schornsteinfeger (Kehr-, Mess- & Überprüfungsarbeiten)",
+      "bucket": "abs3_handwerker",
+      "paragraph": "§ 35a Abs. 3 EStG",
+      "dienstleister_name": "Bevollm. Bezirksschornsteinfeger M. Kraus",
+      "dienstleister_anschrift": "Pirckheimerstr. 64, 90408 Nürnberg",
+      "gesamtkosten_objekt_brutto_eur": 960.0,
+      "beguenstigter_anteil_objekt_brutto_eur": 960.0,
+      "umlageschluessel_label": "95 / 1000 m² Wohnfläche (9.50 %)",
+      "anteil_haushalt_brutto_eur": 91.2,
+      "beguenstigter_arbeitsanteil_haushalt_brutto_eur": 91.2,
+      "steuerbonus_20pct_eur": 18.24
+    },
+    {
+      "pos_id": "NK-06",
+      "bezeichnung": "Wartung Zentralheizung & Personenaufzug (reiner Wartungslohn)",
+      "bucket": "abs3_handwerker",
+      "paragraph": "§ 35a Abs. 3 EStG",
+      "dienstleister_name": "ThermoLift Service Süd GmbH",
+      "dienstleister_anschrift": "Kohlenhofstr. 12, 90443 Nürnberg",
+      "gesamtkosten_objekt_brutto_eur": 4400.0,
+      "beguenstigter_anteil_objekt_brutto_eur": 3520.0,
+      "umlageschluessel_label": "95 / 1000 m² Wohnfläche (9.50 %)",
+      "anteil_haushalt_brutto_eur": 418.0,
+      "beguenstigter_arbeitsanteil_haushalt_brutto_eur": 334.4,
+      "steuerbonus_20pct_eur": 66.88
+    }
+  ],
+  "buckets": {
+    "abs1_minijob": {
+      "bucket_key": "abs1_minijob",
+      "paragraph": "§ 35a Abs. 1 EStG",
+      "title": "Geringfügige Beschäftigung im Privathaushalt (Haushaltsscheck / Minijob)",
+      "elster_zeile": "Anlage Haushaltsnahe Aufwendungen, Zeile 4",
+      "statutory_max_basis_eur": 2550.0,
+      "statutory_max_credit_eur": 510.0,
+      "current_basis_eur": 2400.0,
+      "sanitized_basis_eur": 2400.0,
+      "capped_current_basis_eur": 2400.0,
+      "capped_sanitized_basis_eur": 2400.0,
+      "current_credit_eur": 480.0,
+      "sanitized_credit_eur": 480.0,
+      "remaining_headroom_basis_eur": 150.0,
+      "remaining_headroom_credit_eur": 30.0,
+      "excess_over_cap_basis_eur": 0.0
+    },
+    "abs2_dienstleistungen": {
+      "bucket_key": "abs2_dienstleistungen",
+      "paragraph": "§ 35a Abs. 2 EStG",
+      "title": "Sozialversicherungspflichtige Haushaltshilfen, haushaltsnahe Dienstleistungen & Pflegeleistungen",
+      "elster_zeile": "Anlage Haushaltsnahe Aufwendungen, Zeilen 5–6",
+      "statutory_max_basis_eur": 20000.0,
+      "statutory_max_credit_eur": 4000.0,
+      "current_basis_eur": 0.0,
+      "sanitized_basis_eur": 2108.05,
+      "capped_current_basis_eur": 0.0,
+      "capped_sanitized_basis_eur": 2108.05,
+      "current_credit_eur": 0.0,
+      "sanitized_credit_eur": 421.61,
+      "remaining_headroom_basis_eur": 17891.95,
+      "remaining_headroom_credit_eur": 3578.39,
+      "excess_over_cap_basis_eur": 0.0
+    },
+    "abs3_handwerker": {
+      "bucket_key": "abs3_handwerker",
+      "paragraph": "§ 35a Abs. 3 EStG",
+      "title": "Handwerkerleistungen für Renovierungs-, Erhaltungs- und Modernisierungsmaßnahmen",
+      "elster_zeile": "Anlage Haushaltsnahe Aufwendungen, Zeile 7",
+      "statutory_max_basis_eur": 6000.0,
+      "statutory_max_credit_eur": 1200.0,
+      "current_basis_eur": 880.0,
+      "sanitized_basis_eur": 5675.6,
+      "capped_current_basis_eur": 880.0,
+      "capped_sanitized_basis_eur": 5675.6,
+      "current_credit_eur": 176.0,
+      "sanitized_credit_eur": 1135.12,
+      "remaining_headroom_basis_eur": 324.4,
+      "remaining_headroom_credit_eur": 64.88,
+      "excess_over_cap_basis_eur": 0.0
+    }
+  },
+  "total_current_credit_eur": 656.0,
+  "total_sanitized_credit_eur": 2036.73,
+  "total_rescued_credit_delta_eur": 1380.73,
+  "total_statutory_max_credit_eur": 5710.0,
+  "total_remaining_headroom_credit_eur": 3673.27,
+  "nebenkosten_tenant_credit_eur": 506.73
+};
+    const BMF_CATALOG = {
+  "treppenhausreinigung": {
+    "name": "Treppenhaus- & Gebäudereinigung / Fensterputzer",
+    "bucket": "abs2_dienstleistungen",
+    "paragraph": "§ 35a Abs. 2 EStG",
+    "bmf_reference": "BMF v. 09.11.2016, Anlage 1 'Reinigung der Wohnung / Treppenhausreinigung'",
+    "typical_labor_share_pct": 0.9,
+    "typical_material_share_pct": 0.1,
+    "nebenkosten_relevant": true,
+    "notes": "Putzmittel (Verbrauchsmaterial) sind als Material abzuziehen, sofern separat oder pauschal enthalten."
+  },
+  "hausmeister": {
+    "name": "Hausmeisterdienst / Hauswart (ohne Reparaturen)",
+    "bucket": "abs2_dienstleistungen",
+    "paragraph": "§ 35a Abs. 2 EStG",
+    "bmf_reference": "BMF v. 09.11.2016, Anlage 1 'Hausmeister, Hauswart'",
+    "typical_labor_share_pct": 0.95,
+    "typical_material_share_pct": 0.05,
+    "nebenkosten_relevant": true,
+    "notes": "Reine Betreuung/Kontrolle/Reinigung fällt unter Abs. 2; Kleinreparaturen unter Abs. 3."
+  },
+  "gartenpflege": {
+    "name": "Gartenpflegearbeiten (Rasenmähen, Heckenschnitt, Baumpflege)",
+    "bucket": "abs2_dienstleistungen",
+    "paragraph": "§ 35a Abs. 2 EStG",
+    "bmf_reference": "BMF v. 09.11.2016, Anlage 1 'Gartenpflegearbeiten'",
+    "typical_labor_share_pct": 0.85,
+    "typical_material_share_pct": 0.15,
+    "nebenkosten_relevant": true,
+    "notes": "Arbeits-, Fahrt- und Häcksler-/Maschinenkosten begünstigt; Pflanzen, Erde, Rindenmulch = 0%."
+  },
+  "winterdienst": {
+    "name": "Winterdienst / Schneeräumung (inkl. öffentlicher Gehweg vor dem Grundstück)",
+    "bucket": "abs2_dienstleistungen",
+    "paragraph": "§ 35a Abs. 2 EStG",
+    "bmf_reference": "BMF v. 09.11.2016, Rn. 12 & Anlage 1 'Winterdienst'",
+    "typical_labor_share_pct": 0.9,
+    "typical_material_share_pct": 0.1,
+    "nebenkosten_relevant": true,
+    "notes": "Arbeits- und Räummaschinenkosten begünstigt (auch öffentlicher Gehweg); Streusalz/Splitt = Material."
+  },
+  "schornsteinfeger": {
+    "name": "Schornsteinfegerleistungen (Kehr-, Mess- & Überprüfungsarbeiten, Feuerstättenschau)",
+    "bucket": "abs3_handwerker",
+    "paragraph": "§ 35a Abs. 3 EStG",
+    "bmf_reference": "BMF v. 09.11.2016, Rn. 22 (Aufhebung der Aufteilung Kehr- vs. Messarbeiten)",
+    "typical_labor_share_pct": 1.0,
+    "typical_material_share_pct": 0.0,
+    "nebenkosten_relevant": true,
+    "notes": "Seit BMF 10.11.2015 / 09.11.2016 in voller Höhe (inkl. Feuerstättenschau & Messarbeiten) als Handwerkerleistung nach Abs. 3 begünstigt."
+  },
+  "heizungswartung": {
+    "name": "Wartung Heizungsanlage / Wärmepumpe / Gastherme / Aufzug",
+    "bucket": "abs3_handwerker",
+    "paragraph": "§ 35a Abs. 3 EStG",
+    "bmf_reference": "BMF v. 09.11.2016, Anlage 1 'Wartung'",
+    "typical_labor_share_pct": 0.8,
+    "typical_material_share_pct": 0.2,
+    "nebenkosten_relevant": true,
+    "notes": "Wartungspauschale ohne Ersatzteile = 100% begünstigt; Dichtungen, Düsen, Filter = Material."
+  },
+  "malerarbeiten": {
+    "name": "Maler-, Lackier- & Tapezierarbeiten (Innen & Fassade)",
+    "bucket": "abs3_handwerker",
+    "paragraph": "§ 35a Abs. 3 EStG",
+    "bmf_reference": "BMF v. 09.11.2016, Anlage 1 'Malerarbeiten'",
+    "typical_labor_share_pct": 0.72,
+    "typical_material_share_pct": 0.28,
+    "nebenkosten_relevant": false,
+    "notes": "Hoher Lohnanteil! Bei Pauschalrechnungen zwingend Korrekturrechnung mit ausgewiesenem Arbeits- und Fahrtkostenanteil anfordern."
+  },
+  "badsanierung_shk": {
+    "name": "Sanitär-, Heizungs- & Badsanierung (ohne KfW/BEG-Förderung)",
+    "bucket": "abs3_handwerker",
+    "paragraph": "§ 35a Abs. 3 EStG",
+    "bmf_reference": "BMF v. 09.11.2016, Anlage 1 'Badezimmer'",
+    "typical_labor_share_pct": 0.45,
+    "typical_material_share_pct": 0.55,
+    "nebenkosten_relevant": false,
+    "notes": "Fliesen, Keramik, Armaturen & Rohre sind Material. Arbeitslohn, Anfahrt und Gerüst/Maschinen sind nach Abs. 3 begünstigt."
+  },
+  "elektro_wallbox": {
+    "name": "Elektroinstallation / Zählerschrank / Wallbox-Montage",
+    "bucket": "abs3_handwerker",
+    "paragraph": "§ 35a Abs. 3 EStG",
+    "bmf_reference": "BMF v. 09.11.2016, Anlage 1 'Elektroanlagen'",
+    "typical_labor_share_pct": 0.5,
+    "typical_material_share_pct": 0.5,
+    "nebenkosten_relevant": false,
+    "notes": "Montage- und Prüflohn begünstigt; Wallbox-Hardware und Kabel = Material."
+  },
+  "minijob_haushalt": {
+    "name": "Geringfügig beschäftigte Haushaltshilfe (Minijob-Zentrale Haushaltsscheck)",
+    "bucket": "abs1_minijob",
+    "paragraph": "§ 35a Abs. 1 EStG",
+    "bmf_reference": "§ 35a Abs. 1 EStG, Rn. 4–5 BMF-Schreiben",
+    "typical_labor_share_pct": 1.0,
+    "typical_material_share_pct": 0.0,
+    "nebenkosten_relevant": false,
+    "notes": "Begünstigt sind Nettolohn + pauschale Abgaben an die Minijob-Zentrale (Lastschriftverfahren)."
+  }
+};
+
+    function fmtEUR(val) {
+      return val.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
+    }
+
+    function updateSim() {
+      const b1Basis = parseFloat(document.getElementById('sim_b1').value || '0');
+      const b2Basis = parseFloat(document.getElementById('sim_b2').value || '0');
+      const b3Basis = parseFloat(document.getElementById('sim_b3').value || '0');
+
+      document.getElementById('lbl_b1').textContent = b1Basis.toFixed(0);
+      document.getElementById('lbl_b2').textContent = b2Basis.toFixed(0);
+      document.getElementById('lbl_b3').textContent = b3Basis.toFixed(0);
+
+      const c1 = Math.min(b1Basis, 2550) * 0.20;
+      const c2 = Math.min(b2Basis, 20000) * 0.20;
+      const c3 = Math.min(b3Basis, 6000) * 0.20;
+      const total = c1 + c2 + c3;
+
+      document.getElementById('cred_b1').textContent = fmtEUR(c1);
+      document.getElementById('cred_b2').textContent = fmtEUR(c2);
+      document.getElementById('cred_b3').textContent = fmtEUR(c3);
+      document.getElementById('sim_total_cred').textContent = fmtEUR(total) + ' / Jahr';
+      document.getElementById('sim_cap_note').textContent =
+        'Verbleibendes § 35a-Potenzial: ' + fmtEUR(Math.max(0, 5710 - total)) + ' (Maximal-Cap: 5.710,00 €)';
+    }
+  </script>
+</body>
+</html>

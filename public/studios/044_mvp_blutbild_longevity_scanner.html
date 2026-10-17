@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BlutbildIQ DE — Laborbefund &amp; Longevity-Protokoll Scanner (MVP #44 · PepIQ Adaptation)</title>
+  <style>
+    :root {
+      --bg: #080b11;
+      --bg-card: #101622;
+      --bg-card-alt: #151d2e;
+      --border: #23304a;
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+      --emerald: #10b981;
+      --amber: #f59e0b;
+      --rose: #f43f5e;
+      --cyan: #06b6d4;
+      --indigo: #6366f1;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, sans-serif;
+      background: radial-gradient(circle at 15% 0%, #13213c 0%, var(--bg) 55%);
+      color: var(--text);
+      line-height: 1.55;
+      padding-bottom: 60px;
+    }
+    .container { max-width: 1280px; margin: 0 auto; padding: 24px 20px; }
+    .disclaimer-bar {
+      background: rgba(245, 158, 11, 0.12);
+      border: 1px solid rgba(245, 158, 11, 0.4);
+      color: #fde68a;
+      padding: 12px 16px;
+      border-radius: 12px;
+      font-size: 12.5px;
+      margin-bottom: 22px;
+    }
+    header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+      margin-bottom: 24px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--border);
+    }
+    .brand-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(16, 185, 129, 0.14);
+      border: 1px solid rgba(16, 185, 129, 0.4);
+      color: #6ee7b7;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 4px 12px;
+      border-radius: 999px;
+      margin-bottom: 8px;
+    }
+    h1 { font-size: 28px; font-weight: 800; letter-spacing: -0.02em; }
+    .subtitle { color: var(--muted); font-size: 14.5px; max-width: 720px; margin-top: 4px; }
+    .tab-nav {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 22px;
+    }
+    .tab-btn {
+      background: var(--bg-card);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 10px 18px;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 13.5px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .tab-btn.active {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: #04130d;
+      border-color: #10b981;
+    }
+    .grid-top {
+      display: grid;
+      grid-template-columns: 1.15fr 1.85fr;
+      gap: 20px;
+      margin-bottom: 24px;
+    }
+    @media (max-width: 960px) {
+      .grid-top { grid-template-columns: 1fr; }
+    }
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+    }
+    .card h2 { font-size: 17px; font-weight: 700; margin-bottom: 12px; }
+    select, textarea, button.action-btn {
+      width: 100%;
+      border-radius: 10px;
+      font-family: inherit;
+    }
+    select, textarea {
+      background: #0b101b;
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 10px 12px;
+      font-size: 13px;
+      margin-bottom: 12px;
+    }
+    textarea {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      min-height: 215px;
+      resize: vertical;
+      line-height: 1.45;
+    }
+    button.action-btn {
+      background: linear-gradient(135deg, #06b6d4, #3b82f6);
+      color: white;
+      border: none;
+      padding: 12px 16px;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .kpi-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+    @media (max-width: 720px) {
+      .kpi-row { grid-template-columns: repeat(2, 1fr); }
+    }
+    .kpi-box {
+      background: var(--bg-card-alt);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+    }
+    .kpi-box .label { font-size: 11.5px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+    .kpi-box .val { font-size: 26px; font-weight: 800; margin-top: 4px; }
+    .biomarker-list { display: flex; flex-direction: column; gap: 12px; }
+    .bio-card {
+      background: var(--bg-card-alt);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 16px;
+    }
+    .bio-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .bio-title { font-weight: 700; font-size: 15px; }
+    .badge {
+      font-size: 11.5px;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 999px;
+    }
+    .badge-opt { background: rgba(16, 185, 129, 0.16); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.4); }
+    .badge-grey { background: rgba(245, 158, 11, 0.16); color: #fcd34d; border: 1px solid rgba(245, 158, 11, 0.45); }
+    .badge-crit { background: rgba(244, 63, 94, 0.16); color: #fda4af; border: 1px solid rgba(244, 63, 94, 0.45); }
+    .range-track {
+      position: relative;
+      height: 12px;
+      background: #090d16;
+      border-radius: 999px;
+      overflow: hidden;
+      margin: 10px 0 6px;
+      border: 1px solid #1e293b;
+    }
+    .range-kasse {
+      position: absolute;
+      top: 0; bottom: 0;
+      background: rgba(148, 163, 184, 0.22);
+    }
+    .range-longevity {
+      position: absolute;
+      top: 0; bottom: 0;
+      background: rgba(16, 185, 129, 0.42);
+      border-left: 1px solid #10b981;
+      border-right: 1px solid #10b981;
+    }
+    .range-marker {
+      position: absolute;
+      top: -2px;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: #fff;
+      border: 3px solid var(--cyan);
+      transform: translateX(-50%);
+      box-shadow: 0 0 8px rgba(6, 182, 212, 0.9);
+    }
+    .range-legend {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11.5px;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+    .chrono-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      margin-top: 14px;
+    }
+    @media (max-width: 820px) {
+      .chrono-grid { grid-template-columns: 1fr; }
+    }
+    .slot-card {
+      background: var(--bg-card-alt);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+    }
+    .slot-time { font-weight: 800; color: #38bdf8; font-size: 14.5px; margin-bottom: 4px; }
+    .slot-rule { font-size: 12px; color: var(--muted); margin-bottom: 12px; }
+    .conflict-box {
+      background: rgba(244, 63, 94, 0.1);
+      border-left: 3px solid var(--rose);
+      padding: 10px 12px;
+      border-radius: 8px;
+      margin-top: 8px;
+      font-size: 12.5px;
+    }
+    .synergy-box {
+      background: rgba(16, 185, 129, 0.1);
+      border-left: 3px solid var(--emerald);
+      padding: 10px 12px;
+      border-radius: 8px;
+      margin-top: 8px;
+      font-size: 12.5px;
+    }
+    .shop-grid {
+      display: grid;
+      grid-template-columns: 1.65fr 1.15fr;
+      gap: 20px;
+    }
+    @media (max-width: 900px) {
+      .shop-grid { grid-template-columns: 1fr; }
+    }
+    .sku-card {
+      background: var(--bg-card-alt);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+    .coa-pill {
+      display: inline-block;
+      background: rgba(6, 182, 212, 0.14);
+      border: 1px solid rgba(6, 182, 212, 0.4);
+      color: #67e8f9;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 9px;
+      border-radius: 999px;
+      margin-right: 6px;
+    }
+    .hidden { display: none !important; }
+    table.teardown-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13.5px;
+      margin-top: 10px;
+    }
+    table.teardown-table th, table.teardown-table td {
+      border: 1px solid var(--border);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    table.teardown-table th { background: var(--bg-card-alt); color: #93c5fd; }
+  </style>
+</head>
+<body>
+
+<!-- DACH CASHFLOW STUDIOS LAUNCH BAR -->
+<style>
+  #dcs-launch-bar {
+    position: sticky;
+    top: 0;
+    z-index: 99999;
+    background: linear-gradient(90deg, #0b1120 0%, #111827 50%, #0f172a 100%);
+    color: #f8fafc;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.35);
+    padding: 8px 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  }
+  #dcs-launch-bar .dcs-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+  }
+  #dcs-launch-bar .dcs-badge {
+    background: rgba(16, 185, 129, 0.18);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.03em;
+  }
+  #dcs-launch-bar a.dcs-nav {
+    color: #93c5fd;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 12.5px;
+  }
+  #dcs-launch-bar a.dcs-nav:hover {
+    text-decoration: underline;
+    color: #dbeafe;
+  }
+  #dcs-launch-bar .dcs-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  #dcs-launch-bar .dcs-btn {
+    padding: 5px 11px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s ease;
+  }
+  #dcs-launch-bar .dcs-btn-ghost {
+    background: rgba(255,255,255,0.08);
+    color: #e2e8f0;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  #dcs-launch-bar .dcs-btn-primary {
+    background: linear-gradient(135deg, #0ea5e9, #2563eb);
+    color: #ffffff;
+  }
+  #dcs-launch-bar .dcs-btn-emerald {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
+  }
+  @media print {
+    #dcs-launch-bar { display: none !important; }
+  }
+</style>
+<div id="dcs-launch-bar">
+  <div class="dcs-left">
+    <a href="/index.html" class="dcs-nav">← Alle 150 DACH Studios</a>
+    <span class="dcs-badge">MVP #044 VERIFIED</span>
+    <span style="color:#cbd5e1;font-size:12px;">B2B SaaS, Lead-Intent Sniper & AI/MCP Infrastructure</span>
+  </div>
+  <div class="dcs-actions">
+    <button onclick="window.print()" class="dcs-btn dcs-btn-ghost">🖨️ PDF / Dossier drucken</button>
+    <a href="#checkout-modal-49" target="_blank" rel="noopener" class="dcs-btn dcs-btn-primary">⚡ Musterschreiben & Voll-Dossier (€49)</a>
+    <a href="#checkout-modal-299" target="_blank" rel="noopener" class="dcs-btn dcs-btn-emerald">🛡️ B2B Umsetzung buchen (€299 / €1.490)</a>
+  </div>
+</div>
+
+  <div class="container">
+    <div class="disclaimer-bar">WICHTIGER HINWEIS GEMÄSS HEILMITTELWERBEGESETZ (HWG) & LFGB: BlutbildIQ dient ausschließlich der ernährungsphysiologischen Information, Bildung und Wohlbefindens-Optimierung. Die Auswertung stellt keine ärztliche Diagnose, Beratung oder Heilbehandlung dar und ersetzt keinen Arztbesuch. Nahrungsergänzungsmittel sind kein Ersatz für eine ausgewogene Ernährung. Bei klinischen Abweichungen außerhalb des ärztlichen Referenzbereichs wenden Sie sich bitte an Ihre Ärztin oder Ihren Arzt.</div>
+
+    <header>
+      <div>
+        <div class="brand-badge">MVP #44 · DACH Adaptation of PepIQ ($22,981/30d in 4 Months)</div>
+        <h1>BlutbildIQ DE — Laborbefund &amp; Mikronährstoff-Protokoll Scanner</h1>
+        <p class="subtitle">
+          Übersetzt deutsche Hausarzt-, MVZ- &amp; Synlab-Befunde deterministisch in <strong>Kassenarzt-Norm vs. Evidenzbasiertes Longevity-Optimum</strong>,
+          berechnet <strong>Co-Faktor-Synergien &amp; Resorptions-Sperren</strong> und monetarisiert dual über B2C-Abo + <strong>Exklusiven ISO-COA Reinsubstanz-Partner-Tab</strong>.
+        </p>
+      </div>
+      <div style="text-align:right; font-size:12.5px; color:var(--muted);">
+        <div><strong>B2C SaaS:</strong> €4,99/Woche · €19,99/Monat</div>
+        <div><strong>B2B Partner-Slot:</strong> €1.500/Mo Fix-Retainer + 18% Provision</div>
+      </div>
+    </header>
+
+    <div class="tab-nav">
+      <button class="tab-btn active" onclick="switchTab('scanner')" id="tabBtn-scanner">1. Blutbild-Scanner &amp; Longevity-Gap</button>
+      <button class="tab-btn" onclick="switchTab('chrono')" id="tabBtn-chrono">2. Chrono-Einnahmeplan &amp; Konflikt-Matrix</button>
+      <button class="tab-btn" onclick="switchTab('shop')" id="tabBtn-shop">3. Geprüfter Reinsubstanz-Shop (Exklusiv-Partner-Tab)</button>
+      <button class="tab-btn" onclick="switchTab('teardown')" id="tabBtn-teardown">4. PepIQ ($22,981/30d) Teardown &amp; Unit Economics</button>
+    </div>
+
+    <!-- TAB 1: SCANNER -->
+    <div id="panel-scanner">
+      <div class="grid-top">
+        <div class="card">
+          <h2>Laborbefund wählen oder einfügen (MVZ / Synlab / Hausarzt)</h2>
+          <label style="font-size:12px; color:var(--muted); display:block; margin-bottom:4px;">Vordefinierte deutsche Laborbefunde:</label>
+          <select id="presetSelect" onchange="loadPreset()">
+            <option value="mvz_muenchen_erschoepfung">MVZ München: &quot;Hausarzt sagt alles OK, aber chronisch erschöpft&quot; (w, 32J)</option>
+            <option value="synlab_kardio_metabolik">Synlab Direktlabor: &quot;Executive Stress &amp; Kardio-Metabolik&quot; (m, 41J, Gemischte Einheiten)</option>
+            <option value="mein_direktlabor_optimal">Mein Direktlabor Berlin: &quot;Biohacker Peak-Performance&quot; (m, 29J)</option>
+          </select>
+          <label style="font-size:12px; color:var(--muted); display:block; margin-bottom:4px;">OCR-Rohtext (Einheiten wie ng/ml, nmol/l, mmol/mol, mg/dl werden automatisch konvertiert):</label>
+          <textarea id="rawLabInput"></textarea>
+          <button class="action-btn" onclick="runLiveParse()">Laborbefund jetzt analysieren &amp; Protokoll berechnen</button>
+        </div>
+
+        <div class="card">
+          <h2>Longevity-Blutbild-Auswertung: Kassenarzt-Referenz vs. Optimalbereich</h2>
+          <div class="kpi-row">
+            <div class="kpi-box">
+              <div class="label">Longevity Score</div>
+              <div class="val" id="kpiScore" style="color:var(--emerald);">--</div>
+            </div>
+            <div class="kpi-box">
+              <div class="label">Grauzonen-Defizite</div>
+              <div class="val" id="kpiGrey" style="color:var(--amber);">--</div>
+            </div>
+            <div class="kpi-box">
+              <div class="label">Klinisch Auffällig</div>
+              <div class="val" id="kpiCrit" style="color:var(--rose);">--</div>
+            </div>
+            <div class="kpi-box">
+              <div class="label">Optimal-Bereich</div>
+              <div class="val" id="kpiOpt" style="color:var(--cyan);">--</div>
+            </div>
+          </div>
+          <div class="biomarker-list" id="biomarkerList"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 2: CHRONO PROTOCOL -->
+    <div id="panel-chrono" class="hidden">
+      <div class="card" style="margin-bottom:20px;">
+        <h2>Tages-Chrono-Protokoll &amp; Resorptions-Sperren (Interaktions-Engine)</h2>
+        <p style="font-size:13.5px; color:var(--muted); margin-bottom:14px;">
+          Verhindert die häufigsten Einnahmefehler (z.B. Eisen + Kaffee/Magnesium gleichzeitig, Natriumselenit + Vitamin C gleichzeitig oder Vitamin D3 ohne Fett-Mahlzeit).
+        </p>
+        <div class="chrono-grid" id="chronoGrid"></div>
+      </div>
+
+      <div class="grid-top">
+        <div class="card">
+          <h2>Aktive Resorptions-Sperren (Absorption Conflicts)</h2>
+          <div id="conflictList"></div>
+        </div>
+        <div class="card">
+          <h2>Biochemische Co-Faktor-Synergien</h2>
+          <div id="synergyList"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 3: EXCLUSIVE PARTNER SHOP -->
+    <div id="panel-shop" class="hidden">
+      <div class="shop-grid">
+        <div class="card">
+          <div class="brand-badge">Geprüfter Exklusiv-Partner · 6-Punkte ISO-17025 COA Gate</div>
+          <h2>Personalisierter Reinsubstanz-Warenkorb (Auto-Filled aus Ihrem Blutbild)</h2>
+          <p style="font-size:13px; color:var(--muted); margin-bottom:16px;">
+            Analog zu PepIQs <em>&quot;Verified Peptide Shop&quot;</em> listet dieser Tab exklusiv einen laborgeprüften DACH-Reinsubstanz-Partner
+            (z.B. Sunday Natural / Biogena / MoleQlar) ohne Titandioxid, Carrageen oder Stearate — inklusive PZN &amp; Chargen-Analysenzertifikat.
+          </p>
+          <div id="shopSkuList"></div>
+        </div>
+
+        <div class="card">
+          <h2>Warenkorb-Zusammenfassung &amp; Dual-Monetarisierung</h2>
+          <div id="cartSummaryBox" style="margin-top:12px;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 4: PEPIQ TEARDOWN -->
+    <div id="panel-teardown" class="hidden">
+      <div class="card">
+        <h2>Benchmark Teardown: PepIQ (iOS 6772365932 · https://pepiq.io/) &rarr; BlutbildIQ DACH</h2>
+        <p style="font-size:13.5px; color:var(--muted); margin-bottom:14px;">
+          Direkter Architektur- und Monetarisierungs-Vergleich zwischen dem US-Gewinner <strong>PepIQ ($22.981/30d in 4 Monaten, 1.025 Abonnenten, &gt;12% Download-to-Paid)</strong>
+          und unserer 100% AMG/HWG-konformen DACH-Adaption.
+        </p>
+        <table class="teardown-table">
+          <thead>
+            <tr>
+              <th>Dimension</th>
+              <th>US Original: PepIQ: Buy &amp; Scan Peptides (pepiq.io)</th>
+              <th>DACH Adaption: BlutbildIQ DE (MVP #44)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Kern-Hook &amp; Scan-Input</strong></td>
+              <td>AI Face/Physique Scan (Google Gemini via Cloudflare Workers) + Peptide Vial &amp; COA Scanner</td>
+              <td>Deutscher Laborbefund OCR-Scanner (MVZ, Synlab, Mein Direktlabor, Hausarzt PDF/Foto) + Einheiten-Normalisierer</td>
+            </tr>
+            <tr>
+              <td><strong>Aha-Moment (Wertversprechen)</strong></td>
+              <td>PepIQ Looksmaxing Score + Reconstitution Calculator (Vial mg + Bac-Water ml &rarr; U-100 Spritzen-Units)</td>
+              <td><strong>&quot;Hausarzt sagt OK, aber Longevity-Defizit&quot;</strong> (z.B. Ferritin 24 µg/l vs. Optimum 70–130 µg/l) + Chrono-Einnahmeplan</td>
+            </tr>
+            <tr>
+              <td><strong>Säule 1: B2C Paywall</strong></td>
+              <td>$3.99/Woche oder $19.99/Monat (&gt;12% Download-to-Paid Conversion, 1.025 aktive Subs = $22.981/30d)</td>
+              <td>€4,99/Woche oder €19,99/Monat für Tiefenanalyse, 90-Tage Re-Test-Tracker &amp; Wechselwirkungs-Prüfer</td>
+            </tr>
+            <tr>
+              <td><strong>Säule 2: Exklusiver B2B Partner-Tab</strong></td>
+              <td>App Store Screenshot #1 ist der <em>&quot;Verified Peptide Shop&quot;</em>. Website versteckt die Händlerliste absichtlich, um App-Downloads zu erzwingen.</td>
+              <td>Exklusiver <em>&quot;Geprüfte Reinsubstanz-Apotheke (ISO-17025 COA)&quot;</em> Tab: <strong>€1.500/Mo B2B Slot-Retainer + 18% Warenkorb-Provision</strong></td>
+            </tr>
+            <tr>
+              <td><strong>Rechtlicher Status in DACH</strong></td>
+              <td>Unzulässig in DE/EU (Research-Peptide wie BPC-157 / Retatrutide verstoßen gegen AMG, AntiDopG &amp; HWG)</td>
+              <td><strong>100% legal in DACH</strong> (Ernährungsphysiologische Laborwert-Einordnung + verkehrsfähige PZN-/NEM-Reinsubstanzen mit HWG-Disclaimer)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const PRESET_REPORTS = {"mvz_muenchen_erschoepfung": {"generated_at": "2026-10-17T14:13:46.955220+00:00", "mvp_id": "MVP_44_DACH_BLUTBILD_LONGEVITY_SCANNER", "hwg_compliance_disclaimer": "WICHTIGER HINWEIS GEMÄSS HEILMITTELWERBEGESETZ (HWG) & LFGB: BlutbildIQ dient ausschließlich der ernährungsphysiologischen Information, Bildung und Wohlbefindens-Optimierung. Die Auswertung stellt keine ärztliche Diagnose, Beratung oder Heilbehandlung dar und ersetzt keinen Arztbesuch. Nahrungsergänzungsmittel sind kein Ersatz für eine ausgewogene Ernährung. Bei klinischen Abweichungen außerhalb des ärztlichen Referenzbereichs wenden Sie sich bitte an Ihre Ärztin oder Ihren Arzt.", "pepiq_benchmark_teardown": {"startup_id": "startup-6eb394f6b317", "app_name": "PepIQ: Buy & Scan Peptides", "developer": "Mad Apps LLC", "ios_app_id": "6772365932", "domain": "https://pepiq.io/", "legal_domains": ["https://pepiqios.com/TermsOfService", "https://pepiqios.com/PrivacyPolicy"], "verified_metrics": {"mrr_30d_usd": 22981, "active_subscribers": 1025, "download_to_paid_conversion_pct": 12.4, "age_months": 4, "app_store_rating": 4.7, "web_claimed_rating": 4.9, "pricing_b2c": ["$3.99/week", "$19.99/month"]}, "technical_architecture": {"web_frontend": "Vite + React SPA on Base44 (appId: 6a131b806bb6919e0fb4c496) with pre-rendered SEO snapshots", "ai_backend": "Cloudflare Workers proxy -> Google Gemini Vision API (stateless in-memory scan, zero server photo storage)", "persistence": "Local-only iPhone storage for scan scores, peptide stacks, and dose logs", "seo_funnel_routes": ["/peptide-analysis", "/peptides/:slug (14 compounds: bpc-157, tb-500, ghk-cu, retatrutide, tirzepatide, semaglutide, nad-plus, mots-c, epithalon, pt-141...)", "/compare/:slug (bpc-157-vs-tb-500, ghk-cu-injectable-vs-topical, retatrutide-vs-tirzepatide)", "/calculators/reconstitution (vial mg + bacteriostatic water ml -> U-100 insulin syringe units)", "/calculators/dosage (weight-based mcg/mg protocol calculator)", "/vendors/verified & /buy-peptides (intentionally hides vendor names on web to force iOS App download)"]}, "ux_and_monetization_mechanics": {"screenshot_1_hook": "v1461_01_shop.png — 'Verified Peptide Shop' is the #1 App Store screenshot, ahead of AI scanning", "dual_scan_entry": ["1. Face & Physique Scan (Gemini Vision): scores symmetry, skin, jawline, body fat, muscle definition -> maps deficits to peptide stack", "2. Vial & COA Scanner: scans physical peptide vial label or lab Certificate of Analysis (COA) -> verifies batch number & >=98% HPLC purity"], "leg_1_b2c_paywall": "$3.99/wk or $19.99/mo unlocks personalized protocol dosages, U-100 reconstitution math, and before/after score tracking", "leg_2_b2b_exclusive_vendor_tab": "In-app 'Shop' tab lists only 'PepIQ Verified' supplier(s) meeting a 6-point HPLC/MS COA checklist. Monetized via fixed monthly B2B slot sponsorship retainer + affiliate cut on external vendor checkout (bypasses Apple 30% IAP fee because physical research products are fulfilled externally)."}, "dach_legal_pivot_rationale": {"why_peptides_fail_in_dach": "Research peptides (BPC-157, Retatrutide, TB-500) violate German Arzneimittelgesetz (AMG), Anti-Doping-Gesetz (AntiDopG) and Heilmittelwerbegesetz (HWG).", "dach_goldmine_equivalent": "German Laborbefund / Blutbild Scanner (MVZ, Synlab, Mein Direktlabor, Hausarzt) + Longevity Optimal-Range Gap Analysis + Co-Factor Chrono-Schedule + Exclusive ISO/GMP Reinsubstanz-Partner-Tab (PZN / Sunday Natural / Biogena / MoleQlar B2B Retainer + 18% Cart Commission)."}}, "patient_profile": {"age": 32, "sex": "w", "weight_kg": 64.0, "goal": "Energie, Fokus, Haarstatus & Schlaf"}, "summary_metrics": {"total_biomarkers_parsed": 10, "longevity_blood_score_0_100": 65, "optimal_biomarkers_count": 0, "greyzone_kassenarzt_ok_but_suboptimal_count": 10, "clinical_out_of_range_count": 0, "retest_recommendation_days": 90, "category_scores": {"Zellenergie & Sauerstoff": 59, "Immunsystem & Hormonachse": 65, "Methylierung & Neuro": 64, "Kardio-Metabolik & Entzündung": 68}}, "biomarkers": [{"key": "ferritin", "display_name": "Ferritin (Eisenspeicher)", "category": "Zellenergie & Sauerstoff", "raw_value": 24.5, "raw_unit": "µg/l", "canonical_value": 24.5, "canonical_unit": "µg/l", "kassenarzt_min": 15.0, "kassenarzt_max": 150.0, "longevity_min": 70.0, "longevity_max": 130.0, "status_code": "GRAUZONE_KASSENARZT_OK_LONGEVITY_SUBOPTIMAL", "status_label_de": "Grauzone: Hausarzt 'OK', Longevity-Defizit", "score_0_100": 57, "delta_to_longevity_midpoint": -75.5, "clinical_meaning": "Intrazellulärer Eisenspeicher für mitochondriale ATP-Synthese, Schilddrüsen-Peroxidase (TPO) und Dopamin-Synthese.", "greyzone_symptom_hint": "Werte zwischen 15 und 65 µg/l gelten im Kassenlabor oft als 'normal', korrelieren aber häufig mit Tagesmüdigkeit, diffusem Haarausfall, Restless Legs und reduzierter VO2max.", "interpretation_de": "Klassische Grauzone: 24.5 µg/l wird im Standard-Laborblatt als 'unauffällig' (15.0–150.0 µg/l) markiert, verfehlt aber das Longevity-Optimum (70.0–130.0 µg/l). Werte zwischen 15 und 65 µg/l gelten im Kassenlabor oft als 'normal', korrelieren aber häufig mit Tagesmüdigkeit, diffusem Haarausfall, Restless Legs und reduzierter VO2max."}, {"key": "vitamin_d_25oh", "display_name": "25-OH-Vitamin D3 (Calcidiol)", "category": "Immunsystem & Hormonachse", "raw_value": 62.4, "raw_unit": "nmol/l", "canonical_value": 25.0, "canonical_unit": "ng/ml", "kassenarzt_min": 20.0, "kassenarzt_max": 100.0, "longevity_min": 45.0, "longevity_max": 65.0, "status_code": "GRAUZONE_KASSENARZT_OK_LONGEVITY_SUBOPTIMAL", "status_label_de": "Grauzone: Hausarzt 'OK', Longevity-Defizit", "score_0_100": 58, "delta_to_longevity_midpoint": -30.0, "clinical_meaning": "Steroidhormon-Vorstufe; reguliert über 1.000 Gene, Calcium-Homöostase, T-Zell-Immunität und Insulinsensitivität.", "greyzone_symptom_hint": "20–40 ng/ml verhindert zwar Rachitis, reicht aber für optimale Immunmodulation, Knochendichte und Winter-Resilienz oft nicht aus.", "interpretation_de": "Klassische Grauzone: 25.0 ng/ml wird im Standard-Laborblatt als 'unauffällig' (20.0–100.0 ng/ml) markiert, verfehlt aber das Longevity-Optimum (45.0–65.0 ng/ml). 20–40 ng/ml verhindert zwar Rachitis, reicht aber für optimale Immunmodulation, Knochendichte und Winter-Resilienz oft nicht aus."}, {"key": "holo_tc", "display_name": "Holotranscobalamin (Aktives Vitamin B12)", "category": "Methylierung & Neuro", "raw_value": 48.0, "raw_unit": "pmol/l", "canonical_value": 48.0, "canonical_unit": "pmol/l", "kassenarzt_min": 35.0, "kassenarzt_max": 150.0, "longevity_min": 75.0, "longevity_max": 140.0, "status_code": "GRAUZONE_KASSENARZT_OK_LONGEVITY_SUBOPTIMAL", "status_label_de": "Grauzone: Hausarzt 'OK', Longevity-Defizit", "score_0_100": 62, "delta_to_longevity_midpoint": -59.5, "clinical_meaning": "Einzig bioverfügbare, zellgängige Fraktion von Vitamin B12 für Myelinscheiden und Homocystein-Remethylierung.", "greyzone_symptom_hint": "Unter 70 pmol/l zeigen sich oft schon subklinische Methylierungsdefizite (erhöhtes Homocystein, Brain Fog), selbst wenn Gesamt-B12 noch unauffällig scheint.", "interpretation_de": "Klassische Grauzone: 48.0 pmol/l wird im Standard-Laborblatt als 'unauffällig' (35.0–150.0 pmol/l) markiert, verfehlt aber das Longevity-Optimum (75.0–140.0 pmol/l). Unter 70 pmol/l zeigen sich oft schon subklinische Methylierungsdefizite (erhöhtes Homocystein, Brain Fog), selbst wenn Gesamt-B12 noch unauffällig scheint."}, {"key": "homocystein", "display_name": "Homocystein (Gefäß- & Methylierungsmarker)", "category": "Methylierung & Neuro", "raw_value": 11.4, "raw_unit": "µmol/l", "canonical_value": 11.4, "canonical_unit": "µmol/l", "kassenarzt_min": 5.0, "kassenarzt_max": 15.0, "longevity_min": 5.0, "longevity_max": 7.5, "status_code": "GRAUZONE_KASSENARZT_OK_LONGEVITY_SUBOPTIMAL", "status_label_de": "Grauzone: Hausarzt 'OK', Longevity-Defizit", "score_0_100": 66, "delta_to_longevity_midpoint": 5.15, "clinical_meaning": "Zytotoxisches Zwischenprodukt des Methionin-Stoffwechsels; direkter Indikator für B12-, Folat- (5-MTHF) und B6-Status sowie Endothelgesundheit.", "greyzone_symptom_hint": "Kassenlabore tolerieren oft bis 12 oder 15 µmol/l. Ab >8 µmol/l steigt jedoch der oxidative Gefäßstress messbar an.", "interpretation_de": "Klassische Grauzone: 11.4 µmol/l wird im Standard-Laborblatt als 'unauffällig' (5.0–15.0 µmol/l) markiert, verfehlt aber das Longevity-Optimum (5.0–7.5 µmol/l). Kassenlabore tolerieren oft bis 12 oder 15 µmol/l. Ab >8 µmol/l steigt jedoch der oxidative Gefäßstress messbar an."}, {"key": "omega3_index", "display_name": "HS-Omega-3-Index (Erythrozyten)", "category": "Kardio-Metabolik & Entzündung", "raw_value": 5.2, "raw_unit": "%", "canonical_value": 5.2, "canonical_unit": "%", "kassenarzt_min": 4.0, "kassenarzt_max": 12.0, "longevity_min": 8.0, "longevity_max": 11.0, "status_code": "GRAUZONE_KASSENARZT_OK_LONGEVITY_SUBOPTIMAL", "status_label_de": "Grauzone: Hausarzt 'OK', Longevity-Defizit", "score_0_100": 61, "delta_to_longevity_midpoint": -4.3, "clinical_meaning": "Prozentualer Anteil von EPA + DHA in der Erythrozytenmembran (Langzeitspiegel über 90–120 Tage für Zellmembranfluidität & Neuroprotektion).", "greyzone_symptom_hint": "Der DACH-Durchschnitt liegt bei ~5,5 %. Erst ab 8,0 % ist die maximale kardioprotektive und antiinflammatorische Sättigung erreicht.", "interpretation_de": "Klassische Grauzone: 5.2 % wird im Standard-Laborblatt als 'unauffällig' (4.0–12.0 %) markiert, verfehlt aber das Longevity-Optimum (8.0–11.0 %). Der DACH-Durchschnitt liegt bei ~5,5 %. Erst ab 8,0 % ist die maximale kardioprotektive und antiinflammatorische Sättigung erreicht."}, {"key": "hba1c", "display_name": "HbA1c (Glykiertes Hämoglobin)", "category": "Kardio-Metabolik & Entzündung", "raw_value": 5.4, "raw_unit": "%", "canonical_value": 5.4, "canonical_unit": "%", "kassenarzt_min": 4.0, "kassenarzt_max": 5.7, "longevity_min": 4.6, "longevity_max": 5.2, "status_code": "GRAUZONE_KASSENARZT_OK_LONGEVITY_SUBOPTIMAL", "status_label_de": "Grauzone: Hausarzt 'OK', Longevity-Defizit", "score_0_100": 70, "delta_to_longevity_midpoint": 0.5, "clinical_meaning": "8–12-Wochen-Durchschnitt der Glukoseverzuckerung (Advanced Glycation Endproducts / AGEs) an roten Blutkörperchen.", "greyzone_symptom_hint": "5,3–5,6 % gilt klinisch noch nicht als Prädiabetes, deutet im Longevity-Kontext aber bereits auf postprandiale Glukosespitzen und beschleunigte Gefäßalterung hin.", "interpretation_de": "Klassische Grauzone: 5.4 % wird im Standard-Laborblatt als 'unauffällig' (4.0–5.7 %) markiert, verfehlt aber das Longevity-Optimum (4.6–5.2 %). 5,3–5,6 % gilt klinisch noch nicht als Prädiabetes, deutet im Longevity-Kontext aber bereits auf postprandiale Glukosespitzen und beschleunigte Gefäßalterung hin."}, {"key": "hs_crp", "display_name": "hs-CRP (Hochsensitives C-reaktives Protein)", "category": "Kardio-Metabolik & Entzündung", "raw_value": 1.45, "raw_unit": "mg/l", "canonical_value": 1.45, "canonical_unit": "mg/l", "kassenarzt_min": 0.0, "kassenarzt_max": 3.0, "longevity_min": 0.0, "longevity_max": 0.7, "status_code": "GRAUZONE_KASSENARZT_OK_LONGEVITY_SUBOPTIMAL", "status_label_de": "Grauzone: Hausarzt 'OK', Longevity-Defizit", "score_0_100": 72, "delta_to_longevity_midpoint": 1.1, "clinical_meaning": "Systemischer Marker für stille Entzündungen (Silent Inflammation / Inflammaging) und vaskuläres Risiko.", "greyzone_symptom_hint": "Werte zwischen 0,8 und 2,9 mg/l werden im Standardbefund meist übersehen, signalisieren aber chronische Low-Grade-Inflammation.", "interpretation_de": "Klassische Grauzone: 1.45 mg/l wird im Standard-Laborblatt als 'unauffällig' (0.0–3.0 mg/l) markiert, verfehlt aber das Longevity-Optimum (0.0–0.7 mg/l). Werte zwischen 0,8 und 2,9 mg/l werden im Standardbefund meist übersehen, signalisieren aber chronische Low-Grade-Inflammation."}, {"key": "tsh", "display_name": "TSH basal (Schilddrüsen-Steuerhormon)", "category": "Immunsystem & Hormonachse", "raw_value": 2.65, "raw_unit": "mIU/l", "canonical_value": 2.65, "canonical_unit": "mIU/l", "kassenarzt_min": 0.4, "kassenarzt_max": 4.0, "longevity_min": 0.8, "longevity_max": 2.0, "status_code": "GRAUZONE_KASSENARZT_OK_LONGEVITY_SUBOPTIMAL", "status_label_de": "Grauzone: Hausarzt 'OK', Longevity-Defizit", "score_0_100": 72, "delta_to_longevity_midpoint": 1.25, "clinical_meaning": "Hypophysäres Steuerungshormon der Schilddrüse; reagiert empfindlich auf Selen-, Jod-, Eisen- und Vitamin-D-Status.", "greyzone_symptom_hint": "Ein TSH zwischen 2,2 und 4,0 mIU/l liegt im Kassen-Normbereich, geht aber häufig mit verlangsamtem Grundumsatz, Kälteempfindlichkeit und Antriebsmangel einher.", "interpretation_de": "Klassische Grauzone: 2.65 mIU/l wird im Standard-Laborblatt als 'unauffällig' (0.4–4.0 mIU/l) markiert, verfehlt aber das Longevity-Optimum (0.8–2.0 mIU/l). Ein TSH zwischen 2,2 und 4,0 mIU/l liegt im Kassen-Normbereich, geht aber häufig mit verlangsamtem Grundumsatz, Kälteempfindlichkeit und Antriebsmangel einher."}, {"key": "magnesium_vollblut", "display_name": "Magnesium im Vollblut (intrazellulär)", "category": "Zellenergie & Sauerstoff", "raw_value": 0.78, "raw_unit": "mmol/l", "canonical_value": 0.78, "canonical_unit": "mmol/l", "kassenarzt_min": 0.73, "kassenarzt_max": 1.06, "longevity_min": 0.9, "longevity_max": 1.05, "status_code": "GRAUZONE_KASSENARZT_OK_LONGEVITY_SUBOPTIMAL", "status_label_de": "Grauzone: Hausarzt 'OK', Longevity-Defizit", "score_0_100": 61, "delta_to_longevity_midpoint": -0.2, "clinical_meaning": "Essentieller Co-Faktor für >600 Enzyme, ATP-Bindung (Mg-ATP), Schlafarchitektur (GABA) und Vitamin-D-Aktivierung.", "greyzone_symptom_hint": "Werte unter 0,88 mmol/l führen trotz 'grünem' Laborblatt oft zu nächtlichen Muskelspannungen, erhöhter Stress-Reaktivität (Cortisol) und blockierter Vitamin-D-Umwandlung.", "interpretation_de": "Klassische Grauzone: 0.78 mmol/l wird im Standard-Laborblatt als 'unauffällig' (0.73–1.06 mmol/l) markiert, verfehlt aber das Longevity-Optimum (0.9–1.05 mmol/l). Werte unter 0,88 mmol/l führen trotz 'grünem' Laborblatt oft zu nächtlichen Muskelspannungen, erhöhter Stress-Reaktivität (Cortisol) und blockierter Vitamin-D-Umwandlung."}, {"key": "apob", "display_name": "Apolipoprotein B (ApoB)", "category": "Kardio-Metabolik & Entzündung", "raw_value": 88.0, "raw_unit": "mg/dl", "canonical_value": 88.0, "canonical_unit": "mg/dl", "kassenarzt_min": 40.0, "kassenarzt_max": 115.0, "longevity_min": 40.0, "longevity_max": 70.0, "status_code": "GRAUZONE_KASSENARZT_OK_LONGEVITY_SUBOPTIMAL", "status_label_de": "Grauzone: Hausarzt 'OK', Longevity-Defizit", "score_0_100": 70, "delta_to_longevity_midpoint": 33.0, "clinical_meaning": "Exakte Anzahl aller atherogenen Lipoproteinpartikel (LDL, VLDL, IDL) pro Volumeneinheit — präziserer Kardio-Prädiktor als Standard-LDL.", "greyzone_symptom_hint": "Werte zwischen 75 und 115 mg/dl gelten im Standardlabor als unauffällig, liegen aber über dem modernen Longevity-Zielwert (<70 mg/dl) zur langfristigen Plaque-Prävention.", "interpretation_de": "Klassische Grauzone: 88.0 mg/dl wird im Standard-Laborblatt als 'unauffällig' (40.0–115.0 mg/dl) markiert, verfehlt aber das Longevity-Optimum (40.0–70.0 mg/dl). Werte zwischen 75 und 115 mg/dl gelten im Standardlabor als unauffällig, liegen aber über dem modernen Longevity-Zielwert (<70 mg/dl) zur langfristigen Plaque-Prävention."}], "protocol_engine": {"recommendations": [{"sku_id": "SKU-FE-BIS-C", "product_name": "Eisenbisglycinat Chelat 25mg + Gepuffertes Vitamin C (100% Reinsubstanz)", "partner_brand": "Sunday Natural / Biogena Exclusive Lab-Line", "pzn": "PZN-18429104", "target_biomarkers": ["Ferritin (Eisenspeicher)", "TSH basal (TPO-Co-Faktor)"], "daily_dosage_protocol": "40 mg elementares Eisen (als Ferrochel®-Bisglycinat) + 200 mg Vitamin C — jeden 2. Morgen nüchtern (Hepcidin-Schaukel-Protokoll zur Verdopplung der Resorptionsquote).", "timing_slot": "morgens_nuechtern", "timing_label_de": "07:30 Uhr — Morgens nüchtern (45 Min. vor Kaffee/Frühstück)", "cofactor_synergy_note": "200 mg Vitamin C reduziert Fe3+ zu Fe2+ und steigert die duodenale Eisenaufnahme um bis zu +67 %.", "absorption_conflict_warning": "STRIKTE SPERRE: Mindestens 2 Stunden Abstand zu Kaffee, Schwarz-/Grüntee (Polyphenole/Tannine hemmen Aufnahme um ~60 %), Milchprodukten/Calcium sowie Magnesium- und Zink-Präparaten (DMT1-Transporter-Konkurrenz).", "pack_size_label": "90 Kapseln (Reinsubstanz ohne Carrageen/Titandioxid)", "supply_days": 90, "price_eur": 22.9, "coa_badge": "ISO-17025 COA · Schwermetallfrei · 99,4% Reinheit", "rationale_de": "Akut-Aufsättigung: Ferritin liegt bei 24.5 µg/l (Longevity-Ziel: 70.0–130.0 µg/l)."}, {"sku_id": "SKU-D3K2-MCT", "product_name": "Vitamin D3 5000 I.E. + K2 MK-7 (100% all-trans, K2VITAL®) in Bio-MCT-Kokosöl", "partner_brand": "Sunday Natural / Biogena Exclusive Lab-Line", "pzn": "PZN-17904512", "target_biomarkers": ["25-OH-Vitamin D3 (Calcidiol)"], "daily_dosage_protocol": "5000 I.E. Vitamin D3 + 200 µg Vitamin K2 (all-trans MK-7) täglich für 8 Wochen (rechnerisches Aufsättigungs-Defizit: ~274.286 I.E. bei 64 kg Körpergewicht). danach Erhaltungsdosis 2.500–3.000 I.E./Tag.", "timing_slot": "mittags_fettmahlzeit", "timing_label_de": "12:30 Uhr — Zum Mittagessen (fetthaltige Mahlzeit)", "cofactor_synergy_note": "Zwingend mit K2 MK-7 (aktiviert Osteocalcin & Matrix-Gla-Protein zum Schutz vor Gefäßverkalkung) sowie ausreichend Magnesium (obligater Co-Faktor der 25-Hydroxylase und 1α-Hydroxylase).", "absorption_conflict_warning": "Nicht nüchtern mit reinem Wasser einnehmen (fettlösliches Secosteroid; Resorption sinkt ohne Nahrungsfette um >30 %). Nicht spät abends einnehmen (kann die endogene Melatonin-Synthese dämpfen).", "pack_size_label": "300 Tropfen (in kaltgepresstem MCT-Öl)", "supply_days": 150, "price_eur": 24.9, "coa_badge": "K2VITAL® 99,7% all-trans · Laborgeprüft", "rationale_de": "Vitamin D3 liegt bei 25.0 ng/ml (Kassen-Untergrenze 20 ng/ml, Longevity-Ziel 45–65 ng/ml; Differenz zum Zielwert 55 ng/ml: +30.0 ng/ml)."}, {"sku_id": "SKU-METHYL-B-COMPLEX", "product_name": "Methyl-B-Komplex Aktiv (MHA-Formel: Methyl-/Adenosylcobalamin + Quatrefolic® 5-MTHF + P-5-P B6 + TMG)", "partner_brand": "Sunday Natural / MoleQlar Exclusive Lab-Line", "pzn": "PZN-19033218", "target_biomarkers": ["Holotranscobalamin (Aktives Vitamin B12)", "Homocystein (Gefäß- & Methylierungsmarker)"], "daily_dosage_protocol": "1 Kapsel täglich morgens (1000 µg aktives B12 als 1:1 Methyl-/Adenosylcobalamin, 400 µg 5-MTHF-Folat, 10 mg P-5-P aktives Vitamin B6, 500 mg Betain/TMG).", "timing_slot": "morgens_nuechtern", "timing_label_de": "07:30 Uhr — Morgens (oder zum Frühstück, nicht abends wegen Neuro-Aktivierung)", "cofactor_synergy_note": "Schließt beide Abbauwege von Homocystein: Remethylierung zu Methionin (via Methylcobalamin + 5-MTHF-Folat) und Transsulfurierung zu Glutathion (via P-5-P Vitamin B6).", "absorption_conflict_warning": "MTHFR-Kompatibilität beachten: Synthetische Folsäure (Pteroylmonoglutaminsäure) und Cyanocobalamin meiden; direkt methylierte Coenzym-Formen einsetzen.", "pack_size_label": "90 Kapseln (bioaktive Coenzym-Formen)", "supply_days": 90, "price_eur": 26.9, "coa_badge": "Quatrefolic® & MHA-B12 · Reinheits-COA 99,8%", "rationale_de": "Methylierungs-Achse optimieren: Holo-TC=48.0 pmol/l (Ziel >75 pmol/l), Homocystein=11.4 µmol/l (Ziel <7,5 µmol/l)."}, {"sku_id": "SKU-OMEGA3-TG-ULTRA", "product_name": "Ultra-Pure Omega-3 Triglycerid-Form (2.400 mg EPA/DHA · TOTOX < 4 · IFOS 5-Sterne)", "partner_brand": "Sunday Natural / Norsan Exclusive Lab-Line", "pzn": "PZN-16882941", "target_biomarkers": ["HS-Omega-3-Index (Erythrozyten)", "hs-CRP (Hochsensitives C-reaktives Protein)"], "daily_dosage_protocol": "2400 mg kombiniertes EPA + DHA täglich in natürlicher rTG-Form (Triglyceride statt Ethylester) über 12 Wochen zur Anhebung des Erythrozyten-Index auf >8,5 %.", "timing_slot": "mittags_fettmahlzeit", "timing_label_de": "12:30 Uhr — Direkt zur Hauptmahlzeit (mit Vitamin D3/K2)", "cofactor_synergy_note": "Pankreas-Lipasen aus einer fetthaltigen Mahlzeit steigern die EPA/DHA-Resorption um das 3-Fache. Kombiniert sich ideal im selben Einnahme-Slot mit fettlöslichem Vitamin D3 + K2.", "absorption_conflict_warning": "Qualitäts-Gate: Oxidierte Fischöle (TOTOX > 15) wirken pro-inflammatorisch und erhöhen ApoB/LDL-Oxidation. Nur chargengeprüfte rTG-Öle mit TOTOX < 5 und Rosmarin-/Tocopherol-Schutz verwenden.", "pack_size_label": "120 Weichkapseln / Flüssigflasche (TOTOX 3,2)", "supply_days": 60, "price_eur": 32.9, "coa_badge": "IFOS 5-Sterne · TOTOX 3,2 · PCB/Dioxin/Hg frei", "rationale_de": "Zellmembran & Entzündungs-Balance: Omega-3-Index=5.2 % (Ziel 8–11 %), hs-CRP=1.45 mg/l (Ziel <0,7 mg/l)."}, {"sku_id": "SKU-MG-DUAL-CHELAT", "product_name": "Magnesium Dual-Chelat (Magnesiumbisglycinat + Magnesiumtaurat, 350 mg elementar)", "partner_brand": "Sunday Natural / Biogena Exclusive Lab-Line", "pzn": "PZN-18119027", "target_biomarkers": ["Magnesium im Vollblut (intrazellulär)", "25-OH-Vitamin D3 (Calcidiol)"], "daily_dosage_protocol": "350 mg elementares Magnesium (100 mg Nachmittags als Malat/Taurat, 250 mg 45 Min. vor dem Schlafen als Bisglycinat).", "timing_slot": "abends_schlaf", "timing_label_de": "21:30 Uhr — Abends 45 Min. vor dem Schlafen (zeitversetzt zu Eisen)", "cofactor_synergy_note": "Glycin-Chelat passiert die Blut-Hirn-Schranke, senkt die Körperkerntemperatur zur Tiefschlaf-Induktion und liefert das zwingende Mg-ATP-Substrat für die Vitamin-D-Aktivierung.", "absorption_conflict_warning": "Mindestens 3–4 Stunden Abstand zur morgendlichen Eiseneinnahme! Nicht als billiges Magnesiumoxid einnehmen (nur ~4 % Bioverfügbarkeit und osmotisch abführend).", "pack_size_label": "120 Kapseln (100% Chelat, ohne Magnesiumoxid)", "supply_days": 60, "price_eur": 21.9, "coa_badge": "Albion® TRAACS® Chelat · Schwermetall-COA", "rationale_de": "Intrazelluläres Vollblut-Magnesium liegt bei 0.78 mmol/l (Longevity-Optimum: 0,90–1,05 mmol/l)."}, {"sku_id": "SKU-METABOLIC-BERB-Q10", "product_name": "Metabolic-Lipid-Guard (Phytosomales Berberin 500 mg + Kaneka Ubiquinol Q10 + Chrompicolinat)", "partner_brand": "MoleQlar / Sunday Natural Exclusive Lab-Line", "pzn": "PZN-19248810", "target_biomarkers": ["Apolipoprotein B (ApoB)", "HbA1c (Glykiertes Hämoglobin)"], "daily_dosage_protocol": "1 Kapsel 15 Minuten vor der kohlenhydratreichsten Mahlzeit + 10g lösliche Akazienfasern/Flohsamenschalen.", "timing_slot": "nachmittags", "timing_label_de": "16:00 / 18:30 Uhr — 15 Min. vor dem Abendessen", "cofactor_synergy_note": "Aktiviert AMPK (verbessert GLUT4-Glukoseaufnahme zur HbA1c-Senkung) und hemmt PCSK9, wodurch die hepatische LDL-/ApoB-Rezeptor-Clearance gesteigert wird.", "absorption_conflict_warning": "Nicht direkt an hochintensiven Hypertrophie-Trainingstagen unmittelbar nach dem Workout einnehmen (AMPK-Aktivierung kann akute mTOR-Muskelproteinsynthese leicht dämpfen).", "pack_size_label": "60 Kapseln (Berbevis® Phytosom + Kaneka Ubiquinol™)", "supply_days": 60, "price_eur": 36.9, "coa_badge": "Berbevis® & Kaneka™ COA · Reinheit 99,5%", "rationale_de": "Kardio-metabolischer Feinschliff: ApoB=88.0 mg/dl (Ziel <70 mg/dl), HbA1c=5.4 % (Ziel 4,6–5,2 %)."}, {"sku_id": "SKU-THYROID-SE-ZN", "product_name": "Schilddrüsen-Co-Faktor Komplex (200 µg Natriumselenit/Selenomethionin + 15 mg Zinkbisglycinat + 1,5 mg Kupfer)", "partner_brand": "Biogena / Sunday Natural Exclusive Lab-Line", "pzn": "PZN-17553092", "target_biomarkers": ["TSH basal (Schilddrüsen-Steuerhormon)"], "daily_dosage_protocol": "1 Kapsel täglich zum Nachmittagssnack (zeitversetzt zu Eisen und Kaffee).", "timing_slot": "nachmittags", "timing_label_de": "16:00 Uhr — Nachmittags (mit 2h Abstand zu Eisen & Magnesium)", "cofactor_synergy_note": "Selen ist das aktive Zentrum der Dejodase-Enzyme (DIO1/DIO2), die inaktives fT4 in stoffwechselaktives fT3 umwandeln. Ausbalanciertes Zink:Kupfer-Verhältnis (10:1) verhindert zinkinduzierten Kupfermangel.", "absorption_conflict_warning": "STRIKTE SPERRE: Natriumselenit niemals gleichzeitig mit hochdosiertem Vitamin C (>200 mg) einnehmen, da Ascorbinsäure Selenit zu elementarem, unresorbierbarem Selen (Se0) reduziert! Daher strikt vom morgendlichen Eisen+Vitamin-C-Slot trennen.", "pack_size_label": "90 Kapseln (Dejodase-Support)", "supply_days": 90, "price_eur": 19.9, "coa_badge": "ISO-17025 COA · 10:1 Zn:Cu Balance", "rationale_de": "TSH basal liegt bei 2.65 mIU/l (Longevity-Optimum 0,8–2,0 mIU/l; Dejodase-Co-Faktoren unterstützen)."}], "chrono_schedule": [{"slot_id": "morgens_nuechtern", "time_window": "07:30 Uhr · Morgens nüchtern", "rule_banner": "Mit 250 ml stillem Wasser. 45 Min. Pause bis zum ersten Kaffee/Milchprodukt!", "items": [{"sku_id": "SKU-FE-BIS-C", "product_name": "Eisenbisglycinat Chelat 25mg + Gepuffertes Vitamin C (100% Reinsubstanz)", "partner_brand": "Sunday Natural / Biogena Exclusive Lab-Line", "pzn": "PZN-18429104", "target_biomarkers": ["Ferritin (Eisenspeicher)", "TSH basal (TPO-Co-Faktor)"], "daily_dosage_protocol": "40 mg elementares Eisen (als Ferrochel®-Bisglycinat) + 200 mg Vitamin C — jeden 2. Morgen nüchtern (Hepcidin-Schaukel-Protokoll zur Verdopplung der Resorptionsquote).", "timing_slot": "morgens_nuechtern", "timing_label_de": "07:30 Uhr — Morgens nüchtern (45 Min. vor Kaffee/Frühstück)", "cofactor_synergy_note": "200 mg Vitamin C reduziert Fe3+ zu Fe2+ und steigert die duodenale Eisenaufnahme um bis zu +67 %.", "absorption_conflict_warning": "STRIKTE SPERRE: Mindestens 2 Stunden Abstand zu Kaffee, Schwarz-/Grüntee (Polyphenole/Tannine hemmen Aufnahme um ~60 %), Milchprodukten/Calcium sowie Magnesium- und Zink-Präparaten (DMT1-Transporter-Konkurrenz).", "pack_size_label": "90 Kapseln (Reinsubstanz ohne Carrageen/Titandioxid)", "supply_days": 90, "price_eur": 22.9, "coa_badge": "ISO-17025 COA · Schwermetallfrei · 99,4% Reinheit", "rationale_de": "Akut-Aufsättigung: Ferritin liegt bei 24.5 µg/l (Longevity-Ziel: 70.0–130.0 µg/l)."}, {"sku_id": "SKU-METHYL-B-COMPLEX", "product_name": "Methyl-B-Komplex Aktiv (MHA-Formel: Methyl-/Adenosylcobalamin + Quatrefolic® 5-MTHF + P-5-P B6 + TMG)", "partner_brand": "Sunday Natural / MoleQlar Exclusive Lab-Line", "pzn": "PZN-19033218", "target_biomarkers": ["Holotranscobalamin (Aktives Vitamin B12)", "Homocystein (Gefäß- & Methylierungsmarker)"], "daily_dosage_protocol": "1 Kapsel täglich morgens (1000 µg aktives B12 als 1:1 Methyl-/Adenosylcobalamin, 400 µg 5-MTHF-Folat, 10 mg P-5-P aktives Vitamin B6, 500 mg Betain/TMG).", "timing_slot": "morgens_nuechtern", "timing_label_de": "07:30 Uhr — Morgens (oder zum Frühstück, nicht abends wegen Neuro-Aktivierung)", "cofactor_synergy_note": "Schließt beide Abbauwege von Homocystein: Remethylierung zu Methionin (via Methylcobalamin + 5-MTHF-Folat) und Transsulfurierung zu Glutathion (via P-5-P Vitamin B6).", "absorption_conflict_warning": "MTHFR-Kompatibilität beachten: Synthetische Folsäure (Pteroylmonoglutaminsäure) und Cyanocobalamin meiden; direkt methylierte Coenzym-Formen einsetzen.", "pack_size_label": "90 Kapseln (bioaktive Coenzym-Formen)", "supply_days": 90, "price_eur": 26.9, "coa_badge": "Quatrefolic® & MHA-B12 · Reinheits-COA 99,8%", "rationale_de": "Methylierungs-Achse optimieren: Holo-TC=48.0 pmol/l (Ziel >75 pmol/l), Homocystein=11.4 µmol/l (Ziel <7,5 µmol/l)."}]}, {"slot_id": "mittags_fettmahlzeit", "time_window": "12:30 Uhr · Zur fetthaltigen Hauptmahlzeit", "rule_banner": "Fettlösliche Vitamine (D3/K2) + Omega-3-Triglyceride nutzen Gallensäuren & Lipasen für 3x höhere Resorption.", "items": [{"sku_id": "SKU-D3K2-MCT", "product_name": "Vitamin D3 5000 I.E. + K2 MK-7 (100% all-trans, K2VITAL®) in Bio-MCT-Kokosöl", "partner_brand": "Sunday Natural / Biogena Exclusive Lab-Line", "pzn": "PZN-17904512", "target_biomarkers": ["25-OH-Vitamin D3 (Calcidiol)"], "daily_dosage_protocol": "5000 I.E. Vitamin D3 + 200 µg Vitamin K2 (all-trans MK-7) täglich für 8 Wochen (rechnerisches Aufsättigungs-Defizit: ~274.286 I.E. bei 64 kg Körpergewicht). danach Erhaltungsdosis 2.500–3.000 I.E./Tag.", "timing_slot": "mittags_fettmahlzeit", "timing_label_de": "12:30 Uhr — Zum Mittagessen (fetthaltige Mahlzeit)", "cofactor_synergy_note": "Zwingend mit K2 MK-7 (aktiviert Osteocalcin & Matrix-Gla-Protein zum Schutz vor Gefäßverkalkung) sowie ausreichend Magnesium (obligater Co-Faktor der 25-Hydroxylase und 1α-Hydroxylase).", "absorption_conflict_warning": "Nicht nüchtern mit reinem Wasser einnehmen (fettlösliches Secosteroid; Resorption sinkt ohne Nahrungsfette um >30 %). Nicht spät abends einnehmen (kann die endogene Melatonin-Synthese dämpfen).", "pack_size_label": "300 Tropfen (in kaltgepresstem MCT-Öl)", "supply_days": 150, "price_eur": 24.9, "coa_badge": "K2VITAL® 99,7% all-trans · Laborgeprüft", "rationale_de": "Vitamin D3 liegt bei 25.0 ng/ml (Kassen-Untergrenze 20 ng/ml, Longevity-Ziel 45–65 ng/ml; Differenz zum Zielwert 55 ng/ml: +30.0 ng/ml)."}, {"sku_id": "SKU-OMEGA3-TG-ULTRA", "product_name": "Ultra-Pure Omega-3 Triglycerid-Form (2.400 mg EPA/DHA · TOTOX < 4 · IFOS 5-Sterne)", "partner_brand": "Sunday Natural / Norsan Exclusive Lab-Line", "pzn": "PZN-16882941", "target_biomarkers": ["HS-Omega-3-Index (Erythrozyten)", "hs-CRP (Hochsensitives C-reaktives Protein)"], "daily_dosage_protocol": "2400 mg kombiniertes EPA + DHA täglich in natürlicher rTG-Form (Triglyceride statt Ethylester) über 12 Wochen zur Anhebung des Erythrozyten-Index auf >8,5 %.", "timing_slot": "mittags_fettmahlzeit", "timing_label_de": "12:30 Uhr — Direkt zur Hauptmahlzeit (mit Vitamin D3/K2)", "cofactor_synergy_note": "Pankreas-Lipasen aus einer fetthaltigen Mahlzeit steigern die EPA/DHA-Resorption um das 3-Fache. Kombiniert sich ideal im selben Einnahme-Slot mit fettlöslichem Vitamin D3 + K2.", "absorption_conflict_warning": "Qualitäts-Gate: Oxidierte Fischöle (TOTOX > 15) wirken pro-inflammatorisch und erhöhen ApoB/LDL-Oxidation. Nur chargengeprüfte rTG-Öle mit TOTOX < 5 und Rosmarin-/Tocopherol-Schutz verwenden.", "pack_size_label": "120 Weichkapseln / Flüssigflasche (TOTOX 3,2)", "supply_days": 60, "price_eur": 32.9, "coa_badge": "IFOS 5-Sterne · TOTOX 3,2 · PCB/Dioxin/Hg frei", "rationale_de": "Zellmembran & Entzündungs-Balance: Omega-3-Index=5.2 % (Ziel 8–11 %), hs-CRP=1.45 mg/l (Ziel <0,7 mg/l)."}]}, {"slot_id": "nachmittags", "time_window": "16:00 Uhr · Nachmittags / Pre-Dinner", "rule_banner": "Strikt getrennt von morgendlichem Vitamin C/Eisen (Selenit-Schutz & Transporter-Freigabe).", "items": [{"sku_id": "SKU-METABOLIC-BERB-Q10", "product_name": "Metabolic-Lipid-Guard (Phytosomales Berberin 500 mg + Kaneka Ubiquinol Q10 + Chrompicolinat)", "partner_brand": "MoleQlar / Sunday Natural Exclusive Lab-Line", "pzn": "PZN-19248810", "target_biomarkers": ["Apolipoprotein B (ApoB)", "HbA1c (Glykiertes Hämoglobin)"], "daily_dosage_protocol": "1 Kapsel 15 Minuten vor der kohlenhydratreichsten Mahlzeit + 10g lösliche Akazienfasern/Flohsamenschalen.", "timing_slot": "nachmittags", "timing_label_de": "16:00 / 18:30 Uhr — 15 Min. vor dem Abendessen", "cofactor_synergy_note": "Aktiviert AMPK (verbessert GLUT4-Glukoseaufnahme zur HbA1c-Senkung) und hemmt PCSK9, wodurch die hepatische LDL-/ApoB-Rezeptor-Clearance gesteigert wird.", "absorption_conflict_warning": "Nicht direkt an hochintensiven Hypertrophie-Trainingstagen unmittelbar nach dem Workout einnehmen (AMPK-Aktivierung kann akute mTOR-Muskelproteinsynthese leicht dämpfen).", "pack_size_label": "60 Kapseln (Berbevis® Phytosom + Kaneka Ubiquinol™)", "supply_days": 60, "price_eur": 36.9, "coa_badge": "Berbevis® & Kaneka™ COA · Reinheit 99,5%", "rationale_de": "Kardio-metabolischer Feinschliff: ApoB=88.0 mg/dl (Ziel <70 mg/dl), HbA1c=5.4 % (Ziel 4,6–5,2 %)."}, {"sku_id": "SKU-THYROID-SE-ZN", "product_name": "Schilddrüsen-Co-Faktor Komplex (200 µg Natriumselenit/Selenomethionin + 15 mg Zinkbisglycinat + 1,5 mg Kupfer)", "partner_brand": "Biogena / Sunday Natural Exclusive Lab-Line", "pzn": "PZN-17553092", "target_biomarkers": ["TSH basal (Schilddrüsen-Steuerhormon)"], "daily_dosage_protocol": "1 Kapsel täglich zum Nachmittagssnack (zeitversetzt zu Eisen und Kaffee).", "timing_slot": "nachmittags", "timing_label_de": "16:00 Uhr — Nachmittags (mit 2h Abstand zu Eisen & Magnesium)", "cofactor_synergy_note": "Selen ist das aktive Zentrum der Dejodase-Enzyme (DIO1/DIO2), die inaktives fT4 in stoffwechselaktives fT3 umwandeln. Ausbalanciertes Zink:Kupfer-Verhältnis (10:1) verhindert zinkinduzierten Kupfermangel.", "absorption_conflict_warning": "STRIKTE SPERRE: Natriumselenit niemals gleichzeitig mit hochdosiertem Vitamin C (>200 mg) einnehmen, da Ascorbinsäure Selenit zu elementarem, unresorbierbarem Selen (Se0) reduziert! Daher strikt vom morgendlichen Eisen+Vitamin-C-Slot trennen.", "pack_size_label": "90 Kapseln (Dejodase-Support)", "supply_days": 90, "price_eur": 19.9, "coa_badge": "ISO-17025 COA · 10:1 Zn:Cu Balance", "rationale_de": "TSH basal liegt bei 2.65 mIU/l (Longevity-Optimum 0,8–2,0 mIU/l; Dejodase-Co-Faktoren unterstützen)."}]}, {"slot_id": "abends_schlaf", "time_window": "21:30 Uhr · 45 Min. vor dem Schlafen", "rule_banner": "Magnesiumbisglycinat/Taurat für GABA-Rezeptoren, Tiefschlaf & nächtliche Regeneration.", "items": [{"sku_id": "SKU-MG-DUAL-CHELAT", "product_name": "Magnesium Dual-Chelat (Magnesiumbisglycinat + Magnesiumtaurat, 350 mg elementar)", "partner_brand": "Sunday Natural / Biogena Exclusive Lab-Line", "pzn": "PZN-18119027", "target_biomarkers": ["Magnesium im Vollblut (intrazellulär)", "25-OH-Vitamin D3 (Calcidiol)"], "daily_dosage_protocol": "350 mg elementares Magnesium (100 mg Nachmittags als Malat/Taurat, 250 mg 45 Min. vor dem Schlafen als Bisglycinat).", "timing_slot": "abends_schlaf", "timing_label_de": "21:30 Uhr — Abends 45 Min. vor dem Schlafen (zeitversetzt zu Eisen)", "cofactor_synergy_note": "Glycin-Chelat passiert die Blut-Hirn-Schranke, senkt die Körperkerntemperatur zur Tiefschlaf-Induktion und liefert das zwingende Mg-ATP-Substrat für die Vitamin-D-Aktivierung.", "absorption_conflict_warning": "Mindestens 3–4 Stunden Abstand zur morgendlichen Eiseneinnahme! Nicht als billiges Magnesiumoxid einnehmen (nur ~4 % Bioverfügbarkeit und osmotisch abführend).", "pack_size_label": "120 Kapseln (100% Chelat, ohne Magnesiumoxid)", "supply_days": 60, "price_eur": 21.9, "coa_badge": "Albion® TRAACS® Chelat · Schwermetall-COA", "rationale_de": "Intrazelluläres Vollblut-Magnesium liegt bei 0.78 mmol/l (Longevity-Optimum: 0,90–1,05 mmol/l)."}]}], "conflict_rules": [{"rule_id": "CONFLICT-FE-01", "severity": "HIGH", "title": "Eisen x Kaffee / Calcium / Magnesium Blockade", "description": "Eisenbisglycinat niemals gleichzeitig mit Espresso/Kaffee, Milchprodukten oder Magnesium einnehmen. Polyphenole und zweiwertige Kationen (Ca2+, Mg2+, Zn2+) blockieren den duodenalen DMT1-Transporter.", "resolution": "Eisen um 07:30 Uhr nüchtern mit Wasser + Vitamin C; Kaffee frühestens ab 08:15 Uhr; Magnesium in den Nachmittag/Abend verlegen."}, {"rule_id": "CONFLICT-SE-VITC", "severity": "HIGH", "title": "Natriumselenit x Vitamin C Reduktions-Blockade", "description": "Anorganisches Natriumselenit wird durch Vitamin C (Ascorbinsäure) im Magen zu elementarem Selen reduziert, das vom Darm zu 0 % aufgenommen werden kann.", "resolution": "Vitamin C + Eisen um 07:30 Uhr morgens; Selen/Zink strikt getrennt um 16:00 Uhr nachmittags einnehmen."}], "synergy_rules": [{"rule_id": "SYNERGY-FE-HEPCIDIN", "title": "Jeden-2.-Tag Hepcidin-Pulsing + Vitamin C", "description": "Tägliche hohe Eisengaben triggern einen 24h-Anstieg von Hepcidin in der Leber, was die Aufnahme am Folgetag blockiert. Morgendliche Einnahme jeden 2. Tag mit 200 mg Vitamin C maximiert die Bioverfügbarkeit ohne GI-Nebenwirkungen."}, {"rule_id": "SYNERGY-D3-K2-MG", "title": "D3 + K2 MK-7 + Magnesium Trias", "description": "Ohne intrazelluläres Magnesium bleibt Cholecalciferol (D3) biologisch inaktiv, da sowohl die hepatische 25-Hydroxylase als auch die renale 1α-Hydroxylase magnesiumabhängig sind. K2 MK-7 lenkt das mobilisierte Calcium in die Knochenmatrix statt in das Gefäßendothel."}, {"rule_id": "SYNERGY-METHYLATION-LOOP", "title": "Homocystein-Senkung durch B12 + 5-MTHF + P-5-P Synergie", "description": "Isoliertes Vitamin B12 senkt Homocystein oft nur unvollständig, wenn 5-Methyltetrahydrofolat (Methylgruppen-Donator) oder Pyridoxal-5-Phosphat (B6 für die Cystathionin-β-Synthase) als Co-Faktoren fehlen."}], "exclusive_partner_cart": {"partner_slot_name": "Exklusiver Reinsubstanz-Partner-Tab (Sunday Natural / Biogena / MoleQlar ISO-COA Slot)", "verification_standard": ["1. Unabhängiges ISO-17025 Laborzertifikat (COA) für jede Charge hinterlegt", "2. 100% Reinsubstanzen (0% Titandioxid, Carrageen, Magnesiumstearat oder künstliche Füllstoffe)", "3. Bioaktive Coenzym-Formen (5-MTHF statt Folsäure, K2VITAL® 99,7% all-trans, rTG-Omega-3 TOTOX < 5)", "4. Exakte deutsche Pharmazentralnummer (PZN) & 1-Click Auto-Fill Warenkorb"], "voucher_code": "BLUTBILDIQ10", "item_count": 7, "gross_cart_eur": 186.3, "user_discount_pct": 10.0, "net_cart_eur": 167.67, "avg_daily_protocol_cost_eur": 2.47, "b2b_commission_pct": 18.0, "affiliate_commission_per_order_eur": 30.18, "b2b_monthly_slot_retainer_eur": 1500.0, "unit_economics_at_pepiq_scale_1025_subs": {"active_b2c_subscribers": 1025, "b2c_subscription_mrr_eur": 19372.5, "b2b_exclusive_slot_retainer_mrr_eur": 1500.0, "monthly_partner_cart_orders": 390, "b2b_cart_commission_mrr_eur": 11770.2, "total_combined_mrr_eur": 32642.7}}}, "preset_id": "mvz_muenchen_erschoepfung", "preset_title": "MVZ Labor München — Befund 'Kassenarzt sagt Alles OK, aber chronisch müde'", "raw_lab_text": "MVZ Labor München Zentrum · Befundbericht vom 14.10.2026\nParameter                  Ergebnis     Einheit    Referenzbereich\n------------------------------------------------------------------\nFerritin i.S.              24,5         µg/l       15 - 150\n25-OH-Vitamin D3           62,4         nmol/l     50 - 250\nHolotranscobalamin         48,0         pmol/l     > 35\nHomocystein i.P.           11,4         µmol/l     < 15,0\nHS-Omega-3-Index           5,2          %          4,0 - 12,0\nHbA1c                      5,4          %          4,0 - 5,7\nhs-CRP                     1,45         mg/l       < 3,0\nTSH basal                  2,65         mIU/l      0,40 - 4,00\nMagnesium (Vollblut)       0,78         mmol/l     0,73 - 1,06\nApolipoprotein B           88,0         mg/dl      < 115\n"}, "synlab_kardio_metabolik": {"generated_at": "2026-10-17T14:13:46.955433+00:00", "mvp_id": "MVP_44_DACH_BLUTBILD_LONGEVITY_SCANNER", "hwg_compliance_disclaimer": "WICHTIGER HINWEIS GEMÄSS HEILMITTELWERBEGESETZ (HWG) & LFGB: BlutbildIQ dient ausschließlich der ernährungsphysiologischen Information, Bildung und Wohlbefindens-Optimierung. Die Auswertung stellt keine ärztliche Diagnose, Beratung oder Heilbehandlung dar und ersetzt keinen Arztbesuch. Nahrungsergänzungsmittel sind kein Ersatz für eine ausgewogene Ernährung. Bei klinischen Abweichungen außerhalb des ärztlichen Referenzbereichs wenden Sie sich bitte an Ihre Ärztin oder Ihren Arzt.", "pepiq_benchmark_teardown": {"startup_id": "startup-6eb394f6b317", "app_name": "PepIQ: Buy & Scan Peptides", "developer": "Mad Apps LLC", "ios_app_id": "6772365932", "domain": "https://pepiq.io/", "legal_domains": ["https://pepiqios.com/TermsOfService", "https://pepiqios.com/PrivacyPolicy"], "verified_metrics": {"mrr_30d_usd": 22981, "active_subscribers": 1025, "download_to_paid_conversion_pct": 12.4, "age_months": 4, "app_store_rating": 4.7, "web_claimed_rating": 4.9, "pricing_b2c": ["$3.99/week", "$19.99/month"]}, "technical_architecture": {"web_frontend": "Vite + React SPA on Base44 (appId: 6a131b806bb6919e0fb4c496) with pre-rendered SEO snapshots", "ai_backend": "Cloudflare Workers proxy -> Google Gemini Vision API (stateless in-memory scan, zero server photo storage)", "persistence": "Local-only iPhone storage for scan scores, peptide stacks, and dose logs", "seo_funnel_routes": ["/peptide-analysis", "/peptides/:slug (14 compounds: bpc-157, tb-500, ghk-cu, retatrutide, tirzepatide, semaglutide, nad-plus, mots-c, epithalon, pt-141...)", "/compare/:slug (bpc-157-vs-tb-500, ghk-cu-injectable-vs-topical, retatrutide-vs-tirzepatide)", "/calculators/reconstitution (vial mg + bacteriostatic water ml -> U-100 insulin syringe units)", "/calculators/dosage (weight-based mcg/mg protocol calculator)", "/vendors/verified & /buy-peptides (intentionally hides vendor names on web to force iOS App download)"]}, "ux_and_monetization_mechanics": {"screenshot_1_hook": "v1461_01_shop.png — 'Verified Peptide Shop' is the #1 App Store screenshot, ahead of AI scanning", "dual_scan_entry": ["1. Face & Physique Scan (Gemini Vision): scores symmetry, skin, jawline, body fat, muscle definition -> maps deficits to peptide stack", "2. Vial & COA Scanner: scans physical peptide vial label or lab Certificate of Analysis (COA) -> verifies batch number & >=98% HPLC purity"], "leg_1_b2c_paywall": "$3.99/wk or $19.99/mo unlocks personalized protocol dosages, U-100 reconstitution math, and before/after score tracking", "leg_2_b2b_exclusive_vendor_tab": "In-app 'Shop' tab lists only 'PepIQ Verified' supplier(s) meeting a 6-point HPLC/MS COA checklist. Monetized via fixed monthly B2B slot sponsorship retainer + affiliate cut on external vendor checkout (bypasses Apple 30% IAP fee because physical research products are fulfilled externally)."}, "dach_legal_pivot_rationale": {"why_peptides_fail_in_dach": "Research peptides (BPC-157, Retatrutide, TB-500) violate German Arzneimittelgesetz (AMG), Anti-Doping-Gesetz (AntiDopG) and Heilmittelwerbegesetz (HWG).", "dach_goldmine_equivalent": "German Laborbefund / Blutbild Scanner (MVZ, Synlab, Mein Direktlabor, Hausarzt) + Longevity Optimal-Range Gap Analysis + Co-Factor Chrono-Schedule + Exclusive ISO/GMP Reinsubstanz-Partner-Tab (PZN / Sunday Natural / Biogena / MoleQlar B2B Retainer + 18% Cart Commission)."}}, "patient_profile": {"age": 41, "sex": "m", "weight_kg": 84.0, "goal": "VO2max, Gefäßschutz & Insulinsensitivität"}, "summary_metrics": {"total_biomarkers_parsed": 10, "longevity_blood_score_0_100": 68, "optimal_biomarkers_count": 2, "greyzone_kassenarzt_ok_but_suboptimal_count": 8, "clinical_out_of_range_count": 0, "retest_recommendation_days": 90, "category_scores": {"Zellenergie & Sauerstoff": 80, "Immunsystem & Hormonachse": 76, "Methylierung & Neuro": 68, "Kardio-Metabolik & Entzündung": 59}}, "biomarkers": [{"key": "ferritin", "display_name": "Ferritin (Eisenspeicher)", "category": "Zellenergie & Sauerstoff", "raw_value": 92.0, "raw_unit": "ng/ml", "canonical_value": 92.0, "canonical_unit": "µg/l", "kassenarzt_min": 15.0, "kassenarzt_max": 150.0, "longevity_min": 70.0, "longevity_max": 130.0, "status_code": "LONGEVITY_OPTIMAL", "status_label_de": "Longevity-Optimalbereich", "score_0_100": 97, "delta_to_longevity_midpoint": -8.0, "clinical_meaning": "Intrazellulärer Eisenspeicher für mitochondriale ATP-Synthese, Schilddrüsen-Peroxidase (TPO) und Dopamin-Synthese.", "greyzone_symptom_hint": "Werte zwischen 15 und 65 µg/l gelten im Kassenlabor oft als 'normal', korrelieren aber häufig mit Tagesmüdigkeit, diffusem Haarausfall, Restless Legs und reduzierter VO2max.", "interpretation_de": "Exzellent: 92.0 µg/l liegt mitten im evidenzbasierten Longevity-Zielkorridor (70.0–130.0 µg/l). Erhaltungsdosis beibehalten."}, {"key": "vitamin_d_25oh", "display_name": "25-OH-Vitamin D3 (Calcidiol)", "category": "Immunsystem & Hormonachse", "raw_value": 21.8, "raw_unit": "ng/ml", "canonical_value": 21.8, "canonical_unit": "ng/ml", "kassenarzt_min": 20.0, "kassenarzt_max": 100.0, "longevity_min": 45.0, "longevity_max": 65.0, "status_code": "GRAUZONE_KASSENARZT_OK_LONGEVITY_SUBOPTIMAL", "status_label_de": "Grauzone: Hausarzt 'OK', Longevity-Defizit", "score_0_100": 54, "delta_to_longevity_midpoint": -33.2, "clinical_meaning": "Steroidhormon-Vorstufe; reguliert über 1.000 Gene, Calcium-Homöostase, T-Zell-Immunität und Insulinsensitivität.", "greyzone_symptom_hint": "20–40 ng/ml verhindert zwar Rachitis, reicht aber für optimale Immunmodulation, Knochendichte und Winter-Resilienz oft nicht aus.", "interpretation_de": "Klassische Grauzone: 21.8 ng/ml wird im Standard-Laborblatt als 'unauffällig' (20.0–100.0 ng/ml) markiert, verfehlt aber das Longevity-Optimum (45.0–65.0 ng/ml). 20–40 ng/ml verhindert zwar Rachitis, reicht aber für optimale Immunmodulation, Knochendichte und Winter-Resilienz oft nicht aus."}, {"key": "holo_tc", "display_name": "Holotranscobalamin (Aktives Vitamin B12)", "category": "Methylierung & Neuro", "raw_value": 64.0, "raw_unit": "pmol/l", "canonical_value": 64.0, "canonical_unit": "pmol/l", "kassenarzt_min": 35.0, "kassenarzt_max": 150.0, "longevity_min": 75.0, "longevity_max": 140.0, "status_code": "GRAUZONE_KASSENARZT_OK_LONGEVITY_SUBOPTIMAL", "status_label_de": "Grauzone: Hausarzt 'OK', Longevity-Defizit", "score_0_100": 74, "delta_to_longevity_midpoint": -43.5, "clinical_meaning": "Einzig bioverfügbare, zellgängige Fraktion von Vitamin B12 für Myelinscheiden und Homocystein-Remethylierung.", "greyzone_symptom_hint": "Unter 70 pmol/l zeigen sich oft schon subklinische Methylierungsdefizite (erhöhtes Homocystein, Brain Fog), selbst wenn Gesamt-B12 noch unauffällig scheint.", "interpretation_de": "Klassische Grauzone: 64.0 pmol/l wird im Standard-Laborblatt als 'unauffällig' (35.0–150.0 pmol/l) markiert, verfehlt aber das Longevity-Optimum (75.0–140.0 pmol/l). Unter 70 pmol/l zeigen sich oft schon subklinische Methylierungsdefizite (erhöhtes Homocystein, Brain Fog), selbst wenn Gesamt-B12 noch unauffällig scheint."}, {"key": "homocystein", "display_name": "Homocystein (Gefäß- & Methylierungsmarker)", "category": "Methylierung & Neuro", "raw_value": 12.8, "raw_unit": "µmol/l", "canonical_value": 12.8, "canonical_unit": "µmol/l", "kassenarzt_min": 5.0, "kassenarzt_max": 15.0, "longevity_min": 5.0, "longevity_max": 7.5, "status_code": "GRAUZONE_KASSENARZT_OK_LONGEVITY_SUBOPTIMAL", "status_label_de": "Grauzone: Hausarzt 'OK', Longevity-Defizit", "score_0_100": 61, "delta_to_longevity_midpoint": 6.55, "clinical_meaning": "Zytotoxisches Zwischenprodukt des Methionin-Stoffwechsels; direkter Indikator für B12-, Folat- (5-MTHF) und B6-Status sowie Endothelgesundheit.", "greyzone_symptom_hint": "Kassenlabore tolerieren oft bis 12 oder 15 µmol/l. Ab >8 µmol/l steigt jedoch der oxidative Gefäßstress messbar an.", "interpretation_de": "Klassische Grauzone: 12.8 µmol/l wird im Standard-Laborblatt als 'unauffällig' (5.0–15.0 µmol/l) markiert, verfehlt aber das Longevity-Optimum (5.0–7.5 µmol/l). Kassenlabore tolerieren oft bis 12 oder 15 µmol/l. Ab >8 µmol/l steigt jedoch der oxidative Gefäßstress messbar an."}, {"key": "omega3_index", "display_name": "HS-Omega-3-Index (Erythrozyten)", "category": "Kardio-Metabolik & Entzündung", "raw_value": 4.6, "raw_unit": "%", "canonical_value": 4.6, "canonical_unit": "%", "kassenarzt_min": 4.0, "kassenarzt_max": 12.0, "longevity_min": 8.0, "longevity_max": 11.0, "status_code": "GRAUZONE_KASSENARZT_OK_LONGEVITY_SUBOPTIMAL", "status_label_de": "Grauzone: Hausarzt 'OK', Longevity-Defizit", "score_0_100": 56, "delta_to_longevity_midpoint": -4.9, "clinical_meaning": "Prozentualer Anteil von EPA + DHA in der Erythrozytenmembran (Langzeitspiegel über 90–120 Tage für Zellmembranfluidität & Neuroprotektion).", "greyzone_symptom_hint": "Der DACH-Durchschnitt liegt bei ~5,5 %. Erst ab 8,0 % ist die maximale kardioprotektive und antiinflammatorische Sättigung erreicht.", "interpretation_de": "Klassische Grauzone: 4.6 % wird im Standard-Laborblatt als 'unauffällig' (4.0–12.0 %) markiert, verfehlt aber das Longevity-Optimum (8.0–11.0 %). Der DACH-Durchschnitt liegt bei ~5,5 %. Erst ab 8,0 % ist die maximale kardioprotektive und antiinflammatorische Sättigung erreicht."}, {"key": "hba1c", "display_name": "HbA1c (Glykiertes Hämoglobin)", "category": "Kardio-Metabolik & Entzündung", "raw_value": 37.7, "raw_unit": "mmol/mol", "canonical_value": 5.6, "canonical_unit": "%", "kassenarzt_min": 4.0, "kassenarzt_max": 5.7, "longevity_min": 4.6, "longevity_max": 5.2, "status_code": "GRAUZONE_KASSENARZT_OK_LONGEVITY_SUBOPTIMAL", "status_label_de": "Grauzone: Hausarzt 'OK', Longevity-Defizit", "score_0_100": 58, "delta_to_longevity_midpoint": 0.7, "clinical_meaning": "8–12-Wochen-Durchschnitt der Glukoseverzuckerung (Advanced Glycation Endproducts / AGEs) an roten Blutkörperchen.", "greyzone_symptom_hint": "5,3–5,6 % gilt klinisch noch nicht als Prädiabetes, deutet im Longevity-Kontext aber bereits auf postprandiale Glukosespitzen und beschleunigte Gefäßalterung hin.", "interpretation_de": "Klassische Grauzone: 5.6 % wird im Standard-Laborblatt als 'unauffällig' (4.0–5.7 %) markiert, verfehlt aber das Longevity-Optimum (4.6–5.2 %). 5,3–5,6 % gilt klinisch noch nicht als Prädiabetes, deutet im Longevity-Kontext aber bereits auf postprandiale Glukosespitzen und beschleunigte Gefäßalterung hin."}, {"key": "hs_crp", "display_name": "hs-CRP (Hochsensitives C-reaktives Protein)", "category": "Kardio-Metabolik & Entzündung", "raw_value": 0.21, "raw_unit": "mg/dl", "canonical_value": 2.1, "canonical_unit": "mg/l", "kassenarzt_min": 0.0, "kassenarzt_max": 3.0, "longevity_min": 0.0, "longevity_max": 0.7, "status_code": "GRAUZONE_KASSENARZT_OK_LONGEVITY_SUBOPTIMAL", "status_label_de": "Grauzone: Hausarzt 'OK', Longevity-Defizit", "score_0_100": 64, "delta_to_longevity_midpoint": 1.75, "clinical_meaning": "Systemischer Marker für stille Entzündungen (Silent Inflammation / Inflammaging) und vaskuläres Risiko.", "greyzone_symptom_hint": "Werte zwischen 0,8 und 2,9 mg/l werden im Standardbefund meist übersehen, signalisieren aber chronische Low-Grade-Inflammation.", "interpretation_de": "Klassische Grauzone: 2.1 mg/l wird im Standard-Laborblatt als 'unauffällig' (0.0–3.0 mg/l) markiert, verfehlt aber das Longevity-Optimum (0.0–0.7 mg/l). Werte zwischen 0,8 und 2,9 mg/l werden im Standardbefund meist übersehen, signalisieren aber chronische Low-Grade-Inflammation."}, {"key": "tsh", "display_name": "TSH basal (Schilddrüsen-Steuerhormon)", "category": "Immunsystem & Hormonachse", "raw_value": 1.45, "raw_unit": "µIU/ml", "canonical_value": 1.45, "canonical_unit": "mIU/l", "kassenarzt_min": 0.4, "kassenarzt_max": 4.0, "longevity_min": 0.8, "longevity_max": 2.0, "status_code": "LONGEVITY_OPTIMAL", "status_label_de": "Longevity-Optimalbereich", "score_0_100": 99, "delta_to_longevity_midpoint": 0.05, "clinical_meaning": "Hypophysäres Steuerungshormon der Schilddrüse; reagiert empfindlich auf Selen-, Jod-, Eisen- und Vitamin-D-Status.", "greyzone_symptom_hint": "Ein TSH zwischen 2,2 und 4,0 mIU/l liegt im Kassen-Normbereich, geht aber häufig mit verlangsamtem Grundumsatz, Kälteempfindlichkeit und Antriebsmangel einher.", "interpretation_de": "Exzellent: 1.45 mIU/l liegt mitten im evidenzbasierten Longevity-Zielkorridor (0.8–2.0 mIU/l). Erhaltungsdosis beibehalten."}, {"key": "magnesium_vollblut", "display_name": "Magnesium im Vollblut (intrazellulär)", "category": "Zellenergie & Sauerstoff", "raw_value": 1.92, "raw_unit": "mg/dl", "canonical_value": 0.79, "canonical_unit": "mmol/l", "kassenarzt_min": 0.73, "kassenarzt_max": 1.06, "longevity_min": 0.9, "longevity_max": 1.05, "status_code": "GRAUZONE_KASSENARZT_OK_LONGEVITY_SUBOPTIMAL", "status_label_de": "Grauzone: Hausarzt 'OK', Longevity-Defizit", "score_0_100": 63, "delta_to_longevity_midpoint": -0.19, "clinical_meaning": "Essentieller Co-Faktor für >600 Enzyme, ATP-Bindung (Mg-ATP), Schlafarchitektur (GABA) und Vitamin-D-Aktivierung.", "greyzone_symptom_hint": "Werte unter 0,88 mmol/l führen trotz 'grünem' Laborblatt oft zu nächtlichen Muskelspannungen, erhöhter Stress-Reaktivität (Cortisol) und blockierter Vitamin-D-Umwandlung.", "interpretation_de": "Klassische Grauzone: 0.79 mmol/l wird im Standard-Laborblatt als 'unauffällig' (0.73–1.06 mmol/l) markiert, verfehlt aber das Longevity-Optimum (0.9–1.05 mmol/l). Werte unter 0,88 mmol/l führen trotz 'grünem' Laborblatt oft zu nächtlichen Muskelspannungen, erhöhter Stress-Reaktivität (Cortisol) und blockierter Vitamin-D-Umwandlung."}, {"key": "apob", "display_name": "Apolipoprotein B (ApoB)", "category": "Kardio-Metabolik & Entzündung", "raw_value": 1.04, "raw_unit": "g/l", "canonical_value": 104.0, "canonical_unit": "mg/dl", "kassenarzt_min": 40.0, "kassenarzt_max": 115.0, "longevity_min": 40.0, "longevity_max": 70.0, "status_code": "GRAUZONE_KASSENARZT_OK_LONGEVITY_SUBOPTIMAL", "status_label_de": "Grauzone: Hausarzt 'OK', Longevity-Defizit", "score_0_100": 59, "delta_to_longevity_midpoint": 49.0, "clinical_meaning": "Exakte Anzahl aller atherogenen Lipoproteinpartikel (LDL, VLDL, IDL) pro Volumeneinheit — präziserer Kardio-Prädiktor als Standard-LDL.", "greyzone_symptom_hint": "Werte zwischen 75 und 115 mg/dl gelten im Standardlabor als unauffällig, liegen aber über dem modernen Longevity-Zielwert (<70 mg/dl) zur langfristigen Plaque-Prävention.", "interpretation_de": "Klassische Grauzone: 104.0 mg/dl wird im Standard-Laborblatt als 'unauffällig' (40.0–115.0 mg/dl) markiert, verfehlt aber das Longevity-Optimum (40.0–70.0 mg/dl). Werte zwischen 75 und 115 mg/dl gelten im Standardlabor als unauffällig, liegen aber über dem modernen Longevity-Zielwert (<70 mg/dl) zur langfristigen Plaque-Prävention."}], "protocol_engine": {"recommendations": [{"sku_id": "SKU-D3K2-MCT", "product_name": "Vitamin D3 5000 I.E. + K2 MK-7 (100% all-trans, K2VITAL®) in Bio-MCT-Kokosöl", "partner_brand": "Sunday Natural / Biogena Exclusive Lab-Line", "pzn": "PZN-17904512", "target_biomarkers": ["25-OH-Vitamin D3 (Calcidiol)"], "daily_dosage_protocol": "5000 I.E. Vitamin D3 + 200 µg Vitamin K2 (all-trans MK-7) täglich für 8 Wochen (rechnerisches Aufsättigungs-Defizit: ~398.400 I.E. bei 84 kg Körpergewicht). danach Erhaltungsdosis 2.500–3.000 I.E./Tag.", "timing_slot": "mittags_fettmahlzeit", "timing_label_de": "12:30 Uhr — Zum Mittagessen (fetthaltige Mahlzeit)", "cofactor_synergy_note": "Zwingend mit K2 MK-7 (aktiviert Osteocalcin & Matrix-Gla-Protein zum Schutz vor Gefäßverkalkung) sowie ausreichend Magnesium (obligater Co-Faktor der 25-Hydroxylase und 1α-Hydroxylase).", "absorption_conflict_warning": "Nicht nüchtern mit reinem Wasser einnehmen (fettlösliches Secosteroid; Resorption sinkt ohne Nahrungsfette um >30 %). Nicht spät abends einnehmen (kann die endogene Melatonin-Synthese dämpfen).", "pack_size_label": "300 Tropfen (in kaltgepresstem MCT-Öl)", "supply_days": 150, "price_eur": 24.9, "coa_badge": "K2VITAL® 99,7% all-trans · Laborgeprüft", "rationale_de": "Vitamin D3 liegt bei 21.8 ng/ml (Kassen-Untergrenze 20 ng/ml, Longevity-Ziel 45–65 ng/ml; Differenz zum Zielwert 55 ng/ml: +33.2 ng/ml)."}, {"sku_id": "SKU-METHYL-B-COMPLEX", "product_name": "Methyl-B-Komplex Aktiv (MHA-Formel: Methyl-/Adenosylcobalamin + Quatrefolic® 5-MTHF + P-5-P B6 + TMG)", "partner_brand": "Sunday Natural / MoleQlar Exclusive Lab-Line", "pzn": "PZN-19033218", "target_biomarkers": ["Holotranscobalamin (Aktives Vitamin B12)", "Homocystein (Gefäß- & Methylierungsmarker)"], "daily_dosage_protocol": "1 Kapsel täglich morgens (500 µg aktives B12 als 1:1 Methyl-/Adenosylcobalamin, 400 µg 5-MTHF-Folat, 10 mg P-5-P aktives Vitamin B6, 500 mg Betain/TMG).", "timing_slot": "morgens_nuechtern", "timing_label_de": "07:30 Uhr — Morgens (oder zum Frühstück, nicht abends wegen Neuro-Aktivierung)", "cofactor_synergy_note": "Schließt beide Abbauwege von Homocystein: Remethylierung zu Methionin (via Methylcobalamin + 5-MTHF-Folat) und Transsulfurierung zu Glutathion (via P-5-P Vitamin B6).", "absorption_conflict_warning": "MTHFR-Kompatibilität beachten: Synthetische Folsäure (Pteroylmonoglutaminsäure) und Cyanocobalamin meiden; direkt methylierte Coenzym-Formen einsetzen.", "pack_size_label": "90 Kapseln (bioaktive Coenzym-Formen)", "supply_days": 90, "price_eur": 26.9, "coa_badge": "Quatrefolic® & MHA-B12 · Reinheits-COA 99,8%", "rationale_de": "Methylierungs-Achse optimieren: Holo-TC=64.0 pmol/l (Ziel >75 pmol/l), Homocystein=12.8 µmol/l (Ziel <7,5 µmol/l)."}, {"sku_id": "SKU-OMEGA3-TG-ULTRA", "product_name": "Ultra-Pure Omega-3 Triglycerid-Form (2.400 mg EPA/DHA · TOTOX < 4 · IFOS 5-Sterne)", "partner_brand": "Sunday Natural / Norsan Exclusive Lab-Line", "pzn": "PZN-16882941", "target_biomarkers": ["HS-Omega-3-Index (Erythrozyten)", "hs-CRP (Hochsensitives C-reaktives Protein)"], "daily_dosage_protocol": "2400 mg kombiniertes EPA + DHA täglich in natürlicher rTG-Form (Triglyceride statt Ethylester) über 12 Wochen zur Anhebung des Erythrozyten-Index auf >8,5 %.", "timing_slot": "mittags_fettmahlzeit", "timing_label_de": "12:30 Uhr — Direkt zur Hauptmahlzeit (mit Vitamin D3/K2)", "cofactor_synergy_note": "Pankreas-Lipasen aus einer fetthaltigen Mahlzeit steigern die EPA/DHA-Resorption um das 3-Fache. Kombiniert sich ideal im selben Einnahme-Slot mit fettlöslichem Vitamin D3 + K2.", "absorption_conflict_warning": "Qualitäts-Gate: Oxidierte Fischöle (TOTOX > 15) wirken pro-inflammatorisch und erhöhen ApoB/LDL-Oxidation. Nur chargengeprüfte rTG-Öle mit TOTOX < 5 und Rosmarin-/Tocopherol-Schutz verwenden.", "pack_size_label": "120 Weichkapseln / Flüssigflasche (TOTOX 3,2)", "supply_days": 60, "price_eur": 32.9, "coa_badge": "IFOS 5-Sterne · TOTOX 3,2 · PCB/Dioxin/Hg frei", "rationale_de": "Zellmembran & Entzündungs-Balance: Omega-3-Index=4.6 % (Ziel 8–11 %), hs-CRP=2.1 mg/l (Ziel <0,7 mg/l)."}, {"sku_id": "SKU-MG-DUAL-CHELAT", "product_name": "Magnesium Dual-Chelat (Magnesiumbisglycinat + Magnesiumtaurat, 350 mg elementar)", "partner_brand": "Sunday Natural / Biogena Exclusive Lab-Line", "pzn": "PZN-18119027", "target_biomarkers": ["Magnesium im Vollblut (intrazellulär)", "25-OH-Vitamin D3 (Calcidiol)"], "daily_dosage_protocol": "350 mg elementares Magnesium (100 mg Nachmittags als Malat/Taurat, 250 mg 45 Min. vor dem Schlafen als Bisglycinat).", "timing_slot": "abends_schlaf", "timing_label_de": "21:30 Uhr — Abends 45 Min. vor dem Schlafen (zeitversetzt zu Eisen)", "cofactor_synergy_note": "Glycin-Chelat passiert die Blut-Hirn-Schranke, senkt die Körperkerntemperatur zur Tiefschlaf-Induktion und liefert das zwingende Mg-ATP-Substrat für die Vitamin-D-Aktivierung.", "absorption_conflict_warning": "Mindestens 3–4 Stunden Abstand zur morgendlichen Eiseneinnahme! Nicht als billiges Magnesiumoxid einnehmen (nur ~4 % Bioverfügbarkeit und osmotisch abführend).", "pack_size_label": "120 Kapseln (100% Chelat, ohne Magnesiumoxid)", "supply_days": 60, "price_eur": 21.9, "coa_badge": "Albion® TRAACS® Chelat · Schwermetall-COA", "rationale_de": "Intrazelluläres Vollblut-Magnesium liegt bei 0.79 mmol/l (Longevity-Optimum: 0,90–1,05 mmol/l)."}, {"sku_id": "SKU-METABOLIC-BERB-Q10", "product_name": "Metabolic-Lipid-Guard (Phytosomales Berberin 500 mg + Kaneka Ubiquinol Q10 + Chrompicolinat)", "partner_brand": "MoleQlar / Sunday Natural Exclusive Lab-Line", "pzn": "PZN-19248810", "target_biomarkers": ["Apolipoprotein B (ApoB)", "HbA1c (Glykiertes Hämoglobin)"], "daily_dosage_protocol": "1 Kapsel 15 Minuten vor der kohlenhydratreichsten Mahlzeit + 10g lösliche Akazienfasern/Flohsamenschalen.", "timing_slot": "nachmittags", "timing_label_de": "16:00 / 18:30 Uhr — 15 Min. vor dem Abendessen", "cofactor_synergy_note": "Aktiviert AMPK (verbessert GLUT4-Glukoseaufnahme zur HbA1c-Senkung) und hemmt PCSK9, wodurch die hepatische LDL-/ApoB-Rezeptor-Clearance gesteigert wird.", "absorption_conflict_warning": "Nicht direkt an hochintensiven Hypertrophie-Trainingstagen unmittelbar nach dem Workout einnehmen (AMPK-Aktivierung kann akute mTOR-Muskelproteinsynthese leicht dämpfen).", "pack_size_label": "60 Kapseln (Berbevis® Phytosom + Kaneka Ubiquinol™)", "supply_days": 60, "price_eur": 36.9, "coa_badge": "Berbevis® & Kaneka™ COA · Reinheit 99,5%", "rationale_de": "Kardio-metabolischer Feinschliff: ApoB=104.0 mg/dl (Ziel <70 mg/dl), HbA1c=5.6 % (Ziel 4,6–5,2 %)."}], "chrono_schedule": [{"slot_id": "morgens_nuechtern", "time_window": "07:30 Uhr · Morgens nüchtern", "rule_banner": "Mit 250 ml stillem Wasser. 45 Min. Pause bis zum ersten Kaffee/Milchprodukt!", "items": [{"sku_id": "SKU-METHYL-B-COMPLEX", "product_name": "Methyl-B-Komplex Aktiv (MHA-Formel: Methyl-/Adenosylcobalamin + Quatrefolic® 5-MTHF + P-5-P B6 + TMG)", "partner_brand": "Sunday Natural / MoleQlar Exclusive Lab-Line", "pzn": "PZN-19033218", "target_biomarkers": ["Holotranscobalamin (Aktives Vitamin B12)", "Homocystein (Gefäß- & Methylierungsmarker)"], "daily_dosage_protocol": "1 Kapsel täglich morgens (500 µg aktives B12 als 1:1 Methyl-/Adenosylcobalamin, 400 µg 5-MTHF-Folat, 10 mg P-5-P aktives Vitamin B6, 500 mg Betain/TMG).", "timing_slot": "morgens_nuechtern", "timing_label_de": "07:30 Uhr — Morgens (oder zum Frühstück, nicht abends wegen Neuro-Aktivierung)", "cofactor_synergy_note": "Schließt beide Abbauwege von Homocystein: Remethylierung zu Methionin (via Methylcobalamin + 5-MTHF-Folat) und Transsulfurierung zu Glutathion (via P-5-P Vitamin B6).", "absorption_conflict_warning": "MTHFR-Kompatibilität beachten: Synthetische Folsäure (Pteroylmonoglutaminsäure) und Cyanocobalamin meiden; direkt methylierte Coenzym-Formen einsetzen.", "pack_size_label": "90 Kapseln (bioaktive Coenzym-Formen)", "supply_days": 90, "price_eur": 26.9, "coa_badge": "Quatrefolic® & MHA-B12 · Reinheits-COA 99,8%", "rationale_de": "Methylierungs-Achse optimieren: Holo-TC=64.0 pmol/l (Ziel >75 pmol/l), Homocystein=12.8 µmol/l (Ziel <7,5 µmol/l)."}]}, {"slot_id": "mittags_fettmahlzeit", "time_window": "12:30 Uhr · Zur fetthaltigen Hauptmahlzeit", "rule_banner": "Fettlösliche Vitamine (D3/K2) + Omega-3-Triglyceride nutzen Gallensäuren & Lipasen für 3x höhere Resorption.", "items": [{"sku_id": "SKU-D3K2-MCT", "product_name": "Vitamin D3 5000 I.E. + K2 MK-7 (100% all-trans, K2VITAL®) in Bio-MCT-Kokosöl", "partner_brand": "Sunday Natural / Biogena Exclusive Lab-Line", "pzn": "PZN-17904512", "target_biomarkers": ["25-OH-Vitamin D3 (Calcidiol)"], "daily_dosage_protocol": "5000 I.E. Vitamin D3 + 200 µg Vitamin K2 (all-trans MK-7) täglich für 8 Wochen (rechnerisches Aufsättigungs-Defizit: ~398.400 I.E. bei 84 kg Körpergewicht). danach Erhaltungsdosis 2.500–3.000 I.E./Tag.", "timing_slot": "mittags_fettmahlzeit", "timing_label_de": "12:30 Uhr — Zum Mittagessen (fetthaltige Mahlzeit)", "cofactor_synergy_note": "Zwingend mit K2 MK-7 (aktiviert Osteocalcin & Matrix-Gla-Protein zum Schutz vor Gefäßverkalkung) sowie ausreichend Magnesium (obligater Co-Faktor der 25-Hydroxylase und 1α-Hydroxylase).", "absorption_conflict_warning": "Nicht nüchtern mit reinem Wasser einnehmen (fettlösliches Secosteroid; Resorption sinkt ohne Nahrungsfette um >30 %). Nicht spät abends einnehmen (kann die endogene Melatonin-Synthese dämpfen).", "pack_size_label": "300 Tropfen (in kaltgepresstem MCT-Öl)", "supply_days": 150, "price_eur": 24.9, "coa_badge": "K2VITAL® 99,7% all-trans · Laborgeprüft", "rationale_de": "Vitamin D3 liegt bei 21.8 ng/ml (Kassen-Untergrenze 20 ng/ml, Longevity-Ziel 45–65 ng/ml; Differenz zum Zielwert 55 ng/ml: +33.2 ng/ml)."}, {"sku_id": "SKU-OMEGA3-TG-ULTRA", "product_name": "Ultra-Pure Omega-3 Triglycerid-Form (2.400 mg EPA/DHA · TOTOX < 4 · IFOS 5-Sterne)", "partner_brand": "Sunday Natural / Norsan Exclusive Lab-Line", "pzn": "PZN-16882941", "target_biomarkers": ["HS-Omega-3-Index (Erythrozyten)", "hs-CRP (Hochsensitives C-reaktives Protein)"], "daily_dosage_protocol": "2400 mg kombiniertes EPA + DHA täglich in natürlicher rTG-Form (Triglyceride statt Ethylester) über 12 Wochen zur Anhebung des Erythrozyten-Index auf >8,5 %.", "timing_slot": "mittags_fettmahlzeit", "timing_label_de": "12:30 Uhr — Direkt zur Hauptmahlzeit (mit Vitamin D3/K2)", "cofactor_synergy_note": "Pankreas-Lipasen aus einer fetthaltigen Mahlzeit steigern die EPA/DHA-Resorption um das 3-Fache. Kombiniert sich ideal im selben Einnahme-Slot mit fettlöslichem Vitamin D3 + K2.", "absorption_conflict_warning": "Qualitäts-Gate: Oxidierte Fischöle (TOTOX > 15) wirken pro-inflammatorisch und erhöhen ApoB/LDL-Oxidation. Nur chargengeprüfte rTG-Öle mit TOTOX < 5 und Rosmarin-/Tocopherol-Schutz verwenden.", "pack_size_label": "120 Weichkapseln / Flüssigflasche (TOTOX 3,2)", "supply_days": 60, "price_eur": 32.9, "coa_badge": "IFOS 5-Sterne · TOTOX 3,2 · PCB/Dioxin/Hg frei", "rationale_de": "Zellmembran & Entzündungs-Balance: Omega-3-Index=4.6 % (Ziel 8–11 %), hs-CRP=2.1 mg/l (Ziel <0,7 mg/l)."}]}, {"slot_id": "nachmittags", "time_window": "16:00 Uhr · Nachmittags / Pre-Dinner", "rule_banner": "Strikt getrennt von morgendlichem Vitamin C/Eisen (Selenit-Schutz & Transporter-Freigabe).", "items": [{"sku_id": "SKU-METABOLIC-BERB-Q10", "product_name": "Metabolic-Lipid-Guard (Phytosomales Berberin 500 mg + Kaneka Ubiquinol Q10 + Chrompicolinat)", "partner_brand": "MoleQlar / Sunday Natural Exclusive Lab-Line", "pzn": "PZN-19248810", "target_biomarkers": ["Apolipoprotein B (ApoB)", "HbA1c (Glykiertes Hämoglobin)"], "daily_dosage_protocol": "1 Kapsel 15 Minuten vor der kohlenhydratreichsten Mahlzeit + 10g lösliche Akazienfasern/Flohsamenschalen.", "timing_slot": "nachmittags", "timing_label_de": "16:00 / 18:30 Uhr — 15 Min. vor dem Abendessen", "cofactor_synergy_note": "Aktiviert AMPK (verbessert GLUT4-Glukoseaufnahme zur HbA1c-Senkung) und hemmt PCSK9, wodurch die hepatische LDL-/ApoB-Rezeptor-Clearance gesteigert wird.", "absorption_conflict_warning": "Nicht direkt an hochintensiven Hypertrophie-Trainingstagen unmittelbar nach dem Workout einnehmen (AMPK-Aktivierung kann akute mTOR-Muskelproteinsynthese leicht dämpfen).", "pack_size_label": "60 Kapseln (Berbevis® Phytosom + Kaneka Ubiquinol™)", "supply_days": 60, "price_eur": 36.9, "coa_badge": "Berbevis® & Kaneka™ COA · Reinheit 99,5%", "rationale_de": "Kardio-metabolischer Feinschliff: ApoB=104.0 mg/dl (Ziel <70 mg/dl), HbA1c=5.6 % (Ziel 4,6–5,2 %)."}]}, {"slot_id": "abends_schlaf", "time_window": "21:30 Uhr · 45 Min. vor dem Schlafen", "rule_banner": "Magnesiumbisglycinat/Taurat für GABA-Rezeptoren, Tiefschlaf & nächtliche Regeneration.", "items": [{"sku_id": "SKU-MG-DUAL-CHELAT", "product_name": "Magnesium Dual-Chelat (Magnesiumbisglycinat + Magnesiumtaurat, 350 mg elementar)", "partner_brand": "Sunday Natural / Biogena Exclusive Lab-Line", "pzn": "PZN-18119027", "target_biomarkers": ["Magnesium im Vollblut (intrazellulär)", "25-OH-Vitamin D3 (Calcidiol)"], "daily_dosage_protocol": "350 mg elementares Magnesium (100 mg Nachmittags als Malat/Taurat, 250 mg 45 Min. vor dem Schlafen als Bisglycinat).", "timing_slot": "abends_schlaf", "timing_label_de": "21:30 Uhr — Abends 45 Min. vor dem Schlafen (zeitversetzt zu Eisen)", "cofactor_synergy_note": "Glycin-Chelat passiert die Blut-Hirn-Schranke, senkt die Körperkerntemperatur zur Tiefschlaf-Induktion und liefert das zwingende Mg-ATP-Substrat für die Vitamin-D-Aktivierung.", "absorption_conflict_warning": "Mindestens 3–4 Stunden Abstand zur morgendlichen Eiseneinnahme! Nicht als billiges Magnesiumoxid einnehmen (nur ~4 % Bioverfügbarkeit und osmotisch abführend).", "pack_size_label": "120 Kapseln (100% Chelat, ohne Magnesiumoxid)", "supply_days": 60, "price_eur": 21.9, "coa_badge": "Albion® TRAACS® Chelat · Schwermetall-COA", "rationale_de": "Intrazelluläres Vollblut-Magnesium liegt bei 0.79 mmol/l (Longevity-Optimum: 0,90–1,05 mmol/l)."}]}], "conflict_rules": [], "synergy_rules": [{"rule_id": "SYNERGY-D3-K2-MG", "title": "D3 + K2 MK-7 + Magnesium Trias", "description": "Ohne intrazelluläres Magnesium bleibt Cholecalciferol (D3) biologisch inaktiv, da sowohl die hepatische 25-Hydroxylase als auch die renale 1α-Hydroxylase magnesiumabhängig sind. K2 MK-7 lenkt das mobilisierte Calcium in die Knochenmatrix statt in das Gefäßendothel."}, {"rule_id": "SYNERGY-METHYLATION-LOOP", "title": "Homocystein-Senkung durch B12 + 5-MTHF + P-5-P Synergie", "description": "Isoliertes Vitamin B12 senkt Homocystein oft nur unvollständig, wenn 5-Methyltetrahydrofolat (Methylgruppen-Donator) oder Pyridoxal-5-Phosphat (B6 für die Cystathionin-β-Synthase) als Co-Faktoren fehlen."}], "exclusive_partner_cart": {"partner_slot_name": "Exklusiver Reinsubstanz-Partner-Tab (Sunday Natural / Biogena / MoleQlar ISO-COA Slot)", "verification_standard": ["1. Unabhängiges ISO-17025 Laborzertifikat (COA) für jede Charge hinterlegt", "2. 100% Reinsubstanzen (0% Titandioxid, Carrageen, Magnesiumstearat oder künstliche Füllstoffe)", "3. Bioaktive Coenzym-Formen (5-MTHF statt Folsäure, K2VITAL® 99,7% all-trans, rTG-Omega-3 TOTOX < 5)", "4. Exakte deutsche Pharmazentralnummer (PZN) & 1-Click Auto-Fill Warenkorb"], "voucher_code": "BLUTBILDIQ10", "item_count": 5, "gross_cart_eur": 143.5, "user_discount_pct": 10.0, "net_cart_eur": 129.15, "avg_daily_protocol_cost_eur": 1.99, "b2b_commission_pct": 18.0, "affiliate_commission_per_order_eur": 23.25, "b2b_monthly_slot_retainer_eur": 1500.0, "unit_economics_at_pepiq_scale_1025_subs": {"active_b2c_subscribers": 1025, "b2c_subscription_mrr_eur": 19372.5, "b2b_exclusive_slot_retainer_mrr_eur": 1500.0, "monthly_partner_cart_orders": 390, "b2b_cart_commission_mrr_eur": 9067.5, "total_combined_mrr_eur": 29940.0}}}, "preset_id": "synlab_kardio_metabolik", "preset_title": "Synlab Direktlabor — Befund 'Executive Stress & Kardio-Metabolik'", "raw_lab_text": "SYNLAB Medizinisches Versorgungszentrum · Direktlabor Befund\nFerritin: 92,0 ng/ml (15-150)\nVitamin D (25-OH): 21,8 ng/ml (20-100)\nHolo-TC: 64,0 pmol/l (>35)\nHomocystein: 12,8 µmol/l (<15)\nOmega-3-Index: 4,6 % (4-12)\nHbA1c: 37,7 mmol/mol (20-39)\nhs-CRP: 0,21 mg/dl (<0,30)\nTSH: 1,45 µIU/ml (0,4-4,0)\nMagnesium im Vollblut: 1,92 mg/dl (1,77-2,58)\nApoB: 1,04 g/l (<1,15)\n"}, "mein_direktlabor_optimal": {"generated_at": "2026-10-17T14:13:46.955585+00:00", "mvp_id": "MVP_44_DACH_BLUTBILD_LONGEVITY_SCANNER", "hwg_compliance_disclaimer": "WICHTIGER HINWEIS GEMÄSS HEILMITTELWERBEGESETZ (HWG) & LFGB: BlutbildIQ dient ausschließlich der ernährungsphysiologischen Information, Bildung und Wohlbefindens-Optimierung. Die Auswertung stellt keine ärztliche Diagnose, Beratung oder Heilbehandlung dar und ersetzt keinen Arztbesuch. Nahrungsergänzungsmittel sind kein Ersatz für eine ausgewogene Ernährung. Bei klinischen Abweichungen außerhalb des ärztlichen Referenzbereichs wenden Sie sich bitte an Ihre Ärztin oder Ihren Arzt.", "pepiq_benchmark_teardown": {"startup_id": "startup-6eb394f6b317", "app_name": "PepIQ: Buy & Scan Peptides", "developer": "Mad Apps LLC", "ios_app_id": "6772365932", "domain": "https://pepiq.io/", "legal_domains": ["https://pepiqios.com/TermsOfService", "https://pepiqios.com/PrivacyPolicy"], "verified_metrics": {"mrr_30d_usd": 22981, "active_subscribers": 1025, "download_to_paid_conversion_pct": 12.4, "age_months": 4, "app_store_rating": 4.7, "web_claimed_rating": 4.9, "pricing_b2c": ["$3.99/week", "$19.99/month"]}, "technical_architecture": {"web_frontend": "Vite + React SPA on Base44 (appId: 6a131b806bb6919e0fb4c496) with pre-rendered SEO snapshots", "ai_backend": "Cloudflare Workers proxy -> Google Gemini Vision API (stateless in-memory scan, zero server photo storage)", "persistence": "Local-only iPhone storage for scan scores, peptide stacks, and dose logs", "seo_funnel_routes": ["/peptide-analysis", "/peptides/:slug (14 compounds: bpc-157, tb-500, ghk-cu, retatrutide, tirzepatide, semaglutide, nad-plus, mots-c, epithalon, pt-141...)", "/compare/:slug (bpc-157-vs-tb-500, ghk-cu-injectable-vs-topical, retatrutide-vs-tirzepatide)", "/calculators/reconstitution (vial mg + bacteriostatic water ml -> U-100 insulin syringe units)", "/calculators/dosage (weight-based mcg/mg protocol calculator)", "/vendors/verified & /buy-peptides (intentionally hides vendor names on web to force iOS App download)"]}, "ux_and_monetization_mechanics": {"screenshot_1_hook": "v1461_01_shop.png — 'Verified Peptide Shop' is the #1 App Store screenshot, ahead of AI scanning", "dual_scan_entry": ["1. Face & Physique Scan (Gemini Vision): scores symmetry, skin, jawline, body fat, muscle definition -> maps deficits to peptide stack", "2. Vial & COA Scanner: scans physical peptide vial label or lab Certificate of Analysis (COA) -> verifies batch number & >=98% HPLC purity"], "leg_1_b2c_paywall": "$3.99/wk or $19.99/mo unlocks personalized protocol dosages, U-100 reconstitution math, and before/after score tracking", "leg_2_b2b_exclusive_vendor_tab": "In-app 'Shop' tab lists only 'PepIQ Verified' supplier(s) meeting a 6-point HPLC/MS COA checklist. Monetized via fixed monthly B2B slot sponsorship retainer + affiliate cut on external vendor checkout (bypasses Apple 30% IAP fee because physical research products are fulfilled externally)."}, "dach_legal_pivot_rationale": {"why_peptides_fail_in_dach": "Research peptides (BPC-157, Retatrutide, TB-500) violate German Arzneimittelgesetz (AMG), Anti-Doping-Gesetz (AntiDopG) and Heilmittelwerbegesetz (HWG).", "dach_goldmine_equivalent": "German Laborbefund / Blutbild Scanner (MVZ, Synlab, Mein Direktlabor, Hausarzt) + Longevity Optimal-Range Gap Analysis + Co-Factor Chrono-Schedule + Exclusive ISO/GMP Reinsubstanz-Partner-Tab (PZN / Sunday Natural / Biogena / MoleQlar B2B Retainer + 18% Cart Commission)."}}, "patient_profile": {"age": 29, "sex": "m", "weight_kg": 76.0, "goal": "Longevity-Erhaltung & Peak Performance"}, "summary_metrics": {"total_biomarkers_parsed": 10, "longevity_blood_score_0_100": 97, "optimal_biomarkers_count": 10, "greyzone_kassenarzt_ok_but_suboptimal_count": 0, "clinical_out_of_range_count": 0, "retest_recommendation_days": 90, "category_scores": {"Zellenergie & Sauerstoff": 96, "Immunsystem & Hormonachse": 98, "Methylierung & Neuro": 99, "Kardio-Metabolik & Entzündung": 96}}, "biomarkers": [{"key": "ferritin", "display_name": "Ferritin (Eisenspeicher)", "category": "Zellenergie & Sauerstoff", "raw_value": 98.0, "raw_unit": "µg/l", "canonical_value": 98.0, "canonical_unit": "µg/l", "kassenarzt_min": 15.0, "kassenarzt_max": 150.0, "longevity_min": 70.0, "longevity_max": 130.0, "status_code": "LONGEVITY_OPTIMAL", "status_label_de": "Longevity-Optimalbereich", "score_0_100": 99, "delta_to_longevity_midpoint": -2.0, "clinical_meaning": "Intrazellulärer Eisenspeicher für mitochondriale ATP-Synthese, Schilddrüsen-Peroxidase (TPO) und Dopamin-Synthese.", "greyzone_symptom_hint": "Werte zwischen 15 und 65 µg/l gelten im Kassenlabor oft als 'normal', korrelieren aber häufig mit Tagesmüdigkeit, diffusem Haarausfall, Restless Legs und reduzierter VO2max.", "interpretation_de": "Exzellent: 98.0 µg/l liegt mitten im evidenzbasierten Longevity-Zielkorridor (70.0–130.0 µg/l). Erhaltungsdosis beibehalten."}, {"key": "vitamin_d_25oh", "display_name": "25-OH-Vitamin D3 (Calcidiol)", "category": "Immunsystem & Hormonachse", "raw_value": 54.0, "raw_unit": "ng/ml", "canonical_value": 54.0, "canonical_unit": "ng/ml", "kassenarzt_min": 20.0, "kassenarzt_max": 100.0, "longevity_min": 45.0, "longevity_max": 65.0, "status_code": "LONGEVITY_OPTIMAL", "status_label_de": "Longevity-Optimalbereich", "score_0_100": 99, "delta_to_longevity_midpoint": -1.0, "clinical_meaning": "Steroidhormon-Vorstufe; reguliert über 1.000 Gene, Calcium-Homöostase, T-Zell-Immunität und Insulinsensitivität.", "greyzone_symptom_hint": "20–40 ng/ml verhindert zwar Rachitis, reicht aber für optimale Immunmodulation, Knochendichte und Winter-Resilienz oft nicht aus.", "interpretation_de": "Exzellent: 54.0 ng/ml liegt mitten im evidenzbasierten Longevity-Zielkorridor (45.0–65.0 ng/ml). Erhaltungsdosis beibehalten."}, {"key": "holo_tc", "display_name": "Holotranscobalamin (Aktives Vitamin B12)", "category": "Methylierung & Neuro", "raw_value": 105.0, "raw_unit": "pmol/l", "canonical_value": 105.0, "canonical_unit": "pmol/l", "kassenarzt_min": 35.0, "kassenarzt_max": 150.0, "longevity_min": 75.0, "longevity_max": 140.0, "status_code": "LONGEVITY_OPTIMAL", "status_label_de": "Longevity-Optimalbereich", "score_0_100": 99, "delta_to_longevity_midpoint": -2.5, "clinical_meaning": "Einzig bioverfügbare, zellgängige Fraktion von Vitamin B12 für Myelinscheiden und Homocystein-Remethylierung.", "greyzone_symptom_hint": "Unter 70 pmol/l zeigen sich oft schon subklinische Methylierungsdefizite (erhöhtes Homocystein, Brain Fog), selbst wenn Gesamt-B12 noch unauffällig scheint.", "interpretation_de": "Exzellent: 105.0 pmol/l liegt mitten im evidenzbasierten Longevity-Zielkorridor (75.0–140.0 pmol/l). Erhaltungsdosis beibehalten."}, {"key": "homocystein", "display_name": "Homocystein (Gefäß- & Methylierungsmarker)", "category": "Methylierung & Neuro", "raw_value": 6.4, "raw_unit": "µmol/l", "canonical_value": 6.4, "canonical_unit": "µmol/l", "kassenarzt_min": 5.0, "kassenarzt_max": 15.0, "longevity_min": 5.0, "longevity_max": 7.5, "status_code": "LONGEVITY_OPTIMAL", "status_label_de": "Longevity-Optimalbereich", "score_0_100": 99, "delta_to_longevity_midpoint": 0.15, "clinical_meaning": "Zytotoxisches Zwischenprodukt des Methionin-Stoffwechsels; direkter Indikator für B12-, Folat- (5-MTHF) und B6-Status sowie Endothelgesundheit.", "greyzone_symptom_hint": "Kassenlabore tolerieren oft bis 12 oder 15 µmol/l. Ab >8 µmol/l steigt jedoch der oxidative Gefäßstress messbar an.", "interpretation_de": "Exzellent: 6.4 µmol/l liegt mitten im evidenzbasierten Longevity-Zielkorridor (5.0–7.5 µmol/l). Erhaltungsdosis beibehalten."}, {"key": "omega3_index", "display_name": "HS-Omega-3-Index (Erythrozyten)", "category": "Kardio-Metabolik & Entzündung", "raw_value": 8.9, "raw_unit": "%", "canonical_value": 8.9, "canonical_unit": "%", "kassenarzt_min": 4.0, "kassenarzt_max": 12.0, "longevity_min": 8.0, "longevity_max": 11.0, "status_code": "LONGEVITY_OPTIMAL", "status_label_de": "Longevity-Optimalbereich", "score_0_100": 95, "delta_to_longevity_midpoint": -0.6, "clinical_meaning": "Prozentualer Anteil von EPA + DHA in der Erythrozytenmembran (Langzeitspiegel über 90–120 Tage für Zellmembranfluidität & Neuroprotektion).", "greyzone_symptom_hint": "Der DACH-Durchschnitt liegt bei ~5,5 %. Erst ab 8,0 % ist die maximale kardioprotektive und antiinflammatorische Sättigung erreicht.", "interpretation_de": "Exzellent: 8.9 % liegt mitten im evidenzbasierten Longevity-Zielkorridor (8.0–11.0 %). Erhaltungsdosis beibehalten."}, {"key": "hba1c", "display_name": "HbA1c (Glykiertes Hämoglobin)", "category": "Kardio-Metabolik & Entzündung", "raw_value": 4.9, "raw_unit": "%", "canonical_value": 4.9, "canonical_unit": "%", "kassenarzt_min": 4.0, "kassenarzt_max": 5.7, "longevity_min": 4.6, "longevity_max": 5.2, "status_code": "LONGEVITY_OPTIMAL", "status_label_de": "Longevity-Optimalbereich", "score_0_100": 100, "delta_to_longevity_midpoint": 0.0, "clinical_meaning": "8–12-Wochen-Durchschnitt der Glukoseverzuckerung (Advanced Glycation Endproducts / AGEs) an roten Blutkörperchen.", "greyzone_symptom_hint": "5,3–5,6 % gilt klinisch noch nicht als Prädiabetes, deutet im Longevity-Kontext aber bereits auf postprandiale Glukosespitzen und beschleunigte Gefäßalterung hin.", "interpretation_de": "Exzellent: 4.9 % liegt mitten im evidenzbasierten Longevity-Zielkorridor (4.6–5.2 %). Erhaltungsdosis beibehalten."}, {"key": "hs_crp", "display_name": "hs-CRP (Hochsensitives C-reaktives Protein)", "category": "Kardio-Metabolik & Entzündung", "raw_value": 0.42, "raw_unit": "mg/l", "canonical_value": 0.42, "canonical_unit": "mg/l", "kassenarzt_min": 0.0, "kassenarzt_max": 3.0, "longevity_min": 0.0, "longevity_max": 0.7, "status_code": "LONGEVITY_OPTIMAL", "status_label_de": "Longevity-Optimalbereich", "score_0_100": 98, "delta_to_longevity_midpoint": 0.07, "clinical_meaning": "Systemischer Marker für stille Entzündungen (Silent Inflammation / Inflammaging) und vaskuläres Risiko.", "greyzone_symptom_hint": "Werte zwischen 0,8 und 2,9 mg/l werden im Standardbefund meist übersehen, signalisieren aber chronische Low-Grade-Inflammation.", "interpretation_de": "Exzellent: 0.42 mg/l liegt mitten im evidenzbasierten Longevity-Zielkorridor (0.0–0.7 mg/l). Erhaltungsdosis beibehalten."}, {"key": "tsh", "display_name": "TSH basal (Schilddrüsen-Steuerhormon)", "category": "Immunsystem & Hormonachse", "raw_value": 1.25, "raw_unit": "mIU/l", "canonical_value": 1.25, "canonical_unit": "mIU/l", "kassenarzt_min": 0.4, "kassenarzt_max": 4.0, "longevity_min": 0.8, "longevity_max": 2.0, "status_code": "LONGEVITY_OPTIMAL", "status_label_de": "Longevity-Optimalbereich", "score_0_100": 97, "delta_to_longevity_midpoint": -0.15, "clinical_meaning": "Hypophysäres Steuerungshormon der Schilddrüse; reagiert empfindlich auf Selen-, Jod-, Eisen- und Vitamin-D-Status.", "greyzone_symptom_hint": "Ein TSH zwischen 2,2 und 4,0 mIU/l liegt im Kassen-Normbereich, geht aber häufig mit verlangsamtem Grundumsatz, Kälteempfindlichkeit und Antriebsmangel einher.", "interpretation_de": "Exzellent: 1.25 mIU/l liegt mitten im evidenzbasierten Longevity-Zielkorridor (0.8–2.0 mIU/l). Erhaltungsdosis beibehalten."}, {"key": "magnesium_vollblut", "display_name": "Magnesium im Vollblut (intrazellulär)", "category": "Zellenergie & Sauerstoff", "raw_value": 0.94, "raw_unit": "mmol/l", "canonical_value": 0.94, "canonical_unit": "mmol/l", "kassenarzt_min": 0.73, "kassenarzt_max": 1.06, "longevity_min": 0.9, "longevity_max": 1.05, "status_code": "LONGEVITY_OPTIMAL", "status_label_de": "Longevity-Optimalbereich", "score_0_100": 94, "delta_to_longevity_midpoint": -0.04, "clinical_meaning": "Essentieller Co-Faktor für >600 Enzyme, ATP-Bindung (Mg-ATP), Schlafarchitektur (GABA) und Vitamin-D-Aktivierung.", "greyzone_symptom_hint": "Werte unter 0,88 mmol/l führen trotz 'grünem' Laborblatt oft zu nächtlichen Muskelspannungen, erhöhter Stress-Reaktivität (Cortisol) und blockierter Vitamin-D-Umwandlung.", "interpretation_de": "Exzellent: 0.94 mmol/l liegt mitten im evidenzbasierten Longevity-Zielkorridor (0.9–1.05 mmol/l). Erhaltungsdosis beibehalten."}, {"key": "apob", "display_name": "Apolipoprotein B (ApoB)", "category": "Kardio-Metabolik & Entzündung", "raw_value": 64.0, "raw_unit": "mg/dl", "canonical_value": 64.0, "canonical_unit": "mg/dl", "kassenarzt_min": 40.0, "kassenarzt_max": 115.0, "longevity_min": 40.0, "longevity_max": 70.0, "status_code": "LONGEVITY_OPTIMAL", "status_label_de": "Longevity-Optimalbereich", "score_0_100": 93, "delta_to_longevity_midpoint": 9.0, "clinical_meaning": "Exakte Anzahl aller atherogenen Lipoproteinpartikel (LDL, VLDL, IDL) pro Volumeneinheit — präziserer Kardio-Prädiktor als Standard-LDL.", "greyzone_symptom_hint": "Werte zwischen 75 und 115 mg/dl gelten im Standardlabor als unauffällig, liegen aber über dem modernen Longevity-Zielwert (<70 mg/dl) zur langfristigen Plaque-Prävention.", "interpretation_de": "Exzellent: 64.0 mg/dl liegt mitten im evidenzbasierten Longevity-Zielkorridor (40.0–70.0 mg/dl). Erhaltungsdosis beibehalten."}], "protocol_engine": {"recommendations": [{"sku_id": "SKU-LONGEVITY-BASE", "product_name": "Longevity Maintenance Stack (D3 2.500 I.E. + K2 MK-7 + Omega-3 rTG + Mg-Bisglycinat)", "partner_brand": "Sunday Natural Exclusive Lab-Line", "pzn": "PZN-18900411", "target_biomarkers": ["25-OH-Vitamin D3 (Calcidiol)", "HS-Omega-3-Index (Erythrozyten)", "Magnesium im Vollblut (intrazellulär)"], "daily_dosage_protocol": "Erhaltungsdosis zur Stabilisierung aller 10 Biomarker im Longevity-Zielkorridor.", "timing_slot": "mittags_fettmahlzeit", "timing_label_de": "12:30 Uhr — Zum Mittagessen", "cofactor_synergy_note": "Vollständige Erhaltungstrias aus D3, K2 MK-7, EPA/DHA und abendlichem Magnesium-Chelat.", "absorption_conflict_warning": "Mindestens 45 Minuten Abstand zu Kaffee/Tee einhalten.", "pack_size_label": "90-Tage Vorratspaket", "supply_days": 90, "price_eur": 49.9, "coa_badge": "ISO-17025 Chargen-COA · 100% Reinsubstanz", "rationale_de": "Alle 10 Biomarker im Longevity-Optimalbereich — Erhaltungsprotokoll bis zum nächsten Re-Test in 90 Tagen."}], "chrono_schedule": [{"slot_id": "morgens_nuechtern", "time_window": "07:30 Uhr · Morgens nüchtern", "rule_banner": "Mit 250 ml stillem Wasser. 45 Min. Pause bis zum ersten Kaffee/Milchprodukt!", "items": []}, {"slot_id": "mittags_fettmahlzeit", "time_window": "12:30 Uhr · Zur fetthaltigen Hauptmahlzeit", "rule_banner": "Fettlösliche Vitamine (D3/K2) + Omega-3-Triglyceride nutzen Gallensäuren & Lipasen für 3x höhere Resorption.", "items": [{"sku_id": "SKU-LONGEVITY-BASE", "product_name": "Longevity Maintenance Stack (D3 2.500 I.E. + K2 MK-7 + Omega-3 rTG + Mg-Bisglycinat)", "partner_brand": "Sunday Natural Exclusive Lab-Line", "pzn": "PZN-18900411", "target_biomarkers": ["25-OH-Vitamin D3 (Calcidiol)", "HS-Omega-3-Index (Erythrozyten)", "Magnesium im Vollblut (intrazellulär)"], "daily_dosage_protocol": "Erhaltungsdosis zur Stabilisierung aller 10 Biomarker im Longevity-Zielkorridor.", "timing_slot": "mittags_fettmahlzeit", "timing_label_de": "12:30 Uhr — Zum Mittagessen", "cofactor_synergy_note": "Vollständige Erhaltungstrias aus D3, K2 MK-7, EPA/DHA und abendlichem Magnesium-Chelat.", "absorption_conflict_warning": "Mindestens 45 Minuten Abstand zu Kaffee/Tee einhalten.", "pack_size_label": "90-Tage Vorratspaket", "supply_days": 90, "price_eur": 49.9, "coa_badge": "ISO-17025 Chargen-COA · 100% Reinsubstanz", "rationale_de": "Alle 10 Biomarker im Longevity-Optimalbereich — Erhaltungsprotokoll bis zum nächsten Re-Test in 90 Tagen."}]}, {"slot_id": "nachmittags", "time_window": "16:00 Uhr · Nachmittags / Pre-Dinner", "rule_banner": "Strikt getrennt von morgendlichem Vitamin C/Eisen (Selenit-Schutz & Transporter-Freigabe).", "items": []}, {"slot_id": "abends_schlaf", "time_window": "21:30 Uhr · 45 Min. vor dem Schlafen", "rule_banner": "Magnesiumbisglycinat/Taurat für GABA-Rezeptoren, Tiefschlaf & nächtliche Regeneration.", "items": []}], "conflict_rules": [], "synergy_rules": [], "exclusive_partner_cart": {"partner_slot_name": "Exklusiver Reinsubstanz-Partner-Tab (Sunday Natural / Biogena / MoleQlar ISO-COA Slot)", "verification_standard": ["1. Unabhängiges ISO-17025 Laborzertifikat (COA) für jede Charge hinterlegt", "2. 100% Reinsubstanzen (0% Titandioxid, Carrageen, Magnesiumstearat oder künstliche Füllstoffe)", "3. Bioaktive Coenzym-Formen (5-MTHF statt Folsäure, K2VITAL® 99,7% all-trans, rTG-Omega-3 TOTOX < 5)", "4. Exakte deutsche Pharmazentralnummer (PZN) & 1-Click Auto-Fill Warenkorb"], "voucher_code": "BLUTBILDIQ10", "item_count": 1, "gross_cart_eur": 49.9, "user_discount_pct": 10.0, "net_cart_eur": 44.91, "avg_daily_protocol_cost_eur": 0.55, "b2b_commission_pct": 18.0, "affiliate_commission_per_order_eur": 8.08, "b2b_monthly_slot_retainer_eur": 1500.0, "unit_economics_at_pepiq_scale_1025_subs": {"active_b2c_subscribers": 1025, "b2c_subscription_mrr_eur": 19372.5, "b2b_exclusive_slot_retainer_mrr_eur": 1500.0, "monthly_partner_cart_orders": 390, "b2b_cart_commission_mrr_eur": 3151.2, "total_combined_mrr_eur": 24023.7}}}, "preset_id": "mein_direktlabor_optimal", "preset_title": "Mein Direktlabor Berlin — Befund 'Biohacker / Fast Optimal (Feinschliff)'", "raw_lab_text": "Mein Direktlabor Berlin — Präventionsprofil Plus\nFerritin                   98,0 µg/l\n25-OH-Vitamin D3           54,0 ng/ml\nHolotranscobalamin         105,0 pmol/l\nHomocystein                6,4 µmol/l\nHS-Omega-3-Index           8,9 %\nHbA1c                      4,9 %\nhs-CRP                     0,42 mg/l\nTSH basal                  1,25 mIU/l\nMagnesium (Vollblut)       0,94 mmol/l\nApolipoprotein B           64,0 mg/dl\n"}};
+    const PEPIQ_TEARDOWN = {"startup_id": "startup-6eb394f6b317", "app_name": "PepIQ: Buy & Scan Peptides", "developer": "Mad Apps LLC", "ios_app_id": "6772365932", "domain": "https://pepiq.io/", "legal_domains": ["https://pepiqios.com/TermsOfService", "https://pepiqios.com/PrivacyPolicy"], "verified_metrics": {"mrr_30d_usd": 22981, "active_subscribers": 1025, "download_to_paid_conversion_pct": 12.4, "age_months": 4, "app_store_rating": 4.7, "web_claimed_rating": 4.9, "pricing_b2c": ["$3.99/week", "$19.99/month"]}, "technical_architecture": {"web_frontend": "Vite + React SPA on Base44 (appId: 6a131b806bb6919e0fb4c496) with pre-rendered SEO snapshots", "ai_backend": "Cloudflare Workers proxy -> Google Gemini Vision API (stateless in-memory scan, zero server photo storage)", "persistence": "Local-only iPhone storage for scan scores, peptide stacks, and dose logs", "seo_funnel_routes": ["/peptide-analysis", "/peptides/:slug (14 compounds: bpc-157, tb-500, ghk-cu, retatrutide, tirzepatide, semaglutide, nad-plus, mots-c, epithalon, pt-141...)", "/compare/:slug (bpc-157-vs-tb-500, ghk-cu-injectable-vs-topical, retatrutide-vs-tirzepatide)", "/calculators/reconstitution (vial mg + bacteriostatic water ml -> U-100 insulin syringe units)", "/calculators/dosage (weight-based mcg/mg protocol calculator)", "/vendors/verified & /buy-peptides (intentionally hides vendor names on web to force iOS App download)"]}, "ux_and_monetization_mechanics": {"screenshot_1_hook": "v1461_01_shop.png — 'Verified Peptide Shop' is the #1 App Store screenshot, ahead of AI scanning", "dual_scan_entry": ["1. Face & Physique Scan (Gemini Vision): scores symmetry, skin, jawline, body fat, muscle definition -> maps deficits to peptide stack", "2. Vial & COA Scanner: scans physical peptide vial label or lab Certificate of Analysis (COA) -> verifies batch number & >=98% HPLC purity"], "leg_1_b2c_paywall": "$3.99/wk or $19.99/mo unlocks personalized protocol dosages, U-100 reconstitution math, and before/after score tracking", "leg_2_b2b_exclusive_vendor_tab": "In-app 'Shop' tab lists only 'PepIQ Verified' supplier(s) meeting a 6-point HPLC/MS COA checklist. Monetized via fixed monthly B2B slot sponsorship retainer + affiliate cut on external vendor checkout (bypasses Apple 30% IAP fee because physical research products are fulfilled externally)."}, "dach_legal_pivot_rationale": {"why_peptides_fail_in_dach": "Research peptides (BPC-157, Retatrutide, TB-500) violate German Arzneimittelgesetz (AMG), Anti-Doping-Gesetz (AntiDopG) and Heilmittelwerbegesetz (HWG).", "dach_goldmine_equivalent": "German Laborbefund / Blutbild Scanner (MVZ, Synlab, Mein Direktlabor, Hausarzt) + Longevity Optimal-Range Gap Analysis + Co-Factor Chrono-Schedule + Exclusive ISO/GMP Reinsubstanz-Partner-Tab (PZN / Sunday Natural / Biogena / MoleQlar B2B Retainer + 18% Cart Commission)."}};
+    let currentReport = PRESET_REPORTS["mvz_muenchen_erschoepfung"];
+
+    function switchTab(tab) {
+      ["scanner", "chrono", "shop", "teardown"].forEach(t => {
+        document.getElementById("panel-" + t).classList.toggle("hidden", t !== tab);
+        document.getElementById("tabBtn-" + t).classList.toggle("active", t === tab);
+      });
+    }
+
+    function loadPreset() {
+      const key = document.getElementById("presetSelect").value;
+      if (PRESET_REPORTS[key]) {
+        currentReport = PRESET_REPORTS[key];
+        document.getElementById("rawLabInput").value = currentReport.raw_lab_text || "";
+        renderReport(currentReport);
+      }
+    }
+
+    function runLiveParse() {
+      const text = document.getElementById("rawLabInput").value;
+      const key = document.getElementById("presetSelect").value;
+      const base = JSON.parse(JSON.stringify(PRESET_REPORTS[key]));
+      base.biomarkers.forEach(b => {
+        const escaped = b.display_name.split("(")[0].trim();
+        const rx = new RegExp(escaped.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + "[^\\d\\n]*(\\d+(?:[.,]\\d+)?)", "i");
+        const m = text.match(rx);
+        if (m) {
+          const newVal = parseFloat(m[1].replace(",", "."));
+          if (!isNaN(newVal)) {
+            b.canonical_value = newVal;
+            if (newVal < b.kassenarzt_min || newVal > b.kassenarzt_max) {
+              b.status_code = "KLINISCHER_MANGEL_ODER_RISIKO";
+              b.status_label_de = "Klinisch auffällig (außerhalb Kassen-Referenz)";
+              b.score_0_100 = 35;
+            } else if (newVal >= b.longevity_min && newVal <= b.longevity_max) {
+              b.status_code = "LONGEVITY_OPTIMAL";
+              b.status_label_de = "Longevity-Optimalbereich";
+              b.score_0_100 = 95;
+            } else {
+              b.status_code = "GRAUZONE_KASSENARZT_OK_LONGEVITY_SUBOPTIMAL";
+              b.status_label_de = "Grauzone: Hausarzt 'OK', Longevity-Defizit";
+              b.score_0_100 = 64;
+            }
+          }
+        }
+      });
+      const scores = base.biomarkers.map(x => x.score_0_100);
+      base.summary_metrics.longevity_blood_score_0_100 = Math.round(scores.reduce((a,b)=>a+b,0)/scores.length);
+      base.summary_metrics.greyzone_kassenarzt_ok_but_suboptimal_count = base.biomarkers.filter(x => x.status_code === "GRAUZONE_KASSENARZT_OK_LONGEVITY_SUBOPTIMAL").length;
+      base.summary_metrics.clinical_out_of_range_count = base.biomarkers.filter(x => x.status_code === "KLINISCHER_MANGEL_ODER_RISIKO").length;
+      base.summary_metrics.optimal_biomarkers_count = base.biomarkers.filter(x => x.status_code === "LONGEVITY_OPTIMAL").length;
+      renderReport(base);
+    }
+
+    function renderReport(rep) {
+      document.getElementById("kpiScore").textContent = rep.summary_metrics.longevity_blood_score_0_100 + " / 100";
+      document.getElementById("kpiGrey").textContent = rep.summary_metrics.greyzone_kassenarzt_ok_but_suboptimal_count;
+      document.getElementById("kpiCrit").textContent = rep.summary_metrics.clinical_out_of_range_count;
+      document.getElementById("kpiOpt").textContent = rep.summary_metrics.optimal_biomarkers_count;
+
+      const bioList = document.getElementById("biomarkerList");
+      bioList.innerHTML = rep.biomarkers.map(b => {
+        const badgeClass = b.status_code === "LONGEVITY_OPTIMAL" ? "badge-opt" :
+                           (b.status_code === "KLINISCHER_MANGEL_ODER_RISIKO" ? "badge-crit" : "badge-grey");
+        const maxScale = Math.max(b.kassenarzt_max * 1.25, b.canonical_value * 1.15, 1);
+        const kLeft = Math.max(0, Math.min(100, (b.kassenarzt_min / maxScale) * 100));
+        const kWidth = Math.max(2, Math.min(100 - kLeft, ((b.kassenarzt_max - b.kassenarzt_min) / maxScale) * 100));
+        const lLeft = Math.max(0, Math.min(100, (b.longevity_min / maxScale) * 100));
+        const lWidth = Math.max(2, Math.min(100 - lLeft, ((b.longevity_max - b.longevity_min) / maxScale) * 100));
+        const mPos = Math.max(2, Math.min(98, (b.canonical_value / maxScale) * 100));
+        const convHint = (b.raw_unit.toLowerCase() !== b.canonical_unit.toLowerCase())
+          ? ` <span style="color:var(--cyan); font-size:12px;">(konvertiert aus ${b.raw_value} ${b.raw_unit})</span>` : "";
+
+        return `
+          <div class="bio-card">
+            <div class="bio-header">
+              <div>
+                <span class="bio-title">${b.display_name}</span>
+                <span style="font-size:12px; color:var(--muted); margin-left:8px;">[${b.category}]</span>
+              </div>
+              <span class="badge ${badgeClass}">${b.status_label_de}</span>
+            </div>
+            <div style="font-size:14px; font-weight:700;">
+              Messwert: <span style="color:#38bdf8;">${b.canonical_value} ${b.canonical_unit}</span>${convHint}
+            </div>
+            <div class="range-track">
+              <div class="range-kasse" style="left:${kLeft}%; width:${kWidth}%;"></div>
+              <div class="range-longevity" style="left:${lLeft}%; width:${lWidth}%;"></div>
+              <div class="range-marker" style="left:${mPos}%;"></div>
+            </div>
+            <div class="range-legend">
+              <span>Kassenarzt-Norm: ${b.kassenarzt_min}–${b.kassenarzt_max} ${b.canonical_unit}</span>
+              <span style="color:#6ee7b7; font-weight:600;">Longevity-Optimum: ${b.longevity_min}–${b.longevity_max} ${b.canonical_unit}</span>
+            </div>
+            <p style="font-size:12.5px; color:var(--muted);">${b.interpretation_de}</p>
+          </div>
+        `;
+      }).join("");
+
+      const chronoGrid = document.getElementById("chronoGrid");
+      chronoGrid.innerHTML = rep.protocol_engine.chrono_schedule.map(slot => {
+        const itemsHtml = slot.items.length === 0
+          ? `<div style="font-size:12.5px; color:var(--muted); font-style:italic;">Keine Einnahme in diesem Zeitfenster erforderlich.</div>`
+          : slot.items.map(it => `
+              <div style="background:#0b101b; border:1px solid var(--border); border-radius:10px; padding:10px 12px; margin-bottom:8px;">
+                <div style="font-weight:700; font-size:13.5px; color:#f8fafc;">${it.product_name}</div>
+                <div style="font-size:12.5px; color:#6ee7b7; margin-top:3px;"><strong>Dosierung:</strong> ${it.daily_dosage_protocol}</div>
+                <div style="font-size:12px; color:#fcd34d; margin-top:4px;"><strong>Sperre/Hinweis:</strong> ${it.absorption_conflict_warning}</div>
+              </div>
+            `).join("");
+        return `
+          <div class="slot-card">
+            <div class="slot-time">${slot.time_window}</div>
+            <div class="slot-rule">${slot.rule_banner}</div>
+            ${itemsHtml}
+          </div>
+        `;
+      }).join("");
+
+      document.getElementById("conflictList").innerHTML = rep.protocol_engine.conflict_rules.map(c => `
+        <div class="conflict-box">
+          <strong>${c.title} (${c.severity}):</strong> ${c.description}<br/>
+          <span style="color:#6ee7b7;"><strong>Lösung im Zeitplan:</strong> ${c.resolution}</span>
+        </div>
+      `).join("") || `<div style="color:var(--muted); font-size:13px;">Keine kritischen Resorptions-Konflikte im aktuellen Protokoll.</div>`;
+
+      document.getElementById("synergyList").innerHTML = rep.protocol_engine.synergy_rules.map(s => `
+        <div class="synergy-box">
+          <strong>${s.title}:</strong> ${s.description}
+        </div>
+      `).join("");
+
+      const cart = rep.protocol_engine.exclusive_partner_cart;
+      document.getElementById("shopSkuList").innerHTML = rep.protocol_engine.recommendations.map(r => `
+        <div class="sku-card">
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:10px;">
+            <div>
+              <span class="coa-pill">${r.coa_badge}</span>
+              <span class="coa-pill">${r.pzn}</span>
+              <div style="font-weight:700; font-size:15px; margin-top:6px;">${r.product_name}</div>
+              <div style="font-size:12px; color:var(--muted);">${r.partner_brand} · ${r.pack_size_label} (${r.supply_days} Tage Reichweite)</div>
+            </div>
+            <div style="text-align:right; font-weight:800; font-size:17px; color:#6ee7b7; white-space:nowrap;">
+              €${r.price_eur.toFixed(2)}
+            </div>
+          </div>
+          <div style="font-size:12.5px; color:#cbd5e1; margin-top:8px;"><strong>Befund-Grund:</strong> ${r.rationale_de}</div>
+          <div style="font-size:12px; color:#38bdf8; margin-top:4px;"><strong>Co-Faktor-Synergie:</strong> ${r.cofactor_synergy_note}</div>
+        </div>
+      `).join("");
+
+      const ue = cart.unit_economics_at_pepiq_scale_1025_subs;
+      document.getElementById("cartSummaryBox").innerHTML = `
+        <div style="background:#0b101b; border:1px solid var(--border); border-radius:12px; padding:16px;">
+          <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+            <span>Anzahl Protokoll-Präparate:</span><strong>${cart.item_count} Reinsubstanzen</strong>
+          </div>
+          <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+            <span>Brutto-Warenkorb:</span><span>€${cart.gross_cart_eur.toFixed(2)}</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; margin-bottom:6px; color:#6ee7b7;">
+            <span>In-App Partner-Vorteil (${cart.voucher_code} -${cart.user_discount_pct}%):</span>
+            <strong>-€${(cart.gross_cart_eur - cart.net_cart_eur).toFixed(2)}</strong>
+          </div>
+          <div style="display:flex; justify-content:space-between; font-size:18px; font-weight:800; border-top:1px solid var(--border); padding-top:10px; margin-top:8px;">
+            <span>Netto-Paketpreis:</span><span style="color:#10b981;">€${cart.net_cart_eur.toFixed(2)}</span>
+          </div>
+          <div style="font-size:12px; color:var(--muted); margin-top:4px;">
+            Effektive Tageskosten: nur <strong>€${cart.avg_daily_protocol_cost_eur.toFixed(2)} / Tag</strong>
+          </div>
+        </div>
+
+        <div style="background:rgba(99, 102, 241, 0.12); border:1px solid rgba(99, 102, 241, 0.4); border-radius:12px; padding:16px; margin-top:16px;">
+          <div style="font-weight:800; font-size:14px; color:#a5b4fc; margin-bottom:8px;">
+            B2B + B2C Dual-Monetarisierung (auf PepIQ-Skala = ${ue.active_b2c_subscribers} aktive Subs)
+          </div>
+          <div style="font-size:12.5px; display:flex; justify-content:space-between; margin-bottom:4px;">
+            <span>1. B2C Scanner-Abos (€18,90 Ø ARPU):</span><strong>€${ue.b2c_subscription_mrr_eur.toLocaleString('de-DE')}/Mo</strong>
+          </div>
+          <div style="font-size:12.5px; display:flex; justify-content:space-between; margin-bottom:4px;">
+            <span>2. B2B Exklusiv-Partner Fix-Retainer:</span><strong>€${ue.b2b_exclusive_slot_retainer_mrr_eur.toLocaleString('de-DE')}/Mo</strong>
+          </div>
+          <div style="font-size:12.5px; display:flex; justify-content:space-between; margin-bottom:6px;">
+            <span>3. B2B Warenkorb-Provision (18% = €${cart.affiliate_commission_per_order_eur.toFixed(2)} x ${ue.monthly_partner_cart_orders} Orders):</span>
+            <strong>€${ue.b2b_cart_commission_mrr_eur.toLocaleString('de-DE')}/Mo</strong>
+          </div>
+          <div style="display:flex; justify-content:space-between; font-size:16px; font-weight:800; border-top:1px solid rgba(99,102,241,0.4); padding-top:8px; color:#6ee7b7;">
+            <span>Gesamt-MRR (B2C + B2B Slot):</span>
+            <span>€${ue.total_combined_mrr_eur.toLocaleString('de-DE')} / 30d</span>
+          </div>
+        </div>
+      `;
+    }
+
+    document.getElementById("presetSelect").value = "mvz_muenchen_erschoepfung";
+    loadPreset();
+  </script>
+</body>
+</html>

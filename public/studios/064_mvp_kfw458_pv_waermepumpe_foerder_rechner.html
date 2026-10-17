@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DACH KfW 458 Wärmepumpe & PV (§ 12 Abs. 3 UStG + § 14a EnWG) Förder- & Lead-Engine</title>
+  <style>
+    :root {
+      --bg: #0b1120;
+      --card: #111827;
+      --card-alt: #1e293b;
+      --border: #334155;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --emerald: #10b981;
+      --emerald-bg: rgba(16, 185, 129, 0.14);
+      --amber: #f59e0b;
+      --amber-bg: rgba(245, 158, 11, 0.14);
+      --sky: #0ea5e9;
+      --sky-bg: rgba(14, 165, 233, 0.14);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      padding: 24px;
+    }
+    .container { max-width: 1420px; margin: 0 auto; }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 20px;
+      padding: 24px;
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      margin-bottom: 24px;
+    }
+    .badge-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+    .badge {
+      font-size: 12px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.05);
+    }
+    .badge.emerald { color: #34d399; background: var(--emerald-bg); border-color: rgba(16,185,129,0.35); }
+    .badge.amber { color: #fbbf24; background: var(--amber-bg); border-color: rgba(245,158,11,0.35); }
+    .badge.sky { color: #38bdf8; background: var(--sky-bg); border-color: rgba(14,165,233,0.35); }
+    h1 { font-size: 24px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 6px; }
+    .subtitle { color: var(--muted); font-size: 14px; max-width: 880px; }
+    .cpl-box {
+      text-align: right;
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.4);
+      padding: 14px 18px;
+      border-radius: 12px;
+      min-width: 250px;
+    }
+    .cpl-box .label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: #6ee7b7; }
+    .cpl-box .val { font-size: 26px; font-weight: 800; color: #34d399; }
+    .cpl-box .sub { font-size: 12px; color: var(--muted); }
+    .preset-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .preset-btn {
+      background: var(--card);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 10px 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      transition: all 0.15s;
+    }
+    .preset-btn:hover, .preset-btn.active {
+      background: var(--sky-bg);
+      border-color: var(--sky);
+      color: #38bdf8;
+    }
+    .grid-main {
+      display: grid;
+      grid-template-columns: 410px 1fr;
+      gap: 22px;
+    }
+    @media (max-width: 1100px) {
+      .grid-main { grid-template-columns: 1fr; }
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    .card h2 {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+      padding-bottom: 10px;
+    }
+    .form-group { margin-bottom: 13px; }
+    .form-group label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: #cbd5e1;
+      margin-bottom: 5px;
+    }
+    .form-group input[type="range"] { width: 100%; accent-color: var(--emerald); cursor: pointer; }
+    .form-group select, .form-group input[type="number"] {
+      width: 100%;
+      padding: 8px 10px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--card-alt);
+      color: var(--text);
+      font-size: 13px;
+    }
+    .checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      margin-bottom: 10px;
+      cursor: pointer;
+    }
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+    @media (max-width: 900px) {
+      .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    .kpi-card {
+      background: var(--card-alt);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 15px;
+    }
+    .kpi-card .k-label { font-size: 11.5px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+    .kpi-card .k-val { font-size: 24px; font-weight: 800; margin: 4px 0; }
+    .kpi-card .k-sub { font-size: 12px; color: #cbd5e1; }
+    .stack-bar {
+      display: flex;
+      height: 28px;
+      border-radius: 8px;
+      overflow: hidden;
+      margin: 12px 0;
+      background: #0f172a;
+      border: 1px solid var(--border);
+    }
+    .stack-seg {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+      color: #090d16;
+      transition: width 0.25s;
+    }
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+    @media (max-width: 850px) {
+      .two-col { grid-template-columns: 1fr; }
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    th, td {
+      text-align: left;
+      padding: 9px 10px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    th { color: var(--muted); font-weight: 600; font-size: 11.5px; text-transform: uppercase; }
+    .pill-win {
+      background: var(--emerald-bg);
+      color: #34d399;
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .dossier-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+    .dossier-item {
+      background: rgba(15, 23, 42, 0.65);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+    }
+    .dossier-item .d-title { font-size: 11px; color: var(--muted); text-transform: uppercase; }
+    .dossier-item .d-val { font-size: 16px; font-weight: 700; margin-top: 3px; color: #38bdf8; }
+    .dossier-item .d-note { font-size: 11.5px; color: #cbd5e1; margin-top: 4px; }
+  </style>
+</head>
+<body>
+
+<!-- DACH CASHFLOW STUDIOS LAUNCH BAR -->
+<style>
+  #dcs-launch-bar {
+    position: sticky;
+    top: 0;
+    z-index: 99999;
+    background: linear-gradient(90deg, #0b1120 0%, #111827 50%, #0f172a 100%);
+    color: #f8fafc;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.35);
+    padding: 8px 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  }
+  #dcs-launch-bar .dcs-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+  }
+  #dcs-launch-bar .dcs-badge {
+    background: rgba(16, 185, 129, 0.18);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.03em;
+  }
+  #dcs-launch-bar a.dcs-nav {
+    color: #93c5fd;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 12.5px;
+  }
+  #dcs-launch-bar a.dcs-nav:hover {
+    text-decoration: underline;
+    color: #dbeafe;
+  }
+  #dcs-launch-bar .dcs-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  #dcs-launch-bar .dcs-btn {
+    padding: 5px 11px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s ease;
+  }
+  #dcs-launch-bar .dcs-btn-ghost {
+    background: rgba(255,255,255,0.08);
+    color: #e2e8f0;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  #dcs-launch-bar .dcs-btn-primary {
+    background: linear-gradient(135deg, #0ea5e9, #2563eb);
+    color: #ffffff;
+  }
+  #dcs-launch-bar .dcs-btn-emerald {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
+  }
+  @media print {
+    #dcs-launch-bar { display: none !important; }
+  }
+</style>
+<div id="dcs-launch-bar">
+  <div class="dcs-left">
+    <a href="/index.html" class="dcs-nav">← Alle 150 DACH Studios</a>
+    <span class="dcs-badge">MVP #064 VERIFIED</span>
+    <span style="color:#cbd5e1;font-size:12px;">DACH Tax, Corporate & Accounting Arbitrage</span>
+  </div>
+  <div class="dcs-actions">
+    <button onclick="window.print()" class="dcs-btn dcs-btn-ghost">🖨️ PDF / Dossier drucken</button>
+    <a href="#checkout-modal-49" target="_blank" rel="noopener" class="dcs-btn dcs-btn-primary">⚡ Musterschreiben & Voll-Dossier (€49)</a>
+    <a href="#checkout-modal-299" target="_blank" rel="noopener" class="dcs-btn dcs-btn-emerald">🛡️ B2B Umsetzung buchen (€299 / €1.490)</a>
+  </div>
+</div>
+
+  <div class="container">
+    <div class="header">
+      <div>
+        <div class="badge-row">
+          <span class="badge emerald">KfW 458 BEG EM (bis 70% / 21.000 € Zuschuss)</span>
+          <span class="badge amber">§ 12 Abs. 3 UStG (0% MwSt. PV & Speicher &le; 30 kWp)</span>
+          <span class="badge sky">§ 14a EnWG (Modul 1 / 2 / 3 Netzentgelt-Optimierer)</span>
+        </div>
+        <h1>DACH Wärmepumpe & Photovoltaik Förder- & Lead-Qualifizierungs-Studio</h1>
+        <p class="subtitle">
+          Deterministische Förderkaskade (KfW 458 + 0% UStG + § 14a EnWG) kombiniert mit technischer SHK-/Solarteur-Vorqualifizierung
+          (Norm-Heizlast kW, Vorlauftemperatur °C, JAZ, Zählerschrank VDE-AR-N 4100 & 15-Jahres-Amortisation).
+        </p>
+      </div>
+      <div class="cpl-box">
+        <div class="label">B2B Lead-Qualifizierungswert</div>
+        <div class="val" id="ui-cpl-val">225 € CPL</div>
+        <div class="sub" id="ui-lead-tier">Score: 96/100 • AAA Kombi-Lead</div>
+      </div>
+    </div>
+
+    <div class="preset-bar" id="preset-bar"></div>
+
+    <div class="grid-main">
+      <!-- LEFT PANEL: INTERACTIVE CONTROLS -->
+      <div>
+        <div class="card">
+          <h2><span>1. Gebäude & KfW 458 Parameter</span><span style="font-size:12px;color:#34d399;">BEG EM</span></h2>
+
+          <div class="form-group">
+            <label><span>Wohneinheiten (Mehrparteien-Skalierung)</span><span id="lbl-units">1 WE (30.000 € Deckel)</span></label>
+            <input type="range" id="inp-units" min="1" max="6" step="1" value="1" />
+          </div>
+
+          <label class="checkbox-row">
+            <input type="checkbox" id="inp-self" checked />
+            <span>Selbstnutzende/r Eigentümer/in (Pflicht für Klima- & Einkommensbonus)</span>
+          </label>
+
+          <div class="form-group">
+            <label><span>Aktuelle Altheizung (Bestand)</span></label>
+            <select id="inp-heating">
+              <option value="oel">Ölheizung (Klima-Bonus +20% sofort)</option>
+              <option value="gas_alt">Gasheizung &ge; 20 Jahre (Klima-Bonus +20%)</option>
+              <option value="nachtspeicher">Nachtspeicherheizung (Klima-Bonus +20%)</option>
+              <option value="biomasse_alt">Biomasse/Pellets &ge; 20 Jahre (Klima-Bonus +20%)</option>
+              <option value="gas_jung">Gasheizung &lt; 20 Jahre (kein Klima-Bonus)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label><span>Zu versteuerndes Haushaltseinkommen (zvE)</span><span id="lbl-income">38.500 €</span></label>
+            <input type="range" id="inp-income" min="22000" max="110000" step="1500" value="38500" />
+          </div>
+
+          <div class="form-group">
+            <label><span>Wärmepumpen-Technologie (Effizienz-Bonus)</span></label>
+            <select id="inp-wp-type">
+              <option value="r290_propan">Luft-Wasser mit R290 Propan (+5% Effizienz-Bonus)</option>
+              <option value="erdwaerme_sole">Sole-Wasser Erdwärmepumpe (+5% Effizienz-Bonus)</option>
+              <option value="r32_standard">Standard Luft-Wasser R32 (0% Effizienz-Bonus)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label><span>SHK Angebot Wärmepumpe (Brutto)</span><span id="lbl-wp-cost">32.500 €</span></label>
+            <input type="range" id="inp-wp-cost" min="18000" max="75000" step="500" value="32500" />
+          </div>
+
+          <div class="form-group">
+            <label><span>Wohnfläche & Heizwärmebedarf</span><span id="lbl-area">155 m² • 23.500 kWh</span></label>
+            <input type="range" id="inp-area" min="80" max="380" step="5" value="155" />
+          </div>
+
+          <div class="form-group">
+            <label><span>Wärmeverteilung im Gebäude</span></label>
+            <select id="inp-dist">
+              <option value="fussbodenheizung">Fußbodenheizung (VL 35 °C • JAZ ~4,8)</option>
+              <option value="heizkoerper_typ22" selected>Flachheizkörper Typ 22 (VL 48 °C • JAZ ~4,1)</option>
+              <option value="heizkoerper_guss_alt">Alte Guss-/Gliederheizkörper (VL 55 °C • JAZ ~3,65)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2><span>2. Photovoltaik (§ 12 Abs. 3 UStG) & § 14a EnWG</span><span style="font-size:12px;color:#fbbf24;">0% MwSt.</span></h2>
+
+          <label class="checkbox-row">
+            <input type="checkbox" id="inp-pv-enable" checked />
+            <span>Photovoltaik + Batteriespeicher kombinieren (0% MwSt.)</span>
+          </label>
+
+          <div class="form-group">
+            <label><span>PV-Anlagengröße (kWp &le; 30 kWp steuerfrei)</span><span id="lbl-pv-kwp">12,0 kWp</span></label>
+            <input type="range" id="inp-pv-kwp" min="5" max="30" step="0.5" value="12" />
+          </div>
+
+          <div class="form-group">
+            <label><span>Heimspeicher-Kapazität (kWh)</span><span id="lbl-bat-kwh">10,0 kWh</span></label>
+            <input type="range" id="inp-bat-kwh" min="0" max="25" step="1" value="10" />
+          </div>
+
+          <div class="form-group">
+            <label><span>Solarteur Netto-Angebot (0% MwSt. Endpreis)</span><span id="lbl-pv-cost">16.800 €</span></label>
+            <input type="range" id="inp-pv-cost" min="7000" max="38000" step="200" value="16800" />
+          </div>
+
+          <label class="checkbox-row">
+            <input type="checkbox" id="inp-ev" checked />
+            <span>E-Auto Wallbox (11 kW SteuVE nach § 14a EnWG • 15.000 km/J.)</span>
+          </label>
+
+          <div class="form-group">
+            <label><span>Zählerschrank Baujahr (VDE-AR-N 4100 Check)</span><span id="lbl-cab-year">2018</span></label>
+            <input type="range" id="inp-cab-year" min="1975" max="2025" step="1" value="2018" />
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT PANEL: LIVE RESULTS & DOSSIER -->
+      <div>
+        <!-- TOP KPI CARDS -->
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <div class="k-label">KfW 458 Bar-Zuschuss</div>
+            <div class="k-val" style="color:#34d399;" id="kpi-kfw-grant">21.000 €</div>
+            <div class="k-sub" id="kpi-kfw-sub">70% auf 30.000 € Förderdeckel</div>
+          </div>
+          <div class="kpi-card">
+            <div class="k-label">§ 12 Abs. 3 UStG 0%-MwSt. Vorteil</div>
+            <div class="k-val" style="color:#fbbf24;" id="kpi-vat-saved">3.192 €</div>
+            <div class="k-sub" id="kpi-vat-sub">19% USt.-Erlass auf PV + Speicher</div>
+          </div>
+          <div class="kpi-card">
+            <div class="k-label">Netto-Eigenanteil (Nach Förderung)</div>
+            <div class="k-val" style="color:#38bdf8;" id="kpi-net-inv">28.300 €</div>
+            <div class="k-sub" id="kpi-gross-sub">Statt 52.492 € ohne Förderung</div>
+          </div>
+          <div class="kpi-card">
+            <div class="k-label">Amortisation & 15J-Gewinn</div>
+            <div class="k-val" style="color:#a78bfa;" id="kpi-amort">6,4 Jahre</div>
+            <div class="k-sub" id="kpi-15yr-gain">+48.420 € Netto-Überschuss (15 J.)</div>
+          </div>
+        </div>
+
+        <!-- KFW 458 STACK VISUALIZER -->
+        <div class="card">
+          <h2>
+            <span>KfW 458 Förderkaskade (BEG Einzelmaßnahme)</span>
+            <span id="ui-kfw-cap-badge" class="pill-win">70% Maximalförderung erreicht</span>
+          </h2>
+          <div class="stack-bar" id="ui-stack-bar"></div>
+          <div style="display:flex;justify-content:space-between;font-size:12.5px;color:var(--muted);margin-top:8px;" id="ui-stack-legend"></div>
+          <div style="margin-top:12px;padding:10px 12px;border-radius:8px;background:rgba(255,255,255,0.03);font-size:12.5px;color:#cbd5e1;" id="ui-reform-note"></div>
+        </div>
+
+        <!-- TWO COLUMN: § 14a EnWG MODULE COMPARATOR & PV AUTARKY -->
+        <div class="two-col">
+          <div class="card">
+            <h2><span>§ 14a EnWG Netzentgelt-Optimierer (SteuVE &gt; 4,2 kW)</span></h2>
+            <table>
+              <thead>
+                <tr>
+                  <th>§ 14a EnWG Option</th>
+                  <th>Messkonzept</th>
+                  <th>Ersparnis / J.</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="ui-enwg-tbody"></tbody>
+            </table>
+            <p style="font-size:12px;color:var(--muted);margin-top:10px;" id="ui-enwg-note"></p>
+          </div>
+
+          <div class="card">
+            <h2><span>§ 12 Abs. 3 UStG Photovoltaik & Wärmepumpen-Synergie</span></h2>
+            <table>
+              <tbody>
+                <tr>
+                  <td>PV-Jahresertrag & Autarkiegrad</td>
+                  <td style="text-align:right;font-weight:700;" id="ui-pv-yield">12.360 kWh/J. (68% Autarkie)</td>
+                </tr>
+                <tr>
+                  <td>Eigenverbrauch (Haus + WP SG-Ready + EV)</td>
+                  <td style="text-align:right;font-weight:700;color:#34d399;" id="ui-pv-self">6.420 kWh/J.</td>
+                </tr>
+                <tr>
+                  <td>Stromkosten-Ersparnis durch PV-Eigenstrom</td>
+                  <td style="text-align:right;font-weight:700;color:#34d399;" id="ui-pv-saved">2.151 €/Jahr</td>
+                </tr>
+                <tr>
+                  <td>EEG-Einspeisevergütung (Teileinspeisung)</td>
+                  <td style="text-align:right;font-weight:700;color:#fbbf24;" id="ui-pv-eeg">456 €/Jahr</td>
+                </tr>
+                <tr>
+                  <td>Alte Energiekosten vs. Neue Netto-Energiekosten</td>
+                  <td style="text-align:right;font-weight:700;color:#38bdf8;" id="ui-energy-delta">5.340 € &rarr; 1.180 €/J.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- INSTALLER TECHNICAL PRE-QUALIFICATION DOSSIER -->
+        <div class="card">
+          <h2>
+            <span>Technisches SHK- & Solarteur-Vorqualifizierungs-Dossier (Übergabefertig)</span>
+            <span style="font-size:12px;color:#38bdf8;">DIN EN 12831 / VDE-AR-N 4100</span>
+          </h2>
+          <div class="dossier-grid" id="ui-dossier-grid"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const PRESETS = [{"profile": {"scenario_id": "efh_max_70pct_kfw458_kombi", "label": "EFH Bestandsbau (Ölheizung -> R290 WP + 12 kWp PV + 10 kWh Speicher | 70% Max-Förderung)", "plz": "80331", "region_vnb": "SWM Infrastruktur (München / Bayern)", "building_type": "EFH", "residential_units": 1, "self_occupied": true, "living_area_sqm": 155.0, "building_year": 1988, "insulation_state": "teilsaniert", "current_heating": "oel", "current_heating_age_years": 26, "annual_heating_demand_kwh": 23500.0, "heating_distribution": "heizkoerper_typ22", "taxable_household_income_eur": 38500.0, "minor_children_in_household": 1, "wp_refrigerant_source": "r290_propan", "wp_gross_quote_eur": 32500.0, "include_pv": true, "roof_area_free_sqm": 65.0, "roof_orientation": "sued", "desired_pv_kwp": 12.0, "desired_battery_kwh": 10.0, "pv_net_quote_eur": 16800.0, "household_electricity_kwh": 3800.0, "has_wallbox_ev": true, "ev_annual_km": 15000.0, "grid_tariff_cents_per_kwh": 33.5, "grid_fee_netzentgelt_cents_per_kwh": 9.8, "modul1_flat_rebate_eur": 165.0, "zaehlerschrank_year": 2018, "separate_meter_slot_available": true}, "kfw458": {"eligible_cost_cap_eur": 30000.0, "eligible_investment_eur": 30000.0, "grundfoerderung_pct": 30, "klimageschwindigkeits_bonus_pct": 20, "einkommens_bonus_pct": 30, "effizienz_bonus_pct": 5, "uncapped_total_pct": 85, "applied_subsidy_pct": 70, "cash_grant_eur": 21000.0, "net_wp_investment_eur": 11500.0, "kfw358_ergaenzungskredit_eligible": true, "kfw358_max_loan_eur": 28300.0, "juli_2026_reform_comparison": {"eligible_cost_cap_eur": 28000.0, "applied_pct": 80, "grant_eur": 22400.0, "delta_vs_classic_eur": 1400.0}, "eligibility_notes": ["30% Grundförderung: Förderfähige Wärmepumpe nach BEG EM (Richtlinie KfW 458).", "+20% Klimageschwindigkeits-Bonus: Austausch funktionstüchtiger Altheizung (OEL, 26 J.) im selbstgenutzten Wohneigentum.", "+30% Einkommens-Bonus: Zu versteuerndes Haushaltsjahreseinkommen (38,500 €) liegt <= 40.000 €.", "+5% Effizienz-Bonus: Natürliches Kältemittel R290 (Propan) bzw. Erd-/Wasserwärmequelle (r290_propan).", "Deckelung nach BEG EM: Rechnerische Summe 85% wird auf den gesetzlichen Höchstsatz von 70% gekappt."]}, "pv_ustg12": {"qualifies_zero_vat": true, "installed_kwp": 12.0, "max_roof_kwp": 14.4, "battery_kwh": 10.0, "net_investment_eur": 16800.0, "saved_vat_19pct_eur": 3192.0, "hypothetical_gross_19pct_eur": 19992.0, "annual_pv_yield_kwh": 12360.0, "self_consumption_rate_pct": 54.0, "autarky_rate_pct": 59.0, "pv_self_used_kwh": 6676.0, "pv_grid_feed_in_kwh": 5684.0, "eeg_feed_in_tariff_cents": 7.68, "annual_eeg_revenue_eur": 436.53, "annual_grid_purchase_saved_eur": 2236.46, "legal_basis_note": "§ 12 Abs. 3 Nr. 1 S. 2 UStG: 12.0 kWp <= 30 kWp Vereinfachungsgrenze — automatisch 0% MwSt. auf PV-Module, Hybrid-Wechselrichter, 10.0 kWh Speicher & Montage (3,192.00 € sofortige Steuerersparnis)."}, "enwg14a": {"steuve_devices": ["Wärmepumpe (> 4,2 kW)", "Wallbox (11/22 kW)", "Heimspeicher (10 kWh Netzbezugs-Steuerung)"], "total_steuve_consumption_kwh": 4057.0, "min_guaranteed_dim_power_kw": 10.92, "modul_1_annual_savings_eur": 165.0, "modul_2_gross_savings_eur": 238.55, "modul_2_meter_cost_eur": 75.0, "modul_2_net_annual_savings_eur": 163.55, "modul_1_plus_3_annual_savings_eur": 253.6, "recommended_module": "Modul 1 + Modul 3 (Pauschale + Zeitvariable Netzentgelte via iMSys)", "optimal_annual_savings_eur": 253.6, "optimal_15yr_savings_eur": 3804.0, "breakeven_kwh_modul2_vs_modul1": 4082.0, "explanation": "Bei 4,057 kWh Netzbezug für steuerbare Verbraucher (Wärmepumpe (> 4,2 kW), Wallbox (11/22 kW), Heimspeicher (10 kWh Netzbezugs-Steuerung)) liegt die Break-Even-Schwelle für Modul 2 bei 4,082 kWh/Jahr. Empfehlung: Modul 1 + Modul 3 (Pauschale + Zeitvariable Netzentgelte via iMSys) mit 253.60 €/Jahr (3,804.00 € über 15 Jahre)."}, "technical_dossier": {"norm_heizlast_kw": 9.7, "recommended_wp_power_kw": 11, "vorlauftemperatur_c": 48, "expected_jaz_scop": 4.1, "annual_wp_electricity_kwh": 4815.0, "radiator_upgrade_recommended": false, "radiator_upgrade_note": "Bestands-Flachheizkörper Typ 22 (VL 48 °C) voll R290-wärmepumpentauglich; hydraulischer Abgleich Verfahren B genügt.", "zaehlerschrank_tab_status": "TAB-konform (Direktanschluss VDE-AR-N 4100)", "zaehlerschrank_retrofit_cost_eur": 0.0, "smart_meter_imsys_ready": true, "hydraulischer_abgleich_verfahren_b": true}, "cashflow": {"total_gross_before_subsidies_eur": 52492.0, "total_kfw458_grant_eur": 21000.0, "total_ustg12_vat_saved_eur": 3192.0, "net_homeowner_turnkey_investment_eur": 28300.0, "old_annual_energy_cost_eur": 5325.5, "new_annual_net_energy_cost_eur": 863.94, "annual_total_savings_year1_eur": 4461.56, "amortization_years": 5.8, "cumulative_15yr_net_gain_eur": 57800.97, "irr_15yr_pct": 16.6, "yearly_cashflows": [{"year": 1, "annual_savings_eur": 4461.56, "cumulative_cashflow_eur": -23838.44}, {"year": 2, "annual_savings_eur": 4619.02, "cumulative_cashflow_eur": -19219.42}, {"year": 3, "annual_savings_eur": 4781.73, "cumulative_cashflow_eur": -14437.69}, {"year": 4, "annual_savings_eur": 4949.88, "cumulative_cashflow_eur": -9487.81}, {"year": 5, "annual_savings_eur": 5123.63, "cumulative_cashflow_eur": -4364.18}, {"year": 6, "annual_savings_eur": 5303.18, "cumulative_cashflow_eur": 939.0}, {"year": 7, "annual_savings_eur": 5488.7, "cumulative_cashflow_eur": 6427.7}, {"year": 8, "annual_savings_eur": 5680.4, "cumulative_cashflow_eur": 12108.1}, {"year": 9, "annual_savings_eur": 5878.47, "cumulative_cashflow_eur": 17986.57}, {"year": 10, "annual_savings_eur": 6083.13, "cumulative_cashflow_eur": 24069.7}, {"year": 11, "annual_savings_eur": 6294.58, "cumulative_cashflow_eur": 30364.28}, {"year": 12, "annual_savings_eur": 6513.05, "cumulative_cashflow_eur": 36877.33}, {"year": 13, "annual_savings_eur": 6738.77, "cumulative_cashflow_eur": 43616.1}, {"year": 14, "annual_savings_eur": 6971.97, "cumulative_cashflow_eur": 50588.07}, {"year": 15, "annual_savings_eur": 7212.9, "cumulative_cashflow_eur": 57800.97}]}, "lead_scoring": {"lead_score_0_100": 99, "lead_tier": "AAA High-Intent Premium (Kombi Wärmepumpe + PV + Speicher)", "estimated_b2b_cpl_eur": 225.0, "recommended_buyer_vertical": "SHK & Solarteur Komplettanbieter (Kombi-Lead)", "qualification_badges": ["Eigentümer-Entscheider (Selbstnutzer)", "KfW 458 70% Förderquote (21,000 € Zuschuss)", "Kombi-Auftrag WP + 12.0 kWp PV + 10 kWh Speicher", "Zählerschrank VDE-AR-N 4100 Direktanschluss", "Niedrig-Vorlauf (48 °C) ohne Heizkörpertausch"]}}, {"profile": {"scenario_id": "efh_55pct_r290_pv_wallbox", "label": "EFH Familienhaus (Alte Gasheizung -> R290 WP + 14,5 kWp PV + Wallbox | 55% Förderung)", "plz": "70173", "region_vnb": "Netze BW (Stuttgart / Baden-Württemberg)", "building_type": "EFH", "residential_units": 1, "self_occupied": true, "living_area_sqm": 175.0, "building_year": 1999, "insulation_state": "teilsaniert", "current_heating": "gas_alt", "current_heating_age_years": 24, "annual_heating_demand_kwh": 21000.0, "heating_distribution": "fussbodenheizung", "taxable_household_income_eur": 78000.0, "minor_children_in_household": 2, "wp_refrigerant_source": "r290_propan", "wp_gross_quote_eur": 31000.0, "include_pv": true, "roof_area_free_sqm": 75.0, "roof_orientation": "sued_ost_west", "desired_pv_kwp": 14.5, "desired_battery_kwh": 12.0, "pv_net_quote_eur": 18900.0, "household_electricity_kwh": 4400.0, "has_wallbox_ev": true, "ev_annual_km": 18000.0, "grid_tariff_cents_per_kwh": 34.0, "grid_fee_netzentgelt_cents_per_kwh": 10.4, "modul1_flat_rebate_eur": 158.0, "zaehlerschrank_year": 2008, "separate_meter_slot_available": true}, "kfw458": {"eligible_cost_cap_eur": 30000.0, "eligible_investment_eur": 30000.0, "grundfoerderung_pct": 30, "klimageschwindigkeits_bonus_pct": 20, "einkommens_bonus_pct": 0, "effizienz_bonus_pct": 5, "uncapped_total_pct": 55, "applied_subsidy_pct": 55, "cash_grant_eur": 16500.0, "net_wp_investment_eur": 14500.0, "kfw358_ergaenzungskredit_eligible": true, "kfw358_max_loan_eur": 33400.0, "juli_2026_reform_comparison": {"eligible_cost_cap_eur": 28000.0, "applied_pct": 46, "grant_eur": 12880.0, "delta_vs_classic_eur": -3620.0}, "eligibility_notes": ["30% Grundförderung: Förderfähige Wärmepumpe nach BEG EM (Richtlinie KfW 458).", "+20% Klimageschwindigkeits-Bonus: Austausch funktionstüchtiger Altheizung (GAS_ALT, 24 J.) im selbstgenutzten Wohneigentum.", "0% Einkommens-Bonus: zvE (78,000 €) übersteigt 40.000 € Schwelle (oder Vermietung).", "+5% Effizienz-Bonus: Natürliches Kältemittel R290 (Propan) bzw. Erd-/Wasserwärmequelle (r290_propan)."]}, "pv_ustg12": {"qualifies_zero_vat": true, "installed_kwp": 14.5, "max_roof_kwp": 16.7, "battery_kwh": 12.0, "net_investment_eur": 18900.0, "saved_vat_19pct_eur": 3591.0, "hypothetical_gross_19pct_eur": 22491.0, "annual_pv_yield_kwh": 13920.0, "self_consumption_rate_pct": 47.8, "autarky_rate_pct": 58.9, "pv_self_used_kwh": 6660.0, "pv_grid_feed_in_kwh": 7260.0, "eeg_feed_in_tariff_cents": 7.53, "annual_eeg_revenue_eur": 546.68, "annual_grid_purchase_saved_eur": 2264.4, "legal_basis_note": "§ 12 Abs. 3 Nr. 1 S. 2 UStG: 14.5 kWp <= 30 kWp Vereinfachungsgrenze — automatisch 0% MwSt. auf PV-Module, Hybrid-Wechselrichter, 12.0 kWh Speicher & Montage (3,591.00 € sofortige Steuerersparnis)."}, "enwg14a": {"steuve_devices": ["Wärmepumpe (> 4,2 kW)", "Wallbox (11/22 kW)", "Heimspeicher (12 kWh Netzbezugs-Steuerung)"], "total_steuve_consumption_kwh": 3740.0, "min_guaranteed_dim_power_kw": 10.92, "modul_1_annual_savings_eur": 158.0, "modul_2_gross_savings_eur": 233.38, "modul_2_meter_cost_eur": 75.0, "modul_2_net_annual_savings_eur": 158.38, "modul_1_plus_3_annual_savings_eur": 239.68, "recommended_module": "Modul 1 + Modul 3 (Pauschale + Zeitvariable Netzentgelte via iMSys)", "optimal_annual_savings_eur": 239.68, "optimal_15yr_savings_eur": 3595.2, "breakeven_kwh_modul2_vs_modul1": 3734.0, "explanation": "Bei 3,740 kWh Netzbezug für steuerbare Verbraucher (Wärmepumpe (> 4,2 kW), Wallbox (11/22 kW), Heimspeicher (12 kWh Netzbezugs-Steuerung)) liegt die Break-Even-Schwelle für Modul 2 bei 3,734 kWh/Jahr. Empfehlung: Modul 1 + Modul 3 (Pauschale + Zeitvariable Netzentgelte via iMSys) mit 239.68 €/Jahr (3,595.20 € über 15 Jahre)."}, "technical_dossier": {"norm_heizlast_kw": 9.7, "recommended_wp_power_kw": 11, "vorlauftemperatur_c": 35, "expected_jaz_scop": 4.8, "annual_wp_electricity_kwh": 3675.0, "radiator_upgrade_recommended": false, "radiator_upgrade_note": "Flächenheizung (VL 35 °C) optimal für Wärmepumpe — kein Heizkörpertausch erforderlich.", "zaehlerschrank_tab_status": "Nachrüstung ÜSS Typ 1+2 + SLS-Schalter (~650 €)", "zaehlerschrank_retrofit_cost_eur": 650.0, "smart_meter_imsys_ready": true, "hydraulischer_abgleich_verfahren_b": true}, "cashflow": {"total_gross_before_subsidies_eur": 54141.0, "total_kfw458_grant_eur": 16500.0, "total_ustg12_vat_saved_eur": 3591.0, "net_homeowner_turnkey_investment_eur": 34050.0, "old_annual_energy_cost_eur": 5362.6, "new_annual_net_energy_cost_eur": 796.34, "annual_total_savings_year1_eur": 4566.26, "amortization_years": 6.7, "cumulative_15yr_net_gain_eur": 53878.92, "irr_15yr_pct": 13.6, "yearly_cashflows": [{"year": 1, "annual_savings_eur": 4566.26, "cumulative_cashflow_eur": -29483.74}, {"year": 2, "annual_savings_eur": 4725.92, "cumulative_cashflow_eur": -24757.82}, {"year": 3, "annual_savings_eur": 4890.89, "cumulative_cashflow_eur": -19866.93}, {"year": 4, "annual_savings_eur": 5061.34, "cumulative_cashflow_eur": -14805.59}, {"year": 5, "annual_savings_eur": 5237.46, "cumulative_cashflow_eur": -9568.13}, {"year": 6, "annual_savings_eur": 5419.43, "cumulative_cashflow_eur": -4148.7}, {"year": 7, "annual_savings_eur": 5607.44, "cumulative_cashflow_eur": 1458.74}, {"year": 8, "annual_savings_eur": 5801.68, "cumulative_cashflow_eur": 7260.42}, {"year": 9, "annual_savings_eur": 6002.36, "cumulative_cashflow_eur": 13262.78}, {"year": 10, "annual_savings_eur": 6209.68, "cumulative_cashflow_eur": 19472.46}, {"year": 11, "annual_savings_eur": 6423.87, "cumulative_cashflow_eur": 25896.33}, {"year": 12, "annual_savings_eur": 6645.14, "cumulative_cashflow_eur": 32541.47}, {"year": 13, "annual_savings_eur": 6873.74, "cumulative_cashflow_eur": 39415.21}, {"year": 14, "annual_savings_eur": 7109.88, "cumulative_cashflow_eur": 46525.09}, {"year": 15, "annual_savings_eur": 7353.83, "cumulative_cashflow_eur": 53878.92}]}, "lead_scoring": {"lead_score_0_100": 95, "lead_tier": "AAA High-Intent Premium (Kombi Wärmepumpe + PV + Speicher)", "estimated_b2b_cpl_eur": 225.0, "recommended_buyer_vertical": "SHK & Solarteur Komplettanbieter (Kombi-Lead)", "qualification_badges": ["Eigentümer-Entscheider (Selbstnutzer)", "KfW 458 55% Förderquote (16,500 € Zuschuss)", "Kombi-Auftrag WP + 14.5 kWp PV + 12 kWh Speicher", "Niedrig-Vorlauf (35 °C) ohne Heizkörpertausch"]}}, {"profile": {"scenario_id": "mfh_3we_60k_cap_modul2", "label": "Mehrparteienhaus 3 WE (Öl-Zentralheizung -> Kaskaden-R290 WP + 24 kWp PV | 60.000 € Förderdeckel)", "plz": "50667", "region_vnb": "RheinNetz (Köln / NRW)", "building_type": "MFH", "residential_units": 3, "self_occupied": true, "living_area_sqm": 310.0, "building_year": 1982, "insulation_state": "teilsaniert", "current_heating": "oel", "current_heating_age_years": 28, "annual_heating_demand_kwh": 46000.0, "heating_distribution": "heizkoerper_typ22", "taxable_household_income_eur": 64000.0, "minor_children_in_household": 1, "wp_refrigerant_source": "r290_propan", "wp_gross_quote_eur": 58000.0, "include_pv": true, "roof_area_free_sqm": 120.0, "roof_orientation": "ost_west", "desired_pv_kwp": 24.0, "desired_battery_kwh": 15.0, "pv_net_quote_eur": 27500.0, "household_electricity_kwh": 7500.0, "has_wallbox_ev": true, "ev_annual_km": 20000.0, "grid_tariff_cents_per_kwh": 32.5, "grid_fee_netzentgelt_cents_per_kwh": 11.2, "modul1_flat_rebate_eur": 145.0, "zaehlerschrank_year": 1996, "separate_meter_slot_available": true}, "kfw458": {"eligible_cost_cap_eur": 60000.0, "eligible_investment_eur": 58000.0, "grundfoerderung_pct": 30, "klimageschwindigkeits_bonus_pct": 20, "einkommens_bonus_pct": 0, "effizienz_bonus_pct": 5, "uncapped_total_pct": 55, "applied_subsidy_pct": 55, "cash_grant_eur": 31900.0, "net_wp_investment_eur": 26100.0, "kfw358_ergaenzungskredit_eligible": true, "kfw358_max_loan_eur": 53600.0, "juli_2026_reform_comparison": {"eligible_cost_cap_eur": 58000.0, "applied_pct": 46, "grant_eur": 26680.0, "delta_vs_classic_eur": -5220.0}, "eligibility_notes": ["30% Grundförderung: Förderfähige Wärmepumpe nach BEG EM (Richtlinie KfW 458).", "+20% Klimageschwindigkeits-Bonus: Austausch funktionstüchtiger Altheizung (OEL, 28 J.) im selbstgenutzten Wohneigentum.", "0% Einkommens-Bonus: zvE (64,000 €) übersteigt 40.000 € Schwelle (oder Vermietung).", "+5% Effizienz-Bonus: Natürliches Kältemittel R290 (Propan) bzw. Erd-/Wasserwärmequelle (r290_propan)."]}, "pv_ustg12": {"qualifies_zero_vat": true, "installed_kwp": 24.0, "max_roof_kwp": 26.7, "battery_kwh": 15.0, "net_investment_eur": 27500.0, "saved_vat_19pct_eur": 5225.0, "hypothetical_gross_19pct_eur": 32725.0, "annual_pv_yield_kwh": 21360.0, "self_consumption_rate_pct": 51.9, "autarky_rate_pct": 54.0, "pv_self_used_kwh": 11083.0, "pv_grid_feed_in_kwh": 10277.0, "eeg_feed_in_tariff_cents": 7.24, "annual_eeg_revenue_eur": 744.05, "annual_grid_purchase_saved_eur": 3601.97, "legal_basis_note": "§ 12 Abs. 3 Nr. 1 S. 2 UStG: 24.0 kWp <= 30 kWp Vereinfachungsgrenze — automatisch 0% MwSt. auf PV-Module, Hybrid-Wechselrichter, 15.0 kWh Speicher & Montage (5,225.00 € sofortige Steuerersparnis)."}, "enwg14a": {"steuve_devices": ["Wärmepumpe (> 4,2 kW)", "Wallbox (11/22 kW)", "Heimspeicher (15 kWh Netzbezugs-Steuerung)"], "total_steuve_consumption_kwh": 7538.0, "min_guaranteed_dim_power_kw": 10.92, "modul_1_annual_savings_eur": 145.0, "modul_2_gross_savings_eur": 506.55, "modul_2_meter_cost_eur": 75.0, "modul_2_net_annual_savings_eur": 431.55, "modul_1_plus_3_annual_savings_eur": 309.63, "recommended_module": "Modul 2 (60% Netzentgelt-Reduktion über separaten Zähler / Kaskade)", "optimal_annual_savings_eur": 431.55, "optimal_15yr_savings_eur": 6473.25, "breakeven_kwh_modul2_vs_modul1": 3274.0, "explanation": "Bei 7,538 kWh Netzbezug für steuerbare Verbraucher (Wärmepumpe (> 4,2 kW), Wallbox (11/22 kW), Heimspeicher (15 kWh Netzbezugs-Steuerung)) liegt die Break-Even-Schwelle für Modul 2 bei 3,274 kWh/Jahr. Empfehlung: Modul 2 (60% Netzentgelt-Reduktion über separaten Zähler / Kaskade) mit 431.55 €/Jahr (6,473.25 € über 15 Jahre)."}, "technical_dossier": {"norm_heizlast_kw": 19.2, "recommended_wp_power_kw": 21, "vorlauftemperatur_c": 48, "expected_jaz_scop": 4.1, "annual_wp_electricity_kwh": 9424.0, "radiator_upgrade_recommended": false, "radiator_upgrade_note": "Bestands-Flachheizkörper Typ 22 (VL 48 °C) voll R290-wärmepumpentauglich; hydraulischer Abgleich Verfahren B genügt.", "zaehlerschrank_tab_status": "Zählerschrank-Komplettumbau nach VDE-AR-N 4100 (~2.400 €)", "zaehlerschrank_retrofit_cost_eur": 2400.0, "smart_meter_imsys_ready": true, "hydraulischer_abgleich_verfahren_b": true}, "cashflow": {"total_gross_before_subsidies_eur": 93125.0, "total_kfw458_grant_eur": 31900.0, "total_ustg12_vat_saved_eur": 5225.0, "net_homeowner_turnkey_investment_eur": 56000.0, "old_annual_energy_cost_eur": 9635.5, "new_annual_net_energy_cost_eur": 1892.72, "annual_total_savings_year1_eur": 7742.78, "amortization_years": 6.5, "cumulative_15yr_net_gain_eur": 94285.55, "irr_15yr_pct": 14.2, "yearly_cashflows": [{"year": 1, "annual_savings_eur": 7742.78, "cumulative_cashflow_eur": -48257.22}, {"year": 2, "annual_savings_eur": 8022.73, "cumulative_cashflow_eur": -40234.49}, {"year": 3, "annual_savings_eur": 8312.11, "cumulative_cashflow_eur": -31922.38}, {"year": 4, "annual_savings_eur": 8611.25, "cumulative_cashflow_eur": -23311.13}, {"year": 5, "annual_savings_eur": 8920.45, "cumulative_cashflow_eur": -14390.68}, {"year": 6, "annual_savings_eur": 9240.06, "cumulative_cashflow_eur": -5150.62}, {"year": 7, "annual_savings_eur": 9570.4, "cumulative_cashflow_eur": 4419.78}, {"year": 8, "annual_savings_eur": 9911.84, "cumulative_cashflow_eur": 14331.62}, {"year": 9, "annual_savings_eur": 10264.73, "cumulative_cashflow_eur": 24596.35}, {"year": 10, "annual_savings_eur": 10629.45, "cumulative_cashflow_eur": 35225.8}, {"year": 11, "annual_savings_eur": 11006.38, "cumulative_cashflow_eur": 46232.18}, {"year": 12, "annual_savings_eur": 11395.92, "cumulative_cashflow_eur": 57628.1}, {"year": 13, "annual_savings_eur": 11798.5, "cumulative_cashflow_eur": 69426.6}, {"year": 14, "annual_savings_eur": 12214.52, "cumulative_cashflow_eur": 81641.12}, {"year": 15, "annual_savings_eur": 12644.43, "cumulative_cashflow_eur": 94285.55}]}, "lead_scoring": {"lead_score_0_100": 99, "lead_tier": "AAA High-Intent Premium (Kombi Wärmepumpe + PV + Speicher)", "estimated_b2b_cpl_eur": 240.0, "recommended_buyer_vertical": "SHK & Solarteur Komplettanbieter (Kombi-Lead)", "qualification_badges": ["Eigentümer-Entscheider (Selbstnutzer)", "KfW 458 55% Förderquote (31,900 € Zuschuss)", "Kombi-Auftrag WP + 24.0 kWp PV + 15 kWh Speicher", "Mehrparteienhaus (3 WE / 60,000 € Förderdeckel)", "Niedrig-Vorlauf (48 °C) ohne Heizkörpertausch"]}}, {"profile": {"scenario_id": "efh_wp_only_modul2_winner", "label": "Altbau Nachtspeicher-Austausch (Nur R290 WP ohne PV -> § 14a Modul 2 60%-Netzentgelt-Sieger)", "plz": "20095", "region_vnb": "Stromnetz Hamburg (Norddeutschland)", "building_type": "EFH", "residential_units": 1, "self_occupied": true, "living_area_sqm": 165.0, "building_year": 1976, "insulation_state": "unsaniert", "current_heating": "nachtspeicher", "current_heating_age_years": 30, "annual_heating_demand_kwh": 26000.0, "heating_distribution": "heizkoerper_guss_alt", "taxable_household_income_eur": 52000.0, "minor_children_in_household": 0, "wp_refrigerant_source": "r290_propan", "wp_gross_quote_eur": 29500.0, "include_pv": false, "roof_area_free_sqm": 40.0, "roof_orientation": "ost_west", "desired_pv_kwp": 0.0, "desired_battery_kwh": 0.0, "pv_net_quote_eur": 0.0, "household_electricity_kwh": 3400.0, "has_wallbox_ev": true, "ev_annual_km": 16000.0, "grid_tariff_cents_per_kwh": 34.8, "grid_fee_netzentgelt_cents_per_kwh": 10.8, "modul1_flat_rebate_eur": 135.0, "zaehlerschrank_year": 2005, "separate_meter_slot_available": true}, "kfw458": {"eligible_cost_cap_eur": 30000.0, "eligible_investment_eur": 29500.0, "grundfoerderung_pct": 30, "klimageschwindigkeits_bonus_pct": 20, "einkommens_bonus_pct": 0, "effizienz_bonus_pct": 5, "uncapped_total_pct": 55, "applied_subsidy_pct": 55, "cash_grant_eur": 16225.0, "net_wp_investment_eur": 13275.0, "kfw358_ergaenzungskredit_eligible": true, "kfw358_max_loan_eur": 13275.0, "juli_2026_reform_comparison": {"eligible_cost_cap_eur": 28000.0, "applied_pct": 46, "grant_eur": 12880.0, "delta_vs_classic_eur": -3345.0}, "eligibility_notes": ["30% Grundförderung: Förderfähige Wärmepumpe nach BEG EM (Richtlinie KfW 458).", "+20% Klimageschwindigkeits-Bonus: Austausch funktionstüchtiger Altheizung (NACHTSPEICHER, 30 J.) im selbstgenutzten Wohneigentum.", "0% Einkommens-Bonus: zvE (52,000 €) übersteigt 40.000 € Schwelle (oder Vermietung).", "+5% Effizienz-Bonus: Natürliches Kältemittel R290 (Propan) bzw. Erd-/Wasserwärmequelle (r290_propan)."]}, "pv_ustg12": {"qualifies_zero_vat": true, "installed_kwp": 0.0, "max_roof_kwp": 8.9, "battery_kwh": 0.0, "net_investment_eur": 0.0, "saved_vat_19pct_eur": 0.0, "hypothetical_gross_19pct_eur": 0.0, "annual_pv_yield_kwh": 0.0, "self_consumption_rate_pct": 0.0, "autarky_rate_pct": 0.0, "pv_self_used_kwh": 0.0, "pv_grid_feed_in_kwh": 0.0, "eeg_feed_in_tariff_cents": 0.0, "annual_eeg_revenue_eur": 0.0, "annual_grid_purchase_saved_eur": 0.0, "legal_basis_note": "Keine PV-Anlage gewählt."}, "enwg14a": {"steuve_devices": ["Wärmepumpe (> 4,2 kW)", "Wallbox (11/22 kW)"], "total_steuve_consumption_kwh": 9861.0, "min_guaranteed_dim_power_kw": 7.56, "modul_1_annual_savings_eur": 135.0, "modul_2_gross_savings_eur": 638.99, "modul_2_meter_cost_eur": 75.0, "modul_2_net_annual_savings_eur": 563.99, "modul_1_plus_3_annual_savings_eur": 350.36, "recommended_module": "Modul 2 (60% Netzentgelt-Reduktion über separaten Zähler / Kaskade)", "optimal_annual_savings_eur": 563.99, "optimal_15yr_savings_eur": 8459.85, "breakeven_kwh_modul2_vs_modul1": 3241.0, "explanation": "Bei 9,861 kWh Netzbezug für steuerbare Verbraucher (Wärmepumpe (> 4,2 kW), Wallbox (11/22 kW)) liegt die Break-Even-Schwelle für Modul 2 bei 3,241 kWh/Jahr. Empfehlung: Modul 2 (60% Netzentgelt-Reduktion über separaten Zähler / Kaskade) mit 563.99 €/Jahr (8,459.85 € über 15 Jahre)."}, "technical_dossier": {"norm_heizlast_kw": 13.7, "recommended_wp_power_kw": 15, "vorlauftemperatur_c": 55, "expected_jaz_scop": 3.65, "annual_wp_electricity_kwh": 6981.0, "radiator_upgrade_recommended": true, "radiator_upgrade_note": "Alte Guss-/Gliederheizkörper (VL 55 °C): Austausch von 2–3 kritischen Heizkörpern auf Typ 33 senkt Vorlauf auf 45 °C (+0,4 JAZ).", "zaehlerschrank_tab_status": "Nachrüstung ÜSS Typ 1+2 + SLS-Schalter (~650 €)", "zaehlerschrank_retrofit_cost_eur": 650.0, "smart_meter_imsys_ready": true, "hydraulischer_abgleich_verfahren_b": true}, "cashflow": {"total_gross_before_subsidies_eur": 30150.0, "total_kfw458_grant_eur": 16225.0, "total_ustg12_vat_saved_eur": 0.0, "net_homeowner_turnkey_investment_eur": 13925.0, "old_annual_energy_cost_eur": 9475.44, "new_annual_net_energy_cost_eur": 4050.84, "annual_total_savings_year1_eur": 5424.6, "amortization_years": 2.5, "cumulative_15yr_net_gain_eur": 97337.51, "irr_15yr_pct": 43.0, "yearly_cashflows": [{"year": 1, "annual_savings_eur": 5424.6, "cumulative_cashflow_eur": -8500.4}, {"year": 2, "annual_savings_eur": 5667.05, "cumulative_cashflow_eur": -2833.35}, {"year": 3, "annual_savings_eur": 5918.29, "cumulative_cashflow_eur": 3084.94}, {"year": 4, "annual_savings_eur": 6178.63, "cumulative_cashflow_eur": 9263.57}, {"year": 5, "annual_savings_eur": 6448.35, "cumulative_cashflow_eur": 15711.92}, {"year": 6, "annual_savings_eur": 6727.79, "cumulative_cashflow_eur": 22439.71}, {"year": 7, "annual_savings_eur": 7017.26, "cumulative_cashflow_eur": 29456.97}, {"year": 8, "annual_savings_eur": 7317.12, "cumulative_cashflow_eur": 36774.09}, {"year": 9, "annual_savings_eur": 7627.69, "cumulative_cashflow_eur": 44401.78}, {"year": 10, "annual_savings_eur": 7949.35, "cumulative_cashflow_eur": 52351.13}, {"year": 11, "annual_savings_eur": 8282.47, "cumulative_cashflow_eur": 60633.6}, {"year": 12, "annual_savings_eur": 8627.43, "cumulative_cashflow_eur": 69261.03}, {"year": 13, "annual_savings_eur": 8984.63, "cumulative_cashflow_eur": 78245.66}, {"year": 14, "annual_savings_eur": 9354.47, "cumulative_cashflow_eur": 87600.13}, {"year": 15, "annual_savings_eur": 9737.38, "cumulative_cashflow_eur": 97337.51}]}, "lead_scoring": {"lead_score_0_100": 76, "lead_tier": "AA Hot SHK Meisterbetrieb Lead (Wärmepumpe + Förderung)", "estimated_b2b_cpl_eur": 165.0, "recommended_buyer_vertical": "SHK Meisterbetrieb (Wärmepumpen-Spezialist)", "qualification_badges": ["Eigentümer-Entscheider (Selbstnutzer)", "KfW 458 55% Förderquote (16,225 € Zuschuss)"]}}];
+
+    const el = (id) => document.getElementById(id);
+
+    function renderPresets() {
+      const bar = el("preset-bar");
+      bar.innerHTML = "";
+      PRESETS.forEach((b, idx) => {
+        const btn = document.createElement("button");
+        btn.className = "preset-btn" + (idx === 0 ? " active" : "");
+        btn.textContent = b.profile.label;
+        btn.onclick = () => {
+          document.querySelectorAll(".preset-btn").forEach(x => x.classList.remove("active"));
+          btn.classList.add("active");
+          loadPreset(b.profile);
+        };
+        bar.appendChild(btn);
+      });
+    }
+
+    function loadPreset(p) {
+      el("inp-units").value = p.residential_units;
+      el("inp-self").checked = p.self_occupied;
+      el("inp-heating").value = p.current_heating;
+      el("inp-income").value = p.taxable_household_income_eur;
+      el("inp-wp-type").value = p.wp_refrigerant_source;
+      el("inp-wp-cost").value = p.wp_gross_quote_eur;
+      el("inp-area").value = p.living_area_sqm;
+      el("inp-dist").value = p.heating_distribution;
+      el("inp-pv-enable").checked = p.include_pv;
+      el("inp-pv-kwp").value = p.desired_pv_kwp > 0 ? p.desired_pv_kwp : 10;
+      el("inp-bat-kwh").value = p.desired_battery_kwh;
+      el("inp-pv-cost").value = p.pv_net_quote_eur > 0 ? p.pv_net_quote_eur : 15000;
+      el("inp-ev").checked = p.has_wallbox_ev;
+      el("inp-cab-year").value = p.zaehlerschrank_year;
+      recalc();
+    }
+
+    function fmtEur(n) {
+      return Math.round(n).toLocaleString("de-DE") + " €";
+    }
+
+    function recalc() {
+      const units = parseInt(el("inp-units").value, 10);
+      const selfOcc = el("inp-self").checked;
+      const heating = el("inp-heating").value;
+      const income = parseFloat(el("inp-income").value);
+      const wpType = el("inp-wp-type").value;
+      const wpCost = parseFloat(el("inp-wp-cost").value);
+      const area = parseFloat(el("inp-area").value);
+      const dist = el("inp-dist").value;
+      const pvEnable = el("inp-pv-enable").checked;
+      const pvKwp = pvEnable ? parseFloat(el("inp-pv-kwp").value) : 0;
+      const batKwh = pvEnable ? parseFloat(el("inp-bat-kwh").value) : 0;
+      const pvCost = pvEnable ? parseFloat(el("inp-pv-cost").value) : 0;
+      const hasEv = el("inp-ev").checked;
+      const cabYear = parseInt(el("inp-cab-year").value, 10);
+
+      const costCap = units === 1 ? 30000 : (units <= 6 ? 30000 + (units - 1) * 15000 : 105000 + (units - 6) * 8000);
+      el("lbl-units").textContent = `${units} WE (${fmtEur(costCap)} Deckel)`;
+      el("lbl-income").textContent = fmtEur(income);
+      el("lbl-wp-cost").textContent = fmtEur(wpCost);
+      const estHeatDemand = Math.round(area * 145);
+      el("lbl-area").textContent = `${area} m² • ~${estHeatDemand.toLocaleString("de-DE")} kWh`;
+      el("lbl-pv-kwp").textContent = pvEnable ? `${pvKwp.toFixed(1)} kWp` : "Aus";
+      el("lbl-bat-kwh").textContent = pvEnable ? `${batKwh.toFixed(0)} kWh` : "0 kWh";
+      el("lbl-pv-cost").textContent = pvEnable ? fmtEur(pvCost) : "0 €";
+      el("lbl-cab-year").textContent = cabYear;
+
+      const grund = 30;
+      const klima = (selfOcc && heating !== "gas_jung") ? 20 : 0;
+      const eink = (selfOcc && income <= 40000) ? 30 : 0;
+      const eff = (wpType === "r290_propan" || wpType === "erdwaerme_sole") ? 5 : 0;
+      const uncapped = grund + klima + eink + eff;
+      const applied = Math.min(70, uncapped);
+      const eligInv = Math.min(wpCost, costCap);
+      const kfwGrant = eligInv * (applied / 100.0);
+      const netWp = wpCost - kfwGrant;
+
+      const refCap = units === 1 ? 28000 : costCap - 2000;
+      const refEligInv = Math.min(wpCost, refCap);
+      const refKlima = klima > 0 ? 16 : 0;
+      const refInc = !selfOcc ? 0 : (income <= 30000 ? 40 : (income <= 40000 ? 30 : (income <= 50000 ? 10 : 0)));
+      const refMax = (selfOcc && income <= 30000) ? 80 : 70;
+      const refApplied = Math.min(refMax, 30 + refKlima + refInc);
+      const refGrant = refEligInv * (refApplied / 100.0);
+
+      const normKw = Math.round(((area * 65) / 1000) * 10) / 10;
+      const recWpKw = Math.max(5, Math.ceil(normKw * 1.05));
+      const vlTemp = dist === "fussbodenheizung" ? 35 : (dist === "heizkoerper_typ22" ? 48 : 55);
+      let jaz = dist === "fussbodenheizung" ? 4.6 : (dist === "heizkoerper_typ22" ? 3.9 : 3.45);
+      if (wpType === "erdwaerme_sole") jaz += 0.5;
+      if (wpType === "r290_propan") jaz += 0.2;
+      const wpElecKwh = Math.round((estHeatDemand * 0.85) / jaz);
+      const cabCost = cabYear >= 2016 ? 0 : (cabYear >= 2002 ? 650 : 2400);
+      const cabText = cabYear >= 2016 ? "TAB-konform (Direktanschluss)" : (cabYear >= 2002 ? "ÜSS Typ 1+2 + SLS (~650 €)" : "Zählerschrank-Umbau (~2.400 €)");
+
+      const vatSaved = (pvEnable && pvKwp <= 30) ? pvCost * 0.19 : 0;
+      const pvYield = pvEnable ? Math.round(pvKwp * 990) : 0;
+      const evKwh = hasEv ? 2700 : 0;
+      const totalElecDemand = 3800 + wpElecKwh + evKwh;
+      const autarkyRatio = pvEnable ? Math.min(0.72, 0.34 + (batKwh > 0 ? 0.25 : 0) + (hasEv ? 0.05 : 0)) : 0;
+      const pvSelfKwh = pvEnable ? Math.round(Math.min(pvYield * 0.82, totalElecDemand * autarkyRatio)) : 0;
+      const pvFeedKwh = Math.max(0, pvYield - pvSelfKwh);
+      const eegEur = (pvFeedKwh * 7.6) / 100.0;
+      const pvGridSavedEur = (pvSelfKwh * 33.5) / 100.0;
+
+      const steuveTotalKwh = wpElecKwh + evKwh;
+      const gridSteuveKwh = Math.max(800, Math.round(steuveTotalKwh - pvSelfKwh * 0.55));
+      const mod1 = 160;
+      const mod2Net = Math.round((gridSteuveKwh * (10.2 * 0.60)) / 100.0 - 75);
+      const mod13 = Math.round(mod1 + ((gridSteuveKwh * 0.45 * 4.2) / 100.0));
+      const bestEnwg = Math.max(mod1, mod2Net, mod13);
+
+      const netTurnkey = netWp + pvCost + cabCost;
+      const grossBefore = wpCost + (pvCost + vatSaved) + cabCost;
+      const oldCost = Math.round(estHeatDemand * 0.128 + 140 + ((3800 + evKwh) * 0.335));
+      const remGridKwh = Math.max(0, totalElecDemand - pvSelfKwh);
+      const newCost = Math.round(remGridKwh * 0.335 - eegEur - bestEnwg);
+      const annualSave = Math.max(500, oldCost - newCost);
+      const amort = (netTurnkey / annualSave).toFixed(1).replace(".", ",");
+      const gain15 = Math.round(annualSave * 16.8 - netTurnkey);
+
+      el("kpi-kfw-grant").textContent = fmtEur(kfwGrant);
+      el("kpi-kfw-sub").textContent = `${applied}% auf ${fmtEur(eligInv)} förderfähig`;
+      el("kpi-vat-saved").textContent = fmtEur(vatSaved);
+      el("kpi-vat-sub").textContent = pvEnable ? `0% MwSt. auf ${pvKwp.toFixed(1)} kWp + ${batKwh} kWh` : "Keine PV gewählt";
+      el("kpi-net-inv").textContent = fmtEur(netTurnkey);
+      el("kpi-gross-sub").textContent = `Statt ${fmtEur(grossBefore)} ohne Förderung`;
+      el("kpi-amort").textContent = `${amort} Jahre`;
+      el("kpi-15yr-gain").textContent = `+${fmtEur(gain15)} Netto-Gewinn (15 J.)`;
+
+      const segs = [
+        { label: `Grund ${grund}%`, pct: grund, color: "#10b981" },
+        { label: `Klima +${klima}%`, pct: klima, color: "#0ea5e9" },
+        { label: `Einkommen +${eink}%`, pct: eink, color: "#f59e0b" },
+        { label: `R290/Sole +${eff}%`, pct: eff, color: "#a78bfa" }
+      ].filter(s => s.pct > 0);
+
+      el("ui-stack-bar").innerHTML = segs.map(s =>
+        `<div class="stack-seg" style="width:${(s.pct / 85) * 100}%;background:${s.color};">${s.label}</div>`
+      ).join("");
+      el("ui-stack-legend").innerHTML =
+        `<span>Rechnerische Summe: <strong>${uncapped}%</strong></span>` +
+        `<span>Gesetzlicher Deckel: <strong>${applied}%</strong> (${fmtEur(kfwGrant)} steuerfreier Zuschuss)</span>`;
+      el("ui-kfw-cap-badge").textContent = applied === 70 ? "70% Höchstfördersatz erreicht" : `${applied}% Fördersatz aktiv`;
+      el("ui-reform-note").innerHTML =
+        `<strong>Vergleich KfW 458 Reform-Stufe (ab Juli 2026 • 28.000 € Basisdeckel / bis 80% Geringverdiener-Cap):</strong> ` +
+        `${refApplied}% Fördersatz = <strong>${fmtEur(refGrant)}</strong> Zuschuss (Differenz: ${fmtEur(refGrant - kfwGrant)}).`;
+
+      const rows = [
+        { name: "Modul 1 (Pauschale)", meter: "1 Zähler (Standard)", val: mod1, win: bestEnwg === mod1 && bestEnwg !== mod13 },
+        { name: "Modul 2 (60% Arbeitspreis)", meter: "Separater Zähler / Kaskade", val: mod2Net, win: bestEnwg === mod2Net },
+        { name: "Modul 1 + Modul 3 (Zeitvariabel)", meter: "Smart Meter (iMSys)", val: mod13, win: bestEnwg === mod13 }
+      ];
+      el("ui-enwg-tbody").innerHTML = rows.map(r => `
+        <tr>
+          <td><strong>${r.name}</strong></td>
+          <td>${r.meter}</td>
+          <td style="font-weight:700;color:${r.win ? '#34d399' : '#f8fafc'};">${fmtEur(r.val)}/J.</td>
+          <td>${r.win ? '<span class="pill-win">Empfehlung</span>' : '<span style="color:#64748b;font-size:11px;">Alternative</span>'}</td>
+        </tr>
+      `).join("");
+      el("ui-enwg-note").textContent =
+        `Steuerbare Verbraucher (${gridSteuveKwh.toLocaleString("de-DE")} kWh Netzbezug): Garantierte Mindestleistung im Dimmfall >= 4,2 kW pro SteuVE (keine Abschaltung).`;
+
+      const autarkyPct = Math.round((pvSelfKwh / Math.max(1, totalElecDemand)) * 100);
+      el("ui-pv-yield").textContent = `${pvYield.toLocaleString("de-DE")} kWh/J. (${autarkyPct}% Autarkie)`;
+      el("ui-pv-self").textContent = `${pvSelfKwh.toLocaleString("de-DE")} kWh/J.`;
+      el("ui-pv-saved").textContent = `${fmtEur(pvGridSavedEur)}/Jahr`;
+      el("ui-pv-eeg").textContent = `${fmtEur(eegEur)}/Jahr`;
+      el("ui-energy-delta").innerHTML = `${fmtEur(oldCost)} &rarr; ${fmtEur(newCost)}/J. (<span style="color:#34d399;">-${fmtEur(annualSave)}/J.</span>)`;
+
+      const dossierItems = [
+        { title: "Norm-Heizlast (DIN EN 12831)", val: `${normKw.toFixed(1)} kW (Empf.: ${recWpKw} kW WP)`, note: "Inkl. Warmwasser-Aufschlag & Sperrzeiten-Reserve" },
+        { title: "Vorlauftemperatur & JAZ", val: `${vlTemp} °C • JAZ ${jaz.toFixed(2)}`, note: vlTemp <= 48 ? "Keine Heizkörper-Nachrüstung nötig" : "2–3 kritische Heizkörper auf Typ 33 tauschen" },
+        { title: "Zählerschrank VDE-AR-N 4100", val: cabText, note: `Baujahr ${cabYear} • Zusatzkosten: ${fmtEur(cabCost)}` },
+        { title: "Wärmepumpen-Strombedarf", val: `${wpElecKwh.toLocaleString("de-DE")} kWh/Jahr`, note: "SG-Ready Überhitzung über PV-Überschuss aktiv" },
+        { title: "KfW 358/359 Ergänzungskredit", val: (selfOcc && income <= 90000) ? `Verfügbar bis ${fmtEur(Math.min(120000 * units, netTurnkey))}` : "Nicht erforderlich / > 90k zvE", note: "Zinsverbilligter KfW-Kredit für den Netto-Eigenanteil" },
+        { title: "Hydraulischer Abgleich", val: "Verfahren B (Förderpflicht)", note: "Raumweise Heizlastberechnung & voreinstellbare Thermostatventile" }
+      ];
+      el("ui-dossier-grid").innerHTML = dossierItems.map(d => `
+        <div class="dossier-item">
+          <div class="d-title">${d.title}</div>
+          <div class="d-val">${d.val}</div>
+          <div class="d-note">${d.note}</div>
+        </div>
+      `).join("");
+
+      let score = 55 + (selfOcc ? 12 : 0) + (applied >= 50 ? 14 : 5) + (pvEnable ? 12 : 0) + (cabCost === 0 ? 5 : 0);
+      score = Math.min(99, score);
+      const cpl = score >= 88 ? (units > 1 ? 240 : 225) : (score >= 75 ? 165 : 115);
+      el("ui-cpl-val").textContent = `${cpl} € CPL`;
+      el("ui-lead-tier").textContent = `Score: ${score}/100 • ${pvEnable ? 'AAA Kombi-Lead (SHK + Solar)' : 'AA SHK Wärmepumpen-Lead'}`;
+    }
+
+    ["inp-units","inp-self","inp-heating","inp-income","inp-wp-type","inp-wp-cost","inp-area","inp-dist","inp-pv-enable","inp-pv-kwp","inp-bat-kwh","inp-pv-cost","inp-ev","inp-cab-year"].forEach(id => {
+      el(id).addEventListener("input", recalc);
+      el(id).addEventListener("change", recalc);
+    });
+
+    renderPresets();
+    loadPreset(PRESETS[0].profile);
+  </script>
+</body>
+</html>

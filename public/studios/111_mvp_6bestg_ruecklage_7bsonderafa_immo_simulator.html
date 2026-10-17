@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DACH § 6b-Rücklage & § 7 Abs. 5a / § 7b EStG Immobilien-Steuer-Simulator (MVP #111)</title>
+<style>
+  :root {
+    --bg: #0b1020;
+    --panel: #131b33;
+    --panel-alt: #192342;
+    --border: #2a3966;
+    --text: #eef2ff;
+    --muted: #9aa8d1;
+    --accent: #38bdf8;
+    --emerald: #10b981;
+    --amber: #f59e0b;
+    --danger: #ef4444;
+    --purple: #a855f7;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, sans-serif;
+    background: radial-gradient(circle at top right, #1e293b 0%, var(--bg) 65%);
+    color: var(--text);
+    line-height: 1.5;
+    padding: 24px;
+  }
+  .container { max-width: 1440px; margin: 0 auto; }
+  header {
+    background: linear-gradient(135deg, rgba(16,185,129,0.14), rgba(56,189,248,0.12));
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px 28px;
+    margin-bottom: 22px;
+  }
+  .badge-row { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 10px; }
+  .badge {
+    font-size: 12px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: rgba(56,189,248,0.16);
+    color: var(--accent);
+    border: 1px solid rgba(56,189,248,0.35);
+    letter-spacing: 0.3px;
+  }
+  .badge.emerald { background: rgba(16,185,129,0.16); color: var(--emerald); border-color: rgba(16,185,129,0.4); }
+  .badge.amber { background: rgba(245,158,11,0.16); color: var(--amber); border-color: rgba(245,158,11,0.4); }
+  h1 { margin: 0 0 8px 0; font-size: 25px; font-weight: 800; }
+  header p { margin: 0; color: var(--muted); font-size: 14px; max-width: 1150px; }
+
+  .preset-bar {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 12px;
+    margin-bottom: 22px;
+  }
+  .preset-btn {
+    text-align: left;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 14px 16px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .preset-btn:hover { border-color: var(--accent); transform: translateY(-1px); }
+  .preset-btn.active {
+    background: linear-gradient(135deg, rgba(16,185,129,0.2), rgba(56,189,248,0.16));
+    border-color: var(--emerald);
+    box-shadow: 0 0 0 1px var(--emerald);
+  }
+  .preset-btn strong { display: block; font-size: 14px; margin-bottom: 4px; color: #fff; }
+  .preset-btn span { font-size: 12px; color: var(--muted); }
+
+  .main-grid {
+    display: grid;
+    grid-template-columns: 420px 1fr;
+    gap: 20px;
+    align-items: start;
+  }
+  @media (max-width: 1100px) {
+    .main-grid { grid-template-columns: 1fr; }
+  }
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+  .card h2 {
+    margin: 0 0 14px 0;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .section-tag {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 6px;
+    background: var(--panel-alt);
+    color: var(--muted);
+  }
+  .form-group { margin-bottom: 11px; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+  input, select {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 8px 10px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+  input:focus, select:focus { outline: none; border-color: var(--accent); }
+
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+  .kpi-box {
+    background: var(--panel-alt);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 15px;
+  }
+  .kpi-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted); margin-bottom: 6px; }
+  .kpi-val { font-size: 23px; font-weight: 800; color: var(--emerald); }
+  .kpi-val.accent { color: var(--accent); }
+  .kpi-val.amber { color: var(--amber); }
+  .kpi-val.danger { color: var(--danger); }
+  .kpi-sub { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+  .trap-list { display: flex; flex-direction: column; gap: 10px; }
+  .trap-item {
+    border-radius: 10px;
+    padding: 12px 15px;
+    border-left: 4px solid var(--emerald);
+    background: rgba(16,185,129,0.08);
+  }
+  .trap-item.FATAL_BLOCK {
+    border-left-color: var(--danger);
+    background: rgba(239,68,68,0.12);
+  }
+  .trap-item.WARNING {
+    border-left-color: var(--amber);
+    background: rgba(245,158,11,0.12);
+  }
+  .trap-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
+  }
+  .trap-title { font-weight: 700; font-size: 13.5px; }
+  .trap-norm {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 6px;
+    background: rgba(255,255,255,0.08);
+    color: var(--accent);
+    white-space: nowrap;
+  }
+  .trap-desc { font-size: 12.5px; color: var(--muted); margin-bottom: 6px; }
+  .trap-rem { font-size: 12px; color: #e2e8f0; font-weight: 600; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12.5px;
+  }
+  th, td {
+    padding: 9px 10px;
+    text-align: right;
+    border-bottom: 1px solid var(--border);
+  }
+  th:first-child, td:first-child { text-align: left; }
+  th { color: var(--muted); font-weight: 600; background: rgba(255,255,255,0.03); }
+  tr.highlight-turbo { background: rgba(16,185,129,0.10); font-weight: 600; }
+  tr.highlight-switch { background: rgba(56,189,248,0.12); }
+
+  .surcharge-box {
+    margin-top: 14px;
+    padding: 15px;
+    border-radius: 10px;
+    background: rgba(245,158,11,0.09);
+    border: 1px solid rgba(245,158,11,0.35);
+    font-size: 12.5px;
+  }
+  .surcharge-box h3 { margin: 0 0 6px 0; font-size: 14px; color: var(--amber); }
+</style>
+</head>
+<body>
+
+<!-- DACH CASHFLOW STUDIOS LAUNCH BAR -->
+<style>
+  #dcs-launch-bar {
+    position: sticky;
+    top: 0;
+    z-index: 99999;
+    background: linear-gradient(90deg, #0b1120 0%, #111827 50%, #0f172a 100%);
+    color: #f8fafc;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.35);
+    padding: 8px 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  }
+  #dcs-launch-bar .dcs-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+  }
+  #dcs-launch-bar .dcs-badge {
+    background: rgba(16, 185, 129, 0.18);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.03em;
+  }
+  #dcs-launch-bar a.dcs-nav {
+    color: #93c5fd;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 12.5px;
+  }
+  #dcs-launch-bar a.dcs-nav:hover {
+    text-decoration: underline;
+    color: #dbeafe;
+  }
+  #dcs-launch-bar .dcs-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  #dcs-launch-bar .dcs-btn {
+    padding: 5px 11px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s ease;
+  }
+  #dcs-launch-bar .dcs-btn-ghost {
+    background: rgba(255,255,255,0.08);
+    color: #e2e8f0;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  #dcs-launch-bar .dcs-btn-primary {
+    background: linear-gradient(135deg, #0ea5e9, #2563eb);
+    color: #ffffff;
+  }
+  #dcs-launch-bar .dcs-btn-emerald {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
+  }
+  @media print {
+    #dcs-launch-bar { display: none !important; }
+  }
+</style>
+<div id="dcs-launch-bar">
+  <div class="dcs-left">
+    <a href="/index.html" class="dcs-nav">← Alle 150 DACH Studios</a>
+    <span class="dcs-badge">MVP #111 VERIFIED</span>
+    <span style="color:#cbd5e1;font-size:12px;">DACH Tax, Corporate & Accounting Arbitrage</span>
+  </div>
+  <div class="dcs-actions">
+    <button onclick="window.print()" class="dcs-btn dcs-btn-ghost">🖨️ PDF / Dossier drucken</button>
+    <a href="#checkout-modal-49" target="_blank" rel="noopener" class="dcs-btn dcs-btn-primary">⚡ Musterschreiben & Voll-Dossier (€49)</a>
+    <a href="#checkout-modal-299" target="_blank" rel="noopener" class="dcs-btn dcs-btn-emerald">🛡️ B2B Umsetzung buchen (€299 / €1.490)</a>
+  </div>
+</div>
+
+<div class="container">
+  <header>
+    <div class="badge-row">
+      <span class="badge emerald">§ 6b / § 6c EStG · 100% Steuerfreie Rücklage (4 / 6 Jahre)</span>
+      <span class="badge">§ 7 Abs. 5a EStG · 5,0% Degressive Wohngebäude-AfA (Wachstumschancengesetz)</span>
+      <span class="badge amber">§ 7b EStG · 4 × 5,0% Sonder-AfA EH 40 QNG (€5.200/m² Cap / €4.000/m² BMG)</span>
+      <span class="badge">BFH VI R 20/23 · 6% p.a. Gewinnzuschlag-Wächter (§ 6b Abs. 7 EStG)</span>
+    </div>
+    <h1>DACH § 6b-Rücklage & § 7 Abs. 5a / § 7b EStG Immobilien-Turbo Simulator (MVP #111)</h1>
+    <p>
+      Deterministischer Steuer- & Liquiditäts-Rechner für gewerbliche Immobilien-Veräußerungen:
+      <strong>100% Steuerstundung stiller Reserven (§ 6b EStG)</strong> mit vorrangiger Allokation auf neuen Grund & Boden
+      kombiniert mit <strong>5,0% degressiver Gebäude-AfA (§ 7 Abs. 5a EStG) + 5,0% Sonder-AfA (§ 7b EStG) = 10,0% p.a. Abschreibungs-Turbo</strong>.
+    </p>
+  </header>
+
+  <div class="preset-bar" id="presetBar"></div>
+
+  <div class="main-grid">
+    <div class="card">
+      <h2>1. Verkauf & Reinvestitions-Parameter <span class="section-tag">Interaktiv</span></h2>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Gewinn Grund & Boden (§ 6b) <span>EUR</span></label>
+          <input type="number" id="inpSoldLand" step="25000" min="0">
+        </div>
+        <div class="form-group">
+          <label>Gewinn Gebäude (§ 6b) <span>EUR</span></label>
+          <input type="number" id="inpSoldBldg" step="25000" min="0">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Vorbesitzzeit Alt-Objekt <span>≥ 6,0 J. Pflicht</span></label>
+          <input type="number" id="inpHoldingYrs" step="0.5" min="0">
+        </div>
+        <div class="form-group">
+          <label>Grenzsteuersatz (ESt/KSt+GewSt) <span>%</span></label>
+          <input type="number" id="inpTaxRate" step="0.5" min="15" max="50">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Reinvestition durchgeführt? <span>§ 6b Abs. 3</span></label>
+          <select id="inpReinvestExec">
+            <option value="true">Ja — Fristgerechte Reinvestition (Kauf / Neubau / § 6b-Fonds)</option>
+            <option value="false">Nein — Rücklagen-Auflösung ohne Reinvestition (§ 6b Abs. 7 Falle!)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Jahre in § 6b-Rücklage <span>0–6 WJ</span></label>
+          <input type="number" id="inpReserveYrs" step="1" min="0" max="6">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>§ 6b-Übertragungs-Reihenfolge <span>§ 6b Abs. 1 Satz 2 & Abs. 6 EStG</span></label>
+        <select id="inpAllocation">
+          <option value="optimal_land_first">Optimal: Boden-Gewinn zuerst auf neuen Grund & Boden (schützt Gebäude-AfA!)</option>
+          <option value="full_onto_building">Suboptimal: Komplett auf neues Gebäude übertragen (vernichtet AfA-Basis!)</option>
+          <option value="invalid_building_gain_to_land">Fehlerhaft: Gebäude-Gewinn auf neuen Grund & Boden (§ 6b Abs. 1 S. 2 Verbot!)</option>
+        </select>
+      </div>
+
+      <hr style="border:0; border-top:1px solid var(--border); margin: 14px 0;">
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Neuer Grund & Boden (Kaufpreis) <span>EUR</span></label>
+          <input type="number" id="inpNewLand" step="25000" min="0">
+        </div>
+        <div class="form-group">
+          <label>Neue Gebäude-AHK (Brutto) <span>EUR</span></label>
+          <input type="number" id="inpNewBldg" step="50000" min="100000">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Wohnfläche Neubau (WoFlV) <span>m²</span></label>
+          <input type="number" id="inpSqm" step="20" min="50">
+        </div>
+        <div class="form-group">
+          <label>EH 40 + QNG-Siegel vorhanden? <span>§ 7b EStG</span></label>
+          <select id="inpEh40Qng">
+            <option value="true">Ja — Effizienzhaus 40 mit QNG-Nachhaltigkeitssiegel (4 × 5% Sonder-AfA)</option>
+            <option value="false">Nein — Standard-Wohnneubau (nur 5% Degressive AfA nach § 7 Abs. 5a EStG)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="kpi-grid">
+        <div class="kpi-box">
+          <div class="kpi-label">§ 6b Sofort-Steuerersparnis (Jahr 0)</div>
+          <div class="kpi-val" id="kpiDay1Saved">€0</div>
+          <div class="kpi-sub" id="kpiDay1Sub">Stille Reserven: €0</div>
+        </div>
+        <div class="kpi-box">
+          <div class="kpi-label">Verbleibende Gebäude-AfA-Basis</div>
+          <div class="kpi-val accent" id="kpiBldgBase">€0</div>
+          <div class="kpi-sub" id="kpiSqmInfo">Baukosten: €0 / m²</div>
+        </div>
+        <div class="kpi-box">
+          <div class="kpi-label">Jahr-1 Turbo-AfA (§ 7 Abs. 5a + § 7b)</div>
+          <div class="kpi-val" id="kpiYear1Afa">€0</div>
+          <div class="kpi-sub" id="kpiYear1Sub">10,0% im 1. Jahr</div>
+        </div>
+        <div class="kpi-box">
+          <div class="kpi-label">Gesamt-Steuerschild (Verkauf + 4 J. AfA)</div>
+          <div class="kpi-val amber" id="kpiTotalShield">€0</div>
+          <div class="kpi-sub" id="kpiTotalShieldSub">Wechsel auf 3% Linear in Jahr 11</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>2. Gesetzliche Compliance- & Fallbeil-Prüfung (§ 6b, § 7 Abs. 5a, § 7b EStG)</h2>
+        <div class="trap-list" id="trapContainer"></div>
+      </div>
+
+      <div class="card">
+        <h2>3. 10-Jahres-Abschreibungsfahrplan (5% Degressiv → Optimaler 3% Linear-Wechsel + 4 × 5% § 7b Sonder-AfA)</h2>
+        <div style="overflow-x:auto;">
+          <table>
+            <thead>
+              <tr>
+                <th>Zeitraum</th>
+                <th>Restbuchwert Start</th>
+                <th>Reguläre AfA (§ 7 Abs. 5a / 4)</th>
+                <th>§ 7b Sonder-AfA (5%)</th>
+                <th>Gesamt-AfA Jahr</th>
+                <th>Steuerersparnis Jahr</th>
+                <th>Restbuchwert Ende</th>
+                <th>Kumulierte AfA %</th>
+              </tr>
+            </thead>
+            <tbody id="scheduleBody"></tbody>
+          </table>
+        </div>
+        <div class="surcharge-box" id="surchargeBox"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const PRESETS = [{"scenario": {"scenario_id": "SCENARIO_A_GOLD_6B_EH40_QNG_SUPER_COMBO", "title_de": "Szenario A: €800k Gewerbepark-Exit → €3,2 Mio. EH 40 QNG Neubau (100% § 6b + 10% Turbo-AfA)", "subtitle_de": "GmbH & Co. KG · €354.480 Sofort-Steuerstundung + 36,9% Gebäude-Abschreibung in 4 Jahren", "entity_type": "gmbh_co_kg", "marginal_tax_rate_pct": 44.31, "sold_asset_description": "Altes Logistik-/Büroareal (14 Jahre im Betriebsvermögen)", "sold_holding_years": 14.0, "sold_land_gain_eur": 500000.0, "sold_building_gain_eur": 300000.0, "reserve_years_held_before_reinvest": 2, "reinvest_executed": true, "reinvest_total_price_eur": 3200000.0, "reinvest_land_share_eur": 500000.0, "reinvest_building_cost_eur": 2700000.0, "living_area_sqm": 600.0, "meets_eh40_qng": true, "within_wcg_window_2023_2029": true, "allocation_strategy": "optimal_land_first"}, "eligible_for_6b_rollover": true, "total_capital_gain_eur": 800000.0, "immediate_tax_without_6b_eur": 354480.0, "transferred_to_land_eur": 500000.0, "transferred_to_building_eur": 300000.0, "total_6b_transferred_eur": 800000.0, "untaxed_rollover_tax_saved_year0_eur": 354480.0, "untransferred_gain_dissolved_eur": 0.0, "gewinnzuschlag_6b_abs7_eur": 0.0, "total_taxable_dissolution_inc_surcharge_eur": 0.0, "dissolution_tax_plus_surcharge_cash_hit_eur": 0.0, "building_afa_base_after_6b_eur": 2400000.0, "building_cost_per_sqm_gross_eur": 4500.0, "building_afa_base_per_sqm_after_6b_eur": 4000.0, "eligible_for_7b_sonder_afa": true, "eligible_for_7_5a_degressive_afa": true, "sonder_afa_7b_assessment_base_eur": 2400000.0, "year1_degressive_afa_eur": 120000.0, "year1_sonder_afa_7b_eur": 120000.0, "year1_total_afa_eur": 240000.0, "year1_total_afa_pct_of_base": 10.0, "years_1_to_4_total_afa_eur": 890370.0, "years_1_to_4_writeoff_pct_of_base": 37.1, "years_1_to_4_cash_tax_shield_eur": 394522.95, "optimal_linear_switch_year": 6, "combined_day1_plus_4yr_tax_shield_eur": 749002.95, "schedule_10yr": [{"year_index": 1, "year_label": "Jahr 1 (Neubau + § 7b)", "opening_book_value_eur": 2400000.0, "degressive_or_linear_afa_eur": 120000.0, "regular_afa_method": "5,0% Degressiv (§ 7 Abs. 5a EStG)", "sonder_afa_7b_eur": 120000.0, "total_afa_year_eur": 240000.0, "closing_book_value_eur": 2160000.0, "tax_shield_year_eur": 106344.0, "cumulative_afa_eur": 240000.0, "cumulative_afa_pct_of_afa_base": 10.0}, {"year_index": 2, "year_label": "Jahr 2 (Neubau + § 7b)", "opening_book_value_eur": 2160000.0, "degressive_or_linear_afa_eur": 108000.0, "regular_afa_method": "5,0% Degressiv (§ 7 Abs. 5a EStG)", "sonder_afa_7b_eur": 120000.0, "total_afa_year_eur": 228000.0, "closing_book_value_eur": 1932000.0, "tax_shield_year_eur": 101026.8, "cumulative_afa_eur": 468000.0, "cumulative_afa_pct_of_afa_base": 19.5}, {"year_index": 3, "year_label": "Jahr 3 (Neubau + § 7b)", "opening_book_value_eur": 1932000.0, "degressive_or_linear_afa_eur": 96600.0, "regular_afa_method": "5,0% Degressiv (§ 7 Abs. 5a EStG)", "sonder_afa_7b_eur": 120000.0, "total_afa_year_eur": 216600.0, "closing_book_value_eur": 1715400.0, "tax_shield_year_eur": 95975.46, "cumulative_afa_eur": 684600.0, "cumulative_afa_pct_of_afa_base": 28.52}, {"year_index": 4, "year_label": "Jahr 4 (Neubau + § 7b)", "opening_book_value_eur": 1715400.0, "degressive_or_linear_afa_eur": 85770.0, "regular_afa_method": "5,0% Degressiv (§ 7 Abs. 5a EStG)", "sonder_afa_7b_eur": 120000.0, "total_afa_year_eur": 205770.0, "closing_book_value_eur": 1509630.0, "tax_shield_year_eur": 91176.69, "cumulative_afa_eur": 890370.0, "cumulative_afa_pct_of_afa_base": 37.1}, {"year_index": 5, "year_label": "Jahr 5", "opening_book_value_eur": 1509630.0, "degressive_or_linear_afa_eur": 75481.5, "regular_afa_method": "5,0% Degressiv (§ 7 Abs. 5a EStG)", "sonder_afa_7b_eur": 0.0, "total_afa_year_eur": 75481.5, "closing_book_value_eur": 1434148.5, "tax_shield_year_eur": 33445.85, "cumulative_afa_eur": 965851.5, "cumulative_afa_pct_of_afa_base": 40.24}, {"year_index": 6, "year_label": "Jahr 6", "opening_book_value_eur": 1434148.5, "degressive_or_linear_afa_eur": 72000.0, "regular_afa_method": "3,0% Linear-Wechsel (§ 7 Abs. 4 Nr. 1 EStG)", "sonder_afa_7b_eur": 0.0, "total_afa_year_eur": 72000.0, "closing_book_value_eur": 1362148.5, "tax_shield_year_eur": 31903.2, "cumulative_afa_eur": 1037851.5, "cumulative_afa_pct_of_afa_base": 43.24}, {"year_index": 7, "year_label": "Jahr 7", "opening_book_value_eur": 1362148.5, "degressive_or_linear_afa_eur": 72000.0, "regular_afa_method": "3,0% Linear-Wechsel (§ 7 Abs. 4 Nr. 1 EStG)", "sonder_afa_7b_eur": 0.0, "total_afa_year_eur": 72000.0, "closing_book_value_eur": 1290148.5, "tax_shield_year_eur": 31903.2, "cumulative_afa_eur": 1109851.5, "cumulative_afa_pct_of_afa_base": 46.24}, {"year_index": 8, "year_label": "Jahr 8", "opening_book_value_eur": 1290148.5, "degressive_or_linear_afa_eur": 72000.0, "regular_afa_method": "3,0% Linear-Wechsel (§ 7 Abs. 4 Nr. 1 EStG)", "sonder_afa_7b_eur": 0.0, "total_afa_year_eur": 72000.0, "closing_book_value_eur": 1218148.5, "tax_shield_year_eur": 31903.2, "cumulative_afa_eur": 1181851.5, "cumulative_afa_pct_of_afa_base": 49.24}, {"year_index": 9, "year_label": "Jahr 9", "opening_book_value_eur": 1218148.5, "degressive_or_linear_afa_eur": 72000.0, "regular_afa_method": "3,0% Linear-Wechsel (§ 7 Abs. 4 Nr. 1 EStG)", "sonder_afa_7b_eur": 0.0, "total_afa_year_eur": 72000.0, "closing_book_value_eur": 1146148.5, "tax_shield_year_eur": 31903.2, "cumulative_afa_eur": 1253851.5, "cumulative_afa_pct_of_afa_base": 52.24}, {"year_index": 10, "year_label": "Jahr 10", "opening_book_value_eur": 1146148.5, "degressive_or_linear_afa_eur": 72000.0, "regular_afa_method": "3,0% Linear-Wechsel (§ 7 Abs. 4 Nr. 1 EStG)", "sonder_afa_7b_eur": 0.0, "total_afa_year_eur": 72000.0, "closing_book_value_eur": 1074148.5, "tax_shield_year_eur": 31903.2, "cumulative_afa_eur": 1325851.5, "cumulative_afa_pct_of_afa_base": 55.24}], "traps": [{"trap_code": "HOLDING_PERIOD_6_YEARS_OK", "severity": "PASS", "statutory_norm": "§ 6b Abs. 4 Satz 1 Nr. 2 EStG", "headline_de": "6-Jahres-Vorbesitzfrist erfüllt (14.0 Jahre >= 6,0 Jahre)", "explanation_de": "Die veräußerte Betriebsimmobilie befand sich 14.0 Jahre ununterbrochen in einer inländischen Betriebsstätte. Volle § 6b-Rücklagenfähigkeit (100% der stillen Reserven) gesichert.", "remediation_de": "Anlageverzeichnis-Historie zum Nachweis der 6-jährigen Zugehörigkeit für die Betriebsprüfung dokumentieren."}, {"trap_code": "OPTIMAL_LAND_FIRST_ALLOCATION_OK", "severity": "PASS", "statutory_norm": "§ 6b Abs. 1 & Abs. 6 EStG", "headline_de": "Optimale § 6b-Allokation: Boden-Gewinn neutralisiert nicht-abschreibbaren neuen Grund & Boden!", "explanation_de": "Veräußerungsgewinne aus Grund und Boden werden vorrangig auf den neuen Grund und Boden übertragen. Dadurch bleibt die maximale Gebäude-AfA-Bemessungsgrundlage für § 7 Abs. 5a + § 7b EStG erhalten.", "remediation_de": "Im Kaufvertrag des Reinvestitionsobjekts eine gutachterlich fundierte Kaufpreisaufteilung (Grund & Boden vs. Gebäude) vereinbaren."}, {"trap_code": "REINVESTMENT_TIMELINE_OK", "severity": "PASS", "statutory_norm": "§ 6b Abs. 3 Satz 2–3 & Abs. 7 EStG", "headline_de": "Fristgerechte Reinvestition im Jahr 2 (0,00 € Strafzuschlag nach § 6b Abs. 7 EStG)", "explanation_de": "Durch Übertragung der § 6b-Rücklage innerhalb der gesetzlichen 6-Jahresfrist entfällt der 6% p.a. Gewinnzuschlag vollständig.", "remediation_de": "Bei Neubau innerhalb von 4 Jahren zumindest mit der Herstellung beginnen, um die Verlängerung auf 6 Jahre (§ 6b Abs. 3 Satz 3 EStG) zu sichern."}, {"trap_code": "SONDER_AFA_7B_EH40_QNG_OK", "severity": "PASS", "statutory_norm": "§ 7b Abs. 1–3 EStG i.d.F. Wachstumschancengesetz", "headline_de": "§ 7b Sonder-AfA (4 × 5% = 20%) freigeschaltet (€4,500/m² <= €5.200/m² Limit + EH 40 QNG)", "explanation_de": "Gebäude-AHK liegen bei €4,500/m² Wohnfläche (unter der €5.200/m² Obergrenze). Zusätzlich zur 5% degressiven AfA (§ 7 Abs. 5a EStG) können 4 Jahre lang je 5% Sonder-AfA (auf bis zu €4.000/m² BMG) abgezogen werden!", "remediation_de": "QNG-Zertifikat und Wohnflächenberechnung nach WoFlV zum Steuerbescheid einreichen."}]}, {"scenario": {"scenario_id": "SCENARIO_B_GMBH_6B_LAND_SHIELD_5PCT_DEGRESSIVE", "title_de": "Szenario B: €600k Grundstücks-Exit → €2,6 Mio. Wohn-Neubau (100% Boden-Roll-Over + 5% Degressiv)", "subtitle_de": "Operative GmbH (30% KSt/GewSt) · €600k § 6b auf Grund & Boden + volle €2,0 Mio. 5%-AfA-Basis", "entity_type": "vermoegensverwaltende_immobilien_gmbh", "marginal_tax_rate_pct": 30.0, "sold_asset_description": "Unbebautes Gewerbegrundstück (9 Jahre im Betriebsvermögen)", "sold_holding_years": 9.0, "sold_land_gain_eur": 600000.0, "sold_building_gain_eur": 0.0, "reserve_years_held_before_reinvest": 1, "reinvest_executed": true, "reinvest_total_price_eur": 2600000.0, "reinvest_land_share_eur": 600000.0, "reinvest_building_cost_eur": 2000000.0, "living_area_sqm": 450.0, "meets_eh40_qng": false, "within_wcg_window_2023_2029": true, "allocation_strategy": "optimal_land_first"}, "eligible_for_6b_rollover": true, "total_capital_gain_eur": 600000.0, "immediate_tax_without_6b_eur": 180000.0, "transferred_to_land_eur": 600000.0, "transferred_to_building_eur": 0.0, "total_6b_transferred_eur": 600000.0, "untaxed_rollover_tax_saved_year0_eur": 180000.0, "untransferred_gain_dissolved_eur": 0.0, "gewinnzuschlag_6b_abs7_eur": 0.0, "total_taxable_dissolution_inc_surcharge_eur": 0.0, "dissolution_tax_plus_surcharge_cash_hit_eur": 0.0, "building_afa_base_after_6b_eur": 2000000.0, "building_cost_per_sqm_gross_eur": 4444.44, "building_afa_base_per_sqm_after_6b_eur": 4444.44, "eligible_for_7b_sonder_afa": false, "eligible_for_7_5a_degressive_afa": true, "sonder_afa_7b_assessment_base_eur": 0.0, "year1_degressive_afa_eur": 100000.0, "year1_sonder_afa_7b_eur": 0.0, "year1_total_afa_eur": 100000.0, "year1_total_afa_pct_of_base": 5.0, "years_1_to_4_total_afa_eur": 370987.5, "years_1_to_4_writeoff_pct_of_base": 18.55, "years_1_to_4_cash_tax_shield_eur": 111296.25, "optimal_linear_switch_year": 11, "combined_day1_plus_4yr_tax_shield_eur": 291296.25, "schedule_10yr": [{"year_index": 1, "year_label": "Jahr 1", "opening_book_value_eur": 2000000.0, "degressive_or_linear_afa_eur": 100000.0, "regular_afa_method": "5,0% Degressiv (§ 7 Abs. 5a EStG)", "sonder_afa_7b_eur": 0.0, "total_afa_year_eur": 100000.0, "closing_book_value_eur": 1900000.0, "tax_shield_year_eur": 30000.0, "cumulative_afa_eur": 100000.0, "cumulative_afa_pct_of_afa_base": 5.0}, {"year_index": 2, "year_label": "Jahr 2", "opening_book_value_eur": 1900000.0, "degressive_or_linear_afa_eur": 95000.0, "regular_afa_method": "5,0% Degressiv (§ 7 Abs. 5a EStG)", "sonder_afa_7b_eur": 0.0, "total_afa_year_eur": 95000.0, "closing_book_value_eur": 1805000.0, "tax_shield_year_eur": 28500.0, "cumulative_afa_eur": 195000.0, "cumulative_afa_pct_of_afa_base": 9.75}, {"year_index": 3, "year_label": "Jahr 3", "opening_book_value_eur": 1805000.0, "degressive_or_linear_afa_eur": 90250.0, "regular_afa_method": "5,0% Degressiv (§ 7 Abs. 5a EStG)", "sonder_afa_7b_eur": 0.0, "total_afa_year_eur": 90250.0, "closing_book_value_eur": 1714750.0, "tax_shield_year_eur": 27075.0, "cumulative_afa_eur": 285250.0, "cumulative_afa_pct_of_afa_base": 14.26}, {"year_index": 4, "year_label": "Jahr 4", "opening_book_value_eur": 1714750.0, "degressive_or_linear_afa_eur": 85737.5, "regular_afa_method": "5,0% Degressiv (§ 7 Abs. 5a EStG)", "sonder_afa_7b_eur": 0.0, "total_afa_year_eur": 85737.5, "closing_book_value_eur": 1629012.5, "tax_shield_year_eur": 25721.25, "cumulative_afa_eur": 370987.5, "cumulative_afa_pct_of_afa_base": 18.55}, {"year_index": 5, "year_label": "Jahr 5", "opening_book_value_eur": 1629012.5, "degressive_or_linear_afa_eur": 81450.62, "regular_afa_method": "5,0% Degressiv (§ 7 Abs. 5a EStG)", "sonder_afa_7b_eur": 0.0, "total_afa_year_eur": 81450.62, "closing_book_value_eur": 1547561.88, "tax_shield_year_eur": 24435.19, "cumulative_afa_eur": 452438.12, "cumulative_afa_pct_of_afa_base": 22.62}, {"year_index": 6, "year_label": "Jahr 6", "opening_book_value_eur": 1547561.88, "degressive_or_linear_afa_eur": 77378.09, "regular_afa_method": "5,0% Degressiv (§ 7 Abs. 5a EStG)", "sonder_afa_7b_eur": 0.0, "total_afa_year_eur": 77378.09, "closing_book_value_eur": 1470183.79, "tax_shield_year_eur": 23213.43, "cumulative_afa_eur": 529816.21, "cumulative_afa_pct_of_afa_base": 26.49}, {"year_index": 7, "year_label": "Jahr 7", "opening_book_value_eur": 1470183.79, "degressive_or_linear_afa_eur": 73509.19, "regular_afa_method": "5,0% Degressiv (§ 7 Abs. 5a EStG)", "sonder_afa_7b_eur": 0.0, "total_afa_year_eur": 73509.19, "closing_book_value_eur": 1396674.6, "tax_shield_year_eur": 22052.76, "cumulative_afa_eur": 603325.4, "cumulative_afa_pct_of_afa_base": 30.17}, {"year_index": 8, "year_label": "Jahr 8", "opening_book_value_eur": 1396674.6, "degressive_or_linear_afa_eur": 69833.73, "regular_afa_method": "5,0% Degressiv (§ 7 Abs. 5a EStG)", "sonder_afa_7b_eur": 0.0, "total_afa_year_eur": 69833.73, "closing_book_value_eur": 1326840.87, "tax_shield_year_eur": 20950.12, "cumulative_afa_eur": 673159.13, "cumulative_afa_pct_of_afa_base": 33.66}, {"year_index": 9, "year_label": "Jahr 9", "opening_book_value_eur": 1326840.87, "degressive_or_linear_afa_eur": 66342.04, "regular_afa_method": "5,0% Degressiv (§ 7 Abs. 5a EStG)", "sonder_afa_7b_eur": 0.0, "total_afa_year_eur": 66342.04, "closing_book_value_eur": 1260498.83, "tax_shield_year_eur": 19902.61, "cumulative_afa_eur": 739501.17, "cumulative_afa_pct_of_afa_base": 36.98}, {"year_index": 10, "year_label": "Jahr 10", "opening_book_value_eur": 1260498.83, "degressive_or_linear_afa_eur": 63024.94, "regular_afa_method": "5,0% Degressiv (§ 7 Abs. 5a EStG)", "sonder_afa_7b_eur": 0.0, "total_afa_year_eur": 63024.94, "closing_book_value_eur": 1197473.89, "tax_shield_year_eur": 18907.48, "cumulative_afa_eur": 802526.11, "cumulative_afa_pct_of_afa_base": 40.13}], "traps": [{"trap_code": "HOLDING_PERIOD_6_YEARS_OK", "severity": "PASS", "statutory_norm": "§ 6b Abs. 4 Satz 1 Nr. 2 EStG", "headline_de": "6-Jahres-Vorbesitzfrist erfüllt (9.0 Jahre >= 6,0 Jahre)", "explanation_de": "Die veräußerte Betriebsimmobilie befand sich 9.0 Jahre ununterbrochen in einer inländischen Betriebsstätte. Volle § 6b-Rücklagenfähigkeit (100% der stillen Reserven) gesichert.", "remediation_de": "Anlageverzeichnis-Historie zum Nachweis der 6-jährigen Zugehörigkeit für die Betriebsprüfung dokumentieren."}, {"trap_code": "OPTIMAL_LAND_FIRST_ALLOCATION_OK", "severity": "PASS", "statutory_norm": "§ 6b Abs. 1 & Abs. 6 EStG", "headline_de": "Optimale § 6b-Allokation: Boden-Gewinn neutralisiert nicht-abschreibbaren neuen Grund & Boden!", "explanation_de": "Veräußerungsgewinne aus Grund und Boden werden vorrangig auf den neuen Grund und Boden übertragen. Dadurch bleibt die maximale Gebäude-AfA-Bemessungsgrundlage für § 7 Abs. 5a + § 7b EStG erhalten.", "remediation_de": "Im Kaufvertrag des Reinvestitionsobjekts eine gutachterlich fundierte Kaufpreisaufteilung (Grund & Boden vs. Gebäude) vereinbaren."}, {"trap_code": "REINVESTMENT_TIMELINE_OK", "severity": "PASS", "statutory_norm": "§ 6b Abs. 3 Satz 2–3 & Abs. 7 EStG", "headline_de": "Fristgerechte Reinvestition im Jahr 1 (0,00 € Strafzuschlag nach § 6b Abs. 7 EStG)", "explanation_de": "Durch Übertragung der § 6b-Rücklage innerhalb der gesetzlichen 4-Jahresfrist entfällt der 6% p.a. Gewinnzuschlag vollständig.", "remediation_de": "Bei Neubau innerhalb von 4 Jahren zumindest mit der Herstellung beginnen, um die Verlängerung auf 6 Jahre (§ 6b Abs. 3 Satz 3 EStG) zu sichern."}, {"trap_code": "MISSING_EH40_QNG_CERTIFICATE", "severity": "WARNING", "statutory_norm": "§ 7b Abs. 2 Satz 1 Nr. 2 EStG", "headline_de": "Kein EH 40 QNG-Zertifikat: § 7b Sonder-AfA (4 × 5%) gesperrt — aber 5% Degressive AfA (§ 7 Abs. 5a) bleibt aktiv!", "explanation_de": "Für Bauanträge ab 2023 setzt die zusätzliche 5% Sonder-AfA nach § 7b EStG zwingend den Effizienzhaus-40-Standard mit Nachhaltigkeits-Siegel QNG voraus. Die 5% degressive Gebäude-AfA nach § 7 Abs. 5a EStG benötigt jedoch KEIN EH40/QNG!", "remediation_de": "Entweder QNG-Zertifizierung nachrüsten (schaltet +20% Sonder-AfA + KfW-Förderkredite 297/298 frei) oder konsequent die 5,0% degressive AfA (§ 7 Abs. 5a EStG ohne energetische Auflagen!) mit Wechsel auf 3% Linear nutzen."}]}, {"scenario": {"scenario_id": "SCENARIO_C_TRAP_4YR_DISSOLUTION_24PCT_SURCHARGE_AND_5200_CAP", "title_de": "Szenario C (Steuer-Falle): § 6b-Auflösung nach 4 Jahren (+24% Strafzuschlag!) & €5.800/m² § 7b-Sperre", "subtitle_de": "Warnszenario · +€192.000 Gewinnzuschlag (§ 6b Abs. 7 EStG, BFH VI R 20/23) = €439.555 Steuer-Schock!", "entity_type": "einzelunternehmen_bilanz", "marginal_tax_rate_pct": 44.31, "sold_asset_description": "Verkauftes Produktionsgebäude nach 4 Jahren ohne Reinvestition aufgelöst", "sold_holding_years": 8.0, "sold_land_gain_eur": 400000.0, "sold_building_gain_eur": 400000.0, "reserve_years_held_before_reinvest": 4, "reinvest_executed": false, "reinvest_total_price_eur": 2820000.0, "reinvest_land_share_eur": 500000.0, "reinvest_building_cost_eur": 2320000.0, "living_area_sqm": 400.0, "meets_eh40_qng": true, "within_wcg_window_2023_2029": true, "allocation_strategy": "optimal_land_first"}, "eligible_for_6b_rollover": false, "total_capital_gain_eur": 800000.0, "immediate_tax_without_6b_eur": 354480.0, "transferred_to_land_eur": 0.0, "transferred_to_building_eur": 0.0, "total_6b_transferred_eur": 0.0, "untaxed_rollover_tax_saved_year0_eur": 0.0, "untransferred_gain_dissolved_eur": 800000.0, "gewinnzuschlag_6b_abs7_eur": 192000.0, "total_taxable_dissolution_inc_surcharge_eur": 992000.0, "dissolution_tax_plus_surcharge_cash_hit_eur": 439555.2, "building_afa_base_after_6b_eur": 0.0, "building_cost_per_sqm_gross_eur": 5800.0, "building_afa_base_per_sqm_after_6b_eur": 0.0, "eligible_for_7b_sonder_afa": false, "eligible_for_7_5a_degressive_afa": false, "sonder_afa_7b_assessment_base_eur": 0.0, "year1_degressive_afa_eur": 0.0, "year1_sonder_afa_7b_eur": 0.0, "year1_total_afa_eur": 0.0, "year1_total_afa_pct_of_base": 0.0, "years_1_to_4_total_afa_eur": 0.0, "years_1_to_4_writeoff_pct_of_base": 0.0, "years_1_to_4_cash_tax_shield_eur": 0.0, "optimal_linear_switch_year": 0, "combined_day1_plus_4yr_tax_shield_eur": 0.0, "schedule_10yr": [{"year_index": 1, "year_label": "Jahr 1", "opening_book_value_eur": 0.0, "degressive_or_linear_afa_eur": 0.0, "regular_afa_method": "Keine Reinvestition", "sonder_afa_7b_eur": 0.0, "total_afa_year_eur": 0.0, "closing_book_value_eur": 0.0, "tax_shield_year_eur": 0.0, "cumulative_afa_eur": 0.0, "cumulative_afa_pct_of_afa_base": 0.0}, {"year_index": 2, "year_label": "Jahr 2", "opening_book_value_eur": 0.0, "degressive_or_linear_afa_eur": 0.0, "regular_afa_method": "Keine Reinvestition", "sonder_afa_7b_eur": 0.0, "total_afa_year_eur": 0.0, "closing_book_value_eur": 0.0, "tax_shield_year_eur": 0.0, "cumulative_afa_eur": 0.0, "cumulative_afa_pct_of_afa_base": 0.0}, {"year_index": 3, "year_label": "Jahr 3", "opening_book_value_eur": 0.0, "degressive_or_linear_afa_eur": 0.0, "regular_afa_method": "Keine Reinvestition", "sonder_afa_7b_eur": 0.0, "total_afa_year_eur": 0.0, "closing_book_value_eur": 0.0, "tax_shield_year_eur": 0.0, "cumulative_afa_eur": 0.0, "cumulative_afa_pct_of_afa_base": 0.0}, {"year_index": 4, "year_label": "Jahr 4", "opening_book_value_eur": 0.0, "degressive_or_linear_afa_eur": 0.0, "regular_afa_method": "Keine Reinvestition", "sonder_afa_7b_eur": 0.0, "total_afa_year_eur": 0.0, "closing_book_value_eur": 0.0, "tax_shield_year_eur": 0.0, "cumulative_afa_eur": 0.0, "cumulative_afa_pct_of_afa_base": 0.0}, {"year_index": 5, "year_label": "Jahr 5", "opening_book_value_eur": 0.0, "degressive_or_linear_afa_eur": 0.0, "regular_afa_method": "Keine Reinvestition", "sonder_afa_7b_eur": 0.0, "total_afa_year_eur": 0.0, "closing_book_value_eur": 0.0, "tax_shield_year_eur": 0.0, "cumulative_afa_eur": 0.0, "cumulative_afa_pct_of_afa_base": 0.0}, {"year_index": 6, "year_label": "Jahr 6", "opening_book_value_eur": 0.0, "degressive_or_linear_afa_eur": 0.0, "regular_afa_method": "Keine Reinvestition", "sonder_afa_7b_eur": 0.0, "total_afa_year_eur": 0.0, "closing_book_value_eur": 0.0, "tax_shield_year_eur": 0.0, "cumulative_afa_eur": 0.0, "cumulative_afa_pct_of_afa_base": 0.0}, {"year_index": 7, "year_label": "Jahr 7", "opening_book_value_eur": 0.0, "degressive_or_linear_afa_eur": 0.0, "regular_afa_method": "Keine Reinvestition", "sonder_afa_7b_eur": 0.0, "total_afa_year_eur": 0.0, "closing_book_value_eur": 0.0, "tax_shield_year_eur": 0.0, "cumulative_afa_eur": 0.0, "cumulative_afa_pct_of_afa_base": 0.0}, {"year_index": 8, "year_label": "Jahr 8", "opening_book_value_eur": 0.0, "degressive_or_linear_afa_eur": 0.0, "regular_afa_method": "Keine Reinvestition", "sonder_afa_7b_eur": 0.0, "total_afa_year_eur": 0.0, "closing_book_value_eur": 0.0, "tax_shield_year_eur": 0.0, "cumulative_afa_eur": 0.0, "cumulative_afa_pct_of_afa_base": 0.0}, {"year_index": 9, "year_label": "Jahr 9", "opening_book_value_eur": 0.0, "degressive_or_linear_afa_eur": 0.0, "regular_afa_method": "Keine Reinvestition", "sonder_afa_7b_eur": 0.0, "total_afa_year_eur": 0.0, "closing_book_value_eur": 0.0, "tax_shield_year_eur": 0.0, "cumulative_afa_eur": 0.0, "cumulative_afa_pct_of_afa_base": 0.0}, {"year_index": 10, "year_label": "Jahr 10", "opening_book_value_eur": 0.0, "degressive_or_linear_afa_eur": 0.0, "regular_afa_method": "Keine Reinvestition", "sonder_afa_7b_eur": 0.0, "total_afa_year_eur": 0.0, "closing_book_value_eur": 0.0, "tax_shield_year_eur": 0.0, "cumulative_afa_eur": 0.0, "cumulative_afa_pct_of_afa_base": 0.0}], "traps": [{"trap_code": "HOLDING_PERIOD_6_YEARS_OK", "severity": "PASS", "statutory_norm": "§ 6b Abs. 4 Satz 1 Nr. 2 EStG", "headline_de": "6-Jahres-Vorbesitzfrist erfüllt (8.0 Jahre >= 6,0 Jahre)", "explanation_de": "Die veräußerte Betriebsimmobilie befand sich 8.0 Jahre ununterbrochen in einer inländischen Betriebsstätte. Volle § 6b-Rücklagenfähigkeit (100% der stillen Reserven) gesichert.", "remediation_de": "Anlageverzeichnis-Historie zum Nachweis der 6-jährigen Zugehörigkeit für die Betriebsprüfung dokumentieren."}, {"trap_code": "OPTIMAL_LAND_FIRST_ALLOCATION_OK", "severity": "PASS", "statutory_norm": "§ 6b Abs. 1 & Abs. 6 EStG", "headline_de": "Optimale § 6b-Allokation: Boden-Gewinn neutralisiert nicht-abschreibbaren neuen Grund & Boden!", "explanation_de": "Veräußerungsgewinne aus Grund und Boden werden vorrangig auf den neuen Grund und Boden übertragen. Dadurch bleibt die maximale Gebäude-AfA-Bemessungsgrundlage für § 7 Abs. 5a + § 7b EStG erhalten.", "remediation_de": "Im Kaufvertrag des Reinvestitionsobjekts eine gutachterlich fundierte Kaufpreisaufteilung (Grund & Boden vs. Gebäude) vereinbaren."}, {"trap_code": "NON_REINVESTMENT_6PCT_GEWINNZUSCHLAG_TRAP", "severity": "FATAL_BLOCK", "statutory_norm": "§ 6b Abs. 3 Satz 5 & Abs. 7 EStG (BFH VI R 20/23 vom 20.03.2025)", "headline_de": "Strafzuschlag-Falle: Auflösung ohne Reinvestition nach 4 Jahren = +24% Gewinnzuschlag (€192,000)!", "explanation_de": "Wird die § 6b-Rücklage (€800,000) nach 4 Wirtschaftsjahren ohne Reinvestition gewinnerhöhend aufgelöst, erhöht § 6b Abs. 7 EStG den Gewinn zusätzlich um 6% pro vollem Wirtschaftsjahr (+€192,000). Der BFH (VI R 20/23 vom 20.03.2025) hat bestätigt, dass dieser 6%-Zuschlag verfassungsgemäß ist!", "remediation_de": "Vor Fristablauf (4 Jahre bei Kauf / 6 Jahre bei eigenem Neubau) entweder einen Kaufvertrag schließen oder in einen zertifizierten gewerblich geprägten § 6b-Immobilien-Zielfonds (GmbH & Co. KG) einsteigen, um den +24% Strafzuschlag abzuwenden!"}, {"trap_code": "COST_CAP_5200_SQM_EXCEEDED", "severity": "FATAL_BLOCK", "statutory_norm": "§ 7b Abs. 2 Satz 2 Nr. 2 EStG (Wachstumschancengesetz)", "headline_de": "§ 7b-Fallbeil: Gebäudekosten €5,800/m² überschreiten €5.200/m² Obergrenze (+€600/m²)!", "explanation_de": "Die Anschaffungs-/Herstellungskosten des Gebäudes betragen €5,800 je m² Wohnfläche. Überschreiten die AHK die gesetzliche Obergrenze von €5.200/m² auch nur um 1 Euro (Fallbeil-Effekt), entfällt die gesamte 20% Sonder-AfA nach § 7b EStG auf Null! (Hinweis: Eine § 6b-Abstockung senkt die steuerlichen AHK nach § 6b Abs. 6 EStG!).", "remediation_de": "1) § 6b-Rücklage gezielt auf das Gebäude übertragen, um die steuerlichen AHK nach § 6b Abs. 6 EStG unter €5.200/m² zu drücken, ODER 2) Außenanlagen, Photovoltaik, Einbauküchen und Stellplätze sauber als separate Wirtschaftsgüter aus den Gebäude-AHK herausrechnen!"}]}];
+
+function fmtEur(v) {
+  return new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(v);
+}
+function fmtPct(v) {
+  return new Intl.NumberFormat('de-DE', { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(v) + '%';
+}
+
+function computeSimulation() {
+  const soldLand = parseFloat(document.getElementById('inpSoldLand').value) || 0;
+  const soldBldg = parseFloat(document.getElementById('inpSoldBldg').value) || 0;
+  const holdingYrs = parseFloat(document.getElementById('inpHoldingYrs').value) || 0;
+  const taxRatePct = parseFloat(document.getElementById('inpTaxRate').value) || 44.31;
+  const reinvestExec = document.getElementById('inpReinvestExec').value === 'true';
+  const reserveYrs = parseInt(document.getElementById('inpReserveYrs').value, 10) || 0;
+  const allocation = document.getElementById('inpAllocation').value;
+  const newLand = parseFloat(document.getElementById('inpNewLand').value) || 0;
+  const newBldg = parseFloat(document.getElementById('inpNewBldg').value) || 0;
+  const sqm = Math.max(1, parseFloat(document.getElementById('inpSqm').value) || 1);
+  const eh40Qng = document.getElementById('inpEh40Qng').value === 'true';
+
+  const taxRate = taxRatePct / 100.0;
+  const totalGain = soldLand + soldBldg;
+  const grossSqmCost = newBldg / sqm;
+
+  const traps = [];
+  if (holdingYrs < 6.0) {
+    traps.push({
+      severity: 'FATAL_BLOCK',
+      norm: '§ 6b Abs. 4 Satz 1 Nr. 2 EStG',
+      title: `Haltedauer-Falle: ${holdingYrs.toFixed(1)} Jahre < 6,0 Jahre Pflicht-Vorbesitzzeit!`,
+      desc: `Das veräußerte Wirtschaftsgut war erst ${holdingYrs.toFixed(1)} Jahre im inländischen Betriebsvermögen. § 6b EStG ist komplett gesperrt.`,
+      rem: `Übergang von Nutzen und Lasten vertraglich über die 6,0-Jahres-Grenze schieben (z. B. Vorab-Mietvertrag mit Kaufoption).`
+    });
+  } else {
+    traps.push({
+      severity: 'PASS',
+      norm: '§ 6b Abs. 4 Satz 1 Nr. 2 EStG',
+      title: `6-Jahres-Vorbesitzfrist erfüllt (${holdingYrs.toFixed(1)} Jahre >= 6,0 Jahre)`,
+      desc: `Volle 100% Steuerstundungs-Berechtigung für stille Reserven (${fmtEur(totalGain)}) gegeben.`,
+      rem: `Anlagenbuchhaltung der letzten 6 Wirtschaftsjahre als Nachweis archivieren.`
+    });
+  }
+
+  if (allocation === 'invalid_building_gain_to_land' && soldBldg > 0) {
+    traps.push({
+      severity: 'FATAL_BLOCK',
+      norm: '§ 6b Abs. 1 Satz 2 EStG',
+      title: `Objekt-Sperre: Gebäude-Gewinn (${fmtEur(soldBldg)}) darf NICHT auf neuen Grund & Boden übertragen werden!`,
+      desc: `Nach § 6b Abs. 1 Satz 2 EStG können Gebäude-Veräußerungsgewinne ausschließlich auf neue Gebäude übertragen werden.`,
+      rem: `Auf 'Optimal: Boden-Gewinn zuerst auf neuen Grund & Boden' umstellen!`
+    });
+  } else if (allocation === 'full_onto_building' && soldLand > 0 && newLand > 0) {
+    traps.push({
+      severity: 'WARNING',
+      norm: '§ 6b Abs. 6 EStG',
+      title: `AfA-Vernichtungs-Warnung: Boden-Gewinn kürzt wertvolle Gebäude-AfA-Bemessungsgrundlage!`,
+      desc: `Wenn der Gewinn aus Grund & Boden (${fmtEur(soldLand)}) auf das neue Gebäude übertragen wird, verlieren Sie 10% p.a. Turbo-AfA.`,
+      rem: `Boden-Gewinn vorrangig auf den neuen (ohnehin nicht abschreibbaren!) Grund & Boden übertragen!`
+    });
+  } else {
+    traps.push({
+      severity: 'PASS',
+      norm: '§ 6b Abs. 1 & Abs. 6 EStG',
+      title: `Optimale § 6b-Allokation: Boden-Gewinn schluckt neuen Grund & Boden — Gebäude-AfA bleibt maximal!`,
+      desc: `Stille Reserven aus Grund & Boden werden zuerst auf den neuen Boden übertragen; die Gebäude-AfA-Basis wird geschont.`,
+      rem: `Gutachterliche Kaufpreisaufteilung (Grund & Boden vs. Gebäude) im Notarvertrag verankern.`
+    });
+  }
+
+  if (!reinvestExec) {
+    const surPct = reserveYrs * 6;
+    const surEur = totalGain * 0.06 * reserveYrs;
+    traps.push({
+      severity: 'FATAL_BLOCK',
+      norm: '§ 6b Abs. 7 EStG (BFH VI R 20/23)',
+      title: `Strafzuschlag-Falle: Auflösung ohne Reinvestition nach ${reserveYrs} J. = +${surPct}% Gewinnzuschlag (${fmtEur(surEur)})!`,
+      desc: `Ohne Reinvestition wird die Rücklage (${fmtEur(totalGain)}) zzgl. 6% Gewinnzuschlag pro vollem Wirtschaftsjahr voll versteuert.`,
+      rem: `Vor Ablauf des 4. Jahres in Bestandsimmobilie, Neubau (6 J.) oder zertifizierten § 6b-Zielfonds (GmbH & Co. KG) reinvestieren!`
+    });
+  } else {
+    traps.push({
+      severity: 'PASS',
+      norm: '§ 6b Abs. 3 & Abs. 7 EStG',
+      title: `Fristgerechte Reinvestition im Jahr ${reserveYrs} — 0,00 € Strafzuschlag nach § 6b Abs. 7 EStG`,
+      desc: `Durch rechtzeitige Übertragung der Rücklage entfällt der 6% p.a. Gewinnzuschlag vollständig.`,
+      rem: `Bauantrag bzw. notariellen Kaufvertrag fristgerecht innerhalb des 4-/6-Jahresfensters dokumentieren.`
+    });
+  }
+
+  if (grossSqmCost > 5200) {
+    traps.push({
+      severity: 'FATAL_BLOCK',
+      norm: '§ 7b Abs. 2 Satz 2 Nr. 2 EStG',
+      title: `§ 7b-Fallbeil: Gebäudekosten (${fmtEur(grossSqmCost)}/m²) überschreiten €5.200/m² Obergrenze!`,
+      desc: `Bei Überschreitung der €5.200/m² Baukostenobergrenze entfällt die gesamte 20% Sonder-AfA nach § 7b EStG (5% degressive AfA bleibt jedoch erhalten!).`,
+      rem: `Außenanlagen, PV-Anlage, Einbauküchen und Stellplätze separat aktivieren oder § 6b-Abstockung nach § 6b Abs. 6 EStG nutzen!`
+    });
+  } else if (!eh40Qng) {
+    traps.push({
+      severity: 'WARNING',
+      norm: '§ 7b Abs. 2 Satz 1 Nr. 2 EStG',
+      title: `Kein EH 40 QNG: § 7b Sonder-AfA (4 × 5%) nicht aktiv — 5,0% Degressive AfA (§ 7 Abs. 5a EStG) läuft voll!`,
+      desc: `Ohne QNG-Zertifikat entfällt § 7b EStG, aber § 7 Abs. 5a EStG (5% degressive AfA) greift ohne energetische Auflagen.`,
+      rem: `Prüfen, ob QNG-Zertifizierung für +20% Sonder-AfA und KfW-Zinsverbilligung wirtschaftlich darstellbar ist.`
+    });
+  } else {
+    traps.push({
+      severity: 'PASS',
+      norm: '§ 7b Abs. 1–3 EStG (Wachstumschancengesetz)',
+      title: `§ 7b Sonder-AfA (4 × 5% = 20%) aktiv (${fmtEur(grossSqmCost)}/m² <= €5.200/m² Limit + EH 40 QNG)`,
+      desc: `Kombination aus 5% degressiver AfA (§ 7 Abs. 5a EStG) + 5% Sonder-AfA (§ 7b EStG auf bis zu €4.000/m²) = 10% im 1. Jahr!`,
+      rem: `QNG-Zertifikat und Wohnflächenberechnung (WoFlV) für das Finanzamt bereithalten.`
+    });
+  }
+
+  const eligible6b = (holdingYrs >= 6.0) && reinvestExec && (allocation !== 'invalid_building_gain_to_land');
+  let transLand = 0;
+  let transBldg = 0;
+  if (eligible6b) {
+    if (allocation === 'optimal_land_first') {
+      transLand = Math.min(soldLand, newLand);
+      const remLandGain = Math.max(0, soldLand - transLand);
+      transBldg = Math.min(soldBldg + remLandGain, newBldg);
+    } else if (allocation === 'full_onto_building') {
+      transBldg = Math.min(totalGain, newBldg);
+      const remGain = Math.max(0, totalGain - transBldg);
+      transLand = Math.min(remGain, Math.min(soldLand, newLand));
+    }
+  }
+  const totalTrans = transLand + transBldg;
+  const day1TaxSaved = totalTrans * taxRate;
+  const dissolvedGain = Math.max(0, totalGain - totalTrans);
+  const surchargeEur = (holdingYrs >= 6.0 && dissolvedGain > 0) ? (dissolvedGain * 0.06 * reserveYrs) : 0;
+  const dissolutionCashHit = (dissolvedGain + surchargeEur) * taxRate;
+
+  const bldgAfaBase = reinvestExec ? Math.max(0, newBldg - transBldg) : 0;
+  const eligible7b = reinvestExec && eh40Qng && (grossSqmCost <= 5200) && (bldgAfaBase > 0);
+  const base7b = eligible7b ? Math.min(bldgAfaBase, sqm * 4000) : 0;
+  const linear3Pct = bldgAfaBase * 0.03;
+
+  let remBv = bldgAfaBase;
+  let cumAfa = 0;
+  let switchYr = 0;
+  const rows = [];
+
+  for (let yr = 1; yr <= 10; yr++) {
+    if (remBv <= 0.01 || !reinvestExec) {
+      rows.push({ yr, label: `Jahr ${yr}`, openBv: 0, regAfa: 0, method: 'Keine Reinvestition', sonderAfa: 0, totalAfa: 0, shield: 0, closeBv: 0, cumPct: 0, cls: '' });
+      continue;
+    }
+    const openBv = remBv;
+    const deg5 = openBv * 0.05;
+    let regAfa = 0;
+    let method = '';
+    if (deg5 >= linear3Pct && switchYr === 0) {
+      regAfa = deg5;
+      method = '5,0% Degressiv (§ 7 Abs. 5a)';
+    } else {
+      if (switchYr === 0) switchYr = yr;
+      regAfa = Math.min(openBv, linear3Pct);
+      method = '3,0% Linear-Wechsel (§ 7 Abs. 4)';
+    }
+    const sonderAfa = (eligible7b && yr <= 4) ? Math.min(Math.max(0, openBv - regAfa), base7b * 0.05) : 0;
+    const totalAfa = regAfa + sonderAfa;
+    const closeBv = Math.max(0, openBv - totalAfa);
+    const shield = totalAfa * taxRate;
+    cumAfa += totalAfa;
+    const cumPct = bldgAfaBase > 0 ? (cumAfa / bldgAfaBase) * 100.0 : 0;
+    const cls = (yr <= 4 && eligible7b) ? 'highlight-turbo' : (yr === switchYr ? 'highlight-switch' : '');
+    rows.push({ yr, label: `Jahr ${yr}${yr <= 4 && eligible7b ? ' (Turbo)' : ''}`, openBv, regAfa, method, sonderAfa, totalAfa, shield, closeBv, cumPct, cls });
+    remBv = closeBv;
+  }
+
+  if (switchYr === 0 && bldgAfaBase > 0) {
+    let simBv = bldgAfaBase;
+    for (let y = 1; y <= 35; y++) {
+      if (simBv * 0.05 < linear3Pct) { switchYr = y; break; }
+      simBv -= (simBv * 0.05 + (eligible7b && y <= 4 ? base7b * 0.05 : 0));
+    }
+  }
+
+  const y1 = rows[0];
+  const y1Pct = bldgAfaBase > 0 ? (y1.totalAfa / bldgAfaBase) * 100.0 : 0;
+  const y1to4Afa = rows.slice(0, 4).reduce((acc, r) => acc + r.totalAfa, 0);
+  const y1to4Pct = bldgAfaBase > 0 ? (y1to4Afa / bldgAfaBase) * 100.0 : 0;
+  const y1to4Shield = rows.slice(0, 4).reduce((acc, r) => acc + r.shield, 0);
+  const totalShield = day1TaxSaved + y1to4Shield;
+
+  document.getElementById('kpiDay1Saved').textContent = fmtEur(day1TaxSaved);
+  document.getElementById('kpiDay1Saved').className = 'kpi-val ' + (eligible6b ? '' : 'danger');
+  document.getElementById('kpiDay1Sub').textContent = eligible6b
+    ? `${fmtEur(transLand)} auf Boden + ${fmtEur(transBldg)} auf Gebäude`
+    : `Fällige Steuer inkl. Zuschlag: ${fmtEur(dissolutionCashHit)}`;
+
+  document.getElementById('kpiBldgBase').textContent = fmtEur(bldgAfaBase);
+  document.getElementById('kpiSqmInfo').textContent = `Brutto-AHK: ${fmtEur(grossSqmCost)}/m² (${eligible7b ? '§ 7b OK' : 'ohne § 7b'})`;
+
+  document.getElementById('kpiYear1Afa').textContent = fmtEur(y1.totalAfa);
+  document.getElementById('kpiYear1Sub').textContent = `${fmtPct(y1Pct)} in J1 · ${fmtPct(y1to4Pct)} in J1–J4 (${fmtEur(y1to4Afa)})`;
+
+  document.getElementById('kpiTotalShield').textContent = fmtEur(totalShield);
+  document.getElementById('kpiTotalShieldSub').textContent = `Optimaler Wechsel auf 3% Linear: Jahr ${switchYr || 12}`;
+
+  document.getElementById('trapContainer').innerHTML = traps.map(t => `
+    <div class="trap-item ${t.severity}">
+      <div class="trap-header">
+        <span class="trap-title">${t.severity === 'FATAL_BLOCK' ? '⛔ ' : (t.severity === 'WARNING' ? '⚠️ ' : '✅ ')}${t.title}</span>
+        <span class="trap-norm">${t.norm}</span>
+      </div>
+      <div class="trap-desc">${t.desc}</div>
+      <div class="trap-rem">💡 Strukturierungs-Hebel: ${t.rem}</div>
+    </div>
+  `).join('');
+
+  document.getElementById('scheduleBody').innerHTML = rows.map(r => `
+    <tr class="${r.cls}">
+      <td>${r.label}</td>
+      <td>${fmtEur(r.openBv)}</td>
+      <td>${fmtEur(r.regAfa)} <span style="font-size:11px;color:var(--muted);">(${r.method})</span></td>
+      <td>${fmtEur(r.sonderAfa)}</td>
+      <td><strong>${fmtEur(r.totalAfa)}</strong></td>
+      <td style="color:var(--emerald);font-weight:700;">${fmtEur(r.shield)}</td>
+      <td>${fmtEur(r.closeBv)}</td>
+      <td>${fmtPct(r.cumPct)}</td>
+    </tr>
+  `).join('');
+
+  const hypSurcharge4Yr = totalGain * 0.24;
+  const hypTax4Yr = (totalGain + hypSurcharge4Yr) * taxRate;
+  document.getElementById('surchargeBox').innerHTML = `
+    <h3>⚠️ § 6b Abs. 7 EStG Stresstest (BFH-Urteil VI R 20/23 vom 20.03.2025: 6% p.a. Gewinnzuschlag ist verfassungsgemäß!)</h3>
+    <p style="margin:0;">
+      Wird eine § 6b-Rücklage über <strong>${fmtEur(totalGain)}</strong> nach 4 vollen Wirtschaftsjahren ohne Reinvestition aufgelöst,
+      addiert das Finanzamt zwingend <strong>4 × 6% = +24% Gewinnzuschlag (${fmtEur(hypSurcharge4Yr)})</strong> hinzu.
+      Der zu versteuernde Auflösungsbetrag steigt auf <strong>${fmtEur(totalGain + hypSurcharge4Yr)}</strong> — das bedeutet bei ${taxRatePct.toFixed(2)}% Steuersatz
+      einen sofortigen <strong>Liquiditätsabfluss von ${fmtEur(hypTax4Yr)}</strong>!
+      <em>Retter-Strategie bei fehlendem Direkt-Objekt im Jahr 4: Rechtzeitiger Beitritt zu einem zertifizierten, gewerblich geprägten § 6b-Immobilien-Zielfonds (GmbH & Co. KG) rettet die 100% Steuerstundung und vermeidet die ${fmtEur(hypSurcharge4Yr)} Strafzuschlag!</em>
+    </p>
+  `;
+}
+
+function loadPreset(idx) {
+  const p = PRESETS[idx].scenario;
+  document.getElementById('inpSoldLand').value = p.sold_land_gain_eur;
+  document.getElementById('inpSoldBldg').value = p.sold_building_gain_eur;
+  document.getElementById('inpHoldingYrs').value = p.sold_holding_years;
+  document.getElementById('inpTaxRate').value = p.marginal_tax_rate_pct;
+  document.getElementById('inpReinvestExec').value = String(p.reinvest_executed);
+  document.getElementById('inpReserveYrs').value = p.reserve_years_held_before_reinvest;
+  document.getElementById('inpAllocation').value = p.allocation_strategy;
+  document.getElementById('inpNewLand').value = p.reinvest_land_share_eur;
+  document.getElementById('inpNewBldg').value = p.reinvest_building_cost_eur;
+  document.getElementById('inpSqm').value = p.living_area_sqm;
+  document.getElementById('inpEh40Qng').value = String(p.meets_eh40_qng);
+
+  document.querySelectorAll('.preset-btn').forEach((b, i) => {
+    b.classList.toggle('active', i === idx);
+  });
+  computeSimulation();
+}
+
+function init() {
+  const bar = document.getElementById('presetBar');
+  bar.innerHTML = PRESETS.map((r, i) => `
+    <button class="preset-btn ${i === 0 ? 'active' : ''}" onclick="loadPreset(${i})">
+      <strong>${r.scenario.title_de}</strong>
+      <span>${r.scenario.subtitle_de}</span>
+    </button>
+  `).join('');
+
+  [
+    'inpSoldLand','inpSoldBldg','inpHoldingYrs','inpTaxRate','inpReinvestExec',
+    'inpReserveYrs','inpAllocation','inpNewLand','inpNewBldg','inpSqm','inpEh40Qng'
+  ].forEach(id => document.getElementById(id).addEventListener('input', computeSimulation));
+
+  loadPreset(0);
+}
+
+init();
+</script>
+</body>
+</html>

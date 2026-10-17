@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MVP #121 — DACH §§ 13a, 13b, 13c, 28a ErbStG & §§ 199–203 BewG Betriebsvermögens-Simulator</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --card: #131b33;
+      --card-alt: #182342;
+      --border: #283663;
+      --text: #eef2ff;
+      --muted: #9fb0d9;
+      --accent: #38bdf8;
+      --emerald: #10b981;
+      --amber: #f59e0b;
+      --rose: #f43f5e;
+      --violet: #a78bfa;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+    }
+    header {
+      background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 1.5rem 2rem;
+    }
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 0.6rem;
+    }
+    .badge {
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.25rem 0.65rem;
+      border-radius: 999px;
+      background: rgba(56, 189, 248, 0.14);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      color: var(--accent);
+    }
+    h1 {
+      margin: 0 0 0.35rem 0;
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+    main {
+      max-width: 1480px;
+      margin: 0 auto;
+      padding: 1.5rem 2rem 3rem;
+      display: grid;
+      grid-template-columns: 440px 1fr;
+      gap: 1.5rem;
+    }
+    @media (max-width: 1120px) {
+      main { grid-template-columns: 1fr; }
+    }
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.25rem;
+    }
+    .panel h2 {
+      margin: 0 0 0.9rem 0;
+      font-size: 1.05rem;
+      color: var(--accent);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .form-group {
+      margin-bottom: 0.85rem;
+    }
+    label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.82rem;
+      color: var(--muted);
+      margin-bottom: 0.28rem;
+      font-weight: 500;
+    }
+    select, input[type="number"] {
+      width: 100%;
+      padding: 0.52rem 0.68rem;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--card-alt);
+      color: var(--text);
+      font-size: 0.88rem;
+    }
+    .checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+      margin: 0.55rem 0;
+      font-size: 0.84rem;
+      color: var(--text);
+    }
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.9rem;
+      margin-bottom: 1.25rem;
+    }
+    @media (max-width: 900px) {
+      .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    .kpi {
+      background: var(--card-alt);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 0.95rem;
+    }
+    .kpi .k-label {
+      font-size: 0.76rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .kpi .k-val {
+      font-size: 1.38rem;
+      font-weight: 700;
+      margin-top: 0.25rem;
+    }
+    .kpi .k-sub {
+      font-size: 0.76rem;
+      margin-top: 0.2rem;
+      color: var(--muted);
+    }
+    .val-emerald { color: var(--emerald); }
+    .val-rose { color: var(--rose); }
+    .val-amber { color: var(--amber); }
+    .val-accent { color: var(--accent); }
+    .pillars-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin-bottom: 1.25rem;
+    }
+    @media (max-width: 1100px) {
+      .pillars-grid { grid-template-columns: 1fr; }
+    }
+    .pillar-card {
+      background: var(--card-alt);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1rem;
+    }
+    .pillar-card h3 {
+      margin: 0 0 0.5rem 0;
+      font-size: 0.94rem;
+      color: var(--text);
+    }
+    .status-pill {
+      display: inline-block;
+      padding: 0.18rem 0.55rem;
+      border-radius: 999px;
+      font-size: 0.74rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+    .pill-pass { background: rgba(16, 185, 129, 0.18); color: var(--emerald); border: 1px solid rgba(16, 185, 129, 0.4); }
+    .pill-warn { background: rgba(245, 158, 11, 0.18); color: var(--amber); border: 1px solid rgba(245, 158, 11, 0.4); }
+    .pill-fail { background: rgba(244, 63, 94, 0.18); color: var(--rose); border: 1px solid rgba(244, 63, 94, 0.4); }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.84rem;
+      margin-top: 0.5rem;
+    }
+    th, td {
+      padding: 0.55rem 0.65rem;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+    }
+    th {
+      color: var(--muted);
+      font-weight: 600;
+      background: rgba(255, 255, 255, 0.02);
+    }
+    .num { text-align: right; font-variant-numeric: tabular-nums; }
+    .section-divider {
+      border-top: 1px solid var(--border);
+      margin: 0.9rem 0;
+      padding-top: 0.7rem;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--violet);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+  </style>
+</head>
+<body>
+
+<!-- DACH CASHFLOW STUDIOS LAUNCH BAR -->
+<style>
+  #dcs-launch-bar {
+    position: sticky;
+    top: 0;
+    z-index: 99999;
+    background: linear-gradient(90deg, #0b1120 0%, #111827 50%, #0f172a 100%);
+    color: #f8fafc;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.35);
+    padding: 8px 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  }
+  #dcs-launch-bar .dcs-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+  }
+  #dcs-launch-bar .dcs-badge {
+    background: rgba(16, 185, 129, 0.18);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.03em;
+  }
+  #dcs-launch-bar a.dcs-nav {
+    color: #93c5fd;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 12.5px;
+  }
+  #dcs-launch-bar a.dcs-nav:hover {
+    text-decoration: underline;
+    color: #dbeafe;
+  }
+  #dcs-launch-bar .dcs-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  #dcs-launch-bar .dcs-btn {
+    padding: 5px 11px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s ease;
+  }
+  #dcs-launch-bar .dcs-btn-ghost {
+    background: rgba(255,255,255,0.08);
+    color: #e2e8f0;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  #dcs-launch-bar .dcs-btn-primary {
+    background: linear-gradient(135deg, #0ea5e9, #2563eb);
+    color: #ffffff;
+  }
+  #dcs-launch-bar .dcs-btn-emerald {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
+  }
+  @media print {
+    #dcs-launch-bar { display: none !important; }
+  }
+</style>
+<div id="dcs-launch-bar">
+  <div class="dcs-left">
+    <a href="/index.html" class="dcs-nav">← Alle 150 DACH Studios</a>
+    <span class="dcs-badge">MVP #121 VERIFIED</span>
+    <span style="color:#cbd5e1;font-size:12px;">DACH Tax, Corporate & Accounting Arbitrage</span>
+  </div>
+  <div class="dcs-actions">
+    <button onclick="window.print()" class="dcs-btn dcs-btn-ghost">🖨️ PDF / Dossier drucken</button>
+    <a href="#checkout-modal-49" target="_blank" rel="noopener" class="dcs-btn dcs-btn-primary">⚡ Musterschreiben & Voll-Dossier (€49)</a>
+    <a href="#checkout-modal-299" target="_blank" rel="noopener" class="dcs-btn dcs-btn-emerald">🛡️ B2B Umsetzung buchen (€299 / €1.490)</a>
+  </div>
+</div>
+
+  <header>
+    <div class="badge-row">
+      <span class="badge">MVP #121 · DACH Unternehmensnachfolge</span>
+      <span class="badge">§§ 13a, 13b, 13c, 28a ErbStG</span>
+      <span class="badge">§§ 199–203 BewG (Faktor 13,75)</span>
+      <span class="badge">90%-Einstiegstest & BFH II R 49/21</span>
+      <span class="badge">Lohnsummen-Wächter (0% / 250% / 300% / 400% / 500% / 565% / 700%)</span>
+    </div>
+    <h1>DACH Betriebsvermögens-Erbschaftsteuer-Verschonungs-Simulator (§§ 13a, 13b ErbStG)</h1>
+    <p class="subtitle">Deterministischer Prüfstand für 85 % Regelverschonung (+ 150.000 € Abzugsbetrag) vs. 100 % Optionsverschonung, >25 %-Poolvertrag-Gate, 90 %-Einstiegstest-Falle (inkl. BFH II R 49/21 Bilanzverkürzungs-Rechner), 15 % Finanzmittel-Sockel & 10 % Schmutzzuschlag</p>
+  </header>
+
+  <main>
+    <section class="panel">
+      <h2>1. Unternehmens- & Bilanz-Parameter</h2>
+
+      <div class="form-group">
+        <label for="presetSelect">Mittelstands-Referenzszenario laden</label>
+        <select id="presetSelect"></select>
+      </div>
+
+      <div class="form-group">
+        <label for="legalForm">Rechtsform (§ 13b Abs. 1 Nr. 2 vs. Nr. 3 ErbStG)</label>
+        <select id="legalForm">
+          <option value="GmbH / AG (Kapitalgesellschaft)">GmbH / AG (Kapitalgesellschaft — > 25,0 % Mindestquote)</option>
+          <option value="GmbH & Co. KG / Personengesellschaft / Einzelunternehmen">GmbH & Co. KG / OHG / Einzelunternehmen (ab 0,01 % begünstigt)</option>
+        </select>
+      </div>
+
+      <div class="checkbox-row">
+        <input type="checkbox" id="activeCommercial" checked />
+        <span>Hauptzweck aktiv gewerblich/freiberuflich (§ 13b Abs. 4 Nr. 5 S. 2 & BFH II R 49/21)</span>
+      </div>
+
+      <div class="section-divider">Beteiligungsquote & Poolvertrag (§ 13b Abs. 1 Nr. 3 ErbStG)</div>
+      <div class="form-group">
+        <label><span>Direktbeteiligung Schenker/Erblasser (%)</span><span id="donorShareVal">100.0 %</span></label>
+        <input type="number" id="donorSharePct" step="0.5" min="0.1" max="100" value="100" />
+      </div>
+      <div class="checkbox-row">
+        <input type="checkbox" id="poolAgreement" />
+        <span>Wirksamer Stimmrechts- & Verfügungspoolvertrag (§ 13b Abs. 1 Nr. 3 S. 2 ErbStG)</span>
+      </div>
+      <div class="form-group">
+        <label><span>Gepoolte Familien-Beteiligung gesamt (%)</span></label>
+        <input type="number" id="pooledSharePct" step="0.5" min="0" max="100" value="100" />
+      </div>
+      <div class="form-group">
+        <label><span>Übertragener Anteil am Unternehmen (%)</span></label>
+        <input type="number" id="transferredSharePct" step="0.5" min="0.1" max="100" value="100" />
+      </div>
+
+      <div class="section-divider">Unternehmenswert (§§ 199–203 BewG, Faktor 13,75) & Bilanz (100 %-Basis)</div>
+      <div class="form-group">
+        <label><span>Nachhaltiger Jahresertrag nach Steuern (§ 202 BewG, €)</span></label>
+        <input type="number" id="annualProfitEur" step="10000" min="0" value="727273" />
+      </div>
+      <div class="form-group">
+        <label><span>Substanzwert-Mindestwert (§ 11 Abs. 2 S. 3 BewG, €)</span></label>
+        <input type="number" id="substanzwertEur" step="50000" min="0" value="4200000" />
+      </div>
+      <div class="form-group">
+        <label><span>Brutto-Finanzmittel (Bank, Kasse, Forderungen L&L, IC nach § 13b Abs. 4 Nr. 5, €)</span></label>
+        <input type="number" id="grossFmEur" step="50000" min="0" value="2800000" />
+      </div>
+      <div class="form-group">
+        <label><span>Davon Junge Finanzmittel (Einlagen-Überschuss < 2 J., €)</span></label>
+        <input type="number" id="jungeFmEur" step="25000" min="0" value="0" />
+      </div>
+      <div class="form-group">
+        <label><span>Katalog-Verwaltungsvermögen Nr. 1–4 (Dritt-Immos, Wertpapiere, Streubesitz, €)</span></label>
+        <input type="number" id="katalogVvEur" step="50000" min="0" value="600000" />
+      </div>
+      <div class="form-group">
+        <label><span>Davon Junges Verwaltungsvermögen (< 2 J. im Betrieb, €)</span></label>
+        <input type="number" id="jungesVvEur" step="25000" min="0" value="0" />
+      </div>
+      <div class="form-group">
+        <label><span>Betrieblich veranlasste Schulden / Verbindlichkeiten (§ 13b Abs. 6, €)</span></label>
+        <input type="number" id="debtsEur" step="50000" min="0" value="1600000" />
+      </div>
+
+      <div class="section-divider">Lohnsummen-Wächter (§ 13a Abs. 3 & 10 ErbStG) & Erwerber</div>
+      <div class="form-group">
+        <label><span>Anzahl Beschäftigte am Stichtag (Köpfe: <=5 / 6–10 / 11–15 / >15)</span></label>
+        <input type="number" id="headcountFte" step="1" min="0" value="42" />
+      </div>
+      <div class="form-group">
+        <label><span>Ausgangslohnsumme (Ø letzte 5 Jahre p.a., €)</span></label>
+        <input type="number" id="basePayrollEur" step="25000" min="0" value="2400000" />
+      </div>
+      <div class="form-group">
+        <label><span>Geplante künftige Jahreslohnsumme p.a. (€)</span></label>
+        <input type="number" id="projPayrollEur" step="25000" min="0" value="2500000" />
+      </div>
+      <div class="form-group">
+        <label><span>Geplante Haltedauer / Behaltensfrist (Jahre: 5 J. Regel / 7 J. Option)</span></label>
+        <input type="number" id="retentionYears" step="0.5" min="0" max="10" value="7" />
+      </div>
+      <div class="form-group">
+        <label for="relationshipSelect">Verwandtschaftsgrad / Steuerklasse</label>
+        <select id="relationshipSelect">
+          <option value="Kind / Stiefkind (StKl I)">Kind / Stiefkind (StKl I · 400.000 € Freibetrag)</option>
+          <option value="Ehegatte / Lebenspartner (StKl I)">Ehegatte / Lebenspartner (StKl I · 500.000 € Freibetrag)</option>
+          <option value="Enkelkind (StKl I)">Enkelkind (StKl I · 200.000 € Freibetrag)</option>
+          <option value="Geschwister / Nichte / Neffe (StKl II)">Geschwister / Nichte / Neffe (StKl II · 20.000 € Freibetrag)</option>
+          <option value="Fremde Dritte / Management Buy-In (StKl III)">Fremde Dritte / MBI (StKl III · 20.000 € Freibetrag)</option>
+        </select>
+      </div>
+    </section>
+
+    <section>
+      <div class="kpi-grid">
+        <div class="kpi">
+          <div class="k-label">Gemeiner Wert (§ 203 BewG)</div>
+          <div class="k-val val-accent" id="kpiCompanyValue">10.000.000 €</div>
+          <div class="k-sub" id="kpiTransferredSlice">Übertragen: 10.000.000 € (100 %)</div>
+        </div>
+        <div class="kpi">
+          <div class="k-label">ErbSt ohne Verschonung</div>
+          <div class="k-val val-rose" id="kpiTaxUnshielded">2.208.000 €</div>
+          <div class="k-sub" id="kpiUnshieldedSub">Bei 90%-Test-Riss oder <=25 % GmbH</div>
+        </div>
+        <div class="kpi">
+          <div class="k-label">Optimale ErbSt nach §§ 13a/13b</div>
+          <div class="k-val val-emerald" id="kpiOptimalTax">0 €</div>
+          <div class="k-sub" id="kpiOptimalStrategy">Optionsverschonung (100 %)</div>
+        </div>
+        <div class="kpi">
+          <div class="k-label">Steuerersparnis durch Strukturierung</div>
+          <div class="k-val val-emerald" id="kpiTaxSaved">2.208.000 €</div>
+          <div class="k-sub" id="kpiBeguenstigtQuote">Begünstigtes BV: 100,0 %</div>
+        </div>
+      </div>
+
+      <div class="pillars-grid">
+        <div class="pillar-card">
+          <h3>Säule 1: > 25 %-GmbH-Schwelle & Poolvertrag</h3>
+          <div id="p1Badge" class="status-pill pill-pass">BESTANDEN</div>
+          <p id="p1Text" style="font-size:0.83rem;color:var(--muted);margin:0;"></p>
+        </div>
+        <div class="pillar-card">
+          <h3>Säule 2: 90 %-Einstiegstest (§ 13b Abs. 2 S. 2 & BFH II R 49/21)</h3>
+          <div id="p2Badge" class="status-pill pill-pass">BESTANDEN</div>
+          <p id="p2Text" style="font-size:0.83rem;color:var(--muted);margin:0;"></p>
+        </div>
+        <div class="pillar-card">
+          <h3>Säule 3: Lohnsummen-Wächter (§ 13a Abs. 3 & 10)</h3>
+          <div id="p3Badge" class="status-pill pill-pass">400 % / 700 % ERFÜLLT</div>
+          <p id="p3Text" style="font-size:0.83rem;color:var(--muted);margin:0;"></p>
+        </div>
+      </div>
+
+      <div class="panel" style="margin-bottom:1.25rem;">
+        <h2>2. Verwaltungsvermögens- & Finanzmittel-Kaskade (§ 13b Abs. 4–7 ErbStG auf 100 %-Unternehmensbasis)</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Prüfschritt im Gesetz (§ 13b ErbStG)</th>
+              <th>Berechnungslogik / Freibetrag</th>
+              <th class="num">Betrag (100 % Basis)</th>
+              <th class="num">Quote am Wert</th>
+            </tr>
+          </thead>
+          <tbody id="cascadeTableBody"></tbody>
+        </table>
+      </div>
+
+      <div class="panel" style="margin-bottom:1.25rem;">
+        <h2>3. Steuervergleich: Unverschont vs. 85 % Regelverschonung (+ 150k Abzug) vs. 100 % Optionsverschonung vs. § 28a ErbStG</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Verschonungs-Regime</th>
+              <th>Voraussetzungen & Fristen</th>
+              <th class="num">ErbSt am Stichtag</th>
+              <th class="num">ErbSt inkl. Nachversteuerung</th>
+              <th class="num">Ersparnis vs. Unverschont</th>
+            </tr>
+          </thead>
+          <tbody id="regimeComparisonBody"></tbody>
+        </table>
+      </div>
+
+      <div class="panel">
+        <h2>4. Vorab-Berechnete Mittelstands-Referenzfälle (Benchmark-Matrix)</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Szenario</th>
+              <th class="num">Übertragener Wert</th>
+              <th class="num">Brutto 90%-Test</th>
+              <th class="num">Netto (BFH II R 49/21)</th>
+              <th class="num">VV-Quote (Option <=20%)</th>
+              <th class="num">ErbSt ohne §13a</th>
+              <th class="num">ErbSt Optimal</th>
+            </tr>
+          </thead>
+          <tbody id="benchmarkTableBody"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const BENCHMARKS = [{"input": {"scenario_id": "S1_MITTELSTAND_MASCHINENBAU_10M_OPTION_100", "title": "Szenario 1: Mittelstands-Maschinenbau GmbH (10,0 Mio. € Wert, 100 % Optionsverschonung = 0 € ErbSt)", "legal_form": "GmbH / AG (Kapitalgesellschaft)", "is_active_commercial_business": true, "donor_share_pct": 100.0, "pooled_share_pct": 100.0, "has_valid_pool_agreement": false, "transferred_share_pct": 100.0, "sustainable_annual_after_tax_profit_eur": 727272.73, "substanzwert_floor_eur": 4200000.0, "explicit_enterprise_value_override_eur": 10000000.0, "gross_finanzmittel_eur": 2800000.0, "junge_finanzmittel_eur": 0.0, "katalog_verwaltungsvermoegen_nr1_to_4_eur": 600000.0, "junges_verwaltungsvermoegen_eur": 0.0, "operating_debts_eur": 1600000.0, "headcount_fte_stichtag": 42, "ausgangslohnsumme_annual_eur": 2400000.0, "projected_annual_payroll_eur": 2500000.0, "planned_retention_years": 7.0, "acquirer_relationship": "Kind / Stiefkind (StKl I)", "prior_gifts_10yr_eur": 0.0}, "result": {"scenario_id": "S1_MITTELSTAND_MASCHINENBAU_10M_OPTION_100", "title": "Szenario 1: Mittelstands-Maschinenbau GmbH (10,0 Mio. € Wert, 100 % Optionsverschonung = 0 € ErbSt)", "legal_form": "GmbH / AG (Kapitalgesellschaft)", "ertragswert_bewg_100pct_eur": 10000000.04, "gemeiner_wert_100pct_eur": 10000000.0, "transferred_share_pct": 100.0, "transferred_company_value_eur": 10000000.0, "is_corporation": true, "effective_qualifying_share_pct": 100.0, "passes_25pct_or_pool_gate": true, "pool_gate_reason": "Direktbeteiligung des Schenkers/Erblassers (100.00 %) > 25,00 % (§ 13b Abs. 1 Nr. 3 S. 1 ErbStG erfüllt).", "gross_90pct_test_numerator_100pct_eur": 3400000.0, "gross_90pct_test_ratio_pct": 34.0, "passes_strict_gross_90pct_test": true, "bfh_ii_r_49_21_net_numerator_100pct_eur": 1800000.0, "bfh_ii_r_49_21_net_ratio_pct": 18.0, "passes_bfh_ii_r_49_21_90pct_test": true, "passes_effective_90pct_test": true, "cash_debt_netting_needed_for_strict_85pct_eur": 0.0, "net_finanzmittel_after_debts_100pct_eur": 1200000.0, "finanzmittel_15pct_sockel_100pct_eur": 1500000.0, "schaedliche_finanzmittel_100pct_eur": 0.0, "remaining_debts_for_vv_offset_100pct_eur": 0.0, "netto_verwaltungsvermoegen_before_puffer_100pct_eur": 600000.0, "unschaedliches_vv_10pct_puffer_100pct_eur": 940000.0, "steuerpflichtiges_verwaltungsvermoegen_100pct_eur": 0.0, "beguenstigtes_vermoegen_100pct_eur": 10000000.0, "beguenstigtes_vermoegen_quote_pct": 100.0, "verwaltungsvermoegensquote_for_option_pct": 6.0, "qualifies_for_100pct_optionsverschonung": true, "transferred_beguenstigtes_vermoegen_eur": 10000000.0, "transferred_schaedliches_vv_eur": 0.0, "headcount_bracket_label": "> 15 Beschäftigte (Regel-Lohnsummenstaffel)", "required_payroll_pct_5yr_regel": 400.0, "required_payroll_pct_7yr_option": 700.0, "required_cumulative_payroll_5yr_eur": 9600000.0, "required_cumulative_payroll_7yr_eur": 16800000.0, "projected_payroll_pct_5yr": 520.83, "projected_payroll_pct_7yr": 729.17, "payroll_shortfall_fraction_5yr": 0.0, "payroll_shortfall_fraction_7yr": 0.0, "regelverschonung_pct_applied": 85.0, "optionsverschonung_pct_applied": 100.0, "gleitender_abzugsbetrag_13a_abs2_eur": 0.0, "tax_without_exemption_eur": 2208000.0, "tax_regelverschonung_initial_eur": 209000.0, "tax_regelverschonung_after_clawback_eur": 209000.0, "tax_optionsverschonung_initial_eur": 0.0, "tax_optionsverschonung_after_clawback_eur": 0.0, "tax_verschonungsbedarfspruefung_28a_eur": 209000.0, "optimal_strategy_name": "Optionsverschonung (100 % Vollverschonung nach § 13a Abs. 10 ErbStG)", "optimal_tax_eur": 0.0, "tax_saved_vs_unshielded_eur": 2208000.0, "action_warnings": []}}, {"input": {"scenario_id": "S2_HANDELS_GMBH_90PCT_FALLE_BFH_II_R_49_21", "title": "Szenario 2: Großhandels-GmbH (8,0 Mio. € Wert, 110 % Brutto-Finanzmittel -> 90%-Falle & BFH II R 49/21 Rettung)", "legal_form": "GmbH / AG (Kapitalgesellschaft)", "is_active_commercial_business": true, "donor_share_pct": 100.0, "pooled_share_pct": 100.0, "has_valid_pool_agreement": false, "transferred_share_pct": 100.0, "sustainable_annual_after_tax_profit_eur": 581818.18, "substanzwert_floor_eur": 3500000.0, "explicit_enterprise_value_override_eur": 8000000.0, "gross_finanzmittel_eur": 8800000.0, "junge_finanzmittel_eur": 0.0, "katalog_verwaltungsvermoegen_nr1_to_4_eur": 200000.0, "junges_verwaltungsvermoegen_eur": 0.0, "operating_debts_eur": 7800000.0, "headcount_fte_stichtag": 18, "ausgangslohnsumme_annual_eur": 1100000.0, "projected_annual_payroll_eur": 1150000.0, "planned_retention_years": 7.0, "acquirer_relationship": "Kind / Stiefkind (StKl I)", "prior_gifts_10yr_eur": 0.0}, "result": {"scenario_id": "S2_HANDELS_GMBH_90PCT_FALLE_BFH_II_R_49_21", "title": "Szenario 2: Großhandels-GmbH (8,0 Mio. € Wert, 110 % Brutto-Finanzmittel -> 90%-Falle & BFH II R 49/21 Rettung)", "legal_form": "GmbH / AG (Kapitalgesellschaft)", "ertragswert_bewg_100pct_eur": 7999999.98, "gemeiner_wert_100pct_eur": 8000000.0, "transferred_share_pct": 100.0, "transferred_company_value_eur": 8000000.0, "is_corporation": true, "effective_qualifying_share_pct": 100.0, "passes_25pct_or_pool_gate": true, "pool_gate_reason": "Direktbeteiligung des Schenkers/Erblassers (100.00 %) > 25,00 % (§ 13b Abs. 1 Nr. 3 S. 1 ErbStG erfüllt).", "gross_90pct_test_numerator_100pct_eur": 9000000.0, "gross_90pct_test_ratio_pct": 112.5, "passes_strict_gross_90pct_test": false, "bfh_ii_r_49_21_net_numerator_100pct_eur": 1200000.0, "bfh_ii_r_49_21_net_ratio_pct": 15.0, "passes_bfh_ii_r_49_21_90pct_test": true, "passes_effective_90pct_test": true, "cash_debt_netting_needed_for_strict_85pct_eur": 2200000.0, "net_finanzmittel_after_debts_100pct_eur": 1000000.0, "finanzmittel_15pct_sockel_100pct_eur": 1200000.0, "schaedliche_finanzmittel_100pct_eur": 0.0, "remaining_debts_for_vv_offset_100pct_eur": 0.0, "netto_verwaltungsvermoegen_before_puffer_100pct_eur": 200000.0, "unschaedliches_vv_10pct_puffer_100pct_eur": 780000.0, "steuerpflichtiges_verwaltungsvermoegen_100pct_eur": 0.0, "beguenstigtes_vermoegen_100pct_eur": 8000000.0, "beguenstigtes_vermoegen_quote_pct": 100.0, "verwaltungsvermoegensquote_for_option_pct": 2.5, "qualifies_for_100pct_optionsverschonung": true, "transferred_beguenstigtes_vermoegen_eur": 8000000.0, "transferred_schaedliches_vv_eur": 0.0, "headcount_bracket_label": "> 15 Beschäftigte (Regel-Lohnsummenstaffel)", "required_payroll_pct_5yr_regel": 400.0, "required_payroll_pct_7yr_option": 700.0, "required_cumulative_payroll_5yr_eur": 4400000.0, "required_cumulative_payroll_7yr_eur": 7700000.0, "projected_payroll_pct_5yr": 522.73, "projected_payroll_pct_7yr": 731.82, "payroll_shortfall_fraction_5yr": 0.0, "payroll_shortfall_fraction_7yr": 0.0, "regelverschonung_pct_applied": 85.0, "optionsverschonung_pct_applied": 100.0, "gleitender_abzugsbetrag_13a_abs2_eur": 0.0, "tax_without_exemption_eur": 1748000.0, "tax_regelverschonung_initial_eur": 152000.0, "tax_regelverschonung_after_clawback_eur": 152000.0, "tax_optionsverschonung_initial_eur": 0.0, "tax_optionsverschonung_after_clawback_eur": 0.0, "tax_verschonungsbedarfspruefung_28a_eur": 152000.0, "optimal_strategy_name": "Optionsverschonung (100 % Vollverschonung nach § 13a Abs. 10 ErbStG)", "optimal_tax_eur": 0.0, "tax_saved_vs_unshielded_eur": 1748000.0, "action_warnings": ["ACHTUNG 90%-Einstiegstest (§ 13b Abs. 2 S. 2 ErbStG): Brutto-Quote liegt bei 112.5 % (>= 90 %)! Rettung greift über BFH II R 49/21 & Ländererlasse vom 19.06.2024 (Netto-Quote nach Schuldenabzug: 15.0 %). Empfehlung vor Schenkung: 2,200,000 € Bankguthaben zur Schuldentilgung nutzen (Bilanzverkürzung auf <= 85 % Brutto-Quote)!"]}}, {"input": {"scenario_id": "S3_FAMILIEN_POOLVERTRAG_20PCT_GMBH_ANTEIL", "title": "Szenario 3: 20 %-GmbH-Minderheitsanteil (5,0 Mio. € Anteilswert) mit Poolvertrag (60 % Familienpool > 25 %)", "legal_form": "GmbH / AG (Kapitalgesellschaft)", "is_active_commercial_business": true, "donor_share_pct": 20.0, "pooled_share_pct": 60.0, "has_valid_pool_agreement": true, "transferred_share_pct": 20.0, "sustainable_annual_after_tax_profit_eur": 1818181.82, "substanzwert_floor_eur": 10000000.0, "explicit_enterprise_value_override_eur": 25000000.0, "gross_finanzmittel_eur": 4500000.0, "junge_finanzmittel_eur": 0.0, "katalog_verwaltungsvermoegen_nr1_to_4_eur": 1500000.0, "junges_verwaltungsvermoegen_eur": 0.0, "operating_debts_eur": 2000000.0, "headcount_fte_stichtag": 12, "ausgangslohnsumme_annual_eur": 780000.0, "projected_annual_payroll_eur": 800000.0, "planned_retention_years": 7.0, "acquirer_relationship": "Kind / Stiefkind (StKl I)", "prior_gifts_10yr_eur": 0.0}, "result": {"scenario_id": "S3_FAMILIEN_POOLVERTRAG_20PCT_GMBH_ANTEIL", "title": "Szenario 3: 20 %-GmbH-Minderheitsanteil (5,0 Mio. € Anteilswert) mit Poolvertrag (60 % Familienpool > 25 %)", "legal_form": "GmbH / AG (Kapitalgesellschaft)", "ertragswert_bewg_100pct_eur": 25000000.03, "gemeiner_wert_100pct_eur": 25000000.0, "transferred_share_pct": 20.0, "transferred_company_value_eur": 5000000.0, "is_corporation": true, "effective_qualifying_share_pct": 60.0, "passes_25pct_or_pool_gate": true, "pool_gate_reason": "Direktbeteiligung (20.00 %) <= 25 %, aber wirksamer Poolvertrag (60.00 % gepoolt > 25,00 % nach § 13b Abs. 1 Nr. 3 S. 2 ErbStG) rettet die Verschonung!", "gross_90pct_test_numerator_100pct_eur": 6000000.0, "gross_90pct_test_ratio_pct": 24.0, "passes_strict_gross_90pct_test": true, "bfh_ii_r_49_21_net_numerator_100pct_eur": 4000000.0, "bfh_ii_r_49_21_net_ratio_pct": 16.0, "passes_bfh_ii_r_49_21_90pct_test": true, "passes_effective_90pct_test": true, "cash_debt_netting_needed_for_strict_85pct_eur": 0.0, "net_finanzmittel_after_debts_100pct_eur": 2500000.0, "finanzmittel_15pct_sockel_100pct_eur": 3750000.0, "schaedliche_finanzmittel_100pct_eur": 0.0, "remaining_debts_for_vv_offset_100pct_eur": 0.0, "netto_verwaltungsvermoegen_before_puffer_100pct_eur": 1500000.0, "unschaedliches_vv_10pct_puffer_100pct_eur": 2350000.0, "steuerpflichtiges_verwaltungsvermoegen_100pct_eur": 0.0, "beguenstigtes_vermoegen_100pct_eur": 25000000.0, "beguenstigtes_vermoegen_quote_pct": 100.0, "verwaltungsvermoegensquote_for_option_pct": 6.0, "qualifies_for_100pct_optionsverschonung": true, "transferred_beguenstigtes_vermoegen_eur": 5000000.0, "transferred_schaedliches_vv_eur": 0.0, "headcount_bracket_label": "11 bis 15 Beschäftigte (mittlere Staffel)", "required_payroll_pct_5yr_regel": 300.0, "required_payroll_pct_7yr_option": 565.0, "required_cumulative_payroll_5yr_eur": 2340000.0, "required_cumulative_payroll_7yr_eur": 4407000.0, "projected_payroll_pct_5yr": 512.82, "projected_payroll_pct_7yr": 717.95, "payroll_shortfall_fraction_5yr": 0.0, "payroll_shortfall_fraction_7yr": 0.0, "regelverschonung_pct_applied": 85.0, "optionsverschonung_pct_applied": 100.0, "gleitender_abzugsbetrag_13a_abs2_eur": 0.0, "tax_without_exemption_eur": 874000.0, "tax_regelverschonung_initial_eur": 52500.0, "tax_regelverschonung_after_clawback_eur": 52500.0, "tax_optionsverschonung_initial_eur": 0.0, "tax_optionsverschonung_after_clawback_eur": 0.0, "tax_verschonungsbedarfspruefung_28a_eur": 52500.0, "optimal_strategy_name": "Optionsverschonung (100 % Vollverschonung nach § 13a Abs. 10 ErbStG)", "optimal_tax_eur": 0.0, "tax_saved_vs_unshielded_eur": 874000.0, "action_warnings": []}}, {"input": {"scenario_id": "S4_IT_BOUTIQUE_1M_ABZUGSBETRAG_5_FTE", "title": "Szenario 4: IT-/SaaS-Boutique GmbH (1,0 Mio. € Wert, 5 FTE = 0 % Lohnsummenprüfung + 150k Abzugsbetrag = 0 € Steuer bei 85 % Regelverschonung!)", "legal_form": "GmbH / AG (Kapitalgesellschaft)", "is_active_commercial_business": true, "donor_share_pct": 100.0, "pooled_share_pct": 100.0, "has_valid_pool_agreement": false, "transferred_share_pct": 100.0, "sustainable_annual_after_tax_profit_eur": 72727.27, "substanzwert_floor_eur": 250000.0, "explicit_enterprise_value_override_eur": 1000000.0, "gross_finanzmittel_eur": 320000.0, "junge_finanzmittel_eur": 0.0, "katalog_verwaltungsvermoegen_nr1_to_4_eur": 50000.0, "junges_verwaltungsvermoegen_eur": 0.0, "operating_debts_eur": 200000.0, "headcount_fte_stichtag": 5, "ausgangslohnsumme_annual_eur": 350000.0, "projected_annual_payroll_eur": 180000.0, "planned_retention_years": 5.0, "acquirer_relationship": "Geschwister / Nichte / Neffe (StKl II)", "prior_gifts_10yr_eur": 0.0}, "result": {"scenario_id": "S4_IT_BOUTIQUE_1M_ABZUGSBETRAG_5_FTE", "title": "Szenario 4: IT-/SaaS-Boutique GmbH (1,0 Mio. € Wert, 5 FTE = 0 % Lohnsummenprüfung + 150k Abzugsbetrag = 0 € Steuer bei 85 % Regelverschonung!)", "legal_form": "GmbH / AG (Kapitalgesellschaft)", "ertragswert_bewg_100pct_eur": 999999.96, "gemeiner_wert_100pct_eur": 1000000.0, "transferred_share_pct": 100.0, "transferred_company_value_eur": 1000000.0, "is_corporation": true, "effective_qualifying_share_pct": 100.0, "passes_25pct_or_pool_gate": true, "pool_gate_reason": "Direktbeteiligung des Schenkers/Erblassers (100.00 %) > 25,00 % (§ 13b Abs. 1 Nr. 3 S. 1 ErbStG erfüllt).", "gross_90pct_test_numerator_100pct_eur": 370000.0, "gross_90pct_test_ratio_pct": 37.0, "passes_strict_gross_90pct_test": true, "bfh_ii_r_49_21_net_numerator_100pct_eur": 170000.0, "bfh_ii_r_49_21_net_ratio_pct": 17.0, "passes_bfh_ii_r_49_21_90pct_test": true, "passes_effective_90pct_test": true, "cash_debt_netting_needed_for_strict_85pct_eur": 0.0, "net_finanzmittel_after_debts_100pct_eur": 120000.0, "finanzmittel_15pct_sockel_100pct_eur": 150000.0, "schaedliche_finanzmittel_100pct_eur": 0.0, "remaining_debts_for_vv_offset_100pct_eur": 0.0, "netto_verwaltungsvermoegen_before_puffer_100pct_eur": 50000.0, "unschaedliches_vv_10pct_puffer_100pct_eur": 95000.0, "steuerpflichtiges_verwaltungsvermoegen_100pct_eur": 0.0, "beguenstigtes_vermoegen_100pct_eur": 1000000.0, "beguenstigtes_vermoegen_quote_pct": 100.0, "verwaltungsvermoegensquote_for_option_pct": 5.0, "qualifies_for_100pct_optionsverschonung": true, "transferred_beguenstigtes_vermoegen_eur": 1000000.0, "transferred_schaedliches_vv_eur": 0.0, "headcount_bracket_label": "<= 5 Beschäftigte (Kleinbetriebs-Befreiung)", "required_payroll_pct_5yr_regel": 0.0, "required_payroll_pct_7yr_option": 0.0, "required_cumulative_payroll_5yr_eur": 0.0, "required_cumulative_payroll_7yr_eur": 0.0, "projected_payroll_pct_5yr": 257.14, "projected_payroll_pct_7yr": 360.0, "payroll_shortfall_fraction_5yr": 0.0, "payroll_shortfall_fraction_7yr": 0.2857142857142857, "regelverschonung_pct_applied": 85.0, "optionsverschonung_pct_applied": 100.0, "gleitender_abzugsbetrag_13a_abs2_eur": 150000.0, "tax_without_exemption_eur": 294000.0, "tax_regelverschonung_initial_eur": 0.0, "tax_regelverschonung_after_clawback_eur": 0.0, "tax_optionsverschonung_initial_eur": 0.0, "tax_optionsverschonung_after_clawback_eur": 36700.0, "tax_verschonungsbedarfspruefung_28a_eur": 0.0, "optimal_strategy_name": "Regelverschonung (85 % + 150k Abzugsbetrag nach § 13a Abs. 1, 2 ErbStG)", "optimal_tax_eur": 0.0, "tax_saved_vs_unshielded_eur": 294000.0, "action_warnings": ["Lohnsummen-/Behaltensfrist-Warnung (7 J. Optionsverschonung): Erwartete Lohnsumme (360 % vs. 0 % Mindestlohnsumme) bzw. Haltedauer (5.0 J.) löst 28.6 % anteilige Nachversteuerung aus!"]}}, {"input": {"scenario_id": "S5_GROSSERWERB_41M_13C_ABSCHMELZUNG_VS_28A", "title": "Szenario 5: Industrie-Familienholding GmbH & Co. KG (41,0 Mio. € Großerwerb > 26 Mio. € Schwelle -> § 13c Abschmelzung vs. § 28a Erlass)", "legal_form": "GmbH & Co. KG / Personengesellschaft / Einzelunternehmen", "is_active_commercial_business": true, "donor_share_pct": 100.0, "pooled_share_pct": 100.0, "has_valid_pool_agreement": true, "transferred_share_pct": 100.0, "sustainable_annual_after_tax_profit_eur": 2981818.18, "substanzwert_floor_eur": 18500000.0, "explicit_enterprise_value_override_eur": 41000000.0, "gross_finanzmittel_eur": 7500000.0, "junge_finanzmittel_eur": 0.0, "katalog_verwaltungsvermoegen_nr1_to_4_eur": 2500000.0, "junges_verwaltungsvermoegen_eur": 0.0, "operating_debts_eur": 4500000.0, "headcount_fte_stichtag": 120, "ausgangslohnsumme_annual_eur": 7200000.0, "projected_annual_payroll_eur": 7400000.0, "planned_retention_years": 7.0, "acquirer_relationship": "Kind / Stiefkind (StKl I)", "prior_gifts_10yr_eur": 0.0}, "result": {"scenario_id": "S5_GROSSERWERB_41M_13C_ABSCHMELZUNG_VS_28A", "title": "Szenario 5: Industrie-Familienholding GmbH & Co. KG (41,0 Mio. € Großerwerb > 26 Mio. € Schwelle -> § 13c Abschmelzung vs. § 28a Erlass)", "legal_form": "GmbH & Co. KG / Personengesellschaft / Einzelunternehmen", "ertragswert_bewg_100pct_eur": 40999999.98, "gemeiner_wert_100pct_eur": 41000000.0, "transferred_share_pct": 100.0, "transferred_company_value_eur": 41000000.0, "is_corporation": false, "effective_qualifying_share_pct": 100.0, "passes_25pct_or_pool_gate": true, "pool_gate_reason": "Personengesellschaft / Einzelunternehmen (§ 13b Abs. 1 Nr. 2 ErbStG): Keine 25%-Mindestbeteiligungsquote erforderlich.", "gross_90pct_test_numerator_100pct_eur": 10000000.0, "gross_90pct_test_ratio_pct": 24.39, "passes_strict_gross_90pct_test": true, "bfh_ii_r_49_21_net_numerator_100pct_eur": 5500000.0, "bfh_ii_r_49_21_net_ratio_pct": 13.41, "passes_bfh_ii_r_49_21_90pct_test": true, "passes_effective_90pct_test": true, "cash_debt_netting_needed_for_strict_85pct_eur": 0.0, "net_finanzmittel_after_debts_100pct_eur": 3000000.0, "finanzmittel_15pct_sockel_100pct_eur": 6150000.0, "schaedliche_finanzmittel_100pct_eur": 0.0, "remaining_debts_for_vv_offset_100pct_eur": 0.0, "netto_verwaltungsvermoegen_before_puffer_100pct_eur": 2500000.0, "unschaedliches_vv_10pct_puffer_100pct_eur": 3850000.0, "steuerpflichtiges_verwaltungsvermoegen_100pct_eur": 0.0, "beguenstigtes_vermoegen_100pct_eur": 41000000.0, "beguenstigtes_vermoegen_quote_pct": 100.0, "verwaltungsvermoegensquote_for_option_pct": 6.1, "qualifies_for_100pct_optionsverschonung": true, "transferred_beguenstigtes_vermoegen_eur": 41000000.0, "transferred_schaedliches_vv_eur": 0.0, "headcount_bracket_label": "> 15 Beschäftigte (Regel-Lohnsummenstaffel)", "required_payroll_pct_5yr_regel": 400.0, "required_payroll_pct_7yr_option": 700.0, "required_cumulative_payroll_5yr_eur": 28800000.0, "required_cumulative_payroll_7yr_eur": 50400000.0, "projected_payroll_pct_5yr": 513.89, "projected_payroll_pct_7yr": 719.44, "payroll_shortfall_fraction_5yr": 0.0, "payroll_shortfall_fraction_7yr": 0.0, "regelverschonung_pct_applied": 65.0, "optionsverschonung_pct_applied": 80.0, "gleitender_abzugsbetrag_13a_abs2_eur": 0.0, "tax_without_exemption_eur": 12180000.0, "tax_regelverschonung_initial_eur": 3465000.0, "tax_regelverschonung_after_clawback_eur": 3465000.0, "tax_optionsverschonung_initial_eur": 1794000.0, "tax_optionsverschonung_after_clawback_eur": 1794000.0, "tax_verschonungsbedarfspruefung_28a_eur": 0.0, "optimal_strategy_name": "§ 13c Abschmelzmodell / § 28a Verschonungsbedarfsprüfung", "optimal_tax_eur": 0.0, "tax_saved_vs_unshielded_eur": 12180000.0, "action_warnings": []}}];
+
+    const ERBSTG_19_BRACKETS = [
+      [75000, 0.07, 0.15, 0.30],
+      [300000, 0.11, 0.20, 0.30],
+      [600000, 0.15, 0.25, 0.30],
+      [6000000, 0.19, 0.30, 0.30],
+      [13000000, 0.23, 0.35, 0.50],
+      [26000000, 0.27, 0.40, 0.50],
+      [Infinity, 0.30, 0.43, 0.50]
+    ];
+
+    const FREIBETRAG_MAP = {
+      "Ehegatte / Lebenspartner (StKl I)": [500000, 1],
+      "Kind / Stiefkind (StKl I)": [400000, 1],
+      "Enkelkind (StKl I)": [200000, 1],
+      "Geschwister / Nichte / Neffe (StKl II)": [20000, 2],
+      "Fremde Dritte / Management Buy-In (StKl III)": [20000, 3]
+    };
+
+    function fmtEur(v) {
+      return new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(v);
+    }
+
+    function fmtPct(v) {
+      return v.toFixed(1).replace('.', ',') + ' %';
+    }
+
+    function computeErbSt19(taxable, taxClass) {
+      if (taxable <= 0) return 0;
+      const base = Math.floor(taxable / 100) * 100;
+      if (base <= 0) return 0;
+      let prevLimit = 0;
+      let prevRate = ERBSTG_19_BRACKETS[0][taxClass];
+      for (const [limit, r1, r2, r3] of ERBSTG_19_BRACKETS) {
+        const rate = [r1, r2, r3][taxClass - 1];
+        if (base <= limit) {
+          const raw = base * rate;
+          if (prevLimit > 0) {
+            const prevTax = prevLimit * prevRate;
+            const excess = base - prevLimit;
+            const haerte = prevTax + excess * (rate <= 0.30 ? 0.50 : 0.75);
+            return Math.min(raw, haerte);
+          }
+          return raw;
+        }
+        prevLimit = limit;
+        prevRate = rate;
+      }
+      return base * prevRate;
+    }
+
+    function computeAbzug13a2(unshieldedBeg) {
+      if (unshieldedBeg <= 0) return 0;
+      if (unshieldedBeg <= 150000) return unshieldedBeg;
+      const red = Math.max(0, 150000 - 0.5 * (unshieldedBeg - 150000));
+      return Math.min(unshieldedBeg, red);
+    }
+
+    function compute13cPct(begVal, basePct) {
+      if (begVal <= 26000000) return basePct;
+      if (begVal >= 90000000) return 0;
+      const steps = Math.floor((begVal - 26000000) / 750000);
+      return Math.max(0, basePct - steps);
+    }
+
+    function recalculate() {
+      const legalForm = document.getElementById('legalForm').value;
+      const isActive = document.getElementById('activeCommercial').checked;
+      const donorShare = parseFloat(document.getElementById('donorSharePct').value) || 0;
+      const hasPool = document.getElementById('poolAgreement').checked;
+      const pooledShare = parseFloat(document.getElementById('pooledSharePct').value) || 0;
+      const transShare = parseFloat(document.getElementById('transferredSharePct').value) || 0;
+
+      const annualProfit = parseFloat(document.getElementById('annualProfitEur').value) || 0;
+      const substanzwert = parseFloat(document.getElementById('substanzwertEur').value) || 0;
+      const grossFm = parseFloat(document.getElementById('grossFmEur').value) || 0;
+      const jungeFm = parseFloat(document.getElementById('jungeFmEur').value) || 0;
+      const katalogVv = parseFloat(document.getElementById('katalogVvEur').value) || 0;
+      const jungesVv = parseFloat(document.getElementById('jungesVvEur').value) || 0;
+      const debts = parseFloat(document.getElementById('debtsEur').value) || 0;
+
+      const fte = parseInt(document.getElementById('headcountFte').value, 10) || 0;
+      const basePayroll = parseFloat(document.getElementById('basePayrollEur').value) || 0;
+      const projPayroll = parseFloat(document.getElementById('projPayrollEur').value) || 0;
+      const retentionYrs = parseFloat(document.getElementById('retentionYears').value) || 0;
+      const rel = document.getElementById('relationshipSelect').value;
+
+      document.getElementById('donorShareVal').textContent = fmtPct(donorShare);
+
+      const ertragswert = annualProfit * 13.75;
+      const gemeinerWert = Math.max(ertragswert, substanzwert);
+      const shareFactor = Math.max(0, Math.min(1, transShare / 100));
+      const transVal = gemeinerWert * shareFactor;
+
+      const isCorp = legalForm.includes('Kapitalgesellschaft');
+      const effQualShare = isCorp ? (hasPool ? Math.max(donorShare, pooledShare) : donorShare) : donorShare;
+      const passes25 = !isCorp || effQualShare > 25.0;
+
+      const gross90Num = katalogVv + grossFm;
+      const gross90Pct = gemeinerWert > 0 ? (gross90Num / gemeinerWert) * 100 : 0;
+      const passesStrict90 = gross90Pct < 90.0;
+
+      const netFmBfh = Math.max(0, grossFm - debts);
+      const bfh90Num = katalogVv + netFmBfh;
+      const bfh90Pct = gemeinerWert > 0 ? (bfh90Num / gemeinerWert) * 100 : 0;
+      const passesBfh90 = isActive && bfh90Pct < 90.0;
+      const passesEff90 = passesStrict90 || passesBfh90;
+
+      const target85 = 0.85 * gemeinerWert;
+      const nettingNeeded = Math.min(Math.max(0, gross90Num - target85), Math.min(grossFm, debts));
+
+      const regGrossFm = Math.max(0, grossFm - jungeFm);
+      const netRegFm = Math.max(0, regGrossFm - debts);
+      const remDebts = Math.max(0, debts - regGrossFm);
+      const sockel15 = isActive ? gemeinerWert * 0.15 : 0;
+      const schaedlicheRegFm = Math.max(0, netRegFm - sockel15);
+      const schaedlicheFmTotal = schaedlicheRegFm + jungeFm;
+
+      const regKatalogVv = Math.max(0, katalogVv - jungesVv);
+      const nettoRegVv = Math.max(0, regKatalogVv + schaedlicheRegFm - remDebts);
+      const puffer10 = Math.max(0, (gemeinerWert - nettoRegVv) * 0.10);
+      const taxableRegVv = Math.max(0, nettoRegVv - puffer10);
+      const stpflVv100 = (passes25 && passesEff90 && isActive)
+        ? Math.min(gemeinerWert, taxableRegVv + jungesVv + jungeFm)
+        : gemeinerWert;
+      const begVermoegen100 = Math.max(0, gemeinerWert - stpflVv100);
+      const begQuotePct = gemeinerWert > 0 ? (begVermoegen100 / gemeinerWert) * 100 : 0;
+
+      const vvForOption = nettoRegVv + jungesVv + jungeFm;
+      const vvOptionPct = gemeinerWert > 0 ? (vvForOption / gemeinerWert) * 100 : 100;
+      const qualifiesOption = passes25 && passesEff90 && isActive && vvOptionPct <= 20.0;
+
+      const transBeg = begVermoegen100 * shareFactor;
+      const transVv = transVal - transBeg;
+
+      let req5 = 400, req7 = 700, fteLabel = '> 15 Beschäftigte';
+      if (fte <= 5) { req5 = 0; req7 = 0; fteLabel = '<= 5 Beschäftigte (0 % Lohnsummenprüfung)'; }
+      else if (fte <= 10) { req5 = 250; req7 = 500; fteLabel = '6–10 Beschäftigte (250 % / 500 %)'; }
+      else if (fte <= 15) { req5 = 300; req7 = 565; fteLabel = '11–15 Beschäftigte (300 % / 565 %)'; }
+
+      const proj5Pct = basePayroll > 0 ? ((projPayroll * 5) / basePayroll) * 100 : req5;
+      const proj7Pct = basePayroll > 0 ? ((projPayroll * 7) / basePayroll) * 100 : req7;
+      const clawPayroll5 = req5 > 0 ? Math.max(0, (req5 - proj5Pct) / req5) : 0;
+      const clawPayroll7 = req7 > 0 ? Math.max(0, (req7 - proj7Pct) / req7) : 0;
+      const clawRet5 = Math.max(0, (5 - Math.min(5, retentionYrs)) / 5);
+      const clawRet7 = Math.max(0, (7 - Math.min(7, retentionYrs)) / 7);
+      const claw5 = Math.max(clawPayroll5, clawRet5);
+      const claw7 = Math.max(clawPayroll7, clawRet7);
+
+      const [freibetrag, taxClass] = FREIBETRAG_MAP[rel] || [400000, 1];
+      const taxUnshielded = computeErbSt19(Math.max(0, transVal - freibetrag), taxClass);
+
+      const regelPct = transBeg > 0 ? compute13cPct(transBeg, 85) : 0;
+      const optionPct = (qualifiesOption && transBeg > 0) ? compute13cPct(transBeg, 100) : 0;
+
+      const shieldRegInit = transBeg * (regelPct / 100);
+      const unshieldRegInit = transBeg - shieldRegInit;
+      const abzugInit = transBeg > 0 ? computeAbzug13a2(unshieldRegInit) : 0;
+      const taxRegInit = computeErbSt19(Math.max(0, (unshieldRegInit - abzugInit) + transVv - freibetrag), taxClass);
+
+      const shieldRegClaw = shieldRegInit * (1 - claw5);
+      const unshieldRegClaw = transBeg - shieldRegClaw;
+      const abzugClaw = transBeg > 0 ? computeAbzug13a2(unshieldRegClaw) : 0;
+      const taxRegClaw = computeErbSt19(Math.max(0, (unshieldRegClaw - abzugClaw) + transVv - freibetrag), taxClass);
+
+      let taxOptInit = taxUnshielded;
+      let taxOptClaw = taxUnshielded;
+      if (qualifiesOption) {
+        const shieldOptInit = transBeg * (optionPct / 100);
+        const unshieldOptInit = transBeg - shieldOptInit;
+        const abzOInit = computeAbzug13a2(unshieldOptInit);
+        taxOptInit = computeErbSt19(Math.max(0, (unshieldOptInit - abzOInit) + transVv - freibetrag), taxClass);
+
+        const shieldOptClaw = shieldOptInit * (1 - claw7);
+        const unshieldOptClaw = transBeg - shieldOptClaw;
+        const abzOClaw = computeAbzug13a2(unshieldOptClaw);
+        taxOptClaw = computeErbSt19(Math.max(0, (unshieldOptClaw - abzOClaw) + transVv - freibetrag), taxClass);
+      }
+
+      const tax28a = (transBeg > 26000000)
+        ? computeErbSt19(Math.max(0, transVv - freibetrag), taxClass) + 0.50 * transVv
+        : taxRegClaw;
+
+      let optTax = taxRegClaw;
+      let optName = `85 % Regelverschonung (+ ${fmtEur(abzugClaw)} Abzug)`;
+      if (!passes25 || !passesEff90 || !isActive) {
+        optTax = taxUnshielded;
+        optName = '0 % Verschonung (Sperr-Tatbestand!)';
+      } else {
+        if (qualifiesOption && taxOptClaw <= optTax) {
+          optTax = taxOptClaw;
+          optName = `100 % Optionsverschonung (§ 13a Abs. 10)`;
+        }
+        if (transBeg > 26000000 && tax28a < optTax) {
+          optTax = tax28a;
+          optName = `§ 28a Verschonungsbedarfsprüfung`;
+        }
+      }
+
+      document.getElementById('kpiCompanyValue').textContent = fmtEur(gemeinerWert);
+      document.getElementById('kpiTransferredSlice').textContent = `Übertragen: ${fmtEur(transVal)} (${fmtPct(transShare)})`;
+      document.getElementById('kpiTaxUnshielded').textContent = fmtEur(taxUnshielded);
+      document.getElementById('kpiOptimalTax').textContent = fmtEur(optTax);
+      document.getElementById('kpiOptimalStrategy').textContent = optName;
+      document.getElementById('kpiTaxSaved').textContent = fmtEur(Math.max(0, taxUnshielded - optTax));
+      document.getElementById('kpiBeguenstigtQuote').textContent = `Begünstigtes BV: ${fmtPct(begQuotePct)}`;
+
+      const p1Badge = document.getElementById('p1Badge');
+      const p1Text = document.getElementById('p1Text');
+      if (passes25) {
+        p1Badge.className = 'status-pill pill-pass';
+        p1Badge.textContent = isCorp ? `QUALIFIZIERT (${fmtPct(effQualShare)} > 25 %)` : 'PERSONENGESELLSCHAFT (KEINE 25%-HÜRDE)';
+        p1Text.textContent = isCorp
+          ? (donorShare > 25 ? `Direktbeteiligung (${fmtPct(donorShare)}) überschreitet die 25,0 %-Schwelle nach § 13b Abs. 1 Nr. 3 S. 1 ErbStG.` : `Rettung durch Stimmrechts- & Verfügungspoolvertrag (${fmtPct(pooledShare)} gepoolt > 25 % nach § 13b Abs. 1 Nr. 3 S. 2 ErbStG)!`)
+          : `Mitunternehmeranteil (§ 13b Abs. 1 Nr. 2 ErbStG) ist unabhängig von der Beteiligungshöhe begünstigt.`;
+      } else {
+        p1Badge.className = 'status-pill pill-fail';
+        p1Badge.textContent = `SPERRE (${fmtPct(donorShare)} <= 25 %)`;
+        p1Text.textContent = `Kapitalgesellschafts-Anteil <= 25,0 % ohne Poolvertrag! Vor Schenkung zwingend Familien-Poolvertrag (> 25 %) oder Einbringung in GmbH & Co. KG aufsetzen.`;
+      }
+
+      const p2Badge = document.getElementById('p2Badge');
+      const p2Text = document.getElementById('p2Text');
+      if (passesStrict90) {
+        p2Badge.className = 'status-pill pill-pass';
+        p2Badge.textContent = `BRUTTO ${fmtPct(gross90Pct)} (< 90 %)`;
+        p2Text.textContent = `Brutto-Quote (${fmtPct(gross90Pct)}) und Netto-Quote nach BFH II R 49/21 (${fmtPct(bfh90Pct)}) liegen sicher unter der 90 %-Klippe.`;
+      } else if (passesBfh90) {
+        p2Badge.className = 'status-pill pill-warn';
+        p2Badge.textContent = `BRUTTO ${fmtPct(gross90Pct)} -> GERETTET (${fmtPct(bfh90Pct)} NETTO)`;
+        p2Text.textContent = `Brutto-Test gerissen (${fmtPct(gross90Pct)} >= 90 %), aber gerettet über BFH II R 49/21 & Ländererlasse 19.06.2024 (${fmtPct(bfh90Pct)} Netto). Empfehlung: Vor Schenkung ${fmtEur(nettingNeeded)} Schulden aus Bankguthaben tilgen!`;
+      } else {
+        p2Badge.className = 'status-pill pill-fail';
+        p2Badge.textContent = `TOTALVERLUST (${fmtPct(bfh90Pct)} >= 90 %)`;
+        p2Text.textContent = `90 %-Einstiegstest (§ 13b Abs. 2 S. 2 ErbStG) gerissen! 0 % Verschonung — vorab Bilanzverkürzung / Einlage in operatives Anlagevermögen zwingend.`;
+      }
+
+      const p3Badge = document.getElementById('p3Badge');
+      const p3Text = document.getElementById('p3Text');
+      if (claw5 === 0 && (!qualifiesOption || claw7 === 0)) {
+        p3Badge.className = 'status-pill pill-pass';
+        p3Badge.textContent = `${fteLabel} — 0 € NACHSTEUER`;
+        p3Text.textContent = `5-J.-Lohnsumme: ${fmtPct(proj5Pct)} (Soll: ${fmtPct(req5)}) · 7-J.-Lohnsumme: ${fmtPct(proj7Pct)} (Soll: ${fmtPct(req7)}). Keine anteilige Nachversteuerung.`;
+      } else {
+        p3Badge.className = 'status-pill pill-warn';
+        p3Badge.textContent = `NACHVERSTEUERUNG DROHT`;
+        p3Text.textContent = `5-J.-Abzug: ${(claw5 * 100).toFixed(1)} % Wegfall · 7-J.-Abzug: ${(claw7 * 100).toFixed(1)} % Wegfall (§ 13a Abs. 3 S. 5 / Abs. 6 ErbStG).`;
+      }
+
+      const cascadeRows = [
+        ['1. Gemeiner Unternehmenswert (§§ 199–203 BewG)', `Max(Ertragswert ${fmtEur(ertragswert)}, Substanzwert ${fmtEur(substanzwert)})`, fmtEur(gemeinerWert), '100,0 %'],
+        ['2. Brutto-Finanzmittel (§ 13b Abs. 4 Nr. 5 ErbStG)', `Inkl. Forderungen L&L, Bank, davon ${fmtEur(jungeFm)} junge FM`, fmtEur(grossFm), fmtPct(gemeinerWert > 0 ? grossFm / gemeinerWert * 100 : 0)],
+        ['3. Abzug betrieblicher Schulden & 15 %-Sockelbetrag', `Schulden (${fmtEur(debts)}) + 15 %-Freibetrag (${fmtEur(sockel15)})`, fmtEur(schaedlicheFmTotal), fmtPct(gemeinerWert > 0 ? schaedlicheFmTotal / gemeinerWert * 100 : 0)],
+        ['4. Netto-Verwaltungsvermögen (vor 10 %-Puffer)', `Katalog-VV (${fmtEur(katalogVv)}) + schädl. FM ./. Restschulden (${fmtEur(remDebts)})`, fmtEur(nettoRegVv + jungesVv + jungeFm), fmtPct(vvOptionPct)],
+        ['5. Abzgl. 10 % Kulanzpuffer / Schmutzzuschlag (§ 13b Abs. 7)', `10 % von (Unternehmenswert ./. Netto-VV)`, `- ${fmtEur(puffer10)}`, fmtPct(gemeinerWert > 0 ? puffer10 / gemeinerWert * 100 : 0)],
+        ['6. Steuerpflichtiges Verwaltungsvermögen (100 %-Basis)', `Voll steuerpflichtig ohne Verschonungsabschlag`, fmtEur(stpflVv100), fmtPct(gemeinerWert > 0 ? stpflVv100 / gemeinerWert * 100 : 0)],
+        ['7. Begünstigtes Betriebsvermögen (§ 13b Abs. 2 S. 1 ErbStG)', `Grundlage für 85 % Regel- bzw. 100 % Optionsverschonung`, fmtEur(begVermoegen100), fmtPct(begQuotePct)]
+      ];
+      document.getElementById('cascadeTableBody').innerHTML = cascadeRows.map(r => `
+        <tr>
+          <td><strong>${r[0]}</strong></td>
+          <td style="color:var(--muted)">${r[1]}</td>
+          <td class="num"><strong>${r[2]}</strong></td>
+          <td class="num">${r[3]}</td>
+        </tr>
+      `).join('');
+
+      const regimes = [
+        ['Ohne Verschonung (Privatvermögen / 90%-Riss)', 'Keine Behaltens-/Lohnsummenfrist', fmtEur(taxUnshielded), fmtEur(taxUnshielded), '0 €'],
+        [`Regelverschonung (${regelPct.toFixed(0)} % + ${fmtEur(abzugInit)} Abzug § 13a Abs. 2)`, `5 J. Behaltensfrist · ${req5} % Mindestlohnsumme`, fmtEur(taxRegInit), fmtEur(taxRegClaw), fmtEur(Math.max(0, taxUnshielded - taxRegClaw))],
+        [`Optionsverschonung (${qualifiesOption ? optionPct.toFixed(0) + ' %' : 'GESPERRT (>20% VV)'} nach § 13a Abs. 10)`, `7 J. Behaltensfrist · ${req7} % Lohnsumme · VV <= 20 % (${fmtPct(vvOptionPct)})`, fmtEur(taxOptInit), fmtEur(taxOptClaw), fmtEur(Math.max(0, taxUnshielded - taxOptClaw))],
+        ['§ 28a Verschonungsbedarfsprüfung (ab 26 Mio. €)', '9 J. Haltefrist · Einsatz 50 % des verfügbaren Vermögens', fmtEur(tax28a), fmtEur(tax28a), fmtEur(Math.max(0, taxUnshielded - tax28a))]
+      ];
+      document.getElementById('regimeComparisonBody').innerHTML = regimes.map(r => `
+        <tr>
+          <td><strong>${r[0]}</strong></td>
+          <td style="color:var(--muted)">${r[1]}</td>
+          <td class="num">${r[2]}</td>
+          <td class="num"><strong>${r[3]}</strong></td>
+          <td class="num val-emerald"><strong>${r[4]}</strong></td>
+        </tr>
+      `).join('');
+    }
+
+    function initStudio() {
+      const presetSelect = document.getElementById('presetSelect');
+      BENCHMARKS.forEach((b, idx) => {
+        const opt = document.createElement('option');
+        opt.value = idx;
+        opt.textContent = b.input.title;
+        presetSelect.appendChild(opt);
+      });
+
+      document.getElementById('benchmarkTableBody').innerHTML = BENCHMARKS.map(b => {
+        const r = b.result;
+        return `
+          <tr>
+            <td><strong>${r.title}</strong></td>
+            <td class="num">${fmtEur(r.transferred_company_value_eur)}</td>
+            <td class="num ${r.passes_strict_gross_90pct_test ? 'val-emerald' : 'val-amber'}">${fmtPct(r.gross_90pct_test_ratio_pct)}</td>
+            <td class="num ${r.passes_effective_90pct_test ? 'val-emerald' : 'val-rose'}">${fmtPct(r.bfh_ii_r_49_21_net_ratio_pct)}</td>
+            <td class="num">${fmtPct(r.verwaltungsvermoegensquote_for_option_pct)}</td>
+            <td class="num val-rose">${fmtEur(r.tax_without_exemption_eur)}</td>
+            <td class="num val-emerald"><strong>${fmtEur(r.optimal_tax_eur)}</strong></td>
+          </tr>
+        `;
+      }).join('');
+
+      function loadPreset(idx) {
+        const inp = BENCHMARKS[idx].input;
+        document.getElementById('legalForm').value = inp.legal_form;
+        document.getElementById('activeCommercial').checked = inp.is_active_commercial_business;
+        document.getElementById('donorSharePct').value = inp.donor_share_pct;
+        document.getElementById('poolAgreement').checked = inp.has_valid_pool_agreement;
+        document.getElementById('pooledSharePct').value = inp.pooled_share_pct;
+        document.getElementById('transferredSharePct').value = inp.transferred_share_pct;
+        document.getElementById('annualProfitEur').value = Math.round(inp.sustainable_annual_after_tax_profit_eur);
+        document.getElementById('substanzwertEur').value = Math.round(inp.substanzwert_floor_eur);
+        document.getElementById('grossFmEur').value = Math.round(inp.gross_finanzmittel_eur);
+        document.getElementById('jungeFmEur').value = Math.round(inp.junge_finanzmittel_eur);
+        document.getElementById('katalogVvEur').value = Math.round(inp.katalog_verwaltungsvermoegen_nr1_to_4_eur);
+        document.getElementById('jungesVvEur').value = Math.round(inp.junges_verwaltungsvermoegen_eur);
+        document.getElementById('debtsEur').value = Math.round(inp.operating_debts_eur);
+        document.getElementById('headcountFte').value = inp.headcount_fte_stichtag;
+        document.getElementById('basePayrollEur').value = Math.round(inp.ausgangslohnsumme_annual_eur);
+        document.getElementById('projPayrollEur').value = Math.round(inp.projected_annual_payroll_eur);
+        document.getElementById('retentionYears').value = inp.planned_retention_years;
+        document.getElementById('relationshipSelect').value = inp.acquirer_relationship;
+        recalculate();
+      }
+
+      presetSelect.addEventListener('change', (e) => loadPreset(parseInt(e.target.value, 10)));
+      document.querySelectorAll('input, select').forEach(el => {
+        if (el.id !== 'presetSelect') el.addEventListener('input', recalculate);
+      });
+
+      loadPreset(0);
+    }
+
+    window.addEventListener('DOMContentLoaded', initStudio);
+  </script>
+</body>
+</html>

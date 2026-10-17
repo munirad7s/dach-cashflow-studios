@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MILESTONE MVP #146 — DACH § 35 EStG Gewerbesteuer-Anrechnungs- & § 15 Abs. 3 Nr. 1 EStG Abfärbe-Studio</title>
+  <style>
+    :root {
+      --bg: #080d1a;
+      --panel: #10182b;
+      --panel-alt: #16223b;
+      --border: #26385e;
+      --text: #eef4ff;
+      --muted: #9bb0d8;
+      --accent: #38bdf8;
+      --emerald: #10b981;
+      --amber: #f59e0b;
+      --rose: #f43f5e;
+      --violet: #a78bfa;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: radial-gradient(circle at 15% 0%, #152342 0%, var(--bg) 65%);
+      color: var(--text);
+      line-height: 1.5;
+    }
+    header {
+      padding: 28px 36px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(16, 24, 43, 0.88);
+      backdrop-filter: blur(10px);
+    }
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      background: rgba(56, 189, 248, 0.14);
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      color: var(--accent);
+    }
+    .badge.gold {
+      background: rgba(245, 158, 11, 0.16);
+      border-color: rgba(245, 158, 11, 0.45);
+      color: #fbbf24;
+    }
+    .badge.emerald {
+      background: rgba(16, 185, 129, 0.15);
+      border-color: rgba(16, 185, 129, 0.45);
+      color: #34d399;
+    }
+    h1 {
+      margin: 0 0 8px 0;
+      font-size: 25px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      max-width: 1180px;
+    }
+    .container {
+      max-width: 1520px;
+      margin: 0 auto;
+      padding: 24px 36px 56px;
+    }
+    .preset-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 22px;
+    }
+    .preset-btn {
+      background: var(--panel);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .preset-btn:hover, .preset-btn.active {
+      border-color: var(--accent);
+      background: rgba(56, 189, 248, 0.14);
+      box-shadow: 0 0 16px rgba(56, 189, 248, 0.2);
+    }
+    .grid-main {
+      display: grid;
+      grid-template-columns: 440px 1fr;
+      gap: 24px;
+    }
+    @media (max-width: 1180px) {
+      .grid-main { grid-template-columns: 1fr; }
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.28);
+    }
+    .card h2 {
+      margin: 0 0 14px 0;
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .form-group {
+      margin-bottom: 14px;
+    }
+    .form-group label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--muted);
+      margin-bottom: 5px;
+    }
+    .form-group input, .form-group select {
+      width: 100%;
+      background: var(--panel-alt);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 9px 12px;
+      color: var(--text);
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+    @media (max-width: 960px) {
+      .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    .kpi-box {
+      background: var(--panel-alt);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 15px;
+    }
+    .kpi-label {
+      font-size: 11.5px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+    .kpi-value {
+      font-size: 22px;
+      font-weight: 800;
+      margin-bottom: 4px;
+    }
+    .kpi-sub {
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .gate-banner {
+      padding: 14px 16px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      border: 1px solid;
+    }
+    .gate-ok {
+      background: rgba(16, 185, 129, 0.12);
+      border-color: rgba(16, 185, 129, 0.45);
+      color: #6ee7b7;
+    }
+    .gate-warn {
+      background: rgba(245, 158, 11, 0.14);
+      border-color: rgba(245, 158, 11, 0.45);
+      color: #fcd34d;
+    }
+    .gate-fail {
+      background: rgba(244, 63, 94, 0.15);
+      border-color: rgba(244, 63, 94, 0.55);
+      color: #fda4af;
+    }
+    .meter-wrap {
+      margin: 12px 0 16px;
+    }
+    .meter-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 5px;
+    }
+    .meter-track {
+      height: 16px;
+      background: #0b1324;
+      border-radius: 999px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    .meter-fill {
+      height: 100%;
+      transition: width 0.25s ease;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    th, td {
+      padding: 10px 12px;
+      text-align: left;
+      border-bottom: 1px solid rgba(38, 56, 94, 0.65);
+    }
+    th {
+      color: var(--muted);
+      font-size: 11.5px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      background: rgba(22, 34, 59, 0.6);
+    }
+    tr.highlight-row {
+      background: rgba(56, 189, 248, 0.1);
+    }
+    tr.danger-row {
+      background: rgba(244, 63, 94, 0.12);
+    }
+    .clause-box {
+      background: #0a1120;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+      font-family: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
+      font-size: 12px;
+      color: #cfe0ff;
+      white-space: pre-wrap;
+    }
+  </style>
+</head>
+<body>
+
+<!-- DACH CASHFLOW STUDIOS LAUNCH BAR -->
+<style>
+  #dcs-launch-bar {
+    position: sticky;
+    top: 0;
+    z-index: 99999;
+    background: linear-gradient(90deg, #0b1120 0%, #111827 50%, #0f172a 100%);
+    color: #f8fafc;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.35);
+    padding: 8px 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  }
+  #dcs-launch-bar .dcs-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+  }
+  #dcs-launch-bar .dcs-badge {
+    background: rgba(16, 185, 129, 0.18);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.03em;
+  }
+  #dcs-launch-bar a.dcs-nav {
+    color: #93c5fd;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 12.5px;
+  }
+  #dcs-launch-bar a.dcs-nav:hover {
+    text-decoration: underline;
+    color: #dbeafe;
+  }
+  #dcs-launch-bar .dcs-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  #dcs-launch-bar .dcs-btn {
+    padding: 5px 11px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s ease;
+  }
+  #dcs-launch-bar .dcs-btn-ghost {
+    background: rgba(255,255,255,0.08);
+    color: #e2e8f0;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  #dcs-launch-bar .dcs-btn-primary {
+    background: linear-gradient(135deg, #0ea5e9, #2563eb);
+    color: #ffffff;
+  }
+  #dcs-launch-bar .dcs-btn-emerald {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
+  }
+  @media print {
+    #dcs-launch-bar { display: none !important; }
+  }
+</style>
+<div id="dcs-launch-bar">
+  <div class="dcs-left">
+    <a href="/index.html" class="dcs-nav">← Alle 150 DACH Studios</a>
+    <span class="dcs-badge">MVP #146 VERIFIED</span>
+    <span style="color:#cbd5e1;font-size:12px;">DACH Tax, Corporate & Accounting Arbitrage</span>
+  </div>
+  <div class="dcs-actions">
+    <button onclick="window.print()" class="dcs-btn dcs-btn-ghost">🖨️ PDF / Dossier drucken</button>
+    <a href="#checkout-modal-49" target="_blank" rel="noopener" class="dcs-btn dcs-btn-primary">⚡ Musterschreiben & Voll-Dossier (€49)</a>
+    <a href="#checkout-modal-299" target="_blank" rel="noopener" class="dcs-btn dcs-btn-emerald">🛡️ B2B Umsetzung buchen (€299 / €1.490)</a>
+  </div>
+</div>
+
+  <header>
+    <div class="badge-row">
+      <span class="badge gold">MILESTONE MVP #146</span>
+      <span class="badge">§ 15 Abs. 3 Nr. 1 EStG Abfärbetheorie (3,0% &amp; 24.500 €)</span>
+      <span class="badge emerald">§ 35 Abs. 1 EStG (Faktor 4,0x = 400% Hebesatz)</span>
+      <span class="badge">§ 11 Abs. 1 S. 3 Nr. 1 GewStG (24.500 € Freibetrag)</span>
+      <span class="badge">§ 18 Abs. 1 Nr. 1 S. 3 EStG Stempeltheorie</span>
+    </div>
+    <h1>DACH § 35 EStG Gewerbesteuer-Anrechnungs- &amp; § 15 Abs. 3 Nr. 1 EStG Freiberufler-Abfärbe-Studio</h1>
+    <p class="subtitle">
+      Deterministischer Simulator für Freiberufler-Sozietäten (BAG, PartG mbB, GbR) &amp; Mitunternehmerschaften:
+      Kumulative BFH-Bagatellgrenze (3,0% Relativ- UND 24.500 € Absolutgrenze nach BFH VIII R 6/12 &amp; IV R 30/16),
+      Schwesterpersonengesellschafts-Ausgliederungs-Weiche, exakte § 35 EStG-Anrechnung (Faktor 4,0x + Ermäßigungshöchstbetrag)
+      sowie § 18 EStG Stempeltheorie-Prüfer (BFH VIII R 35/16).
+    </p>
+  </header>
+
+  <div class="container">
+    <div class="preset-bar">
+      <button class="preset-btn active" onclick="loadScenario(0)" id="btnScen0">
+        Szenario A (Flagship): 1,20 Mio. € Gewinn + 28.000 € Produkt-/SaaS-Umsatz (München 490%)
+      </button>
+      <button class="preset-btn" onclick="loadScenario(1)" id="btnScen1">
+        Szenario B: 3,0%-Relativfalle (18.000 € &lt; 24.500 €!) + § 35 EStG Ermäßigungshöchstbetrag
+      </button>
+      <button class="preset-btn" onclick="loadScenario(2)" id="btnScen2">
+        Szenario C: Oberhausen (580% Hebesatz) + § 8 Nr. 1 Hinzurechnung + Stempeltheorie-Verstoß
+      </button>
+    </div>
+
+    <div class="grid-main">
+      <!-- LEFT INPUT COLUMN -->
+      <div>
+        <div class="card">
+          <h2><span>1. Sozietäts- &amp; Umsatz-Parameter (§ 18 vs. § 15 EStG)</span></h2>
+          <div class="form-group">
+            <label>Berufs-/Praxis-Archetyp</label>
+            <select id="selPractice" onchange="recalcStudio()"></select>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Freiberufl. Nettoumsatz (€)</label>
+              <input type="number" id="inpFreeTurnover" step="10000" value="2400000" oninput="recalcStudio()" />
+            </div>
+            <div class="form-group">
+              <label>Freiberufl. Gewinn § 18 (€)</label>
+              <input type="number" id="inpFreeProfit" step="10000" value="1200000" oninput="recalcStudio()" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Gewerbl. Nebenumsatz netto (€)</label>
+              <input type="number" id="inpCommTurnover" step="500" value="28000" oninput="recalcStudio()" />
+            </div>
+            <div class="form-group">
+              <label>Gewerbl. Nebengewinn (€)</label>
+              <input type="number" id="inpCommProfit" step="500" value="15000" oninput="recalcStudio()" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label>
+              <span>Aufwärtsabfärbung (§ 15 Abs. 3 Nr. 1 Alt. 2): Unter-KG-Beteiligung (€)</span>
+              <span style="color:#fb7185;">0 € Bagatellgrenze!</span>
+            </label>
+            <input type="number" id="inpUpwardKg" step="100" value="0" oninput="recalcStudio()" />
+          </div>
+        </div>
+
+        <div class="card">
+          <h2><span>2. Kommune, § 8 GewStG &amp; § 35 Abs. 1 EStG</span></h2>
+          <div class="form-group">
+            <label>Sitzgemeinde (Hebesatz-Preset § 16 GewStG)</label>
+            <select id="selMuni" onchange="onMuniSelect()"></select>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Kommunaler Hebesatz (%)</label>
+              <input type="number" id="inpHebesatz" step="5" min="200" max="900" value="490" oninput="recalcStudio()" />
+            </div>
+            <div class="form-group">
+              <label>Persönlicher ESt-Satz (%)</label>
+              <input type="number" id="inpEstRate" step="1" min="14" max="45" value="42" oninput="recalcStudio()" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Finanzierungsanteile § 8 Nr. 1 (€)</label>
+              <input type="number" id="inpFin8_1" step="10000" value="120000" oninput="recalcStudio()" />
+            </div>
+            <div class="form-group">
+              <label>Übrige Einkünfte § 21/§ 20 (€)</label>
+              <input type="number" id="inpOtherIncome" step="10000" value="0" oninput="recalcStudio()" />
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2><span>3. § 18 Abs. 1 Nr. 1 S. 3 EStG Stempeltheorie-Auditor</span></h2>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Berufsträger-Partner (Köpfe)</label>
+              <input type="number" id="inpPartners" step="1" min="1" max="50" value="3" oninput="recalcStudio()" />
+            </div>
+            <div class="form-group">
+              <label>Fachkräfte-Angestellte (FTE)</label>
+              <input type="number" id="inpStaffFte" step="0.5" min="0" max="200" value="6" oninput="recalcStudio()" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Partner-Endfreigabe (%)</label>
+              <input type="number" id="inpReviewPct" step="5" min="0" max="100" value="96" oninput="recalcStudio()" />
+            </div>
+            <div class="form-group">
+              <label>Routine-Fälle ohne Partner?</label>
+              <select id="selRoutine" onchange="recalcStudio()">
+                <option value="no">Nein — 100% Vier-Augen-Kontrolle</option>
+                <option value="yes">Ja — Eigenständige Routine-Aufträge</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT OUTPUT COLUMN -->
+      <div>
+        <div id="bannerAbfaerbung" class="gate-banner gate-fail"></div>
+
+        <!-- Dual Bagatelle Progress Bars -->
+        <div class="card">
+          <h2>
+            <span>Pillar 1: Kumulative BFH-Bagatellgrenzen-Prüfung (§ 15 Abs. 3 Nr. 1 EStG, BFH VIII R 6/12)</span>
+            <span id="lblCeilingSummary" style="font-size:12.5px; color:var(--muted);"></span>
+          </h2>
+          <div class="meter-wrap">
+            <div class="meter-header">
+              <span id="lblRelMeterLeft">1. Relative 3,00%-Umsatzgrenze</span>
+              <span id="lblRelMeterRight"></span>
+            </div>
+            <div class="meter-track">
+              <div id="barRel" class="meter-fill" style="width:0%; background:var(--emerald);"></div>
+            </div>
+          </div>
+          <div class="meter-wrap">
+            <div class="meter-header">
+              <span id="lblAbsMeterLeft">2. Absolute 24.500,00-€-Umsatzgrenze (§ 11 Abs. 1 S. 3 Nr. 1 GewStG-Analogie)</span>
+              <span id="lblAbsMeterRight"></span>
+            </div>
+            <div class="meter-track">
+              <div id="barAbs" class="meter-fill" style="width:0%; background:var(--rose);"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Top KPIs -->
+        <div class="kpi-grid">
+          <div class="kpi-box">
+            <div class="kpi-label">Festgesetzte GewSt (Infiziert)</div>
+            <div class="kpi-value" id="kpiActualGewSt" style="color:#fb7185;">€0,00</div>
+            <div class="kpi-sub" id="kpiMessbetragSub">Messbetrag (3,5%): €0,00</div>
+          </div>
+          <div class="kpi-box">
+            <div class="kpi-label">§ 35 EStG Anrechnung (4,0x)</div>
+            <div class="kpi-value" id="kpiCredit35" style="color:#38bdf8;">€0,00</div>
+            <div class="kpi-sub" id="kpiEhbSub">Ermäßigungshöchstbetrag: €0,00</div>
+          </div>
+          <div class="kpi-box">
+            <div class="kpi-label">Definitiv-GewSt (Überhang)</div>
+            <div class="kpi-value" id="kpiUncreditedGap" style="color:#fbbf24;">€0,00</div>
+            <div class="kpi-sub" id="kpiAfterSoliSub">Nach Soli-Entlastung: €0,00</div>
+          </div>
+          <div class="kpi-box">
+            <div class="kpi-label">Ersparnis Schwester-GbR</div>
+            <div class="kpi-value" id="kpiSisterSavings" style="color:#34d399;">€0,00</div>
+            <div class="kpi-sub" id="kpi10YrSavings">10-Jahres-Vermögensschutz: €0,00</div>
+          </div>
+        </div>
+
+        <!-- Side-by-Side Comparison: Infected vs Sister-Entity Carve-Out -->
+        <div class="card">
+          <h2><span>Pillar 2: § 35 Abs. 1 EStG Anrechnungs- &amp; Ausgliederungs-Vergleich (Infektion vs. Schwester-GbR)</span></h2>
+          <div id="banner35Cap" class="gate-banner gate-warn" style="margin-bottom:14px;"></div>
+          <table>
+            <thead>
+              <tr>
+                <th>Steuerliche Position</th>
+                <th>Ohne Ausgliederung (Infizierte Sozietät)</th>
+                <th>Mit Schwester-GbR-Ausgliederung (Weiche)</th>
+                <th>Vorteil Ausgliederung</th>
+              </tr>
+            </thead>
+            <tbody id="tblComparisonBody"></tbody>
+          </table>
+        </div>
+
+        <!-- Hebesatz Sensitivity Matrix across German Municipalities -->
+        <div class="card">
+          <h2><span>Kommunale Hebesatz-Arbitrage-Matrix (240% Grünwald bis 580% Oberhausen bei aktuellem Gewerbeertrag)</span></h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Kommune / Bundesland</th>
+                <th>Hebesatz</th>
+                <th>Eff. GewSt-Satz</th>
+                <th>Festgesetzte GewSt</th>
+                <th>§ 35 EStG Anrechnung</th>
+                <th>Soli-Minderung</th>
+                <th>Definitiv-Mehrbelastung</th>
+              </tr>
+            </thead>
+            <tbody id="tblMuniMatrixBody"></tbody>
+          </table>
+        </div>
+
+        <!-- Pillar 3: Stempeltheorie & Sister-GbR Carve-Out Blueprint -->
+        <div class="card">
+          <h2><span>Pillar 3: § 18 Abs. 1 Nr. 1 S. 3 EStG Stempeltheorie-Befund &amp; Ausgliederungs-Protokoll</span></h2>
+          <div id="bannerStempel" class="gate-banner gate-ok"></div>
+          <div id="boxSisterBlueprint" class="clause-box"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const MUNICIPALITIES = {"gruenwald_240": {"code": "gruenwald_240", "city_de": "Grünwald (Landkreis München)", "bundesland": "Bayern", "hebesatz_pct": 240.0, "effective_gewst_rate_pct": 8.4, "tier_de": "OASE_UNTER_400", "note_de": "Hebesatz 240% (< 400%). Anrechnung nach § 35 Abs. 1 S. 5 EStG auf tatsächliche GewSt (8,40%) gedeckelt -> 0,00 € Netto-GewSt!"}, "monheim_250": {"code": "monheim_250", "city_de": "Monheim am Rhein", "bundesland": "Nordrhein-Westfalen", "hebesatz_pct": 250.0, "effective_gewst_rate_pct": 8.75, "tier_de": "OASE_UNTER_400", "note_de": "Hebesatz 250% (< 400%). Vollständige Kompensation über § 35 EStG (Deckelung auf Ist-GewSt 8,75%) -> 0,00 € Überhang."}, "eschborn_330": {"code": "eschborn_330", "city_de": "Eschborn (bei Frankfurt a. M.)", "bundesland": "Hessen", "hebesatz_pct": 330.0, "effective_gewst_rate_pct": 11.55, "tier_de": "OASE_UNTER_400", "note_de": "Hebesatz 330% (< 400%). 100% Entlastung bei Einzelunternehmen/Personengesellschaften über § 35 EStG."}, "neutral_400": {"code": "neutral_400", "city_de": "Referenzgemeinde 400% (Exakte § 35 EStG-Schwelle)", "bundesland": "Bundesschnitt-Referenz", "hebesatz_pct": 400.0, "effective_gewst_rate_pct": 14.0, "tier_de": "EXAKT_NEUTRAL_400", "note_de": "Bei exakt 400% Hebesatz entspricht die GewSt (3,5% × 4,0 = 14,0%) auf den Cent genau dem 4,0-fachen Messbetrag nach § 35 EStG."}, "berlin_410": {"code": "berlin_410", "city_de": "Berlin", "bundesland": "Berlin", "hebesatz_pct": 410.0, "effective_gewst_rate_pct": 14.35, "tier_de": "MODERAT_UEBER_400", "note_de": "Hebesatz 410%: Reine ESt-Lücke nur 0,35 Prozentpunkte (inkl. Soli-Entlastung bis 422% sogar vollständig neutral!)."}, "stuttgart_420": {"code": "stuttgart_420", "city_de": "Stuttgart", "bundesland": "Baden-Württemberg", "hebesatz_pct": 420.0, "effective_gewst_rate_pct": 14.7, "tier_de": "MODERAT_UEBER_400", "note_de": "Hebesatz 420%: Reine ESt-Lücke 0,70 Prozentpunkte; inklusive Soli-Minderung (422%-Schwelle) nahezu aufkommensneutral."}, "frankfurt_460": {"code": "frankfurt_460", "city_de": "Frankfurt am Main", "bundesland": "Hessen", "hebesatz_pct": 460.0, "effective_gewst_rate_pct": 16.1, "tier_de": "HOCHSTEUER_METROPOLE", "note_de": "Hebesatz 460%: Effektive GewSt 16,10% vs. 14,00% § 35-Anrechnung -> 2,10% nicht anrechenbare Zusatzsteuer (§ 4 Abs. 5b EStG)."}, "hamburg_470": {"code": "hamburg_470", "city_de": "Hamburg", "bundesland": "Hamburg", "hebesatz_pct": 470.0, "effective_gewst_rate_pct": 16.45, "tier_de": "HOCHSTEUER_METROPOLE", "note_de": "Hebesatz 470%: Effektive GewSt 16,45% -> 2,45% definitive Zusatzbelastung oberhalb des Freibetrags."}, "muenchen_490": {"code": "muenchen_490", "city_de": "München", "bundesland": "Bayern", "hebesatz_pct": 490.0, "effective_gewst_rate_pct": 17.15, "tier_de": "HOCHSTEUER_METROPOLE", "note_de": "Hebesatz 490%: Effektive GewSt 17,15% vs. 14,00% ESt-Anrechnung -> 3,15% definitive Definitiv-GewSt (oder volle 17,15% bei Anrechnungsüberhang!)."}, "oberhausen_580": {"code": "oberhausen_580", "city_de": "Oberhausen (Ruhrgebiet-Spitzenreiter)", "bundesland": "Nordrhein-Westfalen", "hebesatz_pct": 580.0, "effective_gewst_rate_pct": 20.3, "tier_de": "SPITZEN_HEBESATZ", "note_de": "Hebesatz 580%: Effektive GewSt 20,30% -> 6,30% nicht anrechenbare Definitiv-Gewerbesteuer trotz § 35 EStG!"}};
+    const PRACTICES = {"bag_aerzte_zahnaerzte": {"code": "bag_aerzte_zahnaerzte", "label_de": "Ärztliche / Zahnärztliche Gemeinschaftspraxis (BAG — GbR / PartG)", "legal_form": "GbR / PartG", "is_partnership": true, "catalog_norm_de": "§ 18 Abs. 1 Nr. 1 S. 2 EStG (Heilberufe) i.V.m. § 15 Abs. 3 Nr. 1 EStG", "typical_trap_de": "Verkauf von Prophylaxe-Artikeln, Schienen/Alignern, Kosmetika, Nahrungsergänzungsmitteln oder Kontaktlinsen > 24.500 € / > 3% Nettoumsatz."}, "it_engineering_partg": {"code": "it_engineering_partg", "label_de": "IT-Consulting & Software-Architektur Sozietät (GbR / PartG mbB)", "legal_form": "GbR / PartG mbB", "is_partnership": true, "catalog_norm_de": "§ 18 Abs. 1 Nr. 1 S. 2 EStG (Ingenieur / Informatiker) i.V.m. § 15 Abs. 3 Nr. 1 EStG", "typical_trap_de": "Mitverkauf von Hardware, Hosting/Cloud-Reselling, Standard-SaaS-Lizenzen oder Affiliate-Provisionen über 24.500 € / 3%."}, "kanzlei_ra_stb_partg": {"code": "kanzlei_ra_stb_partg", "label_de": "Rechtsanwalts- / Steuerberater- / WP-Sozietät (GbR / PartG mbB)", "legal_form": "PartG mbB", "is_partnership": true, "catalog_norm_de": "§ 18 Abs. 1 Nr. 1 S. 2 EStG (Katalogberufe) i.V.m. BFH VIII R 6/12", "typical_trap_de": "Insolvenzverwaltung durch angestellte Anwälte (BFH VIII R 6/12), Treuhand-/Vermögensverwaltung oder gewerbliche Buchführungs-Tochter-KG."}, "architekten_ingenieure_gbr": {"code": "architekten_ingenieure_gbr", "label_de": "Architekten- & Prüfingenieur-Partnerschaft (GbR / PartG)", "legal_form": "GbR / PartG", "is_partnership": true, "catalog_norm_de": "§ 18 Abs. 1 Nr. 1 S. 2 & 3 EStG i.V.m. BFH VIII R 35/16", "typical_trap_de": "Schlüsselfertige Generalübernehmer-Leistungen, Bauträger-Beteiligung (Aufwärtsabfärbung Alt. 2) oder angestellte Prüfingenieure ohne Stempel (VIII R 35/16)."}, "solo_freiberufler_18": {"code": "solo_freiberufler_18", "label_de": "Einzel-Freiberufler (Einzelpraxis / Solo-IT-Architekt / Einzelanwalt)", "legal_form": "Einzelunternehmen (§ 18 EStG)", "is_partnership": false, "catalog_norm_de": "§ 18 Abs. 1 Nr. 1 EStG (Trennungstheorie beim Einzelunternehmer — keine § 15 Abs. 3 Nr. 1-Abfärbung, aber Stempeltheorie-Gefahr!)", "typical_trap_de": "Beim Solo-Freiberufler gilt für trennbare Nebentätigkeiten die Trennungstheorie, ABER Verstoß gegen die Stempeltheorie (§ 18 Abs. 1 Nr. 1 S. 3 EStG) infiziert 100%!"}};
+    const SCENARIOS = [{"scenario_id": "scenario_a_flagship_1200k_muenchen_abfaerbung", "title_de": "Szenario A (Flagship): 1,20 Mio. € Praxis-/Sozietäts-Gewinn + 28.000 € Produkt-/SaaS-Umsatz (München 490%)", "subtitle_de": "Überschreitung der 24.500-€-Bagatellgrenze um nur 3.500 € löst 204.170,75 € Brutto-GewSt & 37.500,75 €/Jahr Definitiv-Schaden aus", "abfaerbung": {"practice_code": "bag_aerzte_zahnaerzte", "is_partnership": true, "freelance_net_turnover_eur": 2400000.0, "freelance_profit_eur": 1200000.0, "commercial_side_net_turnover_eur": 28000.0, "commercial_side_profit_eur": 15000.0, "upward_kg_share_income_eur": 0.0, "total_net_turnover_eur": 2428000.0, "commercial_turnover_share_pct": 1.1532, "max_safe_turnover_by_3pct_eur": 72840.0, "max_safe_turnover_by_abs_eur": 24500.0, "effective_safe_ceiling_eur": 24500.0, "remaining_safe_buffer_eur": -3500.0, "exceeds_relative_3pct_limit": false, "exceeds_absolute_24500_limit": true, "has_upward_alt2_infection": false, "seitwaerts_alt1_infected": true, "est_reclassified_to_15_eur": 1215000.0, "gewst_taxable_profit_infected_eur": 1215000.0, "gewst_taxable_profit_carveout_eur": 15000.0, "infection_status_code": "FATAL_SEITWAERTS_INFECTION_ALT1", "legal_verdict_de": "ROTER ALARM — VOLLE GEWERBLICHE ABFÄRBUNG (§ 15 Abs. 3 Nr. 1 S. 1 Alt. 1 EStG, BFH VIII R 6/12): Absolutgrenze überschritten (28,000.00 € > 24.500,00 €). Sämtliche freiberuflichen Einkünfte (1,200,000.00 €) werden zu 100% in gewerbliche Einkünfte (§ 15 EStG) umqualifiziert und unterliegen in voller Höhe (1,215,000.00 €) der Gewerbesteuer (§ 2 Abs. 1 S. 2 GewStG)!", "sister_entity_recommendation_de": "Ausgliederungs-Weiche (Beteiligungsidentische gewerbliche Schwester-GbR / Ausgliederungs-UG): Übertragen Sie die gewerblichen Umsätze (28,000.00 € Umsatz / 15,000.00 € Gewinn) vor Überschreiten von 24,500.00 € auf eine rechtlich selbstständige Zweit-GbR mit eigenem Gesellschaftsvertrag, eigenem Bankkonto, getrennter Buchführung und eigener Rechnungsstellung. Folge: Die Haupt-Sozietät (1,200,000.00 € Gewinn) bleibt zu 100% gewerbesteuerfrei (0,00 € GewSt), während die Schwester-GbR ihren eigenen Freibetrag von 24.500 € (§ 11 Abs. 1 S. 3 Nr. 1 GewStG) sowie die 4,0x-Anrechnung nach § 35 EStG nutzt!"}, "infected_gewst_35": {"municipality_code": "muenchen_490", "city_de": "München", "hebesatz_pct": 490.0, "commercial_profit_eur": 1215000.0, "financing_expenses_8_1_eur": 120000.0, "hinzurechnung_8_1_eur": 0.0, "kuerzung_9_1_eur": 0.0, "raw_gewerbeertrag_eur": 1215000.0, "rounded_gewerbeertrag_100_eur": 1215000.0, "freibetrag_11_gewstg_eur": 24500.0, "taxable_gewerbeertrag_eur": 1190500.0, "steuermessbetrag_3_5pct_eur": 41667.5, "actual_gewerbesteuer_eur": 204170.75, "nominal_35_credit_4_0x_eur": 166670.0, "other_non_commercial_income_eur": 0.0, "personal_est_rate_pct": 42.0, "tariff_est_before_35_eur": 510300.0, "ermaessigungshoechstbetrag_35_1_s2_eur": 510300.0, "effective_35_est_credit_eur": 166670.0, "soli_relief_from_35_eur": 9166.85, "uncredited_anrechnungsueberhang_eur": 37500.75, "net_burden_after_est_and_soli_eur": 28333.9, "effective_net_gewst_rate_on_profit_pct": 3.09, "cap_binding_reason_de": "FAKTOR-4,0x-DECKELUNG (§ 35 Abs. 1 S. 1 EStG bei Hebesatz 490% > 400%): Anrechnung auf 4,0 × Messbetrag (166,670.00 €) gedeckelt -> 37,500.75 € Definitiv-GewSt (nach 9,166.85 € Soli-Entlastung verbleiben 28,333.90 € Netto-Mehrbelastung)."}, "carveout_sister_gewst_35": {"municipality_code": "muenchen_490", "city_de": "München", "hebesatz_pct": 490.0, "commercial_profit_eur": 15000.0, "financing_expenses_8_1_eur": 0.0, "hinzurechnung_8_1_eur": 0.0, "kuerzung_9_1_eur": 0.0, "raw_gewerbeertrag_eur": 15000.0, "rounded_gewerbeertrag_100_eur": 15000.0, "freibetrag_11_gewstg_eur": 15000.0, "taxable_gewerbeertrag_eur": 0.0, "steuermessbetrag_3_5pct_eur": 0.0, "actual_gewerbesteuer_eur": 0.0, "nominal_35_credit_4_0x_eur": 0.0, "other_non_commercial_income_eur": 0.0, "personal_est_rate_pct": 42.0, "tariff_est_before_35_eur": 6300.0, "ermaessigungshoechstbetrag_35_1_s2_eur": 6300.0, "effective_35_est_credit_eur": 0.0, "soli_relief_from_35_eur": 0.0, "uncredited_anrechnungsueberhang_eur": 0.0, "net_burden_after_est_and_soli_eur": 0.0, "effective_net_gewst_rate_on_profit_pct": 0.0, "cap_binding_reason_de": "Gewerbeertrag <= 24.500 € Freibetrag (§ 11 Abs. 1 S. 3 Nr. 1 GewStG): 0,00 € Gewerbesteuer."}, "stempel_audit": {"equity_partners_count": 3, "qualified_employees_fte": 6.0, "staff_per_partner_ratio": 2.0, "partner_reviewed_deliverables_pct": 96.0, "has_unmonitored_routine_projects": false, "staff_appointed_in_own_external_name": false, "documented_4_eyes_signoff": true, "stempel_risk_score_0_100": 0, "stempel_status_code": "SAFE_LEITEND_EIGENVERANTWORTLICH", "triggers_18_to_15_infection": false, "verdict_de": "STEMPELTHEORIE GEWAHRT (§ 18 Abs. 1 Nr. 1 S. 3 EStG, Score 0/100): Quote 2.0 Fachkräfte/Partner mit 96% dokumentierter Partner-Freigabe erfüllt 'leitend und eigenverantwortlich'."}, "annual_gross_gewst_saved_by_carveout_eur": 204170.75, "annual_net_tax_saved_after_35_eur": 37500.75, "annual_net_tax_saved_incl_soli_eur": 28333.9, "ten_year_cumulative_wealth_saved_eur": 375007.5}, {"scenario_id": "scenario_b_relative_3pct_trap_with_ehb_cap", "title_de": "Szenario B: 3,0%-Relativfalle trotz < 24.500 € Umsatz + Ermäßigungshöchstbetrag (§ 35 Abs. 1 S. 2 EStG)", "subtitle_de": "IT-PartG (500 T€ Umsatz, 300 T€ Gewinn) mit nur 18.000 € Lizenzumsatz (3,47% > 3,0%) + -180 T€ Immobilien-AfA (§ 21 EStG) in Frankfurt (460%)", "abfaerbung": {"practice_code": "it_engineering_partg", "is_partnership": true, "freelance_net_turnover_eur": 500000.0, "freelance_profit_eur": 300000.0, "commercial_side_net_turnover_eur": 18000.0, "commercial_side_profit_eur": 10000.0, "upward_kg_share_income_eur": 0.0, "total_net_turnover_eur": 518000.0, "commercial_turnover_share_pct": 3.4749, "max_safe_turnover_by_3pct_eur": 15540.0, "max_safe_turnover_by_abs_eur": 24500.0, "effective_safe_ceiling_eur": 15540.0, "remaining_safe_buffer_eur": -2460.0, "exceeds_relative_3pct_limit": true, "exceeds_absolute_24500_limit": false, "has_upward_alt2_infection": false, "seitwaerts_alt1_infected": true, "est_reclassified_to_15_eur": 310000.0, "gewst_taxable_profit_infected_eur": 310000.0, "gewst_taxable_profit_carveout_eur": 10000.0, "infection_status_code": "FATAL_SEITWAERTS_INFECTION_ALT1", "legal_verdict_de": "ROTER ALARM — VOLLE GEWERBLICHE ABFÄRBUNG (§ 15 Abs. 3 Nr. 1 S. 1 Alt. 1 EStG, BFH VIII R 6/12): Relativgrenze überschritten (3.47% > 3,00%). Sämtliche freiberuflichen Einkünfte (300,000.00 €) werden zu 100% in gewerbliche Einkünfte (§ 15 EStG) umqualifiziert und unterliegen in voller Höhe (310,000.00 €) der Gewerbesteuer (§ 2 Abs. 1 S. 2 GewStG)!", "sister_entity_recommendation_de": "Ausgliederungs-Weiche (Beteiligungsidentische gewerbliche Schwester-GbR / Ausgliederungs-UG): Übertragen Sie die gewerblichen Umsätze (18,000.00 € Umsatz / 10,000.00 € Gewinn) vor Überschreiten von 15,540.00 € auf eine rechtlich selbstständige Zweit-GbR mit eigenem Gesellschaftsvertrag, eigenem Bankkonto, getrennter Buchführung und eigener Rechnungsstellung. Folge: Die Haupt-Sozietät (300,000.00 € Gewinn) bleibt zu 100% gewerbesteuerfrei (0,00 € GewSt), während die Schwester-GbR ihren eigenen Freibetrag von 24.500 € (§ 11 Abs. 1 S. 3 Nr. 1 GewStG) sowie die 4,0x-Anrechnung nach § 35 EStG nutzt!"}, "infected_gewst_35": {"municipality_code": "frankfurt_460", "city_de": "Frankfurt am Main", "hebesatz_pct": 460.0, "commercial_profit_eur": 310000.0, "financing_expenses_8_1_eur": 50000.0, "hinzurechnung_8_1_eur": 0.0, "kuerzung_9_1_eur": 0.0, "raw_gewerbeertrag_eur": 310000.0, "rounded_gewerbeertrag_100_eur": 310000.0, "freibetrag_11_gewstg_eur": 24500.0, "taxable_gewerbeertrag_eur": 285500.0, "steuermessbetrag_3_5pct_eur": 9992.5, "actual_gewerbesteuer_eur": 45965.5, "nominal_35_credit_4_0x_eur": 39970.0, "other_non_commercial_income_eur": -180000.0, "personal_est_rate_pct": 38.0, "tariff_est_before_35_eur": 49400.0, "ermaessigungshoechstbetrag_35_1_s2_eur": 49400.0, "effective_35_est_credit_eur": 39970.0, "soli_relief_from_35_eur": 2198.35, "uncredited_anrechnungsueberhang_eur": 5995.5, "net_burden_after_est_and_soli_eur": 3797.15, "effective_net_gewst_rate_on_profit_pct": 1.93, "cap_binding_reason_de": "FAKTOR-4,0x-DECKELUNG (§ 35 Abs. 1 S. 1 EStG bei Hebesatz 460% > 400%): Anrechnung auf 4,0 × Messbetrag (39,970.00 €) gedeckelt -> 5,995.50 € Definitiv-GewSt (nach 2,198.35 € Soli-Entlastung verbleiben 3,797.15 € Netto-Mehrbelastung)."}, "carveout_sister_gewst_35": {"municipality_code": "frankfurt_460", "city_de": "Frankfurt am Main", "hebesatz_pct": 460.0, "commercial_profit_eur": 10000.0, "financing_expenses_8_1_eur": 0.0, "hinzurechnung_8_1_eur": 0.0, "kuerzung_9_1_eur": 0.0, "raw_gewerbeertrag_eur": 10000.0, "rounded_gewerbeertrag_100_eur": 10000.0, "freibetrag_11_gewstg_eur": 10000.0, "taxable_gewerbeertrag_eur": 0.0, "steuermessbetrag_3_5pct_eur": 0.0, "actual_gewerbesteuer_eur": 0.0, "nominal_35_credit_4_0x_eur": 0.0, "other_non_commercial_income_eur": -180000.0, "personal_est_rate_pct": 38.0, "tariff_est_before_35_eur": 0.0, "ermaessigungshoechstbetrag_35_1_s2_eur": 0.0, "effective_35_est_credit_eur": 0.0, "soli_relief_from_35_eur": 0.0, "uncredited_anrechnungsueberhang_eur": 0.0, "net_burden_after_est_and_soli_eur": 0.0, "effective_net_gewst_rate_on_profit_pct": 0.0, "cap_binding_reason_de": "Gewerbeertrag <= 24.500 € Freibetrag (§ 11 Abs. 1 S. 3 Nr. 1 GewStG): 0,00 € Gewerbesteuer."}, "stempel_audit": {"equity_partners_count": 2, "qualified_employees_fte": 4.0, "staff_per_partner_ratio": 2.0, "partner_reviewed_deliverables_pct": 92.0, "has_unmonitored_routine_projects": false, "staff_appointed_in_own_external_name": false, "documented_4_eyes_signoff": true, "stempel_risk_score_0_100": 0, "stempel_status_code": "SAFE_LEITEND_EIGENVERANTWORTLICH", "triggers_18_to_15_infection": false, "verdict_de": "STEMPELTHEORIE GEWAHRT (§ 18 Abs. 1 Nr. 1 S. 3 EStG, Score 0/100): Quote 2.0 Fachkräfte/Partner mit 92% dokumentierter Partner-Freigabe erfüllt 'leitend und eigenverantwortlich'."}, "annual_gross_gewst_saved_by_carveout_eur": 45965.5, "annual_net_tax_saved_after_35_eur": 5995.5, "annual_net_tax_saved_incl_soli_eur": 3797.15, "ten_year_cumulative_wealth_saved_eur": 59955.0}, {"scenario_id": "scenario_c_oberhausen_580_stempeltheorie_breach", "title_de": "Szenario C: Hochsteuer-Kommune Oberhausen (580%) + Stempeltheorie-Risiko (§ 18 Abs. 1 Nr. 1 S. 3 EStG)", "subtitle_de": "Prüfingenieur-/Architekten-GbR (800 T€ Gewinn) mit 14 angestellten Ingenieuren auf 2 Partner und 30.000 € Generalübernehmer-Nebenumsatz", "abfaerbung": {"practice_code": "architekten_ingenieure_gbr", "is_partnership": true, "freelance_net_turnover_eur": 1600000.0, "freelance_profit_eur": 800000.0, "commercial_side_net_turnover_eur": 30000.0, "commercial_side_profit_eur": 20000.0, "upward_kg_share_income_eur": 0.0, "total_net_turnover_eur": 1630000.0, "commercial_turnover_share_pct": 1.8405, "max_safe_turnover_by_3pct_eur": 48900.0, "max_safe_turnover_by_abs_eur": 24500.0, "effective_safe_ceiling_eur": 24500.0, "remaining_safe_buffer_eur": -5500.0, "exceeds_relative_3pct_limit": false, "exceeds_absolute_24500_limit": true, "has_upward_alt2_infection": false, "seitwaerts_alt1_infected": true, "est_reclassified_to_15_eur": 820000.0, "gewst_taxable_profit_infected_eur": 820000.0, "gewst_taxable_profit_carveout_eur": 20000.0, "infection_status_code": "FATAL_SEITWAERTS_INFECTION_ALT1", "legal_verdict_de": "ROTER ALARM — VOLLE GEWERBLICHE ABFÄRBUNG (§ 15 Abs. 3 Nr. 1 S. 1 Alt. 1 EStG, BFH VIII R 6/12): Absolutgrenze überschritten (30,000.00 € > 24.500,00 €). Sämtliche freiberuflichen Einkünfte (800,000.00 €) werden zu 100% in gewerbliche Einkünfte (§ 15 EStG) umqualifiziert und unterliegen in voller Höhe (820,000.00 €) der Gewerbesteuer (§ 2 Abs. 1 S. 2 GewStG)!", "sister_entity_recommendation_de": "Ausgliederungs-Weiche (Beteiligungsidentische gewerbliche Schwester-GbR / Ausgliederungs-UG): Übertragen Sie die gewerblichen Umsätze (30,000.00 € Umsatz / 20,000.00 € Gewinn) vor Überschreiten von 24,500.00 € auf eine rechtlich selbstständige Zweit-GbR mit eigenem Gesellschaftsvertrag, eigenem Bankkonto, getrennter Buchführung und eigener Rechnungsstellung. Folge: Die Haupt-Sozietät (800,000.00 € Gewinn) bleibt zu 100% gewerbesteuerfrei (0,00 € GewSt), während die Schwester-GbR ihren eigenen Freibetrag von 24.500 € (§ 11 Abs. 1 S. 3 Nr. 1 GewStG) sowie die 4,0x-Anrechnung nach § 35 EStG nutzt!"}, "infected_gewst_35": {"municipality_code": "oberhausen_580", "city_de": "Oberhausen (Ruhrgebiet-Spitzenreiter)", "hebesatz_pct": 580.0, "commercial_profit_eur": 820000.0, "financing_expenses_8_1_eur": 280000.0, "hinzurechnung_8_1_eur": 20000.0, "kuerzung_9_1_eur": 0.0, "raw_gewerbeertrag_eur": 840000.0, "rounded_gewerbeertrag_100_eur": 840000.0, "freibetrag_11_gewstg_eur": 24500.0, "taxable_gewerbeertrag_eur": 815500.0, "steuermessbetrag_3_5pct_eur": 28542.5, "actual_gewerbesteuer_eur": 165546.5, "nominal_35_credit_4_0x_eur": 114170.0, "other_non_commercial_income_eur": 0.0, "personal_est_rate_pct": 42.0, "tariff_est_before_35_eur": 344400.0, "ermaessigungshoechstbetrag_35_1_s2_eur": 344400.0, "effective_35_est_credit_eur": 114170.0, "soli_relief_from_35_eur": 6279.35, "uncredited_anrechnungsueberhang_eur": 51376.5, "net_burden_after_est_and_soli_eur": 45097.15, "effective_net_gewst_rate_on_profit_pct": 6.27, "cap_binding_reason_de": "FAKTOR-4,0x-DECKELUNG (§ 35 Abs. 1 S. 1 EStG bei Hebesatz 580% > 400%): Anrechnung auf 4,0 × Messbetrag (114,170.00 €) gedeckelt -> 51,376.50 € Definitiv-GewSt (nach 6,279.35 € Soli-Entlastung verbleiben 45,097.15 € Netto-Mehrbelastung)."}, "carveout_sister_gewst_35": {"municipality_code": "oberhausen_580", "city_de": "Oberhausen (Ruhrgebiet-Spitzenreiter)", "hebesatz_pct": 580.0, "commercial_profit_eur": 20000.0, "financing_expenses_8_1_eur": 0.0, "hinzurechnung_8_1_eur": 0.0, "kuerzung_9_1_eur": 0.0, "raw_gewerbeertrag_eur": 20000.0, "rounded_gewerbeertrag_100_eur": 20000.0, "freibetrag_11_gewstg_eur": 20000.0, "taxable_gewerbeertrag_eur": 0.0, "steuermessbetrag_3_5pct_eur": 0.0, "actual_gewerbesteuer_eur": 0.0, "nominal_35_credit_4_0x_eur": 0.0, "other_non_commercial_income_eur": 0.0, "personal_est_rate_pct": 42.0, "tariff_est_before_35_eur": 8400.0, "ermaessigungshoechstbetrag_35_1_s2_eur": 8400.0, "effective_35_est_credit_eur": 0.0, "soli_relief_from_35_eur": 0.0, "uncredited_anrechnungsueberhang_eur": 0.0, "net_burden_after_est_and_soli_eur": 0.0, "effective_net_gewst_rate_on_profit_pct": 0.0, "cap_binding_reason_de": "Gewerbeertrag <= 24.500 € Freibetrag (§ 11 Abs. 1 S. 3 Nr. 1 GewStG): 0,00 € Gewerbesteuer."}, "stempel_audit": {"equity_partners_count": 2, "qualified_employees_fte": 14.0, "staff_per_partner_ratio": 7.0, "partner_reviewed_deliverables_pct": 60.0, "has_unmonitored_routine_projects": true, "staff_appointed_in_own_external_name": false, "documented_4_eyes_signoff": true, "stempel_risk_score_0_100": 95, "stempel_status_code": "FATAL_STEMPELTHEORIE_BREACH", "triggers_18_to_15_infection": true, "verdict_de": "VERSTOSS GEGEN DIE STEMPELTHEORIE (§ 18 Abs. 1 Nr. 1 S. 3 EStG, BFH VIII R 35/16 & VIII R 6/12): Betreuungsquote 7.0 Fachkräfte pro Partner bei 60% persönlicher Endfreigabe (Risiko-Score 95/100). Fehlt der persönliche 'Stempel' des Berufsträgers auch nur bei einem Teil der Aufträge (> 3% / > 24.500 €), werden diese Umsätze gewerblich und infizieren über § 15 Abs. 3 Nr. 1 EStG die gesamte Sozietät!"}, "annual_gross_gewst_saved_by_carveout_eur": 165546.5, "annual_net_tax_saved_after_35_eur": 51376.5, "annual_net_tax_saved_incl_soli_eur": 45097.15, "ten_year_cumulative_wealth_saved_eur": 513765.0}];
+
+    function fmtEUR(v) {
+      return new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(v || 0);
+    }
+
+    function fmtPct(v) {
+      return (v || 0).toFixed(2).replace('.', ',') + ' %';
+    }
+
+    function initStudio() {
+      const selP = document.getElementById('selPractice');
+      Object.values(PRACTICES).forEach(p => {
+        const opt = document.createElement('option');
+        opt.value = p.code;
+        opt.textContent = p.label_de;
+        selP.appendChild(opt);
+      });
+
+      const selM = document.getElementById('selMuni');
+      Object.values(MUNICIPALITIES).forEach(m => {
+        const opt = document.createElement('option');
+        opt.value = m.code;
+        opt.textContent = `${m.city_de} — ${m.hebesatz_pct.toFixed(0)}% (${m.effective_gewst_rate_pct.toFixed(2).replace('.', ',')}%)`;
+        selM.appendChild(opt);
+      });
+
+      loadScenario(0);
+    }
+
+    function onMuniSelect() {
+      const code = document.getElementById('selMuni').value;
+      if (MUNICIPALITIES[code]) {
+        document.getElementById('inpHebesatz').value = MUNICIPALITIES[code].hebesatz_pct;
+      }
+      recalcStudio();
+    }
+
+    function loadScenario(idx) {
+      document.querySelectorAll('.preset-btn').forEach((b, i) => {
+        b.classList.toggle('active', i === idx);
+      });
+      const s = SCENARIOS[idx];
+      document.getElementById('selPractice').value = s.abfaerbung.practice_code;
+      document.getElementById('inpFreeTurnover').value = s.abfaerbung.freelance_net_turnover_eur;
+      document.getElementById('inpFreeProfit').value = s.abfaerbung.freelance_profit_eur;
+      document.getElementById('inpCommTurnover').value = s.abfaerbung.commercial_side_net_turnover_eur;
+      document.getElementById('inpCommProfit').value = s.abfaerbung.commercial_side_profit_eur;
+      document.getElementById('inpUpwardKg').value = s.abfaerbung.upward_kg_share_income_eur;
+
+      document.getElementById('selMuni').value = s.infected_gewst_35.municipality_code;
+      document.getElementById('inpHebesatz').value = s.infected_gewst_35.hebesatz_pct;
+      document.getElementById('inpEstRate').value = s.infected_gewst_35.personal_est_rate_pct;
+      document.getElementById('inpFin8_1').value = s.infected_gewst_35.financing_expenses_8_1_eur;
+      document.getElementById('inpOtherIncome').value = s.infected_gewst_35.other_non_commercial_income_eur;
+
+      document.getElementById('inpPartners').value = s.stempel_audit.equity_partners_count;
+      document.getElementById('inpStaffFte').value = s.stempel_audit.qualified_employees_fte;
+      document.getElementById('inpReviewPct').value = s.stempel_audit.partner_reviewed_deliverables_pct;
+      document.getElementById('selRoutine').value = s.stempel_audit.has_unmonitored_routine_projects ? 'yes' : 'no';
+
+      recalcStudio();
+    }
+
+    function computeGewSt35JS(commProfit, fin8_1, otherIncome, estRatePct, hebesatzPct) {
+      const excessFin = Math.max(0.0, fin8_1 - 200000.0);
+      const hinzu = Math.round(excessFin * 0.25 * 100) / 100;
+      const rawErtrag = Math.max(0.0, commProfit + hinzu);
+      const rounded100 = Math.floor(rawErtrag / 100.0) * 100.0;
+      const freibetrag = rounded100 > 0 ? Math.min(rounded100, 24500.0) : 0.0;
+      const taxableErtrag = Math.max(0.0, rounded100 - 24500.0);
+      const messbetrag = Math.round(taxableErtrag * 0.035 * 100) / 100;
+      const actualGewSt = Math.round(messbetrag * (hebesatzPct / 100.0) * 100) / 100;
+      const nominal4x = Math.round(4.0 * messbetrag * 100) / 100;
+
+      const posComm = Math.max(0.0, commProfit);
+      const posOther = Math.max(0.0, otherIncome);
+      const sumPos = posComm + posOther;
+      const totalZvE = Math.max(0.0, commProfit + otherIncome);
+      const tariffEst = Math.round(totalZvE * (estRatePct / 100.0) * 100) / 100;
+      const ehb = (sumPos > 0 && posComm > 0) ? Math.round((posComm / sumPos) * tariffEst * 100) / 100 : 0.0;
+
+      const effCredit = Math.min(nominal4x, actualGewSt, ehb);
+      const soliRelief = Math.round(effCredit * 0.055 * 100) / 100;
+      const uncreditedGap = Math.max(0.0, Math.round((actualGewSt - effCredit) * 100) / 100);
+      const netAfterSoli = Math.max(0.0, Math.round((actualGewSt - effCredit - soliRelief) * 100) / 100);
+
+      return {
+        hinzu, rawErtrag, rounded100, freibetrag, taxableErtrag,
+        messbetrag, actualGewSt, nominal4x, tariffEst, ehb,
+        effCredit, soliRelief, uncreditedGap, netAfterSoli
+      };
+    }
+
+    function recalcStudio() {
+      const pCode = document.getElementById('selPractice').value;
+      const pObj = PRACTICES[pCode];
+      const isPersG = pObj.is_partnership;
+
+      const freeTurnover = parseFloat(document.getElementById('inpFreeTurnover').value) || 0.0;
+      const freeProfit = parseFloat(document.getElementById('inpFreeProfit').value) || 0.0;
+      const commTurnover = parseFloat(document.getElementById('inpCommTurnover').value) || 0.0;
+      const commProfit = parseFloat(document.getElementById('inpCommProfit').value) || 0.0;
+      const upwardKg = parseFloat(document.getElementById('inpUpwardKg').value) || 0.0;
+
+      const hebesatz = parseFloat(document.getElementById('inpHebesatz').value) || 400.0;
+      const estRate = parseFloat(document.getElementById('inpEstRate').value) || 42.0;
+      const fin8_1 = parseFloat(document.getElementById('inpFin8_1').value) || 0.0;
+      const otherInc = parseFloat(document.getElementById('inpOtherIncome').value) || 0.0;
+
+      const partners = Math.max(1, parseInt(document.getElementById('inpPartners').value) || 1);
+      const staffFte = parseFloat(document.getElementById('inpStaffFte').value) || 0.0;
+      const reviewPct = parseFloat(document.getElementById('inpReviewPct').value) || 100.0;
+      const hasRoutine = document.getElementById('selRoutine').value === 'yes';
+
+      // Stempeltheorie evaluation
+      const ratio = staffFte / partners;
+      let stempelScore = 0;
+      if (ratio > 5.0) stempelScore += 35;
+      else if (ratio > 3.0) stempelScore += 18;
+      if (reviewPct < 70.0) stempelScore += 35;
+      else if (reviewPct < 90.0) stempelScore += 15;
+      if (hasRoutine) stempelScore += 25;
+      stempelScore = Math.min(100, stempelScore);
+      const stempelBreach = stempelScore >= 50 || hasRoutine || reviewPct < 70.0;
+
+      // Bagatelle limits evaluation
+      const totalTurnover = Math.max(0.0, freeTurnover + commTurnover);
+      const commSharePct = totalTurnover > 0 ? (commTurnover / totalTurnover) * 100.0 : 0.0;
+      const maxBy3Pct = totalTurnover * 0.03;
+      const maxByAbs = 24500.0;
+      const effCeiling = Math.min(maxBy3Pct, maxByAbs);
+      const remBuffer = effCeiling - commTurnover;
+
+      const exceedsRel = commSharePct > 3.000001;
+      const exceedsAbs = commTurnover > 24500.001;
+      const hasAlt2 = Math.abs(upwardKg) > 0.001;
+      const seitwaertsInfected = isPersG && commTurnover > 0 && (exceedsRel || exceedsAbs);
+
+      // Update meters
+      const relFillPct = Math.min(100.0, (commSharePct / 3.0) * 100.0);
+      const absFillPct = Math.min(100.0, (commTurnover / 24500.0) * 100.0);
+      const barRel = document.getElementById('barRel');
+      const barAbs = document.getElementById('barAbs');
+      barRel.style.width = `${relFillPct}%`;
+      barRel.style.background = exceedsRel ? 'var(--rose)' : (relFillPct > 80 ? 'var(--amber)' : 'var(--emerald)');
+      barAbs.style.width = `${absFillPct}%`;
+      barAbs.style.background = exceedsAbs ? 'var(--rose)' : (absFillPct > 80 ? 'var(--amber)' : 'var(--emerald)');
+
+      document.getElementById('lblRelMeterRight').textContent =
+        `${fmtPct(commSharePct)} von max. 3,00 % (Schwelle: ${fmtEUR(maxBy3Pct)}) — ${exceedsRel ? 'ÜBERSCHRITTEN!' : 'OK'}`;
+      document.getElementById('lblAbsMeterRight').textContent =
+        `${fmtEUR(commTurnover)} von max. 24.500,00 € — ${exceedsAbs ? 'ÜBERSCHRITTEN!' : 'OK'}`;
+      document.getElementById('lblCeilingSummary').textContent =
+        `Wirksame Obergrenze (Minimum): ${fmtEUR(effCeiling)} | Puffer: ${fmtEUR(remBuffer)}`;
+
+      const bannerAbf = document.getElementById('bannerAbfaerbung');
+      let gewstTaxableWithoutCarveout = 0.0;
+      const gewstTaxableWithCarveout = Math.max(0.0, commProfit);
+
+      if (!isPersG && !stempelBreach) {
+        gewstTaxableWithoutCarveout = Math.max(0.0, commProfit);
+        bannerAbf.className = 'gate-banner gate-ok';
+        bannerAbf.textContent =
+          `EINZELUNTERNEHMER-TRENNUNGSTHEORIE (§ 18 EStG): § 15 Abs. 3 Nr. 1 EStG gilt nur für Personengesellschaften. ` +
+          `Ihr freiberuflicher Gewinn (${fmtEUR(freeProfit)}) bleibt gewerbesteuerfrei; nur der gewerbliche Nebengewinn ` +
+          `(${fmtEUR(commProfit)}) fällt unter § 15 EStG (und bleibt bis 24.500 € Freibetrag nach § 11 GewStG bei 0,00 € GewSt).`;
+      } else if (seitwaertsInfected || stempelBreach) {
+        gewstTaxableWithoutCarveout = Math.max(0.0, freeProfit + commProfit);
+        bannerAbf.className = 'gate-banner gate-fail';
+        bannerAbf.textContent =
+          `ROTER ALARM — 100% GEWERBLICHE INFEKTION (§ 15 Abs. 3 Nr. 1 S. 1 Alt. 1 EStG, BFH VIII R 6/12${stempelBreach ? ' / § 18 S. 3 Stempeltheorie' : ''}): ` +
+          `Ihr gewerblicher Umsatz (${fmtEUR(commTurnover)} = ${fmtPct(commSharePct)}) durchbricht die kumulative Bagatellgrenze ` +
+          `(max. ${fmtEUR(effCeiling)}). Der GESAMTE Sozietätsgewinn (${fmtEUR(gewstTaxableWithoutCarveout)}) wird rückwirkend ` +
+          `gewerbesteuerpflichtig! Sofortige Ausgliederung in eine beteiligungsidentische Schwester-GbR erforderlich!`;
+      } else if (hasAlt2) {
+        gewstTaxableWithoutCarveout = 0.0;
+        bannerAbf.className = 'gate-banner gate-warn';
+        bannerAbf.textContent =
+          `WARNUNG — AUFWÄRTSABFÄRBUNG OHNE BAGATELLGRENZE (§ 15 Abs. 3 Nr. 1 S. 1 Alt. 2 EStG, BFH IV R 30/16): ` +
+          `Beteiligungseinkünfte aus einer gewerblichen Unter-KG (${fmtEUR(upwardKg)}) infizieren ab dem ersten Euro ` +
+          `sämtliche Einkünfte einkommensteuerlich zu § 15 EStG-Betriebsvermögen (Verstrickung stiller Reserven!), ` +
+          `auch wenn § 2 Abs. 1 S. 2 GewStG verfassungskonform keine Gewerbesteuer auf die Obergesellschaft auslöst.`;
+      } else {
+        gewstTaxableWithoutCarveout = 0.0;
+        bannerAbf.className = 'gate-banner gate-ok';
+        bannerAbf.textContent =
+          `GRÜNER BEREICH (BFH-Bagatellgrenze VIII R 6/12 eingehalten): Gewerblicher Nebenumsatz (${fmtEUR(commTurnover)} / ${fmtPct(commSharePct)}) ` +
+          `liegt unter beiden Schwellen (3,00% = ${fmtEUR(maxBy3Pct)} UND 24.500,00 €). Verbleibender Sicherheits-Puffer: ${fmtEUR(remBuffer)}.`;
+      }
+
+      const infCalc = computeGewSt35JS(
+        gewstTaxableWithoutCarveout,
+        gewstTaxableWithoutCarveout > 0 ? fin8_1 : 0.0,
+        otherInc,
+        estRate,
+        hebesatz
+      );
+      const sisCalc = computeGewSt35JS(gewstTaxableWithCarveout, 0.0, otherInc, estRate, hebesatz);
+
+      const grossSaved = Math.max(0.0, infCalc.actualGewSt - sisCalc.actualGewSt);
+      const netSavedGap = Math.max(0.0, infCalc.uncreditedGap - sisCalc.uncreditedGap);
+      const netSavedSoli = Math.max(0.0, infCalc.netAfterSoli - sisCalc.netAfterSoli);
+
+      document.getElementById('kpiActualGewSt').textContent = fmtEUR(infCalc.actualGewSt);
+      document.getElementById('kpiMessbetragSub').textContent =
+        `Steuermessbetrag (3,5%): ${fmtEUR(infCalc.messbetrag)}`;
+      document.getElementById('kpiCredit35').textContent = fmtEUR(infCalc.effCredit);
+      document.getElementById('kpiEhbSub').textContent =
+        `4,0x = ${fmtEUR(infCalc.nominal4x)} | EHB = ${fmtEUR(infCalc.ehb)}`;
+      document.getElementById('kpiUncreditedGap').textContent = fmtEUR(infCalc.uncreditedGap);
+      document.getElementById('kpiAfterSoliSub').textContent =
+        `Nach 5,5% Soli-Entlastung (${fmtEUR(infCalc.soliRelief)}): ${fmtEUR(infCalc.netAfterSoli)}`;
+      document.getElementById('kpiSisterSavings').textContent = fmtEUR(netSavedGap) + ' / Jahr';
+      document.getElementById('kpi10YrSavings').textContent =
+        `Brutto-GewSt gespart: ${fmtEUR(grossSaved)} | 10 J. Netto: ${fmtEUR(netSavedGap * 10)}`;
+
+      const banner35 = document.getElementById('banner35Cap');
+      if (infCalc.messbetrag === 0) {
+        banner35.className = 'gate-banner gate-ok';
+        banner35.textContent = `§ 11 Abs. 1 S. 3 Nr. 1 GewStG: Gewerbeertrag <= 24.500 € Freibetrag -> 0,00 € Gewerbesteuer.`;
+      } else if (infCalc.ehb < Math.min(infCalc.nominal4x, infCalc.actualGewSt)) {
+        banner35.className = 'gate-banner gate-fail';
+        banner35.textContent =
+          `ACHTUNG ERMÄSSIGUNGSHÖCHSTBETRAG (§ 35 Abs. 1 S. 2 EStG): Durch negative übrige Einkünfte (${fmtEUR(otherInc)}) ` +
+          `bzw. niedrige tarifliche ESt (${fmtEUR(infCalc.tariffEst)}) wird die § 35-Anrechnung von ${fmtEUR(infCalc.nominal4x)} ` +
+          `auf ${fmtEUR(infCalc.ehb)} gekappt! Der Anrechnungsüberhang (${fmtEUR(infCalc.uncreditedGap)}) verfällt ersatzlos!`;
+      } else if (hebesatz <= 400.0) {
+        banner35.className = 'gate-banner gate-ok';
+        banner35.textContent =
+          `HEBESATZ-PRIVILEG (${hebesatz.toFixed(0)}% <= 400%): Nach § 35 Abs. 1 S. 1 & 5 EStG wird die gesamte festgesetzte ` +
+          `Gewerbesteuer (${fmtEUR(infCalc.actualGewSt)}) zu 100% auf die Einkommensteuer angerechnet -> 0,00 € Definitiv-GewSt!`;
+      } else {
+        banner35.className = 'gate-banner gate-warn';
+        banner35.textContent =
+          `HEBESATZ ÜBER 400% (${hebesatz.toFixed(0)}%): § 35 Abs. 1 S. 1 EStG ersetzt exakt das 4,0-Fache des Messbetrags ` +
+          `(400% = 14,00% = ${fmtEUR(infCalc.nominal4x)}). Die Differenz von ${fmtEUR(infCalc.uncreditedGap)} ` +
+          `(${((hebesatz - 400) * 0.035).toFixed(2).replace('.', ',')}% oberhalb Freibetrag) bleibt als nicht abziehbare Betriebsausgabe (§ 4 Abs. 5b EStG) hängen!`;
+      }
+
+      // Populate comparison table
+      const rows = [
+        ['Steuerpflichtiger Gewerbeertrag (vor Freibetrag)', fmtEUR(infCalc.rounded100), fmtEUR(sisCalc.rounded100), fmtEUR(infCalc.rounded100 - sisCalc.rounded100)],
+        ['Abzgl. Freibetrag § 11 Abs. 1 S. 3 Nr. 1 GewStG', fmtEUR(infCalc.freibetrag), fmtEUR(sisCalc.freibetrag), 'Eigener 24.500 € Freibetrag in Zweit-GbR!'],
+        ['Maßgebender Gewerbeertrag nach Freibetrag', fmtEUR(infCalc.taxableErtrag), fmtEUR(sisCalc.taxableErtrag), fmtEUR(infCalc.taxableErtrag - sisCalc.taxableErtrag)],
+        ['Gewerbesteuer-Messbetrag (3,5% § 11 Abs. 2 GewStG)', fmtEUR(infCalc.messbetrag), fmtEUR(sisCalc.messbetrag), fmtEUR(infCalc.messbetrag - sisCalc.messbetrag)],
+        [`Festgesetzte Gewerbesteuer (Hebesatz ${hebesatz.toFixed(0)}%)`, fmtEUR(infCalc.actualGewSt), fmtEUR(sisCalc.actualGewSt), fmtEUR(grossSaved)],
+        ['Nominales § 35 EStG-Volumen (4,0 × Messbetrag)', fmtEUR(infCalc.nominal4x), fmtEUR(sisCalc.nominal4x), '—'],
+        ['Ermäßigungshöchstbetrag (§ 35 Abs. 1 Satz 2 EStG)', fmtEUR(infCalc.ehb), fmtEUR(sisCalc.ehb), '—'],
+        ['Effektive ESt-Anrechnung nach § 35 Abs. 1 EStG', fmtEUR(infCalc.effCredit), fmtEUR(sisCalc.effCredit), '—'],
+        ['Verbleibende Definitiv-GewSt (vor Soli-Effekt)', fmtEUR(infCalc.uncreditedGap), fmtEUR(sisCalc.uncreditedGap), fmtEUR(netSavedGap)],
+        ['Netto-Mehrbelastung nach 5,5% Soli-Entlastung', fmtEUR(infCalc.netAfterSoli), fmtEUR(sisCalc.netAfterSoli), fmtEUR(netSavedSoli)],
+      ];
+      const tbodyComp = document.getElementById('tblComparisonBody');
+      tbodyComp.innerHTML = '';
+      rows.forEach((r, idx) => {
+        const tr = document.createElement('tr');
+        if (idx === 4 || idx === 8) tr.className = 'danger-row';
+        tr.innerHTML = `
+          <td><strong>${r[0]}</strong></td>
+          <td style="font-weight:700;">${r[1]}</td>
+          <td style="color:#34d399; font-weight:700;">${r[2]}</td>
+          <td style="color:#38bdf8; font-weight:700;">${r[3]}</td>
+        `;
+        tbodyComp.appendChild(tr);
+      });
+
+      // Populate Municipality Matrix
+      const tbodyMuni = document.getElementById('tblMuniMatrixBody');
+      tbodyMuni.innerHTML = '';
+      const refProfit = gewstTaxableWithoutCarveout > 0 ? gewstTaxableWithoutCarveout : (freeProfit + commProfit);
+      Object.values(MUNICIPALITIES).forEach(m => {
+        const c = computeGewSt35JS(refProfit, fin8_1, otherInc, estRate, m.hebesatz_pct);
+        const tr = document.createElement('tr');
+        if (Math.abs(m.hebesatz_pct - hebesatz) < 1.0) tr.className = 'highlight-row';
+        tr.innerHTML = `
+          <td><strong>${m.city_de}</strong> <span style="color:var(--muted); font-size:11.5px;">(${m.bundesland})</span></td>
+          <td><strong>${m.hebesatz_pct.toFixed(0)} %</strong></td>
+          <td>${m.effective_gewst_rate_pct.toFixed(2).replace('.', ',')} %</td>
+          <td>${fmtEUR(c.actualGewSt)}</td>
+          <td style="color:#38bdf8;">-${fmtEUR(c.effCredit)}</td>
+          <td style="color:#a78bfa;">-${fmtEUR(c.soliRelief)}</td>
+          <td style="font-weight:700; color:${c.uncreditedGap > 0 ? '#fb7185' : '#34d399'};">${fmtEUR(c.uncreditedGap)} <span style="font-size:11px; color:var(--muted);">(inkl. Soli: ${fmtEUR(c.netAfterSoli)})</span></td>
+        `;
+        tbodyMuni.appendChild(tr);
+      });
+
+      // Stempeltheorie Banner & Sister-GbR Blueprint
+      const bannerSt = document.getElementById('bannerStempel');
+      if (stempelBreach) {
+        bannerSt.className = 'gate-banner gate-fail';
+        bannerSt.textContent =
+          `STEMPELTHEORIE-ALARM (§ 18 Abs. 1 Nr. 1 S. 3 EStG, BFH VIII R 35/16 — Score ${stempelScore}/100): ` +
+          `Betreuungsquote ${ratio.toFixed(1)} Fachkräfte pro Partner bei ${reviewPct.toFixed(0)}% persönlicher Endfreigabe. ` +
+          `Ohne aktenkundige Vier-Augen-Endkontrolle durch einen Partner werden die Mitarbeiter-Umsätze gewerblich und infizieren die gesamte Sozietät!`;
+      } else {
+        bannerSt.className = 'gate-banner gate-ok';
+        bannerSt.textContent =
+          `STEMPELTHEORIE ERFÜÜLT (§ 18 Abs. 1 Nr. 1 S. 3 EStG — Score ${stempelScore}/100): ` +
+          `Betreuungsquote ${ratio.toFixed(1)} FTE/Partner mit ${reviewPct.toFixed(0)}% dokumentierter Endfreigabe wahrt 'leitend und eigenverantwortlich'.`;
+      }
+
+      document.getElementById('boxSisterBlueprint').textContent =
+        `GESTALTUNGS-PROTOKOLL: AUSGLIEDERUNG IN GEWERBLICHE SCHWESTERPERSONENGESELLSCHAFT (BFH VIII R 6/12)
+` +
+        `==================================================================================================
+` +
+        `1. Rechtsträger-Trennung: Gründung einer beteiligungsidentischen Zweit-GbR (z.B. "${pObj.label_de.split('(')[0].trim()} Shop & Service GbR") oder UG (haftungsbeschränkt) für sämtliche gewerblichen Umsätze (${fmtEUR(commTurnover)} Umsatz / ${fmtEUR(commProfit)} Gewinn).
+` +
+        `2. Strikte Vier-Säulen-Abgrenzung für Betriebsprüfung:
+` +
+        `   [x] Eigener schriftlicher Gesellschaftsvertrag & eigene Steuernummer beim Finanzamt
+` +
+        `   [x] Eigenes Geschäftskonto (keine Zahlungsdurchleitung über das Praxiskonto der Freiberufler-Sozietät!)
+` +
+        `   [x] Getrennte Einnahmen-Überschuss-Rechnung (§ 4 Abs. 3 EStG) bzw. Buchführung + sachgerechte Kostenumlage
+` +
+        `   [x] Eigene Rechnungsstellung im Namen der Schwester-GbR & räumlich/optisch getrennter Außenauftritt
+` +
+        `3. Quantifiziertes Ergebnis:
+` +
+        `   - Haupt-Sozietät (${fmtEUR(freeProfit)} Gewinn): 100% § 18 EStG -> 0,00 € Gewerbesteuer (statt ${fmtEUR(infCalc.actualGewSt)})
+` +
+        `   - Schwester-GbR (${fmtEUR(commProfit)} Gewinn): Eigener 24.500 € Freibetrag (§ 11 Abs. 1 S. 3 Nr. 1 GewStG) -> ${fmtEUR(sisCalc.actualGewSt)} GewSt
+` +
+        `   - Dauerhafte jährliche Netto-Steuerersparnis (nach § 35 EStG): ${fmtEUR(netSavedGap)} p.a. (${fmtEUR(netSavedGap * 10)} über 10 Jahre).`;
+    }
+
+    window.addEventListener('DOMContentLoaded', initStudio);
+  </script>
+</body>
+</html>

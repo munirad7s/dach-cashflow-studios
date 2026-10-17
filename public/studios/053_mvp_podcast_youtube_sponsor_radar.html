@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MVP #53 — DACH Podcast &amp; YouTube Sponsor-Spend &amp; Active-Budget Lead Radar</title>
+  <style>
+    :root {
+      --bg: #0b0f17;
+      --panel: #131a28;
+      --panel-alt: #192234;
+      --border: #26324b;
+      --text: #e6edf7;
+      --muted: #94a3b8;
+      --accent: #38bdf8;
+      --accent-green: #10b981;
+      --accent-amber: #f59e0b;
+      --accent-purple: #a855f7;
+      --accent-rose: #f43f5e;
+      --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --mono: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      line-height: 1.5;
+      padding: 24px;
+    }
+    .container { max-width: 1440px; margin: 0 auto; }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 20px;
+      padding: 24px;
+      background: linear-gradient(135deg, #131a28 0%, #1a243b 100%);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      margin-bottom: 20px;
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .badge-amber { background: rgba(245, 158, 11, 0.16); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.35); }
+    .badge-green { background: rgba(16, 185, 129, 0.16); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.35); }
+    .badge-blue { background: rgba(56, 189, 248, 0.16); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.35); }
+    .badge-purple { background: rgba(168, 85, 247, 0.16); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.35); }
+
+    h1 { font-size: 24px; font-weight: 800; margin: 8px 0 6px; color: #fff; }
+    .subtitle { color: var(--muted); font-size: 14px; max-width: 880px; }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+    .kpi-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+    }
+    .kpi-label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+    .kpi-value { font-size: 26px; font-weight: 800; margin-top: 6px; color: #fff; font-family: var(--mono); }
+    .kpi-sub { font-size: 12px; color: var(--accent-green); margin-top: 4px; }
+
+    .controls-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 18px;
+      margin-bottom: 18px;
+    }
+    .controls-bar input, .controls-bar select {
+      background: var(--bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 13px;
+    }
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+    .tab-btn {
+      background: var(--panel);
+      color: var(--muted);
+      border: 1px solid var(--border);
+      padding: 10px 16px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 13px;
+      transition: all 0.15s;
+    }
+    .tab-btn.active {
+      background: rgba(56, 189, 248, 0.15);
+      color: var(--accent);
+      border-color: var(--accent);
+    }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      font-size: 13px;
+    }
+    th, td {
+      padding: 12px 14px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+    th {
+      background: var(--panel-alt);
+      color: var(--muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    tr:hover td { background: rgba(255, 255, 255, 0.02); }
+    .mono { font-family: var(--mono); font-size: 12px; }
+    .code-pill {
+      display: inline-block;
+      background: rgba(16, 185, 129, 0.14);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      border-radius: 6px;
+      padding: 2px 7px;
+      font-family: var(--mono);
+      font-size: 11px;
+      margin: 2px 4px 2px 0;
+    }
+    .url-pill {
+      display: inline-block;
+      background: rgba(56, 189, 248, 0.12);
+      color: #7dd3fc;
+      border-radius: 6px;
+      padding: 2px 7px;
+      font-family: var(--mono);
+      font-size: 11px;
+      margin: 2px 4px 2px 0;
+    }
+    .comp-pill {
+      display: inline-block;
+      background: rgba(244, 63, 94, 0.14);
+      color: #fda4af;
+      border: 1px solid rgba(244, 63, 94, 0.3);
+      border-radius: 6px;
+      padding: 2px 7px;
+      font-size: 11px;
+      margin: 2px 4px 2px 0;
+    }
+
+    .pitch-studio {
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      gap: 18px;
+    }
+    @media (max-width: 960px) {
+      .pitch-studio { grid-template-columns: 1fr; }
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+    }
+    .pitch-box {
+      background: #090d14;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px;
+      font-family: var(--mono);
+      font-size: 12.5px;
+      white-space: pre-wrap;
+      color: #e2e8f0;
+      margin-top: 10px;
+    }
+    .btn {
+      background: var(--accent);
+      color: #0b0f17;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .btn:hover { opacity: 0.9; }
+  </style>
+</head>
+<body>
+
+<!-- DACH CASHFLOW STUDIOS LAUNCH BAR -->
+<style>
+  #dcs-launch-bar {
+    position: sticky;
+    top: 0;
+    z-index: 99999;
+    background: linear-gradient(90deg, #0b1120 0%, #111827 50%, #0f172a 100%);
+    color: #f8fafc;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.35);
+    padding: 8px 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  }
+  #dcs-launch-bar .dcs-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+  }
+  #dcs-launch-bar .dcs-badge {
+    background: rgba(16, 185, 129, 0.18);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.03em;
+  }
+  #dcs-launch-bar a.dcs-nav {
+    color: #93c5fd;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 12.5px;
+  }
+  #dcs-launch-bar a.dcs-nav:hover {
+    text-decoration: underline;
+    color: #dbeafe;
+  }
+  #dcs-launch-bar .dcs-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  #dcs-launch-bar .dcs-btn {
+    padding: 5px 11px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s ease;
+  }
+  #dcs-launch-bar .dcs-btn-ghost {
+    background: rgba(255,255,255,0.08);
+    color: #e2e8f0;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  #dcs-launch-bar .dcs-btn-primary {
+    background: linear-gradient(135deg, #0ea5e9, #2563eb);
+    color: #ffffff;
+  }
+  #dcs-launch-bar .dcs-btn-emerald {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
+  }
+  @media print {
+    #dcs-launch-bar { display: none !important; }
+  }
+</style>
+<div id="dcs-launch-bar">
+  <div class="dcs-left">
+    <a href="/index.html" class="dcs-nav">← Alle 150 DACH Studios</a>
+    <span class="dcs-badge">MVP #053 VERIFIED</span>
+    <span style="color:#cbd5e1;font-size:12px;">Creator Economy, Video & Media Arbitrage</span>
+  </div>
+  <div class="dcs-actions">
+    <button onclick="window.print()" class="dcs-btn dcs-btn-ghost">🖨️ PDF / Dossier drucken</button>
+    <a href="#checkout-modal-49" target="_blank" rel="noopener" class="dcs-btn dcs-btn-primary">⚡ Musterschreiben & Voll-Dossier (€49)</a>
+    <a href="#checkout-modal-299" target="_blank" rel="noopener" class="dcs-btn dcs-btn-emerald">🛡️ B2B Umsetzung buchen (€299 / €1.490)</a>
+  </div>
+</div>
+
+<div class="container">
+  <div class="header">
+    <div>
+      <span class="badge badge-amber">Apify Wave 21 Outlier Teardown ($9.00–$59.00/Run PPE)</span>
+      <span class="badge badge-green">MVP #53 Verified</span>
+      <h1>DACH Podcast &amp; YouTube Sponsor-Spend &amp; Active-Budget Lead Radar</h1>
+      <p class="subtitle">
+        Extrahiert automatisch Sponsor-Signale (Werbepartner, Vanity-URLs, Promo-Codes, Mid-Roll-Timestamps) aus DACH-Podcast-RSS-Feeds
+        (<code>&lt;content:encoded&gt;</code>) &amp; YouTube-Transkripten, kalkuliert das 30-Tage-Media-Budget nach DACH-TKP-Benchmarks (45€–88€ TKP)
+        und generiert sofort versandfertige Cold-Pitches für Creator, Agenturen &amp; Wettbewerber-Exklusivität.
+      </p>
+    </div>
+    <div style="text-align:right; min-width: 230px;">
+      <div class="badge badge-purple">Ref: taroyamada/podcast-sponsor-public-signal-report</div>
+      <div style="font-size:12px; color:var(--muted); margin-top:8px;">
+        Snapshot Event: <strong>$9.00 / Run</strong><br/>
+        Sponsor Fit Event: <strong>$29.00 / Run</strong><br/>
+        Watch Summary: <strong>$59.00 / Run</strong>
+      </div>
+    </div>
+  </div>
+
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-label">Erfasstes 30d Sponsor-Volumen (DACH)</div>
+      <div class="kpi-value" id="kpi-spend">463,838 €</div>
+      <div class="kpi-sub">Quartals-Run-Rate: 1,391,515 €</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Verified Active-Budget Brands</div>
+      <div class="kpi-value">10 (10 High-Velocity)</div>
+      <div class="kpi-sub">≥ 2–3 aktive Placements in 30 Tagen</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Erkannte Ad-Reads &amp; Mid-Rolls</div>
+      <div class="kpi-value">32 Slots</div>
+      <div class="kpi-sub">19 Podcast RSS · 13 YouTube</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Ø Effektiver DACH TKP (CPM)</div>
+      <div class="kpi-value">77.94 €</div>
+      <div class="kpi-sub">Spanne: 45,00 € – 88,00 € (Host-Read Mid-Roll)</div>
+    </div>
+  </div>
+
+  <div class="controls-bar">
+    <label style="font-size:12px; color:var(--muted);">Suche Brand / Show / Code:</label>
+    <input type="text" id="searchInput" placeholder="z.B. AG1, Lexoffice, LANZ15, OMR..." oninput="renderAllTables()" style="min-width:240px;" />
+    <label style="font-size:12px; color:var(--muted);">Kategorie:</label>
+    <select id="categoryFilter" onchange="renderAllTables()">
+      <option value="ALL">Alle Verticals</option>
+      <option value="Finance & Investing">Finance &amp; Investing</option>
+      <option value="Business & SaaS">Business &amp; SaaS</option>
+      <option value="Health & Longevity">Health &amp; Longevity</option>
+      <option value="Tech & AI">Tech &amp; AI</option>
+      <option value="News & Politics">News &amp; Politics</option>
+      <option value="Entertainment & Society">Entertainment &amp; Society</option>
+    </select>
+    <label style="font-size:12px; color:var(--muted);">Plattform:</label>
+    <select id="platformFilter" onchange="renderAllTables()">
+      <option value="ALL">Podcast RSS + YouTube</option>
+      <option value="Podcast RSS">Nur Podcast RSS (&lt;content:encoded&gt;)</option>
+      <option value="YouTube">Nur YouTube Integration</option>
+    </select>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('tab-brands', this)">1. Active-Budget Brand Leaderboard (€ Spend)</button>
+    <button class="tab-btn" onclick="switchTab('tab-episodes', this)">2. Episode Ad-Read &amp; Timestamp Inspector</button>
+    <button class="tab-btn" onclick="switchTab('tab-whitespace', this)">3. Lookalike Whitespace &amp; Competitor Matrix</button>
+    <button class="tab-btn" onclick="switchTab('tab-pitches', this)">4. One-Click B2B Cold Pitch Studio</button>
+    <button class="tab-btn" onclick="switchTab('tab-teardown', this)">5. Apify $9/$29/$59 PPE Actor Teardown</button>
+  </div>
+
+  <!-- TAB 1: BRAND LEADERBOARD -->
+  <div id="tab-brands" class="tab-panel active">
+    <table>
+      <thead>
+        <tr>
+          <th>Brand &amp; Decision Maker</th>
+          <th>Vertical &amp; Status</th>
+          <th>30d Flights &amp; Shows</th>
+          <th>30d Reach &amp; Ø TKP</th>
+          <th>Geschätzter 30d Spend (Q-Run-Rate)</th>
+          <th>Vanity-URLs &amp; Promo-Codes</th>
+          <th>Direkte Wettbewerber (Counter-Strike Leads)</th>
+          <th>Aktion</th>
+        </tr>
+      </thead>
+      <tbody id="brandTableBody"></tbody>
+    </table>
+  </div>
+
+  <!-- TAB 2: EPISODE INSPECTOR -->
+  <div id="tab-episodes" class="tab-panel">
+    <table>
+      <thead>
+        <tr>
+          <th>Show &amp; Plattform</th>
+          <th>Episode &amp; Datum</th>
+          <th>Erkannter Sponsor</th>
+          <th>Placement &amp; Timestamp</th>
+          <th>Vanity-URL &amp; Rabattcode</th>
+          <th>Reach · TKP · Spend</th>
+          <th>Raw RSS / Transkript Evidenz</th>
+        </tr>
+      </thead>
+      <tbody id="episodeTableBody"></tbody>
+    </table>
+  </div>
+
+  <!-- TAB 3: WHITESPACE MATRIX -->
+  <div id="tab-whitespace" class="tab-panel">
+    <table>
+      <thead>
+        <tr>
+          <th>Aktiver Sponsor (Verifiziertes Budget)</th>
+          <th>Bisher gebuchte Shows (30d)</th>
+          <th>Empfohlene Lookalike-Show (Unbesetzt)</th>
+          <th>Zielgruppen-Fit &amp; Exklusivitäts-Signal</th>
+          <th>Ø Reichweite &amp; Paketpreis (3er-Flight)</th>
+        </tr>
+      </thead>
+      <tbody id="whitespaceTableBody"></tbody>
+    </table>
+  </div>
+
+  <!-- TAB 4: COLD PITCH STUDIO -->
+  <div id="tab-pitches" class="tab-panel">
+    <div class="pitch-studio">
+      <div class="card">
+        <h3 style="font-size:15px; margin-bottom:12px;">Pitch-Konfigurator</h3>
+        <label style="font-size:12px; color:var(--muted); display:block; margin-bottom:6px;">Aktive Sponsor-Brand wählen:</label>
+        <select id="pitchBrandSelect" onchange="updatePitchView()" style="width:100%; padding:10px; background:var(--bg); color:var(--text); border:1px solid var(--border); border-radius:8px; margin-bottom:14px;"></select>
+
+        <label style="font-size:12px; color:var(--muted); display:block; margin-bottom:6px;">Pitch-Modus wählen:</label>
+        <select id="pitchModeSelect" onchange="updatePitchView()" style="width:100%; padding:10px; background:var(--bg); color:var(--text); border:1px solid var(--border); border-radius:8px; margin-bottom:16px;">
+          <option value="creator_to_brand">Modus A: Creator/Vermarkter -> Brand (Lookalike Show Pitch)</option>
+          <option value="competitor_counterstrike">Modus B: Agentur/Show -> Direkter Wettbewerber (Counter-Strike Exklusivität)</option>
+        </select>
+
+        <div id="pitchMetaCard" style="font-size:12.5px; color:var(--muted); border-top:1px solid var(--border); padding-top:12px;"></div>
+      </div>
+
+      <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <h3 style="font-size:15px;" id="pitchTargetHeader">Generiertes Outbound-Anschreiben</h3>
+          <button class="btn" onclick="copyPitchToClipboard()">Pitch in Zwischenablage kopieren</button>
+        </div>
+        <div class="pitch-box" id="pitchSubjectBox" style="font-weight:700; color:var(--accent);"></div>
+        <div class="pitch-box" id="pitchBodyBox"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 5: APIFY TEARDOWN -->
+  <div id="tab-teardown" class="tab-panel">
+    <div class="card" style="margin-bottom:16px;">
+      <h3 style="font-size:17px; margin-bottom:10px;">Warum <code>taroyamada/podcast-sponsor-public-signal-report</code> $9.00 bis $59.00 pro Lauf durchsetzt</h3>
+      <p style="font-size:13.5px; color:var(--muted); margin-bottom:14px;">
+        Während 95% aller Apify-Entwickler um $0.001 pro roher Zeile konkurrieren, verkauft Naoki Anzai (<code>taroyamada</code>)
+        einen dreistufigen <strong>Report-as-an-Actor Value-Ladder</strong> mit <code>PAY_PER_EVENT</code>-Abrechnung und 0% Proxy-Kosten (reine öffentliche RSS-XML- &amp; iTunes-Lookup-Requests):
+      </p>
+      <table>
+        <thead>
+          <tr>
+            <th>Stufe / System</th>
+            <th>Preis-Modell</th>
+            <th>Technische Signale &amp; Methodik</th>
+            <th>Käufer-Nutzen (B2B ROI)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>1. Lead-Magnet Actor</strong><br/><code>taroyamada/apple-podcast-scraper</code></td>
+            <td class="mono">$0.003–$0.01 / Zeile<br/>(57.428 Runs)</td>
+            <td>Nutzt kostenlose iTunes Lookup API + RSS-Feed-Auflösung ohne API-Key/Login (256 MB RAM).</td>
+            <td>Liefert die Basis-Liste an Podcast-RSS-URLs und verlinkt im Output direkt auf den $9 Report-Actor.</td>
+          </tr>
+          <tr>
+            <td><strong>2. Watchlist Trigger</strong><br/><code>taroyamada/apple-podcast-episode-watchlist</code></td>
+            <td class="mono">$0.003 / Zeile<br/>(269 Runs)</td>
+            <td>Pollt RSS-Feeds periodisch auf neue <code>&lt;item&gt;</code>-GUIDs und übergibt <code>previewReport.nextRunInput</code>.</td>
+            <td>Erkennt sofort, wenn eine neue Folge mit frischem Sponsoren-Read erscheint.</td>
+          </tr>
+          <tr>
+            <td><strong>3. High-Ticket Report Actor</strong><br/><code>taroyamada/podcast-sponsor-public-signal-report</code></td>
+            <td class="mono"><strong>$9.00</strong> (<code>sponsor_signal_snapshot</code>)<br/><strong>$29.00</strong> (<code>show_sponsor_fit_report</code>)<br/><strong>$59.00</strong> (<code>sponsor_watch_summary</code>)</td>
+            <td>Parst <code>&lt;content:encoded&gt;</code> + Media-Kit-Seiten, berechnet <code>sponsorSignalScore</code>, liefert <code>sponsorshipFitReasons</code> &amp; <code>actionList</code>. Bei 0 Treffern greift die <em>No-Charge Rule</em>.</td>
+            <td>Spart Ad-Sales-Teams 45 Min. manuelle Recherche pro Show; 1 gewonnener Sponsor-Deal bringt 5.000€–25.000€.</td>
+          </tr>
+          <tr>
+            <td><strong>4. Unser DACH MVP #53 Upgrade</strong><br/><code>sponsor_radar_engine.py</code></td>
+            <td class="mono"><strong>€149–€499 / Monat SaaS</strong><br/>oder <strong>€9 / Dossier</strong></td>
+            <td>Kombiniert Podcast-RSS <code>&lt;content:encoded&gt;</code> + YouTube-Transkripte, extrahiert Vanity-URLs, Promo-Codes &amp; Mid-Roll-Dauern, schätzt das <strong>30d-Euro-Budget nach DACH-TKP</strong> und generiert fertige Counter-Strike-Pitches.</td>
+            <td>Direkte B2B-Lead-Maschine für DACH-Podcast-Hosts, YouTube-Creator und Media-Agenturen (Podstars/Seven.One-Segmente).</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+  const REPORT = {"report_meta": {"mvp_id": "MVP_53_DACH_PODCAST_YOUTUBE_SPONSOR_RADAR", "generated_at": "2026-10-17T15:33:02Z", "reference_actor_teardown": {"actor_name": "taroyamada/podcast-sponsor-public-signal-report", "actor_id": "GETVTTTxbRkgr8pzI", "developer": "naoki anzai (taroyamada)", "pricing_model": "PAY_PER_EVENT (Report-as-an-Actor)", "event_tiers": {"apify-actor-start": 5e-05, "sponsor_signal_snapshot": 9.0, "show_sponsor_fit_report": 29.0, "sponsor_watch_summary": 59.0}, "runs_30d": 26, "succeeded_30d": 26, "estimated_monthly_revenue_floor_usd": 234.0, "funnel_architecture": ["Step 1 (Lead Magnet): taroyamada/apple-podcast-scraper ($0.003-$0.01/row, 57,428 runs)", "Step 2 (Trigger): taroyamada/apple-podcast-episode-watchlist ($0.003/row, recurring RSS diff)", "Step 3 (High-Ticket Upsell): taroyamada/podcast-sponsor-public-signal-report ($9 -> $29 -> $59/report via previewReport.nextRunInput)"], "competitor_benchmarks": {"Magellan AI": "Enterprise audio ASR + RSS parser ($15,000-$35,000/yr) modeling downloads via chart rank & review velocity.", "ThoughtLeaders": "YouTube & cross-platform creator sponsorship tracker ($250-$1,000/mo) using projected 30d/90d video views.", "SponsorGap / Podchaser": "Self-serve creator/agency prospecting ($79-$249/mo) matching competitor brand flights against unsponsored lookalike shows."}}, "kpi_summary": {"total_tracked_brands": 10, "verified_high_velocity_brands_3plus": 10, "total_ad_placements_detected_30d": 32, "podcast_rss_placements": 19, "youtube_video_placements": 13, "total_estimated_spend_30d_eur": 463838.48, "estimated_quarterly_run_rate_eur": 1391515.44, "avg_effective_dach_tkp_eur": 77.94}}, "brand_leaderboards": [{"brand_key": "NordVPN", "canonical_brand": "NordVPN (Nord Security)", "category": "Tech & AI", "hq_country": "LT/DE (DACH Growth Team)", "decision_maker_role": "Senior Campaign Manager DACH (YouTube & Audio)", "agency_network": "ThoughtLeaders / Direct Creator Desk", "placements_30d": 3, "unique_shows_30d": 3, "platforms_active": ["YouTube"], "shows_sponsored": ["MrWissen2go (YouTube)", "Niklas Steenfatt (YouTube)", "Simplicissimus (YouTube)"], "total_estimated_reach_30d": 1088000, "avg_effective_tkp_eur": 81.97, "estimated_spend_30d_eur": 89523.36, "estimated_quarterly_run_rate_eur": 268570.08, "avg_ad_duration_sec": 100.0, "active_budget_status": "VERIFIED_ACTIVE_HIGH_VELOCITY", "signal_score_0_100": 94, "detected_vanity_urls": ["https://nordvpn.com/niklas", "https://nordvpn.com/simplicissimus", "https://nordvpn.com/wissen2go"], "detected_promo_codes": ["NIKLASVPN", "SIMPLI", "WISSEN2GO"], "direct_competitors": ["Surfshark", "ProtonVPN", "ExpressVPN", "Mullvad"], "lookalike_whitespace_shows": [{"show_name": "Doppelgänger Tech Talk", "platform": "Podcast RSS + YouTube", "niche": "Business & SaaS", "avg_reach": 78000, "estimated_tkp_eur": 80.0, "single_midroll_price_eur": 6240.0, "three_flight_bundle_eur": 16848.0, "audience_profile": "Tech-Entscheider, Gründer, VC-Investoren, Privatanleger (DACH, 28-48 J.)", "fit_rationale": "Zielgruppen-Deckung (Tech-Entscheider, Gründer, VC-Investoren, Privatanleger (DACH, 28-48 J.)) + 78,000 Ø Kontakte/Folge zu ~80€ TKP. Achtung: Co-Sponsor-Umfeld (Lexoffice, Personio) bereits aktiv!"}, {"show_name": "Kassenzone / E-Commerce & B2B Deep Dive", "platform": "Podcast RSS", "niche": "Business & SaaS", "avg_reach": 42000, "estimated_tkp_eur": 80.0, "single_midroll_price_eur": 3360.0, "three_flight_bundle_eur": 9072.0, "audience_profile": "C-Level Handel, SaaS-Gründer, E-Commerce Geschäftsführer (DACH)", "fit_rationale": "Zielgruppen-Deckung (C-Level Handel, SaaS-Gründer, E-Commerce Geschäftsführer (DACH)) + 42,000 Ø Kontakte/Folge zu ~80€ TKP. 100% Kategorie-Exklusivität im Q4-Slot verfügbar."}, {"show_name": "KI-Update & Developer Architektur DACH", "platform": "YouTube + Podcast RSS", "niche": "Tech & AI", "avg_reach": 64000, "estimated_tkp_eur": 76.0, "single_midroll_price_eur": 4864.0, "three_flight_bundle_eur": 13132.8, "audience_profile": "Software-Architekten, CTOs, IT-Security-Verantwortliche, AI Engineers", "fit_rationale": "Zielgruppen-Deckung (Software-Architekten, CTOs, IT-Security-Verantwortliche, AI Engineers) + 64,000 Ø Kontakte/Folge zu ~76€ TKP. 100% Kategorie-Exklusivität im Q4-Slot verfügbar."}], "cold_pitch_creator_to_brand": {"target": "NordVPN (Nord Security)", "subject": "Eure 3 Mid-Roll Flights bei MrWissen2go (YouTube), Niklas Steenfatt (YouTube), Simplicissimus (YouTube) (Code: NIKLASVPN) -> Lookalike-Slot bei Doppelgänger Tech Talk", "body": "Hallo Team (Senior Campaign Manager DACH (YouTube & Audio) bei NordVPN (Nord Security)),\n\nwir tracken aktuelle DACH-Podcast- & YouTube-Integrationen und haben gesehen, dass NordVPN (Nord Security) in den letzten 30 Tagen 3 native Host-Read-Placements geschaltet hat (u. a. bei MrWissen2go (YouTube), Niklas Steenfatt (YouTube), Simplicissimus (YouTube) über https://nordvpn.com/niklas mit Code 'NIKLASVPN', geschätztes Media-Volumen ~89,523 € bei Ø 82 € TKP).\n\nDa ihr aktuell aktiv in dieser Zielgruppe skaliert: Bei **Doppelgänger Tech Talk** (78,000 Ø verifizierte Kontakte/Folge, Zielgruppe: Tech-Entscheider, Gründer, VC-Investoren, Privatanleger (DACH, 28-48 J.)) ist für den kommenden Monat noch Kategorie-Exklusivität frei.\n\nEckdaten für einen 3er-Testflight (Host-Read Mid-Roll, 90 Sek. inkl. Vanity-Link & Rabattcode in den Show Notes):\n• Reichweite über 3 Folgen: ~234,000 Netto-Kontakte\n• Effektiver Paket-TKP: 72.00 € (statt 81.97 € Marktschnitt)\n• Gesamt-Investment (3er-Flight): 16,848 € netto\n\nSollen wir euch für Dienstag kurz die aktuellen Hörer-Demografien & Conversion-Benchmarks rüberschicken?\n\nBeste Grüße\nDACH Sponsor Intelligence & Ad-Sales Desk"}, "cold_pitch_competitor_counterstrike": {"target": "Surfshark", "subject": "Wettbewerbs-Signal: NordVPN investiert ~89,523 €/Monat in DACH-Podcasts (MrWissen2go (YouTube), Niklas Steenfatt (YouTube), Simplicissimus (YouTube)) – Exklusiv-Slot für Surfshark?", "body": "Hallo Growth- & Brand-Team bei Surfshark,\n\nunser DACH Sponsor-Radar zeigt, dass euer direkter Wettbewerber **NordVPN (Nord Security)** in den letzten 30 Tagen massiv in deutschsprachige Host-Read Mid-Rolls und YouTube-Integrationen investiert hat:\n• Erfasste Placements (30 Tage): 3 Folgen bei MrWissen2go (YouTube), Niklas Steenfatt (YouTube), Simplicissimus (YouTube)\n• Aktive Tracking-Routen: https://nordvpn.com/niklas (Promo-Code: NIKLASVPN)\n• Geschätztes 30-Tage-Spend-Volumen: ~89,523 € (Hochrechnung Quartal: ~268,570 €)\n\nWährend NordVPN diese Shows besetzt, ist das direkte Schwester-Umfeld **Doppelgänger Tech Talk** (78,000 Ø Downloads/Views pro Folge) aktuell noch unbesetzt.\n\nMöchtet ihr euch für Surfshark die Kategorie-Sperre (Exklusivität gegen NordVPN) auf Doppelgänger Tech Talk sichern, bevor deren Agentur das Q4-Mandat ausweitet?\n\nBeste Grüße\nDACH Sponsor Intelligence Radar"}}, {"brand_key": "Holy Energy", "canonical_brand": "HOLY Energy (Holy Squad)", "category": "Health & Longevity", "hq_country": "DE (Berlin)", "decision_maker_role": "Team Lead Creator Partnerships DACH", "agency_network": "In-House Creator Squad Berlin", "placements_30d": 3, "unique_shows_30d": 3, "platforms_active": ["Podcast RSS", "YouTube"], "shows_sponsored": ["Baywatch Berlin", "Niklas Steenfatt (YouTube)", "Simplicissimus (YouTube)"], "total_estimated_reach_30d": 958000, "avg_effective_tkp_eur": 65.69, "estimated_spend_30d_eur": 55509.56, "estimated_quarterly_run_rate_eur": 166528.68, "avg_ad_duration_sec": 90.0, "active_budget_status": "VERIFIED_ACTIVE_HIGH_VELOCITY", "signal_score_0_100": 99, "detected_vanity_urls": ["https://weareholy.com/baywatch", "https://weareholy.com/niklas", "https://weareholy.com/simpli"], "detected_promo_codes": ["BAYWATCH5", "NIKLAS10", "SIMPLI5"], "direct_competitors": ["LevlUp", "Waterdrop", "Air Up", "yfood"], "lookalike_whitespace_shows": [{"show_name": "Doppelgänger Tech Talk", "platform": "Podcast RSS + YouTube", "niche": "Business & SaaS", "avg_reach": 78000, "estimated_tkp_eur": 80.0, "single_midroll_price_eur": 6240.0, "three_flight_bundle_eur": 16848.0, "audience_profile": "Tech-Entscheider, Gründer, VC-Investoren, Privatanleger (DACH, 28-48 J.)", "fit_rationale": "Zielgruppen-Deckung (Tech-Entscheider, Gründer, VC-Investoren, Privatanleger (DACH, 28-48 J.)) + 78,000 Ø Kontakte/Folge zu ~80€ TKP. Achtung: Co-Sponsor-Umfeld (Lexoffice, Personio) bereits aktiv!"}, {"show_name": "Kassenzone / E-Commerce & B2B Deep Dive", "platform": "Podcast RSS", "niche": "Business & SaaS", "avg_reach": 42000, "estimated_tkp_eur": 80.0, "single_midroll_price_eur": 3360.0, "three_flight_bundle_eur": 9072.0, "audience_profile": "C-Level Handel, SaaS-Gründer, E-Commerce Geschäftsführer (DACH)", "fit_rationale": "Zielgruppen-Deckung (C-Level Handel, SaaS-Gründer, E-Commerce Geschäftsführer (DACH)) + 42,000 Ø Kontakte/Folge zu ~80€ TKP. 100% Kategorie-Exklusivität im Q4-Slot verfügbar."}, {"show_name": "Longevity & Biohacking Medizin DACH", "platform": "YouTube + Podcast RSS", "niche": "Health & Longevity", "avg_reach": 58000, "estimated_tkp_eur": 69.0, "single_midroll_price_eur": 4002.0, "three_flight_bundle_eur": 10805.4, "audience_profile": "Gesundheitsbewusste High-Performer, Sportler, Führungskräfte (25-55 J.)", "fit_rationale": "Zielgruppen-Deckung (Gesundheitsbewusste High-Performer, Sportler, Führungskräfte (25-55 J.)) + 58,000 Ø Kontakte/Folge zu ~69€ TKP. 100% Kategorie-Exklusivität im Q4-Slot verfügbar."}], "cold_pitch_creator_to_brand": {"target": "HOLY Energy (Holy Squad)", "subject": "Eure 3 Mid-Roll Flights bei Baywatch Berlin, Niklas Steenfatt (YouTube), Simplicissimus (YouTube) (Code: BAYWATCH5) -> Lookalike-Slot bei Doppelgänger Tech Talk", "body": "Hallo Team (Team Lead Creator Partnerships DACH bei HOLY Energy (Holy Squad)),\n\nwir tracken aktuelle DACH-Podcast- & YouTube-Integrationen und haben gesehen, dass HOLY Energy (Holy Squad) in den letzten 30 Tagen 3 native Host-Read-Placements geschaltet hat (u. a. bei Baywatch Berlin, Niklas Steenfatt (YouTube), Simplicissimus (YouTube) über https://weareholy.com/baywatch mit Code 'BAYWATCH5', geschätztes Media-Volumen ~55,510 € bei Ø 66 € TKP).\n\nDa ihr aktuell aktiv in dieser Zielgruppe skaliert: Bei **Doppelgänger Tech Talk** (78,000 Ø verifizierte Kontakte/Folge, Zielgruppe: Tech-Entscheider, Gründer, VC-Investoren, Privatanleger (DACH, 28-48 J.)) ist für den kommenden Monat noch Kategorie-Exklusivität frei.\n\nEckdaten für einen 3er-Testflight (Host-Read Mid-Roll, 90 Sek. inkl. Vanity-Link & Rabattcode in den Show Notes):\n• Reichweite über 3 Folgen: ~234,000 Netto-Kontakte\n• Effektiver Paket-TKP: 72.00 € (statt 65.69 € Marktschnitt)\n• Gesamt-Investment (3er-Flight): 16,848 € netto\n\nSollen wir euch für Dienstag kurz die aktuellen Hörer-Demografien & Conversion-Benchmarks rüberschicken?\n\nBeste Grüße\nDACH Sponsor Intelligence & Ad-Sales Desk"}, "cold_pitch_competitor_counterstrike": {"target": "LevlUp", "subject": "Wettbewerbs-Signal: Holy Energy investiert ~55,510 €/Monat in DACH-Podcasts (Baywatch Berlin, Niklas Steenfatt (YouTube), Simplicissimus (YouTube)) – Exklusiv-Slot für LevlUp?", "body": "Hallo Growth- & Brand-Team bei LevlUp,\n\nunser DACH Sponsor-Radar zeigt, dass euer direkter Wettbewerber **HOLY Energy (Holy Squad)** in den letzten 30 Tagen massiv in deutschsprachige Host-Read Mid-Rolls und YouTube-Integrationen investiert hat:\n• Erfasste Placements (30 Tage): 3 Folgen bei Baywatch Berlin, Niklas Steenfatt (YouTube), Simplicissimus (YouTube)\n• Aktive Tracking-Routen: https://weareholy.com/baywatch (Promo-Code: BAYWATCH5)\n• Geschätztes 30-Tage-Spend-Volumen: ~55,510 € (Hochrechnung Quartal: ~166,529 €)\n\nWährend Holy Energy diese Shows besetzt, ist das direkte Schwester-Umfeld **Doppelgänger Tech Talk** (78,000 Ø Downloads/Views pro Folge) aktuell noch unbesetzt.\n\nMöchtet ihr euch für LevlUp die Kategorie-Sperre (Exklusivität gegen Holy Energy) auf Doppelgänger Tech Talk sichern, bevor deren Agentur das Q4-Mandat ausweitet?\n\nBeste Grüße\nDACH Sponsor Intelligence Radar"}}, {"brand_key": "Taxfix", "canonical_brand": "Taxfix Steuer-App", "category": "Finance & Investing", "hq_country": "DE (Berlin)", "decision_maker_role": "Senior Brand & Audio Campaign Manager DACH", "agency_network": "Seven.One Audio / RMS Audio", "placements_30d": 3, "unique_shows_30d": 3, "platforms_active": ["Podcast RSS", "YouTube"], "shows_sponsored": ["Alles auf Aktien", "Finanzfluss (YouTube)", "MrWissen2go (YouTube)"], "total_estimated_reach_30d": 640000, "avg_effective_tkp_eur": 81.76, "estimated_spend_30d_eur": 50036.8, "estimated_quarterly_run_rate_eur": 150110.4, "avg_ad_duration_sec": 91.7, "active_budget_status": "VERIFIED_ACTIVE_HIGH_VELOCITY", "signal_score_0_100": 99, "detected_vanity_urls": ["https://taxfix.de/aktien", "https://taxfix.de/finanzfluss", "https://taxfix.de/wissen2go"], "detected_promo_codes": ["FLUSSTAX50", "STEUERAAA50", "WISSENTAX"], "direct_competitors": ["WISO Steuer (Buhl)", "Steuerbot", "Smartsteuer", "Zasta"], "lookalike_whitespace_shows": [{"show_name": "Doppelgänger Tech Talk", "platform": "Podcast RSS + YouTube", "niche": "Business & SaaS", "avg_reach": 78000, "estimated_tkp_eur": 80.0, "single_midroll_price_eur": 6240.0, "three_flight_bundle_eur": 16848.0, "audience_profile": "Tech-Entscheider, Gründer, VC-Investoren, Privatanleger (DACH, 28-48 J.)", "fit_rationale": "Zielgruppen-Deckung (Tech-Entscheider, Gründer, VC-Investoren, Privatanleger (DACH, 28-48 J.)) + 78,000 Ø Kontakte/Folge zu ~80€ TKP. Achtung: Co-Sponsor-Umfeld (Lexoffice, Personio) bereits aktiv!"}, {"show_name": "Kassenzone / E-Commerce & B2B Deep Dive", "platform": "Podcast RSS", "niche": "Business & SaaS", "avg_reach": 42000, "estimated_tkp_eur": 80.0, "single_midroll_price_eur": 3360.0, "three_flight_bundle_eur": 9072.0, "audience_profile": "C-Level Handel, SaaS-Gründer, E-Commerce Geschäftsführer (DACH)", "fit_rationale": "Zielgruppen-Deckung (C-Level Handel, SaaS-Gründer, E-Commerce Geschäftsführer (DACH)) + 42,000 Ø Kontakte/Folge zu ~80€ TKP. 100% Kategorie-Exklusivität im Q4-Slot verfügbar."}, {"show_name": "Marktgeflüster – Finanzen & Ökonomie", "platform": "Podcast RSS + YouTube", "niche": "Finance & Investing", "avg_reach": 95000, "estimated_tkp_eur": 84.0, "single_midroll_price_eur": 7980.0, "three_flight_bundle_eur": 21546.0, "audience_profile": "Kaufkräftige Privatanleger, Selbstständige, Akademiker (DACH)", "fit_rationale": "Zielgruppen-Deckung (Kaufkräftige Privatanleger, Selbstständige, Akademiker (DACH)) + 95,000 Ø Kontakte/Folge zu ~84€ TKP. Achtung: Co-Sponsor-Umfeld (Finanzguru) bereits aktiv!"}], "cold_pitch_creator_to_brand": {"target": "Taxfix Steuer-App", "subject": "Eure 3 Mid-Roll Flights bei Alles auf Aktien, Finanzfluss (YouTube), MrWissen2go (YouTube) (Code: FLUSSTAX50) -> Lookalike-Slot bei Doppelgänger Tech Talk", "body": "Hallo Team (Senior Brand & Audio Campaign Manager DACH bei Taxfix Steuer-App),\n\nwir tracken aktuelle DACH-Podcast- & YouTube-Integrationen und haben gesehen, dass Taxfix Steuer-App in den letzten 30 Tagen 3 native Host-Read-Placements geschaltet hat (u. a. bei Alles auf Aktien, Finanzfluss (YouTube), MrWissen2go (YouTube) über https://taxfix.de/aktien mit Code 'FLUSSTAX50', geschätztes Media-Volumen ~50,037 € bei Ø 82 € TKP).\n\nDa ihr aktuell aktiv in dieser Zielgruppe skaliert: Bei **Doppelgänger Tech Talk** (78,000 Ø verifizierte Kontakte/Folge, Zielgruppe: Tech-Entscheider, Gründer, VC-Investoren, Privatanleger (DACH, 28-48 J.)) ist für den kommenden Monat noch Kategorie-Exklusivität frei.\n\nEckdaten für einen 3er-Testflight (Host-Read Mid-Roll, 90 Sek. inkl. Vanity-Link & Rabattcode in den Show Notes):\n• Reichweite über 3 Folgen: ~234,000 Netto-Kontakte\n• Effektiver Paket-TKP: 72.00 € (statt 81.76 € Marktschnitt)\n• Gesamt-Investment (3er-Flight): 16,848 € netto\n\nSollen wir euch für Dienstag kurz die aktuellen Hörer-Demografien & Conversion-Benchmarks rüberschicken?\n\nBeste Grüße\nDACH Sponsor Intelligence & Ad-Sales Desk"}, "cold_pitch_competitor_counterstrike": {"target": "WISO Steuer (Buhl)", "subject": "Wettbewerbs-Signal: Taxfix investiert ~50,037 €/Monat in DACH-Podcasts (Alles auf Aktien, Finanzfluss (YouTube), MrWissen2go (YouTube)) – Exklusiv-Slot für WISO Steuer (Buhl)?", "body": "Hallo Growth- & Brand-Team bei WISO Steuer (Buhl),\n\nunser DACH Sponsor-Radar zeigt, dass euer direkter Wettbewerber **Taxfix Steuer-App** in den letzten 30 Tagen massiv in deutschsprachige Host-Read Mid-Rolls und YouTube-Integrationen investiert hat:\n• Erfasste Placements (30 Tage): 3 Folgen bei Alles auf Aktien, Finanzfluss (YouTube), MrWissen2go (YouTube)\n• Aktive Tracking-Routen: https://taxfix.de/aktien (Promo-Code: FLUSSTAX50)\n• Geschätztes 30-Tage-Spend-Volumen: ~50,037 € (Hochrechnung Quartal: ~150,110 €)\n\nWährend Taxfix diese Shows besetzt, ist das direkte Schwester-Umfeld **Doppelgänger Tech Talk** (78,000 Ø Downloads/Views pro Folge) aktuell noch unbesetzt.\n\nMöchtet ihr euch für WISO Steuer (Buhl) die Kategorie-Sperre (Exklusivität gegen Taxfix) auf Doppelgänger Tech Talk sichern, bevor deren Agentur das Q4-Mandat ausweitet?\n\nBeste Grüße\nDACH Sponsor Intelligence Radar"}}, {"brand_key": "AG1", "canonical_brand": "AG1 (Athletic Greens)", "category": "Health & Longevity", "hq_country": "DE/US (München DACH Hub)", "decision_maker_role": "Head of Influencer & Audio Partnerships DACH", "agency_network": "Podstars by OMR / Direct In-House DACH", "placements_30d": 4, "unique_shows_30d": 4, "platforms_active": ["Podcast RSS", "YouTube"], "shows_sponsored": ["Hotel Matze", "Lanz & Precht", "Niklas Steenfatt (YouTube)", "OMR Podcast"], "total_estimated_reach_30d": 668000, "avg_effective_tkp_eur": 77.22, "estimated_spend_30d_eur": 49935.66, "estimated_quarterly_run_rate_eur": 149806.98, "avg_ad_duration_sec": 102.5, "active_budget_status": "VERIFIED_ACTIVE_HIGH_VELOCITY", "signal_score_0_100": 99, "detected_vanity_urls": ["https://drinkag1.com/lanz", "https://drinkag1.com/matze", "https://drinkag1.com/niklas", "https://drinkag1.com/omr"], "detected_promo_codes": ["LANZAG1", "MATZEAG1", "NIKLASAG1", "OMRAG1"], "direct_competitors": ["Biogena One", "Sunday Natural", "More Nutrition", "Orthomol"], "lookalike_whitespace_shows": [{"show_name": "Doppelgänger Tech Talk", "platform": "Podcast RSS + YouTube", "niche": "Business & SaaS", "avg_reach": 78000, "estimated_tkp_eur": 80.0, "single_midroll_price_eur": 6240.0, "three_flight_bundle_eur": 16848.0, "audience_profile": "Tech-Entscheider, Gründer, VC-Investoren, Privatanleger (DACH, 28-48 J.)", "fit_rationale": "Zielgruppen-Deckung (Tech-Entscheider, Gründer, VC-Investoren, Privatanleger (DACH, 28-48 J.)) + 78,000 Ø Kontakte/Folge zu ~80€ TKP. Achtung: Co-Sponsor-Umfeld (Lexoffice, Personio) bereits aktiv!"}, {"show_name": "Kassenzone / E-Commerce & B2B Deep Dive", "platform": "Podcast RSS", "niche": "Business & SaaS", "avg_reach": 42000, "estimated_tkp_eur": 80.0, "single_midroll_price_eur": 3360.0, "three_flight_bundle_eur": 9072.0, "audience_profile": "C-Level Handel, SaaS-Gründer, E-Commerce Geschäftsführer (DACH)", "fit_rationale": "Zielgruppen-Deckung (C-Level Handel, SaaS-Gründer, E-Commerce Geschäftsführer (DACH)) + 42,000 Ø Kontakte/Folge zu ~80€ TKP. 100% Kategorie-Exklusivität im Q4-Slot verfügbar."}, {"show_name": "Longevity & Biohacking Medizin DACH", "platform": "YouTube + Podcast RSS", "niche": "Health & Longevity", "avg_reach": 58000, "estimated_tkp_eur": 69.0, "single_midroll_price_eur": 4002.0, "three_flight_bundle_eur": 10805.4, "audience_profile": "Gesundheitsbewusste High-Performer, Sportler, Führungskräfte (25-55 J.)", "fit_rationale": "Zielgruppen-Deckung (Gesundheitsbewusste High-Performer, Sportler, Führungskräfte (25-55 J.)) + 58,000 Ø Kontakte/Folge zu ~69€ TKP. 100% Kategorie-Exklusivität im Q4-Slot verfügbar."}], "cold_pitch_creator_to_brand": {"target": "AG1 (Athletic Greens)", "subject": "Eure 4 Mid-Roll Flights bei Hotel Matze, Lanz & Precht, Niklas Steenfatt (YouTube) (Code: LANZAG1) -> Lookalike-Slot bei Doppelgänger Tech Talk", "body": "Hallo Team (Head of Influencer & Audio Partnerships DACH bei AG1 (Athletic Greens)),\n\nwir tracken aktuelle DACH-Podcast- & YouTube-Integrationen und haben gesehen, dass AG1 (Athletic Greens) in den letzten 30 Tagen 4 native Host-Read-Placements geschaltet hat (u. a. bei Hotel Matze, Lanz & Precht, Niklas Steenfatt (YouTube) über https://drinkag1.com/lanz mit Code 'LANZAG1', geschätztes Media-Volumen ~49,936 € bei Ø 77 € TKP).\n\nDa ihr aktuell aktiv in dieser Zielgruppe skaliert: Bei **Doppelgänger Tech Talk** (78,000 Ø verifizierte Kontakte/Folge, Zielgruppe: Tech-Entscheider, Gründer, VC-Investoren, Privatanleger (DACH, 28-48 J.)) ist für den kommenden Monat noch Kategorie-Exklusivität frei.\n\nEckdaten für einen 3er-Testflight (Host-Read Mid-Roll, 90 Sek. inkl. Vanity-Link & Rabattcode in den Show Notes):\n• Reichweite über 3 Folgen: ~234,000 Netto-Kontakte\n• Effektiver Paket-TKP: 72.00 € (statt 77.22 € Marktschnitt)\n• Gesamt-Investment (3er-Flight): 16,848 € netto\n\nSollen wir euch für Dienstag kurz die aktuellen Hörer-Demografien & Conversion-Benchmarks rüberschicken?\n\nBeste Grüße\nDACH Sponsor Intelligence & Ad-Sales Desk"}, "cold_pitch_competitor_counterstrike": {"target": "Biogena One", "subject": "Wettbewerbs-Signal: AG1 investiert ~49,936 €/Monat in DACH-Podcasts (Hotel Matze, Lanz & Precht, Niklas Steenfatt (YouTube)) – Exklusiv-Slot für Biogena One?", "body": "Hallo Growth- & Brand-Team bei Biogena One,\n\nunser DACH Sponsor-Radar zeigt, dass euer direkter Wettbewerber **AG1 (Athletic Greens)** in den letzten 30 Tagen massiv in deutschsprachige Host-Read Mid-Rolls und YouTube-Integrationen investiert hat:\n• Erfasste Placements (30 Tage): 4 Folgen bei Hotel Matze, Lanz & Precht, Niklas Steenfatt (YouTube)\n• Aktive Tracking-Routen: https://drinkag1.com/lanz (Promo-Code: LANZAG1)\n• Geschätztes 30-Tage-Spend-Volumen: ~49,936 € (Hochrechnung Quartal: ~149,807 €)\n\nWährend AG1 diese Shows besetzt, ist das direkte Schwester-Umfeld **Doppelgänger Tech Talk** (78,000 Ø Downloads/Views pro Folge) aktuell noch unbesetzt.\n\nMöchtet ihr euch für Biogena One die Kategorie-Sperre (Exklusivität gegen AG1) auf Doppelgänger Tech Talk sichern, bevor deren Agentur das Q4-Mandat ausweitet?\n\nBeste Grüße\nDACH Sponsor Intelligence Radar"}}, {"brand_key": "Lexoffice", "canonical_brand": "Lexware Office (ehem. Lexoffice)", "category": "Business & SaaS", "hq_country": "DE (Freiburg im Breisgau)", "decision_maker_role": "Director B2B Growth & Partner Marketing", "agency_network": "Podstars by OMR / Direct B2B", "placements_30d": 4, "unique_shows_30d": 4, "platforms_active": ["Podcast RSS", "YouTube"], "shows_sponsored": ["Alles auf Aktien", "Finanzfluss (YouTube)", "OMR Podcast", "Startup Insider Daily"], "total_estimated_reach_30d": 479000, "avg_effective_tkp_eur": 86.78, "estimated_spend_30d_eur": 41704.0, "estimated_quarterly_run_rate_eur": 125112.0, "avg_ad_duration_sec": 95.0, "active_budget_status": "VERIFIED_ACTIVE_HIGH_VELOCITY", "signal_score_0_100": 99, "detected_vanity_urls": ["https://lexoffice.de/aktien", "https://lexoffice.de/finanzfluss", "https://lexoffice.de/omr", "https://lexoffice.de/startupinsider"], "detected_promo_codes": ["FLUSSLEX", "LEXAKTIEN", "LEXOMR50", "SILEX50"], "direct_competitors": ["SevDesk", "BuchhaltungsButler", "Finom", "Accountable"], "lookalike_whitespace_shows": [{"show_name": "Kassenzone / E-Commerce & B2B Deep Dive", "platform": "Podcast RSS", "niche": "Business & SaaS", "avg_reach": 42000, "estimated_tkp_eur": 80.0, "single_midroll_price_eur": 3360.0, "three_flight_bundle_eur": 9072.0, "audience_profile": "C-Level Handel, SaaS-Gründer, E-Commerce Geschäftsführer (DACH)", "fit_rationale": "Zielgruppen-Deckung (C-Level Handel, SaaS-Gründer, E-Commerce Geschäftsführer (DACH)) + 42,000 Ø Kontakte/Folge zu ~80€ TKP. 100% Kategorie-Exklusivität im Q4-Slot verfügbar."}, {"show_name": "KI-Update & Developer Architektur DACH", "platform": "YouTube + Podcast RSS", "niche": "Tech & AI", "avg_reach": 64000, "estimated_tkp_eur": 76.0, "single_midroll_price_eur": 4864.0, "three_flight_bundle_eur": 13132.8, "audience_profile": "Software-Architekten, CTOs, IT-Security-Verantwortliche, AI Engineers", "fit_rationale": "Zielgruppen-Deckung (Software-Architekten, CTOs, IT-Security-Verantwortliche, AI Engineers) + 64,000 Ø Kontakte/Folge zu ~76€ TKP. 100% Kategorie-Exklusivität im Q4-Slot verfügbar."}], "cold_pitch_creator_to_brand": {"target": "Lexware Office (ehem. Lexoffice)", "subject": "Eure 4 Mid-Roll Flights bei Alles auf Aktien, Finanzfluss (YouTube), OMR Podcast (Code: FLUSSLEX) -> Lookalike-Slot bei Kassenzone / E-Commerce & B2B Deep Dive", "body": "Hallo Team (Director B2B Growth & Partner Marketing bei Lexware Office (ehem. Lexoffice)),\n\nwir tracken aktuelle DACH-Podcast- & YouTube-Integrationen und haben gesehen, dass Lexware Office (ehem. Lexoffice) in den letzten 30 Tagen 4 native Host-Read-Placements geschaltet hat (u. a. bei Alles auf Aktien, Finanzfluss (YouTube), OMR Podcast über https://lexoffice.de/aktien mit Code 'FLUSSLEX', geschätztes Media-Volumen ~41,704 € bei Ø 87 € TKP).\n\nDa ihr aktuell aktiv in dieser Zielgruppe skaliert: Bei **Kassenzone / E-Commerce & B2B Deep Dive** (42,000 Ø verifizierte Kontakte/Folge, Zielgruppe: C-Level Handel, SaaS-Gründer, E-Commerce Geschäftsführer (DACH)) ist für den kommenden Monat noch Kategorie-Exklusivität frei.\n\nEckdaten für einen 3er-Testflight (Host-Read Mid-Roll, 90 Sek. inkl. Vanity-Link & Rabattcode in den Show Notes):\n• Reichweite über 3 Folgen: ~126,000 Netto-Kontakte\n• Effektiver Paket-TKP: 72.00 € (statt 86.78 € Marktschnitt)\n• Gesamt-Investment (3er-Flight): 9,072 € netto\n\nSollen wir euch für Dienstag kurz die aktuellen Hörer-Demografien & Conversion-Benchmarks rüberschicken?\n\nBeste Grüße\nDACH Sponsor Intelligence & Ad-Sales Desk"}, "cold_pitch_competitor_counterstrike": {"target": "SevDesk", "subject": "Wettbewerbs-Signal: Lexoffice investiert ~41,704 €/Monat in DACH-Podcasts (Alles auf Aktien, Finanzfluss (YouTube), OMR Podcast) – Exklusiv-Slot für SevDesk?", "body": "Hallo Growth- & Brand-Team bei SevDesk,\n\nunser DACH Sponsor-Radar zeigt, dass euer direkter Wettbewerber **Lexware Office (ehem. Lexoffice)** in den letzten 30 Tagen massiv in deutschsprachige Host-Read Mid-Rolls und YouTube-Integrationen investiert hat:\n• Erfasste Placements (30 Tage): 4 Folgen bei Alles auf Aktien, Finanzfluss (YouTube), OMR Podcast\n• Aktive Tracking-Routen: https://lexoffice.de/aktien (Promo-Code: FLUSSLEX)\n• Geschätztes 30-Tage-Spend-Volumen: ~41,704 € (Hochrechnung Quartal: ~125,112 €)\n\nWährend Lexoffice diese Shows besetzt, ist das direkte Schwester-Umfeld **Kassenzone / E-Commerce & B2B Deep Dive** (42,000 Ø Downloads/Views pro Folge) aktuell noch unbesetzt.\n\nMöchtet ihr euch für SevDesk die Kategorie-Sperre (Exklusivität gegen Lexoffice) auf Kassenzone / E-Commerce & B2B Deep Dive sichern, bevor deren Agentur das Q4-Mandat ausweitet?\n\nBeste Grüße\nDACH Sponsor Intelligence Radar"}}, {"brand_key": "Finanzguru", "canonical_brand": "Finanzguru (dwins GmbH)", "category": "Finance & Investing", "hq_country": "DE (Frankfurt am Main)", "decision_maker_role": "Head of Growth & Podcast Acquisition", "agency_network": "Direct Performance Team / Podstars", "placements_30d": 3, "unique_shows_30d": 2, "platforms_active": ["Podcast RSS", "YouTube"], "shows_sponsored": ["Alles auf Aktien", "Finanzfluss (YouTube)"], "total_estimated_reach_30d": 454000, "avg_effective_tkp_eur": 90.11, "estimated_spend_30d_eur": 41048.4, "estimated_quarterly_run_rate_eur": 123145.2, "avg_ad_duration_sec": 96.7, "active_budget_status": "VERIFIED_ACTIVE_HIGH_VELOCITY", "signal_score_0_100": 99, "detected_vanity_urls": ["https://finanzguru.de/aaa", "https://finanzguru.de/finanzfluss"], "detected_promo_codes": ["FLUSSGURU", "GURUAAA"], "direct_competitors": ["Clark", "Finanzfluss Copilot", "Parqet", "Outbank"], "lookalike_whitespace_shows": [{"show_name": "Doppelgänger Tech Talk", "platform": "Podcast RSS + YouTube", "niche": "Business & SaaS", "avg_reach": 78000, "estimated_tkp_eur": 80.0, "single_midroll_price_eur": 6240.0, "three_flight_bundle_eur": 16848.0, "audience_profile": "Tech-Entscheider, Gründer, VC-Investoren, Privatanleger (DACH, 28-48 J.)", "fit_rationale": "Zielgruppen-Deckung (Tech-Entscheider, Gründer, VC-Investoren, Privatanleger (DACH, 28-48 J.)) + 78,000 Ø Kontakte/Folge zu ~80€ TKP. Achtung: Co-Sponsor-Umfeld (Lexoffice, Personio) bereits aktiv!"}, {"show_name": "Kassenzone / E-Commerce & B2B Deep Dive", "platform": "Podcast RSS", "niche": "Business & SaaS", "avg_reach": 42000, "estimated_tkp_eur": 80.0, "single_midroll_price_eur": 3360.0, "three_flight_bundle_eur": 9072.0, "audience_profile": "C-Level Handel, SaaS-Gründer, E-Commerce Geschäftsführer (DACH)", "fit_rationale": "Zielgruppen-Deckung (C-Level Handel, SaaS-Gründer, E-Commerce Geschäftsführer (DACH)) + 42,000 Ø Kontakte/Folge zu ~80€ TKP. 100% Kategorie-Exklusivität im Q4-Slot verfügbar."}], "cold_pitch_creator_to_brand": {"target": "Finanzguru (dwins GmbH)", "subject": "Eure 3 Mid-Roll Flights bei Alles auf Aktien, Finanzfluss (YouTube) (Code: FLUSSGURU) -> Lookalike-Slot bei Doppelgänger Tech Talk", "body": "Hallo Team (Head of Growth & Podcast Acquisition bei Finanzguru (dwins GmbH)),\n\nwir tracken aktuelle DACH-Podcast- & YouTube-Integrationen und haben gesehen, dass Finanzguru (dwins GmbH) in den letzten 30 Tagen 3 native Host-Read-Placements geschaltet hat (u. a. bei Alles auf Aktien, Finanzfluss (YouTube) über https://finanzguru.de/aaa mit Code 'FLUSSGURU', geschätztes Media-Volumen ~41,048 € bei Ø 90 € TKP).\n\nDa ihr aktuell aktiv in dieser Zielgruppe skaliert: Bei **Doppelgänger Tech Talk** (78,000 Ø verifizierte Kontakte/Folge, Zielgruppe: Tech-Entscheider, Gründer, VC-Investoren, Privatanleger (DACH, 28-48 J.)) ist für den kommenden Monat noch Kategorie-Exklusivität frei.\n\nEckdaten für einen 3er-Testflight (Host-Read Mid-Roll, 90 Sek. inkl. Vanity-Link & Rabattcode in den Show Notes):\n• Reichweite über 3 Folgen: ~234,000 Netto-Kontakte\n• Effektiver Paket-TKP: 72.00 € (statt 90.11 € Marktschnitt)\n• Gesamt-Investment (3er-Flight): 16,848 € netto\n\nSollen wir euch für Dienstag kurz die aktuellen Hörer-Demografien & Conversion-Benchmarks rüberschicken?\n\nBeste Grüße\nDACH Sponsor Intelligence & Ad-Sales Desk"}, "cold_pitch_competitor_counterstrike": {"target": "Clark", "subject": "Wettbewerbs-Signal: Finanzguru investiert ~41,048 €/Monat in DACH-Podcasts (Alles auf Aktien, Finanzfluss (YouTube)) – Exklusiv-Slot für Clark?", "body": "Hallo Growth- & Brand-Team bei Clark,\n\nunser DACH Sponsor-Radar zeigt, dass euer direkter Wettbewerber **Finanzguru (dwins GmbH)** in den letzten 30 Tagen massiv in deutschsprachige Host-Read Mid-Rolls und YouTube-Integrationen investiert hat:\n• Erfasste Placements (30 Tage): 3 Folgen bei Alles auf Aktien, Finanzfluss (YouTube)\n• Aktive Tracking-Routen: https://finanzguru.de/aaa (Promo-Code: FLUSSGURU)\n• Geschätztes 30-Tage-Spend-Volumen: ~41,048 € (Hochrechnung Quartal: ~123,145 €)\n\nWährend Finanzguru diese Shows besetzt, ist das direkte Schwester-Umfeld **Doppelgänger Tech Talk** (78,000 Ø Downloads/Views pro Folge) aktuell noch unbesetzt.\n\nMöchtet ihr euch für Clark die Kategorie-Sperre (Exklusivität gegen Finanzguru) auf Doppelgänger Tech Talk sichern, bevor deren Agentur das Q4-Mandat ausweitet?\n\nBeste Grüße\nDACH Sponsor Intelligence Radar"}}, {"brand_key": "Clark", "canonical_brand": "CLARK Versicherungsmanager", "category": "Finance & Investing", "hq_country": "DE (Frankfurt am Main)", "decision_maker_role": "VP Offline & Audio Performance Marketing", "agency_network": "Seven.One Audio / Podstars", "placements_30d": 3, "unique_shows_30d": 3, "platforms_active": ["Podcast RSS"], "shows_sponsored": ["Alles auf Aktien", "Lanz & Precht", "OMR Podcast"], "total_estimated_reach_30d": 514000, "avg_effective_tkp_eur": 78.88, "estimated_spend_30d_eur": 39088.0, "estimated_quarterly_run_rate_eur": 117264.0, "avg_ad_duration_sec": 98.3, "active_budget_status": "VERIFIED_ACTIVE_HIGH_VELOCITY", "signal_score_0_100": 94, "detected_vanity_urls": ["https://clark.de/aktien", "https://clark.de/lanz", "https://clark.de/omr"], "detected_promo_codes": ["CLARKAAA", "LANZ15", "OMRCLARK"], "direct_competitors": ["Finanzguru", "Getsafe", "Feather Insurance", "Check24 Versicherungen"], "lookalike_whitespace_shows": [{"show_name": "Doppelgänger Tech Talk", "platform": "Podcast RSS + YouTube", "niche": "Business & SaaS", "avg_reach": 78000, "estimated_tkp_eur": 80.0, "single_midroll_price_eur": 6240.0, "three_flight_bundle_eur": 16848.0, "audience_profile": "Tech-Entscheider, Gründer, VC-Investoren, Privatanleger (DACH, 28-48 J.)", "fit_rationale": "Zielgruppen-Deckung (Tech-Entscheider, Gründer, VC-Investoren, Privatanleger (DACH, 28-48 J.)) + 78,000 Ø Kontakte/Folge zu ~80€ TKP. Achtung: Co-Sponsor-Umfeld (Lexoffice, Personio) bereits aktiv!"}, {"show_name": "Kassenzone / E-Commerce & B2B Deep Dive", "platform": "Podcast RSS", "niche": "Business & SaaS", "avg_reach": 42000, "estimated_tkp_eur": 80.0, "single_midroll_price_eur": 3360.0, "three_flight_bundle_eur": 9072.0, "audience_profile": "C-Level Handel, SaaS-Gründer, E-Commerce Geschäftsführer (DACH)", "fit_rationale": "Zielgruppen-Deckung (C-Level Handel, SaaS-Gründer, E-Commerce Geschäftsführer (DACH)) + 42,000 Ø Kontakte/Folge zu ~80€ TKP. 100% Kategorie-Exklusivität im Q4-Slot verfügbar."}, {"show_name": "Marktgeflüster – Finanzen & Ökonomie", "platform": "Podcast RSS + YouTube", "niche": "Finance & Investing", "avg_reach": 95000, "estimated_tkp_eur": 84.0, "single_midroll_price_eur": 7980.0, "three_flight_bundle_eur": 21546.0, "audience_profile": "Kaufkräftige Privatanleger, Selbstständige, Akademiker (DACH)", "fit_rationale": "Zielgruppen-Deckung (Kaufkräftige Privatanleger, Selbstständige, Akademiker (DACH)) + 95,000 Ø Kontakte/Folge zu ~84€ TKP. Achtung: Co-Sponsor-Umfeld (Finanzguru) bereits aktiv!"}], "cold_pitch_creator_to_brand": {"target": "CLARK Versicherungsmanager", "subject": "Eure 3 Mid-Roll Flights bei Alles auf Aktien, Lanz & Precht, OMR Podcast (Code: CLARKAAA) -> Lookalike-Slot bei Doppelgänger Tech Talk", "body": "Hallo Team (VP Offline & Audio Performance Marketing bei CLARK Versicherungsmanager),\n\nwir tracken aktuelle DACH-Podcast- & YouTube-Integrationen und haben gesehen, dass CLARK Versicherungsmanager in den letzten 30 Tagen 3 native Host-Read-Placements geschaltet hat (u. a. bei Alles auf Aktien, Lanz & Precht, OMR Podcast über https://clark.de/aktien mit Code 'CLARKAAA', geschätztes Media-Volumen ~39,088 € bei Ø 79 € TKP).\n\nDa ihr aktuell aktiv in dieser Zielgruppe skaliert: Bei **Doppelgänger Tech Talk** (78,000 Ø verifizierte Kontakte/Folge, Zielgruppe: Tech-Entscheider, Gründer, VC-Investoren, Privatanleger (DACH, 28-48 J.)) ist für den kommenden Monat noch Kategorie-Exklusivität frei.\n\nEckdaten für einen 3er-Testflight (Host-Read Mid-Roll, 90 Sek. inkl. Vanity-Link & Rabattcode in den Show Notes):\n• Reichweite über 3 Folgen: ~234,000 Netto-Kontakte\n• Effektiver Paket-TKP: 72.00 € (statt 78.88 € Marktschnitt)\n• Gesamt-Investment (3er-Flight): 16,848 € netto\n\nSollen wir euch für Dienstag kurz die aktuellen Hörer-Demografien & Conversion-Benchmarks rüberschicken?\n\nBeste Grüße\nDACH Sponsor Intelligence & Ad-Sales Desk"}, "cold_pitch_competitor_counterstrike": {"target": "Finanzguru", "subject": "Wettbewerbs-Signal: Clark investiert ~39,088 €/Monat in DACH-Podcasts (Alles auf Aktien, Lanz & Precht, OMR Podcast) – Exklusiv-Slot für Finanzguru?", "body": "Hallo Growth- & Brand-Team bei Finanzguru,\n\nunser DACH Sponsor-Radar zeigt, dass euer direkter Wettbewerber **CLARK Versicherungsmanager** in den letzten 30 Tagen massiv in deutschsprachige Host-Read Mid-Rolls und YouTube-Integrationen investiert hat:\n• Erfasste Placements (30 Tage): 3 Folgen bei Alles auf Aktien, Lanz & Precht, OMR Podcast\n• Aktive Tracking-Routen: https://clark.de/aktien (Promo-Code: CLARKAAA)\n• Geschätztes 30-Tage-Spend-Volumen: ~39,088 € (Hochrechnung Quartal: ~117,264 €)\n\nWährend Clark diese Shows besetzt, ist das direkte Schwester-Umfeld **Doppelgänger Tech Talk** (78,000 Ø Downloads/Views pro Folge) aktuell noch unbesetzt.\n\nMöchtet ihr euch für Finanzguru die Kategorie-Sperre (Exklusivität gegen Clark) auf Doppelgänger Tech Talk sichern, bevor deren Agentur das Q4-Mandat ausweitet?\n\nBeste Grüße\nDACH Sponsor Intelligence Radar"}}, {"brand_key": "HelloFresh", "canonical_brand": "HelloFresh DACH", "category": "Entertainment & Society", "hq_country": "DE (Berlin)", "decision_maker_role": "Director Influencer & Offline Partnerships DACH", "agency_network": "Seven.One Audio / Studio71", "placements_30d": 3, "unique_shows_30d": 2, "platforms_active": ["Podcast RSS", "YouTube"], "shows_sponsored": ["Baywatch Berlin", "Torben Platzer (YouTube)"], "total_estimated_reach_30d": 563000, "avg_effective_tkp_eur": 67.2, "estimated_spend_30d_eur": 36774.5, "estimated_quarterly_run_rate_eur": 110323.5, "avg_ad_duration_sec": 95.0, "active_budget_status": "VERIFIED_ACTIVE_HIGH_VELOCITY", "signal_score_0_100": 99, "detected_vanity_urls": ["https://hellofresh.de/baywatch", "https://hellofresh.de/torben"], "detected_promo_codes": ["HFBAYWATCH", "HFTORBEN"], "direct_competitors": ["Marley Spoon", "Dinnerly", "Wyldr", "Prepmymeal"], "lookalike_whitespace_shows": [{"show_name": "Doppelgänger Tech Talk", "platform": "Podcast RSS + YouTube", "niche": "Business & SaaS", "avg_reach": 78000, "estimated_tkp_eur": 80.0, "single_midroll_price_eur": 6240.0, "three_flight_bundle_eur": 16848.0, "audience_profile": "Tech-Entscheider, Gründer, VC-Investoren, Privatanleger (DACH, 28-48 J.)", "fit_rationale": "Zielgruppen-Deckung (Tech-Entscheider, Gründer, VC-Investoren, Privatanleger (DACH, 28-48 J.)) + 78,000 Ø Kontakte/Folge zu ~80€ TKP. Achtung: Co-Sponsor-Umfeld (Lexoffice, Personio) bereits aktiv!"}, {"show_name": "Kassenzone / E-Commerce & B2B Deep Dive", "platform": "Podcast RSS", "niche": "Business & SaaS", "avg_reach": 42000, "estimated_tkp_eur": 80.0, "single_midroll_price_eur": 3360.0, "three_flight_bundle_eur": 9072.0, "audience_profile": "C-Level Handel, SaaS-Gründer, E-Commerce Geschäftsführer (DACH)", "fit_rationale": "Zielgruppen-Deckung (C-Level Handel, SaaS-Gründer, E-Commerce Geschäftsführer (DACH)) + 42,000 Ø Kontakte/Folge zu ~80€ TKP. 100% Kategorie-Exklusivität im Q4-Slot verfügbar."}, {"show_name": "Longevity & Biohacking Medizin DACH", "platform": "YouTube + Podcast RSS", "niche": "Health & Longevity", "avg_reach": 58000, "estimated_tkp_eur": 69.0, "single_midroll_price_eur": 4002.0, "three_flight_bundle_eur": 10805.4, "audience_profile": "Gesundheitsbewusste High-Performer, Sportler, Führungskräfte (25-55 J.)", "fit_rationale": "Zielgruppen-Deckung (Gesundheitsbewusste High-Performer, Sportler, Führungskräfte (25-55 J.)) + 58,000 Ø Kontakte/Folge zu ~69€ TKP. 100% Kategorie-Exklusivität im Q4-Slot verfügbar."}], "cold_pitch_creator_to_brand": {"target": "HelloFresh DACH", "subject": "Eure 3 Mid-Roll Flights bei Baywatch Berlin, Torben Platzer (YouTube) (Code: HFBAYWATCH) -> Lookalike-Slot bei Doppelgänger Tech Talk", "body": "Hallo Team (Director Influencer & Offline Partnerships DACH bei HelloFresh DACH),\n\nwir tracken aktuelle DACH-Podcast- & YouTube-Integrationen und haben gesehen, dass HelloFresh DACH in den letzten 30 Tagen 3 native Host-Read-Placements geschaltet hat (u. a. bei Baywatch Berlin, Torben Platzer (YouTube) über https://hellofresh.de/baywatch mit Code 'HFBAYWATCH', geschätztes Media-Volumen ~36,774 € bei Ø 67 € TKP).\n\nDa ihr aktuell aktiv in dieser Zielgruppe skaliert: Bei **Doppelgänger Tech Talk** (78,000 Ø verifizierte Kontakte/Folge, Zielgruppe: Tech-Entscheider, Gründer, VC-Investoren, Privatanleger (DACH, 28-48 J.)) ist für den kommenden Monat noch Kategorie-Exklusivität frei.\n\nEckdaten für einen 3er-Testflight (Host-Read Mid-Roll, 90 Sek. inkl. Vanity-Link & Rabattcode in den Show Notes):\n• Reichweite über 3 Folgen: ~234,000 Netto-Kontakte\n• Effektiver Paket-TKP: 72.00 € (statt 67.20 € Marktschnitt)\n• Gesamt-Investment (3er-Flight): 16,848 € netto\n\nSollen wir euch für Dienstag kurz die aktuellen Hörer-Demografien & Conversion-Benchmarks rüberschicken?\n\nBeste Grüße\nDACH Sponsor Intelligence & Ad-Sales Desk"}, "cold_pitch_competitor_counterstrike": {"target": "Marley Spoon", "subject": "Wettbewerbs-Signal: HelloFresh investiert ~36,774 €/Monat in DACH-Podcasts (Baywatch Berlin, Torben Platzer (YouTube)) – Exklusiv-Slot für Marley Spoon?", "body": "Hallo Growth- & Brand-Team bei Marley Spoon,\n\nunser DACH Sponsor-Radar zeigt, dass euer direkter Wettbewerber **HelloFresh DACH** in den letzten 30 Tagen massiv in deutschsprachige Host-Read Mid-Rolls und YouTube-Integrationen investiert hat:\n• Erfasste Placements (30 Tage): 3 Folgen bei Baywatch Berlin, Torben Platzer (YouTube)\n• Aktive Tracking-Routen: https://hellofresh.de/baywatch (Promo-Code: HFBAYWATCH)\n• Geschätztes 30-Tage-Spend-Volumen: ~36,774 € (Hochrechnung Quartal: ~110,324 €)\n\nWährend HelloFresh diese Shows besetzt, ist das direkte Schwester-Umfeld **Doppelgänger Tech Talk** (78,000 Ø Downloads/Views pro Folge) aktuell noch unbesetzt.\n\nMöchtet ihr euch für Marley Spoon die Kategorie-Sperre (Exklusivität gegen HelloFresh) auf Doppelgänger Tech Talk sichern, bevor deren Agentur das Q4-Mandat ausweitet?\n\nBeste Grüße\nDACH Sponsor Intelligence Radar"}}, {"brand_key": "Emma Matratze", "canonical_brand": "Emma – The Sleep Company", "category": "Health & Longevity", "hq_country": "DE (Frankfurt am Main)", "decision_maker_role": "Head of Influencer & Podcast Marketing DACH", "agency_network": "In-House Creator Performance Team Frankfurt", "placements_30d": 3, "unique_shows_30d": 3, "platforms_active": ["Podcast RSS", "YouTube"], "shows_sponsored": ["Baywatch Berlin", "Hotel Matze", "Torben Platzer (YouTube)"], "total_estimated_reach_30d": 488000, "avg_effective_tkp_eur": 73.85, "estimated_spend_30d_eur": 35160.2, "estimated_quarterly_run_rate_eur": 105480.6, "avg_ad_duration_sec": 100.0, "active_budget_status": "VERIFIED_ACTIVE_HIGH_VELOCITY", "signal_score_0_100": 99, "detected_vanity_urls": ["https://emma-matratze.de/baywatch", "https://emma-matratze.de/matze", "https://emma-matratze.de/torben"], "detected_promo_codes": ["BAYWATCHEMMA", "MATZE5", "TORBEN5"], "direct_competitors": ["Bett1 (Bodyguard)", "Snooze Project", "Casper DACH", "Ravensberger"], "lookalike_whitespace_shows": [{"show_name": "Doppelgänger Tech Talk", "platform": "Podcast RSS + YouTube", "niche": "Business & SaaS", "avg_reach": 78000, "estimated_tkp_eur": 80.0, "single_midroll_price_eur": 6240.0, "three_flight_bundle_eur": 16848.0, "audience_profile": "Tech-Entscheider, Gründer, VC-Investoren, Privatanleger (DACH, 28-48 J.)", "fit_rationale": "Zielgruppen-Deckung (Tech-Entscheider, Gründer, VC-Investoren, Privatanleger (DACH, 28-48 J.)) + 78,000 Ø Kontakte/Folge zu ~80€ TKP. Achtung: Co-Sponsor-Umfeld (Lexoffice, Personio) bereits aktiv!"}, {"show_name": "Kassenzone / E-Commerce & B2B Deep Dive", "platform": "Podcast RSS", "niche": "Business & SaaS", "avg_reach": 42000, "estimated_tkp_eur": 80.0, "single_midroll_price_eur": 3360.0, "three_flight_bundle_eur": 9072.0, "audience_profile": "C-Level Handel, SaaS-Gründer, E-Commerce Geschäftsführer (DACH)", "fit_rationale": "Zielgruppen-Deckung (C-Level Handel, SaaS-Gründer, E-Commerce Geschäftsführer (DACH)) + 42,000 Ø Kontakte/Folge zu ~80€ TKP. 100% Kategorie-Exklusivität im Q4-Slot verfügbar."}, {"show_name": "Longevity & Biohacking Medizin DACH", "platform": "YouTube + Podcast RSS", "niche": "Health & Longevity", "avg_reach": 58000, "estimated_tkp_eur": 69.0, "single_midroll_price_eur": 4002.0, "three_flight_bundle_eur": 10805.4, "audience_profile": "Gesundheitsbewusste High-Performer, Sportler, Führungskräfte (25-55 J.)", "fit_rationale": "Zielgruppen-Deckung (Gesundheitsbewusste High-Performer, Sportler, Führungskräfte (25-55 J.)) + 58,000 Ø Kontakte/Folge zu ~69€ TKP. 100% Kategorie-Exklusivität im Q4-Slot verfügbar."}], "cold_pitch_creator_to_brand": {"target": "Emma – The Sleep Company", "subject": "Eure 3 Mid-Roll Flights bei Baywatch Berlin, Hotel Matze, Torben Platzer (YouTube) (Code: BAYWATCHEMMA) -> Lookalike-Slot bei Doppelgänger Tech Talk", "body": "Hallo Team (Head of Influencer & Podcast Marketing DACH bei Emma – The Sleep Company),\n\nwir tracken aktuelle DACH-Podcast- & YouTube-Integrationen und haben gesehen, dass Emma – The Sleep Company in den letzten 30 Tagen 3 native Host-Read-Placements geschaltet hat (u. a. bei Baywatch Berlin, Hotel Matze, Torben Platzer (YouTube) über https://emma-matratze.de/baywatch mit Code 'BAYWATCHEMMA', geschätztes Media-Volumen ~35,160 € bei Ø 74 € TKP).\n\nDa ihr aktuell aktiv in dieser Zielgruppe skaliert: Bei **Doppelgänger Tech Talk** (78,000 Ø verifizierte Kontakte/Folge, Zielgruppe: Tech-Entscheider, Gründer, VC-Investoren, Privatanleger (DACH, 28-48 J.)) ist für den kommenden Monat noch Kategorie-Exklusivität frei.\n\nEckdaten für einen 3er-Testflight (Host-Read Mid-Roll, 90 Sek. inkl. Vanity-Link & Rabattcode in den Show Notes):\n• Reichweite über 3 Folgen: ~234,000 Netto-Kontakte\n• Effektiver Paket-TKP: 72.00 € (statt 73.85 € Marktschnitt)\n• Gesamt-Investment (3er-Flight): 16,848 € netto\n\nSollen wir euch für Dienstag kurz die aktuellen Hörer-Demografien & Conversion-Benchmarks rüberschicken?\n\nBeste Grüße\nDACH Sponsor Intelligence & Ad-Sales Desk"}, "cold_pitch_competitor_counterstrike": {"target": "Bett1 (Bodyguard)", "subject": "Wettbewerbs-Signal: Emma Matratze investiert ~35,160 €/Monat in DACH-Podcasts (Baywatch Berlin, Hotel Matze, Torben Platzer (YouTube)) – Exklusiv-Slot für Bett1 (Bodyguard)?", "body": "Hallo Growth- & Brand-Team bei Bett1 (Bodyguard),\n\nunser DACH Sponsor-Radar zeigt, dass euer direkter Wettbewerber **Emma – The Sleep Company** in den letzten 30 Tagen massiv in deutschsprachige Host-Read Mid-Rolls und YouTube-Integrationen investiert hat:\n• Erfasste Placements (30 Tage): 3 Folgen bei Baywatch Berlin, Hotel Matze, Torben Platzer (YouTube)\n• Aktive Tracking-Routen: https://emma-matratze.de/baywatch (Promo-Code: BAYWATCHEMMA)\n• Geschätztes 30-Tage-Spend-Volumen: ~35,160 € (Hochrechnung Quartal: ~105,481 €)\n\nWährend Emma Matratze diese Shows besetzt, ist das direkte Schwester-Umfeld **Doppelgänger Tech Talk** (78,000 Ø Downloads/Views pro Folge) aktuell noch unbesetzt.\n\nMöchtet ihr euch für Bett1 (Bodyguard) die Kategorie-Sperre (Exklusivität gegen Emma Matratze) auf Doppelgänger Tech Talk sichern, bevor deren Agentur das Q4-Mandat ausweitet?\n\nBeste Grüße\nDACH Sponsor Intelligence Radar"}}, {"brand_key": "Personio", "canonical_brand": "Personio HR Cloud", "category": "Business & SaaS", "hq_country": "DE (München)", "decision_maker_role": "Head of Demand Generation DACH", "agency_network": "OMR Podstars / B2B Executive Audio", "placements_30d": 3, "unique_shows_30d": 2, "platforms_active": ["Podcast RSS"], "shows_sponsored": ["OMR Podcast", "Startup Insider Daily"], "total_estimated_reach_30d": 355000, "avg_effective_tkp_eur": 73.2, "estimated_spend_30d_eur": 25058.0, "estimated_quarterly_run_rate_eur": 75174.0, "avg_ad_duration_sec": 93.3, "active_budget_status": "VERIFIED_ACTIVE_HIGH_VELOCITY", "signal_score_0_100": 94, "detected_vanity_urls": ["https://personio.de/omr", "https://personio.de/startupinsider"], "detected_promo_codes": ["OMRHR26", "SIPERSONIO"], "direct_competitors": ["HiBob", "Factorial HR", "Kenjo", "Rexx Systems"], "lookalike_whitespace_shows": [{"show_name": "Kassenzone / E-Commerce & B2B Deep Dive", "platform": "Podcast RSS", "niche": "Business & SaaS", "avg_reach": 42000, "estimated_tkp_eur": 80.0, "single_midroll_price_eur": 3360.0, "three_flight_bundle_eur": 9072.0, "audience_profile": "C-Level Handel, SaaS-Gründer, E-Commerce Geschäftsführer (DACH)", "fit_rationale": "Zielgruppen-Deckung (C-Level Handel, SaaS-Gründer, E-Commerce Geschäftsführer (DACH)) + 42,000 Ø Kontakte/Folge zu ~80€ TKP. 100% Kategorie-Exklusivität im Q4-Slot verfügbar."}, {"show_name": "KI-Update & Developer Architektur DACH", "platform": "YouTube + Podcast RSS", "niche": "Tech & AI", "avg_reach": 64000, "estimated_tkp_eur": 76.0, "single_midroll_price_eur": 4864.0, "three_flight_bundle_eur": 13132.8, "audience_profile": "Software-Architekten, CTOs, IT-Security-Verantwortliche, AI Engineers", "fit_rationale": "Zielgruppen-Deckung (Software-Architekten, CTOs, IT-Security-Verantwortliche, AI Engineers) + 64,000 Ø Kontakte/Folge zu ~76€ TKP. 100% Kategorie-Exklusivität im Q4-Slot verfügbar."}], "cold_pitch_creator_to_brand": {"target": "Personio HR Cloud", "subject": "Eure 3 Mid-Roll Flights bei OMR Podcast, Startup Insider Daily (Code: OMRHR26) -> Lookalike-Slot bei Kassenzone / E-Commerce & B2B Deep Dive", "body": "Hallo Team (Head of Demand Generation DACH bei Personio HR Cloud),\n\nwir tracken aktuelle DACH-Podcast- & YouTube-Integrationen und haben gesehen, dass Personio HR Cloud in den letzten 30 Tagen 3 native Host-Read-Placements geschaltet hat (u. a. bei OMR Podcast, Startup Insider Daily über https://personio.de/omr mit Code 'OMRHR26', geschätztes Media-Volumen ~25,058 € bei Ø 73 € TKP).\n\nDa ihr aktuell aktiv in dieser Zielgruppe skaliert: Bei **Kassenzone / E-Commerce & B2B Deep Dive** (42,000 Ø verifizierte Kontakte/Folge, Zielgruppe: C-Level Handel, SaaS-Gründer, E-Commerce Geschäftsführer (DACH)) ist für den kommenden Monat noch Kategorie-Exklusivität frei.\n\nEckdaten für einen 3er-Testflight (Host-Read Mid-Roll, 90 Sek. inkl. Vanity-Link & Rabattcode in den Show Notes):\n• Reichweite über 3 Folgen: ~126,000 Netto-Kontakte\n• Effektiver Paket-TKP: 72.00 € (statt 73.20 € Marktschnitt)\n• Gesamt-Investment (3er-Flight): 9,072 € netto\n\nSollen wir euch für Dienstag kurz die aktuellen Hörer-Demografien & Conversion-Benchmarks rüberschicken?\n\nBeste Grüße\nDACH Sponsor Intelligence & Ad-Sales Desk"}, "cold_pitch_competitor_counterstrike": {"target": "HiBob", "subject": "Wettbewerbs-Signal: Personio investiert ~25,058 €/Monat in DACH-Podcasts (OMR Podcast, Startup Insider Daily) – Exklusiv-Slot für HiBob?", "body": "Hallo Growth- & Brand-Team bei HiBob,\n\nunser DACH Sponsor-Radar zeigt, dass euer direkter Wettbewerber **Personio HR Cloud** in den letzten 30 Tagen massiv in deutschsprachige Host-Read Mid-Rolls und YouTube-Integrationen investiert hat:\n• Erfasste Placements (30 Tage): 3 Folgen bei OMR Podcast, Startup Insider Daily\n• Aktive Tracking-Routen: https://personio.de/omr (Promo-Code: OMRHR26)\n• Geschätztes 30-Tage-Spend-Volumen: ~25,058 € (Hochrechnung Quartal: ~75,174 €)\n\nWährend Personio diese Shows besetzt, ist das direkte Schwester-Umfeld **Kassenzone / E-Commerce & B2B Deep Dive** (42,000 Ø Downloads/Views pro Folge) aktuell noch unbesetzt.\n\nMöchtet ihr euch für HiBob die Kategorie-Sperre (Exklusivität gegen Personio) auf Kassenzone / E-Commerce & B2B Deep Dive sichern, bevor deren Agentur das Q4-Mandat ausweitet?\n\nBeste Grüße\nDACH Sponsor Intelligence Radar"}}], "episode_ad_placements": [{"episode_id": "omr-ep-742", "show_name": "OMR Podcast", "platform": "Podcast RSS", "niche": "Business & SaaS", "episode_title": "#742: Wie Deutschlands führende AI-Gründer jetzt B2B-Vertrieb automatisieren", "published_at": "2026-10-15", "estimated_reach": 145000, "brand_key": "Personio", "canonical_brand": "Personio HR Cloud", "brand_category": "Business & SaaS", "disclosure_marker": "Werbepartner", "placement_type": "Host-Read Pre-Roll", "timestamp_start": "00:00:00", "timestamp_end": "00:01:25", "duration_seconds": 85, "vanity_url": "https://personio.de/omr", "utm_parameters": "utm_source=podcast&utm_medium=shownotes&utm_campaign=dach_q4", "promo_code": "OMRHR26", "offer_summary": "Exklusiver HR-Benchmark-Report + 2 Freimonate bei Jahreslizenz", "effective_tkp_eur": 50.0, "estimated_episode_spend_eur": 7250.0, "confidence_score": 0.98, "raw_snippet": "[00:00:00 - 00:01:25] Intro & Werbepartner Pre-Roll: Personio – Automatisiere deine HR-Prozesse unter https://personio.de/omr?utm_source=podcast&utm_medium=shownotes&utm_campaign=dach_q4 mit dem Rabattcode: OMRHR26 (2 Freimonate auf die Jahreslizenz)."}, {"episode_id": "omr-ep-742", "show_name": "OMR Podcast", "platform": "Podcast RSS", "niche": "Business & SaaS", "episode_title": "#742: Wie Deutschlands führende AI-Gründer jetzt B2B-Vertrieb automatisieren", "published_at": "2026-10-15", "estimated_reach": 145000, "brand_key": "AG1", "canonical_brand": "AG1 (Athletic Greens)", "brand_category": "Health & Longevity", "disclosure_marker": "Werbepartner dieser Folge", "placement_type": "Host-Read Mid-Roll", "timestamp_start": "00:18:10", "timestamp_end": "00:19:55", "duration_seconds": 105, "vanity_url": "https://drinkag1.com/omr", "utm_parameters": "utm_source=podcast&utm_medium=hostread", "promo_code": "OMRAG1", "offer_summary": "Jahresvorrat Vitamin D3+K2 + 5 Travel Packs gratis zum Erstkauf", "effective_tkp_eur": 84.8, "estimated_episode_spend_eur": 12296.0, "confidence_score": 0.98, "raw_snippet": "[00:18:10 - 00:19:55] Werbepartner dieser Folge (Host-Read Mid-Roll): AG1 – Sichere dir deinen Jahresvorrat Vitamin D3+K2 sowie 5 praktische Travel Packs gratis auf https://drinkag1.com/omr?utm_source=podcast&utm_medium=hostread mit dem Code: OMRAG1 ."}, {"episode_id": "omr-ep-742", "show_name": "OMR Podcast", "platform": "Podcast RSS", "niche": "Business & SaaS", "episode_title": "#742: Wie Deutschlands führende AI-Gründer jetzt B2B-Vertrieb automatisieren", "published_at": "2026-10-15", "estimated_reach": 145000, "brand_key": "Lexoffice", "canonical_brand": "Lexware Office (ehem. Lexoffice)", "brand_category": "Business & SaaS", "disclosure_marker": "Anzeige", "placement_type": "Host-Read Mid-Roll", "timestamp_start": "00:46:20", "timestamp_end": "00:47:50", "duration_seconds": 90, "vanity_url": "https://lexoffice.de/omr", "utm_parameters": "", "promo_code": "LEXOMR50", "offer_summary": "6 Monate 50% Rabatt oder 3 Monate komplett kostenfrei für Gründer & KMU", "effective_tkp_eur": 80.0, "estimated_episode_spend_eur": 11600.0, "confidence_score": 0.98, "raw_snippet": "[00:46:20 - 00:47:50] Anzeige / Partner dieser Folge: Lexoffice – Buchhaltung und E-Rechnung für Selbstständige & KMU. Jetzt 6 Monate 50% sparen unter https://lexoffice.de/omr (Gutscheincode: LEXOMR50 )."}, {"episode_id": "omr-ep-739", "show_name": "OMR Podcast", "platform": "Podcast RSS", "niche": "Business & SaaS", "episode_title": "#739: Deep-Tech & Familienunternehmen im Wandel", "published_at": "2026-10-04", "estimated_reach": 142000, "brand_key": "Personio", "canonical_brand": "Personio HR Cloud", "brand_category": "Business & SaaS", "disclosure_marker": "Werbepartner dieser Folge", "placement_type": "Host-Read Mid-Roll", "timestamp_start": "00:15:40", "timestamp_end": "00:17:20", "duration_seconds": 100, "vanity_url": "https://personio.de/omr", "utm_parameters": "utm_source=podcast", "promo_code": "OMRHR26", "offer_summary": "Exklusiver HR-Benchmark-Report + 2 Freimonate bei Jahreslizenz", "effective_tkp_eur": 84.8, "estimated_episode_spend_eur": 12041.6, "confidence_score": 0.98, "raw_snippet": "[00:15:40 - 00:17:20] Werbepartner dieser Folge: Personio – Lade den aktuellen HR-Benchmark herunter und sichere dir 2 Freimonate unter https://personio.de/omr?utm_source=podcast mit dem Rabattcode: OMRHR26 ."}, {"episode_id": "omr-ep-739", "show_name": "OMR Podcast", "platform": "Podcast RSS", "niche": "Business & SaaS", "episode_title": "#739: Deep-Tech & Familienunternehmen im Wandel", "published_at": "2026-10-04", "estimated_reach": 142000, "brand_key": "Clark", "canonical_brand": "CLARK Versicherungsmanager", "brand_category": "Finance & Investing", "disclosure_marker": "Anzeige", "placement_type": "Host-Read Mid-Roll", "timestamp_start": "00:41:05", "timestamp_end": "00:42:45", "duration_seconds": 100, "vanity_url": "https://clark.de/omr", "utm_parameters": "", "promo_code": "OMRCLARK", "offer_summary": "Bis zu 30€ Amazon/Shopping-Gutschein beim Hochladen von 2 bestehenden Versicherungen", "effective_tkp_eur": 84.8, "estimated_episode_spend_eur": 12041.6, "confidence_score": 0.98, "raw_snippet": "[00:41:05 - 00:42:45] Anzeige: Clark – Behalte den Überblick über deine Versicherungen und sichere dir bis zu 30€ Shopping-Gutschein auf https://clark.de/omr mit dem Aktionscode: OMRCLARK ."}, {"episode_id": "lanzprecht-ep-164", "show_name": "Lanz & Precht", "platform": "Podcast RSS", "niche": "News & Politics", "episode_title": "Ausgabe 164: Wirtschaftswende, Bürokratie und digitale Souveränität", "published_at": "2026-10-11", "estimated_reach": 260000, "brand_key": "Clark", "canonical_brand": "CLARK Versicherungsmanager", "brand_category": "Finance & Investing", "disclosure_marker": "Anzeige", "placement_type": "Host-Read Mid-Roll", "timestamp_start": "00:14:20", "timestamp_end": "00:16:05", "duration_seconds": 105, "vanity_url": "https://clark.de/lanz", "utm_parameters": "utm_source=podcast&utm_medium=midroll", "promo_code": "LANZ15", "offer_summary": "Bis zu 30€ Amazon/Shopping-Gutschein beim Hochladen von 2 bestehenden Versicherungen", "effective_tkp_eur": 67.84, "estimated_episode_spend_eur": 17638.4, "confidence_score": 0.98, "raw_snippet": "[00:14:20 - 00:16:05] Anzeige (Host-Read Mid-Roll): Clark – Überprüfe deine Tarife und erhalte bis zu 30€ Gutschein in der Clark App. Alle Infos auf https://clark.de/lanz?utm_source=podcast&utm_medium=midroll mit dem Rabattcode: LANZ15 ."}, {"episode_id": "lanzprecht-ep-164", "show_name": "Lanz & Precht", "platform": "Podcast RSS", "niche": "News & Politics", "episode_title": "Ausgabe 164: Wirtschaftswende, Bürokratie und digitale Souveränität", "published_at": "2026-10-11", "estimated_reach": 260000, "brand_key": "AG1", "canonical_brand": "AG1 (Athletic Greens)", "brand_category": "Health & Longevity", "disclosure_marker": "Partner dieser Folge", "placement_type": "Host-Read Mid-Roll", "timestamp_start": "00:34:10", "timestamp_end": "00:35:40", "duration_seconds": 90, "vanity_url": "https://drinkag1.com/lanz", "utm_parameters": "", "promo_code": "LANZAG1", "offer_summary": "Jahresvorrat Vitamin D3+K2 + 5 Travel Packs gratis zum Erstkauf", "effective_tkp_eur": 64.0, "estimated_episode_spend_eur": 16640.0, "confidence_score": 0.98, "raw_snippet": "[00:34:10 - 00:35:40] Partner dieser Folge: AG1 – Deine tägliche Mikronährstoff-Routine. Sichere dir das Willkommenspaket unter https://drinkag1.com/lanz (Code: LANZAG1 )."}, {"episode_id": "aaa-ep-912", "show_name": "Alles auf Aktien", "platform": "Podcast RSS", "niche": "Finance & Investing", "episode_title": "Zinswende, Tech-Quartalszahlen & Steuer-Hacks für Anleger", "published_at": "2026-10-14", "estimated_reach": 115000, "brand_key": "Finanzguru", "canonical_brand": "Finanzguru (dwins GmbH)", "brand_category": "Finance & Investing", "disclosure_marker": "Werbepartner", "placement_type": "Host-Read Mid-Roll", "timestamp_start": "00:09:15", "timestamp_end": "00:10:50", "duration_seconds": 95, "vanity_url": "https://finanzguru.de/aaa", "utm_parameters": "utm_source=podcast&utm_campaign=oct26", "promo_code": "GURUAAA", "offer_summary": "3 Monate Finanzguru Plus kostenlos testen (statt 2,99€/Monat)", "effective_tkp_eur": 89.04, "estimated_episode_spend_eur": 10239.6, "confidence_score": 0.98, "raw_snippet": "[00:09:15 - 00:10:50] Werbepartner (Mid-Roll): Finanzguru – Verknüpfe deine Depots und Konten sicher per KI-Analyse. Teste Finanzguru Plus 3 Monate gratis unter https://finanzguru.de/aaa?utm_source=podcast&utm_campaign=oct26 mit dem Gutscheincode: GURUAAA ."}, {"episode_id": "aaa-ep-912", "show_name": "Alles auf Aktien", "platform": "Podcast RSS", "niche": "Finance & Investing", "episode_title": "Zinswende, Tech-Quartalszahlen & Steuer-Hacks für Anleger", "published_at": "2026-10-14", "estimated_reach": 115000, "brand_key": "Taxfix", "canonical_brand": "Taxfix Steuer-App", "brand_category": "Finance & Investing", "disclosure_marker": "Anzeige", "placement_type": "Host-Read Mid-Roll", "timestamp_start": "00:21:00", "timestamp_end": "00:22:30", "duration_seconds": 90, "vanity_url": "https://taxfix.de/aktien", "utm_parameters": "", "promo_code": "STEUERAAA50", "offer_summary": "50% Rabatt auf die erste Steuererklärung oder Experten-Service Rabatt", "effective_tkp_eur": 84.0, "estimated_episode_spend_eur": 9660.0, "confidence_score": 0.98, "raw_snippet": "[00:21:00 - 00:22:30] Anzeige: Taxfix – Hol dir im Schnitt 1.095€ Steuerrückerstattung zurück. Jetzt starten auf https://taxfix.de/aktien mit dem Rabattcode: STEUERAAA50 ."}, {"episode_id": "aaa-ep-905", "show_name": "Alles auf Aktien", "platform": "Podcast RSS", "niche": "Finance & Investing", "episode_title": "ETF-Sparpläne im Herbst-Check & Mittelstands-Software", "published_at": "2026-10-02", "estimated_reach": 112000, "brand_key": "Lexoffice", "canonical_brand": "Lexware Office (ehem. Lexoffice)", "brand_category": "Business & SaaS", "disclosure_marker": "Partner dieser Folge", "placement_type": "Host-Read Mid-Roll", "timestamp_start": "00:10:05", "timestamp_end": "00:11:40", "duration_seconds": 95, "vanity_url": "https://lexoffice.de/aktien", "utm_parameters": "", "promo_code": "LEXAKTIEN", "offer_summary": "6 Monate 50% Rabatt oder 3 Monate komplett kostenfrei für Gründer & KMU", "effective_tkp_eur": 89.04, "estimated_episode_spend_eur": 9972.48, "confidence_score": 0.98, "raw_snippet": "[00:10:05 - 00:11:40] Partner dieser Folge: Lexoffice – E-Rechnungs-Pflicht einfach gelöst für Freiberufler und GmbHs. Sichere dir 50% Rabatt unter https://lexoffice.de/aktien (Rabattcode: LEXAKTIEN )."}, {"episode_id": "aaa-ep-905", "show_name": "Alles auf Aktien", "platform": "Podcast RSS", "niche": "Finance & Investing", "episode_title": "ETF-Sparpläne im Herbst-Check & Mittelstands-Software", "published_at": "2026-10-02", "estimated_reach": 112000, "brand_key": "Clark", "canonical_brand": "CLARK Versicherungsmanager", "brand_category": "Finance & Investing", "disclosure_marker": "Werbepartner", "placement_type": "Host-Read Mid-Roll", "timestamp_start": "00:20:15", "timestamp_end": "00:21:45", "duration_seconds": 90, "vanity_url": "https://clark.de/aktien", "utm_parameters": "", "promo_code": "CLARKAAA", "offer_summary": "Bis zu 30€ Amazon/Shopping-Gutschein beim Hochladen von 2 bestehenden Versicherungen", "effective_tkp_eur": 84.0, "estimated_episode_spend_eur": 9408.0, "confidence_score": 0.98, "raw_snippet": "[00:20:15 - 00:21:45] Werbepartner: Clark – Rentenlücke prüfen und Versicherungen bündeln auf https://clark.de/aktien mit dem Code: CLARKAAA ."}, {"episode_id": "hotelmatze-ep-388", "show_name": "Hotel Matze", "platform": "Podcast RSS", "niche": "Health & Longevity", "episode_title": "Über Fokus, Regeneration und mutige Entscheidungen", "published_at": "2026-10-09", "estimated_reach": 135000, "brand_key": "AG1", "canonical_brand": "AG1 (Athletic Greens)", "brand_category": "Health & Longevity", "disclosure_marker": "Werbepartner dieser Folge", "placement_type": "Host-Read Mid-Roll", "timestamp_start": "00:24:10", "timestamp_end": "00:26:00", "duration_seconds": 110, "vanity_url": "https://drinkag1.com/matze", "utm_parameters": "utm_source=podcast", "promo_code": "MATZEAG1", "offer_summary": "Jahresvorrat Vitamin D3+K2 + 5 Travel Packs gratis zum Erstkauf", "effective_tkp_eur": 73.14, "estimated_episode_spend_eur": 9873.9, "confidence_score": 0.98, "raw_snippet": "[00:24:10 - 00:26:00] Werbepartner dieser Folge (Host-Read Mid-Roll): AG1 – Meine Morgenroutine seit 3 Jahren. Hol dir den Jahresvorrat Vitamin D3+K2 + 5 Travel Packs gratis unter https://drinkag1.com/matze?utm_source=podcast mit dem Code: MATZEAG1 ."}, {"episode_id": "hotelmatze-ep-388", "show_name": "Hotel Matze", "platform": "Podcast RSS", "niche": "Health & Longevity", "episode_title": "Über Fokus, Regeneration und mutige Entscheidungen", "published_at": "2026-10-09", "estimated_reach": 135000, "brand_key": "Emma Matratze", "canonical_brand": "Emma – The Sleep Company", "brand_category": "Health & Longevity", "disclosure_marker": "Anzeige", "placement_type": "Host-Read Mid-Roll", "timestamp_start": "00:58:30", "timestamp_end": "01:00:10", "duration_seconds": 100, "vanity_url": "https://emma-matratze.de/matze", "utm_parameters": "", "promo_code": "MATZE5", "offer_summary": "5% Extra-Rabatt zusätzlich auf den bis zu 50% Sale + 100 Nächte Probeschlafen", "effective_tkp_eur": 73.14, "estimated_episode_spend_eur": 9873.9, "confidence_score": 0.98, "raw_snippet": "[00:58:30 - 01:00:10] Anzeige: Emma Matratze – Besser schlafen mit der neuen Emma AirGrid Matratze. Mit dem Rabattcode: MATZE5 bekommst du 5% Extra-Rabatt auf den aktuellen Sale unter https://emma-matratze.de/matze ."}, {"episode_id": "baywatch-ep-251", "show_name": "Baywatch Berlin", "platform": "Podcast RSS", "niche": "Entertainment & Society", "episode_title": "Klaas, Jakob und Schmitti über Herbst-Routinen & Tour-Wahnsinn", "published_at": "2026-10-12", "estimated_reach": 210000, "brand_key": "Holy Energy", "canonical_brand": "HOLY Energy (Holy Squad)", "brand_category": "Health & Longevity", "disclosure_marker": "Werbepartner", "placement_type": "Host-Read Mid-Roll", "timestamp_start": "00:19:00", "timestamp_end": "00:20:45", "duration_seconds": 105, "vanity_url": "https://weareholy.com/baywatch", "utm_parameters": "utm_source=podcast", "promo_code": "BAYWATCH5", "offer_summary": "5€ Rabatt auf das Starter-Set + 10% mit Creator-Code", "effective_tkp_eur": 58.3, "estimated_episode_spend_eur": 12243.0, "confidence_score": 0.98, "raw_snippet": "[00:19:00 - 00:20:45] Werbepartner (Host-Read Mid-Roll): Holy Energy – Kein Zucker, kein Taurin, voller Geschmack! Sicher dir 5€ auf dein erstes Starter-Set mit Code BAYWATCH5 oder 10% mit Rabattcode: BAYWATCH10 auf https://weareholy.com/baywatch?utm_source=podcast ."}, {"episode_id": "baywatch-ep-251", "show_name": "Baywatch Berlin", "platform": "Podcast RSS", "niche": "Entertainment & Society", "episode_title": "Klaas, Jakob und Schmitti über Herbst-Routinen & Tour-Wahnsinn", "published_at": "2026-10-12", "estimated_reach": 210000, "brand_key": "HelloFresh", "canonical_brand": "HelloFresh DACH", "brand_category": "Entertainment & Society", "disclosure_marker": "Anzeige", "placement_type": "Host-Read Mid-Roll", "timestamp_start": "00:49:15", "timestamp_end": "00:50:55", "duration_seconds": 100, "vanity_url": "https://hellofresh.de/baywatch", "utm_parameters": "", "promo_code": "HFBAYWATCH", "offer_summary": "Bis zu 120€ Rabatt auf die ersten 4 Boxen + kostenloses Dessert für 1 Jahr", "effective_tkp_eur": 58.3, "estimated_episode_spend_eur": 12243.0, "confidence_score": 0.98, "raw_snippet": "[00:49:15 - 00:50:55] Anzeige / Partner dieser Folge: HelloFresh – Spare bis zu 120€ auf deine ersten vier Kochboxen unter https://hellofresh.de/baywatch mit dem Gutscheincode: HFBAYWATCH ."}, {"episode_id": "baywatch-ep-249", "show_name": "Baywatch Berlin", "platform": "Podcast RSS", "niche": "Entertainment & Society", "episode_title": "Kulinarische Experimente & langer Schlaf", "published_at": "2026-10-03", "estimated_reach": 205000, "brand_key": "Emma Matratze", "canonical_brand": "Emma – The Sleep Company", "brand_category": "Health & Longevity", "disclosure_marker": "Werbepartner dieser Folge", "placement_type": "Host-Read Mid-Roll", "timestamp_start": "00:21:10", "timestamp_end": "00:22:50", "duration_seconds": 100, "vanity_url": "https://emma-matratze.de/baywatch", "utm_parameters": "", "promo_code": "BAYWATCHEMMA", "offer_summary": "5% Extra-Rabatt zusätzlich auf den bis zu 50% Sale + 100 Nächte Probeschlafen", "effective_tkp_eur": 58.3, "estimated_episode_spend_eur": 11951.5, "confidence_score": 0.98, "raw_snippet": "[00:21:10 - 00:22:50] Werbepartner dieser Folge: Emma Matratze – 100 Nächte Probeschlafen + 5% Extra-Rabatt mit dem Rabattcode: BAYWATCHEMMA unter https://emma-matratze.de/baywatch ."}, {"episode_id": "baywatch-ep-249", "show_name": "Baywatch Berlin", "platform": "Podcast RSS", "niche": "Entertainment & Society", "episode_title": "Kulinarische Experimente & langer Schlaf", "published_at": "2026-10-03", "estimated_reach": 205000, "brand_key": "HelloFresh", "canonical_brand": "HelloFresh DACH", "brand_category": "Entertainment & Society", "disclosure_marker": "Partner dieser Folge", "placement_type": "Host-Read Mid-Roll", "timestamp_start": "00:52:00", "timestamp_end": "00:53:35", "duration_seconds": 95, "vanity_url": "https://hellofresh.de/baywatch", "utm_parameters": "", "promo_code": "HFBAYWATCH", "offer_summary": "Bis zu 120€ Rabatt auf die ersten 4 Boxen + kostenloses Dessert für 1 Jahr", "effective_tkp_eur": 58.3, "estimated_episode_spend_eur": 11951.5, "confidence_score": 0.98, "raw_snippet": "[00:52:00 - 00:53:35] Partner dieser Folge: HelloFresh – Frische Zutaten direkt an die Haustür auf https://hellofresh.de/baywatch mit dem Code: HFBAYWATCH ."}, {"episode_id": "startupinsider-ep-618", "show_name": "Startup Insider Daily", "platform": "Podcast RSS", "niche": "Business & SaaS", "episode_title": "Finanzierungsrunden im DACH-Raum & B2B Tech Stack 2026", "published_at": "2026-10-16", "estimated_reach": 68000, "brand_key": "Personio", "canonical_brand": "Personio HR Cloud", "brand_category": "Business & SaaS", "disclosure_marker": "Exklusiver Partner dieser Folge", "placement_type": "Host-Read Mid-Roll", "timestamp_start": "00:08:40", "timestamp_end": "00:10:15", "duration_seconds": 95, "vanity_url": "https://personio.de/startupinsider", "utm_parameters": "utm_source=podcast", "promo_code": "SIPERSONIO", "offer_summary": "Exklusiver HR-Benchmark-Report + 2 Freimonate bei Jahreslizenz", "effective_tkp_eur": 84.8, "estimated_episode_spend_eur": 5766.4, "confidence_score": 0.98, "raw_snippet": "[00:08:40 - 00:10:15] Exklusiver Partner dieser Folge: Personio – Die intelligente HR-Plattform für wachsende Startups und Mittelständler. Jetzt Demo buchen unter https://personio.de/startupinsider?utm_source=podcast (Code: SIPERSONIO )."}, {"episode_id": "startupinsider-ep-618", "show_name": "Startup Insider Daily", "platform": "Podcast RSS", "niche": "Business & SaaS", "episode_title": "Finanzierungsrunden im DACH-Raum & B2B Tech Stack 2026", "published_at": "2026-10-16", "estimated_reach": 68000, "brand_key": "Lexoffice", "canonical_brand": "Lexware Office (ehem. Lexoffice)", "brand_category": "Business & SaaS", "disclosure_marker": "Werbepartner", "placement_type": "Host-Read Mid-Roll", "timestamp_start": "00:22:10", "timestamp_end": "00:23:45", "duration_seconds": 95, "vanity_url": "https://lexoffice.de/startupinsider", "utm_parameters": "", "promo_code": "SILEX50", "offer_summary": "6 Monate 50% Rabatt oder 3 Monate komplett kostenfrei für Gründer & KMU", "effective_tkp_eur": 84.8, "estimated_episode_spend_eur": 5766.4, "confidence_score": 0.98, "raw_snippet": "[00:22:10 - 00:23:45] Werbepartner: Lexoffice – Buchhaltung automatisieren ab Tag 1. Jetzt 6 Monate 50% Rabatt sichern unter https://lexoffice.de/startupinsider mit dem Rabattcode: SILEX50 ."}, {"episode_id": "yt-finanzfluss-881", "show_name": "Finanzfluss (YouTube)", "platform": "YouTube", "niche": "Finance & Investing", "episode_title": "Steuererklärung & Haushaltsbuch 2026 automatisieren: Unser ehrlicher Test", "published_at": "2026-10-13", "estimated_reach": 185000, "brand_key": "Finanzguru", "canonical_brand": "Finanzguru (dwins GmbH)", "brand_category": "Finance & Investing", "disclosure_marker": "Partner dieser Folge", "placement_type": "YouTube Dedicated Mid-Roll Integration", "timestamp_start": "00:04:15", "timestamp_end": "00:06:00", "duration_seconds": 105, "vanity_url": "https://finanzguru.de/finanzfluss", "utm_parameters": "utm_source=youtube&utm_medium=integration", "promo_code": "FLUSSGURU", "offer_summary": "3 Monate Finanzguru Plus kostenlos testen (statt 2,99€/Monat)", "effective_tkp_eur": 93.28, "estimated_episode_spend_eur": 17256.8, "confidence_score": 0.98, "raw_snippet": "[00:04:15 - 00:06:00] Partner dieser Folge (YouTube Dedicated Integration): Finanzguru – Behalte alle Verträge und Depots automatisch im Blick. Über https://finanzguru.de/finanzfluss?utm_source=youtube&utm_medium=integration bekommst du mit dem Rabattcode: FLUSSGURU volle 3 Monate Finanzguru Plus kostenlos."}, {"episode_id": "yt-finanzfluss-881", "show_name": "Finanzfluss (YouTube)", "platform": "YouTube", "niche": "Finance & Investing", "episode_title": "Steuererklärung & Haushaltsbuch 2026 automatisieren: Unser ehrlicher Test", "published_at": "2026-10-13", "estimated_reach": 185000, "brand_key": "Taxfix", "canonical_brand": "Taxfix Steuer-App", "brand_category": "Finance & Investing", "disclosure_marker": "Werbepartner", "placement_type": "YouTube Dedicated Mid-Roll Integration", "timestamp_start": "00:13:20", "timestamp_end": "00:14:55", "duration_seconds": 95, "vanity_url": "https://taxfix.de/finanzfluss", "utm_parameters": "", "promo_code": "FLUSSTAX50", "offer_summary": "50% Rabatt auf die erste Steuererklärung oder Experten-Service Rabatt", "effective_tkp_eur": 93.28, "estimated_episode_spend_eur": 17256.8, "confidence_score": 0.98, "raw_snippet": "[00:13:20 - 00:14:55] Werbepartner: Taxfix – Deine Steuererklärung in unter 25 Minuten per App erledigen. Sichere dir 50% Rabatt auf https://taxfix.de/finanzfluss mit dem Gutscheincode: FLUSSTAX50."}, {"episode_id": "yt-finanzfluss-876", "show_name": "Finanzfluss (YouTube)", "platform": "YouTube", "niche": "Finance & Investing", "episode_title": "GmbH, Holding oder Einzelunternehmen? Buchhaltung & Steuern für Selbstständige", "published_at": "2026-10-01", "estimated_reach": 154000, "brand_key": "Lexoffice", "canonical_brand": "Lexware Office (ehem. Lexoffice)", "brand_category": "Business & SaaS", "disclosure_marker": "Werbepartner dieser Folge", "placement_type": "YouTube Dedicated Mid-Roll Integration", "timestamp_start": "00:05:30", "timestamp_end": "00:07:10", "duration_seconds": 100, "vanity_url": "https://lexoffice.de/finanzfluss", "utm_parameters": "utm_source=youtube", "promo_code": "FLUSSLEX", "offer_summary": "6 Monate 50% Rabatt oder 3 Monate komplett kostenfrei für Gründer & KMU", "effective_tkp_eur": 93.28, "estimated_episode_spend_eur": 14365.12, "confidence_score": 0.98, "raw_snippet": "[00:05:30 - 00:07:10] Werbepartner dieser Folge: Lexoffice – Erstelle GoBD-konforme E-Rechnungen und erledige deine Umsatzsteuervoranmeldung mit einem Klick. Teste Lexware Office jetzt unter https://lexoffice.de/finanzfluss?utm_source=youtube mit dem Rabattcode: FLUSSLEX."}, {"episode_id": "yt-finanzfluss-876", "show_name": "Finanzfluss (YouTube)", "platform": "YouTube", "niche": "Finance & Investing", "episode_title": "GmbH, Holding oder Einzelunternehmen? Buchhaltung & Steuern für Selbstständige", "published_at": "2026-10-01", "estimated_reach": 154000, "brand_key": "Finanzguru", "canonical_brand": "Finanzguru (dwins GmbH)", "brand_category": "Finance & Investing", "disclosure_marker": "Anzeige", "placement_type": "YouTube Dedicated Mid-Roll Integration", "timestamp_start": "00:15:10", "timestamp_end": "00:16:40", "duration_seconds": 90, "vanity_url": "https://finanzguru.de/finanzfluss", "utm_parameters": "", "promo_code": "FLUSSGURU", "offer_summary": "3 Monate Finanzguru Plus kostenlos testen (statt 2,99€/Monat)", "effective_tkp_eur": 88.0, "estimated_episode_spend_eur": 13552.0, "confidence_score": 0.98, "raw_snippet": "[00:15:10 - 00:16:40] Anzeige: Finanzguru – Alle Konten in einer App analysieren auf https://finanzguru.de/finanzfluss (Code: FLUSSGURU)."}, {"episode_id": "yt-simplicissimus-412", "show_name": "Simplicissimus (YouTube)", "platform": "YouTube", "niche": "Tech & AI", "episode_title": "Das dunkle Geschäft mit geleakten Browser-Daten", "published_at": "2026-10-10", "estimated_reach": 620000, "brand_key": "NordVPN", "canonical_brand": "NordVPN (Nord Security)", "brand_category": "Tech & AI", "disclosure_marker": "Exklusiver Partner dieser Folge", "placement_type": "YouTube Dedicated Mid-Roll Integration", "timestamp_start": "00:16:45", "timestamp_end": "00:18:30", "duration_seconds": 105, "vanity_url": "https://nordvpn.com/simplicissimus", "utm_parameters": "utm_source=youtube", "promo_code": "SIMPLI", "offer_summary": "4 Extra-Monate gratis zum 2-Jahres-Paket + 30 Tage Geld-zurück-Garantie", "effective_tkp_eur": 86.92, "estimated_episode_spend_eur": 53890.4, "confidence_score": 0.98, "raw_snippet": "[00:16:45 - 00:18:30] Exklusiver Partner dieser Folge: NordVPN – Schütze deine Daten vor Trackern und Phishing mit dem Bedrohungsschutz Pro. Sichere dir den exklusiven Deal + 4 Extra-Monate gratis unter https://nordvpn.com/simplicissimus?utm_source=youtube mit dem Rabattcode: SIMPLI."}, {"episode_id": "yt-simplicissimus-412", "show_name": "Simplicissimus (YouTube)", "platform": "YouTube", "niche": "Tech & AI", "episode_title": "Das dunkle Geschäft mit geleakten Browser-Daten", "published_at": "2026-10-10", "estimated_reach": 620000, "brand_key": "Holy Energy", "canonical_brand": "HOLY Energy (Holy Squad)", "brand_category": "Health & Longevity", "disclosure_marker": "Pre-Roll Partner", "placement_type": "YouTube Pre-Roll Integration", "timestamp_start": "00:00:00", "timestamp_end": "00:01:10", "duration_seconds": 70, "vanity_url": "https://weareholy.com/simpli", "utm_parameters": "", "promo_code": "SIMPLI5", "offer_summary": "5€ Rabatt auf das Starter-Set + 10% mit Creator-Code", "effective_tkp_eur": 51.84, "estimated_episode_spend_eur": 32140.8, "confidence_score": 0.98, "raw_snippet": "[00:00:00 - 00:01:10] Pre-Roll Partner: Holy Energy – Voller Fokus beim Schnitt ohne Zucker-Crash! 5€ Starter-Bonus unter https://weareholy.com/simpli mit dem Code: SIMPLI5."}, {"episode_id": "yt-mrwissen2go-509", "show_name": "MrWissen2go (YouTube)", "platform": "YouTube", "niche": "News & Politics", "episode_title": "Wie sicher ist unsere digitale Infrastruktur wirklich?", "published_at": "2026-10-06", "estimated_reach": 340000, "brand_key": "NordVPN", "canonical_brand": "NordVPN (Nord Security)", "brand_category": "Tech & AI", "disclosure_marker": "Partner dieser Folge", "placement_type": "YouTube Dedicated Mid-Roll Integration", "timestamp_start": "00:11:10", "timestamp_end": "00:12:50", "duration_seconds": 100, "vanity_url": "https://nordvpn.com/wissen2go", "utm_parameters": "", "promo_code": "WISSEN2GO", "offer_summary": "4 Extra-Monate gratis zum 2-Jahres-Paket + 30 Tage Geld-zurück-Garantie", "effective_tkp_eur": 72.08, "estimated_episode_spend_eur": 24507.2, "confidence_score": 0.98, "raw_snippet": "[00:11:10 - 00:12:50] Partner dieser Folge: NordVPN – Verschlüsselte Verbindung im öffentlichen WLAN und Schutz vor Schadsoftware. Jetzt 4 Monate gratis sichern auf https://nordvpn.com/wissen2go mit dem Gutscheincode: WISSEN2GO."}, {"episode_id": "yt-mrwissen2go-509", "show_name": "MrWissen2go (YouTube)", "platform": "YouTube", "niche": "News & Politics", "episode_title": "Wie sicher ist unsere digitale Infrastruktur wirklich?", "published_at": "2026-10-06", "estimated_reach": 340000, "brand_key": "Taxfix", "canonical_brand": "Taxfix Steuer-App", "brand_category": "Finance & Investing", "disclosure_marker": "Werbepartner", "placement_type": "YouTube Dedicated Mid-Roll Integration", "timestamp_start": "00:19:00", "timestamp_end": "00:20:30", "duration_seconds": 90, "vanity_url": "https://taxfix.de/wissen2go", "utm_parameters": "", "promo_code": "WISSENTAX", "offer_summary": "50% Rabatt auf die erste Steuererklärung oder Experten-Service Rabatt", "effective_tkp_eur": 68.0, "estimated_episode_spend_eur": 23120.0, "confidence_score": 0.98, "raw_snippet": "[00:19:00 - 00:20:30] Werbepartner: Taxfix – Steuererklärung einfach per Frage-Antwort-Prinzip. Starte jetzt unter https://taxfix.de/wissen2go mit dem Rabattcode: WISSENTAX."}, {"episode_id": "yt-niklas-steenfatt-219", "show_name": "Niklas Steenfatt (YouTube)", "platform": "YouTube", "niche": "Tech & AI", "episode_title": "Mein Produktivitäts- & Health-Stack als Tech-Unternehmer 2026", "published_at": "2026-10-08", "estimated_reach": 128000, "brand_key": "AG1", "canonical_brand": "AG1 (Athletic Greens)", "brand_category": "Health & Longevity", "disclosure_marker": "Werbepartner dieser Folge", "placement_type": "YouTube Dedicated Mid-Roll Integration", "timestamp_start": "00:06:20", "timestamp_end": "00:08:05", "duration_seconds": 105, "vanity_url": "https://drinkag1.com/niklas", "utm_parameters": "utm_source=youtube", "promo_code": "NIKLASAG1", "offer_summary": "Jahresvorrat Vitamin D3+K2 + 5 Travel Packs gratis zum Erstkauf", "effective_tkp_eur": 86.92, "estimated_episode_spend_eur": 11125.76, "confidence_score": 0.98, "raw_snippet": "[00:06:20 - 00:08:05] Werbepartner dieser Folge: AG1 – 75 hochwertige Vitamine, Mineralstoffe und Bakterienkulturen in einem Löffel. Hol dir das Gratis-Jahrespaket Vitamin D3+K2 auf https://drinkag1.com/niklas?utm_source=youtube mit dem Rabattcode: NIKLASAG1."}, {"episode_id": "yt-niklas-steenfatt-219", "show_name": "Niklas Steenfatt (YouTube)", "platform": "YouTube", "niche": "Tech & AI", "episode_title": "Mein Produktivitäts- & Health-Stack als Tech-Unternehmer 2026", "published_at": "2026-10-08", "estimated_reach": 128000, "brand_key": "Holy Energy", "canonical_brand": "HOLY Energy (Holy Squad)", "brand_category": "Health & Longevity", "disclosure_marker": "Partner dieser Folge", "placement_type": "YouTube Dedicated Mid-Roll Integration", "timestamp_start": "00:12:40", "timestamp_end": "00:14:15", "duration_seconds": 95, "vanity_url": "https://weareholy.com/niklas", "utm_parameters": "", "promo_code": "NIKLAS10", "offer_summary": "5€ Rabatt auf das Starter-Set + 10% mit Creator-Code", "effective_tkp_eur": 86.92, "estimated_episode_spend_eur": 11125.76, "confidence_score": 0.98, "raw_snippet": "[00:12:40 - 00:14:15] Partner dieser Folge: Holy Energy – Mein Favorit am Nachmittag ist Holy Iced Tea. 10% sparen auf https://weareholy.com/niklas mit dem Code: NIKLAS10."}, {"episode_id": "yt-niklas-steenfatt-219", "show_name": "Niklas Steenfatt (YouTube)", "platform": "YouTube", "niche": "Tech & AI", "episode_title": "Mein Produktivitäts- & Health-Stack als Tech-Unternehmer 2026", "published_at": "2026-10-08", "estimated_reach": 128000, "brand_key": "NordVPN", "canonical_brand": "NordVPN (Nord Security)", "brand_category": "Tech & AI", "disclosure_marker": "Anzeige", "placement_type": "YouTube Dedicated Mid-Roll Integration", "timestamp_start": "00:17:00", "timestamp_end": "00:18:35", "duration_seconds": 95, "vanity_url": "https://nordvpn.com/niklas", "utm_parameters": "", "promo_code": "NIKLASVPN", "offer_summary": "4 Extra-Monate gratis zum 2-Jahres-Paket + 30 Tage Geld-zurück-Garantie", "effective_tkp_eur": 86.92, "estimated_episode_spend_eur": 11125.76, "confidence_score": 0.98, "raw_snippet": "[00:17:00 - 00:18:35] Anzeige: NordVPN – Sicher arbeiten auf Reisen unter https://nordvpn.com/niklas (Rabattcode: NIKLASVPN)."}, {"episode_id": "yt-torben-platzer-304", "show_name": "Torben Platzer (YouTube)", "platform": "YouTube", "niche": "Business & SaaS", "episode_title": "Selbstversuch: Schlaf-Tracking, Ernährung & Fokus im Agentur-Alltag", "published_at": "2026-10-07", "estimated_reach": 148000, "brand_key": "Emma Matratze", "canonical_brand": "Emma – The Sleep Company", "brand_category": "Health & Longevity", "disclosure_marker": "Partner dieser Folge", "placement_type": "YouTube Dedicated Mid-Roll Integration", "timestamp_start": "00:07:10", "timestamp_end": "00:08:50", "duration_seconds": 100, "vanity_url": "https://emma-matratze.de/torben", "utm_parameters": "", "promo_code": "TORBEN5", "offer_summary": "5% Extra-Rabatt zusätzlich auf den bis zu 50% Sale + 100 Nächte Probeschlafen", "effective_tkp_eur": 90.1, "estimated_episode_spend_eur": 13334.8, "confidence_score": 0.98, "raw_snippet": "[00:07:10 - 00:08:50] Partner dieser Folge: Emma Matratze – Tiefschlaf-Optimierung mit der Emma Elite. 5% Extra-Rabatt auf den Sale unter https://emma-matratze.de/torben mit dem Rabattcode: TORBEN5."}, {"episode_id": "yt-torben-platzer-304", "show_name": "Torben Platzer (YouTube)", "platform": "YouTube", "niche": "Business & SaaS", "episode_title": "Selbstversuch: Schlaf-Tracking, Ernährung & Fokus im Agentur-Alltag", "published_at": "2026-10-07", "estimated_reach": 148000, "brand_key": "HelloFresh", "canonical_brand": "HelloFresh DACH", "brand_category": "Entertainment & Society", "disclosure_marker": "Werbepartner", "placement_type": "YouTube Dedicated Mid-Roll Integration", "timestamp_start": "00:14:00", "timestamp_end": "00:15:30", "duration_seconds": 90, "vanity_url": "https://hellofresh.de/torben", "utm_parameters": "", "promo_code": "HFTORBEN", "offer_summary": "Bis zu 120€ Rabatt auf die ersten 4 Boxen + kostenloses Dessert für 1 Jahr", "effective_tkp_eur": 85.0, "estimated_episode_spend_eur": 12580.0, "confidence_score": 0.98, "raw_snippet": "[00:14:00 - 00:15:30] Werbepartner: HelloFresh – Zeit sparen beim Kochen im Homeoffice auf https://hellofresh.de/torben (Code: HFTORBEN)."}], "unsponsored_lookalike_inventory": [{"show_id": "show_doppelgaenger", "show_name": "Doppelgänger Tech Talk", "platform": "Podcast RSS + YouTube", "niche": "Business & SaaS", "secondary_niche": "Finance & Investing", "avg_downloads_or_views": 78000, "host_names": "Philipp Klöckner & Philipp Glöckler", "current_sponsors": ["Lexoffice", "Personio"], "open_inventory_slots": 2, "audience_profile": "Tech-Entscheider, Gründer, VC-Investoren, Privatanleger (DACH, 28-48 J.)"}, {"show_id": "show_kassenzone", "show_name": "Kassenzone / E-Commerce & B2B Deep Dive", "platform": "Podcast RSS", "niche": "Business & SaaS", "secondary_niche": "Tech & AI", "avg_downloads_or_views": 42000, "host_names": "Alexander Graf", "current_sponsors": [], "open_inventory_slots": 3, "audience_profile": "C-Level Handel, SaaS-Gründer, E-Commerce Geschäftsführer (DACH)"}, {"show_id": "show_marktgefluester", "show_name": "Marktgeflüster – Finanzen & Ökonomie", "platform": "Podcast RSS + YouTube", "niche": "Finance & Investing", "secondary_niche": "News & Politics", "avg_downloads_or_views": 95000, "host_names": "Prof. Dr. Holger Graf & Thomas Ehl", "current_sponsors": ["Finanzguru"], "open_inventory_slots": 2, "audience_profile": "Kaufkräftige Privatanleger, Selbstständige, Akademiker (DACH)"}, {"show_id": "show_ki_update", "show_name": "KI-Update & Developer Architektur DACH", "platform": "YouTube + Podcast RSS", "niche": "Tech & AI", "secondary_niche": "Business & SaaS", "avg_downloads_or_views": 64000, "host_names": "heise / Tech-Redaktion", "current_sponsors": [], "open_inventory_slots": 3, "audience_profile": "Software-Architekten, CTOs, IT-Security-Verantwortliche, AI Engineers"}, {"show_id": "show_longevity_doc", "show_name": "Longevity & Biohacking Medizin DACH", "platform": "YouTube + Podcast RSS", "niche": "Health & Longevity", "secondary_niche": "Entertainment & Society", "avg_downloads_or_views": 58000, "host_names": "Dr. med. Lukas Stein & Sarah Berg", "current_sponsors": [], "open_inventory_slots": 3, "audience_profile": "Gesundheitsbewusste High-Performer, Sportler, Führungskräfte (25-55 J.)"}]};
+
+  function switchTab(tabId, btnEl) {
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(tabId).classList.add('active');
+    btnEl.classList.add('active');
+  }
+
+  function openPitchForBrand(brandKey, mode) {
+    document.getElementById('pitchBrandSelect').value = brandKey;
+    document.getElementById('pitchModeSelect').value = mode;
+    updatePitchView();
+    const pitchBtn = document.querySelectorAll('.tab-btn')[3];
+    switchTab('tab-pitches', pitchBtn);
+  }
+
+  function renderAllTables() {
+    const q = (document.getElementById('searchInput').value || '').toLowerCase();
+    const cat = document.getElementById('categoryFilter').value;
+    const plat = document.getElementById('platformFilter').value;
+
+    // 1. Render Brand Leaderboard
+    const brandBody = document.getElementById('brandTableBody');
+    brandBody.innerHTML = '';
+    REPORT.brand_leaderboards.forEach(b => {
+      if (cat !== 'ALL' && b.category !== cat) return;
+      if (plat !== 'ALL' && !b.platforms_active.includes(plat)) return;
+      const hay = (b.canonical_brand + ' ' + b.shows_sponsored.join(' ') + ' ' + b.detected_promo_codes.join(' ') + ' ' + b.direct_competitors.join(' ')).toLowerCase();
+      if (q && !hay.includes(q)) return;
+
+      const statusBadge = b.placements_30d >= 3
+        ? '<span class="badge badge-green">VERIFIED 3+ FLIGHTS</span>'
+        : '<span class="badge badge-blue">ACTIVE 2 FLIGHTS</span>';
+
+      const urlsHtml = b.detected_vanity_urls.map(u => `<span class="url-pill">${u.replace('https://', '')}</span>`).join('');
+      const codesHtml = b.detected_promo_codes.map(c => `<span class="code-pill">${c}</span>`).join('');
+      const compsHtml = b.direct_competitors.map(c => `<span class="comp-pill">${c}</span>`).join('');
+
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>
+          <strong style="color:#fff; font-size:14px;">${b.canonical_brand}</strong><br/>
+          <span style="font-size:11.5px; color:var(--muted);">${b.decision_maker_role}</span><br/>
+          <span style="font-size:11px; color:var(--accent);">${b.agency_network}</span>
+        </td>
+        <td>
+          <span class="badge badge-purple">${b.category}</span><br/>
+          <div style="margin-top:6px;">${statusBadge}</div>
+          <div style="font-size:11px; color:var(--muted); margin-top:4px;">Signal Score: <strong>${b.signal_score_0_100}/100</strong></div>
+        </td>
+        <td>
+          <strong class="mono">${b.placements_30d} Placements</strong> (${b.unique_shows_30d} Shows)<br/>
+          <span style="font-size:11.5px; color:var(--muted);">${b.shows_sponsored.join(', ')}</span><br/>
+          <span style="font-size:11px; color:var(--accent);">Ø Ad-Read: ${b.avg_ad_duration_sec}s</span>
+        </td>
+        <td class="mono">
+          ${b.total_estimated_reach_30d.toLocaleString('de-DE')} Kontakte<br/>
+          <span style="color:var(--accent-green);">Ø ${b.avg_effective_tkp_eur.toFixed(2)} € TKP</span>
+        </td>
+        <td class="mono">
+          <strong style="font-size:15px; color:#34d399;">${b.estimated_spend_30d_eur.toLocaleString('de-DE', {minimumFractionDigits: 0, maximumFractionDigits: 0})} €</strong> / 30d<br/>
+          <span style="font-size:11px; color:var(--muted);">Q-Rate: ~${b.estimated_quarterly_run_rate_eur.toLocaleString('de-DE', {maximumFractionDigits: 0})} €</span>
+        </td>
+        <td>${urlsHtml}<br/>${codesHtml}</td>
+        <td>${compsHtml}</td>
+        <td>
+          <button class="btn" style="margin-bottom:6px; width:100%;" onclick="openPitchForBrand('${b.brand_key}', 'creator_to_brand')">Brand pitchen</button>
+          <button class="btn" style="background:#f43f5e; color:#fff; width:100%;" onclick="openPitchForBrand('${b.brand_key}', 'competitor_counterstrike')">Konkurrenz pitchen</button>
+        </td>
+      `;
+      brandBody.appendChild(tr);
+    });
+
+    // 2. Render Episode Table
+    const epBody = document.getElementById('episodeTableBody');
+    epBody.innerHTML = '';
+    REPORT.episode_ad_placements.forEach(s => {
+      if (cat !== 'ALL' && s.niche !== cat && s.brand_category !== cat) return;
+      if (plat !== 'ALL' && s.platform !== plat) return;
+      const hay = (s.show_name + ' ' + s.canonical_brand + ' ' + s.promo_code + ' ' + s.vanity_url + ' ' + s.episode_title).toLowerCase();
+      if (q && !hay.includes(q)) return;
+
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>
+          <strong style="color:#fff;">${s.show_name}</strong><br/>
+          <span class="badge ${s.platform === 'YouTube' ? 'badge-amber' : 'badge-blue'}">${s.platform}</span>
+        </td>
+        <td>
+          <div style="font-weight:600; max-width:250px;">${s.episode_title}</div>
+          <div class="mono" style="color:var(--muted); font-size:11px;">${s.published_at} · ID: ${s.episode_id}</div>
+        </td>
+        <td>
+          <strong style="color:var(--accent);">${s.canonical_brand}</strong><br/>
+          <span style="font-size:11px; color:var(--muted);">Marker: "${s.disclosure_marker}"</span>
+        </td>
+        <td class="mono">
+          <strong>${s.placement_type}</strong><br/>
+          <span style="color:#fbbf24;">[${s.timestamp_start} – ${s.timestamp_end}]</span> (${s.duration_seconds}s)
+        </td>
+        <td>
+          <span class="url-pill">${s.vanity_url.replace('https://', '')}</span><br/>
+          <span class="code-pill">Code: ${s.promo_code}</span>
+        </td>
+        <td class="mono">
+          Reach: ${s.estimated_reach.toLocaleString('de-DE')}<br/>
+          TKP: ${s.effective_tkp_eur.toFixed(2)} €<br/>
+          <strong style="color:#34d399;">Spend: ${s.estimated_episode_spend_eur.toLocaleString('de-DE', {maximumFractionDigits:0})} €</strong>
+        </td>
+        <td style="font-size:11.5px; color:var(--muted); max-width:320px;">${s.raw_snippet}</td>
+      `;
+      epBody.appendChild(tr);
+    });
+
+    // 3. Render Whitespace Table
+    const wsBody = document.getElementById('whitespaceTableBody');
+    wsBody.innerHTML = '';
+    REPORT.brand_leaderboards.forEach(b => {
+      if (cat !== 'ALL' && b.category !== cat) return;
+      b.lookalike_whitespace_shows.forEach(ws => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>
+            <strong style="color:#fff;">${b.canonical_brand}</strong><br/>
+            <span style="font-size:11px; color:#34d399;">Aktives 30d-Budget: ${b.estimated_spend_30d_eur.toLocaleString('de-DE', {maximumFractionDigits:0})} €</span>
+          </td>
+          <td style="font-size:12px; color:var(--muted);">${b.shows_sponsored.join(', ')}</td>
+          <td>
+            <strong style="color:var(--accent);">${ws.show_name}</strong><br/>
+            <span class="badge badge-purple">${ws.platform}</span>
+          </td>
+          <td style="font-size:12px;">${ws.fit_rationale}</td>
+          <td class="mono">
+            Ø ${ws.avg_reach.toLocaleString('de-DE')} Kontakte · ${ws.estimated_tkp_eur.toFixed(0)} € TKP<br/>
+            <strong style="color:#34d399;">3er-Flight-Paket: ${ws.three_flight_bundle_eur.toLocaleString('de-DE', {maximumFractionDigits:0})} €</strong>
+          </td>
+        `;
+        wsBody.appendChild(tr);
+      });
+    });
+  }
+
+  function initPitchSelector() {
+    const sel = document.getElementById('pitchBrandSelect');
+    sel.innerHTML = '';
+    REPORT.brand_leaderboards.forEach(b => {
+      const opt = document.createElement('option');
+      opt.value = b.brand_key;
+      opt.textContent = `${b.canonical_brand} (${b.placements_30d} Flights · ~${b.estimated_spend_30d_eur.toLocaleString('de-DE', {maximumFractionDigits:0})} €/30d)`;
+      sel.appendChild(opt);
+    });
+    updatePitchView();
+  }
+
+  function updatePitchView() {
+    const brandKey = document.getElementById('pitchBrandSelect').value;
+    const mode = document.getElementById('pitchModeSelect').value;
+    const brand = REPORT.brand_leaderboards.find(b => b.brand_key === brandKey) || REPORT.brand_leaderboards[0];
+    if (!brand) return;
+
+    const pitchObj = mode === 'creator_to_brand'
+      ? brand.cold_pitch_creator_to_brand
+      : brand.cold_pitch_competitor_counterstrike;
+
+    document.getElementById('pitchTargetHeader').textContent = `Empfänger: ${pitchObj.target}`;
+    document.getElementById('pitchSubjectBox').textContent = `Betreff: ${pitchObj.subject}`;
+    document.getElementById('pitchBodyBox').textContent = pitchObj.body;
+
+    document.getElementById('pitchMetaCard').innerHTML = `
+      <div><strong>Verifizierte Budget-Evidenz:</strong></div>
+      <div style="margin-top:4px;">• 30d Spend: <strong>${brand.estimated_spend_30d_eur.toLocaleString('de-DE', {maximumFractionDigits:0})} €</strong> (${brand.placements_30d} Flights)</div>
+      <div>• Aktive Shows: ${brand.shows_sponsored.join(', ')}</div>
+      <div>• Promo-Codes: ${brand.detected_promo_codes.join(', ')}</div>
+      <div>• Direkte Konkurrenten: ${brand.direct_competitors.join(', ')}</div>
+    `;
+  }
+
+  function copyPitchToClipboard() {
+    const subj = document.getElementById('pitchSubjectBox').textContent;
+    const body = document.getElementById('pitchBodyBox').textContent;
+    navigator.clipboard.writeText(subj + "\n\n" + body);
+  }
+
+  renderAllTables();
+  initPitchSelector();
+</script>
+</body>
+</html>

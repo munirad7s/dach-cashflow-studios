@@ -1,0 +1,1078 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MVP #71 — 24h Instagram Story Link-Sticker, Promo-Code &amp; § 5a UWG Sponsor Radar</title>
+<style>
+  :root {
+    --bg: #0b0f17;
+    --card: #131b2e;
+    --card-alt: #18233c;
+    --border: #263554;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --accent: #ec4899;
+    --accent2: #8b5cf6;
+    --emerald: #10b981;
+    --amber: #f59e0b;
+    --danger: #ef4444;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 28px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+  }
+  .container { max-width: 1440px; margin: 0 auto; }
+  .hero {
+    background: linear-gradient(135deg, #1e1b4b 0%, #31103f 55%, #0f172a 100%);
+    border: 1px solid #4c1d95;
+    border-radius: 16px;
+    padding: 26px 30px;
+    margin-bottom: 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  .hero h1 { margin: 0 0 8px 0; font-size: 24px; letter-spacing: -0.02em; }
+  .hero p { margin: 0; color: #cbd5e1; font-size: 14px; max-width: 880px; }
+  .benchmark-box {
+    background: rgba(15, 23, 42, 0.78);
+    border: 1px solid #6d28d9;
+    border-radius: 12px;
+    padding: 12px 16px;
+    font-size: 12.5px;
+    min-width: 320px;
+  }
+  .benchmark-box strong { color: #f472b6; }
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 14px;
+    margin-bottom: 26px;
+  }
+  .kpi-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 18px;
+  }
+  .kpi-label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+  .kpi-val { font-size: 26px; font-weight: 700; margin-top: 4px; }
+  .kpi-sub { font-size: 12px; color: var(--muted); margin-top: 4px; }
+  .text-emerald { color: var(--emerald); }
+  .text-danger { color: var(--danger); }
+  .text-amber { color: var(--amber); }
+  .section-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin: 28px 0 14px 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .filter-bar {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .filter-bar input, .filter-bar select {
+    background: var(--card);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+  .funnel-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+    margin-bottom: 18px;
+  }
+  .funnel-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 14px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+  .creator-line { font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .creator-handle { color: #f472b6; }
+  .creator-followers { color: var(--muted); font-size: 13px; font-weight: 500; }
+  .brand-badge {
+    background: #312e81;
+    color: #c7d2fe;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 13px;
+  }
+  .funnel-sub { font-size: 12.5px; color: var(--muted); margin-top: 4px; }
+  .funnel-right-badges { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .voucher-badge {
+    background: rgba(236, 72, 153, 0.16);
+    border: 1px solid #ec4899;
+    color: #fbcfe8;
+    font-weight: 700;
+    font-size: 12.5px;
+    padding: 4px 10px;
+    border-radius: 8px;
+  }
+  .status-badge {
+    font-size: 11.5px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 999px;
+  }
+  .badge-danger { background: rgba(239, 68, 68, 0.18); color: #fca5a5; border: 1px solid #ef4444; }
+  .badge-warn { background: rgba(245, 158, 11, 0.18); color: #fcd34d; border: 1px solid #f59e0b; }
+  .badge-ok { background: rgba(16, 185, 129, 0.18); color: #6ee7b7; border: 1px solid #10b981; }
+  .badge-neutral { background: rgba(148, 163, 184, 0.15); color: #cbd5e1; border: 1px solid #475569; }
+  .frames-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .frame-step {
+    background: var(--card-alt);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .role-hook { border-top: 3px solid #38bdf8; }
+  .role-proof { border-top: 3px solid #a855f7; }
+  .role-cta { border-top: 3px solid #10b981; background: rgba(16, 185, 129, 0.06); }
+  .frame-header { display: flex; justify-content: space-between; font-size: 12px; font-weight: 700; margin-bottom: 8px; }
+  .expiry-pill { color: #fbbf24; font-weight: 600; }
+  .frame-caption { font-size: 13px; margin-bottom: 8px; color: #f1f5f9; }
+  .frame-ocr { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+  .countdown-tag {
+    font-size: 11.5px;
+    background: rgba(245, 158, 11, 0.14);
+    color: #fde68a;
+    padding: 4px 8px;
+    border-radius: 6px;
+    margin-bottom: 8px;
+  }
+  .sticker-pill {
+    background: rgba(15, 23, 42, 0.85);
+    border: 1px solid #10b981;
+    border-radius: 8px;
+    padding: 8px 10px;
+    margin-bottom: 8px;
+  }
+  .sticker-title { font-size: 12.5px; font-weight: 700; color: #6ee7b7; margin-bottom: 4px; }
+  .sticker-meta { font-size: 11.5px; color: var(--muted); display: flex; flex-direction: column; gap: 2px; }
+  .frame-footer {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11.5px;
+    color: var(--muted);
+    border-top: 1px solid rgba(255,255,255,0.07);
+    padding-top: 8px;
+    margin-top: 6px;
+  }
+  .funnel-bottom {
+    background: rgba(15, 23, 42, 0.6);
+    border-radius: 10px;
+    padding: 12px 16px;
+  }
+  .funnel-kpis {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .funnel-kpis small { display: block; font-size: 11px; color: var(--muted); }
+  .funnel-kpis strong { font-size: 15px; }
+  .violation-list { margin: 6px 0 0 0; padding-left: 18px; font-size: 12.5px; color: #fca5a5; }
+  .compliant-note { font-size: 12.5px; color: #6ee7b7; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    font-size: 13px;
+    margin-bottom: 28px;
+  }
+  th, td { padding: 11px 13px; border-bottom: 1px solid var(--border); text-align: left; vertical-align: top; }
+  th { background: #0f172a; color: var(--muted); font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.04em; }
+  .text-right { text-align: right; }
+  .chain-box { font-family: monospace; font-size: 11.5px; color: #cbd5e1; word-break: break-all; max-width: 360px; }
+  .code-chip {
+    background: #3b0764;
+    color: #f3e8ff;
+    border: 1px solid #9333ea;
+    padding: 2px 7px;
+    border-radius: 5px;
+    font-family: monospace;
+    font-weight: 700;
+    font-size: 12px;
+  }
+  code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11.5px; color: #93c5fd; }
+</style>
+</head>
+<body>
+
+<!-- DACH CASHFLOW STUDIOS LAUNCH BAR -->
+<style>
+  #dcs-launch-bar {
+    position: sticky;
+    top: 0;
+    z-index: 99999;
+    background: linear-gradient(90deg, #0b1120 0%, #111827 50%, #0f172a 100%);
+    color: #f8fafc;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.35);
+    padding: 8px 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  }
+  #dcs-launch-bar .dcs-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+  }
+  #dcs-launch-bar .dcs-badge {
+    background: rgba(16, 185, 129, 0.18);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.03em;
+  }
+  #dcs-launch-bar a.dcs-nav {
+    color: #93c5fd;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 12.5px;
+  }
+  #dcs-launch-bar a.dcs-nav:hover {
+    text-decoration: underline;
+    color: #dbeafe;
+  }
+  #dcs-launch-bar .dcs-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  #dcs-launch-bar .dcs-btn {
+    padding: 5px 11px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s ease;
+  }
+  #dcs-launch-bar .dcs-btn-ghost {
+    background: rgba(255,255,255,0.08);
+    color: #e2e8f0;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  #dcs-launch-bar .dcs-btn-primary {
+    background: linear-gradient(135deg, #0ea5e9, #2563eb);
+    color: #ffffff;
+  }
+  #dcs-launch-bar .dcs-btn-emerald {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
+  }
+  @media print {
+    #dcs-launch-bar { display: none !important; }
+  }
+</style>
+<div id="dcs-launch-bar">
+  <div class="dcs-left">
+    <a href="/index.html" class="dcs-nav">← Alle 150 DACH Studios</a>
+    <span class="dcs-badge">MVP #071 VERIFIED</span>
+    <span style="color:#cbd5e1;font-size:12px;">DACH Tax, Corporate & Accounting Arbitrage</span>
+  </div>
+  <div class="dcs-actions">
+    <button onclick="window.print()" class="dcs-btn dcs-btn-ghost">🖨️ PDF / Dossier drucken</button>
+    <a href="#checkout-modal-49" target="_blank" rel="noopener" class="dcs-btn dcs-btn-primary">⚡ Musterschreiben & Voll-Dossier (€49)</a>
+    <a href="#checkout-modal-299" target="_blank" rel="noopener" class="dcs-btn dcs-btn-emerald">🛡️ B2B Umsetzung buchen (€299 / €1.490)</a>
+  </div>
+</div>
+
+<div class="container">
+  <div class="hero">
+    <div>
+      <h1>📡 MVP #71: Ephemeral 24h Instagram Story Link-Sticker, Promo-Code &amp; § 5a UWG Sponsor Radar</h1>
+      <p>
+        Unwraps ephemeral <code>l.instagram.com/?u=...</code> link stickers &amp; multi-hop affiliate redirects
+        (Bitly → Linktree → Awin / LTK / Shopify Collabs / Linkster), reconstructs <strong>3-Frame Story Conversion Funnels</strong>
+        before they vanish after 86,400 seconds, and audits <strong>§ 5a Abs. 4 UWG Schleichwerbung</strong> across German D2C creators.
+      </p>
+    </div>
+    <div class="benchmark-box">
+      <div><strong>Apify Store Commercial Anchor:</strong></div>
+      <div>• <code>datavoyantlab/instagram-story-downloader</code>: <strong>$0.25/Event</strong> · 273,850 runs/30d (<strong>$68,462/mo</strong> 1x floor)</div>
+      <div>• <code>louisdeconinck/instagram-story-details-scraper</code>: <strong>$0.10/Event</strong> · 90,800 runs/30d (<strong>$9,080/mo</strong> 1x floor)</div>
+      <div>• Combined Category Demand: <strong>364,650+ Story Scrapes/30d</strong></div>
+    </div>
+  </div>
+
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-label">Active 24h Story Frames</div>
+      <div class="kpi-val">14</div>
+      <div class="kpi-sub">6 Reconstructed Story Funnels</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Unwrapped Link Stickers</div>
+      <div class="kpi-val">6</div>
+      <div class="kpi-sub">5 Promo Codes Extracted</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">§ 5a Abs. 4 UWG Violations</div>
+      <div class="kpi-val text-danger">4 High Risk</div>
+      <div class="kpi-sub">0 Warning (Dead-Zone / Frame-1 Omission)</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Est. 24h Story Reach</div>
+      <div class="kpi-val">184,000</div>
+      <div class="kpi-sub">7,097 Link-Sticker Taps</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Est. 24h Story GMV (€)</div>
+      <div class="kpi-val text-emerald">€35,707.40</div>
+      <div class="kpi-sub">€14,576.68 Est. Brand Sponsor Spend</div>
+    </div>
+  </div>
+
+  <div class="section-title">
+    <span>🏆 D2C Competitor Flash-Sale &amp; 24h Story GMV Leaderboard</span>
+  </div>
+  <table>
+    <thead>
+      <tr>
+        <th>Target Brand / Domain</th>
+        <th>Flash-Sale Signal</th>
+        <th>Active Story Creators</th>
+        <th>Detected Voucher Codes</th>
+        <th class="text-right">24h Story Reach</th>
+        <th class="text-right">Sticker Clicks</th>
+        <th class="text-right">Est. Orders</th>
+        <th class="text-right">Est. 24h GMV (€)</th>
+        <th class="text-right">Sponsor Spend &amp; ROAS</th>
+      </tr>
+    </thead>
+    <tbody>
+      
+        <tr>
+            <td><strong>More Nutrition (Quality Group)</strong><br><small><code>morenutrition.de</code></small></td>
+            <td><span class="status-badge badge-warn">⚡ COORDINATED FLASH WAVE</span></td>
+            <td>@lisa.marie.fit, @max.iron.coach</td>
+            <td><span class="code-chip">LISA20</span>, <span class="code-chip">IRONMAX</span></td>
+            <td class="text-right">58,075</td>
+            <td class="text-right">2,583</td>
+            <td class="text-right">202</td>
+            <td class="text-right text-emerald"><strong>€15,049.00</strong></td>
+            <td class="text-right">€5,898.65 (2.55x ROAS)</td>
+        </tr>
+        
+        <tr>
+            <td><strong>Westwing Home &amp; Living</strong><br><small><code>westwing.de</code></small></td>
+            <td><span class="status-badge badge-neutral">Single Creator Drop</span></td>
+            <td>@anna.interior.muc</td>
+            <td><span class="code-chip">ANNA25</span></td>
+            <td class="text-right">47,150</td>
+            <td class="text-right">1,778</td>
+            <td class="text-right">65</td>
+            <td class="text-right text-emerald"><strong>€10,725.00</strong></td>
+            <td class="text-right">€4,339.99 (2.47x ROAS)</td>
+        </tr>
+        
+        <tr>
+            <td><strong>HelloFresh DACH</strong><br><small><code>hellofresh.de</code></small></td>
+            <td><span class="status-badge badge-neutral">Single Creator Drop</span></td>
+            <td>@familien.kueche.nrw</td>
+            <td><span class="code-chip">FAMILIE120</span></td>
+            <td class="text-right">33,350</td>
+            <td class="text-right">1,357</td>
+            <td class="text-right">86</td>
+            <td class="text-right text-emerald"><strong>€5,151.40</strong></td>
+            <td class="text-right">€2,380.60 (2.16x ROAS)</td>
+        </tr>
+        
+        <tr>
+            <td><strong>Sephora Deutschland</strong><br><small><code>sephora.de</code></small></td>
+            <td><span class="status-badge badge-neutral">Single Creator Drop</span></td>
+            <td>@sophia.style.munich</td>
+            <td><span class="code-chip">SOPHIA15</span></td>
+            <td class="text-right">28,175</td>
+            <td class="text-right">1,146</td>
+            <td class="text-right">52</td>
+            <td class="text-right text-emerald"><strong>€3,536.00</strong></td>
+            <td class="text-right">€1,633.03 (2.17x ROAS)</td>
+        </tr>
+        
+        <tr>
+            <td><strong>Amazon.de Storefront</strong><br><small><code>amazon.de</code></small></td>
+            <td><span class="status-badge badge-neutral">Single Creator Drop</span></td>
+            <td>@tech.max.setup</td>
+            <td><span class="code-chip">NO_CODE_AUTO_LINK</span></td>
+            <td class="text-right">17,250</td>
+            <td class="text-right">233</td>
+            <td class="text-right">14</td>
+            <td class="text-right text-emerald"><strong>€1,246.00</strong></td>
+            <td class="text-right">€324.41 (3.84x ROAS)</td>
+        </tr>
+        
+    </tbody>
+  </table>
+
+  <div class="section-title">
+    <span>🎬 Reconstructed Multi-Frame 24h Story Conversion Funnels &amp; § 5a Abs. 4 UWG Audit</span>
+    <div class="filter-bar">
+      <input type="text" id="funnelSearch" placeholder="Filter creator, brand, code, network..." oninput="filterFunnels()">
+      <select id="uwgFilter" onchange="filterFunnels()">
+        <option value="ALL">All § 5a UWG Statuses</option>
+        <option value="VIOLATION_SCHLEICHWERBUNG_5A_UWG">🚨 § 5a UWG Violations Only</option>
+        <option value="WARNING_WEAK_DISCLOSURE">⚠️ Weak / Dead-Zone Disclosures</option>
+        <option value="COMPLIANT">✅ Compliant Funnels</option>
+      </select>
+    </div>
+  </div>
+
+  <div id="funnelsContainer">
+    
+        <div class="funnel-card" data-status="VIOLATION_SCHLEICHWERBUNG_5A_UWG" data-search="lisa.marie.fit more nutrition (quality group) lisa20 linkster dach">
+            <div class="funnel-top">
+                <div>
+                    <div class="creator-line">
+                        <span class="creator-handle">@lisa.marie.fit</span>
+                        <span class="creator-followers">(320,000 Followers)</span>
+                        <span class="arrow">→</span>
+                        <span class="brand-badge">More Nutrition (Quality Group)</span>
+                    </div>
+                    <div class="funnel-sub">
+                        <span><strong>Architecture:</strong> COMPLETE_3_FRAME_FUNNEL (Hook -&gt; Proof -&gt; CTA Sticker)</span> ·
+                        <span><strong>Network:</strong> Linkster DACH</span> ·
+                        <span><strong>UTM Campaign:</strong> <code>q4_glow_flash40</code></span>
+                    </div>
+                </div>
+                <div class="funnel-right-badges">
+                    <span class="voucher-badge">🎟️ CODE: LISA20 (-20%)</span>
+                    <span class="status-badge badge-danger">VIOLATION_SCHLEICHWERBUNG_5A_UWG</span>
+                </div>
+            </div>
+            <div class="frames-grid">
+                
+            <div class="frame-step role-hook">
+                <div class="frame-header">
+                    <span class="frame-idx">Frame 1/3 · HOOK_FRAME</span>
+                    <span class="expiry-pill">⏳ 20.0h left</span>
+                </div>
+                <div class="frame-caption">“Kennt ihr dieses Nachmittags-Tief im Büro, wenn man einfach nur noch Süßes will? 😭🥤”</div>
+                <div class="frame-ocr"><strong>OCR Overlay:</strong> 15:00 Uhr Cravings besiegen?! Wartet auf die nächste Story 👀</div>
+                
+                
+                <div class="frame-footer">
+                    <span>👁️ 36,800 Views</span>
+                    <span>👆 0 Taps</span>
+                    <span>💶 €0.00 GMV</span>
+                    <span class="uwg-mini">VIOLATION_SCHLEICHWERBUNG_5A_UWG</span>
+                </div>
+            </div>
+            
+            <div class="frame-step role-proof">
+                <div class="frame-header">
+                    <span class="frame-idx">Frame 2/3 · PROOF_FRAME</span>
+                    <span class="expiry-pill">⏳ 20.1h left</span>
+                </div>
+                <div class="frame-caption">“Trinke jeden Tag meinen Peach Iced Tea Glow mit Kollagen-Peptiden von @morenutrition.de 🍑✨”</div>
+                <div class="frame-ocr"><strong>OCR Overlay:</strong> 0g Zucker + 10g Kollagen-Peptide pro Portion @morenutrition.de [deadzone micro-font]</div>
+                
+                
+                <div class="frame-footer">
+                    <span>👁️ 33,856 Views</span>
+                    <span>👆 0 Taps</span>
+                    <span>💶 €0.00 GMV</span>
+                    <span class="uwg-mini">WARNING_WEAK_DISCLOSURE</span>
+                </div>
+            </div>
+            
+            <div class="frame-step role-cta">
+                <div class="frame-header">
+                    <span class="frame-idx">Frame 3/3 · CTA_STICKER_FRAME</span>
+                    <span class="expiry-pill">⏳ 20.1h left</span>
+                </div>
+                <div class="frame-caption">“Anzeige | Nur heute 20% Rabatt auf ALLES mit CODE: LISA20 🔥 Schnell sein bevor Peach ausverkauft ist!”</div>
+                <div class="frame-ocr"><strong>OCR Overlay:</strong> ANZEIGE | 20% RABATT MIT CODE: LISA20 | Nur für 24h freigeschaltet!</div>
+                <div class="countdown-tag">⏱️ Countdown Sticker: LISA20 Flash-Sale Ende</div>
+                
+                <div class="sticker-pill">
+                    <div class="sticker-title">🔗 20% SPAREN MIT CODE: LISA20</div>
+                    <div class="sticker-meta">
+                        <span><strong>Unwrapped:</strong> <code>morenutrition.de</code></span>
+                        <span><strong>Network:</strong> Linkster DACH</span>
+                        <span><strong>Coords:</strong> (x=0.5, y=0.74) · OPTIMAL_THUMB_ARC (Bottom-Center / Right)</span>
+                    </div>
+                </div>
+                
+                <div class="frame-footer">
+                    <span>👁️ 31,148 Views</span>
+                    <span>👆 1,637 Taps</span>
+                    <span>💶 €9,536.00 GMV</span>
+                    <span class="uwg-mini">WARNING_WEAK_DISCLOSURE</span>
+                </div>
+            </div>
+            
+            </div>
+            <div class="funnel-bottom">
+                <div class="funnel-kpis">
+                    <div><small>24h Story Reach</small><strong>36,800</strong></div>
+                    <div><small>Link Sticker Clicks</small><strong>1,637</strong></div>
+                    <div><small>Est. Orders</small><strong>128</strong></div>
+                    <div><small>24h Story GMV (€)</small><strong class="text-emerald">€9,536.00</strong></div>
+                    <div><small>Est. Sponsor Spend</small><strong>€3,737.76</strong></div>
+                    <div><small>Funnel Score</small><strong>99.0/100</strong></div>
+                </div>
+                <ul class='violation-list'><li>⚠️ § 5a Abs. 4 UWG Komplett-Ausfall: Keine Kennzeichnung (&#x27;Anzeige&#x27;/&#x27;Werbung&#x27;) trotz kommerziellem Marken-Pitch / Affiliate-Trigger.</li><li>⚠️ LG München / Wettbewerbszentrale: Kennzeichnung in UI-Todeszone (y &lt; 0.08 / y &gt; 0.92) oder Mikro-Schriftgröße (&lt;2.2% Screen-Höhe) versteckt.</li><li>⚠️ Sequenz-Schleichwerbung (Frame 2): Frame 1 der Story-Sequenz war nicht als &#x27;Anzeige&#x27; gekennzeichnet (Anlockwirkung nach § 5a Abs. 4 UWG).</li><li>⚠️ Sequenz-Schleichwerbung (Frame 3): Frame 1 der Story-Sequenz war nicht als &#x27;Anzeige&#x27; gekennzeichnet (Anlockwirkung nach § 5a Abs. 4 UWG).</li></ul>
+            </div>
+        </div>
+        
+        <div class="funnel-card" data-status="COMPLIANT" data-search="max.iron.coach more nutrition (quality group) ironmax shopify collabs">
+            <div class="funnel-top">
+                <div>
+                    <div class="creator-line">
+                        <span class="creator-handle">@max.iron.coach</span>
+                        <span class="creator-followers">(185,000 Followers)</span>
+                        <span class="arrow">→</span>
+                        <span class="brand-badge">More Nutrition (Quality Group)</span>
+                    </div>
+                    <div class="funnel-sub">
+                        <span><strong>Architecture:</strong> COMPLETE_3_FRAME_FUNNEL (Hook -&gt; Proof -&gt; CTA Sticker)</span> ·
+                        <span><strong>Network:</strong> Shopify Collabs</span> ·
+                        <span><strong>UTM Campaign:</strong> <code>q4_glow_flash40</code></span>
+                    </div>
+                </div>
+                <div class="funnel-right-badges">
+                    <span class="voucher-badge">🎟️ CODE: IRONMAX (-20%)</span>
+                    <span class="status-badge badge-ok">COMPLIANT</span>
+                </div>
+            </div>
+            <div class="frames-grid">
+                
+            <div class="frame-step role-hook">
+                <div class="frame-header">
+                    <span class="frame-idx">Frame 1/3 · HOOK_FRAME</span>
+                    <span class="expiry-pill">⏳ 21.0h left</span>
+                </div>
+                <div class="frame-caption">“Anzeige | Viele fragen mich nach meiner Gelenk- &amp; Haut-Regeneration im schweren Aufbautraining 🏋️‍♂️”</div>
+                <div class="frame-ocr"><strong>OCR Overlay:</strong> ANZEIGE | Warum Kollagen-Peptide im Krafttraining Pflicht sind</div>
+                
+                
+                <div class="frame-footer">
+                    <span>👁️ 21,275 Views</span>
+                    <span>👆 0 Taps</span>
+                    <span>💶 €0.00 GMV</span>
+                    <span class="uwg-mini">COMPLIANT</span>
+                </div>
+            </div>
+            
+            <div class="frame-step role-proof">
+                <div class="frame-header">
+                    <span class="frame-idx">Frame 2/3 · PROOF_FRAME</span>
+                    <span class="expiry-pill">⏳ 21.0h left</span>
+                </div>
+                <div class="frame-caption">“Anzeige | Löslichkeit &amp; Aminosäureprofil beim More Clear Glow Peptide sind ungeschlagen @morenutrition.de”</div>
+                <div class="frame-ocr"><strong>OCR Overlay:</strong> ANZEIGE | Laborgeprüfte Tendoforte &amp; Verisol Peptide @morenutrition.de</div>
+                
+                
+                <div class="frame-footer">
+                    <span>👁️ 19,573 Views</span>
+                    <span>👆 0 Taps</span>
+                    <span>💶 €0.00 GMV</span>
+                    <span class="uwg-mini">COMPLIANT</span>
+                </div>
+            </div>
+            
+            <div class="frame-step role-cta">
+                <div class="frame-header">
+                    <span class="frame-idx">Frame 3/3 · CTA_STICKER_FRAME</span>
+                    <span class="expiry-pill">⏳ 21.1h left</span>
+                </div>
+                <div class="frame-caption">“Anzeige | Jetzt 20% Rabatt auf die komplette Glow-Aktion mit CODE: IRONMAX 💪”</div>
+                <div class="frame-ocr"><strong>OCR Overlay:</strong> ANZEIGE | 20% Rabatt mit Code IRONMAX - Direkt im Warenkorb aktiviert</div>
+                <div class="countdown-tag">⏱️ Countdown Sticker: 24h Glow-Drop Ende</div>
+                
+                <div class="sticker-pill">
+                    <div class="sticker-title">🔗 HIER 20% SPAREN (CODE: IRONMAX)</div>
+                    <div class="sticker-meta">
+                        <span><strong>Unwrapped:</strong> <code>morenutrition.de</code></span>
+                        <span><strong>Network:</strong> Shopify Collabs</span>
+                        <span><strong>Coords:</strong> (x=0.52, y=0.71) · OPTIMAL_THUMB_ARC (Bottom-Center / Right)</span>
+                    </div>
+                </div>
+                
+                <div class="frame-footer">
+                    <span>👁️ 18,007 Views</span>
+                    <span>👆 946 Taps</span>
+                    <span>💶 €5,513.00 GMV</span>
+                    <span class="uwg-mini">COMPLIANT</span>
+                </div>
+            </div>
+            
+            </div>
+            <div class="funnel-bottom">
+                <div class="funnel-kpis">
+                    <div><small>24h Story Reach</small><strong>21,275</strong></div>
+                    <div><small>Link Sticker Clicks</small><strong>946</strong></div>
+                    <div><small>Est. Orders</small><strong>74</strong></div>
+                    <div><small>24h Story GMV (€)</small><strong class="text-emerald">€5,513.00</strong></div>
+                    <div><small>Est. Sponsor Spend</small><strong>€2,160.89</strong></div>
+                    <div><small>Funnel Score</small><strong>99.0/100</strong></div>
+                </div>
+                <div class='compliant-note'>✅ § 5a Abs. 4 UWG & BGH I ZR 90/20 Compliant ('Anzeige'/'Werbung' + Paid Partnership ab Frame 1).</div>
+            </div>
+        </div>
+        
+        <div class="funnel-card" data-status="VIOLATION_SCHLEICHWERBUNG_5A_UWG" data-search="anna.interior.muc westwing home &amp; living anna25 awin affiliate network">
+            <div class="funnel-top">
+                <div>
+                    <div class="creator-line">
+                        <span class="creator-handle">@anna.interior.muc</span>
+                        <span class="creator-followers">(410,000 Followers)</span>
+                        <span class="arrow">→</span>
+                        <span class="brand-badge">Westwing Home &amp; Living</span>
+                    </div>
+                    <div class="funnel-sub">
+                        <span><strong>Architecture:</strong> COMPLETE_3_FRAME_FUNNEL (Hook -&gt; Proof -&gt; CTA Sticker)</span> ·
+                        <span><strong>Network:</strong> Awin Affiliate Network</span> ·
+                        <span><strong>UTM Campaign:</strong> <code>herbst_home_25</code></span>
+                    </div>
+                </div>
+                <div class="funnel-right-badges">
+                    <span class="voucher-badge">🎟️ CODE: ANNA25 (-25%)</span>
+                    <span class="status-badge badge-danger">VIOLATION_SCHLEICHWERBUNG_5A_UWG</span>
+                </div>
+            </div>
+            <div class="frames-grid">
+                
+            <div class="frame-step role-hook">
+                <div class="frame-header">
+                    <span class="frame-idx">Frame 1/3 · HOOK_FRAME</span>
+                    <span class="expiry-pill">⏳ 16.0h left</span>
+                </div>
+                <div class="frame-caption">“Unser Wohnzimmer hat endlich das Herbst-Makeover bekommen, von dem ich seit Monaten träume 🍂🛋️ #ad”</div>
+                <div class="frame-ocr"><strong>OCR Overlay:</strong> Autumn Living Room Transformation ✨ #ad #collab</div>
+                
+                
+                <div class="frame-footer">
+                    <span>👁️ 47,150 Views</span>
+                    <span>👆 0 Taps</span>
+                    <span>💶 €0.00 GMV</span>
+                    <span class="uwg-mini">VIOLATION_SCHLEICHWERBUNG_5A_UWG</span>
+                </div>
+            </div>
+            
+            <div class="frame-step role-proof">
+                <div class="frame-header">
+                    <span class="frame-idx">Frame 2/3 · PROOF_FRAME</span>
+                    <span class="expiry-pill">⏳ 16.1h left</span>
+                </div>
+                <div class="frame-caption">“Der Bouclé-Sessel und die mundgeblasene Vase sind beide aus der neuen @westwingde Kollektion 🤍 #sponsored”</div>
+                <div class="frame-ocr"><strong>OCR Overlay:</strong> Close-up: Bouclé Sessel &#x27;Sofia&#x27; von @westwingde #sponsored</div>
+                
+                
+                <div class="frame-footer">
+                    <span>👁️ 43,378 Views</span>
+                    <span>👆 0 Taps</span>
+                    <span>💶 €0.00 GMV</span>
+                    <span class="uwg-mini">VIOLATION_SCHLEICHWERBUNG_5A_UWG</span>
+                </div>
+            </div>
+            
+            <div class="frame-step role-cta">
+                <div class="frame-header">
+                    <span class="frame-idx">Frame 3/3 · CTA_STICKER_FRAME</span>
+                    <span class="expiry-pill">⏳ 16.1h left</span>
+                </div>
+                <div class="frame-caption">“Hier ist der Direktlink zur Bouclé-Kollektion — mit CODE: ANNA25 gibt es 25% Extra-Rabatt im Club-Sale! #ad #collab”</div>
+                <div class="frame-ocr"><strong>OCR Overlay:</strong> 25% EXTRA-RABATT MIT CODE: ANNA25 ✨ Nur solange der Vorrat reicht #ad</div>
+                
+                
+                <div class="sticker-pill">
+                    <div class="sticker-title">🔗 ZUR WESTWING KOLLEKTION (CODE: ANNA25)</div>
+                    <div class="sticker-meta">
+                        <span><strong>Unwrapped:</strong> <code>westwing.de</code></span>
+                        <span><strong>Network:</strong> Awin Affiliate Network</span>
+                        <span><strong>Coords:</strong> (x=0.48, y=0.76) · OPTIMAL_THUMB_ARC (Bottom-Center / Right)</span>
+                    </div>
+                </div>
+                
+                <div class="frame-footer">
+                    <span>👁️ 39,908 Views</span>
+                    <span>👆 1,778 Taps</span>
+                    <span>💶 €10,725.00 GMV</span>
+                    <span class="uwg-mini">VIOLATION_SCHLEICHWERBUNG_5A_UWG</span>
+                </div>
+            </div>
+            
+            </div>
+            <div class="funnel-bottom">
+                <div class="funnel-kpis">
+                    <div><small>24h Story Reach</small><strong>47,150</strong></div>
+                    <div><small>Link Sticker Clicks</small><strong>1,778</strong></div>
+                    <div><small>Est. Orders</small><strong>65</strong></div>
+                    <div><small>24h Story GMV (€)</small><strong class="text-emerald">€10,725.00</strong></div>
+                    <div><small>Est. Sponsor Spend</small><strong>€4,339.99</strong></div>
+                    <div><small>Funnel Score</small><strong>87.0/100</strong></div>
+                </div>
+                <ul class='violation-list'><li>⚠️ BGH I ZR 90/20 Verstoß: Nur englische/unklare Tags (#ad, #collab) statt &#x27;Anzeige&#x27; oder &#x27;Werbung&#x27;.</li><li>⚠️ BGH I ZR 90/20 Verstoß: Nur englische/unklare Tags (#sponsored) statt &#x27;Anzeige&#x27; oder &#x27;Werbung&#x27;.</li><li>⚠️ Sequenz-Schleichwerbung (Frame 2): Frame 1 der Story-Sequenz war nicht als &#x27;Anzeige&#x27; gekennzeichnet (Anlockwirkung nach § 5a Abs. 4 UWG).</li><li>⚠️ Sequenz-Schleichwerbung (Frame 3): Frame 1 der Story-Sequenz war nicht als &#x27;Anzeige&#x27; gekennzeichnet (Anlockwirkung nach § 5a Abs. 4 UWG).</li></ul>
+            </div>
+        </div>
+        
+        <div class="funnel-card" data-status="VIOLATION_SCHLEICHWERBUNG_5A_UWG" data-search="sophia.style.munich sephora deutschland sophia15 ltk (rewardstyle)">
+            <div class="funnel-top">
+                <div>
+                    <div class="creator-line">
+                        <span class="creator-handle">@sophia.style.munich</span>
+                        <span class="creator-followers">(245,000 Followers)</span>
+                        <span class="arrow">→</span>
+                        <span class="brand-badge">Sephora Deutschland</span>
+                    </div>
+                    <div class="funnel-sub">
+                        <span><strong>Architecture:</strong> 2_FRAME_DIRECT_PITCH (Demo -&gt; CTA Sticker)</span> ·
+                        <span><strong>Network:</strong> LTK (RewardStyle)</span> ·
+                        <span><strong>UTM Campaign:</strong> <code>sephora_glam_week</code></span>
+                    </div>
+                </div>
+                <div class="funnel-right-badges">
+                    <span class="voucher-badge">🎟️ CODE: SOPHIA15 (-15%)</span>
+                    <span class="status-badge badge-danger">VIOLATION_SCHLEICHWERBUNG_5A_UWG</span>
+                </div>
+            </div>
+            <div class="frames-grid">
+                
+            <div class="frame-step role-proof">
+                <div class="frame-header">
+                    <span class="frame-idx">Frame 1/2 · PROOF_FRAME</span>
+                    <span class="expiry-pill">⏳ 6.0h left</span>
+                </div>
+                <div class="frame-caption">“Glass Skin Routine vor dem Dinner-Date: 2 Tropfen Niacinamide Dew Drops unter dem Make-up ✨💧”</div>
+                <div class="frame-ocr"><strong>OCR Overlay:</strong> Mein Geheimnis für 12h Glow ohne Speckglanz @sephoradeutschland</div>
+                
+                
+                <div class="frame-footer">
+                    <span>👁️ 28,175 Views</span>
+                    <span>👆 0 Taps</span>
+                    <span>💶 €0.00 GMV</span>
+                    <span class="uwg-mini">VIOLATION_SCHLEICHWERBUNG_5A_UWG</span>
+                </div>
+            </div>
+            
+            <div class="frame-step role-cta">
+                <div class="frame-header">
+                    <span class="frame-idx">Frame 2/2 · CTA_STICKER_FRAME</span>
+                    <span class="expiry-pill">⏳ 6.0h left</span>
+                </div>
+                <div class="frame-caption">“Habe euch die Dew Drops hier direkt verlinkt — mit CODE: SOPHIA15 spart ihr heute 15% bei Sephora! 💖”</div>
+                <div class="frame-ocr"><strong>OCR Overlay:</strong> 15% Rabatt mit Code SOPHIA15 ✨ Hier direkt nachshoppen</div>
+                <div class="countdown-tag">⏱️ Countdown Sticker: Sephora Glam Week Countdown</div>
+                
+                <div class="sticker-pill">
+                    <div class="sticker-title">🔗 SEPHORA DEW DROPS (15% CODE: SOPHIA15)</div>
+                    <div class="sticker-meta">
+                        <span><strong>Unwrapped:</strong> <code>sephora.de</code></span>
+                        <span><strong>Network:</strong> LTK (RewardStyle)</span>
+                        <span><strong>Coords:</strong> (x=0.5, y=0.72) · OPTIMAL_THUMB_ARC (Bottom-Center / Right)</span>
+                    </div>
+                </div>
+                
+                <div class="frame-footer">
+                    <span>👁️ 25,921 Views</span>
+                    <span>👆 1,146 Taps</span>
+                    <span>💶 €3,536.00 GMV</span>
+                    <span class="uwg-mini">VIOLATION_SCHLEICHWERBUNG_5A_UWG</span>
+                </div>
+            </div>
+            
+            </div>
+            <div class="funnel-bottom">
+                <div class="funnel-kpis">
+                    <div><small>24h Story Reach</small><strong>28,175</strong></div>
+                    <div><small>Link Sticker Clicks</small><strong>1,146</strong></div>
+                    <div><small>Est. Orders</small><strong>52</strong></div>
+                    <div><small>24h Story GMV (€)</small><strong class="text-emerald">€3,536.00</strong></div>
+                    <div><small>Est. Sponsor Spend</small><strong>€1,633.03</strong></div>
+                    <div><small>Funnel Score</small><strong>83.0/100</strong></div>
+                </div>
+                <ul class='violation-list'><li>⚠️ § 5a Abs. 4 UWG Komplett-Ausfall: Keine Kennzeichnung (&#x27;Anzeige&#x27;/&#x27;Werbung&#x27;) trotz kommerziellem Marken-Pitch / Affiliate-Trigger.</li><li>⚠️ BGH I ZR 90/20 Verstoß: Nur englische/unklare Tags (#affiliate, #commision) statt &#x27;Anzeige&#x27; oder &#x27;Werbung&#x27;.</li><li>⚠️ Sequenz-Schleichwerbung (Frame 2): Frame 1 der Story-Sequenz war nicht als &#x27;Anzeige&#x27; gekennzeichnet (Anlockwirkung nach § 5a Abs. 4 UWG).</li></ul>
+            </div>
+        </div>
+        
+        <div class="funnel-card" data-status="VIOLATION_SCHLEICHWERBUNG_5A_UWG" data-search="tech.max.setup amazon.de storefront no_code_auto_link amazon associates">
+            <div class="funnel-top">
+                <div>
+                    <div class="creator-line">
+                        <span class="creator-handle">@tech.max.setup</span>
+                        <span class="creator-followers">(150,000 Followers)</span>
+                        <span class="arrow">→</span>
+                        <span class="brand-badge">Amazon.de Storefront</span>
+                    </div>
+                    <div class="funnel-sub">
+                        <span><strong>Architecture:</strong> SINGLE_FRAME_LINK_DROP (Cold Link Sticker)</span> ·
+                        <span><strong>Network:</strong> Amazon Associates</span> ·
+                        <span><strong>UTM Campaign:</strong> <code>prime_autumn_deal</code></span>
+                    </div>
+                </div>
+                <div class="funnel-right-badges">
+                    <span class="voucher-badge">🎟️ CODE: NO_CODE_AUTO_LINK (-30%)</span>
+                    <span class="status-badge badge-danger">VIOLATION_SCHLEICHWERBUNG_5A_UWG</span>
+                </div>
+            </div>
+            <div class="frames-grid">
+                
+            <div class="frame-step role-cta">
+                <div class="frame-header">
+                    <span class="frame-idx">Frame 1/1 · CTA_STICKER_FRAME</span>
+                    <span class="expiry-pill">⏳ 4.0h left</span>
+                </div>
+                <div class="frame-caption">“Mein ergonomischer Favorit fürs Programmieren ist gerade 30% reduziert auf Amazon (keine Kennzeichnung!)”</div>
+                <div class="frame-ocr"><strong>OCR Overlay:</strong> 30% Prime Deal auf meine vertikale Maus! Hier der Link 👇</div>
+                
+                
+                <div class="sticker-pill">
+                    <div class="sticker-title">🔗 30% AMAZON DEAL</div>
+                    <div class="sticker-meta">
+                        <span><strong>Unwrapped:</strong> <code>amazon.de</code></span>
+                        <span><strong>Network:</strong> Amazon Associates</span>
+                        <span><strong>Coords:</strong> (x=0.89, y=0.91) · UI_CLASH_EDGE_ZONE (Low Tapability)</span>
+                    </div>
+                </div>
+                
+                <div class="frame-footer">
+                    <span>👁️ 17,250 Views</span>
+                    <span>👆 233 Taps</span>
+                    <span>💶 €1,246.00 GMV</span>
+                    <span class="uwg-mini">VIOLATION_SCHLEICHWERBUNG_5A_UWG</span>
+                </div>
+            </div>
+            
+            </div>
+            <div class="funnel-bottom">
+                <div class="funnel-kpis">
+                    <div><small>24h Story Reach</small><strong>17,250</strong></div>
+                    <div><small>Link Sticker Clicks</small><strong>233</strong></div>
+                    <div><small>Est. Orders</small><strong>14</strong></div>
+                    <div><small>24h Story GMV (€)</small><strong class="text-emerald">€1,246.00</strong></div>
+                    <div><small>Est. Sponsor Spend</small><strong>€324.41</strong></div>
+                    <div><small>Funnel Score</small><strong>49.0/100</strong></div>
+                </div>
+                <ul class='violation-list'><li>⚠️ § 5a Abs. 4 UWG Komplett-Ausfall: Keine Kennzeichnung (&#x27;Anzeige&#x27;/&#x27;Werbung&#x27;) trotz kommerziellem Marken-Pitch / Affiliate-Trigger.</li></ul>
+            </div>
+        </div>
+        
+        <div class="funnel-card" data-status="COMPLIANT" data-search="familien.kueche.nrw hellofresh dach familie120 linkster dach">
+            <div class="funnel-top">
+                <div>
+                    <div class="creator-line">
+                        <span class="creator-handle">@familien.kueche.nrw</span>
+                        <span class="creator-followers">(290,000 Followers)</span>
+                        <span class="arrow">→</span>
+                        <span class="brand-badge">HelloFresh DACH</span>
+                    </div>
+                    <div class="funnel-sub">
+                        <span><strong>Architecture:</strong> 2_FRAME_DIRECT_PITCH (Demo -&gt; CTA Sticker)</span> ·
+                        <span><strong>Network:</strong> Linkster DACH</span> ·
+                        <span><strong>UTM Campaign:</strong> <code>q4_family_box_120</code></span>
+                    </div>
+                </div>
+                <div class="funnel-right-badges">
+                    <span class="voucher-badge">🎟️ CODE: FAMILIE120 (-35%)</span>
+                    <span class="status-badge badge-ok">COMPLIANT</span>
+                </div>
+            </div>
+            <div class="frames-grid">
+                
+            <div class="frame-step role-proof">
+                <div class="frame-header">
+                    <span class="frame-idx">Frame 1/2 · PROOF_FRAME</span>
+                    <span class="expiry-pill">⏳ 18.0h left</span>
+                </div>
+                <div class="frame-caption">“Werbung | Feierabend-Kochen in 20 Minuten ohne Supermarkt-Stress mit @hellofreshde 🍝🥗”</div>
+                <div class="frame-ocr"><strong>OCR Overlay:</strong> WERBUNG | 3 Familien-Rezepte unter 20 Min @hellofreshde</div>
+                
+                
+                <div class="frame-footer">
+                    <span>👁️ 33,350 Views</span>
+                    <span>👆 0 Taps</span>
+                    <span>💶 €0.00 GMV</span>
+                    <span class="uwg-mini">COMPLIANT</span>
+                </div>
+            </div>
+            
+            <div class="frame-step role-cta">
+                <div class="frame-header">
+                    <span class="frame-idx">Frame 2/2 · CTA_STICKER_FRAME</span>
+                    <span class="expiry-pill">⏳ 18.0h left</span>
+                </div>
+                <div class="frame-caption">“Werbung | Bis zu 120€ Rabatt + gratis Dessert mit unserem Code: FAMILIE120 🎁”</div>
+                <div class="frame-ocr"><strong>OCR Overlay:</strong> WERBUNG | 35% auf die 1. Box (bis 120€ sparen) mit CODE: FAMILIE120</div>
+                <div class="countdown-tag">⏱️ Countdown Sticker: Gratis-Dessert Aktion</div>
+                
+                <div class="sticker-pill">
+                    <div class="sticker-title">🔗 120€ HELLOFRESH BONUS (CODE: FAMILIE120)</div>
+                    <div class="sticker-meta">
+                        <span><strong>Unwrapped:</strong> <code>hellofresh.de</code></span>
+                        <span><strong>Network:</strong> Linkster DACH</span>
+                        <span><strong>Coords:</strong> (x=0.5, y=0.7) · OPTIMAL_THUMB_ARC (Bottom-Center / Right)</span>
+                    </div>
+                </div>
+                
+                <div class="frame-footer">
+                    <span>👁️ 30,682 Views</span>
+                    <span>👆 1,357 Taps</span>
+                    <span>💶 €5,151.40 GMV</span>
+                    <span class="uwg-mini">COMPLIANT</span>
+                </div>
+            </div>
+            
+            </div>
+            <div class="funnel-bottom">
+                <div class="funnel-kpis">
+                    <div><small>24h Story Reach</small><strong>33,350</strong></div>
+                    <div><small>Link Sticker Clicks</small><strong>1,357</strong></div>
+                    <div><small>Est. Orders</small><strong>86</strong></div>
+                    <div><small>24h Story GMV (€)</small><strong class="text-emerald">€5,151.40</strong></div>
+                    <div><small>Est. Sponsor Spend</small><strong>€2,380.60</strong></div>
+                    <div><small>Funnel Score</small><strong>88.0/100</strong></div>
+                </div>
+                <div class='compliant-note'>✅ § 5a Abs. 4 UWG & BGH I ZR 90/20 Compliant ('Anzeige'/'Werbung' + Paid Partnership ab Frame 1).</div>
+            </div>
+        </div>
+        
+  </div>
+
+  <div class="section-title">
+    <span>🔗 Deep Link-Sticker Unwrapper &amp; Affiliate Attribution Matrix</span>
+  </div>
+  <table>
+    <thead>
+      <tr>
+        <th>Creator &amp; Frame</th>
+        <th>Unwrapped Target Brand</th>
+        <th>Redirect Unwrap Chain (l.instagram.com → Shortener → Final)</th>
+        <th>Affiliate Network &amp; ID</th>
+        <th>UTM Attribution</th>
+        <th>Promo Code</th>
+        <th>Sticker Coordinates &amp; Tap Zone</th>
+        <th class="text-right">24h GMV &amp; Clicks</th>
+      </tr>
+    </thead>
+    <tbody>
+      
+            <tr>
+                <td><strong>@lisa.marie.fit</strong><br><small>Frame 3/3</small></td>
+                <td><span class="brand-pill">More Nutrition (Quality Group)</span><br><code>morenutrition.de</code></td>
+                <td><div class="chain-box">https://l.instagram.com/?u=https%3A%2F%2Fbit.ly%2F3MoreGlo... → https://bit.ly/3MoreGlowLisa → https://morenutrition.de/products/more-clear-glow-peptide?...</div></td>
+                <td><strong>Linkster DACH</strong><br><small><code>linkster_de_9941</code></small></td>
+                <td><code>src=instagram_story</code><br><code>cmp=q4_glow_flash40</code></td>
+                <td><span class="code-chip">LISA20</span><br><small>-20%</small></td>
+                <td>(0.5, 0.74)<br><small>OPTIMAL_THUMB_ARC (Bottom-Center / Right) (1.28x CTR)</small></td>
+                <td class="text-right"><strong>€9,536.00</strong><br><small>1,637 clicks</small></td>
+            </tr>
+            
+            <tr>
+                <td><strong>@max.iron.coach</strong><br><small>Frame 3/3</small></td>
+                <td><span class="brand-pill">More Nutrition (Quality Group)</span><br><code>morenutrition.de</code></td>
+                <td><div class="chain-box">https://l.instagram.com/?u=https%3A%2F%2Fmorenutrition.de%... → https://morenutrition.de/discount/IRONMAX?redirect=/produc...</div></td>
+                <td><strong>Shopify Collabs</strong><br><small><code>collab_max_8812</code></small></td>
+                <td><code>src=instagram_story</code><br><code>cmp=q4_glow_flash40</code></td>
+                <td><span class="code-chip">IRONMAX</span><br><small>-20%</small></td>
+                <td>(0.52, 0.71)<br><small>OPTIMAL_THUMB_ARC (Bottom-Center / Right) (1.28x CTR)</small></td>
+                <td class="text-right"><strong>€5,513.00</strong><br><small>946 clicks</small></td>
+            </tr>
+            
+            <tr>
+                <td><strong>@anna.interior.muc</strong><br><small>Frame 3/3</small></td>
+                <td><span class="brand-pill">Westwing Home &amp; Living</span><br><code>westwing.de</code></td>
+                <td><div class="chain-box">https://l.instagram.com/?u=https%3A%2F%2Flinktr.ee%2Fanna_... → https://linktr.ee/anna_home_deals_westwing → https://www.awin1.com/cread.php?awinmid=14892&amp;awinaffid=78... → https://www.westwing.de/campaign/autumn-boucle-collection/...</div></td>
+                <td><strong>Awin Affiliate Network</strong><br><small><code>mid:14892_aff:781204</code></small></td>
+                <td><code>src=ig_story_sticker</code><br><code>cmp=herbst_home_25</code></td>
+                <td><span class="code-chip">ANNA25</span><br><small>-25%</small></td>
+                <td>(0.48, 0.76)<br><small>OPTIMAL_THUMB_ARC (Bottom-Center / Right) (1.28x CTR)</small></td>
+                <td class="text-right"><strong>€10,725.00</strong><br><small>1,778 clicks</small></td>
+            </tr>
+            
+            <tr>
+                <td><strong>@sophia.style.munich</strong><br><small>Frame 2/2</small></td>
+                <td><span class="brand-pill">Sephora Deutschland</span><br><code>sephora.de</code></td>
+                <td><div class="chain-box">https://l.instagram.com/?u=https%3A%2F%2Frstyle.me%2F%2BQ9... → https://rstyle.me/+Q9xK8mZ2pL_LTK_ Glow → https://www.shopltk.com/explore/sophia_style_munich/posts/... → https://www.sephora.de/p/glow-recipe-niacinamide-dew-drops...</div></td>
+                <td><strong>LTK (RewardStyle)</strong><br><small><code>explore/sophia_style_munich/posts/8841209</code></small></td>
+                <td><code>src=ltk</code><br><code>cmp=sephora_glam_week</code></td>
+                <td><span class="code-chip">SOPHIA15</span><br><small>-15%</small></td>
+                <td>(0.5, 0.72)<br><small>OPTIMAL_THUMB_ARC (Bottom-Center / Right) (1.28x CTR)</small></td>
+                <td class="text-right"><strong>€3,536.00</strong><br><small>1,146 clicks</small></td>
+            </tr>
+            
+            <tr>
+                <td><strong>@tech.max.setup</strong><br><small>Frame 1/1</small></td>
+                <td><span class="brand-pill">Amazon.de Storefront</span><br><code>amazon.de</code></td>
+                <td><div class="chain-box">https://l.instagram.com/?u=https%3A%2F%2Famzn.to%2F48xCozy... → https://amzn.to/48xCozyDeskDE → https://www.amazon.de/dp/B09V3KXJPB?tag=techmaxde-21&amp;linkC...</div></td>
+                <td><strong>Amazon Associates</strong><br><small><code>techmaxde-21</code></small></td>
+                <td><code>src=ig_story_sticker</code><br><code>cmp=prime_autumn_deal</code></td>
+                <td><span class="code-chip">—</span><br><small>-30%</small></td>
+                <td>(0.89, 0.91)<br><small>UI_CLASH_EDGE_ZONE (Low Tapability) (0.72x CTR)</small></td>
+                <td class="text-right"><strong>€1,246.00</strong><br><small>233 clicks</small></td>
+            </tr>
+            
+            <tr>
+                <td><strong>@familien.kueche.nrw</strong><br><small>Frame 2/2</small></td>
+                <td><span class="brand-pill">HelloFresh DACH</span><br><code>hellofresh.de</code></td>
+                <td><div class="chain-box">https://l.instagram.com/?u=https%3A%2F%2Fwww.hellofresh.de... → https://www.hellofresh.de/pages/raf_lp11?utm_source=ig_sto...</div></td>
+                <td><strong>Linkster DACH</strong><br><small><code>linkster_hf_4410</code></small></td>
+                <td><code>src=ig_story</code><br><code>cmp=q4_family_box_120</code></td>
+                <td><span class="code-chip">FAMILIE120</span><br><small>-35%</small></td>
+                <td>(0.5, 0.7)<br><small>OPTIMAL_THUMB_ARC (Bottom-Center / Right) (1.28x CTR)</small></td>
+                <td class="text-right"><strong>€5,151.40</strong><br><small>1,357 clicks</small></td>
+            </tr>
+            
+    </tbody>
+  </table>
+</div>
+
+<script>
+function filterFunnels() {
+  const q = (document.getElementById('funnelSearch').value || '').toLowerCase();
+  const status = document.getElementById('uwgFilter').value;
+  const cards = document.querySelectorAll('.funnel-card');
+  cards.forEach(c => {
+    const matchText = c.getAttribute('data-search').includes(q);
+    const matchStatus = (status === 'ALL') || (c.getAttribute('data-status') === status);
+    c.style.display = (matchText && matchStatus) ? 'block' : 'none';
+  });
+}
+</script>
+</body>
+</html>

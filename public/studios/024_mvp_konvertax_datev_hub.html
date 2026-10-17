@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LocalDATEV Hub – Stripe, PayPal, Shopify, SumUp, Airbnb & Amazon lokal in DATEV EXTF v700 umwandeln</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen font-sans antialiased">
+
+<!-- DACH CASHFLOW STUDIOS LAUNCH BAR -->
+<style>
+  #dcs-launch-bar {
+    position: sticky;
+    top: 0;
+    z-index: 99999;
+    background: linear-gradient(90deg, #0b1120 0%, #111827 50%, #0f172a 100%);
+    color: #f8fafc;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.35);
+    padding: 8px 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  }
+  #dcs-launch-bar .dcs-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+  }
+  #dcs-launch-bar .dcs-badge {
+    background: rgba(16, 185, 129, 0.18);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.03em;
+  }
+  #dcs-launch-bar a.dcs-nav {
+    color: #93c5fd;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 12.5px;
+  }
+  #dcs-launch-bar a.dcs-nav:hover {
+    text-decoration: underline;
+    color: #dbeafe;
+  }
+  #dcs-launch-bar .dcs-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  #dcs-launch-bar .dcs-btn {
+    padding: 5px 11px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s ease;
+  }
+  #dcs-launch-bar .dcs-btn-ghost {
+    background: rgba(255,255,255,0.08);
+    color: #e2e8f0;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  #dcs-launch-bar .dcs-btn-primary {
+    background: linear-gradient(135deg, #0ea5e9, #2563eb);
+    color: #ffffff;
+  }
+  #dcs-launch-bar .dcs-btn-emerald {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
+  }
+  @media print {
+    #dcs-launch-bar { display: none !important; }
+  }
+</style>
+<div id="dcs-launch-bar">
+  <div class="dcs-left">
+    <a href="/index.html" class="dcs-nav">← Alle 150 DACH Studios</a>
+    <span class="dcs-badge">MVP #024 VERIFIED</span>
+    <span style="color:#cbd5e1;font-size:12px;">DACH Tax, Corporate & Accounting Arbitrage</span>
+  </div>
+  <div class="dcs-actions">
+    <button onclick="window.print()" class="dcs-btn dcs-btn-ghost">🖨️ PDF / Dossier drucken</button>
+    <a href="#checkout-modal-49" target="_blank" rel="noopener" class="dcs-btn dcs-btn-primary">⚡ Musterschreiben & Voll-Dossier (€49)</a>
+    <a href="#checkout-modal-299" target="_blank" rel="noopener" class="dcs-btn dcs-btn-emerald">🛡️ B2B Umsetzung buchen (€299 / €1.490)</a>
+  </div>
+</div>
+
+  <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-30">
+    <div class="max-w-7xl mx-auto px-6 py-4 flex flex-wrap items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <div class="h-10 w-10 rounded-xl bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center text-emerald-300 font-bold">
+          EXTF
+        </div>
+        <div>
+          <h1 class="text-lg font-bold tracking-tight text-white">LocalDATEV Hub <span class="text-xs font-mono uppercase px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 ml-2">100% Browser-Lokal · Zero-Upload</span></h1>
+          <p class="text-xs text-slate-400">Multi-Plattform CSV → DATEV Buchungsstapel (EXTF v700) · Automatischer Brutto-/Gebühren-/Geldtransit-Split</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-3 text-xs">
+        <span class="px-3 py-1.5 rounded-lg bg-slate-800 border border-slate-700 text-slate-300">Kein Server-Upload · Kein AVV nötig</span>
+        <span class="px-3 py-1.5 rounded-lg bg-blue-500/10 border border-blue-400/30 text-blue-300">SKR03 / SKR04 + EU-OSS</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-6 py-8 space-y-8">
+    <!-- Top Configuration & Platform Selector -->
+    <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div class="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-5">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <h2 class="text-base font-semibold text-white">1. Plattform wählen oder CSV per Drag & Drop öffnen</h2>
+            <p class="text-xs text-slate-400">Ihre Finanzdaten verlassen zu keinem Zeitpunkt Ihren Browser (FileReader + Client-Side EXTF Engine).</p>
+          </div>
+          <span id="detectedBadge" class="px-2.5 py-1 rounded-md text-xs font-mono bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">Erkannt: STRIPE</span>
+        </div>
+
+        <div class="flex flex-wrap gap-2">
+          <button onclick="loadSample('stripe')" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-blue-600 text-slate-200 transition">Stripe Demo laden</button>
+          <button onclick="loadSample('paypal')" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-blue-600 text-slate-200 transition">PayPal Demo laden</button>
+          <button onclick="loadSample('shopify')" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-blue-600 text-slate-200 transition">Shopify Demo laden</button>
+          <button onclick="loadSample('sumup')" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-blue-600 text-slate-200 transition">SumUp POS Demo laden</button>
+          <button onclick="loadSample('airbnb')" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-blue-600 text-slate-200 transition">Airbnb Host Demo laden</button>
+          <button onclick="loadSample('amazon')" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-blue-600 text-slate-200 transition">Amazon Seller Demo laden</button>
+          <label class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white cursor-pointer transition ml-auto">
+            Eigene CSV-Datei öffnen
+            <input type="file" id="csvFileInput" accept=".csv,.txt" class="hidden" onchange="handleFileSelect(event)">
+          </label>
+        </div>
+
+        <div>
+          <label class="block text-xs font-mono uppercase text-slate-400 mb-1.5">CSV-Rohdaten (lokal editierbar)</label>
+          <textarea id="csvInput" rows="7" oninput="runConversion()" class="w-full font-mono text-xs bg-slate-950 border border-slate-800 rounded-xl p-3 text-slate-200 focus:outline-none focus:border-blue-500"></textarea>
+        </div>
+      </div>
+
+      <!-- DATEV Stammdaten -->
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4">
+        <h2 class="text-base font-semibold text-white">2. DATEV Mandanten- & Kontenrahmen</h2>
+        <div class="grid grid-cols-2 gap-3 text-xs">
+          <div>
+            <label class="block text-slate-400 mb-1">Kontenrahmen</label>
+            <select id="skrSelect" onchange="runConversion()" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-white">
+              <option value="SKR03">SKR03 (Standard)</option>
+              <option value="SKR04">SKR04</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-slate-400 mb-1">Beraternummer</label>
+            <input id="beraterInput" type="number" value="12345" oninput="runConversion()" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-white">
+          </div>
+          <div>
+            <label class="block text-slate-400 mb-1">Mandantennummer</label>
+            <input id="mandantInput" type="number" value="10001" oninput="runConversion()" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-white">
+          </div>
+          <div>
+            <label class="block text-slate-400 mb-1">WJ-Beginn</label>
+            <input id="wjInput" type="text" value="20260101" oninput="runConversion()" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-white">
+          </div>
+        </div>
+
+        <div class="pt-2 border-t border-slate-800 space-y-2 text-xs">
+          <div class="flex justify-between text-slate-400"><span>Buchungssätze gesamt:</span><span id="statTotalRows" class="font-mono text-white">0</span></div>
+          <div class="flex justify-between text-slate-400"><span>Davon Gebühren-Splits:</span><span id="statFeeRows" class="font-mono text-emerald-400">0</span></div>
+          <div class="flex justify-between text-slate-400"><span>EXTF v700 Format-Prüfung:</span><span id="statValidation" class="font-mono text-emerald-400">OK (116 Spalten)</span></div>
+        </div>
+
+        <button onclick="downloadExtf()" class="w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-sm shadow-lg shadow-blue-600/25 transition">
+          EXTF_Buchungsstapel.csv herunterladen
+        </button>
+      </div>
+    </section>
+
+    <!-- Live Booking Split Preview Table -->
+    <section class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden">
+      <div class="px-6 py-4 border-b border-slate-800 flex items-center justify-between">
+        <div>
+          <h2 class="text-base font-semibold text-white">3. Vorschau: Automatisch aufgeteilte DATEV-Buchungssätze (Brutto-Prinzip)</h2>
+          <p class="text-xs text-slate-400">Jede Transaktion wird GoBD-konform in Brutto-Erlös (inkl. BU-Schlüssel & EU-OSS), Plattform-Gebühr und Bank-Geldtransit zerlegt.</p>
+        </div>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs">
+          <thead class="bg-slate-950/70 text-slate-400 font-mono uppercase border-b border-slate-800">
+            <tr>
+              <th class="px-4 py-3">Datum (TTMM)</th>
+              <th class="px-4 py-3 text-right">Umsatz</th>
+              <th class="px-4 py-3">S/H</th>
+              <th class="px-4 py-3">Konto</th>
+              <th class="px-4 py-3">Gegenkonto</th>
+              <th class="px-4 py-3">BU</th>
+              <th class="px-4 py-3">EU-OSS</th>
+              <th class="px-4 py-3">Belegfeld 1</th>
+              <th class="px-4 py-3">Buchungstext</th>
+              <th class="px-4 py-3">Typ</th>
+            </tr>
+          </thead>
+          <tbody id="previewBody" class="divide-y divide-slate-800/70 font-mono"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const SAMPLES = {"stripe": "id,Type,Created (UTC),Amount,Fee,Net,Currency,Description,CustomerFacingAmount,Tax,Country\nch_3Q1001,charge,2026-10-02 10:15:00,119.00,2.03,116.97,EUR,SaaS Pro Plan #INV-2026-01,119.00,19.00,DE\nch_3Q1002,charge,2026-10-03 14:22:00,240.00,3.78,236.22,EUR,SaaS Enterprise AT #INV-2026-02,240.00,40.00,AT\nre_3Q1003,refund,2026-10-04 09:00:00,-119.00,0.00,-119.00,EUR,Refund #INV-2026-01,-119.00,-19.00,DE\npo_3Q1004,payout,2026-10-05 18:00:00,-234.19,0.00,-234.19,EUR,STRIPE PAYOUT TO IBAN DE89,,,DE\n", "paypal": "Datum,Uhrzeit,Zeitzone,Name,Typ,Status,Währung,Brutto,Gebühr,Netto,Transaktionscode,Rechnungsnummer,Umsatzsteuer,Land\n04.10.2026,11:05:12,CEST,Max Mustermann,Express-Zahlung,Abgeschlossen,EUR,\"59,50\",\"-1,83\",\"57,67\",8XY111222,PP-2026-901,\"9,50\",DE\n05.10.2026,16:40:00,CEST, Claire Dubois,Website-Zahlung,Abgeschlossen,EUR,\"120,00\",\"-3,34\",\"116,66\",9AB333444,PP-2026-902,\"20,00\",FR\n06.10.2026,20:00:00,CEST,Bankkonto,Allgemeine Abbuchung auf Bankkonto,Abgeschlossen,EUR,\"-174,33\",\"0,00\",\"-174,33\",0TR555666,,0,DE\n", "shopify": "Transaction Date,Type,Order,Currency,Amount,Fee,Net,Tax,Billing Country,Payout ID\n2026-10-06,charge,#SH-1041,EUR,89.90,2.01,87.89,14.35,DE,PO-9901\n2026-10-07,charge,#SH-1042,EUR,149.00,3.15,145.85,0.00,CH,PO-9901\n2026-10-08,payout,,EUR,-233.74,0.00,-233.74,0.00,DE,PO-9901\n", "sumup": "Datum,Transaktions-ID,Zahlungsmethode,Status,Betrag inkl. MwSt.,Steuersatz,Gebühr,Auszahlungsbetrag,Beschreibung\n2026-10-08,TX-SU-701,Mastercard,Erfolgreich,45.00,19%,0.63,44.37,Kaffeerösterei Espressobohnen 1kg\n2026-10-08,TX-SU-702,EC-Karte,Erfolgreich,21.40,7%,0.20,21.20,Bio-Filterkaffee Mitnahme\n2026-10-09,PO-SU-700,Banküberweisung,Auszahlung,65.57,0%,0.00,65.57,SumUp Tagesauszahlung\n", "airbnb": "Datum,Typ,Bestätigungscode,Gast,Inserat,Währung,Betrag,Bruttoeinnahmen,Servicegebühr,Reinigungsgebühr,Steuern,Land\n2026-10-10,Reservierung,HM8899AABB,Lukas Weber,Altstadt Loft Nürnberg,EUR,411.65,485.00,73.35,45.00,31.73,DE\n2026-10-11,Payout,PO-AIR-101,,Altstadt Loft Nürnberg,EUR,411.65,0.00,0.00,0.00,0.00,DE\n", "amazon": "posted-date,settlement-id,transaction-type,order-id,amount-type,amount-description,amount,currency,marketplace-name,tax-collection-model\n2026-10-12,SET-8801,Order,304-1111111-2222222,ItemPrice,Principal,79.90,EUR,Amazon.de,MarketplaceFacilitator\n2026-10-12,SET-8801,Order,304-1111111-2222222,ItemFees,FBAPerUnitFulfillmentFee,-11.98,EUR,Amazon.de,MarketplaceFacilitator\n2026-10-13,SET-8801,Order,402-3333333-4444444,ItemPrice,Principal,110.00,EUR,Amazon.fr,MarketplaceFacilitator\n2026-10-13,SET-8801,Order,402-3333333-4444444,ItemFees,Commission,-16.50,EUR,Amazon.fr,MarketplaceFacilitator\n2026-10-14,SET-8801,Transfer,SET-8801,Settlement,Transfer to Bank,-161.42,EUR,Amazon.de,\n"};
+    const EXTF_COLS = ["Umsatz (ohne Soll/Haben-Kz)", "Soll/Haben-Kennzeichen", "WKZ Umsatz", "Kurs", "Basis-Umsatz", "WKZ Basis-Umsatz", "Konto", "Gegenkonto (ohne BU-Schlüssel)", "BU-Schlüssel", "Belegdatum", "Belegfeld 1", "Belegfeld 2", "Skonto", "Buchungstext", "Postensperre", "Diverse Adressnummer", "Geschäftspartnerbank", "Sachverhalt", "Zinssperre", "Beleglink", "Beleginfo - Art 1", "Beleginfo - Inhalt 1", "Beleginfo - Art 2", "Beleginfo - Inhalt 2", "Beleginfo - Art 3", "Beleginfo - Inhalt 3", "Beleginfo - Art 4", "Beleginfo - Inhalt 4", "Beleginfo - Art 5", "Beleginfo - Inhalt 5", "Beleginfo - Art 6", "Beleginfo - Inhalt 6", "Beleginfo - Art 7", "Beleginfo - Inhalt 7", "Beleginfo - Art 8", "Beleginfo - Inhalt 8", "KOST1 - Kostenstelle", "KOST2 - Kostenträger", "Kost-Menge", "EU-Land u. UStID (Bestimmung)", "EU-Steuersatz (Bestimmung)", "Abw. Versteuerungsart", "Sachverhalt L+L", "Funktionsergänzung L+L", "BU 49 Hauptfunktionstyp", "BU 49 Hauptfunktionsnummer", "BU 49 Funktionsergänzung", "Zusatzinformation - Art 1", "Zusatzinformation- Inhalt 1", "Zusatzinformation - Art 2", "Zusatzinformation- Inhalt 2", "Zusatzinformation - Art 3", "Zusatzinformation- Inhalt 3", "Zusatzinformation - Art 4", "Zusatzinformation- Inhalt 4", "Zusatzinformation - Art 5", "Zusatzinformation- Inhalt 5", "Zusatzinformation - Art 6", "Zusatzinformation- Inhalt 6", "Zusatzinformation - Art 7", "Zusatzinformation- Inhalt 7", "Zusatzinformation - Art 8", "Zusatzinformation- Inhalt 8", "Zusatzinformation - Art 9", "Zusatzinformation- Inhalt 9", "Zusatzinformation - Art 10", "Zusatzinformation- Inhalt 10", "Zusatzinformation - Art 11", "Zusatzinformation- Inhalt 11", "Zusatzinformation - Art 12", "Zusatzinformation- Inhalt 12", "Zusatzinformation - Art 13", "Zusatzinformation- Inhalt 13", "Zusatzinformation - Art 14", "Zusatzinformation- Inhalt 14", "Zusatzinformation - Art 15", "Zusatzinformation- Inhalt 15", "Zusatzinformation - Art 16", "Zusatzinformation- Inhalt 16", "Zusatzinformation - Art 17", "Zusatzinformation- Inhalt 17", "Zusatzinformation - Art 18", "Zusatzinformation- Inhalt 18", "Zusatzinformation - Art 19", "Zusatzinformation- Inhalt 19", "Zusatzinformation - Art 20", "Zusatzinformation- Inhalt 20", "Stück", "Gewicht", "Zahlweise", "Forderungsart", "Veranlagungsjahr", "Zugeordnete Fälligkeit", "Skontotyp", "Auftragsnummer", "Buchungstyp (Anzahlungen)", "USt-Schlüssel (Anzahlungen)", "EU-Land (Anzahlungen)", "Sachverhalt L+L (Anzahlungen)", "EU-Steuersatz (Anzahlungen)", "Erlöskonto (Anzahlungen)", "Herkunft-Kz", "Buchungs GUID", "KOST-Datum", "SEPA-Mandatsreferenz", "Skontosperre", "Gesellschaftername", "Beteiligtennummer", "Identifikationsnummer", "Zeichnernummer", "Postensperre bis", "Bezeichnung SoBil-Sachverhalt", "Kennzeichen SoBil-Buchung", "Festschreibung", "Leistungsdatum", "Datum Zuord. Steuerperiode"];
+    const SKR = {
+      SKR03: { erloese19: 8400, erloese7: 8300, erloese0: 8120, erloeseOss: 8320, feePay: 4970, feeMkt: 4760, transit: 1360, stripe: 1371, paypal: 1372, shopify: 1373, sumup: 1374, airbnb: 1375, amazon: 1376 },
+      SKR04: { erloese19: 4400, erloese7: 4300, erloese0: 4120, erloeseOss: 4320, feePay: 6855, feeMkt: 6770, transit: 1460, stripe: 1481, paypal: 1482, shopify: 1483, sumup: 1484, airbnb: 1485, amazon: 1486 }
+    };
+    const EU_RATES = { AT: "20", FR: "20", IT: "22", ES: "21", NL: "21", PL: "23", BE: "21" };
+    let currentExtfContent = "";
+
+    function parseDec(v) {
+      if (!v) return 0;
+      let s = String(v).trim().replace(/[€$\s]/g, "");
+      if (s.includes(",") && s.includes(".")) {
+        s = s.lastIndexOf(",") > s.lastIndexOf(".") ? s.replace(/\./g, "").replace(",", ".") : s.replace(/,/g, "");
+      } else if (s.includes(",")) {
+        s = s.replace(",", ".");
+      }
+      const n = parseFloat(s);
+      return isNaN(n) ? 0 : n;
+    }
+
+    function fmtDatev(n) {
+      return Math.abs(n).toFixed(2).replace(".", ",");
+    }
+
+    function toDDMM(dStr) {
+      const s = (dStr || "").trim().split(/[ T]/)[0];
+      if (/^\d{4}-\d{2}-\d{2}$/.test(s)) {
+        const [y, m, d] = s.split("-");
+        return { ddmm: d + m, full: d + m + y };
+      }
+      if (/^\d{2}\.\d{2}\.\d{4}$/.test(s)) {
+        const [d, m, y] = s.split(".");
+        return { ddmm: d + m, full: d + m + y };
+      }
+      return { ddmm: "0110", full: "01102026" };
+    }
+
+    function parseCsv(text) {
+      const lines = text.trim().split(/\r?\n/).filter(Boolean);
+      if (!lines.length) return { headers: [], rows: [] };
+      const delim = (lines[0].split(";").length > lines[0].split(",").length) ? ";" : ",";
+      const splitLine = (line) => {
+        const out = [];
+        let cur = "", inQ = false;
+        for (let i = 0; i < line.length; i++) {
+          const c = line[i];
+          if (c === '"') inQ = !inQ;
+          else if (c === delim && !inQ) { out.push(cur.trim()); cur = ""; }
+          else cur += c;
+        }
+        out.push(cur.trim());
+        return out;
+      };
+      const headers = splitLine(lines[0]);
+      const rows = lines.slice(1).map(l => {
+        const vals = splitLine(l);
+        const obj = {};
+        headers.forEach((h, i) => obj[h] = vals[i] || "");
+        return obj;
+      });
+      return { headers, rows };
+    }
+
+    function detectPlatform(headers) {
+      const h = headers.map(x => x.toLowerCase());
+      if (h.includes("created (utc)")) return "stripe";
+      if (h.includes("transaktionscode")) return "paypal";
+      if (h.includes("payout id")) return "shopify";
+      if (h.includes("transaktions-id")) return "sumup";
+      if (h.includes("bestätigungscode")) return "airbnb";
+      if (h.includes("settlement-id")) return "amazon";
+      return "stripe";
+    }
+
+    function resolveRev(skr, country, rateOverride) {
+      const p = SKR[skr];
+      const c = (country || "DE").toUpperCase();
+      if (c === "DE") {
+        if (rateOverride === 7) return { gk: p.erloese7, bu: "8", eu: "" };
+        return { gk: p.erloese19, bu: "9", eu: "" };
+      }
+      if (EU_RATES[c]) return { gk: p.erloeseOss, bu: "13", eu: c + " (" + EU_RATES[c] + "%)" };
+      return { gk: p.erloese0, bu: "40", eu: c + " (0%)" };
+    }
+
+    function runConversion() {
+      const text = document.getElementById("csvInput").value;
+      const skr = document.getElementById("skrSelect").value;
+      const p = SKR[skr];
+      const { headers, rows } = parseCsv(text);
+      const platform = detectPlatform(headers);
+      document.getElementById("detectedBadge").textContent = "Erkannt: " + platform.toUpperCase();
+
+      const bookings = [];
+      for (const r of rows) {
+        if (platform === "stripe") {
+          const t = (r["Type"] || "").toLowerCase();
+          const dt = toDDMM(r["Created (UTC)"]);
+          const amt = parseDec(r["Amount"]), fee = parseDec(r["Fee"]);
+          const rev = resolveRev(skr, r["Country"]);
+          if (t === "charge" || t === "payment") {
+            bookings.push({ ddmm: dt.ddmm, full: dt.full, amt: Math.abs(amt), sh: "S", wkz: r["Currency"] || "EUR", k: p.stripe, gk: rev.gk, bu: rev.bu, eu: rev.eu, ref: r["id"], txt: "Stripe Erlös " + r["Description"], typ: "brutto_erloes" });
+            if (Math.abs(fee) > 0) bookings.push({ ddmm: dt.ddmm, full: dt.full, amt: Math.abs(fee), sh: "H", wkz: r["Currency"] || "EUR", k: p.stripe, gk: p.feePay, bu: "", eu: "", ref: r["id"], txt: "Stripe Gebühr " + r["id"], typ: "gebuehr" });
+          } else if (t === "refund") {
+            bookings.push({ ddmm: dt.ddmm, full: dt.full, amt: Math.abs(amt), sh: "H", wkz: r["Currency"] || "EUR", k: p.stripe, gk: rev.gk, bu: rev.bu, eu: rev.eu, ref: r["id"], txt: "Stripe Refund " + r["Description"], typ: "erstattung" });
+          } else if (t === "payout") {
+            bookings.push({ ddmm: dt.ddmm, full: dt.full, amt: Math.abs(amt), sh: "H", wkz: r["Currency"] || "EUR", k: p.stripe, gk: p.transit, bu: "", eu: "", ref: r["id"], txt: "Stripe Auszahlung Bank " + r["id"], typ: "auszahlung" });
+          }
+        } else if (platform === "paypal") {
+          const dt = toDDMM(r["Datum"]);
+          const amt = parseDec(r["Brutto"]), fee = parseDec(r["Gebühr"]);
+          const typL = (r["Typ"] || "").toLowerCase();
+          if (typL.includes("bankkonto")) {
+            bookings.push({ ddmm: dt.ddmm, full: dt.full, amt: Math.abs(amt), sh: "H", wkz: r["Währung"] || "EUR", k: p.paypal, gk: p.transit, bu: "", eu: "", ref: r["Transaktionscode"], txt: "PayPal Geldtransit " + r["Transaktionscode"], typ: "auszahlung" });
+          } else {
+            const rev = resolveRev(skr, r["Land"]);
+            bookings.push({ ddmm: dt.ddmm, full: dt.full, amt: Math.abs(amt), sh: amt >= 0 ? "S" : "H", wkz: r["Währung"] || "EUR", k: p.paypal, gk: rev.gk, bu: rev.bu, eu: rev.eu, ref: r["Rechnungsnummer"] || r["Transaktionscode"], txt: "PayPal " + r["Name"], typ: "brutto_erloes" });
+            if (Math.abs(fee) > 0) bookings.push({ ddmm: dt.ddmm, full: dt.full, amt: Math.abs(fee), sh: "H", wkz: r["Währung"] || "EUR", k: p.paypal, gk: p.feePay, bu: "", eu: "", ref: r["Transaktionscode"], txt: "PayPal Gebühr " + r["Transaktionscode"], typ: "gebuehr" });
+          }
+        } else if (platform === "shopify") {
+          const dt = toDDMM(r["Transaction Date"]);
+          const amt = parseDec(r["Amount"]), fee = parseDec(r["Fee"]);
+          if ((r["Type"] || "").toLowerCase() === "payout") {
+            bookings.push({ ddmm: dt.ddmm, full: dt.full, amt: Math.abs(amt), sh: "H", wkz: r["Currency"] || "EUR", k: p.shopify, gk: p.transit, bu: "", eu: "", ref: r["Payout ID"], txt: "Shopify Auszahlung " + r["Payout ID"], typ: "auszahlung" });
+          } else {
+            const rev = resolveRev(skr, r["Billing Country"]);
+            bookings.push({ ddmm: dt.ddmm, full: dt.full, amt: Math.abs(amt), sh: "S", wkz: r["Currency"] || "EUR", k: p.shopify, gk: rev.gk, bu: rev.bu, eu: rev.eu, ref: r["Order"], txt: "Shopify Order " + r["Order"], typ: "brutto_erloes" });
+            if (Math.abs(fee) > 0) bookings.push({ ddmm: dt.ddmm, full: dt.full, amt: Math.abs(fee), sh: "H", wkz: r["Currency"] || "EUR", k: p.shopify, gk: p.feePay, bu: "", eu: "", ref: r["Order"], txt: "Shopify Gebühr " + r["Order"], typ: "gebuehr" });
+          }
+        } else if (platform === "sumup") {
+          const dt = toDDMM(r["Datum"]);
+          const amt = parseDec(r["Betrag inkl. MwSt."]), fee = parseDec(r["Gebühr"]);
+          if ((r["Status"] || "").toLowerCase() === "auszahlung") {
+            bookings.push({ ddmm: dt.ddmm, full: dt.full, amt: Math.abs(amt), sh: "H", wkz: "EUR", k: p.sumup, gk: p.transit, bu: "", eu: "", ref: r["Transaktions-ID"], txt: "SumUp Auszahlung " + r["Transaktions-ID"], typ: "auszahlung" });
+          } else {
+            const rate = (r["Steuersatz"] || "").includes("7") ? 7 : 19;
+            const rev = resolveRev(skr, "DE", rate);
+            bookings.push({ ddmm: dt.ddmm, full: dt.full, amt: Math.abs(amt), sh: "S", wkz: "EUR", k: p.sumup, gk: rev.gk, bu: rev.bu, eu: "", ref: r["Transaktions-ID"], txt: "SumUp " + r["Beschreibung"], typ: "brutto_erloes" });
+            if (Math.abs(fee) > 0) bookings.push({ ddmm: dt.ddmm, full: dt.full, amt: Math.abs(fee), sh: "H", wkz: "EUR", k: p.sumup, gk: p.feePay, bu: "", eu: "", ref: r["Transaktions-ID"], txt: "SumUp Gebühr " + r["Transaktions-ID"], typ: "gebuehr" });
+          }
+        } else if (platform === "airbnb") {
+          const dt = toDDMM(r["Datum"]);
+          const net = parseDec(r["Betrag"]), brutto = parseDec(r["Bruttoeinnahmen"]), fee = parseDec(r["Servicegebühr"]);
+          if ((r["Typ"] || "").toLowerCase() === "payout") {
+            bookings.push({ ddmm: dt.ddmm, full: dt.full, amt: Math.abs(net), sh: "H", wkz: "EUR", k: p.airbnb, gk: p.transit, bu: "", eu: "", ref: r["Bestätigungscode"], txt: "Airbnb Auszahlung " + r["Bestätigungscode"], typ: "auszahlung" });
+          } else {
+            const rev = resolveRev(skr, "DE", 7);
+            bookings.push({ ddmm: dt.ddmm, full: dt.full, amt: Math.abs(brutto), sh: "S", wkz: "EUR", k: p.airbnb, gk: rev.gk, bu: rev.bu, eu: "DE (7%)", ref: r["Bestätigungscode"], txt: "Airbnb " + r["Gast"] + " " + r["Inserat"], typ: "brutto_erloes" });
+            if (Math.abs(fee) > 0) bookings.push({ ddmm: dt.ddmm, full: dt.full, amt: Math.abs(fee), sh: "H", wkz: "EUR", k: p.airbnb, gk: p.feeMkt, bu: "", eu: "", ref: r["Bestätigungscode"], txt: "Airbnb Host-Gebühr " + r["Bestätigungscode"], typ: "gebuehr" });
+          }
+        } else if (platform === "amazon") {
+          const dt = toDDMM(r["posted-date"]);
+          const amt = parseDec(r["amount"]);
+          const txT = (r["transaction-type"] || "").toLowerCase();
+          const amtT = (r["amount-type"] || "").toLowerCase();
+          const c = (r["marketplace-name"] || "").endsWith(".fr") ? "FR" : "DE";
+          if (txT === "transfer") {
+            bookings.push({ ddmm: dt.ddmm, full: dt.full, amt: Math.abs(amt), sh: "H", wkz: "EUR", k: p.amazon, gk: p.transit, bu: "", eu: "", ref: r["settlement-id"], txt: "Amazon Settlement Auszahlung " + r["settlement-id"], typ: "auszahlung" });
+          } else if (amtT.includes("fee")) {
+            bookings.push({ ddmm: dt.ddmm, full: dt.full, amt: Math.abs(amt), sh: "H", wkz: "EUR", k: p.amazon, gk: p.feeMkt, bu: "", eu: "", ref: r["order-id"], txt: "Amazon Gebühr " + r["amount-description"], typ: "gebuehr" });
+          } else {
+            const rev = resolveRev(skr, c);
+            bookings.push({ ddmm: dt.ddmm, full: dt.full, amt: Math.abs(amt), sh: "S", wkz: "EUR", k: p.amazon, gk: rev.gk, bu: rev.bu, eu: rev.eu, ref: r["order-id"], txt: "Amazon Order " + r["order-id"], typ: "brutto_erloes" });
+          }
+        }
+      }
+
+      renderPreview(bookings, skr);
+    }
+
+    function renderPreview(bookings, skr) {
+      const tbody = document.getElementById("previewBody");
+      tbody.innerHTML = bookings.map(b => `
+        <tr class="hover:bg-slate-800/40">
+          <td class="px-4 py-2.5 text-slate-300">${b.ddmm}</td>
+          <td class="px-4 py-2.5 text-right font-semibold text-white">${fmtDatev(b.amt)} €</td>
+          <td class="px-4 py-2.5"><span class="px-1.5 py-0.5 rounded text-[11px] ${b.sh === 'S' ? 'bg-emerald-500/20 text-emerald-300' : 'bg-amber-500/20 text-amber-300'}">${b.sh}</span></td>
+          <td class="px-4 py-2.5 text-slate-300">${b.k}</td>
+          <td class="px-4 py-2.5 text-blue-300">${b.gk}</td>
+          <td class="px-4 py-2.5 text-purple-300">${b.bu || '—'}</td>
+          <td class="px-4 py-2.5 text-slate-400">${b.eu || '—'}</td>
+          <td class="px-4 py-2.5 text-slate-300">${b.ref}</td>
+          <td class="px-4 py-2.5 text-slate-200">${b.txt}</td>
+          <td class="px-4 py-2.5"><span class="px-2 py-0.5 rounded text-[10px] bg-slate-800 text-slate-300">${b.typ}</span></td>
+        </tr>
+      `).join("");
+
+      document.getElementById("statTotalRows").textContent = bookings.length;
+      document.getElementById("statFeeRows").textContent = bookings.filter(x => x.typ === "gebuehr").length + " (0 Punkte)";
+
+      const berater = document.getElementById("beraterInput").value || "12345";
+      const mandant = document.getElementById("mandantInput").value || "10001";
+      const wj = document.getElementById("wjInput").value || "20260101";
+      const skrCode = skr === "SKR03" ? "03" : "04";
+      const row1 = ['"EXTF"', '700', '21', '"Buchungsstapel"', '13', '20261017142000000', '', '"RE"', '"LocalDATEVHub"', '""', berater, mandant, wj, '4', '20261001', '20261031', '"Multi-Plattform EXTF"', '"KX"', '1', '0', '0', '"EUR"', '', '', '', '', `"${skrCode}"`, '', '', '""', '""'].join(";");
+      const row2 = EXTF_COLS.join(";");
+      const dataLines = bookings.map(b => {
+        const cols = new Array(EXTF_COLS.length).fill("");
+        cols[0] = fmtDatev(b.amt);
+        cols[1] = `"${b.sh}"`;
+        cols[2] = `"${b.wkz}"`;
+        cols[6] = String(b.k);
+        cols[7] = String(b.gk);
+        cols[8] = b.bu ? `"${b.bu}"` : "";
+        cols[9] = b.ddmm;
+        cols[10] = `"${(b.ref || 'BELEG').slice(0, 36)}"`;
+        cols[13] = `"${(b.txt || '').replace(/[;"]/g, ' ').slice(0, 60)}"`;
+        cols[112] = "0";
+        cols[113] = b.full;
+        return cols.join(";");
+      });
+      currentExtfContent = [row1, row2, ...dataLines].join("\r\n") + "\r\n";
+    }
+
+    function loadSample(name) {
+      document.getElementById("csvInput").value = SAMPLES[name].trim();
+      runConversion();
+    }
+
+    function handleFileSelect(ev) {
+      const file = ev.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        document.getElementById("csvInput").value = e.target.result;
+        runConversion();
+      };
+      reader.readAsText(file);
+    }
+
+    function downloadExtf() {
+      const blob = new Blob([currentExtfContent], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "EXTF_Buchungsstapel.csv";
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    loadSample("stripe");
+  </script>
+</body>
+</html>

@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>MVP #60 — Vertical Micro-Drama & Serialized Audio-Fiction Cliffhanger Studio</title>
+<style>
+  :root {
+    --bg: #08090e;
+    --panel: #111420;
+    --panel-alt: #171b2b;
+    --border: #262c45;
+    --accent: #f43f5e;
+    --accent-amber: #f59e0b;
+    --accent-emerald: #10b981;
+    --accent-cyan: #06b6d4;
+    --accent-purple: #a855f7;
+    --text: #f8fafc;
+    --muted: #94a3b8;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, sans-serif;
+    background: radial-gradient(circle at top right, #1e1028 0%, var(--bg) 45%);
+    color: var(--text);
+    line-height: 1.5;
+  }
+  header {
+    padding: 22px 32px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(17, 20, 32, 0.92);
+    backdrop-filter: blur(10px);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  .badge-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .badge {
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    border: 1px solid var(--border);
+    background: var(--panel-alt);
+  }
+  .badge.crimson { border-color: rgba(244,63,94,0.5); color: #fda4af; background: rgba(244,63,94,0.12); }
+  .badge.amber { border-color: rgba(245,158,11,0.5); color: #fcd34d; background: rgba(245,158,11,0.12); }
+  .badge.emerald { border-color: rgba(16,185,129,0.5); color: #6ee7b7; background: rgba(16,185,129,0.12); }
+  .badge.cyan { border-color: rgba(6,182,212,0.5); color: #67e8f9; background: rgba(6,182,212,0.12); }
+
+  .container {
+    max-width: 1480px;
+    margin: 0 auto;
+    padding: 24px 32px 64px;
+  }
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+  .kpi-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+  }
+  .kpi-label {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+  }
+  .kpi-val {
+    font-size: 26px;
+    font-weight: 800;
+    margin: 6px 0 2px;
+  }
+  .kpi-sub {
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .main-grid {
+    display: grid;
+    grid-template-columns: 380px 1fr;
+    gap: 22px;
+    align-items: start;
+  }
+  @media (max-width: 1100px) {
+    .main-grid { grid-template-columns: 1fr; }
+  }
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+  .panel h2, .panel h3 {
+    margin-top: 0;
+    font-size: 17px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .ep-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .ep-btn {
+    text-align: left;
+    background: var(--panel-alt);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 12px 14px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .ep-btn:hover, .ep-btn.active {
+    border-color: var(--accent);
+    background: rgba(244, 63, 94, 0.12);
+  }
+  .ep-btn .ep-top {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .gate-pill {
+    padding: 2px 7px;
+    border-radius: 6px;
+    font-size: 10px;
+    font-weight: 700;
+  }
+  .gate-FREE_FUNNEL { background: rgba(16,185,129,0.18); color: #6ee7b7; }
+  .gate-SOFT_AD_OR_EMAIL_GATE { background: rgba(245,158,11,0.2); color: #fcd34d; }
+  .gate-HARD_PAYWALL_COIN_GATE { background: rgba(244,63,94,0.25); color: #fda4af; }
+
+  .phone-frame {
+    width: 100%;
+    aspect-ratio: 9 / 15.2;
+    max-height: 560px;
+    background: linear-gradient(165deg, #1b0f26 0%, #090d1a 55%, #1f0915 100%);
+    border: 2px solid #384166;
+    border-radius: 26px;
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 18px 45px rgba(0,0,0,0.65);
+  }
+  .phone-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    z-index: 2;
+  }
+  .phone-center {
+    z-index: 2;
+    padding: 14px;
+    background: rgba(8, 9, 14, 0.76);
+    border: 1px solid rgba(244,63,94,0.45);
+    border-radius: 14px;
+  }
+  .phone-camera-cue {
+    font-size: 11px;
+    color: #67e8f9;
+    font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+    margin-bottom: 8px;
+  }
+  .phone-dialogue {
+    font-size: 15px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 8px;
+  }
+  .phone-sfx {
+    font-size: 11px;
+    color: #fcd34d;
+  }
+  .phone-bottom {
+    z-index: 2;
+  }
+  .paywall-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(8, 9, 14, 0.92);
+    backdrop-filter: blur(8px);
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 24px;
+    text-align: center;
+    z-index: 10;
+  }
+  .paywall-overlay.visible {
+    display: flex;
+  }
+  .unlock-btn {
+    background: linear-gradient(90deg, #f43f5e, #e11d48);
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 999px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 12px;
+    width: 100%;
+  }
+
+  .timeline-bar {
+    display: grid;
+    grid-template-columns: 4fr 16fr 22fr 23fr 17fr 8fr;
+    gap: 4px;
+    margin: 14px 0 20px;
+  }
+  .timeline-seg {
+    padding: 8px 6px;
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: var(--panel-alt);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .timeline-seg.active {
+    border-color: #fff;
+    background: rgba(244, 63, 94, 0.32);
+  }
+  .beat-cards {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .beat-card {
+    background: var(--panel-alt);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    cursor: pointer;
+    transition: border-color 0.15s ease;
+  }
+  .beat-card.active {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 1px var(--accent);
+  }
+  .beat-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 6px;
+  }
+  .tag-chip {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+    font-size: 11px;
+    background: rgba(168, 85, 247, 0.2);
+    color: #e9d5ff;
+    border: 1px solid rgba(168, 85, 247, 0.45);
+    margin-right: 6px;
+  }
+  textarea {
+    width: 100%;
+    min-height: 120px;
+    background: #0b0e17;
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px;
+    font-family: inherit;
+    font-size: 13px;
+    margin-bottom: 10px;
+  }
+  .action-btn {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  pre {
+    background: #090b12;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px;
+    overflow-x: auto;
+    font-size: 12px;
+    color: #cbd5e1;
+  }
+</style>
+</head>
+<body>
+
+<!-- DACH CASHFLOW STUDIOS LAUNCH BAR -->
+<style>
+  #dcs-launch-bar {
+    position: sticky;
+    top: 0;
+    z-index: 99999;
+    background: linear-gradient(90deg, #0b1120 0%, #111827 50%, #0f172a 100%);
+    color: #f8fafc;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.35);
+    padding: 8px 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  }
+  #dcs-launch-bar .dcs-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+  }
+  #dcs-launch-bar .dcs-badge {
+    background: rgba(16, 185, 129, 0.18);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.03em;
+  }
+  #dcs-launch-bar a.dcs-nav {
+    color: #93c5fd;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 12.5px;
+  }
+  #dcs-launch-bar a.dcs-nav:hover {
+    text-decoration: underline;
+    color: #dbeafe;
+  }
+  #dcs-launch-bar .dcs-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  #dcs-launch-bar .dcs-btn {
+    padding: 5px 11px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s ease;
+  }
+  #dcs-launch-bar .dcs-btn-ghost {
+    background: rgba(255,255,255,0.08);
+    color: #e2e8f0;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  #dcs-launch-bar .dcs-btn-primary {
+    background: linear-gradient(135deg, #0ea5e9, #2563eb);
+    color: #ffffff;
+  }
+  #dcs-launch-bar .dcs-btn-emerald {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
+  }
+  @media print {
+    #dcs-launch-bar { display: none !important; }
+  }
+</style>
+<div id="dcs-launch-bar">
+  <div class="dcs-left">
+    <a href="/index.html" class="dcs-nav">← Alle 150 DACH Studios</a>
+    <span class="dcs-badge">MVP #060 VERIFIED</span>
+    <span style="color:#cbd5e1;font-size:12px;">Creator Economy, Video & Media Arbitrage</span>
+  </div>
+  <div class="dcs-actions">
+    <button onclick="window.print()" class="dcs-btn dcs-btn-ghost">🖨️ PDF / Dossier drucken</button>
+    <a href="#checkout-modal-49" target="_blank" rel="noopener" class="dcs-btn dcs-btn-primary">⚡ Musterschreiben & Voll-Dossier (€49)</a>
+    <a href="#checkout-modal-299" target="_blank" rel="noopener" class="dcs-btn dcs-btn-emerald">🛡️ B2B Umsetzung buchen (€299 / €1.490)</a>
+  </div>
+</div>
+
+<header>
+  <div>
+    <div style="font-size:12px;color:var(--muted);font-weight:700;letter-spacing:0.06em;">
+      ROUND 12 GOLD-DIVE SUBAGENT 5 // MVP #60
+    </div>
+    <h1 style="margin:4px 0 0;font-size:22px;">
+      Vertical Micro-Drama & Serialized Audio-Fiction Cliffhanger Engine
+    </h1>
+  </div>
+  <div class="badge-row">
+    <span class="badge crimson">thenetaji/wattpad-scraper: 411 Users · 14,539 Runs · 15.43% Fail</span>
+    <span class="badge amber">6-Beat 90s Pacing Lattice</span>
+    <span class="badge emerald">ElevenLabs v3 Multi-Speaker Tags</span>
+    <span class="badge cyan">Episode-5/6 Paywall Optimizer</span>
+  </div>
+</header>
+
+<div class="container">
+  <div class="kpi-grid" id="kpiGrid"></div>
+
+  <div class="main-grid">
+    <div>
+      <div class="panel">
+        <h2>
+          <span>1. Serialized 6-Episode Funnel</span>
+          <span style="font-size:12px;color:var(--muted);">90s / Ep</span>
+        </h2>
+        <div class="ep-list" id="episodeList"></div>
+      </div>
+
+      <div class="panel">
+        <h2>
+          <span>2. 9:16 Vertical Player Simulator</span>
+          <span id="playerTimecode" style="font-size:12px;color:var(--accent-cyan);font-family:monospace;">00:00–00:04</span>
+        </h2>
+        <div class="phone-frame" id="phoneFrame">
+          <div class="phone-top">
+            <span id="phoneEpBadge" class="badge crimson">EPISODE 1</span>
+            <span id="phoneRetentionBadge" class="badge emerald">60s Ret: 86.2%</span>
+          </div>
+          <div class="phone-center">
+            <div class="phone-camera-cue" id="phoneCameraCue"></div>
+            <div class="phone-dialogue" id="phoneDialogue"></div>
+            <div class="phone-sfx" id="phoneSfx"></div>
+          </div>
+          <div class="phone-bottom">
+            <div style="font-size:11px;color:var(--muted);margin-bottom:6px;" id="phoneDopamineRole"></div>
+            <div style="display:flex;gap:8px;">
+              <button class="action-btn" style="flex:1;padding:8px;" onclick="stepBeat(-1)">◀ Prev Beat</button>
+              <button class="action-btn" style="flex:1;padding:8px;" onclick="stepBeat(1)">Next Beat ▶</button>
+            </div>
+          </div>
+
+          <div class="paywall-overlay" id="paywallOverlay">
+            <div class="badge crimson" style="margin-bottom:10px;" id="paywallGateType">HARD PAYWALL GATE</div>
+            <h3 style="margin:0 0 8px;font-size:18px;" id="paywallTitle">Cut to Black at 01:29.8!</h3>
+            <p style="font-size:13px;color:var(--muted);margin:0 0 12px;" id="paywallHookText"></p>
+            <button class="unlock-btn" onclick="dismissPaywall()">Unlock Now (35 Coins / $1.99 Instant Pass)</button>
+            <button style="background:transparent;border:none;color:var(--muted);margin-top:10px;font-size:12px;cursor:pointer;" onclick="dismissPaywall()">
+              Preview Script Behind Gate (Studio Mode)
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="panel">
+        <h2>
+          <span id="activeEpisodeHeading">Episode 1 — 6-Beat 90-Second Dopamine Lattice</span>
+          <span id="activeEpisodeComposite" class="badge emerald">Composite Score: 92.4/100</span>
+        </h2>
+        <div id="diagnosticsBox" style="margin-bottom:12px;font-size:13px;color:#cbd5e1;"></div>
+
+        <div class="timeline-bar" id="timelineBar"></div>
+        <div class="beat-cards" id="beatCards"></div>
+      </div>
+
+      <div class="panel">
+        <h2>
+          <span>3. Live Raw Chapter Cliffhanger & Status-Reversal Scorer</span>
+          <span class="badge amber">Real-Time 0–100 Scorer</span>
+        </h2>
+        <p style="font-size:13px;color:var(--muted);margin-top:0;">
+          Paste any raw Wattpad, WebNovel, RoyalRoad, or Reddit story chapter below to score its
+          <strong>Dopamine Tension Arc</strong>, <strong>Status-Reversal Density</strong>, and
+          <strong>Open-Loop Cliffhanger Strength (0–100)</strong> and auto-compile a 6-Beat 90s script:
+        </p>
+        <textarea id="customChapterInput">Marcus slammed the termination folder onto the mahogany boardroom table and laughed in front of the entire surgical department. "You're just a night-shift resident, Clara! Sign the NDA and hand over the neural-stent prototype to my fiancée!" Little did Marcus know, Clara held the encrypted sovereign founder deed to the hospital's parent biotech trust. Marcus started a sixty-second countdown for security to escort her out in handcuffs and blacklist her medical license. Clara calmly tapped her tablet, projecting the live wire-transfer audit and biometric patent seal onto the 80-inch monitor while the Chairman of the Board rushed in and bowed to her. Suddenly, the emergency lockdown siren blared and the Chief Federal Prosecutor burst through the double doors holding a blood-stained forensic envelope—he pointed at the glass screen and shouted, "Stop the meeting! The DNA sample on the prototype proves the real saboteur is—"</textarea>
+        <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+          <button class="action-btn" onclick="scoreCustomChapter()">Analyze & Compile 6-Beat 90s Episode</button>
+          <span id="customScoreResult" style="font-size:13px;font-weight:700;color:var(--accent-emerald);"></span>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>
+          <span>4. ElevenLabs v3 Multi-Speaker Audio Tag Payload & FFmpeg 9:16 Spec</span>
+          <span class="badge cyan">eleven_v3_conversational_drama</span>
+        </h2>
+        <pre id="elevenlabsPayloadPre"></pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const MANIFEST = {"mvp_id": "MVP_60_VERTICAL_MICRO_DRAMA_CLIFFHANGER_ENGINE", "generated_at_utc": "2026-10-17T15:58:39.806699+00:00", "apify_wave22_signal": {"primary_actor": {"actor_id": "thenetaji/wattpad-scraper", "wave": "Wave 22", "total_users": 411, "monthly_active_users": 95, "total_runs": 14539, "failure_rate_pct": 15.43, "estimated_failed_runs": 2243, "category": "Serialized Web-Fiction / Story IP Harvesting"}, "adjacent_wave_actors": [{"actor_id": "dotfak/wattpad-story-scraper", "wave": "Wave 21", "total_users": 36, "monthly_active_users": 1, "failure_rate_pct": 100.0, "notes": "100% failure rate due to unproxied HTML scraping blocked by Wattpad Cloudflare WAF."}, {"actor_id": "contactminerlabs/wattpad-email-scraper---advanced-cheapest-reliable", "wave": "Wave 16", "total_users": 13, "total_runs": 26, "pricing_model": "PAY_PER_EVENT ($0.00005/item)", "notes": "Used by micro-drama licensing scouts to recruit indie romance/werewolf/billionaire authors."}, {"actor_id": "scrapestorm/wattpad-stories-scraper---cheap", "wave": "Wave 22", "total_users": 6, "total_runs": 26, "pricing_model": "PAY_PER_EVENT ($0.00005/item)", "notes": "Keyword metadata scraper without chapter-body pagination resilience."}, {"actor_id": "delectable_incubator/wattpad-stories-scraper-low-cost", "wave": "Wave 22", "total_users": 1, "total_runs": 27, "rating": 5.0, "pricing_model": "PAY_PER_EVENT ($0.00005/item)", "notes": "Extracts reads, votes, tags, publication status, and story URLs for trend scouting."}], "root_causes_of_15_43_pct_failure_rate": [{"failure_mode": "Wattpad `/apiv2/storytext?id={partId}` Rate-Limit & Cloudflare Turnstile 403", "share_of_failures_pct": 48.0, "technical_cause": "Scrapers fire sequential browser/DOM requests per chapter part without rotating residential TLS fingerprints or caching the lightweight JSON `/api/v3/stories/{story_id}?fields=parts(id,title,url,wordCount)` manifest.", "engine_fix": "Two-stage separation: (1) Fetch metadata + part IDs via lightweight API v3 fields projection, (2) Fetch raw part text via `/apiv2/storytext` with adaptive token bucket + automatic chapter chunking."}, {"failure_mode": "Paywalled / Wattpad Originals Coin-Locked Parts Unhandled", "share_of_failures_pct": 27.5, "technical_cause": "When scraping high-velocity stories, chapters 6+ are often locked behind Wattpad Paid Stories / Coins, causing naive DOM parsers to throw null-selector exceptions and abort the entire 50-chapter run.", "engine_fix": "Detect `isPaywalled` / `isLocked` flags in part metadata pre-flight, extract the free hook runway (Chapters 1-5) plus locked chapter synopses, and synthesize continuation beats without crashing."}, {"failure_mode": "Unbounded 80-Chapter Memory & Timeout Blowout", "share_of_failures_pct": 24.5, "technical_cause": "Long serialized novels (150,000+ words across 70+ parts) exceed Apify default actor memory/timeout when buffered into a single DOM instance.", "engine_fix": "Streaming 6-Beat sliding-window segmenter that scores and compiles each chapter into 90-second episodes on the fly."}], "vertical_micro_drama_benchmarks_2026": [{"platform": "ReelShort (Crazy Maple Studio / COL Group)", "monthly_revenue_est_usd": "$35M - $48M/mo", "core_episode_length_sec": 90, "free_runway_episodes": "Episodes 1-5 Free (Gate at Episode 6)", "avg_60s_retention_pct": 84.5, "top_tropes": ["Secret Billionaire CEO Divorced at the Altar", "Rejected Alpha Mate Returns as Royal Lycan Queen", "Substitute Bride & The Forensic Paternity Receipt"]}, {"platform": "DramaBox (StoryMatrix)", "monthly_revenue_est_usd": "$28M - $42M/mo", "core_episode_length_sec": 85, "free_runway_episodes": "Episodes 1-5 Free (Coin/Ad Gate at Episode 6)", "avg_60s_retention_pct": 83.2, "top_tropes": ["God of War Disguised as Delivery Driver", "Heiress Fired by Her Own Fianc\u00e9's Mistress", "Miracle Surgeon Humiliated by Corrupt Hospital Board"]}, {"platform": "ShortMax & Galatea (Inkitt)", "monthly_revenue_est_usd": "$15M - $30M/mo", "core_episode_length_sec": 90, "free_runway_episodes": "Chapters/Episodes 1-5 Free -> Wait-Timer / VIP Subscription / Coin Pack", "avg_60s_retention_pct": 82.0, "top_tropes": ["Immersive Multi-Voice Audio Fiction + Haptic/SFX Cliffhangers", "Mafia Contract Marriage with Hidden Wiretap Reveal", "Cinderella Quarterback / Corporate Hostile Takeover"]}]}, "six_beat_90s_formula_spec": [{"beat_number": 1, "beat_code": "BEAT_1_STATUS_SLAP_HOOK", "beat_name": "The Humiliation / Status-Slap Hook", "start_sec": 0, "end_sec": 4, "duration_sec": 4, "target_word_budget": 14, "dopamine_role": "Cortisol Spike / Moral Outrage Trigger", "narrative_rule": "Open mid-slap, mid-insult, or mid-betrayal within 0.8 seconds. Zero establishing shots. An arrogant antagonist publicly humiliates the protagonist over money, bloodline, or status.", "default_elevenlabs_tags": ["[shouting]", "[coldly]"], "default_camera_framing": "9:16 Extreme Close-Up (ECU) Dutch-Angle Slap / Contract Throw -> Instant Whip-Zoom to Protagonist Eyes", "ffmpeg_9x16_filter": "scale=1080:1920,zoompan=z='min(zoom+0.008,1.38)':x='iw/2-(iw/zoom/2)':y='ih/3-(ih/zoom/3)':d=120:s=1080x1920:fps=30"}, {"beat_number": 2, "beat_code": "BEAT_2_HIDDEN_IDENTITY_ASYMMETRY", "beat_name": "The Hidden Identity / Asymmetry Setup", "start_sec": 4, "end_sec": 20, "duration_sec": 16, "target_word_budget": 48, "dopamine_role": "Dramatic Irony & Superiority Loop", "narrative_rule": "The audience learns (or is reminded of) a massive secret the antagonist does not know: the 'penniless intern' or 'discarded spouse' actually owns the parent conglomerate, sovereign patent, or black-card trust.", "default_elevenlabs_tags": ["[whispering]", "[smirking]"], "default_camera_framing": "9:16 Vertical Split-Screen: Top 40% Antagonist Sneering / Bottom 60% Macro Insert of Encrypted Black-Card or Seal", "ffmpeg_9x16_filter": "scale=1080:1920,zoompan=z='1.18':x='iw/2-(iw/zoom/2)':y='(ih/4)+(ih/8)*(on/480)':d=480:s=1080x1920:fps=30"}, {"beat_number": 3, "beat_code": "BEAT_3_ESCALATION_DOUBLE_DOWN", "beat_name": "The Escalation & Double-Down", "start_sec": 20, "end_sec": 42, "duration_sec": 22, "target_word_budget": 66, "dopamine_role": "Compression of Tension Spring (Financial / Emotional Stakes 10x)", "narrative_rule": "The antagonist doubles down, sets an irreversible ultimatum (shredding the deed, calling security, demanding a $50M penalty), and forces a public countdown in front of witnesses.", "default_elevenlabs_tags": ["[interrupting]", "[coldly]", "[trembling]"], "default_camera_framing": "9:16 Low-Angle Antagonist Dominance Push-In + Over-The-Shoulder (OTS) Crowd Whispering Reaction Cuts", "ffmpeg_9x16_filter": "scale=1080:1920,zoompan=z='min(zoom+0.0022,1.32)':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':d=660:s=1080x1920:fps=30"}, {"beat_number": 4, "beat_code": "BEAT_4_MICRO_PAYOFF_RECEIPT_DROP", "beat_name": "The Micro-Payoff / Receipt Drop", "start_sec": 42, "end_sec": 65, "duration_sec": 23, "target_word_budget": 69, "dopamine_role": "First Dopamine Release (Status-Reversal Counter-Punch)", "narrative_rule": "The protagonist drops a verifiable 'receipt' (a wire transfer confirmation, a recorded phone call, a biometric board override, or a VIP arrival bowing to them) that shatters the antagonist's lie.", "default_elevenlabs_tags": ["[coldly]", "[gasps]", "[smirking]"], "default_camera_framing": "9:16 Forensic Receipt Macro Insert -> 3-Shot Rapid Reaction Montage (Antagonist Jaw Drop / VIP Bow / Protagonist Ice-Cold Stare)", "ffmpeg_9x16_filter": "scale=1080:1920,zoompan=z='max(1.36-0.0018*on,1.06)':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':d=690:s=1080x1920:fps=30"}, {"beat_number": 5, "beat_code": "BEAT_5_TWIST_BETRAYAL_COMPLICATION", "beat_name": "The Twist / Betrayal Complication", "start_sec": 65, "end_sec": 82, "duration_sec": 17, "target_word_budget": 51, "dopamine_role": "Rug-Pull / Secondary Adrenaline Spike", "narrative_rule": "Just as the viewer expects full victory, a higher-tier threat or betrayal enters the room (the corrupt patriarch arrives, a hidden clause surfaces, or an ally turns out to be on the payroll).", "default_elevenlabs_tags": ["[gasps]", "[whispering]", "[trembling]"], "default_camera_framing": "9:16 Heavy Double-Door Kick-Open Wide -> Rack Focus to Shadowy Newcomer Holding Sealed Red Folder", "ffmpeg_9x16_filter": "scale=1080:1920,zoompan=z='min(zoom+0.003,1.40)':x='iw/3-(iw/zoom/3)':y='ih/2-(ih/zoom/2)':d=510:s=1080x1920:fps=30"}, {"beat_number": 6, "beat_code": "BEAT_6_MID_SENTENCE_CLIFFHANGER", "beat_name": "The Unresolved Mid-Sentence Cliffhanger", "start_sec": 82, "end_sec": 90, "duration_sec": 8, "target_word_budget": 24, "dopamine_role": "Zeigarnik Effect Open-Loop -> Forces Episode N+1 / Paywall Unlock", "narrative_rule": "Cut to black mid-sentence or at the exact millisecond the seal breaks / DNA result prints / mystery voice speaks on speakerphone. Never resolve a Beat 6 inside the same episode.", "default_elevenlabs_tags": ["[whispering]", "[gasps]", "[interrupting]"], "default_camera_framing": "9:16 Extreme Macro on Trembling Hand / Phone Screen -> Hard Sub-Bass Drop + Instant Cut-to-Black at 89.8s", "ffmpeg_9x16_filter": "scale=1080:1920,zoompan=z='min(zoom+0.012,1.55)':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':d=240:s=1080x1920:fps=30"}], "series_metadata": {"series_id": "wp_99481024_sovereign_clause", "source_platform": "Wattpad / Galatea Vertical Adaptation Pipeline", "scraper_origin": "thenetaji/wattpad-scraper (Resilient v3 API + StoryText Fallback)", "title": "The Billionaire's Discarded Patent Wife: The Sovereign Override", "author_handle": "@aria_vance_serials", "genre_tags": ["secret-heiress", "status-reversal", "corporate-revenge", "contract-marriage", "vertical-micro-drama"], "reads_count": 4820900, "votes_count": 391400, "parts_total": 65, "free_funnel_episodes": 4, "soft_gate_episode": 5, "hard_paywall_episode": 6}, "series_aggregate_scores": {"episode_count": 6, "total_runtime_sec": 540, "avg_dopamine_tension_arc_score": 96.0, "avg_status_reversal_density_score": 99.5, "avg_open_loop_cliffhanger_score": 99.8, "avg_composite_retention_score": 98.5, "free_episodes": [1, 2, 3, 4], "soft_gate_episodes": [5], "hard_paywall_episodes": [6]}, "unit_economics_model": {"cohort_top_of_funnel_views": 100000, "avg_predicted_60s_retention_pct": 87.48, "tiktok_creativity_program_payout": {"qualified_views_over_60s": 56862, "rpm_usd": 1.15, "payout_usd": 65.39}, "episode_5_6_paywall_funnel": {"ep1_to_ep5_funnel_survivors": 34000, "ep6_hard_paywall_gate_impressions": 23120, "ep6_predicted_conversion_rate_pct": 28.5, "paying_coin_or_vip_users": 6589, "blended_coin_vip_arpu_usd": 9.85, "gross_paywall_revenue_usd": 64901.65}, "production_cogs_6_episodes": {"elevenlabs_v3_multi_speaker_tts_usd": 0.72, "vertical_9x16_keyframe_stills_usd": 1.08, "ffmpeg_zoompan_render_usd": 0.04, "total_cogs_usd": 1.84}, "combined_revenue_per_100k_views_usd": 64967.04, "gross_margin_pct": 100.0}, "episodes": [{"episode_number": 1, "episode_title": "Episode 1: The $500 Severance Slap at the Gala", "arc_role": "Free Funnel Hook Runway (Episode 1 of 4 Free)", "duration_sec": 90, "monetization_gate": "FREE_FUNNEL", "coin_unlock_cost": 0, "stripe_micro_unlock_usd": 0.0, "cliffhanger_archetype": "Identity Hook", "chapter_score": {"chapter_id": "ch_01_the_500_dollar_divorce_slap", "chapter_title": "Episode 1: The $500 Severance Slap at the Gala", "word_count": 210, "dopamine_tension_arc_score": 99.5, "status_reversal_density_score": 99.5, "open_loop_cliffhanger_score": 99.8, "composite_retention_score": 99.6, "predicted_3s_thumbstop_pct": 91.8, "predicted_60s_retention_pct": 87.9, "predicted_paywall_unlock_conv_pct": 26.43, "detected_signals": {"humiliation_triggers": ["knelt", "divorce", "worthless", "security", "threw", "laugh"], "asymmetry_identity_triggers": ["little did", "chairman", "founder", "sovereign", "encrypted", "99%", "controlling stake"], "escalation_stakes_triggers": ["million", "countdown", "blacklist", "hospital"], "receipt_payoff_triggers": ["audit", "biometric", "seal", "pale"], "twist_complication_triggers": ["suddenly", "warrant"], "open_loop_cliffhanger_triggers": ["\u2014", "is\u2014", "warrant", "pointed straight"]}, "pacing_diagnostics": ["PASS [Beat 1 Status-Slap]: Detected 6 status-humiliation triggers (knelt, divorce, worthless, security) within cold open.", "PASS [Beat 2 -> Beat 4 Status Reversal]: Strong dramatic irony (little did, chairman, founder) paired with receipt drop (audit, biometric, seal).", "PASS [Beat 6 Zeigarnik Cut]: Chapter terminates mid-sentence on an em-dash/ellipsis revelation hook."]}, "beats": [{"beat_number": 1, "beat_code": "BEAT_1_STATUS_SLAP_HOOK", "beat_name": "The Humiliation / Status-Slap Hook", "start_sec": 0, "end_sec": 4, "duration_sec": 4, "dopamine_role": "Cortisol Spike / Moral Outrage Trigger", "tension_level_0_100": 84, "status_polarity": "ANTAGONIST_DOMINANT", "camera_framing_9x16": "9:16 Extreme Close-Up (ECU) Dutch-Angle Slap / Contract Throw -> Instant Whip-Zoom to Protagonist Eyes", "ffmpeg_filter_cmd": "scale=1080:1920,zoompan=z='min(zoom+0.008,1.38)':x='iw/2-(iw/zoom/2)':y='ih/3-(ih/zoom/3)':d=120:s=1080x1920:fps=30", "sfx_cue": "[SFX: Sharp glass shatter + sub-bass impact hit -14 LUFS]", "dialogue_lines": [{"speaker": "JULIAN STERLING (Arrogant CEO Fianc\u00e9)", "voice_archetype": "Baritone Arrogant Antagonist (ElevenLabs v3 `adam_imperial`)", "elevenlabs_v3_tags": ["[shouting]", "[coldly]"], "tagged_line": "[shouting] [coldly] Julian threw the divorce decree and a crumpled $500 bill onto the marble banquet floor in front of two hundred board members. 'Sign it and crawl back to the clinic, Elena!", "raw_line": "Julian threw the divorce decree and a crumpled $500 bill onto the marble banquet floor in front of two hundred board members. 'Sign it and crawl back to the clinic, Elena!", "est_duration_sec": 4.0}], "on_screen_caption_hook": "[00s-04s] THE HUMILIATION / STATUS-SLAP HOOK: Julian threw the divorce decree and a crumpled $500 bill onto the marble banquet floor i..."}, {"beat_number": 2, "beat_code": "BEAT_2_HIDDEN_IDENTITY_ASYMMETRY", "beat_name": "The Hidden Identity / Asymmetry Setup", "start_sec": 4, "end_sec": 20, "duration_sec": 16, "dopamine_role": "Dramatic Irony & Superiority Loop", "tension_level_0_100": 72, "status_polarity": "ASYMMETRIC_SECRET", "camera_framing_9x16": "9:16 Vertical Split-Screen: Top 40% Antagonist Sneering / Bottom 60% Macro Insert of Encrypted Black-Card or Seal", "ffmpeg_filter_cmd": "scale=1080:1920,zoompan=z='1.18':x='iw/2-(iw/zoom/2)':y='(ih/4)+(ih/8)*(on/480)':d=480:s=1080x1920:fps=30", "sfx_cue": "[SFX: Low encrypted biometric hum + heartbeat pulse 72 BPM]", "dialogue_lines": [{"speaker": "NARRATOR (INNER MONOLOGUE)", "voice_archetype": "Velvet Noir Narrator (ElevenLabs v3 `aria_noir`)", "elevenlabs_v3_tags": ["[whispering]", "[smirking]"], "tagged_line": "[whispering] You are a worthless charity wife, and Victoria just secured the Aegis Quantum chip license!' Victoria laughed, stepping on the corner of Elena's dress with her stiletto while security guards moved in. [smirking]", "raw_line": "You are a worthless charity wife, and Victoria just secured the Aegis Quantum chip license!' Victoria laughed, stepping on the corner of Elena's dress with her stiletto while security guards moved in.", "est_duration_sec": 16.0}], "on_screen_caption_hook": "[04s-20s] THE HIDDEN IDENTITY / ASYMMETRY SETUP: You are a worthless charity wife, and Victoria just secured the Aegis Quantum chip licen..."}, {"beat_number": 3, "beat_code": "BEAT_3_ESCALATION_DOUBLE_DOWN", "beat_name": "The Escalation & Double-Down", "start_sec": 20, "end_sec": 42, "duration_sec": 22, "dopamine_role": "Compression of Tension Spring (Financial / Emotional Stakes 10x)", "tension_level_0_100": 88, "status_polarity": "ANTAGONIST_OVERCOMMIT", "camera_framing_9x16": "9:16 Low-Angle Antagonist Dominance Push-In + Over-The-Shoulder (OTS) Crowd Whispering Reaction Cuts", "ffmpeg_filter_cmd": "scale=1080:1920,zoompan=z='min(zoom+0.0022,1.32)':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':d=660:s=1080x1920:fps=30", "sfx_cue": "[SFX: Ticking luxury chronograph countdown + tense cello ostinato]", "dialogue_lines": [{"speaker": "JULIAN STERLING (Arrogant CEO Fianc\u00e9)", "voice_archetype": "Baritone Arrogant Antagonist (ElevenLabs v3 `adam_imperial`)", "elevenlabs_v3_tags": ["[interrupting]", "[shouting]"], "tagged_line": "[interrupting] [shouting] Little did Julian know, the encrypted obsidian keycard inside Elena's coat pocket belonged to the sole sovereign founder of Aegis Quantum\u2014an identity with a 99% controlling stake.", "raw_line": "Little did Julian know, the encrypted obsidian keycard inside Elena's coat pocket belonged to the sole sovereign founder of Aegis Quantum\u2014an identity with a 99% controlling stake.", "est_duration_sec": 14.0}, {"speaker": "VICTORIA CROSS (Mistress / Fake Chief Scientist)", "voice_archetype": "High-Tension Catalyst Witness (ElevenLabs v3 `serena_sharp`)", "elevenlabs_v3_tags": ["[gasps]", "[trembling]"], "tagged_line": "[gasps] [trembling] The sixty-second clock is live on the main board\u2014she's finished!", "raw_line": "The sixty-second clock is live on the main board\u2014she's finished!", "est_duration_sec": 8.0}], "on_screen_caption_hook": "[20s-42s] THE ESCALATION & DOUBLE-DOWN: Little did Julian know, the encrypted obsidian keycard inside Elena's coat pocket belong..."}, {"beat_number": 4, "beat_code": "BEAT_4_MICRO_PAYOFF_RECEIPT_DROP", "beat_name": "The Micro-Payoff / Receipt Drop", "start_sec": 42, "end_sec": 65, "duration_sec": 23, "dopamine_role": "First Dopamine Release (Status-Reversal Counter-Punch)", "tension_level_0_100": 93, "status_polarity": "COUNTER_PUNCH_RECEIPT", "camera_framing_9x16": "9:16 Forensic Receipt Macro Insert -> 3-Shot Rapid Reaction Montage (Antagonist Jaw Drop / VIP Bow / Protagonist Ice-Cold Stare)", "ffmpeg_filter_cmd": "scale=1080:1920,zoompan=z='max(1.36-0.0018*on,1.06)':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':d=690:s=1080x1920:fps=30", "sfx_cue": "[SFX: Digital wire-transfer chime + crowd gasp + camera shutter burst]", "dialogue_lines": [{"speaker": "ELENA VANCE (Secret Founder of Aegis Quantum)", "voice_archetype": "Ice-Calm Sovereign Lead (ElevenLabs v3 `elena_sovereign`)", "elevenlabs_v3_tags": ["[coldly]", "[smirking]"], "tagged_line": "[coldly] [smirking] Julian grabbed the microphone and announced a sixty-second countdown to blacklist Elena from every hospital and lab in the city unless she knelt and apologized to Victoria. Instead of kneeling, Elena tapped her watch and broadcast a live biometric audit to the 40-foot LED wall: Julian's $400 million credit line had just been frozen by 'Founder Zero.' Julian's face went pale as the bank Chairman rushed through the ballroom doors, ignoring Julian completely and stopping right in front of Elena.", "raw_line": "Julian grabbed the microphone and announced a sixty-second countdown to blacklist Elena from every hospital and lab in the city unless she knelt and apologized to Victoria. Instead of kneeling, Elena tapped her watch and broadcast a live biometric audit to the 40-foot LED wall: Julian's $400 million credit line had just been frozen by 'Founder Zero.' Julian's face went pale as the bank Chairman rushed through the ballroom doors, ignoring Julian completely and stopping right in front of Elena.", "est_duration_sec": 15.0}, {"speaker": "VICTORIA CROSS (Mistress / Fake Chief Scientist)", "voice_archetype": "High-Tension Catalyst Witness (ElevenLabs v3 `serena_sharp`)", "elevenlabs_v3_tags": ["[gasps]", "[whispering]"], "tagged_line": "[gasps] [whispering] Look at the biometric terminal... Founder Zero is standing right in front of us!", "raw_line": "Look at the biometric terminal... Founder Zero is standing right in front of us!", "est_duration_sec": 8.0}], "on_screen_caption_hook": "[42s-65s] THE MICRO-PAYOFF / RECEIPT DROP: Julian grabbed the microphone and announced a sixty-second countdown to blacklist Elena ..."}, {"beat_number": 5, "beat_code": "BEAT_5_TWIST_BETRAYAL_COMPLICATION", "beat_name": "The Twist / Betrayal Complication", "start_sec": 65, "end_sec": 82, "duration_sec": 17, "dopamine_role": "Rug-Pull / Secondary Adrenaline Spike", "tension_level_0_100": 96, "status_polarity": "RUG_PULL_TWIST", "camera_framing_9x16": "9:16 Heavy Double-Door Kick-Open Wide -> Rack Focus to Shadowy Newcomer Holding Sealed Red Folder", "ffmpeg_filter_cmd": "scale=1080:1920,zoompan=z='min(zoom+0.003,1.40)':x='iw/3-(iw/zoom/3)':y='ih/2-(ih/zoom/2)':d=510:s=1080x1920:fps=30", "sfx_cue": "[SFX: Heavy titanium bulkhead alarm + sudden sub-drop silence]", "dialogue_lines": [{"speaker": "VICTORIA CROSS (Mistress / Fake Chief Scientist)", "voice_archetype": "High-Tension Catalyst Witness (ElevenLabs v3 `serena_sharp`)", "elevenlabs_v3_tags": ["[gasps]", "[trembling]"], "tagged_line": "[gasps] [trembling] Suddenly, the ballroom lights cut to emergency red and an armed federal marshal burst in holding a sealed crimson warrant\u2014the marshal pointed straight at the podium and shouted, 'Nobody moves!", "raw_line": "Suddenly, the ballroom lights cut to emergency red and an armed federal marshal burst in holding a sealed crimson warrant\u2014the marshal pointed straight at the podium and shouted, 'Nobody moves!", "est_duration_sec": 17.0}], "on_screen_caption_hook": "[65s-82s] THE TWIST / BETRAYAL COMPLICATION: Suddenly, the ballroom lights cut to emergency red and an armed federal marshal burst in..."}, {"beat_number": 6, "beat_code": "BEAT_6_MID_SENTENCE_CLIFFHANGER", "beat_name": "The Unresolved Mid-Sentence Cliffhanger", "start_sec": 82, "end_sec": 90, "duration_sec": 8, "dopamine_role": "Zeigarnik Effect Open-Loop -> Forces Episode N+1 / Paywall Unlock", "tension_level_0_100": 100, "status_polarity": "OPEN_LOOP_PEAK", "camera_framing_9x16": "9:16 Extreme Macro on Trembling Hand / Phone Screen -> Hard Sub-Bass Drop + Instant Cut-to-Black at 89.8s", "ffmpeg_filter_cmd": "scale=1080:1920,zoompan=z='min(zoom+0.012,1.55)':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':d=240:s=1080x1920:fps=30", "sfx_cue": "[SFX: High-frequency riser cresting to 89.8s -> HARD CUT TO BLACK]", "dialogue_lines": [{"speaker": "ELENA VANCE (Secret Founder of Aegis Quantum)", "voice_archetype": "Ice-Calm Sovereign Lead (ElevenLabs v3 `elena_sovereign`)", "elevenlabs_v3_tags": ["[whispering]", "[gasps]", "[interrupting]"], "tagged_line": "[whispering] [gasps] [interrupting] The real biometric owner of the Aegis Sovereign Patent is\u2014'", "raw_line": "The real biometric owner of the Aegis Sovereign Patent is\u2014'", "est_duration_sec": 8.0}], "on_screen_caption_hook": "[82s-90s] THE UNRESOLVED MID-SENTENCE CLIFFHANGER: The real biometric owner of the Aegis Sovereign Patent is\u2014'..."}], "elevenlabs_v3_api_payload": {"model_id": "eleven_v3_conversational_drama", "output_format": "mp3_44100_192", "loudness_normalization": "-14.0 LUFS (TikTok/Reels/ReelShort Master)", "multi_speaker_dialogue": [{"beat_number": 1, "timecode": "00:00-00:04", "speaker": "JULIAN STERLING (Arrogant CEO Fianc\u00e9)", "voice_archetype": "Baritone Arrogant Antagonist (ElevenLabs v3 `adam_imperial`)", "elevenlabs_v3_tags": ["[shouting]", "[coldly]"], "text_with_inline_audio_tags": "[shouting] [coldly] Julian threw the divorce decree and a crumpled $500 bill onto the marble banquet floor in front of two hundred board members. 'Sign it and crawl back to the clinic, Elena!"}, {"beat_number": 2, "timecode": "00:04-00:20", "speaker": "NARRATOR (INNER MONOLOGUE)", "voice_archetype": "Velvet Noir Narrator (ElevenLabs v3 `aria_noir`)", "elevenlabs_v3_tags": ["[whispering]", "[smirking]"], "text_with_inline_audio_tags": "[whispering] You are a worthless charity wife, and Victoria just secured the Aegis Quantum chip license!' Victoria laughed, stepping on the corner of Elena's dress with her stiletto while security guards moved in. [smirking]"}, {"beat_number": 3, "timecode": "00:20-00:42", "speaker": "JULIAN STERLING (Arrogant CEO Fianc\u00e9)", "voice_archetype": "Baritone Arrogant Antagonist (ElevenLabs v3 `adam_imperial`)", "elevenlabs_v3_tags": ["[interrupting]", "[shouting]"], "text_with_inline_audio_tags": "[interrupting] [shouting] Little did Julian know, the encrypted obsidian keycard inside Elena's coat pocket belonged to the sole sovereign founder of Aegis Quantum\u2014an identity with a 99% controlling stake."}, {"beat_number": 3, "timecode": "00:20-00:42", "speaker": "VICTORIA CROSS (Mistress / Fake Chief Scientist)", "voice_archetype": "High-Tension Catalyst Witness (ElevenLabs v3 `serena_sharp`)", "elevenlabs_v3_tags": ["[gasps]", "[trembling]"], "text_with_inline_audio_tags": "[gasps] [trembling] The sixty-second clock is live on the main board\u2014she's finished!"}, {"beat_number": 4, "timecode": "00:42-00:65", "speaker": "ELENA VANCE (Secret Founder of Aegis Quantum)", "voice_archetype": "Ice-Calm Sovereign Lead (ElevenLabs v3 `elena_sovereign`)", "elevenlabs_v3_tags": ["[coldly]", "[smirking]"], "text_with_inline_audio_tags": "[coldly] [smirking] Julian grabbed the microphone and announced a sixty-second countdown to blacklist Elena from every hospital and lab in the city unless she knelt and apologized to Victoria. Instead of kneeling, Elena tapped her watch and broadcast a live biometric audit to the 40-foot LED wall: Julian's $400 million credit line had just been frozen by 'Founder Zero.' Julian's face went pale as the bank Chairman rushed through the ballroom doors, ignoring Julian completely and stopping right in front of Elena."}, {"beat_number": 4, "timecode": "00:42-00:65", "speaker": "VICTORIA CROSS (Mistress / Fake Chief Scientist)", "voice_archetype": "High-Tension Catalyst Witness (ElevenLabs v3 `serena_sharp`)", "elevenlabs_v3_tags": ["[gasps]", "[whispering]"], "text_with_inline_audio_tags": "[gasps] [whispering] Look at the biometric terminal... Founder Zero is standing right in front of us!"}, {"beat_number": 5, "timecode": "00:65-00:82", "speaker": "VICTORIA CROSS (Mistress / Fake Chief Scientist)", "voice_archetype": "High-Tension Catalyst Witness (ElevenLabs v3 `serena_sharp`)", "elevenlabs_v3_tags": ["[gasps]", "[trembling]"], "text_with_inline_audio_tags": "[gasps] [trembling] Suddenly, the ballroom lights cut to emergency red and an armed federal marshal burst in holding a sealed crimson warrant\u2014the marshal pointed straight at the podium and shouted, 'Nobody moves!"}, {"beat_number": 6, "timecode": "00:82-00:90", "speaker": "ELENA VANCE (Secret Founder of Aegis Quantum)", "voice_archetype": "Ice-Calm Sovereign Lead (ElevenLabs v3 `elena_sovereign`)", "elevenlabs_v3_tags": ["[whispering]", "[gasps]", "[interrupting]"], "text_with_inline_audio_tags": "[whispering] [gasps] [interrupting] The real biometric owner of the Aegis Sovereign Patent is\u2014'"}]}, "push_notification_hook": "\ud83d\udd13 Episode 1 Cliffhanger at 01:29: The real biometric owner of the Aegis Sovereign Patent is\u2014' \u2014 Tap to unlock Episode 2!"}, {"episode_number": 2, "episode_title": "Episode 2: The Stolen Lab Notebook & The Live Wiretap", "arc_role": "Free Funnel Hook Runway (Episode 2 of 4 Free)", "duration_sec": 90, "monetization_gate": "FREE_FUNNEL", "coin_unlock_cost": 0, "stripe_micro_unlock_usd": 0.0, "cliffhanger_archetype": "Realization / Retribution Hook", "chapter_score": {"chapter_id": "ch_02_the_forged_clinical_trial", "chapter_title": "Episode 2: The Stolen Lab Notebook & The Live Wiretap", "word_count": 186, "dopamine_tension_arc_score": 99.5, "status_reversal_density_score": 99.5, "open_loop_cliffhanger_score": 99.8, "composite_retention_score": 99.6, "predicted_3s_thumbstop_pct": 91.8, "predicted_60s_retention_pct": 87.9, "predicted_paywall_unlock_conv_pct": 26.43, "detected_signals": {"humiliation_triggers": ["security", "sneer", "janitor"], "asymmetry_identity_triggers": ["unknown to", "chairwoman", "chairman", "founder", "sovereign", "honeytrap", "decryption key"], "escalation_stakes_triggers": ["million", "sixty seconds", "arrest", "hospital"], "receipt_payoff_triggers": ["recording", "override", "bowed", "madam chairwoman", "terminal"], "twist_complication_triggers": ["however", "trap", "patriarch"], "open_loop_cliffhanger_triggers": ["\u2014", "room 402\u2014", "whispered", "gasped"]}, "pacing_diagnostics": ["PASS [Beat 1 Status-Slap]: Detected 3 status-humiliation triggers (security, sneer, janitor) within cold open.", "PASS [Beat 2 -> Beat 4 Status Reversal]: Strong dramatic irony (unknown to, chairwoman, chairman) paired with receipt drop (recording, override, bowed).", "PASS [Beat 6 Zeigarnik Cut]: Chapter terminates mid-sentence on an em-dash/ellipsis revelation hook."]}, "beats": [{"beat_number": 1, "beat_code": "BEAT_1_STATUS_SLAP_HOOK", "beat_name": "The Humiliation / Status-Slap Hook", "start_sec": 0, "end_sec": 4, "duration_sec": 4, "dopamine_role": "Cortisol Spike / Moral Outrage Trigger", "tension_level_0_100": 84, "status_polarity": "ANTAGONIST_DOMINANT", "camera_framing_9x16": "9:16 Extreme Close-Up (ECU) Dutch-Angle Slap / Contract Throw -> Instant Whip-Zoom to Protagonist Eyes", "ffmpeg_filter_cmd": "scale=1080:1920,zoompan=z='min(zoom+0.008,1.38)':x='iw/2-(iw/zoom/2)':y='ih/3-(ih/zoom/3)':d=120:s=1080x1920:fps=30", "sfx_cue": "[SFX: Sharp glass shatter + sub-bass impact hit -14 LUFS]", "dialogue_lines": [{"speaker": "VICTORIA CROSS (Fake Chief Scientist)", "voice_archetype": "Baritone Arrogant Antagonist (ElevenLabs v3 `adam_imperial`)", "elevenlabs_v3_tags": ["[shouting]", "[coldly]"], "tagged_line": "[shouting] [coldly] Victoria snatched the microphone and screamed, 'Officer, arrest Elena!", "raw_line": "Victoria snatched the microphone and screamed, 'Officer, arrest Elena!", "est_duration_sec": 4.0}], "on_screen_caption_hook": "[00s-04s] THE HUMILIATION / STATUS-SLAP HOOK: Victoria snatched the microphone and screamed, 'Officer, arrest Elena!..."}, {"beat_number": 2, "beat_code": "BEAT_2_HIDDEN_IDENTITY_ASYMMETRY", "beat_name": "The Hidden Identity / Asymmetry Setup", "start_sec": 4, "end_sec": 20, "duration_sec": 16, "dopamine_role": "Dramatic Irony & Superiority Loop", "tension_level_0_100": 72, "status_polarity": "ASYMMETRIC_SECRET", "camera_framing_9x16": "9:16 Vertical Split-Screen: Top 40% Antagonist Sneering / Bottom 60% Macro Insert of Encrypted Black-Card or Seal", "ffmpeg_filter_cmd": "scale=1080:1920,zoompan=z='1.18':x='iw/2-(iw/zoom/2)':y='(ih/4)+(ih/8)*(on/480)':d=480:s=1080x1920:fps=30", "sfx_cue": "[SFX: Low encrypted biometric hum + heartbeat pulse 72 BPM]", "dialogue_lines": [{"speaker": "NARRATOR (INNER MONOLOGUE)", "voice_archetype": "Velvet Noir Narrator (ElevenLabs v3 `aria_noir`)", "elevenlabs_v3_tags": ["[whispering]", "[smirking]"], "tagged_line": "[whispering] She stole my handwritten quantum neural formulas from the vault last night!' Julian sneered, ordering his bodyguards to rip the obsidian badge off Elena's lapel like a common thief. [smirking]", "raw_line": "She stole my handwritten quantum neural formulas from the vault last night!' Julian sneered, ordering his bodyguards to rip the obsidian badge off Elena's lapel like a common thief.", "est_duration_sec": 16.0}], "on_screen_caption_hook": "[04s-20s] THE HIDDEN IDENTITY / ASYMMETRY SETUP: She stole my handwritten quantum neural formulas from the vault last night!' Julian snee..."}, {"beat_number": 3, "beat_code": "BEAT_3_ESCALATION_DOUBLE_DOWN", "beat_name": "The Escalation & Double-Down", "start_sec": 20, "end_sec": 42, "duration_sec": 22, "dopamine_role": "Compression of Tension Spring (Financial / Emotional Stakes 10x)", "tension_level_0_100": 88, "status_polarity": "ANTAGONIST_OVERCOMMIT", "camera_framing_9x16": "9:16 Low-Angle Antagonist Dominance Push-In + Over-The-Shoulder (OTS) Crowd Whispering Reaction Cuts", "ffmpeg_filter_cmd": "scale=1080:1920,zoompan=z='min(zoom+0.0022,1.32)':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':d=660:s=1080x1920:fps=30", "sfx_cue": "[SFX: Ticking luxury chronograph countdown + tense cello ostinato]", "dialogue_lines": [{"speaker": "VICTORIA CROSS (Fake Chief Scientist)", "voice_archetype": "Baritone Arrogant Antagonist (ElevenLabs v3 `adam_imperial`)", "elevenlabs_v3_tags": ["[interrupting]", "[shouting]"], "tagged_line": "[interrupting] [shouting] Unknown to Victoria, the 'stolen' notebook on the podium was a honeytrap seeded with a deliberate mathematical flaw that only Founder Zero's private decryption key could expose.", "raw_line": "Unknown to Victoria, the 'stolen' notebook on the podium was a honeytrap seeded with a deliberate mathematical flaw that only Founder Zero's private decryption key could expose.", "est_duration_sec": 14.0}, {"speaker": "CHAIRMAN CHEN (Sovereign Bank Director)", "voice_archetype": "High-Tension Catalyst Witness (ElevenLabs v3 `serena_sharp`)", "elevenlabs_v3_tags": ["[gasps]", "[trembling]"], "tagged_line": "[gasps] [trembling] The sixty-second clock is live on the main board\u2014she's finished!", "raw_line": "The sixty-second clock is live on the main board\u2014she's finished!", "est_duration_sec": 8.0}], "on_screen_caption_hook": "[20s-42s] THE ESCALATION & DOUBLE-DOWN: Unknown to Victoria, the 'stolen' notebook on the podium was a honeytrap seeded with a d..."}, {"beat_number": 4, "beat_code": "BEAT_4_MICRO_PAYOFF_RECEIPT_DROP", "beat_name": "The Micro-Payoff / Receipt Drop", "start_sec": 42, "end_sec": 65, "duration_sec": 23, "dopamine_role": "First Dopamine Release (Status-Reversal Counter-Punch)", "tension_level_0_100": 93, "status_polarity": "COUNTER_PUNCH_RECEIPT", "camera_framing_9x16": "9:16 Forensic Receipt Macro Insert -> 3-Shot Rapid Reaction Montage (Antagonist Jaw Drop / VIP Bow / Protagonist Ice-Cold Stare)", "ffmpeg_filter_cmd": "scale=1080:1920,zoompan=z='max(1.36-0.0018*on,1.06)':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':d=690:s=1080x1920:fps=30", "sfx_cue": "[SFX: Digital wire-transfer chime + crowd gasp + camera shutter burst]", "dialogue_lines": [{"speaker": "ELENA VANCE (Secret Founder of Aegis Quantum)", "voice_archetype": "Ice-Calm Sovereign Lead (ElevenLabs v3 `elena_sovereign`)", "elevenlabs_v3_tags": ["[coldly]", "[smirking]"], "tagged_line": "[coldly] [smirking] Victoria doubled down in front of the press cameras, wagering her entire $80 million equity package and demanding Elena be handcuffed on live television within sixty seconds.", "raw_line": "Victoria doubled down in front of the press cameras, wagering her entire $80 million equity package and demanding Elena be handcuffed on live television within sixty seconds.", "est_duration_sec": 15.0}, {"speaker": "CHAIRMAN CHEN (Sovereign Bank Director)", "voice_archetype": "High-Tension Catalyst Witness (ElevenLabs v3 `serena_sharp`)", "elevenlabs_v3_tags": ["[gasps]", "[whispering]"], "tagged_line": "[gasps] [whispering] Look at the biometric terminal... Founder Zero is standing right in front of us!", "raw_line": "Look at the biometric terminal... Founder Zero is standing right in front of us!", "est_duration_sec": 8.0}], "on_screen_caption_hook": "[42s-65s] THE MICRO-PAYOFF / RECEIPT DROP: Victoria doubled down in front of the press cameras, wagering her entire $80 million equ..."}, {"beat_number": 5, "beat_code": "BEAT_5_TWIST_BETRAYAL_COMPLICATION", "beat_name": "The Twist / Betrayal Complication", "start_sec": 65, "end_sec": 82, "duration_sec": 17, "dopamine_role": "Rug-Pull / Secondary Adrenaline Spike", "tension_level_0_100": 96, "status_polarity": "RUG_PULL_TWIST", "camera_framing_9x16": "9:16 Heavy Double-Door Kick-Open Wide -> Rack Focus to Shadowy Newcomer Holding Sealed Red Folder", "ffmpeg_filter_cmd": "scale=1080:1920,zoompan=z='min(zoom+0.003,1.40)':x='iw/3-(iw/zoom/3)':y='ih/2-(ih/zoom/2)':d=510:s=1080x1920:fps=30", "sfx_cue": "[SFX: Heavy titanium bulkhead alarm + sudden sub-drop silence]", "dialogue_lines": [{"speaker": "CHAIRMAN CHEN (Sovereign Bank Director)", "voice_archetype": "High-Tension Catalyst Witness (ElevenLabs v3 `serena_sharp`)", "elevenlabs_v3_tags": ["[gasps]", "[trembling]"], "tagged_line": "[gasps] [trembling] Elena calmly keyed a six-digit override into the podium terminal, playing a timestamped HD audio recording of Victoria bribing the night janitor to plant the binder.", "raw_line": "Elena calmly keyed a six-digit override into the podium terminal, playing a timestamped HD audio recording of Victoria bribing the night janitor to plant the binder.", "est_duration_sec": 17.0}], "on_screen_caption_hook": "[65s-82s] THE TWIST / BETRAYAL COMPLICATION: Elena calmly keyed a six-digit override into the podium terminal, playing a timestamped ..."}, {"beat_number": 6, "beat_code": "BEAT_6_MID_SENTENCE_CLIFFHANGER", "beat_name": "The Unresolved Mid-Sentence Cliffhanger", "start_sec": 82, "end_sec": 90, "duration_sec": 8, "dopamine_role": "Zeigarnik Effect Open-Loop -> Forces Episode N+1 / Paywall Unlock", "tension_level_0_100": 100, "status_polarity": "OPEN_LOOP_PEAK", "camera_framing_9x16": "9:16 Extreme Macro on Trembling Hand / Phone Screen -> Hard Sub-Bass Drop + Instant Cut-to-Black at 89.8s", "ffmpeg_filter_cmd": "scale=1080:1920,zoompan=z='min(zoom+0.012,1.55)':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':d=240:s=1080x1920:fps=30", "sfx_cue": "[SFX: High-frequency riser cresting to 89.8s -> HARD CUT TO BLACK]", "dialogue_lines": [{"speaker": "ELENA VANCE (Secret Founder of Aegis Quantum)", "voice_archetype": "Ice-Calm Sovereign Lead (ElevenLabs v3 `elena_sovereign`)", "elevenlabs_v3_tags": ["[whispering]", "[gasps]", "[interrupting]"], "tagged_line": "[whispering] [gasps] [interrupting] The entire press corps gasped as Chairman Chen bowed ninety degrees to Elena and addressed her as 'Madam Chairwoman.' However, just as security reached for Victoria, Julian's father\u2014Patriarch Arthur Sterling\u2014strode in flanked by private mercenaries and held up a hospital life-support tablet showing Elena's younger brother in ICU\u2014Arthur smirked into the camera and whispered, 'Transfer the sovereign patent in ten seconds, Elena, or the ventilator in Room 402\u2014'", "raw_line": "The entire press corps gasped as Chairman Chen bowed ninety degrees to Elena and addressed her as 'Madam Chairwoman.' However, just as security reached for Victoria, Julian's father\u2014Patriarch Arthur Sterling\u2014strode in flanked by private mercenaries and held up a hospital life-support tablet showing Elena's younger brother in ICU\u2014Arthur smirked into the camera and whispered, 'Transfer the sovereign patent in ten seconds, Elena, or the ventilator in Room 402\u2014'", "est_duration_sec": 8.0}], "on_screen_caption_hook": "[82s-90s] THE UNRESOLVED MID-SENTENCE CLIFFHANGER: The entire press corps gasped as Chairman Chen bowed ninety degrees to Elena and address..."}], "elevenlabs_v3_api_payload": {"model_id": "eleven_v3_conversational_drama", "output_format": "mp3_44100_192", "loudness_normalization": "-14.0 LUFS (TikTok/Reels/ReelShort Master)", "multi_speaker_dialogue": [{"beat_number": 1, "timecode": "00:00-00:04", "speaker": "VICTORIA CROSS (Fake Chief Scientist)", "voice_archetype": "Baritone Arrogant Antagonist (ElevenLabs v3 `adam_imperial`)", "elevenlabs_v3_tags": ["[shouting]", "[coldly]"], "text_with_inline_audio_tags": "[shouting] [coldly] Victoria snatched the microphone and screamed, 'Officer, arrest Elena!"}, {"beat_number": 2, "timecode": "00:04-00:20", "speaker": "NARRATOR (INNER MONOLOGUE)", "voice_archetype": "Velvet Noir Narrator (ElevenLabs v3 `aria_noir`)", "elevenlabs_v3_tags": ["[whispering]", "[smirking]"], "text_with_inline_audio_tags": "[whispering] She stole my handwritten quantum neural formulas from the vault last night!' Julian sneered, ordering his bodyguards to rip the obsidian badge off Elena's lapel like a common thief. [smirking]"}, {"beat_number": 3, "timecode": "00:20-00:42", "speaker": "VICTORIA CROSS (Fake Chief Scientist)", "voice_archetype": "Baritone Arrogant Antagonist (ElevenLabs v3 `adam_imperial`)", "elevenlabs_v3_tags": ["[interrupting]", "[shouting]"], "text_with_inline_audio_tags": "[interrupting] [shouting] Unknown to Victoria, the 'stolen' notebook on the podium was a honeytrap seeded with a deliberate mathematical flaw that only Founder Zero's private decryption key could expose."}, {"beat_number": 3, "timecode": "00:20-00:42", "speaker": "CHAIRMAN CHEN (Sovereign Bank Director)", "voice_archetype": "High-Tension Catalyst Witness (ElevenLabs v3 `serena_sharp`)", "elevenlabs_v3_tags": ["[gasps]", "[trembling]"], "text_with_inline_audio_tags": "[gasps] [trembling] The sixty-second clock is live on the main board\u2014she's finished!"}, {"beat_number": 4, "timecode": "00:42-00:65", "speaker": "ELENA VANCE (Secret Founder of Aegis Quantum)", "voice_archetype": "Ice-Calm Sovereign Lead (ElevenLabs v3 `elena_sovereign`)", "elevenlabs_v3_tags": ["[coldly]", "[smirking]"], "text_with_inline_audio_tags": "[coldly] [smirking] Victoria doubled down in front of the press cameras, wagering her entire $80 million equity package and demanding Elena be handcuffed on live television within sixty seconds."}, {"beat_number": 4, "timecode": "00:42-00:65", "speaker": "CHAIRMAN CHEN (Sovereign Bank Director)", "voice_archetype": "High-Tension Catalyst Witness (ElevenLabs v3 `serena_sharp`)", "elevenlabs_v3_tags": ["[gasps]", "[whispering]"], "text_with_inline_audio_tags": "[gasps] [whispering] Look at the biometric terminal... Founder Zero is standing right in front of us!"}, {"beat_number": 5, "timecode": "00:65-00:82", "speaker": "CHAIRMAN CHEN (Sovereign Bank Director)", "voice_archetype": "High-Tension Catalyst Witness (ElevenLabs v3 `serena_sharp`)", "elevenlabs_v3_tags": ["[gasps]", "[trembling]"], "text_with_inline_audio_tags": "[gasps] [trembling] Elena calmly keyed a six-digit override into the podium terminal, playing a timestamped HD audio recording of Victoria bribing the night janitor to plant the binder."}, {"beat_number": 6, "timecode": "00:82-00:90", "speaker": "ELENA VANCE (Secret Founder of Aegis Quantum)", "voice_archetype": "Ice-Calm Sovereign Lead (ElevenLabs v3 `elena_sovereign`)", "elevenlabs_v3_tags": ["[whispering]", "[gasps]", "[interrupting]"], "text_with_inline_audio_tags": "[whispering] [gasps] [interrupting] The entire press corps gasped as Chairman Chen bowed ninety degrees to Elena and addressed her as 'Madam Chairwoman.' However, just as security reached for Victoria, Julian's father\u2014Patriarch Arthur Sterling\u2014strode in flanked by private mercenaries and held up a hospital life-support tablet showing Elena's younger brother in ICU\u2014Arthur smirked into the camera and whispered, 'Transfer the sovereign patent in ten seconds, Elena, or the ventilator in Room 402\u2014'"}]}, "push_notification_hook": "\ud83d\udd13 Episode 2 Cliffhanger at 01:29: The entire press corps gasped as Chairman Chen bowed ninety degrees to Elena and addressed her  \u2014 Tap to unlock Episode 3!"}, {"episode_number": 3, "episode_title": "Episode 3: Room 402 & The Helicopter Lockdown", "arc_role": "Free Funnel Hook Runway (Episode 3 of 4 Free)", "duration_sec": 90, "monetization_gate": "FREE_FUNNEL", "coin_unlock_cost": 0, "stripe_micro_unlock_usd": 0.0, "cliffhanger_archetype": "Emotional / High-Stakes Rescue Hook", "chapter_score": {"chapter_id": "ch_03_the_icu_bluff_override", "chapter_title": "Episode 3: Room 402 & The Helicopter Lockdown", "word_count": 191, "dopamine_tension_arc_score": 99.5, "status_reversal_density_score": 99.5, "open_loop_cliffhanger_score": 99.8, "composite_retention_score": 99.6, "predicted_3s_thumbstop_pct": 91.8, "predicted_60s_retention_pct": 87.9, "predicted_paywall_unlock_conv_pct": 26.43, "detected_signals": {"humiliation_triggers": ["slap", "beggar", "laugh", "mock", "humiliat", "knees"], "asymmetry_identity_triggers": ["secretly", "little did", "chairwoman", "sovereign", "encrypted", "alias", "99%", "controlling stake", "100%", "medical trust"], "escalation_stakes_triggers": ["countdown", "arrest", "hospital", "ten-second"], "receipt_payoff_triggers": ["madam chairwoman", "deed", "saluted", "arrested", "voice-print"], "twist_complication_triggers": ["suddenly"], "open_loop_cliffhanger_triggers": ["\u2014", "cabin and\u2014", "red alert"]}, "pacing_diagnostics": ["PASS [Beat 1 Status-Slap]: Detected 6 status-humiliation triggers (slap, beggar, laugh, mock) within cold open.", "PASS [Beat 2 -> Beat 4 Status Reversal]: Strong dramatic irony (secretly, little did, chairwoman) paired with receipt drop (madam chairwoman, deed, saluted).", "PASS [Beat 6 Zeigarnik Cut]: Chapter terminates mid-sentence on an em-dash/ellipsis revelation hook."]}, "beats": [{"beat_number": 1, "beat_code": "BEAT_1_STATUS_SLAP_HOOK", "beat_name": "The Humiliation / Status-Slap Hook", "start_sec": 0, "end_sec": 4, "duration_sec": 4, "dopamine_role": "Cortisol Spike / Moral Outrage Trigger", "tension_level_0_100": 84, "status_polarity": "ANTAGONIST_DOMINANT", "camera_framing_9x16": "9:16 Extreme Close-Up (ECU) Dutch-Angle Slap / Contract Throw -> Instant Whip-Zoom to Protagonist Eyes", "ffmpeg_filter_cmd": "scale=1080:1920,zoompan=z='min(zoom+0.008,1.38)':x='iw/2-(iw/zoom/2)':y='ih/3-(ih/zoom/3)':d=120:s=1080x1920:fps=30", "sfx_cue": "[SFX: Sharp glass shatter + sub-bass impact hit -14 LUFS]", "dialogue_lines": [{"speaker": "ARTHUR STERLING (Ruthless Conglomerate Patriarch)", "voice_archetype": "Baritone Arrogant Antagonist (ElevenLabs v3 `adam_imperial`)", "elevenlabs_v3_tags": ["[shouting]", "[coldly]"], "tagged_line": "[shouting] [coldly] Arthur Sterling slapped the digital transfer deed onto the glass table while the ICU monitor beeped on the screen. 'Sign away your 99% controlling stake right now, beggar girl, or my chief surgeon pulls the plug on your brother!' Julian laughed mockingly, thinking the Sterling family owned St.", "raw_line": "Arthur Sterling slapped the digital transfer deed onto the glass table while the ICU monitor beeped on the screen. 'Sign away your 99% controlling stake right now, beggar girl, or my chief surgeon pulls the plug on your brother!' Julian laughed mockingly, thinking the Sterling family owned St.", "est_duration_sec": 4.0}], "on_screen_caption_hook": "[00s-04s] THE HUMILIATION / STATUS-SLAP HOOK: Arthur Sterling slapped the digital transfer deed onto the glass table while the ICU mon..."}, {"beat_number": 2, "beat_code": "BEAT_2_HIDDEN_IDENTITY_ASYMMETRY", "beat_name": "The Hidden Identity / Asymmetry Setup", "start_sec": 4, "end_sec": 20, "duration_sec": 16, "dopamine_role": "Dramatic Irony & Superiority Loop", "tension_level_0_100": 72, "status_polarity": "ASYMMETRIC_SECRET", "camera_framing_9x16": "9:16 Vertical Split-Screen: Top 40% Antagonist Sneering / Bottom 60% Macro Insert of Encrypted Black-Card or Seal", "ffmpeg_filter_cmd": "scale=1080:1920,zoompan=z='1.18':x='iw/2-(iw/zoom/2)':y='(ih/4)+(ih/8)*(on/480)':d=480:s=1080x1920:fps=30", "sfx_cue": "[SFX: Low encrypted biometric hum + heartbeat pulse 72 BPM]", "dialogue_lines": [{"speaker": "NARRATOR (INNER MONOLOGUE)", "voice_archetype": "Velvet Noir Narrator (ElevenLabs v3 `aria_noir`)", "elevenlabs_v3_tags": ["[whispering]", "[smirking]"], "tagged_line": "[whispering] Jude Sovereign Hospital. Little did the Sterlings know, Elena had secretly acquired 100% of St. [smirking]", "raw_line": "Jude Sovereign Hospital. Little did the Sterlings know, Elena had secretly acquired 100% of St.", "est_duration_sec": 16.0}], "on_screen_caption_hook": "[04s-20s] THE HIDDEN IDENTITY / ASYMMETRY SETUP: Jude Sovereign Hospital. Little did the Sterlings know, Elena had secretly acquired 100%..."}, {"beat_number": 3, "beat_code": "BEAT_3_ESCALATION_DOUBLE_DOWN", "beat_name": "The Escalation & Double-Down", "start_sec": 20, "end_sec": 42, "duration_sec": 22, "dopamine_role": "Compression of Tension Spring (Financial / Emotional Stakes 10x)", "tension_level_0_100": 88, "status_polarity": "ANTAGONIST_OVERCOMMIT", "camera_framing_9x16": "9:16 Low-Angle Antagonist Dominance Push-In + Over-The-Shoulder (OTS) Crowd Whispering Reaction Cuts", "ffmpeg_filter_cmd": "scale=1080:1920,zoompan=z='min(zoom+0.0022,1.32)':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':d=660:s=1080x1920:fps=30", "sfx_cue": "[SFX: Ticking luxury chronograph countdown + tense cello ostinato]", "dialogue_lines": [{"speaker": "ARTHUR STERLING (Ruthless Conglomerate Patriarch)", "voice_archetype": "Baritone Arrogant Antagonist (ElevenLabs v3 `adam_imperial`)", "elevenlabs_v3_tags": ["[interrupting]", "[shouting]"], "tagged_line": "[interrupting] [shouting] Jude's parent medical trust six months ago under her offshore sovereign alias.", "raw_line": "Jude's parent medical trust six months ago under her offshore sovereign alias.", "est_duration_sec": 14.0}, {"speaker": "COMMANDER VEX (Sovereign Med-Evac Chief)", "voice_archetype": "High-Tension Catalyst Witness (ElevenLabs v3 `serena_sharp`)", "elevenlabs_v3_tags": ["[gasps]", "[trembling]"], "tagged_line": "[gasps] [trembling] The sixty-second clock is live on the main board\u2014she's finished!", "raw_line": "The sixty-second clock is live on the main board\u2014she's finished!", "est_duration_sec": 8.0}], "on_screen_caption_hook": "[20s-42s] THE ESCALATION & DOUBLE-DOWN: Jude's parent medical trust six months ago under her offshore sovereign alias...."}, {"beat_number": 4, "beat_code": "BEAT_4_MICRO_PAYOFF_RECEIPT_DROP", "beat_name": "The Micro-Payoff / Receipt Drop", "start_sec": 42, "end_sec": 65, "duration_sec": 23, "dopamine_role": "First Dopamine Release (Status-Reversal Counter-Punch)", "tension_level_0_100": 93, "status_polarity": "COUNTER_PUNCH_RECEIPT", "camera_framing_9x16": "9:16 Forensic Receipt Macro Insert -> 3-Shot Rapid Reaction Montage (Antagonist Jaw Drop / VIP Bow / Protagonist Ice-Cold Stare)", "ffmpeg_filter_cmd": "scale=1080:1920,zoompan=z='max(1.36-0.0018*on,1.06)':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':d=690:s=1080x1920:fps=30", "sfx_cue": "[SFX: Digital wire-transfer chime + crowd gasp + camera shutter burst]", "dialogue_lines": [{"speaker": "ELENA VANCE (Secret Founder of Aegis Quantum)", "voice_archetype": "Ice-Calm Sovereign Lead (ElevenLabs v3 `elena_sovereign`)", "elevenlabs_v3_tags": ["[coldly]", "[smirking]"], "tagged_line": "[coldly] [smirking] Arthur started a ten-second countdown, ordering the masked doctor on the video feed to disconnect the oxygen line while Victoria filmed Elena's humiliation. At second three, Elena spoke a single voice-print command into her collarbone mic; on the live screen, tactical med-evac guards breached Room 402 and arrested Arthur's corrupt surgeon on the spot.", "raw_line": "Arthur started a ten-second countdown, ordering the masked doctor on the video feed to disconnect the oxygen line while Victoria filmed Elena's humiliation. At second three, Elena spoke a single voice-print command into her collarbone mic; on the live screen, tactical med-evac guards breached Room 402 and arrested Arthur's corrupt surgeon on the spot.", "est_duration_sec": 15.0}, {"speaker": "COMMANDER VEX (Sovereign Med-Evac Chief)", "voice_archetype": "High-Tension Catalyst Witness (ElevenLabs v3 `serena_sharp`)", "elevenlabs_v3_tags": ["[gasps]", "[whispering]"], "tagged_line": "[gasps] [whispering] Look at the biometric terminal... Founder Zero is standing right in front of us!", "raw_line": "Look at the biometric terminal... Founder Zero is standing right in front of us!", "est_duration_sec": 8.0}], "on_screen_caption_hook": "[42s-65s] THE MICRO-PAYOFF / RECEIPT DROP: Arthur started a ten-second countdown, ordering the masked doctor on the video feed to d..."}, {"beat_number": 5, "beat_code": "BEAT_5_TWIST_BETRAYAL_COMPLICATION", "beat_name": "The Twist / Betrayal Complication", "start_sec": 65, "end_sec": 82, "duration_sec": 17, "dopamine_role": "Rug-Pull / Secondary Adrenaline Spike", "tension_level_0_100": 96, "status_polarity": "RUG_PULL_TWIST", "camera_framing_9x16": "9:16 Heavy Double-Door Kick-Open Wide -> Rack Focus to Shadowy Newcomer Holding Sealed Red Folder", "ffmpeg_filter_cmd": "scale=1080:1920,zoompan=z='min(zoom+0.003,1.40)':x='iw/3-(iw/zoom/3)':y='ih/2-(ih/zoom/2)':d=510:s=1080x1920:fps=30", "sfx_cue": "[SFX: Heavy titanium bulkhead alarm + sudden sub-drop silence]", "dialogue_lines": [{"speaker": "COMMANDER VEX (Sovereign Med-Evac Chief)", "voice_archetype": "High-Tension Catalyst Witness (ElevenLabs v3 `serena_sharp`)", "elevenlabs_v3_tags": ["[gasps]", "[trembling]"], "tagged_line": "[gasps] [trembling] Arthur's knees buckled as the hospital Chief of Staff saluted Elena through the monitor and confirmed her brother was already aboard an armored med-evac helicopter. Suddenly, Elena's encrypted phone flashed with a priority red alert from inside the helicopter cockpit\u2014Commander Vex's voice crackled through the speaker in panic: 'Madam Chairwoman, the pilot isn't one of ours!", "raw_line": "Arthur's knees buckled as the hospital Chief of Staff saluted Elena through the monitor and confirmed her brother was already aboard an armored med-evac helicopter. Suddenly, Elena's encrypted phone flashed with a priority red alert from inside the helicopter cockpit\u2014Commander Vex's voice crackled through the speaker in panic: 'Madam Chairwoman, the pilot isn't one of ours!", "est_duration_sec": 17.0}], "on_screen_caption_hook": "[65s-82s] THE TWIST / BETRAYAL COMPLICATION: Arthur's knees buckled as the hospital Chief of Staff saluted Elena through the monitor ..."}, {"beat_number": 6, "beat_code": "BEAT_6_MID_SENTENCE_CLIFFHANGER", "beat_name": "The Unresolved Mid-Sentence Cliffhanger", "start_sec": 82, "end_sec": 90, "duration_sec": 8, "dopamine_role": "Zeigarnik Effect Open-Loop -> Forces Episode N+1 / Paywall Unlock", "tension_level_0_100": 100, "status_polarity": "OPEN_LOOP_PEAK", "camera_framing_9x16": "9:16 Extreme Macro on Trembling Hand / Phone Screen -> Hard Sub-Bass Drop + Instant Cut-to-Black at 89.8s", "ffmpeg_filter_cmd": "scale=1080:1920,zoompan=z='min(zoom+0.012,1.55)':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':d=240:s=1080x1920:fps=30", "sfx_cue": "[SFX: High-frequency riser cresting to 89.8s -> HARD CUT TO BLACK]", "dialogue_lines": [{"speaker": "ELENA VANCE (Secret Founder of Aegis Quantum)", "voice_archetype": "Ice-Calm Sovereign Lead (ElevenLabs v3 `elena_sovereign`)", "elevenlabs_v3_tags": ["[whispering]", "[gasps]", "[interrupting]"], "tagged_line": "[whispering] [gasps] [interrupting] He just locked the cabin and\u2014'", "raw_line": "He just locked the cabin and\u2014'", "est_duration_sec": 8.0}], "on_screen_caption_hook": "[82s-90s] THE UNRESOLVED MID-SENTENCE CLIFFHANGER: He just locked the cabin and\u2014'..."}], "elevenlabs_v3_api_payload": {"model_id": "eleven_v3_conversational_drama", "output_format": "mp3_44100_192", "loudness_normalization": "-14.0 LUFS (TikTok/Reels/ReelShort Master)", "multi_speaker_dialogue": [{"beat_number": 1, "timecode": "00:00-00:04", "speaker": "ARTHUR STERLING (Ruthless Conglomerate Patriarch)", "voice_archetype": "Baritone Arrogant Antagonist (ElevenLabs v3 `adam_imperial`)", "elevenlabs_v3_tags": ["[shouting]", "[coldly]"], "text_with_inline_audio_tags": "[shouting] [coldly] Arthur Sterling slapped the digital transfer deed onto the glass table while the ICU monitor beeped on the screen. 'Sign away your 99% controlling stake right now, beggar girl, or my chief surgeon pulls the plug on your brother!' Julian laughed mockingly, thinking the Sterling family owned St."}, {"beat_number": 2, "timecode": "00:04-00:20", "speaker": "NARRATOR (INNER MONOLOGUE)", "voice_archetype": "Velvet Noir Narrator (ElevenLabs v3 `aria_noir`)", "elevenlabs_v3_tags": ["[whispering]", "[smirking]"], "text_with_inline_audio_tags": "[whispering] Jude Sovereign Hospital. Little did the Sterlings know, Elena had secretly acquired 100% of St. [smirking]"}, {"beat_number": 3, "timecode": "00:20-00:42", "speaker": "ARTHUR STERLING (Ruthless Conglomerate Patriarch)", "voice_archetype": "Baritone Arrogant Antagonist (ElevenLabs v3 `adam_imperial`)", "elevenlabs_v3_tags": ["[interrupting]", "[shouting]"], "text_with_inline_audio_tags": "[interrupting] [shouting] Jude's parent medical trust six months ago under her offshore sovereign alias."}, {"beat_number": 3, "timecode": "00:20-00:42", "speaker": "COMMANDER VEX (Sovereign Med-Evac Chief)", "voice_archetype": "High-Tension Catalyst Witness (ElevenLabs v3 `serena_sharp`)", "elevenlabs_v3_tags": ["[gasps]", "[trembling]"], "text_with_inline_audio_tags": "[gasps] [trembling] The sixty-second clock is live on the main board\u2014she's finished!"}, {"beat_number": 4, "timecode": "00:42-00:65", "speaker": "ELENA VANCE (Secret Founder of Aegis Quantum)", "voice_archetype": "Ice-Calm Sovereign Lead (ElevenLabs v3 `elena_sovereign`)", "elevenlabs_v3_tags": ["[coldly]", "[smirking]"], "text_with_inline_audio_tags": "[coldly] [smirking] Arthur started a ten-second countdown, ordering the masked doctor on the video feed to disconnect the oxygen line while Victoria filmed Elena's humiliation. At second three, Elena spoke a single voice-print command into her collarbone mic; on the live screen, tactical med-evac guards breached Room 402 and arrested Arthur's corrupt surgeon on the spot."}, {"beat_number": 4, "timecode": "00:42-00:65", "speaker": "COMMANDER VEX (Sovereign Med-Evac Chief)", "voice_archetype": "High-Tension Catalyst Witness (ElevenLabs v3 `serena_sharp`)", "elevenlabs_v3_tags": ["[gasps]", "[whispering]"], "text_with_inline_audio_tags": "[gasps] [whispering] Look at the biometric terminal... Founder Zero is standing right in front of us!"}, {"beat_number": 5, "timecode": "00:65-00:82", "speaker": "COMMANDER VEX (Sovereign Med-Evac Chief)", "voice_archetype": "High-Tension Catalyst Witness (ElevenLabs v3 `serena_sharp`)", "elevenlabs_v3_tags": ["[gasps]", "[trembling]"], "text_with_inline_audio_tags": "[gasps] [trembling] Arthur's knees buckled as the hospital Chief of Staff saluted Elena through the monitor and confirmed her brother was already aboard an armored med-evac helicopter. Suddenly, Elena's encrypted phone flashed with a priority red alert from inside the helicopter cockpit\u2014Commander Vex's voice crackled through the speaker in panic: 'Madam Chairwoman, the pilot isn't one of ours!"}, {"beat_number": 6, "timecode": "00:82-00:90", "speaker": "ELENA VANCE (Secret Founder of Aegis Quantum)", "voice_archetype": "Ice-Calm Sovereign Lead (ElevenLabs v3 `elena_sovereign`)", "elevenlabs_v3_tags": ["[whispering]", "[gasps]", "[interrupting]"], "text_with_inline_audio_tags": "[whispering] [gasps] [interrupting] He just locked the cabin and\u2014'"}]}, "push_notification_hook": "\ud83d\udd13 Episode 3 Cliffhanger at 01:29: He just locked the cabin and\u2014' \u2014 Tap to unlock Episode 4!"}, {"episode_number": 4, "episode_title": "Episode 4: The $2 Billion Margin Call on the Helipad", "arc_role": "Free Funnel Hook Runway (Episode 4 of 4 Free)", "duration_sec": 90, "monetization_gate": "FREE_FUNNEL", "coin_unlock_cost": 0, "stripe_micro_unlock_usd": 0.0, "cliffhanger_archetype": "Identity + Financial Ruin Hook", "chapter_score": {"chapter_id": "ch_04_the_sky_hijack_reversal", "chapter_title": "Episode 4: The $2 Billion Margin Call on the Helipad", "word_count": 210, "dopamine_tension_arc_score": 99.5, "status_reversal_density_score": 99.5, "open_loop_cliffhanger_score": 99.8, "composite_retention_score": 99.6, "predicted_3s_thumbstop_pct": 91.8, "predicted_60s_retention_pct": 87.9, "predicted_paywall_unlock_conv_pct": 26.43, "detected_signals": {"humiliation_triggers": ["divorce", "laugh", "mock", "stepped on", "intern", "knees"], "asymmetry_identity_triggers": ["unknown to", "sovereign", "heir", "undercover", "aviation marshal"], "escalation_stakes_triggers": ["billion", "contract", "bankrupt", "short position"], "receipt_payoff_triggers": ["audit", "ledger", "proof", "signature", "bankruptcy liquidation", "repo agents"], "twist_complication_triggers": ["however", "wait\u2014"], "open_loop_cliffhanger_triggers": ["\u2014", "it was\u2014", "birth certificate", "gasped"]}, "pacing_diagnostics": ["PASS [Beat 1 Status-Slap]: Detected 6 status-humiliation triggers (divorce, laugh, mock, stepped on) within cold open.", "PASS [Beat 2 -> Beat 4 Status Reversal]: Strong dramatic irony (unknown to, sovereign, heir) paired with receipt drop (audit, ledger, proof).", "PASS [Beat 6 Zeigarnik Cut]: Chapter terminates mid-sentence on an em-dash/ellipsis revelation hook."]}, "beats": [{"beat_number": 1, "beat_code": "BEAT_1_STATUS_SLAP_HOOK", "beat_name": "The Humiliation / Status-Slap Hook", "start_sec": 0, "end_sec": 4, "duration_sec": 4, "dopamine_role": "Cortisol Spike / Moral Outrage Trigger", "tension_level_0_100": 84, "status_polarity": "ANTAGONIST_DOMINANT", "camera_framing_9x16": "9:16 Extreme Close-Up (ECU) Dutch-Angle Slap / Contract Throw -> Instant Whip-Zoom to Protagonist Eyes", "ffmpeg_filter_cmd": "scale=1080:1920,zoompan=z='min(zoom+0.008,1.38)':x='iw/2-(iw/zoom/2)':y='ih/3-(ih/zoom/3)':d=120:s=1080x1920:fps=30", "sfx_cue": "[SFX: Sharp glass shatter + sub-bass impact hit -14 LUFS]", "dialogue_lines": [{"speaker": "JULIAN STERLING (Arrogant CEO Fianc\u00e9)", "voice_archetype": "Baritone Arrogant Antagonist (ElevenLabs v3 `adam_imperial`)", "elevenlabs_v3_tags": ["[shouting]", "[coldly]"], "tagged_line": "[shouting] [coldly] Julian grabbed Elena's wrist on the rooftop helipad, laughing hysterically as the helicopter hovered fifty feet above the glass parapet. 'My mercenary pilot won't land unless you wire two billion dollars to Sterling Holdings and burn the divorce audit!' Victoria mocked Elena, holding a lighter over the original prenuptial ledger.", "raw_line": "Julian grabbed Elena's wrist on the rooftop helipad, laughing hysterically as the helicopter hovered fifty feet above the glass parapet. 'My mercenary pilot won't land unless you wire two billion dollars to Sterling Holdings and burn the divorce audit!' Victoria mocked Elena, holding a lighter over the original prenuptial ledger.", "est_duration_sec": 4.0}], "on_screen_caption_hook": "[00s-04s] THE HUMILIATION / STATUS-SLAP HOOK: Julian grabbed Elena's wrist on the rooftop helipad, laughing hysterically as the helico..."}, {"beat_number": 2, "beat_code": "BEAT_2_HIDDEN_IDENTITY_ASYMMETRY", "beat_name": "The Hidden Identity / Asymmetry Setup", "start_sec": 4, "end_sec": 20, "duration_sec": 16, "dopamine_role": "Dramatic Irony & Superiority Loop", "tension_level_0_100": 72, "status_polarity": "ASYMMETRIC_SECRET", "camera_framing_9x16": "9:16 Vertical Split-Screen: Top 40% Antagonist Sneering / Bottom 60% Macro Insert of Encrypted Black-Card or Seal", "ffmpeg_filter_cmd": "scale=1080:1920,zoompan=z='1.18':x='iw/2-(iw/zoom/2)':y='(ih/4)+(ih/8)*(on/480)':d=480:s=1080x1920:fps=30", "sfx_cue": "[SFX: Low encrypted biometric hum + heartbeat pulse 72 BPM]", "dialogue_lines": [{"speaker": "NARRATOR (INNER MONOLOGUE)", "voice_archetype": "Velvet Noir Narrator (ElevenLabs v3 `aria_noir`)", "elevenlabs_v3_tags": ["[whispering]", "[smirking]"], "tagged_line": "[whispering] Unknown to Julian, the pilot in the cockpit was an undercover Sovereign Aviation Marshal who had already sedated the mercenary five minutes before takeoff. [smirking]", "raw_line": "Unknown to Julian, the pilot in the cockpit was an undercover Sovereign Aviation Marshal who had already sedated the mercenary five minutes before takeoff.", "est_duration_sec": 16.0}], "on_screen_caption_hook": "[04s-20s] THE HIDDEN IDENTITY / ASYMMETRY SETUP: Unknown to Julian, the pilot in the cockpit was an undercover Sovereign Aviation Marshal..."}, {"beat_number": 3, "beat_code": "BEAT_3_ESCALATION_DOUBLE_DOWN", "beat_name": "The Escalation & Double-Down", "start_sec": 20, "end_sec": 42, "duration_sec": 22, "dopamine_role": "Compression of Tension Spring (Financial / Emotional Stakes 10x)", "tension_level_0_100": 88, "status_polarity": "ANTAGONIST_OVERCOMMIT", "camera_framing_9x16": "9:16 Low-Angle Antagonist Dominance Push-In + Over-The-Shoulder (OTS) Crowd Whispering Reaction Cuts", "ffmpeg_filter_cmd": "scale=1080:1920,zoompan=z='min(zoom+0.0022,1.32)':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':d=660:s=1080x1920:fps=30", "sfx_cue": "[SFX: Ticking luxury chronograph countdown + tense cello ostinato]", "dialogue_lines": [{"speaker": "JULIAN STERLING (Arrogant CEO Fianc\u00e9)", "voice_archetype": "Baritone Arrogant Antagonist (ElevenLabs v3 `adam_imperial`)", "elevenlabs_v3_tags": ["[interrupting]", "[shouting]"], "tagged_line": "[interrupting] [shouting] Julian screamed into his radio for the pilot to bank toward international waters, betting every last cent of Sterling Holdings on a leveraged short position against Aegis Quantum.", "raw_line": "Julian screamed into his radio for the pilot to bank toward international waters, betting every last cent of Sterling Holdings on a leveraged short position against Aegis Quantum.", "est_duration_sec": 14.0}, {"speaker": "AUDITOR KANE (SEC & Sovereign Clearing Director)", "voice_archetype": "High-Tension Catalyst Witness (ElevenLabs v3 `serena_sharp`)", "elevenlabs_v3_tags": ["[gasps]", "[trembling]"], "tagged_line": "[gasps] [trembling] The sixty-second clock is live on the main board\u2014she's finished!", "raw_line": "The sixty-second clock is live on the main board\u2014she's finished!", "est_duration_sec": 8.0}], "on_screen_caption_hook": "[20s-42s] THE ESCALATION & DOUBLE-DOWN: Julian screamed into his radio for the pilot to bank toward international waters, bettin..."}, {"beat_number": 4, "beat_code": "BEAT_4_MICRO_PAYOFF_RECEIPT_DROP", "beat_name": "The Micro-Payoff / Receipt Drop", "start_sec": 42, "end_sec": 65, "duration_sec": 23, "dopamine_role": "First Dopamine Release (Status-Reversal Counter-Punch)", "tension_level_0_100": 93, "status_polarity": "COUNTER_PUNCH_RECEIPT", "camera_framing_9x16": "9:16 Forensic Receipt Macro Insert -> 3-Shot Rapid Reaction Montage (Antagonist Jaw Drop / VIP Bow / Protagonist Ice-Cold Stare)", "ffmpeg_filter_cmd": "scale=1080:1920,zoompan=z='max(1.36-0.0018*on,1.06)':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':d=690:s=1080x1920:fps=30", "sfx_cue": "[SFX: Digital wire-transfer chime + crowd gasp + camera shutter burst]", "dialogue_lines": [{"speaker": "ELENA VANCE (Secret Founder of Aegis Quantum)", "voice_archetype": "Ice-Calm Sovereign Lead (ElevenLabs v3 `elena_sovereign`)", "elevenlabs_v3_tags": ["[coldly]", "[smirking]"], "tagged_line": "[coldly] [smirking] The helicopter hatch slid open, and instead of a mercenary, Auditor Kane stepped onto the helipad while the rooftop trading screen showed Sterling Holdings hitting total bankruptcy liquidation.", "raw_line": "The helicopter hatch slid open, and instead of a mercenary, Auditor Kane stepped onto the helipad while the rooftop trading screen showed Sterling Holdings hitting total bankruptcy liquidation.", "est_duration_sec": 15.0}, {"speaker": "AUDITOR KANE (SEC & Sovereign Clearing Director)", "voice_archetype": "High-Tension Catalyst Witness (ElevenLabs v3 `serena_sharp`)", "elevenlabs_v3_tags": ["[gasps]", "[whispering]"], "tagged_line": "[gasps] [whispering] Look at the biometric terminal... Founder Zero is standing right in front of us!", "raw_line": "Look at the biometric terminal... Founder Zero is standing right in front of us!", "est_duration_sec": 8.0}], "on_screen_caption_hook": "[42s-65s] THE MICRO-PAYOFF / RECEIPT DROP: The helicopter hatch slid open, and instead of a mercenary, Auditor Kane stepped onto th..."}, {"beat_number": 5, "beat_code": "BEAT_5_TWIST_BETRAYAL_COMPLICATION", "beat_name": "The Twist / Betrayal Complication", "start_sec": 65, "end_sec": 82, "duration_sec": 17, "dopamine_role": "Rug-Pull / Secondary Adrenaline Spike", "tension_level_0_100": 96, "status_polarity": "RUG_PULL_TWIST", "camera_framing_9x16": "9:16 Heavy Double-Door Kick-Open Wide -> Rack Focus to Shadowy Newcomer Holding Sealed Red Folder", "ffmpeg_filter_cmd": "scale=1080:1920,zoompan=z='min(zoom+0.003,1.40)':x='iw/3-(iw/zoom/3)':y='ih/2-(ih/zoom/2)':d=510:s=1080x1920:fps=30", "sfx_cue": "[SFX: Heavy titanium bulkhead alarm + sudden sub-drop silence]", "dialogue_lines": [{"speaker": "AUDITOR KANE (SEC & Sovereign Clearing Director)", "voice_archetype": "High-Tension Catalyst Witness (ElevenLabs v3 `serena_sharp`)", "elevenlabs_v3_tags": ["[gasps]", "[trembling]"], "tagged_line": "[gasps] [trembling] Julian collapsed to his knees in the rain, begging Elena to remember their three years of marriage as repo agents seized his Maybach keys.", "raw_line": "Julian collapsed to his knees in the rain, begging Elena to remember their three years of marriage as repo agents seized his Maybach keys.", "est_duration_sec": 17.0}], "on_screen_caption_hook": "[65s-82s] THE TWIST / BETRAYAL COMPLICATION: Julian collapsed to his knees in the rain, begging Elena to remember their three years o..."}, {"beat_number": 6, "beat_code": "BEAT_6_MID_SENTENCE_CLIFFHANGER", "beat_name": "The Unresolved Mid-Sentence Cliffhanger", "start_sec": 82, "end_sec": 90, "duration_sec": 8, "dopamine_role": "Zeigarnik Effect Open-Loop -> Forces Episode N+1 / Paywall Unlock", "tension_level_0_100": 100, "status_polarity": "OPEN_LOOP_PEAK", "camera_framing_9x16": "9:16 Extreme Macro on Trembling Hand / Phone Screen -> Hard Sub-Bass Drop + Instant Cut-to-Black at 89.8s", "ffmpeg_filter_cmd": "scale=1080:1920,zoompan=z='min(zoom+0.012,1.55)':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':d=240:s=1080x1920:fps=30", "sfx_cue": "[SFX: High-frequency riser cresting to 89.8s -> HARD CUT TO BLACK]", "dialogue_lines": [{"speaker": "ELENA VANCE (Secret Founder of Aegis Quantum)", "voice_archetype": "Ice-Calm Sovereign Lead (ElevenLabs v3 `elena_sovereign`)", "elevenlabs_v3_tags": ["[whispering]", "[gasps]", "[interrupting]"], "tagged_line": "[whispering] [gasps] [interrupting] However, as Elena opened the recovered fireproof vault box from the helicopter, she found a blood-stained 1998 birth certificate and a second marriage contract signed in her late mother's name\u2014Elena gasped as she read the biological father's signature at the bottom of the page: 'Wait\u2014the man who ordered my mother's crash wasn't Arthur Sterling, it was\u2014'", "raw_line": "However, as Elena opened the recovered fireproof vault box from the helicopter, she found a blood-stained 1998 birth certificate and a second marriage contract signed in her late mother's name\u2014Elena gasped as she read the biological father's signature at the bottom of the page: 'Wait\u2014the man who ordered my mother's crash wasn't Arthur Sterling, it was\u2014'", "est_duration_sec": 8.0}], "on_screen_caption_hook": "[82s-90s] THE UNRESOLVED MID-SENTENCE CLIFFHANGER: However, as Elena opened the recovered fireproof vault box from the helicopter, she foun..."}], "elevenlabs_v3_api_payload": {"model_id": "eleven_v3_conversational_drama", "output_format": "mp3_44100_192", "loudness_normalization": "-14.0 LUFS (TikTok/Reels/ReelShort Master)", "multi_speaker_dialogue": [{"beat_number": 1, "timecode": "00:00-00:04", "speaker": "JULIAN STERLING (Arrogant CEO Fianc\u00e9)", "voice_archetype": "Baritone Arrogant Antagonist (ElevenLabs v3 `adam_imperial`)", "elevenlabs_v3_tags": ["[shouting]", "[coldly]"], "text_with_inline_audio_tags": "[shouting] [coldly] Julian grabbed Elena's wrist on the rooftop helipad, laughing hysterically as the helicopter hovered fifty feet above the glass parapet. 'My mercenary pilot won't land unless you wire two billion dollars to Sterling Holdings and burn the divorce audit!' Victoria mocked Elena, holding a lighter over the original prenuptial ledger."}, {"beat_number": 2, "timecode": "00:04-00:20", "speaker": "NARRATOR (INNER MONOLOGUE)", "voice_archetype": "Velvet Noir Narrator (ElevenLabs v3 `aria_noir`)", "elevenlabs_v3_tags": ["[whispering]", "[smirking]"], "text_with_inline_audio_tags": "[whispering] Unknown to Julian, the pilot in the cockpit was an undercover Sovereign Aviation Marshal who had already sedated the mercenary five minutes before takeoff. [smirking]"}, {"beat_number": 3, "timecode": "00:20-00:42", "speaker": "JULIAN STERLING (Arrogant CEO Fianc\u00e9)", "voice_archetype": "Baritone Arrogant Antagonist (ElevenLabs v3 `adam_imperial`)", "elevenlabs_v3_tags": ["[interrupting]", "[shouting]"], "text_with_inline_audio_tags": "[interrupting] [shouting] Julian screamed into his radio for the pilot to bank toward international waters, betting every last cent of Sterling Holdings on a leveraged short position against Aegis Quantum."}, {"beat_number": 3, "timecode": "00:20-00:42", "speaker": "AUDITOR KANE (SEC & Sovereign Clearing Director)", "voice_archetype": "High-Tension Catalyst Witness (ElevenLabs v3 `serena_sharp`)", "elevenlabs_v3_tags": ["[gasps]", "[trembling]"], "text_with_inline_audio_tags": "[gasps] [trembling] The sixty-second clock is live on the main board\u2014she's finished!"}, {"beat_number": 4, "timecode": "00:42-00:65", "speaker": "ELENA VANCE (Secret Founder of Aegis Quantum)", "voice_archetype": "Ice-Calm Sovereign Lead (ElevenLabs v3 `elena_sovereign`)", "elevenlabs_v3_tags": ["[coldly]", "[smirking]"], "text_with_inline_audio_tags": "[coldly] [smirking] The helicopter hatch slid open, and instead of a mercenary, Auditor Kane stepped onto the helipad while the rooftop trading screen showed Sterling Holdings hitting total bankruptcy liquidation."}, {"beat_number": 4, "timecode": "00:42-00:65", "speaker": "AUDITOR KANE (SEC & Sovereign Clearing Director)", "voice_archetype": "High-Tension Catalyst Witness (ElevenLabs v3 `serena_sharp`)", "elevenlabs_v3_tags": ["[gasps]", "[whispering]"], "text_with_inline_audio_tags": "[gasps] [whispering] Look at the biometric terminal... Founder Zero is standing right in front of us!"}, {"beat_number": 5, "timecode": "00:65-00:82", "speaker": "AUDITOR KANE (SEC & Sovereign Clearing Director)", "voice_archetype": "High-Tension Catalyst Witness (ElevenLabs v3 `serena_sharp`)", "elevenlabs_v3_tags": ["[gasps]", "[trembling]"], "text_with_inline_audio_tags": "[gasps] [trembling] Julian collapsed to his knees in the rain, begging Elena to remember their three years of marriage as repo agents seized his Maybach keys."}, {"beat_number": 6, "timecode": "00:82-00:90", "speaker": "ELENA VANCE (Secret Founder of Aegis Quantum)", "voice_archetype": "Ice-Calm Sovereign Lead (ElevenLabs v3 `elena_sovereign`)", "elevenlabs_v3_tags": ["[whispering]", "[gasps]", "[interrupting]"], "text_with_inline_audio_tags": "[whispering] [gasps] [interrupting] However, as Elena opened the recovered fireproof vault box from the helicopter, she found a blood-stained 1998 birth certificate and a second marriage contract signed in her late mother's name\u2014Elena gasped as she read the biological father's signature at the bottom of the page: 'Wait\u2014the man who ordered my mother's crash wasn't Arthur Sterling, it was\u2014'"}]}, "push_notification_hook": "\ud83d\udd13 Episode 4 Cliffhanger at 01:29: However, as Elena opened the recovered fireproof vault box from the helicopter, she found a blo \u2014 Tap to unlock Episode 5!"}, {"episode_number": 5, "episode_title": "Episode 5 [SOFT GATE]: The Masked Benefactor in the Boardroom", "arc_role": "Episode 5 Soft Gate (Watch 1 Rewarded Ad / Capture SMS-Email or 15 Coins)", "duration_sec": 90, "monetization_gate": "SOFT_AD_OR_EMAIL_GATE", "coin_unlock_cost": 15, "stripe_micro_unlock_usd": 0.49, "cliffhanger_archetype": "Deep Betrayal / Pre-Paywall Escalation Hook", "chapter_score": {"chapter_id": "ch_05_the_soft_gate_bloodline_betrayal", "chapter_title": "Episode 5 [SOFT GATE]: The Masked Benefactor in the Boardroom", "word_count": 206, "dopamine_tension_arc_score": 88.5, "status_reversal_density_score": 99.5, "open_loop_cliffhanger_score": 99.8, "composite_retention_score": 96.1, "predicted_3s_thumbstop_pct": 88.1, "predicted_60s_retention_pct": 86.6, "predicted_paywall_unlock_conv_pct": 28.5, "detected_signals": {"humiliation_triggers": ["security", "laugh"], "asymmetry_identity_triggers": ["little did", "chairman", "sovereign", "master encryption"], "escalation_stakes_triggers": ["million", "immunity"], "receipt_payoff_triggers": ["wire transfer", "ledger", "biometric", "seal", "chimed green"], "twist_complication_triggers": ["suddenly"], "open_loop_cliffhanger_triggers": ["\u2014", "chair zero\u2014", "vault door", "gasped"]}, "pacing_diagnostics": ["PASS [Beat 1 Status-Slap]: Detected 2 status-humiliation triggers (security, laugh) within cold open.", "PASS [Beat 2 -> Beat 4 Status Reversal]: Strong dramatic irony (little did, chairman, sovereign) paired with receipt drop (wire transfer, ledger, biometric).", "PASS [Beat 6 Zeigarnik Cut]: Chapter terminates mid-sentence on an em-dash/ellipsis revelation hook."]}, "beats": [{"beat_number": 1, "beat_code": "BEAT_1_STATUS_SLAP_HOOK", "beat_name": "The Humiliation / Status-Slap Hook", "start_sec": 0, "end_sec": 4, "duration_sec": 4, "dopamine_role": "Cortisol Spike / Moral Outrage Trigger", "tension_level_0_100": 84, "status_polarity": "ANTAGONIST_DOMINANT", "camera_framing_9x16": "9:16 Extreme Close-Up (ECU) Dutch-Angle Slap / Contract Throw -> Instant Whip-Zoom to Protagonist Eyes", "ffmpeg_filter_cmd": "scale=1080:1920,zoompan=z='min(zoom+0.008,1.38)':x='iw/2-(iw/zoom/2)':y='ih/3-(ih/zoom/3)':d=120:s=1080x1920:fps=30", "sfx_cue": "[SFX: Sharp glass shatter + sub-bass impact hit -14 LUFS]", "dialogue_lines": [{"speaker": "CHAIRMAN CHEN (Suspected Double Agent)", "voice_archetype": "Baritone Arrogant Antagonist (ElevenLabs v3 `adam_imperial`)", "elevenlabs_v3_tags": ["[shouting]", "[coldly]"], "tagged_line": "[shouting] [coldly] Inside the 88th-floor sovereign vault, Victoria lunged from the shadows with a stolen taser, screaming, 'If I go to prison, you're coming to hell with me, Elena!' Security tackled Victoria to the floor, tearing off her diamond necklace to reveal a hidden micro-transmitter wired directly to the Sterling offshore syndicate. Little did anyone in the boardroom suspect, the transmitter's master encryption frequency matched the private ring worn by Elena's most trusted ally, Chairman Chen.", "raw_line": "Inside the 88th-floor sovereign vault, Victoria lunged from the shadows with a stolen taser, screaming, 'If I go to prison, you're coming to hell with me, Elena!' Security tackled Victoria to the floor, tearing off her diamond necklace to reveal a hidden micro-transmitter wired directly to the Sterling offshore syndicate. Little did anyone in the boardroom suspect, the transmitter's master encryption frequency matched the private ring worn by Elena's most trusted ally, Chairman Chen.", "est_duration_sec": 4.0}], "on_screen_caption_hook": "[00s-04s] THE HUMILIATION / STATUS-SLAP HOOK: Inside the 88th-floor sovereign vault, Victoria lunged from the shadows with a stolen ta..."}, {"beat_number": 2, "beat_code": "BEAT_2_HIDDEN_IDENTITY_ASYMMETRY", "beat_name": "The Hidden Identity / Asymmetry Setup", "start_sec": 4, "end_sec": 20, "duration_sec": 16, "dopamine_role": "Dramatic Irony & Superiority Loop", "tension_level_0_100": 72, "status_polarity": "ASYMMETRIC_SECRET", "camera_framing_9x16": "9:16 Vertical Split-Screen: Top 40% Antagonist Sneering / Bottom 60% Macro Insert of Encrypted Black-Card or Seal", "ffmpeg_filter_cmd": "scale=1080:1920,zoompan=z='1.18':x='iw/2-(iw/zoom/2)':y='(ih/4)+(ih/8)*(on/480)':d=480:s=1080x1920:fps=30", "sfx_cue": "[SFX: Low encrypted biometric hum + heartbeat pulse 72 BPM]", "dialogue_lines": [{"speaker": "NARRATOR (INNER MONOLOGUE)", "voice_archetype": "Velvet Noir Narrator (ElevenLabs v3 `aria_noir`)", "elevenlabs_v3_tags": ["[whispering]", "[smirking]"], "tagged_line": "[whispering] Julian, now in handcuffs, shouted that the secret mastermind who bankrolled the entire plot against Elena was sitting at the head of the table right now, offering to trade the name for immunity. [smirking]", "raw_line": "Julian, now in handcuffs, shouted that the secret mastermind who bankrolled the entire plot against Elena was sitting at the head of the table right now, offering to trade the name for immunity.", "est_duration_sec": 16.0}], "on_screen_caption_hook": "[04s-20s] THE HIDDEN IDENTITY / ASYMMETRY SETUP: Julian, now in handcuffs, shouted that the secret mastermind who bankrolled the entire p..."}, {"beat_number": 3, "beat_code": "BEAT_3_ESCALATION_DOUBLE_DOWN", "beat_name": "The Escalation & Double-Down", "start_sec": 20, "end_sec": 42, "duration_sec": 22, "dopamine_role": "Compression of Tension Spring (Financial / Emotional Stakes 10x)", "tension_level_0_100": 88, "status_polarity": "ANTAGONIST_OVERCOMMIT", "camera_framing_9x16": "9:16 Low-Angle Antagonist Dominance Push-In + Over-The-Shoulder (OTS) Crowd Whispering Reaction Cuts", "ffmpeg_filter_cmd": "scale=1080:1920,zoompan=z='min(zoom+0.0022,1.32)':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':d=660:s=1080x1920:fps=30", "sfx_cue": "[SFX: Ticking luxury chronograph countdown + tense cello ostinato]", "dialogue_lines": [{"speaker": "CHAIRMAN CHEN (Suspected Double Agent)", "voice_archetype": "Baritone Arrogant Antagonist (ElevenLabs v3 `adam_imperial`)", "elevenlabs_v3_tags": ["[interrupting]", "[shouting]"], "tagged_line": "[interrupting] [shouting] Elena projected the 1998 wire transfer ledger onto the glass table, proving $500 million had flowed from the crash insurance payout directly into Vault Account #001.", "raw_line": "Elena projected the 1998 wire transfer ledger onto the glass table, proving $500 million had flowed from the crash insurance payout directly into Vault Account #001.", "est_duration_sec": 14.0}, {"speaker": "THE VOICE IN THE VAULT (Unknown Sovereign Zero)", "voice_archetype": "High-Tension Catalyst Witness (ElevenLabs v3 `serena_sharp`)", "elevenlabs_v3_tags": ["[gasps]", "[trembling]"], "tagged_line": "[gasps] [trembling] The sixty-second clock is live on the main board\u2014she's finished!", "raw_line": "The sixty-second clock is live on the main board\u2014she's finished!", "est_duration_sec": 8.0}], "on_screen_caption_hook": "[20s-42s] THE ESCALATION & DOUBLE-DOWN: Elena projected the 1998 wire transfer ledger onto the glass table, proving $500 million..."}, {"beat_number": 4, "beat_code": "BEAT_4_MICRO_PAYOFF_RECEIPT_DROP", "beat_name": "The Micro-Payoff / Receipt Drop", "start_sec": 42, "end_sec": 65, "duration_sec": 23, "dopamine_role": "First Dopamine Release (Status-Reversal Counter-Punch)", "tension_level_0_100": 93, "status_polarity": "COUNTER_PUNCH_RECEIPT", "camera_framing_9x16": "9:16 Forensic Receipt Macro Insert -> 3-Shot Rapid Reaction Montage (Antagonist Jaw Drop / VIP Bow / Protagonist Ice-Cold Stare)", "ffmpeg_filter_cmd": "scale=1080:1920,zoompan=z='max(1.36-0.0018*on,1.06)':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':d=690:s=1080x1920:fps=30", "sfx_cue": "[SFX: Digital wire-transfer chime + crowd gasp + camera shutter burst]", "dialogue_lines": [{"speaker": "ELENA VANCE (Secret Founder of Aegis Quantum)", "voice_archetype": "Ice-Calm Sovereign Lead (ElevenLabs v3 `elena_sovereign`)", "elevenlabs_v3_tags": ["[coldly]", "[smirking]"], "tagged_line": "[coldly] [smirking] Every director gasped as the biometric scanner on Vault #001 chimed green\u2014triggered by someone currently standing inside the locked room. Suddenly, the titanium blast doors sealed shut, oxygen vents hissed with white sedative mist, and a synthesized voice echoed from the ceiling speakers\u2014the voice laughed coldly as the vault door slowly swung open: 'Hello, Elena.", "raw_line": "Every director gasped as the biometric scanner on Vault #001 chimed green\u2014triggered by someone currently standing inside the locked room. Suddenly, the titanium blast doors sealed shut, oxygen vents hissed with white sedative mist, and a synthesized voice echoed from the ceiling speakers\u2014the voice laughed coldly as the vault door slowly swung open: 'Hello, Elena.", "est_duration_sec": 15.0}, {"speaker": "THE VOICE IN THE VAULT (Unknown Sovereign Zero)", "voice_archetype": "High-Tension Catalyst Witness (ElevenLabs v3 `serena_sharp`)", "elevenlabs_v3_tags": ["[gasps]", "[whispering]"], "tagged_line": "[gasps] [whispering] Look at the biometric terminal... Founder Zero is standing right in front of us!", "raw_line": "Look at the biometric terminal... Founder Zero is standing right in front of us!", "est_duration_sec": 8.0}], "on_screen_caption_hook": "[42s-65s] THE MICRO-PAYOFF / RECEIPT DROP: Every director gasped as the biometric scanner on Vault #001 chimed green\u2014triggered by s..."}, {"beat_number": 5, "beat_code": "BEAT_5_TWIST_BETRAYAL_COMPLICATION", "beat_name": "The Twist / Betrayal Complication", "start_sec": 65, "end_sec": 82, "duration_sec": 17, "dopamine_role": "Rug-Pull / Secondary Adrenaline Spike", "tension_level_0_100": 96, "status_polarity": "RUG_PULL_TWIST", "camera_framing_9x16": "9:16 Heavy Double-Door Kick-Open Wide -> Rack Focus to Shadowy Newcomer Holding Sealed Red Folder", "ffmpeg_filter_cmd": "scale=1080:1920,zoompan=z='min(zoom+0.003,1.40)':x='iw/3-(iw/zoom/3)':y='ih/2-(ih/zoom/2)':d=510:s=1080x1920:fps=30", "sfx_cue": "[SFX: Heavy titanium bulkhead alarm + sudden sub-drop silence]", "dialogue_lines": [{"speaker": "THE VOICE IN THE VAULT (Unknown Sovereign Zero)", "voice_archetype": "High-Tension Catalyst Witness (ElevenLabs v3 `serena_sharp`)", "elevenlabs_v3_tags": ["[gasps]", "[trembling]"], "tagged_line": "[gasps] [trembling] Did you really think your mother died in that crash?", "raw_line": "Did you really think your mother died in that crash?", "est_duration_sec": 17.0}], "on_screen_caption_hook": "[65s-82s] THE TWIST / BETRAYAL COMPLICATION: Did you really think your mother died in that crash?..."}, {"beat_number": 6, "beat_code": "BEAT_6_MID_SENTENCE_CLIFFHANGER", "beat_name": "The Unresolved Mid-Sentence Cliffhanger", "start_sec": 82, "end_sec": 90, "duration_sec": 8, "dopamine_role": "Zeigarnik Effect Open-Loop -> Forces Episode N+1 / Paywall Unlock", "tension_level_0_100": 100, "status_polarity": "OPEN_LOOP_PEAK", "camera_framing_9x16": "9:16 Extreme Macro on Trembling Hand / Phone Screen -> Hard Sub-Bass Drop + Instant Cut-to-Black at 89.8s", "ffmpeg_filter_cmd": "scale=1080:1920,zoompan=z='min(zoom+0.012,1.55)':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':d=240:s=1080x1920:fps=30", "sfx_cue": "[SFX: High-frequency riser cresting to 89.8s -> HARD CUT TO BLACK]", "dialogue_lines": [{"speaker": "ELENA VANCE (Secret Founder of Aegis Quantum)", "voice_archetype": "Ice-Calm Sovereign Lead (ElevenLabs v3 `elena_sovereign`)", "elevenlabs_v3_tags": ["[whispering]", "[gasps]", "[interrupting]"], "tagged_line": "[whispering] [gasps] [interrupting] Look at who is sitting in Chair Zero\u2014'", "raw_line": "Look at who is sitting in Chair Zero\u2014'", "est_duration_sec": 8.0}], "on_screen_caption_hook": "[82s-90s] THE UNRESOLVED MID-SENTENCE CLIFFHANGER: Look at who is sitting in Chair Zero\u2014'..."}], "elevenlabs_v3_api_payload": {"model_id": "eleven_v3_conversational_drama", "output_format": "mp3_44100_192", "loudness_normalization": "-14.0 LUFS (TikTok/Reels/ReelShort Master)", "multi_speaker_dialogue": [{"beat_number": 1, "timecode": "00:00-00:04", "speaker": "CHAIRMAN CHEN (Suspected Double Agent)", "voice_archetype": "Baritone Arrogant Antagonist (ElevenLabs v3 `adam_imperial`)", "elevenlabs_v3_tags": ["[shouting]", "[coldly]"], "text_with_inline_audio_tags": "[shouting] [coldly] Inside the 88th-floor sovereign vault, Victoria lunged from the shadows with a stolen taser, screaming, 'If I go to prison, you're coming to hell with me, Elena!' Security tackled Victoria to the floor, tearing off her diamond necklace to reveal a hidden micro-transmitter wired directly to the Sterling offshore syndicate. Little did anyone in the boardroom suspect, the transmitter's master encryption frequency matched the private ring worn by Elena's most trusted ally, Chairman Chen."}, {"beat_number": 2, "timecode": "00:04-00:20", "speaker": "NARRATOR (INNER MONOLOGUE)", "voice_archetype": "Velvet Noir Narrator (ElevenLabs v3 `aria_noir`)", "elevenlabs_v3_tags": ["[whispering]", "[smirking]"], "text_with_inline_audio_tags": "[whispering] Julian, now in handcuffs, shouted that the secret mastermind who bankrolled the entire plot against Elena was sitting at the head of the table right now, offering to trade the name for immunity. [smirking]"}, {"beat_number": 3, "timecode": "00:20-00:42", "speaker": "CHAIRMAN CHEN (Suspected Double Agent)", "voice_archetype": "Baritone Arrogant Antagonist (ElevenLabs v3 `adam_imperial`)", "elevenlabs_v3_tags": ["[interrupting]", "[shouting]"], "text_with_inline_audio_tags": "[interrupting] [shouting] Elena projected the 1998 wire transfer ledger onto the glass table, proving $500 million had flowed from the crash insurance payout directly into Vault Account #001."}, {"beat_number": 3, "timecode": "00:20-00:42", "speaker": "THE VOICE IN THE VAULT (Unknown Sovereign Zero)", "voice_archetype": "High-Tension Catalyst Witness (ElevenLabs v3 `serena_sharp`)", "elevenlabs_v3_tags": ["[gasps]", "[trembling]"], "text_with_inline_audio_tags": "[gasps] [trembling] The sixty-second clock is live on the main board\u2014she's finished!"}, {"beat_number": 4, "timecode": "00:42-00:65", "speaker": "ELENA VANCE (Secret Founder of Aegis Quantum)", "voice_archetype": "Ice-Calm Sovereign Lead (ElevenLabs v3 `elena_sovereign`)", "elevenlabs_v3_tags": ["[coldly]", "[smirking]"], "text_with_inline_audio_tags": "[coldly] [smirking] Every director gasped as the biometric scanner on Vault #001 chimed green\u2014triggered by someone currently standing inside the locked room. Suddenly, the titanium blast doors sealed shut, oxygen vents hissed with white sedative mist, and a synthesized voice echoed from the ceiling speakers\u2014the voice laughed coldly as the vault door slowly swung open: 'Hello, Elena."}, {"beat_number": 4, "timecode": "00:42-00:65", "speaker": "THE VOICE IN THE VAULT (Unknown Sovereign Zero)", "voice_archetype": "High-Tension Catalyst Witness (ElevenLabs v3 `serena_sharp`)", "elevenlabs_v3_tags": ["[gasps]", "[whispering]"], "text_with_inline_audio_tags": "[gasps] [whispering] Look at the biometric terminal... Founder Zero is standing right in front of us!"}, {"beat_number": 5, "timecode": "00:65-00:82", "speaker": "THE VOICE IN THE VAULT (Unknown Sovereign Zero)", "voice_archetype": "High-Tension Catalyst Witness (ElevenLabs v3 `serena_sharp`)", "elevenlabs_v3_tags": ["[gasps]", "[trembling]"], "text_with_inline_audio_tags": "[gasps] [trembling] Did you really think your mother died in that crash?"}, {"beat_number": 6, "timecode": "00:82-00:90", "speaker": "ELENA VANCE (Secret Founder of Aegis Quantum)", "voice_archetype": "Ice-Calm Sovereign Lead (ElevenLabs v3 `elena_sovereign`)", "elevenlabs_v3_tags": ["[whispering]", "[gasps]", "[interrupting]"], "text_with_inline_audio_tags": "[whispering] [gasps] [interrupting] Look at who is sitting in Chair Zero\u2014'"}]}, "push_notification_hook": "\ud83d\udd13 Episode 5 Cliffhanger at 01:29: Look at who is sitting in Chair Zero\u2014' \u2014 Tap to unlock Episode 6!"}, {"episode_number": 6, "episode_title": "Episode 6 [PAYWALL GATE]: Chair Zero & The $10 Billion Blood Execution", "arc_role": "Episode 6 Hard Paywall Conversion Trap (35 Coins / $4.99 Coin Pack / $14.99 VIP Weekly)", "duration_sec": 90, "monetization_gate": "HARD_PAYWALL_COIN_GATE", "coin_unlock_cost": 35, "stripe_micro_unlock_usd": 1.99, "cliffhanger_archetype": "Ultimate Paywall Conversion Cliffhanger", "chapter_score": {"chapter_id": "ch_06_the_hard_paywall_chair_zero_reveal", "chapter_title": "Episode 6 [PAYWALL GATE]: Chair Zero & The $10 Billion Blood Execution", "word_count": 203, "dopamine_tension_arc_score": 89.4, "status_reversal_density_score": 99.5, "open_loop_cliffhanger_score": 99.8, "composite_retention_score": 96.4, "predicted_3s_thumbstop_pct": 88.4, "predicted_60s_retention_pct": 86.7, "predicted_paywall_unlock_conv_pct": 28.5, "detected_signals": {"humiliation_triggers": ["knelt"], "asymmetry_identity_triggers": ["unknown to", "heir", "saline vapor"], "escalation_stakes_triggers": ["ultimatum", "sign the", "thirty seconds", "detonation"], "receipt_payoff_triggers": ["motherboard", "$0.00", "swat"], "twist_complication_triggers": ["suddenly"], "open_loop_cliffhanger_triggers": ["\u2014", "actually\u2014", "porcelain mask"]}, "pacing_diagnostics": ["WARN [Beat 1 Status-Slap]: Low humiliation density in first 4 seconds; inject direct financial/social insult.", "PASS [Beat 2 -> Beat 4 Status Reversal]: Strong dramatic irony (unknown to, heir, saline vapor) paired with receipt drop (motherboard, $0.00, swat).", "PASS [Beat 6 Zeigarnik Cut]: Chapter terminates mid-sentence on an em-dash/ellipsis revelation hook."]}, "beats": [{"beat_number": 1, "beat_code": "BEAT_1_STATUS_SLAP_HOOK", "beat_name": "The Humiliation / Status-Slap Hook", "start_sec": 0, "end_sec": 4, "duration_sec": 4, "dopamine_role": "Cortisol Spike / Moral Outrage Trigger", "tension_level_0_100": 84, "status_polarity": "ANTAGONIST_DOMINANT", "camera_framing_9x16": "9:16 Extreme Close-Up (ECU) Dutch-Angle Slap / Contract Throw -> Instant Whip-Zoom to Protagonist Eyes", "ffmpeg_filter_cmd": "scale=1080:1920,zoompan=z='min(zoom+0.008,1.38)':x='iw/2-(iw/zoom/2)':y='ih/3-(ih/zoom/3)':d=120:s=1080x1920:fps=30", "sfx_cue": "[SFX: Sharp glass shatter + sub-bass impact hit -14 LUFS]", "dialogue_lines": [{"speaker": "SOVEREIGN ZERO (The Person in Chair Zero)", "voice_archetype": "Baritone Arrogant Antagonist (ElevenLabs v3 `adam_imperial`)", "elevenlabs_v3_tags": ["[shouting]", "[coldly]"], "tagged_line": "[shouting] [coldly] As the white mist cleared, Julian knelt in handcuffs screaming, 'You promised me half of Aegis if I kept Elena docile for three years!' The leather high-back chair at the end of the obsidian table slowly rotated toward the camera while a silenced pistol clicked beneath the table. Unknown to the person in Chair Zero, Elena had replaced the sedative canister with harmless saline vapor two hours before calling the emergency board meeting.", "raw_line": "As the white mist cleared, Julian knelt in handcuffs screaming, 'You promised me half of Aegis if I kept Elena docile for three years!' The leather high-back chair at the end of the obsidian table slowly rotated toward the camera while a silenced pistol clicked beneath the table. Unknown to the person in Chair Zero, Elena had replaced the sedative canister with harmless saline vapor two hours before calling the emergency board meeting.", "est_duration_sec": 4.0}], "on_screen_caption_hook": "[00s-04s] THE HUMILIATION / STATUS-SLAP HOOK: As the white mist cleared, Julian knelt in handcuffs screaming, 'You promised me half of..."}, {"beat_number": 2, "beat_code": "BEAT_2_HIDDEN_IDENTITY_ASYMMETRY", "beat_name": "The Hidden Identity / Asymmetry Setup", "start_sec": 4, "end_sec": 20, "duration_sec": 16, "dopamine_role": "Dramatic Irony & Superiority Loop", "tension_level_0_100": 72, "status_polarity": "ASYMMETRIC_SECRET", "camera_framing_9x16": "9:16 Vertical Split-Screen: Top 40% Antagonist Sneering / Bottom 60% Macro Insert of Encrypted Black-Card or Seal", "ffmpeg_filter_cmd": "scale=1080:1920,zoompan=z='1.18':x='iw/2-(iw/zoom/2)':y='(ih/4)+(ih/8)*(on/480)':d=480:s=1080x1920:fps=30", "sfx_cue": "[SFX: Low encrypted biometric hum + heartbeat pulse 72 BPM]", "dialogue_lines": [{"speaker": "NARRATOR (INNER MONOLOGUE)", "voice_archetype": "Velvet Noir Narrator (ElevenLabs v3 `aria_noir`)", "elevenlabs_v3_tags": ["[whispering]", "[smirking]"], "tagged_line": "[whispering] The voice from Chair Zero issued a final ultimatum: sign the irrevocable bloodline surrender within thirty seconds, or the detonation charges on the 88th-floor structural pillars would trigger. [smirking]", "raw_line": "The voice from Chair Zero issued a final ultimatum: sign the irrevocable bloodline surrender within thirty seconds, or the detonation charges on the 88th-floor structural pillars would trigger.", "est_duration_sec": 16.0}], "on_screen_caption_hook": "[04s-20s] THE HIDDEN IDENTITY / ASYMMETRY SETUP: The voice from Chair Zero issued a final ultimatum: sign the irrevocable bloodline surre..."}, {"beat_number": 3, "beat_code": "BEAT_3_ESCALATION_DOUBLE_DOWN", "beat_name": "The Escalation & Double-Down", "start_sec": 20, "end_sec": 42, "duration_sec": 22, "dopamine_role": "Compression of Tension Spring (Financial / Emotional Stakes 10x)", "tension_level_0_100": 88, "status_polarity": "ANTAGONIST_OVERCOMMIT", "camera_framing_9x16": "9:16 Low-Angle Antagonist Dominance Push-In + Over-The-Shoulder (OTS) Crowd Whispering Reaction Cuts", "ffmpeg_filter_cmd": "scale=1080:1920,zoompan=z='min(zoom+0.0022,1.32)':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':d=660:s=1080x1920:fps=30", "sfx_cue": "[SFX: Ticking luxury chronograph countdown + tense cello ostinato]", "dialogue_lines": [{"speaker": "SOVEREIGN ZERO (The Person in Chair Zero)", "voice_archetype": "Baritone Arrogant Antagonist (ElevenLabs v3 `adam_imperial`)", "elevenlabs_v3_tags": ["[interrupting]", "[shouting]"], "tagged_line": "[interrupting] [shouting] Elena smiled coldly and dropped the master motherboard onto the table\u2014she had already rerouted the building's detonator circuit to the Sterling family's private penthouse vault.", "raw_line": "Elena smiled coldly and dropped the master motherboard onto the table\u2014she had already rerouted the building's detonator circuit to the Sterling family's private penthouse vault.", "est_duration_sec": 14.0}, {"speaker": "MARSHAL VEX (Tactical Breach Lead)", "voice_archetype": "High-Tension Catalyst Witness (ElevenLabs v3 `serena_sharp`)", "elevenlabs_v3_tags": ["[gasps]", "[trembling]"], "tagged_line": "[gasps] [trembling] The sixty-second clock is live on the main board\u2014she's finished!", "raw_line": "The sixty-second clock is live on the main board\u2014she's finished!", "est_duration_sec": 8.0}], "on_screen_caption_hook": "[20s-42s] THE ESCALATION & DOUBLE-DOWN: Elena smiled coldly and dropped the master motherboard onto the table\u2014she had already re..."}, {"beat_number": 4, "beat_code": "BEAT_4_MICRO_PAYOFF_RECEIPT_DROP", "beat_name": "The Micro-Payoff / Receipt Drop", "start_sec": 42, "end_sec": 65, "duration_sec": 23, "dopamine_role": "First Dopamine Release (Status-Reversal Counter-Punch)", "tension_level_0_100": 93, "status_polarity": "COUNTER_PUNCH_RECEIPT", "camera_framing_9x16": "9:16 Forensic Receipt Macro Insert -> 3-Shot Rapid Reaction Montage (Antagonist Jaw Drop / VIP Bow / Protagonist Ice-Cold Stare)", "ffmpeg_filter_cmd": "scale=1080:1920,zoompan=z='max(1.36-0.0018*on,1.06)':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':d=690:s=1080x1920:fps=30", "sfx_cue": "[SFX: Digital wire-transfer chime + crowd gasp + camera shutter burst]", "dialogue_lines": [{"speaker": "ELENA VANCE (Secret Founder of Aegis Quantum)", "voice_archetype": "Ice-Calm Sovereign Lead (ElevenLabs v3 `elena_sovereign`)", "elevenlabs_v3_tags": ["[coldly]", "[smirking]"], "tagged_line": "[coldly] [smirking] Julian and Arthur screamed in terror as their offshore accounts hit $0.00 and the penthouse vault cameras showed federal SWAT teams seizing their gold reserves.", "raw_line": "Julian and Arthur screamed in terror as their offshore accounts hit $0.00 and the penthouse vault cameras showed federal SWAT teams seizing their gold reserves.", "est_duration_sec": 15.0}, {"speaker": "MARSHAL VEX (Tactical Breach Lead)", "voice_archetype": "High-Tension Catalyst Witness (ElevenLabs v3 `serena_sharp`)", "elevenlabs_v3_tags": ["[gasps]", "[whispering]"], "tagged_line": "[gasps] [whispering] Look at the biometric terminal... Founder Zero is standing right in front of us!", "raw_line": "Look at the biometric terminal... Founder Zero is standing right in front of us!", "est_duration_sec": 8.0}], "on_screen_caption_hook": "[42s-65s] THE MICRO-PAYOFF / RECEIPT DROP: Julian and Arthur screamed in terror as their offshore accounts hit $0.00 and the pentho..."}, {"beat_number": 5, "beat_code": "BEAT_5_TWIST_BETRAYAL_COMPLICATION", "beat_name": "The Twist / Betrayal Complication", "start_sec": 65, "end_sec": 82, "duration_sec": 17, "dopamine_role": "Rug-Pull / Secondary Adrenaline Spike", "tension_level_0_100": 96, "status_polarity": "RUG_PULL_TWIST", "camera_framing_9x16": "9:16 Heavy Double-Door Kick-Open Wide -> Rack Focus to Shadowy Newcomer Holding Sealed Red Folder", "ffmpeg_filter_cmd": "scale=1080:1920,zoompan=z='min(zoom+0.003,1.40)':x='iw/3-(iw/zoom/3)':y='ih/2-(ih/zoom/2)':d=510:s=1080x1920:fps=30", "sfx_cue": "[SFX: Heavy titanium bulkhead alarm + sudden sub-drop silence]", "dialogue_lines": [{"speaker": "MARSHAL VEX (Tactical Breach Lead)", "voice_archetype": "High-Tension Catalyst Witness (ElevenLabs v3 `serena_sharp`)", "elevenlabs_v3_tags": ["[gasps]", "[trembling]"], "tagged_line": "[gasps] [trembling] Suddenly, the figure in Chair Zero stood up under the spotlight, slowly lifting the porcelain mask from their face while Elena's breath caught in her throat\u2014the mask dropped to the glass floor, revealing the unmistakable scar across the jawline: 'Mother?!", "raw_line": "Suddenly, the figure in Chair Zero stood up under the spotlight, slowly lifting the porcelain mask from their face while Elena's breath caught in her throat\u2014the mask dropped to the glass floor, revealing the unmistakable scar across the jawline: 'Mother?!", "est_duration_sec": 17.0}], "on_screen_caption_hook": "[65s-82s] THE TWIST / BETRAYAL COMPLICATION: Suddenly, the figure in Chair Zero stood up under the spotlight, slowly lifting the porc..."}, {"beat_number": 6, "beat_code": "BEAT_6_MID_SENTENCE_CLIFFHANGER", "beat_name": "The Unresolved Mid-Sentence Cliffhanger", "start_sec": 82, "end_sec": 90, "duration_sec": 8, "dopamine_role": "Zeigarnik Effect Open-Loop -> Forces Episode N+1 / Paywall Unlock", "tension_level_0_100": 100, "status_polarity": "OPEN_LOOP_PEAK", "camera_framing_9x16": "9:16 Extreme Macro on Trembling Hand / Phone Screen -> Hard Sub-Bass Drop + Instant Cut-to-Black at 89.8s", "ffmpeg_filter_cmd": "scale=1080:1920,zoompan=z='min(zoom+0.012,1.55)':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':d=240:s=1080x1920:fps=30", "sfx_cue": "[SFX: High-frequency riser cresting to 89.8s -> HARD CUT TO BLACK]", "dialogue_lines": [{"speaker": "ELENA VANCE (Secret Founder of Aegis Quantum)", "voice_archetype": "Ice-Calm Sovereign Lead (ElevenLabs v3 `elena_sovereign`)", "elevenlabs_v3_tags": ["[whispering]", "[gasps]", "[interrupting]"], "tagged_line": "[whispering] [gasps] [interrupting] No\u2014you're her twin sister, and the baby in the ICU is actually\u2014'", "raw_line": "No\u2014you're her twin sister, and the baby in the ICU is actually\u2014'", "est_duration_sec": 8.0}], "on_screen_caption_hook": "[82s-90s] THE UNRESOLVED MID-SENTENCE CLIFFHANGER: No\u2014you're her twin sister, and the baby in the ICU is actually\u2014'..."}], "elevenlabs_v3_api_payload": {"model_id": "eleven_v3_conversational_drama", "output_format": "mp3_44100_192", "loudness_normalization": "-14.0 LUFS (TikTok/Reels/ReelShort Master)", "multi_speaker_dialogue": [{"beat_number": 1, "timecode": "00:00-00:04", "speaker": "SOVEREIGN ZERO (The Person in Chair Zero)", "voice_archetype": "Baritone Arrogant Antagonist (ElevenLabs v3 `adam_imperial`)", "elevenlabs_v3_tags": ["[shouting]", "[coldly]"], "text_with_inline_audio_tags": "[shouting] [coldly] As the white mist cleared, Julian knelt in handcuffs screaming, 'You promised me half of Aegis if I kept Elena docile for three years!' The leather high-back chair at the end of the obsidian table slowly rotated toward the camera while a silenced pistol clicked beneath the table. Unknown to the person in Chair Zero, Elena had replaced the sedative canister with harmless saline vapor two hours before calling the emergency board meeting."}, {"beat_number": 2, "timecode": "00:04-00:20", "speaker": "NARRATOR (INNER MONOLOGUE)", "voice_archetype": "Velvet Noir Narrator (ElevenLabs v3 `aria_noir`)", "elevenlabs_v3_tags": ["[whispering]", "[smirking]"], "text_with_inline_audio_tags": "[whispering] The voice from Chair Zero issued a final ultimatum: sign the irrevocable bloodline surrender within thirty seconds, or the detonation charges on the 88th-floor structural pillars would trigger. [smirking]"}, {"beat_number": 3, "timecode": "00:20-00:42", "speaker": "SOVEREIGN ZERO (The Person in Chair Zero)", "voice_archetype": "Baritone Arrogant Antagonist (ElevenLabs v3 `adam_imperial`)", "elevenlabs_v3_tags": ["[interrupting]", "[shouting]"], "text_with_inline_audio_tags": "[interrupting] [shouting] Elena smiled coldly and dropped the master motherboard onto the table\u2014she had already rerouted the building's detonator circuit to the Sterling family's private penthouse vault."}, {"beat_number": 3, "timecode": "00:20-00:42", "speaker": "MARSHAL VEX (Tactical Breach Lead)", "voice_archetype": "High-Tension Catalyst Witness (ElevenLabs v3 `serena_sharp`)", "elevenlabs_v3_tags": ["[gasps]", "[trembling]"], "text_with_inline_audio_tags": "[gasps] [trembling] The sixty-second clock is live on the main board\u2014she's finished!"}, {"beat_number": 4, "timecode": "00:42-00:65", "speaker": "ELENA VANCE (Secret Founder of Aegis Quantum)", "voice_archetype": "Ice-Calm Sovereign Lead (ElevenLabs v3 `elena_sovereign`)", "elevenlabs_v3_tags": ["[coldly]", "[smirking]"], "text_with_inline_audio_tags": "[coldly] [smirking] Julian and Arthur screamed in terror as their offshore accounts hit $0.00 and the penthouse vault cameras showed federal SWAT teams seizing their gold reserves."}, {"beat_number": 4, "timecode": "00:42-00:65", "speaker": "MARSHAL VEX (Tactical Breach Lead)", "voice_archetype": "High-Tension Catalyst Witness (ElevenLabs v3 `serena_sharp`)", "elevenlabs_v3_tags": ["[gasps]", "[whispering]"], "text_with_inline_audio_tags": "[gasps] [whispering] Look at the biometric terminal... Founder Zero is standing right in front of us!"}, {"beat_number": 5, "timecode": "00:65-00:82", "speaker": "MARSHAL VEX (Tactical Breach Lead)", "voice_archetype": "High-Tension Catalyst Witness (ElevenLabs v3 `serena_sharp`)", "elevenlabs_v3_tags": ["[gasps]", "[trembling]"], "text_with_inline_audio_tags": "[gasps] [trembling] Suddenly, the figure in Chair Zero stood up under the spotlight, slowly lifting the porcelain mask from their face while Elena's breath caught in her throat\u2014the mask dropped to the glass floor, revealing the unmistakable scar across the jawline: 'Mother?!"}, {"beat_number": 6, "timecode": "00:82-00:90", "speaker": "ELENA VANCE (Secret Founder of Aegis Quantum)", "voice_archetype": "Ice-Calm Sovereign Lead (ElevenLabs v3 `elena_sovereign`)", "elevenlabs_v3_tags": ["[whispering]", "[gasps]", "[interrupting]"], "text_with_inline_audio_tags": "[whispering] [gasps] [interrupting] No\u2014you're her twin sister, and the baby in the ICU is actually\u2014'"}]}, "push_notification_hook": "\ud83d\udd13 Episode 6 Cliffhanger at 01:29: No\u2014you're her twin sister, and the baby in the ICU is actually\u2014' \u2014 Tap to unlock Episode 7!"}]};
+let currentEpisodeIdx = 0;
+let currentBeatIdx = 0;
+
+function renderKPIs() {
+  const agg = MANIFEST.series_aggregate_scores;
+  const econ = MANIFEST.unit_economics_model;
+  const sig = MANIFEST.apify_wave22_signal.primary_actor;
+  const cards = [
+    {
+      label: "Wave 22 Scraper Demand",
+      val: sig.total_users + " Users / " + sig.total_runs.toLocaleString() + " Runs",
+      sub: sig.actor_id + " (" + sig.failure_rate_pct + "% Fail Rate Fixed)"
+    },
+    {
+      label: "Dopamine Tension Arc",
+      val: agg.avg_dopamine_tension_arc_score + " / 100",
+      sub: "Status-Slap Hook + 10x Stakes Escalation"
+    },
+    {
+      label: "Status-Reversal Density",
+      val: agg.avg_status_reversal_density_score + " / 100",
+      sub: "Hidden Identity Asymmetry + Receipt Drop"
+    },
+    {
+      label: "Open-Loop Cliffhanger",
+      val: agg.avg_open_loop_cliffhanger_score + " / 100",
+      sub: "Beat 6 (82s-90s) Mid-Sentence Zeigarnik Cut"
+    },
+    {
+      label: "Predicted 60s Retention",
+      val: econ.avg_predicted_60s_retention_pct + "%",
+      sub: "Benchmark: ReelShort / DramaBox Top 5% (82%+)"
+    },
+    {
+      label: "Rev / 100k Funnel Views",
+      val: "$" + econ.combined_revenue_per_100k_views_usd.toLocaleString(),
+      sub: "TikTok Creativity + Ep 6 Coin/VIP Gate (" + econ.gross_margin_pct + "% Margin)"
+    }
+  ];
+  document.getElementById("kpiGrid").innerHTML = cards.map(c => `
+    <div class="kpi-card">
+      <div class="kpi-label">${c.label}</div>
+      <div class="kpi-val">${c.val}</div>
+      <div class="kpi-sub">${c.sub}</div>
+    </div>
+  `).join("");
+}
+
+function renderEpisodeList() {
+  const container = document.getElementById("episodeList");
+  container.innerHTML = MANIFEST.episodes.map((ep, idx) => `
+    <button class="ep-btn ${idx === currentEpisodeIdx ? 'active' : ''}" onclick="selectEpisode(${idx})">
+      <div class="ep-top">
+        <span>EPISODE ${ep.episode_number} (90s)</span>
+        <span class="gate-pill gate-${ep.monetization_gate}">${ep.monetization_gate.replace(/_/g, ' ')}</span>
+      </div>
+      <div style="font-weight:700;font-size:14px;margin-bottom:4px;">${ep.episode_title}</div>
+      <div style="font-size:12px;color:var(--muted);">
+        Dopamine: <strong>${ep.chapter_score.dopamine_tension_arc_score}</strong> ·
+        Reversal: <strong>${ep.chapter_score.status_reversal_density_score}</strong> ·
+        Cliffhanger: <strong>${ep.chapter_score.open_loop_cliffhanger_score}</strong>
+      </div>
+    </button>
+  `).join("");
+}
+
+function selectEpisode(idx) {
+  currentEpisodeIdx = idx;
+  currentBeatIdx = 0;
+  renderEpisodeList();
+  renderActiveEpisode();
+  const ep = MANIFEST.episodes[currentEpisodeIdx];
+  const overlay = document.getElementById("paywallOverlay");
+  if (ep.monetization_gate !== "FREE_FUNNEL") {
+    overlay.classList.add("visible");
+    document.getElementById("paywallGateType").textContent = ep.monetization_gate.replace(/_/g, " ");
+    document.getElementById("paywallTitle").textContent =
+      ep.episode_number === 5
+        ? "Episode 5 Soft Gate — Watch 1 Ad or Unlock with 15 Coins"
+        : "Episode 6 Hard Paywall Gate — 35 Coins / $1.99 Instant Unlock";
+    document.getElementById("paywallHookText").textContent = ep.push_notification_hook;
+  } else {
+    overlay.classList.remove("visible");
+  }
+}
+
+function dismissPaywall() {
+  document.getElementById("paywallOverlay").classList.remove("visible");
+}
+
+function selectBeat(bIdx) {
+  currentBeatIdx = bIdx;
+  renderActiveEpisode();
+}
+
+function stepBeat(delta) {
+  const ep = MANIFEST.episodes[currentEpisodeIdx];
+  currentBeatIdx = (currentBeatIdx + delta + ep.beats.length) % ep.beats.length;
+  renderActiveEpisode();
+}
+
+function renderActiveEpisode() {
+  const ep = MANIFEST.episodes[currentEpisodeIdx];
+  const beat = ep.beats[currentBeatIdx];
+
+  document.getElementById("activeEpisodeHeading").textContent =
+    ep.episode_title + " (" + ep.cliffhanger_archetype + ")";
+  document.getElementById("activeEpisodeComposite").textContent =
+    "Composite: " + ep.chapter_score.composite_retention_score + "/100 · 60s Ret: " +
+    ep.chapter_score.predicted_60s_retention_pct + "%";
+
+  document.getElementById("diagnosticsBox").innerHTML =
+    ep.chapter_score.pacing_diagnostics.map(d => `<div style="margin-bottom:4px;">• ${d}</div>`).join("");
+
+  document.getElementById("timelineBar").innerHTML = ep.beats.map((b, idx) => `
+    <div class="timeline-seg ${idx === currentBeatIdx ? 'active' : ''}" onclick="selectBeat(${idx})" title="${b.beat_name}">
+      B${b.beat_number}: ${b.start_sec}-${b.end_sec}s
+    </div>
+  `).join("");
+
+  document.getElementById("beatCards").innerHTML = ep.beats.map((b, idx) => {
+    const linesHtml = b.dialogue_lines.map(dl => {
+      const tags = dl.elevenlabs_v3_tags.map(t => `<span class="tag-chip">${t}</span>`).join("");
+      return `
+        <div style="margin-top:8px;padding:8px 10px;background:#0b0e17;border-radius:8px;border-left:3px solid var(--accent-purple);">
+          <div style="font-size:11px;color:var(--muted);font-weight:700;">${dl.speaker} — ${dl.voice_archetype}</div>
+          <div style="margin-top:4px;">${tags} <span style="color:#f8fafc;">${dl.raw_line}</span></div>
+        </div>
+      `;
+    }).join("");
+
+    return `
+      <div class="beat-card ${idx === currentBeatIdx ? 'active' : ''}" onclick="selectBeat(${idx})">
+        <div class="beat-header">
+          <div>
+            <span class="badge amber">Beat ${b.beat_number} · 00:${String(b.start_sec).padStart(2,'0')}–00:${String(b.end_sec).padStart(2,'0')} (${b.duration_sec}s)</span>
+            <strong style="margin-left:8px;">${b.beat_name}</strong>
+          </div>
+          <span class="badge crimson">Tension: ${b.tension_level_0_100}/100 · ${b.status_polarity}</span>
+        </div>
+        <div style="font-size:12px;color:var(--accent-cyan);font-family:monospace;margin-bottom:4px;">
+          🎥 ${b.camera_framing_9x16}
+        </div>
+        <div style="font-size:12px;color:var(--accent-amber);margin-bottom:6px;">
+          🔊 ${b.sfx_cue}
+        </div>
+        ${linesHtml}
+      </div>
+    `;
+  }).join("");
+
+  document.getElementById("playerTimecode").textContent =
+    `00:${String(beat.start_sec).padStart(2,'0')}–00:${String(beat.end_sec).padStart(2,'0')} (${beat.duration_sec}s)`;
+  document.getElementById("phoneEpBadge").textContent =
+    `EP ${ep.episode_number} · BEAT ${beat.beat_number}/6`;
+  document.getElementById("phoneRetentionBadge").textContent =
+    `60s Ret: ${ep.chapter_score.predicted_60s_retention_pct}%`;
+  document.getElementById("phoneCameraCue").textContent = beat.camera_framing_9x16;
+  document.getElementById("phoneDialogue").textContent =
+    beat.dialogue_lines.map(d => d.tagged_line).join(" ");
+  document.getElementById("phoneSfx").textContent = beat.sfx_cue;
+  document.getElementById("phoneDopamineRole").textContent =
+    `Dopamine Role: ${beat.dopamine_role}`;
+
+  document.getElementById("elevenlabsPayloadPre").textContent =
+    JSON.stringify(ep.elevenlabs_v3_api_payload, null, 2);
+}
+
+function scoreCustomChapter() {
+  const text = document.getElementById("customChapterInput").value.trim();
+  if (!text) return;
+  const lower = text.toLowerCase();
+  const countHits = (arr) => arr.filter(s => lower.includes(s)).length;
+  const hum = countHits(["slap","knelt","fired","trash","beggar","divorce","worthless","security","laughed","sneer","handcuffs","nda"]);
+  const asym = countHits(["little did","unknown to","secretly","founder","billionaire","sovereign","deed","biometric","controlling stake","trust"]);
+  const esc = countHits(["sixty-second","countdown","million","billion","blacklist","license","ultimatum","contract","security"]);
+  const pay = countHits(["wire-transfer","audit","bowed","chairman","seal","projected","verified","proof"]);
+  const tw = countHits(["suddenly","siren","burst","prosecutor","blood-stained","saboteur","dna"]);
+  const endsDash = text.endsWith("—") || text.endsWith("—"") || text.endsWith("—'") || text.endsWith("...");
+
+  const dop = Math.min(99.4, +(46 + hum * 7.5 + esc * 7.5 + tw * 7.2).toFixed(1));
+  const rev = Math.min(99.4, +(45 + asym * 9.5 + pay * 9.5).toFixed(1));
+  const clf = Math.min(99.8, +(52 + tw * 8.5 + (endsDash ? 18.5 : 4.0)).toFixed(1));
+  const comp = +((0.32 * dop + 0.33 * rev + 0.35 * clf).toFixed(1));
+  const ret60 = Math.min(91.5, +(52 + comp * 0.36).toFixed(1));
+
+  document.getElementById("customScoreResult").textContent =
+    `Dopamine Arc: ${dop}/100 | Status-Reversal: ${rev}/100 | Open-Loop Cliffhanger: ${clf}/100 | Composite: ${comp}/100 (Predicted 60s Retention: ${ret60}%)`;
+}
+
+renderKPIs();
+renderEpisodeList();
+renderActiveEpisode();
+</script>
+</body>
+</html>

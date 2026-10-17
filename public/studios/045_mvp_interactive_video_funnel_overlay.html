@@ -1,0 +1,1718 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Revenue Engine — Interactive Product Tour &amp; ROI Audit — Zero-Transcoding Interactive Video Studio (MVP #45)</title>
+  <style>
+    :root {
+      --bg-dark: #090d16;
+      --bg-panel: #111827;
+      --bg-card: #1e293b;
+      --border: #334155;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent: #6366f1;
+      --accent-hover: #4f46e5;
+      --emerald: #10b981;
+      --amber: #f59e0b;
+      --rose: #f43f5e;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg-dark);
+      color: var(--text-main);
+      line-height: 1.5;
+      padding-bottom: 60px;
+    }
+    header {
+      background: rgba(17, 24, 39, 0.92);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 24px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      backdrop-filter: blur(10px);
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .badge {
+      background: rgba(99, 102, 241, 0.18);
+      color: #a5b4fc;
+      border: 1px solid rgba(99, 102, 241, 0.4);
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .badge-emerald {
+      background: rgba(16, 185, 129, 0.16);
+      color: #6ee7b7;
+      border-color: rgba(16, 185, 129, 0.4);
+    }
+    .container {
+      max-width: 1440px;
+      margin: 24px auto;
+      padding: 0 20px;
+      display: grid;
+      grid-template-columns: 1.65fr 1fr;
+      gap: 24px;
+    }
+    @media (max-width: 1080px) {
+      .container { grid-template-columns: 1fr; }
+    }
+    .panel {
+      background: var(--bg-panel);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+    }
+    .panel-title {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    /* Personalization Token Bar */
+    .token-bar {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-bottom: 16px;
+      background: var(--bg-card);
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+    }
+    .token-field label {
+      display: block;
+      font-size: 11px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 4px;
+    }
+    .token-field input {
+      width: 100%;
+      background: #0f172a;
+      border: 1px solid var(--border);
+      color: var(--text-main);
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 13px;
+    }
+    /* Video Stage & Interactive Overlay */
+    .video-stage {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      background: #050811;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    #syntheticCanvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+    .personalization-banner {
+      position: absolute;
+      top: 14px;
+      left: 14px;
+      right: 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(15, 23, 42, 0.82);
+      border: 1px solid rgba(99, 102, 241, 0.45);
+      backdrop-filter: blur(8px);
+      padding: 8px 14px;
+      border-radius: 10px;
+      font-size: 13px;
+      z-index: 15;
+    }
+    .overlay-modal {
+      position: absolute;
+      inset: 0;
+      background: rgba(9, 13, 22, 0.88);
+      backdrop-filter: blur(8px);
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 24px;
+      z-index: 30;
+      animation: fadeIn 0.2s ease-out;
+    }
+    .overlay-modal.active {
+      display: flex;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.98); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    .overlay-card {
+      background: #1e293b;
+      border: 1px solid #475569;
+      border-radius: 14px;
+      padding: 24px;
+      max-width: 580px;
+      width: 100%;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+    }
+    .overlay-kicker {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #818cf8;
+      margin-bottom: 6px;
+    }
+    .overlay-title {
+      font-size: 19px;
+      font-weight: 700;
+      margin-bottom: 14px;
+      color: #ffffff;
+    }
+    .branch-btn {
+      display: block;
+      width: 100%;
+      text-align: left;
+      background: #0f172a;
+      color: #f8fafc;
+      border: 1px solid #334155;
+      padding: 12px 16px;
+      border-radius: 10px;
+      margin-bottom: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .branch-btn:hover {
+      border-color: var(--accent);
+      background: rgba(99, 102, 241, 0.18);
+      transform: translateX(4px);
+    }
+    .roi-grid {
+      display: grid;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+    .roi-row label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      margin-bottom: 4px;
+    }
+    .roi-row input[type="range"] {
+      width: 100%;
+      accent-color: var(--accent);
+    }
+    .roi-output {
+      background: rgba(16, 185, 129, 0.14);
+      border: 1px solid rgba(16, 185, 129, 0.45);
+      padding: 12px;
+      border-radius: 10px;
+      text-align: center;
+      margin-bottom: 14px;
+    }
+    .roi-output strong {
+      font-size: 22px;
+      color: #34d399;
+      display: block;
+    }
+    .form-grid {
+      display: grid;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .form-grid input, .form-grid select {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: 1px solid #475569;
+      background: #0f172a;
+      color: #fff;
+      font-size: 14px;
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 11px 18px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      width: 100%;
+    }
+    .btn-primary:hover { background: var(--accent-hover); }
+    .btn-emerald {
+      background: var(--emerald);
+      color: #052e16;
+      border: none;
+      padding: 12px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      width: 100%;
+      margin-bottom: 10px;
+    }
+    /* Timeline Scrubber & Markers */
+    .timeline-bar {
+      margin-top: 14px;
+      background: var(--bg-card);
+      padding: 14px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+    }
+    .scrubber-track {
+      position: relative;
+      height: 12px;
+      background: #0f172a;
+      border-radius: 999px;
+      margin: 10px 0 18px 0;
+      cursor: pointer;
+      border: 1px solid #334155;
+    }
+    .scrubber-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #6366f1, #10b981);
+      border-radius: 999px;
+      width: 0%;
+      transition: width 0.1s linear;
+    }
+    .marker {
+      position: absolute;
+      top: -5px;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--amber);
+      border: 2px solid #090d16;
+      transform: translateX(-50%);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 800;
+      color: #090d16;
+    }
+    .trigger-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .chip-btn {
+      background: #0f172a;
+      color: #cbd5e1;
+      border: 1px solid #334155;
+      padding: 7px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .chip-btn:hover {
+      border-color: var(--accent);
+      color: #fff;
+    }
+    /* Telemetry Side Panel */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .kpi-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      padding: 12px;
+      border-radius: 10px;
+    }
+    .kpi-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+    .kpi-val {
+      font-size: 20px;
+      font-weight: 800;
+      margin-top: 2px;
+      color: #fff;
+    }
+    pre {
+      background: #050811;
+      border: 1px solid var(--border);
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      color: #a5b4fc;
+      overflow-x: auto;
+      max-height: 260px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- DACH CASHFLOW STUDIOS LAUNCH BAR -->
+<style>
+  #dcs-launch-bar {
+    position: sticky;
+    top: 0;
+    z-index: 99999;
+    background: linear-gradient(90deg, #0b1120 0%, #111827 50%, #0f172a 100%);
+    color: #f8fafc;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.35);
+    padding: 8px 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  }
+  #dcs-launch-bar .dcs-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+  }
+  #dcs-launch-bar .dcs-badge {
+    background: rgba(16, 185, 129, 0.18);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.03em;
+  }
+  #dcs-launch-bar a.dcs-nav {
+    color: #93c5fd;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 12.5px;
+  }
+  #dcs-launch-bar a.dcs-nav:hover {
+    text-decoration: underline;
+    color: #dbeafe;
+  }
+  #dcs-launch-bar .dcs-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  #dcs-launch-bar .dcs-btn {
+    padding: 5px 11px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s ease;
+  }
+  #dcs-launch-bar .dcs-btn-ghost {
+    background: rgba(255,255,255,0.08);
+    color: #e2e8f0;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  #dcs-launch-bar .dcs-btn-primary {
+    background: linear-gradient(135deg, #0ea5e9, #2563eb);
+    color: #ffffff;
+  }
+  #dcs-launch-bar .dcs-btn-emerald {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
+  }
+  @media print {
+    #dcs-launch-bar { display: none !important; }
+  }
+</style>
+<div id="dcs-launch-bar">
+  <div class="dcs-left">
+    <a href="/index.html" class="dcs-nav">← Alle 150 DACH Studios</a>
+    <span class="dcs-badge">MVP #045 VERIFIED</span>
+    <span style="color:#cbd5e1;font-size:12px;">B2B SaaS, Lead-Intent Sniper & AI/MCP Infrastructure</span>
+  </div>
+  <div class="dcs-actions">
+    <button onclick="window.print()" class="dcs-btn dcs-btn-ghost">🖨️ PDF / Dossier drucken</button>
+    <a href="#checkout-modal-49" target="_blank" rel="noopener" class="dcs-btn dcs-btn-primary">⚡ Musterschreiben & Voll-Dossier (€49)</a>
+    <a href="#checkout-modal-299" target="_blank" rel="noopener" class="dcs-btn dcs-btn-emerald">🛡️ B2B Umsetzung buchen (€299 / €1.490)</a>
+  </div>
+</div>
+
+  <header>
+    <div class="brand">
+      <span class="badge">MVP #45 · Mindstamp Teardown</span>
+      <strong>Zero-Transcoding Interactive Video Funnel & Overlay Studio</strong>
+    </div>
+    <div style="display:flex; gap:10px; align-items:center;">
+      <span class="badge badge-emerald">90.0% Profit Margin Architecture</span>
+      <span class="badge">$48.1k MRR Benchmark</span>
+    </div>
+  </header>
+
+  <div class="container">
+    <!-- Left Column: Interactive Video Player + Timeline Triggers -->
+    <div class="panel">
+      <div class="panel-title">
+        <span>1. URL-Token Personalisierung (Zero-Transcoding Live-Render)</span>
+        <span style="font-size:12px; color:var(--text-muted);">Query: <code>?first_name=...&amp;company=...</code></span>
+      </div>
+
+      <div class="token-bar">
+        <div class="token-field">
+          <label>Vorname ({{first_name}})</label>
+          <input id="tokFirstName" value="Max" oninput="updatePersonalization()" />
+        </div>
+        <div class="token-field">
+          <label>Firma ({{company}})</label>
+          <input id="tokCompany" value="TechScale GmbH" oninput="updatePersonalization()" />
+        </div>
+        <div class="token-field">
+          <label>Branche ({{industry}})</label>
+          <input id="tokIndustry" value="B2B SaaS" oninput="updatePersonalization()" />
+        </div>
+        <div class="token-field">
+          <label>Teamgröße ({{team_size}})</label>
+          <input id="tokTeamSize" value="25" oninput="updatePersonalization()" />
+        </div>
+      </div>
+
+      <div class="video-stage" id="videoStage">
+        <video id="funnelVideo" playsinline crossorigin="anonymous" muted>
+          <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4" type="video/mp4" />
+        </video>
+        <canvas id="syntheticCanvas" width="960" height="540"></canvas>
+
+        <div class="personalization-banner">
+          <span id="liveGreetingText">Hallo Max von TechScale GmbH — Willkommen zur interaktiven Live-Demo (B2B SaaS Edition)</span>
+          <span class="badge" id="currentTimecodeBadge">00:00 / 02:15</span>
+        </div>
+
+        <!-- Overlay 1: 00:18 Interactive Branching Buttons -->
+        <div class="overlay-modal" id="modalBranch">
+          <div class="overlay-card">
+            <div class="overlay-kicker">INTERAKTIVE WEICHE · 00:18</div>
+            <div class="overlay-title" id="branchPromptText">Hallo Max! Welches Geschäftsmodell beschreibt TechScale GmbH am besten?</div>
+            <button class="branch-btn" onclick="selectBranch('ecommerce_brand', 25, 20, '🛒 E-Commerce Brand')">
+              🛒 E-Commerce Brand (Shop-Conversion &amp; Warenkorb-Recovery) → Springt zu 00:25
+            </button>
+            <button class="branch-btn" onclick="selectBranch('b2b_agency', 35, 30, '🚀 B2B Agency')">
+              🚀 B2B Agency (Done-For-You Client Funnels &amp; Retainer) → Springt zu 00:35
+            </button>
+            <button class="branch-btn" onclick="selectBranch('b2b_saas', 45, 35, '⚡ B2B SaaS')">
+              ⚡ B2B SaaS (Self-Serve Demo-Qualifizierung &amp; Trial-Conversion) → Springt zu 00:45
+            </button>
+          </div>
+        </div>
+
+        <!-- Overlay 2: 00:45 Inline ROI Calculator -->
+        <div class="overlay-modal" id="modalRoi">
+          <div class="overlay-card">
+            <div class="overlay-kicker">INLINE ROI-RECHNER · 00:45</div>
+            <div class="overlay-title" id="roiHeadlineText">Berechne den monatlichen Mehrumsatz für TechScale GmbH</div>
+            <div class="roi-grid">
+              <div class="roi-row">
+                <label><span>Monatliche Video-Views</span><strong id="lblViews">5.000</strong></label>
+                <input type="range" id="rngViews" min="500" max="50000" step="500" value="5000" oninput="recalcRoi()" />
+              </div>
+              <div class="roi-row">
+                <label><span>Ø Kundenwert / Deal (LTV in €)</span><strong id="lblDeal">2.500 €</strong></label>
+                <input type="range" id="rngDeal" min="250" max="25000" step="250" value="2500" oninput="recalcRoi()" />
+              </div>
+              <div class="roi-row">
+                <label><span>Statische Baseline-Conversion (%)</span><strong id="lblConv">1.5%</strong></label>
+                <input type="range" id="rngConv" min="0.5" max="10.0" step="0.5" value="1.5" oninput="recalcRoi()" />
+              </div>
+            </div>
+            <div class="roi-output">
+              <span style="font-size:12px; color:#a7f3d0;">Prognostizierter Zusatz-MRR durch 2.4x Interaktivitäts-Lift:</span>
+              <strong id="roiResultValue">+ 262.500 € / Monat</strong>
+            </div>
+            <button class="btn-primary" onclick="submitRoiCalculator()">ROI-Ergebnis speichern &amp; weiter zu Kapitel 01:20 →</button>
+          </div>
+        </div>
+
+        <!-- Overlay 3: 01:20 Inline Lead-Capture & Qualification Gate -->
+        <div class="overlay-modal" id="modalLead">
+          <div class="overlay-card">
+            <div class="overlay-kicker">INLINE LEAD-GATE · 01:20</div>
+            <div class="overlay-title" id="leadHeadlineText">Wohin sollen wir deinen interaktiven Funnel-Blueprint senden?</div>
+            <div class="form-grid">
+              <input type="text" id="inpLeadName" placeholder="Vor- &amp; Nachname" value="Max Mustermann" />
+              <input type="email" id="inpLeadEmail" placeholder="Geschäftliche E-Mail" value="max@techscale.de" />
+              <select id="inpLeadBudget">
+                <option value="2.000 €+ / Monat (Done-For-You)">Budget: 2.000 €+ / Monat (Done-For-You)</option>
+                <option value="500 € – 2.000 € / Monat">Budget: 500 € – 2.000 € / Monat (Core/Pro)</option>
+                <option value="< 500 € / Monat">Budget: &lt; 500 € / Monat (Basic Self-Serve)</option>
+              </select>
+            </div>
+            <button class="btn-primary" onclick="submitLeadGate()">Blueprint freischalten &amp; Video fortsetzen →</button>
+          </div>
+        </div>
+
+        <!-- Overlay 4: 01:45 In-Video Stripe Checkout & Calendly Trigger -->
+        <div class="overlay-modal" id="modalCta">
+          <div class="overlay-card">
+            <div class="overlay-kicker">IN-VIDEO CONVERSION · 01:45</div>
+            <div class="overlay-title" id="ctaHeadlineText">Bereit für 90% Marge mit interaktiven Video-Funnels, Max?</div>
+            <p style="font-size:13px; color:var(--text-muted); margin-bottom:16px;" id="ctaSubtext">
+              Individueller Wachstums-Plan für TechScale GmbH (25 Mitarbeiter)
+            </p>
+            <button class="btn-emerald" onclick="triggerConversion('stripe_checkout', 250)">
+              💳 Sofort-Start: Core Plan im Player buchen (250 € / Monat)
+            </button>
+            <button class="btn-primary" onclick="triggerConversion('calendly_booked', 1500)">
+              📅 Done-For-You Strategie-Call direkt im Video buchen (15 Min)
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Timeline Scrubber & Direct Timestamp Jump Buttons -->
+      <div class="timeline-bar">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <strong style="font-size:13px;">Interaktive Timeline (Zero-Transcoding JSON-Overlay Marker)</strong>
+          <div style="display:flex; gap:8px;">
+            <button class="chip-btn" onclick="togglePlay()" id="btnPlayPause">▶ Video Starten / Pause</button>
+            <button class="chip-btn" onclick="closeAllModals()">✕ Overlay schließen</button>
+          </div>
+        </div>
+
+        <div class="scrubber-track" onclick="seekFromTrack(event)">
+          <div class="scrubber-fill" id="scrubberFill"></div>
+          <div class="marker" style="left: 13.3%;" title="00:18 Branching" onclick="event.stopPropagation(); triggerMilestone(18)">B</div>
+          <div class="marker" style="left: 33.3%;" title="00:45 ROI Rechner" onclick="event.stopPropagation(); triggerMilestone(45)">€</div>
+          <div class="marker" style="left: 59.2%;" title="01:20 Lead Gate" onclick="event.stopPropagation(); triggerMilestone(80)">L</div>
+          <div class="marker" style="left: 77.7%;" title="01:45 Stripe / Calendly" onclick="event.stopPropagation(); triggerMilestone(105)">★</div>
+        </div>
+
+        <div class="trigger-buttons">
+          <button class="chip-btn" onclick="triggerMilestone(18)">⚡ 00:18 Branch-Buttons testen</button>
+          <button class="chip-btn" onclick="triggerMilestone(45)">🧮 00:45 Inline ROI-Rechner öffnen</button>
+          <button class="chip-btn" onclick="triggerMilestone(80)">🔒 01:20 Lead-Gate öffnen</button>
+          <button class="chip-btn" onclick="triggerMilestone(105)">💳 01:45 Stripe &amp; Calendly CTA öffnen</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column: Live Viewer Telemetry, Lead Scoring & Signed Webhooks -->
+    <div class="panel">
+      <div class="panel-title">
+        <span>2. Echtzeit Viewer-Telemetrie &amp; Lead-Scoring</span>
+        <span class="badge badge-emerald" id="tierBadge">QUALIFIED TIER: WARM</span>
+      </div>
+
+      <div class="kpi-grid">
+        <div class="kpi-box">
+          <div class="kpi-label">Gewählter Branch</div>
+          <div class="kpi-val" id="kpiBranch">b2b_saas</div>
+        </div>
+        <div class="kpi-box">
+          <div class="kpi-label">Live Lead-Score</div>
+          <div class="kpi-val" id="kpiLeadScore">35 Pkt</div>
+        </div>
+        <div class="kpi-box">
+          <div class="kpi-label">Drop-Off / Watch Time</div>
+          <div class="kpi-val" id="kpiDropOff">18.0s</div>
+        </div>
+        <div class="kpi-box">
+          <div class="kpi-label">Conversion Trigger</div>
+          <div class="kpi-val" id="kpiConversion">pending</div>
+        </div>
+      </div>
+
+      <div class="panel-title" style="margin-top:8px;">
+        <span>3. Live Webhook-Dispatch Log (HMAC-SHA256 Signiert)</span>
+      </div>
+      <pre id="webhookConsole"></pre>
+
+      <div class="panel-title" style="margin-top:16px;">
+        <span>4. Deklarativer JSON Interaction-Graph</span>
+      </div>
+      <pre id="graphInspector"></pre>
+    </div>
+  </div>
+
+  <script>
+    const INTERACTION_GRAPH = {
+  "schema_version": "2026.10-mindstamp-zero-transcode-v1",
+  "video_id": "vid_b2b_funnel_045",
+  "video_title": "AI Revenue Engine — Interactive Product Tour & ROI Audit",
+  "video_source": {
+    "provider": "html5_mp4_or_hls",
+    "source_url": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+    "fallback_canvas_mode": true,
+    "duration_seconds": 135.0,
+    "zero_transcoding": true,
+    "hosting_cost_per_1000_views_usd": 0.0
+  },
+  "personalized_url_tokens": {
+    "greeting_template": "Hallo {{first_name}} von {{company}} — Willkommen zur interaktiven Live-Demo ({{industry}} Edition)",
+    "cta_subtext_template": "Individueller Wachstums-Plan für {{company}} ({{team_size}} Mitarbeiter)",
+    "defaults": {
+      "first_name": "Max",
+      "company": "TechScale GmbH",
+      "industry": "B2B SaaS",
+      "team_size": "25",
+      "utm_source": "linkedin_outbound"
+    }
+  },
+  "chapters": [
+    {
+      "id": "chap_intro",
+      "title": "01. Personalisiertes Intro",
+      "start_second": 0.0
+    },
+    {
+      "id": "chap_branch",
+      "title": "02. Use-Case Weiche (Branching)",
+      "start_second": 18.0
+    },
+    {
+      "id": "chap_ecom",
+      "title": "03A. E-Commerce Pfad",
+      "start_second": 25.0
+    },
+    {
+      "id": "chap_agency",
+      "title": "03B. B2B Agency Pfad",
+      "start_second": 35.0
+    },
+    {
+      "id": "chap_saas",
+      "title": "03C. SaaS Pipeline Pfad",
+      "start_second": 45.0
+    },
+    {
+      "id": "chap_roi",
+      "title": "04. Live ROI-Rechner",
+      "start_second": 65.0
+    },
+    {
+      "id": "chap_lead",
+      "title": "05. Lead-Gate & Qualifizierung",
+      "start_second": 80.0
+    },
+    {
+      "id": "chap_close",
+      "title": "06. Direkt-Checkout & Termin",
+      "start_second": 105.0
+    }
+  ],
+  "timestamps": [
+    18.0,
+    45.0,
+    80.0,
+    105.0
+  ],
+  "branch_buttons": {
+    "id": "int_branch_018",
+    "timestamp_second": 18.0,
+    "pause_on_trigger": true,
+    "required": true,
+    "kicker": "INTERAKTIVE WEICHE · 00:18",
+    "prompt": "Hallo {{first_name}}! Welches Geschäftsmodell beschreibt {{company}} am besten?",
+    "options": [
+      {
+        "option_id": "opt_ecommerce",
+        "label": "🛒 E-Commerce Brand (Shop-Conversion & Warenkorb-Recovery)",
+        "branch_key": "ecommerce_brand",
+        "jump_to_second": 25.0,
+        "lead_score_delta": 20,
+        "tag": "segment:ecommerce"
+      },
+      {
+        "option_id": "opt_b2b_agency",
+        "label": "🚀 B2B Agency (Done-For-You Client Funnels & Retainer)",
+        "branch_key": "b2b_agency",
+        "jump_to_second": 35.0,
+        "lead_score_delta": 30,
+        "tag": "segment:agency"
+      },
+      {
+        "option_id": "opt_b2b_saas",
+        "label": "⚡ B2B SaaS (Self-Serve Demo-Qualifizierung & Trial-Conversion)",
+        "branch_key": "b2b_saas",
+        "jump_to_second": 45.0,
+        "lead_score_delta": 35,
+        "tag": "segment:saas"
+      }
+    ]
+  },
+  "inline_roi_calculator": {
+    "id": "int_roi_045",
+    "timestamp_second": 45.0,
+    "pause_on_trigger": true,
+    "kicker": "INLINE ROI-RECHNER · 00:45",
+    "headline": "Berechne den monatlichen Mehrumsatz für {{company}}",
+    "inputs": [
+      {
+        "name": "monthly_video_views",
+        "label": "Monatliche Video-/Landingpage-Besucher",
+        "min": 500,
+        "max": 50000,
+        "step": 500,
+        "default": 5000
+      },
+      {
+        "name": "avg_deal_value_eur",
+        "label": "Durchschnittlicher Kundenwert (LTV / Deal in €)",
+        "min": 250,
+        "max": 25000,
+        "step": 250,
+        "default": 2500
+      },
+      {
+        "name": "baseline_conv_pct",
+        "label": "Aktuelle statische Video-Conversion (%)",
+        "min": 0.5,
+        "max": 10.0,
+        "step": 0.5,
+        "default": 1.5
+      }
+    ],
+    "interactive_lift_multiplier": 2.4,
+    "formula_description": "projected_additional_mrr_eur = monthly_video_views * ((baseline_conv_pct / 100.0) * (interactive_lift_multiplier - 1.0)) * avg_deal_value_eur",
+    "high_intent_threshold_eur": 15000,
+    "lead_score_delta_base": 25,
+    "lead_score_delta_high_intent": 40,
+    "jump_to_second_after_submit": 80.0
+  },
+  "lead_gate": {
+    "id": "int_lead_080",
+    "timestamp_second": 80.0,
+    "pause_on_trigger": true,
+    "required_to_continue": true,
+    "kicker": "INLINE LEAD-GATE · 01:20",
+    "headline": "Wohin sollen wir deinen interaktiven Funnel-Blueprint für {{company}} senden?",
+    "fields": [
+      {
+        "name": "viewer_name",
+        "label": "Vor- & Nachname",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "viewer_email",
+        "label": "Geschäftliche E-Mail",
+        "type": "email",
+        "required": true
+      },
+      {
+        "name": "company_name",
+        "label": "Unternehmen",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "monthly_budget_band",
+        "label": "Geplantes Monatsbudget",
+        "type": "select",
+        "options": [
+          "< 500 € / Monat",
+          "500 € – 2.000 € / Monat",
+          "2.000 €+ / Monat (Done-For-You)"
+        ],
+        "required": true
+      }
+    ],
+    "lead_score_delta": 35,
+    "jump_to_second_after_submit": 105.0
+  },
+  "stripe_calendly_cta": {
+    "id": "int_cta_105",
+    "timestamp_second": 105.0,
+    "pause_on_trigger": true,
+    "kicker": "IN-VIDEO CONVERSION · 01:45",
+    "headline": "Bereit für 90% Marge mit interaktiven Video-Funnels, {{first_name}}?",
+    "subheadline": "Wähle deine direkte Umsetzung ohne Medienbruch direkt im Player:",
+    "primary_stripe_action": {
+      "action_id": "act_stripe_checkout",
+      "label": "💳 Sofort-Start: Core Plan buchen (250 €/Monat)",
+      "checkout_url": "https://checkout.stripe.com/pay/cs_live_mindstamp_overlay_core",
+      "amount_eur": 250.0,
+      "lead_score_delta": 50
+    },
+    "secondary_calendly_action": {
+      "action_id": "act_calendly_book",
+      "label": "📅 Done-For-You Strategie-Call im Video buchen (15 Min)",
+      "calendly_url": "https://calendly.com/interactive-video-funnel/done-for-you-audit",
+      "lead_score_delta": 40
+    }
+  }
+};
+    const INITIAL_MANIFEST = {
+  "manifest_version": "1.0.0",
+  "generated_at": "2026-10-17T14:08:39.397477+00:00",
+  "engine": "MVP #45 Zero-Transcoding Interactive Video Funnel Overlay Engine",
+  "benchmark_reference": {
+    "saas_name": "Mindstamp",
+    "mrr_usd": 48062,
+    "all_time_revenue_usd": 2330482,
+    "active_subscribers": 224,
+    "arpu_usd": 214.56,
+    "profit_margin_pct": 90.0
+  },
+  "funnel_summary": {
+    "total_sessions": 4,
+    "branch_interaction_rate_pct": 75.0,
+    "roi_calculator_completion_rate_pct": 75.0,
+    "lead_capture_rate_pct": 50.0,
+    "in_video_conversion_rate_pct": 50.0,
+    "avg_drop_off_second": 90.38,
+    "avg_lead_score": 95.0,
+    "total_pipeline_and_checkout_eur": 1750.0
+  },
+  "viewer_sessions": [
+    {
+      "session_id": "sess_045_001",
+      "video_id": "vid_b2b_funnel_045",
+      "viewer_id": "vwr_saas_001",
+      "personalized_tokens": {
+        "first_name": "Lukas",
+        "company": "CloudMetrics AI",
+        "industry": "B2B SaaS",
+        "team_size": "65"
+      },
+      "branch_chosen": "b2b_saas",
+      "jumped_to_second": 45.0,
+      "roi_inputs": {
+        "monthly_video_views": 12000,
+        "avg_deal_value_eur": 3500,
+        "baseline_conv_pct": 1.8
+      },
+      "projected_additional_mrr_eur": 1058400.0,
+      "lead_captured": true,
+      "viewer_name": "Lukas Weber",
+      "viewer_email": "lukas.weber@cloudmetrics.ai",
+      "budget_band": "2.000 €+ / Monat (Done-For-You)",
+      "conversion_triggered": "stripe_checkout",
+      "conversion_value_eur": 250.0,
+      "drop_off_second": 135.0,
+      "watch_completion_pct": 100.0,
+      "lead_score": 175,
+      "qualified_tier": "HOT_ENTERPRISE_PQL",
+      "interaction_events": [
+        {
+          "id": "evt_branch_001",
+          "video_id": "vid_b2b_funnel_045",
+          "video_title": "AI Revenue Engine — Interactive Product Tour & ROI Audit",
+          "type_of": "reply",
+          "value": "⚡ B2B SaaS (Self-Serve Demo-Qualifizierung & Trial-Conversion)",
+          "time": 18.0,
+          "parent_id": "int_branch_018",
+          "parent_type": "branch_question",
+          "parent_value": "Hallo Lukas! Welches Geschäftsmodell beschreibt CloudMetrics AI am besten?",
+          "click_action": "change_time",
+          "click_value": "45.0",
+          "viewer_id": "vwr_saas_001",
+          "view_id": "sess_045_001",
+          "variables": {
+            "first_name": "Lukas",
+            "company": "CloudMetrics AI",
+            "industry": "B2B SaaS",
+            "team_size": "65"
+          },
+          "created_at": "2026-10-17T14:08:39.397232+00:00"
+        },
+        {
+          "id": "evt_roi_001",
+          "video_id": "vid_b2b_funnel_045",
+          "type_of": "roi_calculator_submit",
+          "time": 45.0,
+          "parent_id": "int_roi_045",
+          "value": "+1058400.00 EUR/mo",
+          "roi_breakdown": {
+            "baseline_customers_per_mo": 216.0,
+            "interactive_customers_per_mo": 518.4,
+            "baseline_revenue_eur": 756000.0,
+            "interactive_revenue_eur": 1814400.0,
+            "projected_additional_mrr_eur": 1058400.0
+          }
+        },
+        {
+          "id": "evt_lead_001",
+          "video_id": "vid_b2b_funnel_045",
+          "video_title": "AI Revenue Engine — Interactive Product Tour & ROI Audit",
+          "type_of": "lead_capture",
+          "time": 80.0,
+          "parent_id": "int_lead_080",
+          "viewer_id": "vwr_saas_001",
+          "viewer_name": "Lukas Weber",
+          "viewer_email": "lukas.weber@cloudmetrics.ai",
+          "viewer_custom_id": "CloudMetrics AI",
+          "view_id": "sess_045_001",
+          "variables": {
+            "first_name": "Lukas",
+            "company": "CloudMetrics AI",
+            "industry": "B2B SaaS",
+            "team_size": "65",
+            "budget_band": "2.000 €+ / Monat (Done-For-You)",
+            "projected_additional_mrr_eur": 1058400.0,
+            "branch_chosen": "b2b_saas"
+          },
+          "created_at": "2026-10-17T14:08:39.397321+00:00"
+        },
+        {
+          "id": "evt_cta_001",
+          "video_id": "vid_b2b_funnel_045",
+          "type_of": "click",
+          "time": 105.0,
+          "parent_id": "int_cta_105",
+          "click_action": "stripe_checkout",
+          "click_value": "https://checkout.stripe.com/pay/cs_live_mindstamp_overlay_core",
+          "amount_eur": 250.0
+        }
+      ]
+    },
+    {
+      "session_id": "sess_045_002",
+      "video_id": "vid_b2b_funnel_045",
+      "viewer_id": "vwr_agency_002",
+      "personalized_tokens": {
+        "first_name": "Sarah",
+        "company": "GrowthPulse Media",
+        "industry": "B2B Agency",
+        "team_size": "18"
+      },
+      "branch_chosen": "b2b_agency",
+      "jumped_to_second": 35.0,
+      "roi_inputs": {
+        "monthly_video_views": 6500,
+        "avg_deal_value_eur": 4000,
+        "baseline_conv_pct": 1.5
+      },
+      "projected_additional_mrr_eur": 546000.0,
+      "lead_captured": true,
+      "viewer_name": "Sarah Lindner",
+      "viewer_email": "sarah@growthpulse.de",
+      "budget_band": "500 € – 2.000 € / Monat",
+      "conversion_triggered": "calendly_booked",
+      "conversion_value_eur": 1500.0,
+      "drop_off_second": 128.5,
+      "watch_completion_pct": 95.2,
+      "lead_score": 145,
+      "qualified_tier": "HOT_ENTERPRISE_PQL",
+      "interaction_events": [
+        {
+          "id": "evt_branch_002",
+          "video_id": "vid_b2b_funnel_045",
+          "video_title": "AI Revenue Engine — Interactive Product Tour & ROI Audit",
+          "type_of": "reply",
+          "value": "🚀 B2B Agency (Done-For-You Client Funnels & Retainer)",
+          "time": 18.0,
+          "parent_id": "int_branch_018",
+          "parent_type": "branch_question",
+          "parent_value": "Hallo Sarah! Welches Geschäftsmodell beschreibt GrowthPulse Media am besten?",
+          "click_action": "change_time",
+          "click_value": "35.0",
+          "viewer_id": "vwr_agency_002",
+          "view_id": "sess_045_002",
+          "variables": {
+            "first_name": "Sarah",
+            "company": "GrowthPulse Media",
+            "industry": "B2B Agency",
+            "team_size": "18"
+          },
+          "created_at": "2026-10-17T14:08:39.397372+00:00"
+        },
+        {
+          "id": "evt_roi_002",
+          "video_id": "vid_b2b_funnel_045",
+          "type_of": "roi_calculator_submit",
+          "time": 45.0,
+          "parent_id": "int_roi_045",
+          "value": "+546000.00 EUR/mo",
+          "roi_breakdown": {
+            "baseline_customers_per_mo": 97.5,
+            "interactive_customers_per_mo": 234.0,
+            "baseline_revenue_eur": 390000.0,
+            "interactive_revenue_eur": 936000.0,
+            "projected_additional_mrr_eur": 546000.0
+          }
+        },
+        {
+          "id": "evt_lead_002",
+          "video_id": "vid_b2b_funnel_045",
+          "video_title": "AI Revenue Engine — Interactive Product Tour & ROI Audit",
+          "type_of": "lead_capture",
+          "time": 80.0,
+          "parent_id": "int_lead_080",
+          "viewer_id": "vwr_agency_002",
+          "viewer_name": "Sarah Lindner",
+          "viewer_email": "sarah@growthpulse.de",
+          "viewer_custom_id": "GrowthPulse Media",
+          "view_id": "sess_045_002",
+          "variables": {
+            "first_name": "Sarah",
+            "company": "GrowthPulse Media",
+            "industry": "B2B Agency",
+            "team_size": "18",
+            "budget_band": "500 € – 2.000 € / Monat",
+            "projected_additional_mrr_eur": 546000.0,
+            "branch_chosen": "b2b_agency"
+          },
+          "created_at": "2026-10-17T14:08:39.397396+00:00"
+        },
+        {
+          "id": "evt_cta_002",
+          "video_id": "vid_b2b_funnel_045",
+          "type_of": "click",
+          "time": 105.0,
+          "parent_id": "int_cta_105",
+          "click_action": "calendly_embed_booked",
+          "click_value": "https://calendly.com/interactive-video-funnel/done-for-you-audit",
+          "pipeline_value_eur": 1500.0
+        }
+      ]
+    },
+    {
+      "session_id": "sess_045_003",
+      "video_id": "vid_b2b_funnel_045",
+      "viewer_id": "vwr_ecom_003",
+      "personalized_tokens": {
+        "first_name": "Tobias",
+        "company": "NordicFit Store",
+        "industry": "E-Commerce",
+        "team_size": "12"
+      },
+      "branch_chosen": "ecommerce_brand",
+      "jumped_to_second": 25.0,
+      "roi_inputs": {
+        "monthly_video_views": 15000,
+        "avg_deal_value_eur": 450,
+        "baseline_conv_pct": 2.0
+      },
+      "projected_additional_mrr_eur": 189000.0,
+      "lead_captured": false,
+      "viewer_name": "",
+      "viewer_email": "",
+      "budget_band": "",
+      "conversion_triggered": "none",
+      "conversion_value_eur": 0.0,
+      "drop_off_second": 80.0,
+      "watch_completion_pct": 59.3,
+      "lead_score": 60,
+      "qualified_tier": "ENGAGED_PROSPECT",
+      "interaction_events": [
+        {
+          "id": "evt_branch_003",
+          "video_id": "vid_b2b_funnel_045",
+          "video_title": "AI Revenue Engine — Interactive Product Tour & ROI Audit",
+          "type_of": "reply",
+          "value": "🛒 E-Commerce Brand (Shop-Conversion & Warenkorb-Recovery)",
+          "time": 18.0,
+          "parent_id": "int_branch_018",
+          "parent_type": "branch_question",
+          "parent_value": "Hallo Tobias! Welches Geschäftsmodell beschreibt NordicFit Store am besten?",
+          "click_action": "change_time",
+          "click_value": "25.0",
+          "viewer_id": "vwr_ecom_003",
+          "view_id": "sess_045_003",
+          "variables": {
+            "first_name": "Tobias",
+            "company": "NordicFit Store",
+            "industry": "E-Commerce",
+            "team_size": "12"
+          },
+          "created_at": "2026-10-17T14:08:39.397431+00:00"
+        },
+        {
+          "id": "evt_roi_003",
+          "video_id": "vid_b2b_funnel_045",
+          "type_of": "roi_calculator_submit",
+          "time": 45.0,
+          "parent_id": "int_roi_045",
+          "value": "+189000.00 EUR/mo",
+          "roi_breakdown": {
+            "baseline_customers_per_mo": 300.0,
+            "interactive_customers_per_mo": 720.0,
+            "baseline_revenue_eur": 135000.0,
+            "interactive_revenue_eur": 324000.0,
+            "projected_additional_mrr_eur": 189000.0
+          }
+        }
+      ]
+    },
+    {
+      "session_id": "sess_045_004",
+      "video_id": "vid_b2b_funnel_045",
+      "viewer_id": "vwr_bounce_004",
+      "personalized_tokens": {
+        "first_name": "Gast",
+        "company": "Unbekannt",
+        "industry": "General",
+        "team_size": "5"
+      },
+      "branch_chosen": "none",
+      "jumped_to_second": 0.0,
+      "roi_inputs": {},
+      "projected_additional_mrr_eur": 0.0,
+      "lead_captured": false,
+      "viewer_name": "",
+      "viewer_email": "",
+      "budget_band": "",
+      "conversion_triggered": "none",
+      "conversion_value_eur": 0.0,
+      "drop_off_second": 18.0,
+      "watch_completion_pct": 13.3,
+      "lead_score": 0,
+      "qualified_tier": "UNQUALIFIED_BOUNCE",
+      "interaction_events": []
+    }
+  ],
+  "signed_webhooks_log": [
+    {
+      "webhook_type": "interaction_webhook",
+      "headers": {
+        "Content-Type": "application/json",
+        "X-KEY": "ms_whsec_live_demo_90margin",
+        "X-Mindstamp-Timestamp": "1760709601",
+        "X-Mindstamp-Signature": "t=1760709601,v1=1f4840ad055c117cff5a6457fbb7c384cb6d68ab9a2bdfc6d001654b5aea60f3"
+      },
+      "raw_body": "{\"id\":\"evt_branch_001\",\"video_id\":\"vid_b2b_funnel_045\",\"video_title\":\"AI Revenue Engine — Interactive Product Tour & ROI Audit\",\"type_of\":\"reply\",\"value\":\"⚡ B2B SaaS (Self-Serve Demo-Qualifizierung & Trial-Conversion)\",\"time\":18.0,\"parent_id\":\"int_branch_018\",\"parent_type\":\"branch_question\",\"parent_value\":\"Hallo Lukas! Welches Geschäftsmodell beschreibt CloudMetrics AI am besten?\",\"click_action\":\"change_time\",\"click_value\":\"45.0\",\"viewer_id\":\"vwr_saas_001\",\"view_id\":\"sess_045_001\",\"variables\":{\"first_name\":\"Lukas\",\"company\":\"CloudMetrics AI\",\"industry\":\"B2B SaaS\",\"team_size\":\"65\"},\"created_at\":\"2026-10-17T14:08:39.397232+00:00\"}",
+      "payload": {
+        "id": "evt_branch_001",
+        "video_id": "vid_b2b_funnel_045",
+        "video_title": "AI Revenue Engine — Interactive Product Tour & ROI Audit",
+        "type_of": "reply",
+        "value": "⚡ B2B SaaS (Self-Serve Demo-Qualifizierung & Trial-Conversion)",
+        "time": 18.0,
+        "parent_id": "int_branch_018",
+        "parent_type": "branch_question",
+        "parent_value": "Hallo Lukas! Welches Geschäftsmodell beschreibt CloudMetrics AI am besten?",
+        "click_action": "change_time",
+        "click_value": "45.0",
+        "viewer_id": "vwr_saas_001",
+        "view_id": "sess_045_001",
+        "variables": {
+          "first_name": "Lukas",
+          "company": "CloudMetrics AI",
+          "industry": "B2B SaaS",
+          "team_size": "65"
+        },
+        "created_at": "2026-10-17T14:08:39.397232+00:00"
+      }
+    },
+    {
+      "webhook_type": "lead_webhook",
+      "headers": {
+        "Content-Type": "application/json",
+        "X-KEY": "ms_whsec_live_demo_90margin",
+        "X-Mindstamp-Timestamp": "1760709611",
+        "X-Mindstamp-Signature": "t=1760709611,v1=6fcbd4b20774693bb59e99abf4cd0894070e8add0b348d5aadee560e0c27c255"
+      },
+      "raw_body": "{\"id\":\"evt_lead_001\",\"video_id\":\"vid_b2b_funnel_045\",\"video_title\":\"AI Revenue Engine — Interactive Product Tour & ROI Audit\",\"type_of\":\"lead_capture\",\"time\":80.0,\"parent_id\":\"int_lead_080\",\"viewer_id\":\"vwr_saas_001\",\"viewer_name\":\"Lukas Weber\",\"viewer_email\":\"lukas.weber@cloudmetrics.ai\",\"viewer_custom_id\":\"CloudMetrics AI\",\"view_id\":\"sess_045_001\",\"variables\":{\"first_name\":\"Lukas\",\"company\":\"CloudMetrics AI\",\"industry\":\"B2B SaaS\",\"team_size\":\"65\",\"budget_band\":\"2.000 €+ / Monat (Done-For-You)\",\"projected_additional_mrr_eur\":1058400.0,\"branch_chosen\":\"b2b_saas\"},\"created_at\":\"2026-10-17T14:08:39.397321+00:00\"}",
+      "payload": {
+        "id": "evt_lead_001",
+        "video_id": "vid_b2b_funnel_045",
+        "video_title": "AI Revenue Engine — Interactive Product Tour & ROI Audit",
+        "type_of": "lead_capture",
+        "time": 80.0,
+        "parent_id": "int_lead_080",
+        "viewer_id": "vwr_saas_001",
+        "viewer_name": "Lukas Weber",
+        "viewer_email": "lukas.weber@cloudmetrics.ai",
+        "viewer_custom_id": "CloudMetrics AI",
+        "view_id": "sess_045_001",
+        "variables": {
+          "first_name": "Lukas",
+          "company": "CloudMetrics AI",
+          "industry": "B2B SaaS",
+          "team_size": "65",
+          "budget_band": "2.000 €+ / Monat (Done-For-You)",
+          "projected_additional_mrr_eur": 1058400.0,
+          "branch_chosen": "b2b_saas"
+        },
+        "created_at": "2026-10-17T14:08:39.397321+00:00"
+      }
+    },
+    {
+      "webhook_type": "view_webhook",
+      "headers": {
+        "Content-Type": "application/json",
+        "X-KEY": "ms_whsec_live_demo_90margin",
+        "X-Mindstamp-Timestamp": "1760709621",
+        "X-Mindstamp-Signature": "t=1760709621,v1=9a210f650ccdfb1d6b8e896f94e9d4a360e765cdfbd956b2c8014ed78894b9b9"
+      },
+      "raw_body": "{\"view_id\":\"sess_045_001\",\"video_id\":\"vid_b2b_funnel_045\",\"video_title\":\"AI Revenue Engine — Interactive Product Tour & ROI Audit\",\"viewer_id\":\"vwr_saas_001\",\"viewer_name\":\"Lukas Weber\",\"viewer_email\":\"lukas.weber@cloudmetrics.ai\",\"watch_percentage\":100.0,\"drop_off_second\":135.0,\"lead_score\":175,\"qualified_tier\":\"HOT_ENTERPRISE_PQL\",\"branch_chosen\":\"b2b_saas\",\"conversion_triggered\":\"stripe_checkout\",\"variables\":{\"first_name\":\"Lukas\",\"company\":\"CloudMetrics AI\",\"industry\":\"B2B SaaS\",\"team_size\":\"65\"},\"interactions_count\":4}",
+      "payload": {
+        "view_id": "sess_045_001",
+        "video_id": "vid_b2b_funnel_045",
+        "video_title": "AI Revenue Engine — Interactive Product Tour & ROI Audit",
+        "viewer_id": "vwr_saas_001",
+        "viewer_name": "Lukas Weber",
+        "viewer_email": "lukas.weber@cloudmetrics.ai",
+        "watch_percentage": 100.0,
+        "drop_off_second": 135.0,
+        "lead_score": 175,
+        "qualified_tier": "HOT_ENTERPRISE_PQL",
+        "branch_chosen": "b2b_saas",
+        "conversion_triggered": "stripe_checkout",
+        "variables": {
+          "first_name": "Lukas",
+          "company": "CloudMetrics AI",
+          "industry": "B2B SaaS",
+          "team_size": "65"
+        },
+        "interactions_count": 4
+      }
+    },
+    {
+      "webhook_type": "interaction_webhook",
+      "headers": {
+        "Content-Type": "application/json",
+        "X-KEY": "ms_whsec_live_demo_90margin",
+        "X-Mindstamp-Timestamp": "1760709602",
+        "X-Mindstamp-Signature": "t=1760709602,v1=abb4bbcb32007b5a65c5bb6e14f43840691639b17239fd773965661625473201"
+      },
+      "raw_body": "{\"id\":\"evt_branch_002\",\"video_id\":\"vid_b2b_funnel_045\",\"video_title\":\"AI Revenue Engine — Interactive Product Tour & ROI Audit\",\"type_of\":\"reply\",\"value\":\"🚀 B2B Agency (Done-For-You Client Funnels & Retainer)\",\"time\":18.0,\"parent_id\":\"int_branch_018\",\"parent_type\":\"branch_question\",\"parent_value\":\"Hallo Sarah! Welches Geschäftsmodell beschreibt GrowthPulse Media am besten?\",\"click_action\":\"change_time\",\"click_value\":\"35.0\",\"viewer_id\":\"vwr_agency_002\",\"view_id\":\"sess_045_002\",\"variables\":{\"first_name\":\"Sarah\",\"company\":\"GrowthPulse Media\",\"industry\":\"B2B Agency\",\"team_size\":\"18\"},\"created_at\":\"2026-10-17T14:08:39.397372+00:00\"}",
+      "payload": {
+        "id": "evt_branch_002",
+        "video_id": "vid_b2b_funnel_045",
+        "video_title": "AI Revenue Engine — Interactive Product Tour & ROI Audit",
+        "type_of": "reply",
+        "value": "🚀 B2B Agency (Done-For-You Client Funnels & Retainer)",
+        "time": 18.0,
+        "parent_id": "int_branch_018",
+        "parent_type": "branch_question",
+        "parent_value": "Hallo Sarah! Welches Geschäftsmodell beschreibt GrowthPulse Media am besten?",
+        "click_action": "change_time",
+        "click_value": "35.0",
+        "viewer_id": "vwr_agency_002",
+        "view_id": "sess_045_002",
+        "variables": {
+          "first_name": "Sarah",
+          "company": "GrowthPulse Media",
+          "industry": "B2B Agency",
+          "team_size": "18"
+        },
+        "created_at": "2026-10-17T14:08:39.397372+00:00"
+      }
+    },
+    {
+      "webhook_type": "lead_webhook",
+      "headers": {
+        "Content-Type": "application/json",
+        "X-KEY": "ms_whsec_live_demo_90margin",
+        "X-Mindstamp-Timestamp": "1760709612",
+        "X-Mindstamp-Signature": "t=1760709612,v1=f47b8389003d3fd1dba37a7132420af3e4524e311efd588ec51a56a999c6bd7f"
+      },
+      "raw_body": "{\"id\":\"evt_lead_002\",\"video_id\":\"vid_b2b_funnel_045\",\"video_title\":\"AI Revenue Engine — Interactive Product Tour & ROI Audit\",\"type_of\":\"lead_capture\",\"time\":80.0,\"parent_id\":\"int_lead_080\",\"viewer_id\":\"vwr_agency_002\",\"viewer_name\":\"Sarah Lindner\",\"viewer_email\":\"sarah@growthpulse.de\",\"viewer_custom_id\":\"GrowthPulse Media\",\"view_id\":\"sess_045_002\",\"variables\":{\"first_name\":\"Sarah\",\"company\":\"GrowthPulse Media\",\"industry\":\"B2B Agency\",\"team_size\":\"18\",\"budget_band\":\"500 € – 2.000 € / Monat\",\"projected_additional_mrr_eur\":546000.0,\"branch_chosen\":\"b2b_agency\"},\"created_at\":\"2026-10-17T14:08:39.397396+00:00\"}",
+      "payload": {
+        "id": "evt_lead_002",
+        "video_id": "vid_b2b_funnel_045",
+        "video_title": "AI Revenue Engine — Interactive Product Tour & ROI Audit",
+        "type_of": "lead_capture",
+        "time": 80.0,
+        "parent_id": "int_lead_080",
+        "viewer_id": "vwr_agency_002",
+        "viewer_name": "Sarah Lindner",
+        "viewer_email": "sarah@growthpulse.de",
+        "viewer_custom_id": "GrowthPulse Media",
+        "view_id": "sess_045_002",
+        "variables": {
+          "first_name": "Sarah",
+          "company": "GrowthPulse Media",
+          "industry": "B2B Agency",
+          "team_size": "18",
+          "budget_band": "500 € – 2.000 € / Monat",
+          "projected_additional_mrr_eur": 546000.0,
+          "branch_chosen": "b2b_agency"
+        },
+        "created_at": "2026-10-17T14:08:39.397396+00:00"
+      }
+    },
+    {
+      "webhook_type": "view_webhook",
+      "headers": {
+        "Content-Type": "application/json",
+        "X-KEY": "ms_whsec_live_demo_90margin",
+        "X-Mindstamp-Timestamp": "1760709622",
+        "X-Mindstamp-Signature": "t=1760709622,v1=536087cd9898a93be6d2cf2e3b9717a6b16aefc6ae3b9ff7f3c7053964fe6aae"
+      },
+      "raw_body": "{\"view_id\":\"sess_045_002\",\"video_id\":\"vid_b2b_funnel_045\",\"video_title\":\"AI Revenue Engine — Interactive Product Tour & ROI Audit\",\"viewer_id\":\"vwr_agency_002\",\"viewer_name\":\"Sarah Lindner\",\"viewer_email\":\"sarah@growthpulse.de\",\"watch_percentage\":95.2,\"drop_off_second\":128.5,\"lead_score\":145,\"qualified_tier\":\"HOT_ENTERPRISE_PQL\",\"branch_chosen\":\"b2b_agency\",\"conversion_triggered\":\"calendly_booked\",\"variables\":{\"first_name\":\"Sarah\",\"company\":\"GrowthPulse Media\",\"industry\":\"B2B Agency\",\"team_size\":\"18\"},\"interactions_count\":4}",
+      "payload": {
+        "view_id": "sess_045_002",
+        "video_id": "vid_b2b_funnel_045",
+        "video_title": "AI Revenue Engine — Interactive Product Tour & ROI Audit",
+        "viewer_id": "vwr_agency_002",
+        "viewer_name": "Sarah Lindner",
+        "viewer_email": "sarah@growthpulse.de",
+        "watch_percentage": 95.2,
+        "drop_off_second": 128.5,
+        "lead_score": 145,
+        "qualified_tier": "HOT_ENTERPRISE_PQL",
+        "branch_chosen": "b2b_agency",
+        "conversion_triggered": "calendly_booked",
+        "variables": {
+          "first_name": "Sarah",
+          "company": "GrowthPulse Media",
+          "industry": "B2B Agency",
+          "team_size": "18"
+        },
+        "interactions_count": 4
+      }
+    },
+    {
+      "webhook_type": "interaction_webhook",
+      "headers": {
+        "Content-Type": "application/json",
+        "X-KEY": "ms_whsec_live_demo_90margin",
+        "X-Mindstamp-Timestamp": "1760709603",
+        "X-Mindstamp-Signature": "t=1760709603,v1=29a41454db26ed8a8115ae5f167cb77a8a8505858d047095f8deae7bd8d5aaa8"
+      },
+      "raw_body": "{\"id\":\"evt_branch_003\",\"video_id\":\"vid_b2b_funnel_045\",\"video_title\":\"AI Revenue Engine — Interactive Product Tour & ROI Audit\",\"type_of\":\"reply\",\"value\":\"🛒 E-Commerce Brand (Shop-Conversion & Warenkorb-Recovery)\",\"time\":18.0,\"parent_id\":\"int_branch_018\",\"parent_type\":\"branch_question\",\"parent_value\":\"Hallo Tobias! Welches Geschäftsmodell beschreibt NordicFit Store am besten?\",\"click_action\":\"change_time\",\"click_value\":\"25.0\",\"viewer_id\":\"vwr_ecom_003\",\"view_id\":\"sess_045_003\",\"variables\":{\"first_name\":\"Tobias\",\"company\":\"NordicFit Store\",\"industry\":\"E-Commerce\",\"team_size\":\"12\"},\"created_at\":\"2026-10-17T14:08:39.397431+00:00\"}",
+      "payload": {
+        "id": "evt_branch_003",
+        "video_id": "vid_b2b_funnel_045",
+        "video_title": "AI Revenue Engine — Interactive Product Tour & ROI Audit",
+        "type_of": "reply",
+        "value": "🛒 E-Commerce Brand (Shop-Conversion & Warenkorb-Recovery)",
+        "time": 18.0,
+        "parent_id": "int_branch_018",
+        "parent_type": "branch_question",
+        "parent_value": "Hallo Tobias! Welches Geschäftsmodell beschreibt NordicFit Store am besten?",
+        "click_action": "change_time",
+        "click_value": "25.0",
+        "viewer_id": "vwr_ecom_003",
+        "view_id": "sess_045_003",
+        "variables": {
+          "first_name": "Tobias",
+          "company": "NordicFit Store",
+          "industry": "E-Commerce",
+          "team_size": "12"
+        },
+        "created_at": "2026-10-17T14:08:39.397431+00:00"
+      }
+    },
+    {
+      "webhook_type": "view_webhook",
+      "headers": {
+        "Content-Type": "application/json",
+        "X-KEY": "ms_whsec_live_demo_90margin",
+        "X-Mindstamp-Timestamp": "1760709623",
+        "X-Mindstamp-Signature": "t=1760709623,v1=6f870fb721dbb59fae8cd290384e81d8fa2b1275b7717e73e20419082a3c64c9"
+      },
+      "raw_body": "{\"view_id\":\"sess_045_003\",\"video_id\":\"vid_b2b_funnel_045\",\"video_title\":\"AI Revenue Engine — Interactive Product Tour & ROI Audit\",\"viewer_id\":\"vwr_ecom_003\",\"viewer_name\":null,\"viewer_email\":null,\"watch_percentage\":59.3,\"drop_off_second\":80.0,\"lead_score\":60,\"qualified_tier\":\"ENGAGED_PROSPECT\",\"branch_chosen\":\"ecommerce_brand\",\"conversion_triggered\":\"none\",\"variables\":{\"first_name\":\"Tobias\",\"company\":\"NordicFit Store\",\"industry\":\"E-Commerce\",\"team_size\":\"12\"},\"interactions_count\":2}",
+      "payload": {
+        "view_id": "sess_045_003",
+        "video_id": "vid_b2b_funnel_045",
+        "video_title": "AI Revenue Engine — Interactive Product Tour & ROI Audit",
+        "viewer_id": "vwr_ecom_003",
+        "viewer_name": null,
+        "viewer_email": null,
+        "watch_percentage": 59.3,
+        "drop_off_second": 80.0,
+        "lead_score": 60,
+        "qualified_tier": "ENGAGED_PROSPECT",
+        "branch_chosen": "ecommerce_brand",
+        "conversion_triggered": "none",
+        "variables": {
+          "first_name": "Tobias",
+          "company": "NordicFit Store",
+          "industry": "E-Commerce",
+          "team_size": "12"
+        },
+        "interactions_count": 2
+      }
+    },
+    {
+      "webhook_type": "view_webhook",
+      "headers": {
+        "Content-Type": "application/json",
+        "X-KEY": "ms_whsec_live_demo_90margin",
+        "X-Mindstamp-Timestamp": "1760709624",
+        "X-Mindstamp-Signature": "t=1760709624,v1=92d2fbe1db03d9b7d136ecfa099dd00008e146cab2453f289d59487480c8970a"
+      },
+      "raw_body": "{\"view_id\":\"sess_045_004\",\"video_id\":\"vid_b2b_funnel_045\",\"video_title\":\"AI Revenue Engine — Interactive Product Tour & ROI Audit\",\"viewer_id\":\"vwr_bounce_004\",\"viewer_name\":null,\"viewer_email\":null,\"watch_percentage\":13.3,\"drop_off_second\":18.0,\"lead_score\":0,\"qualified_tier\":\"UNQUALIFIED_BOUNCE\",\"branch_chosen\":\"none\",\"conversion_triggered\":\"none\",\"variables\":{\"first_name\":\"Gast\",\"company\":\"Unbekannt\",\"industry\":\"General\",\"team_size\":\"5\"},\"interactions_count\":0}",
+      "payload": {
+        "view_id": "sess_045_004",
+        "video_id": "vid_b2b_funnel_045",
+        "video_title": "AI Revenue Engine — Interactive Product Tour & ROI Audit",
+        "viewer_id": "vwr_bounce_004",
+        "viewer_name": null,
+        "viewer_email": null,
+        "watch_percentage": 13.3,
+        "drop_off_second": 18.0,
+        "lead_score": 0,
+        "qualified_tier": "UNQUALIFIED_BOUNCE",
+        "branch_chosen": "none",
+        "conversion_triggered": "none",
+        "variables": {
+          "first_name": "Gast",
+          "company": "Unbekannt",
+          "industry": "General",
+          "team_size": "5"
+        },
+        "interactions_count": 0
+      }
+    }
+  ]
+};
+
+    const state = {
+      virtualTime: 0.0,
+      duration: INTERACTION_GRAPH.video_source.duration_seconds || 135.0,
+      playing: false,
+      branchChosen: "b2b_saas",
+      dropOffSecond: 18.0,
+      leadScore: 35,
+      projectedMrr: 262500,
+      conversionTriggered: "none",
+      firedMilestones: new Set(),
+      events: []
+    };
+
+    // Parse URL query parameters if present for dynamic personalization
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("first_name")) document.getElementById("tokFirstName").value = params.get("first_name");
+    if (params.get("company")) document.getElementById("tokCompany").value = params.get("company");
+    if (params.get("industry")) document.getElementById("tokIndustry").value = params.get("industry");
+    if (params.get("team_size")) document.getElementById("tokTeamSize").value = params.get("team_size");
+
+    function getTokens() {
+      return {
+        first_name: document.getElementById("tokFirstName").value || "Max",
+        company: document.getElementById("tokCompany").value || "TechScale GmbH",
+        industry: document.getElementById("tokIndustry").value || "B2B SaaS",
+        team_size: document.getElementById("tokTeamSize").value || "25"
+      };
+    }
+
+    function updatePersonalization() {
+      const t = getTokens();
+      document.getElementById("liveGreetingText").textContent =
+        `Hallo ${t.first_name} von ${t.company} — Willkommen zur interaktiven Live-Demo (${t.industry} Edition)`;
+      document.getElementById("branchPromptText").textContent =
+        `Hallo ${t.first_name}! Welches Geschäftsmodell beschreibt ${t.company} am besten?`;
+      document.getElementById("roiHeadlineText").textContent =
+        `Berechne den monatlichen Mehrumsatz für ${t.company}`;
+      document.getElementById("leadHeadlineText").textContent =
+        `Wohin sollen wir deinen interaktiven Funnel-Blueprint für ${t.company} senden?`;
+      document.getElementById("ctaHeadlineText").textContent =
+        `Bereit für 90% Marge mit interaktiven Video-Funnels, ${t.first_name}?`;
+      document.getElementById("ctaSubtext").textContent =
+        `Individueller Wachstums-Plan für ${t.company} (${t.team_size} Mitarbeiter)`;
+    }
+
+    function formatTime(sec) {
+      const m = Math.floor(sec / 60);
+      const s = Math.floor(sec % 60);
+      return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+    }
+
+    function closeAllModals() {
+      ["modalBranch", "modalRoi", "modalLead", "modalCta"].forEach(id => {
+        document.getElementById(id).classList.remove("active");
+      });
+    }
+
+    function triggerMilestone(sec) {
+      closeAllModals();
+      state.virtualTime = sec;
+      state.dropOffSecond = Math.max(state.dropOffSecond, sec);
+      updateTimelineUI();
+      if (sec === 18) document.getElementById("modalBranch").classList.add("active");
+      if (sec === 45) { recalcRoi(); document.getElementById("modalRoi").classList.add("active"); }
+      if (sec === 80) document.getElementById("modalLead").classList.add("active");
+      if (sec === 105) document.getElementById("modalCta").classList.add("active");
+      renderTelemetry();
+    }
+
+    function selectBranch(branchKey, jumpSec, scoreDelta, label) {
+      state.branchChosen = branchKey;
+      state.leadScore += scoreDelta;
+      state.virtualTime = jumpSec;
+      state.dropOffSecond = Math.max(state.dropOffSecond, jumpSec);
+      closeAllModals();
+      logWebhookEvent("interaction_webhook", {
+        type_of: "reply",
+        parent_id: "int_branch_018",
+        branch_chosen: branchKey,
+        value: label,
+        jump_to_second: jumpSec,
+        lead_score: state.leadScore
+      });
+      updateTimelineUI();
+      renderTelemetry();
+    }
+
+    function recalcRoi() {
+      const views = Number(document.getElementById("rngViews").value);
+      const deal = Number(document.getElementById("rngDeal").value);
+      const conv = Number(document.getElementById("rngConv").value);
+      document.getElementById("lblViews").textContent = views.toLocaleString("de-DE");
+      document.getElementById("lblDeal").textContent = deal.toLocaleString("de-DE") + " €";
+      document.getElementById("lblConv").textContent = conv.toFixed(1) + "%";
+      const additionalMrr = Math.round(views * ((conv / 100.0) * 1.4) * deal);
+      state.projectedMrr = additionalMrr;
+      document.getElementById("roiResultValue").textContent =
+        "+ " + additionalMrr.toLocaleString("de-DE") + " € / Monat";
+    }
+
+    function submitRoiCalculator() {
+      state.leadScore += state.projectedMrr >= 15000 ? 40 : 25;
+      state.virtualTime = 80;
+      state.dropOffSecond = Math.max(state.dropOffSecond, 80);
+      closeAllModals();
+      logWebhookEvent("interaction_webhook", {
+        type_of: "roi_calculator_submit",
+        parent_id: "int_roi_045",
+        projected_additional_mrr_eur: state.projectedMrr,
+        lead_score: state.leadScore
+      });
+      triggerMilestone(80);
+    }
+
+    function submitLeadGate() {
+      const name = document.getElementById("inpLeadName").value;
+      const email = document.getElementById("inpLeadEmail").value;
+      const budget = document.getElementById("inpLeadBudget").value;
+      state.leadScore += 35;
+      state.virtualTime = 105;
+      state.dropOffSecond = Math.max(state.dropOffSecond, 105);
+      closeAllModals();
+      logWebhookEvent("lead_webhook", {
+        type_of: "lead_capture",
+        viewer_name: name,
+        viewer_email: email,
+        budget_band: budget,
+        variables: getTokens(),
+        lead_score: state.leadScore
+      });
+      triggerMilestone(105);
+    }
+
+    function triggerConversion(actionType, valueEur) {
+      state.conversionTriggered = actionType;
+      state.leadScore += actionType === "stripe_checkout" ? 50 : 40;
+      state.virtualTime = 135;
+      state.dropOffSecond = 135;
+      closeAllModals();
+      logWebhookEvent("interaction_webhook", {
+        type_of: "conversion_click",
+        click_action: actionType,
+        conversion_value_eur: valueEur,
+        lead_score: state.leadScore
+      });
+      updateTimelineUI();
+      renderTelemetry();
+    }
+
+    function logWebhookEvent(webhookType, payload) {
+      const entry = {
+        webhook_type: webhookType,
+        headers: {
+          "X-Mindstamp-Timestamp": String(Math.floor(Date.now() / 1000)),
+          "X-Mindstamp-Signature": "t=" + Math.floor(Date.now() / 1000) + ",v1=hmac_sha256_verified"
+        },
+        payload
+      };
+      state.events.unshift(entry);
+    }
+
+    function updateTimelineUI() {
+      const pct = Math.min(100, (state.virtualTime / state.duration) * 100);
+      document.getElementById("scrubberFill").style.width = pct + "%";
+      document.getElementById("currentTimecodeBadge").textContent =
+        `${formatTime(state.virtualTime)} / ${formatTime(state.duration)}`;
+      drawSyntheticFrame();
+    }
+
+    function seekFromTrack(evt) {
+      const rect = evt.currentTarget.getBoundingClientRect();
+      const ratio = Math.max(0, Math.min(1, (evt.clientX - rect.left) / rect.width));
+      state.virtualTime = Math.round(ratio * state.duration);
+      state.dropOffSecond = Math.max(state.dropOffSecond, state.virtualTime);
+      updateTimelineUI();
+      renderTelemetry();
+    }
+
+    function togglePlay() {
+      state.playing = !state.playing;
+      document.getElementById("btnPlayPause").textContent = state.playing ? "⏸ Pause" : "▶ Video Starten";
+    }
+
+    function drawSyntheticFrame() {
+      const canvas = document.getElementById("syntheticCanvas");
+      const ctx = canvas.getContext("2d");
+      const grad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+      grad.addColorStop(0, "#0f172a");
+      grad.addColorStop(1, "#1e1b4b");
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      ctx.fillStyle = "rgba(99, 102, 241, 0.12)";
+      ctx.beginPath();
+      ctx.arc(760, 260, 180, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = "#818cf8";
+      ctx.font = "bold 16px sans-serif";
+      ctx.fillText("ZERO-TRANSCODING HTML5 OVERLAY STREAM", 48, 220);
+
+      ctx.fillStyle = "#ffffff";
+      ctx.font = "bold 30px sans-serif";
+      const t = getTokens();
+      ctx.fillText(`Live-Stream für ${t.company} (${t.industry})`, 48, 265);
+
+      ctx.fillStyle = "#94a3b8";
+      ctx.font = "18px sans-serif";
+      ctx.fillText(`Aktiver Pfad: ${state.branchChosen} · Timecode: ${formatTime(state.virtualTime)}`, 48, 305);
+    }
+
+    function renderTelemetry() {
+      document.getElementById("kpiBranch").textContent = state.branchChosen;
+      document.getElementById("kpiLeadScore").textContent = state.leadScore + " Pkt";
+      document.getElementById("kpiDropOff").textContent = state.dropOffSecond.toFixed(1) + "s";
+      document.getElementById("kpiConversion").textContent = state.conversionTriggered;
+
+      const tierEl = document.getElementById("tierBadge");
+      if (state.leadScore >= 120) tierEl.textContent = "QUALIFIED TIER: HOT ENTERPRISE PQL";
+      else if (state.leadScore >= 80) tierEl.textContent = "QUALIFIED TIER: WARM SQL";
+      else tierEl.textContent = "QUALIFIED TIER: ENGAGED PROSPECT";
+
+      const logsToShow = state.events.length ? state.events : INITIAL_MANIFEST.signed_webhooks_log.slice(0, 3);
+      document.getElementById("webhookConsole").textContent = JSON.stringify(logsToShow, null, 2);
+      document.getElementById("graphInspector").textContent = JSON.stringify(INTERACTION_GRAPH, null, 2);
+    }
+
+    // Initialize studio view
+    updatePersonalization();
+    recalcRoi();
+    updateTimelineUI();
+    renderTelemetry();
+  </script>
+</body>
+</html>

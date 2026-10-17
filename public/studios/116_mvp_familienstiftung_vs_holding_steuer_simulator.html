@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MVP #116 — DACH Familienstiftungs- vs. Holding-GmbH Vermögensschutz & Erbersatzsteuer Studio</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --panel: #131b33;
+      --panel-alt: #192342;
+      --border: #2a3966;
+      --text: #eef2ff;
+      --muted: #9fb0df;
+      --accent: #38bdf8;
+      --gold: #fbbf24;
+      --green: #34d399;
+      --red: #fb7185;
+      --purple: #c084fc;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: radial-gradient(circle at top right, #172554, var(--bg) 60%);
+      color: var(--text);
+      line-height: 1.5;
+    }
+    header {
+      padding: 24px 32px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(19, 27, 51, 0.88);
+      backdrop-filter: blur(8px);
+    }
+    .badge-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+    .badge {
+      font-size: 12px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(56, 189, 248, 0.15);
+      color: var(--accent);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+    }
+    .badge.gold {
+      background: rgba(251, 191, 36, 0.15);
+      color: var(--gold);
+      border-color: rgba(251, 191, 36, 0.4);
+    }
+    .badge.green {
+      background: rgba(52, 211, 153, 0.15);
+      color: var(--green);
+      border-color: rgba(52, 211, 153, 0.4);
+    }
+    h1 { margin: 0 0 8px 0; font-size: 24px; letter-spacing: -0.02em; }
+    .subtitle { margin: 0; color: var(--muted); font-size: 14px; max-width: 1050px; }
+    main {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 24px 32px 64px;
+      display: grid;
+      grid-template-columns: 390px 1fr;
+      gap: 24px;
+    }
+    @media (max-width: 1100px) {
+      main { grid-template-columns: 1fr; }
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px;
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35);
+    }
+    .card h2 {
+      margin: 0 0 14px 0;
+      font-size: 16px;
+      color: var(--gold);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .control-group { margin-bottom: 14px; }
+    .control-group label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 5px;
+      color: var(--text);
+    }
+    .control-group label span.val { color: var(--accent); font-family: monospace; font-size: 13px; }
+    input[type="range"] { width: 100%; accent-color: var(--accent); cursor: pointer; }
+    select {
+      width: 100%;
+      padding: 8px 10px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--panel-alt);
+      color: var(--text);
+      font-size: 13px;
+    }
+    .checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      margin: 10px 0;
+      cursor: pointer;
+    }
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+    @media (max-width: 900px) {
+      .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    .kpi {
+      background: var(--panel-alt);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 16px;
+    }
+    .kpi .label { font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+    .kpi .value { font-size: 21px; font-weight: 700; font-family: monospace; }
+    .kpi .sub { font-size: 11px; color: var(--muted); margin-top: 4px; }
+    .kpi.green .value { color: var(--green); }
+    .kpi.gold .value { color: var(--gold); }
+    .kpi.red .value { color: var(--red); }
+    .kpi.accent .value { color: var(--accent); }
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+    .tab-btn {
+      padding: 8px 14px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--panel-alt);
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .tab-btn.active {
+      background: var(--accent);
+      color: #0b1020;
+      border-color: var(--accent);
+    }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    th, td {
+      padding: 9px 10px;
+      border-bottom: 1px solid rgba(42, 57, 102, 0.6);
+      text-align: right;
+    }
+    th:first-child, td:first-child { text-align: left; }
+    th { color: var(--muted); font-weight: 600; background: rgba(25, 35, 66, 0.6); }
+    .alert-box {
+      padding: 12px 16px;
+      border-radius: 10px;
+      margin-top: 12px;
+      font-size: 13px;
+      border-left: 4px solid var(--green);
+      background: rgba(52, 211, 153, 0.1);
+    }
+    .alert-box.danger {
+      border-left-color: var(--red);
+      background: rgba(251, 113, 133, 0.12);
+    }
+    .bar-compare {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin: 14px 0;
+    }
+    .bar-row { display: flex; flex-direction: column; gap: 4px; }
+    .bar-header { display: flex; justify-content: space-between; font-size: 13px; font-weight: 600; }
+    .bar-track {
+      height: 18px;
+      background: rgba(255,255,255,0.06);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .bar-fill { height: 100%; border-radius: 999px; transition: width 0.25s ease; }
+  </style>
+</head>
+<body>
+
+<!-- DACH CASHFLOW STUDIOS LAUNCH BAR -->
+<style>
+  #dcs-launch-bar {
+    position: sticky;
+    top: 0;
+    z-index: 99999;
+    background: linear-gradient(90deg, #0b1120 0%, #111827 50%, #0f172a 100%);
+    color: #f8fafc;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.35);
+    padding: 8px 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  }
+  #dcs-launch-bar .dcs-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+  }
+  #dcs-launch-bar .dcs-badge {
+    background: rgba(16, 185, 129, 0.18);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.03em;
+  }
+  #dcs-launch-bar a.dcs-nav {
+    color: #93c5fd;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 12.5px;
+  }
+  #dcs-launch-bar a.dcs-nav:hover {
+    text-decoration: underline;
+    color: #dbeafe;
+  }
+  #dcs-launch-bar .dcs-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  #dcs-launch-bar .dcs-btn {
+    padding: 5px 11px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s ease;
+  }
+  #dcs-launch-bar .dcs-btn-ghost {
+    background: rgba(255,255,255,0.08);
+    color: #e2e8f0;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  #dcs-launch-bar .dcs-btn-primary {
+    background: linear-gradient(135deg, #0ea5e9, #2563eb);
+    color: #ffffff;
+  }
+  #dcs-launch-bar .dcs-btn-emerald {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
+  }
+  @media print {
+    #dcs-launch-bar { display: none !important; }
+  }
+</style>
+<div id="dcs-launch-bar">
+  <div class="dcs-left">
+    <a href="/index.html" class="dcs-nav">← Alle 150 DACH Studios</a>
+    <span class="dcs-badge">MVP #116 VERIFIED</span>
+    <span style="color:#cbd5e1;font-size:12px;">DACH Tax, Corporate & Accounting Arbitrage</span>
+  </div>
+  <div class="dcs-actions">
+    <button onclick="window.print()" class="dcs-btn dcs-btn-ghost">🖨️ PDF / Dossier drucken</button>
+    <a href="#checkout-modal-49" target="_blank" rel="noopener" class="dcs-btn dcs-btn-primary">⚡ Musterschreiben & Voll-Dossier (€49)</a>
+    <a href="#checkout-modal-299" target="_blank" rel="noopener" class="dcs-btn dcs-btn-emerald">🛡️ B2B Umsetzung buchen (€299 / €1.490)</a>
+  </div>
+</div>
+
+  <header>
+    <div class="badge-row">
+      <span class="badge gold">MVP #116 · Familienstiftung vs. Holding-GmbH</span>
+      <span class="badge green">§ 15 Abs. 2 ErbStG Steuerklassenprivileg & 800.000 € Erbersatzsteuer-Freibetrag</span>
+      <span class="badge">§ 23 EStG 0,00% Immobilien-Exit nach 10 Jahren</span>
+      <span class="badge">0,00% § 6 AStG Wegzugsbesteuerung</span>
+      <span class="badge">§ 2325 Abs. 3 BGB 10-Jahres-Pflichtteilsabschmelzung</span>
+    </div>
+    <h1>DACH Familienstiftungs- vs. Holding-GmbH Vermögensschutz-, Thesaurierungs- & Erbersatzsteuer-Simulator</h1>
+    <p class="subtitle">
+      Deterministischer 30-Jahres-Vergleich zwischen einer rechtsfähigen deutschen vermögensverwaltenden Familienstiftung
+      (§§ 80–88 BGB), einer Holding-/Immobilien-GmbH (§ 8 Abs. 2 KStG) und dem Privatvermögen — inkl. Satzungs-Wächter
+      (§ 15 Abs. 2 S. 1 ErbStG), 30-Jahres-Erbersatzsteuer-Verrentung (§ 24 ErbStG) und Wegzugs-Audit (§ 6 AStG).
+    </p>
+  </header>
+
+  <main>
+    <!-- Controls Sidebar -->
+    <section class="card">
+      <h2>1. Stiftungskapital & Portfolio-Struktur</h2>
+
+      <div class="control-group">
+        <label>Stiftungsvermögen (Dotation) <span class="val" id="lbl_wealth">3.000.000 €</span></label>
+        <input type="range" id="in_wealth" min="500000" max="15000000" step="100000" value="3000000" />
+      </div>
+
+      <div class="control-group">
+        <label>Immobilienanteil (Rest: Aktien/ETF) <span class="val" id="lbl_re_share">60%</span></label>
+        <input type="range" id="in_re_share" min="0" max="100" step="5" value="60" />
+      </div>
+
+      <div class="control-group">
+        <label>Netto-Mietrendite p.a. (vor Steuern) <span class="val" id="lbl_rent_yield">4,0%</span></label>
+        <input type="range" id="in_rent_yield" min="1.5" max="8.0" step="0.25" value="4.0" />
+      </div>
+
+      <div class="control-group">
+        <label>Immobilien-Wertsteigerung p.a. <span class="val" id="lbl_re_app">2,5%</span></label>
+        <input type="range" id="in_re_app" min="0.0" max="6.0" step="0.25" value="2.5" />
+      </div>
+
+      <div class="control-group">
+        <label>Aktien/ETF Kursgewinn p.a. (§ 8b KStG) <span class="val" id="lbl_eq_app">5,5%</span></label>
+        <input type="range" id="in_eq_app" min="2.0" max="10.0" step="0.5" value="5.5" />
+      </div>
+
+      <div class="control-group">
+        <label>Jährliche Ausschüttung an Familie <span class="val" id="lbl_dist">40.000 €</span></label>
+        <input type="range" id="in_dist" min="0" max="250000" step="5000" value="40000" />
+      </div>
+
+      <div class="control-group">
+        <label>Kinder/Enkel mit NV-Bescheinigung <span class="val" id="lbl_nv">2</span></label>
+        <input type="range" id="in_nv" min="0" max="6" step="1" value="2" />
+      </div>
+
+      <h2>2. Satzungs-Wächter (§ 15 Abs. 2 ErbStG)</h2>
+      <div class="control-group">
+        <label>Entferntest Berechtigter laut Satzung</label>
+        <select id="in_charter">
+          <option value="spouse_and_children" selected>Ehegatte & Kinder (StKl. I · 400.000 € Freibetrag)</option>
+          <option value="grandchildren">Enkelkinder (StKl. I · 200.000 € Freibetrag)</option>
+          <option value="great_grandchildren">Abkömmlinge inkl. Urenkel (StKl. I · 100.000 € Freibetrag)</option>
+          <option value="siblings_or_nephews">FALLE: Geschwister / Neffen (StKl. II · 20.000 €!)</option>
+          <option value="unrestricted_third_parties">KATASTROPHE: Dritte / Lebensgefährte (StKl. III · 30%-50%!)</option>
+        </select>
+      </div>
+
+      <div class="control-group">
+        <label>Steuerfreie Dotations-Strukturierung (§ 13a / § 23 Verkauf) <span class="val" id="lbl_struct">75%</span></label>
+        <input type="range" id="in_struct" min="0" max="100" step="5" value="75" />
+      </div>
+
+      <h2>3. Wegzug (§ 6 AStG) & Exit-Audit</h2>
+      <div class="control-group">
+        <label>Wegzug des Stifters (CH/UAE/USA) in Jahr <span class="val" id="lbl_emig">Jahr 8</span></label>
+        <input type="range" id="in_emig" min="0" max="25" step="1" value="8" />
+      </div>
+
+      <label class="checkbox-row">
+        <input type="checkbox" id="in_sell_re" checked />
+        Immobilien-Bestand im Jahr 30 steuerfrei (§ 23 EStG) veräußern / heben
+      </label>
+
+      <label class="checkbox-row">
+        <input type="checkbox" id="in_gmbh_inf" />
+        Holding/Immo-GmbH gewerblich infiziert (PV / Handel -> Verlust § 9 Nr. 1 S. 2 GewStG)
+      </label>
+    </section>
+
+    <!-- Results Area -->
+    <section>
+      <div class="kpi-grid">
+        <div class="kpi green">
+          <div class="label">Familienstiftung Netto-Vermögen (J. 30)</div>
+          <div class="value" id="kpi_st_wealth">0 €</div>
+          <div class="sub" id="kpi_st_sub">Nach Erbersatzsteuer & 0% Immo-Exit</div>
+        </div>
+        <div class="kpi accent">
+          <div class="label">Vorteil Stiftung ggü. Holding-GmbH</div>
+          <div class="value" id="kpi_adv_gmbh">+0 €</div>
+          <div class="sub" id="kpi_adv_gmbh_sub">Inkl. § 6 AStG & § 23 EStG Schutz</div>
+        </div>
+        <div class="kpi gold">
+          <div class="label">Erbersatzsteuer-Rate (§ 24 ErbStG)</div>
+          <div class="value" id="kpi_erbersatz_rate">0 € / J.</div>
+          <div class="sub" id="kpi_erbersatz_sub">30 Jahresraten aus laufender Rendite</div>
+        </div>
+        <div class="kpi red">
+          <div class="label">Ersparte StKl.-III Satzungs-Falle</div>
+          <div class="value" id="kpi_trap_saved">0 €</div>
+          <div class="sub" id="kpi_trap_sub">Durch § 15 Abs. 2 S. 1 ErbStG Privileg</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="tabs">
+          <button class="tab-btn active" onclick="switchTab('tab_comp', this)">30-Jahres-Vermögensvergleich</button>
+          <button class="tab-btn" onclick="switchTab('tab_erbersatz', this)">§ 1 Abs. 1 Nr. 4 ErbStG Erbersatzsteuer & § 24 Verrentung</button>
+          <button class="tab-btn" onclick="switchTab('tab_pflichtteil', this)">§ 2325 BGB Pflichtteils-Abschmelzung & § 6 AStG Wegzug</button>
+          <button class="tab-btn" onclick="switchTab('tab_table', this)">Jahrestabelle (Jahr 1–30)</button>
+        </div>
+
+        <!-- TAB 1: Wealth Comparison -->
+        <div id="tab_comp" class="tab-content active">
+          <h2>Netto-Familienvermögen nach 30 Jahren (nach Immobilien-Exit & Generationensteuer)</h2>
+          <div class="bar-compare" id="bars_container"></div>
+          <div id="charter_alert" class="alert-box"></div>
+
+          <h2 style="margin-top:22px;">Systematischer Rechtsform-Vergleich (Stiftung vs. Holding-GmbH vs. Privat)</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Steuer- & Schutzdimension</th>
+                <th>Vermögensverw. Familienstiftung</th>
+                <th>Holding- / Immobilien-GmbH</th>
+                <th>Privatvermögen</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Rechtsform-Gewerblichkeit</strong></td>
+                <td style="color:var(--green)">Nein (§ 8 Abs. 1 KStG · 0,00% GewSt)</td>
+                <td style="color:var(--red)">Immer gewerblich (§ 8 Abs. 2 KStG)</td>
+                <td>Nein (Überschusseinkünfte)</td>
+              </tr>
+              <tr>
+                <td><strong>Immobilien-Verkauf &gt; 10 Jahre</strong></td>
+                <td style="color:var(--green)"><strong>0,00% Steuer (§ 23 EStG analog!)</strong></td>
+                <td style="color:var(--red)">15,825% bis ~29,825% Steuer (ewig verhaftet)</td>
+                <td style="color:var(--green)">0,00% Steuer (§ 23 EStG)</td>
+              </tr>
+              <tr>
+                <td><strong>Aktien-/ETF-Veräußerungsgewinne</strong></td>
+                <td style="color:var(--green)"><strong>0,791% effektiv (§ 8b KStG ohne GewSt!)</strong></td>
+                <td>~1,491% effektiv (§ 8b KStG inkl. GewSt)</td>
+                <td style="color:var(--red)">26,375% Abgeltungsteuer</td>
+              </tr>
+              <tr>
+                <td><strong>Wegzug des Gründers (§ 6 AStG)</strong></td>
+                <td style="color:var(--green)"><strong>0,00 € Exit-Tax (keine Anteile i.S.d. § 17 EStG)</strong></td>
+                <td style="color:var(--red)" id="td_gmbh_wegzug">~28,49% Dry Tax auf stille Reserven</td>
+                <td>0,00 € auf Immos / Depot-Wegzugsregeln</td>
+              </tr>
+              <tr>
+                <td><strong>Veräußerungssteuer Immo-Exit J. 30</strong></td>
+                <td style="color:var(--green)" id="td_st_re_tax">0 €</td>
+                <td style="color:var(--red)" id="td_gmbh_re_tax">0 €</td>
+                <td style="color:var(--green)">0 €</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- TAB 2: Erbersatzsteuer & Verrentung -->
+        <div id="tab_erbersatz" class="tab-content">
+          <h2>30-Jahres-Erbersatzsteuer (§ 1 Abs. 1 Nr. 4, § 15 Abs. 2 S. 3 & § 24 ErbStG)</h2>
+          <p style="font-size:13px; color:var(--muted); margin-top:0;">
+            Alle 30 Jahre fingiert § 1 Abs. 1 Nr. 4 ErbStG einen Generationenübergang auf <strong>zwei Kinder</strong>
+            (§ 15 Abs. 2 S. 3 ErbStG): <strong>800.000 € Freibetrag</strong> (2 × 400.000 €) und Anwendung des
+            Steuersatzes der Steuerklasse I für die <strong>Hälfte</strong> des steuerpflichtigen Vermögens.
+            Nach <strong>§ 24 ErbStG</strong> kann die Steuerschuld in 30 gleichen Jahresraten aus der laufenden Rendite gezahlt werden!
+          </p>
+          <table>
+            <tbody id="tb_erbersatz"></tbody>
+          </table>
+        </div>
+
+        <!-- TAB 3: Pflichtteil & Wegzug -->
+        <div id="tab_pflichtteil" class="tab-content">
+          <h2>§ 2325 Abs. 3 BGB Pflichtteilsergänzungs-Abschmelzung (BGH IV ZR 138/02 vs. Nießbrauch-Falle)</h2>
+          <p style="font-size:13px; color:var(--muted); margin-top:0;">
+            Bei Ausstattung einer rechtsfähigen Familienstiftung startet die 10-Jahres-Abschmelzungsfrist (10% p.a.)
+            sofort, selbst wenn der Stifter den Stiftungsvorstand bildet (BGH IV ZR 138/02), sofern er sich keinen
+            umfassenden Vorbehaltsnießbrauch vorbehält. Bei einer Schenkung unter Vorbehaltsnießbrauch läuft die Frist
+            dagegen <strong>niemals</strong> an (BGH IV ZR 474/15).
+          </p>
+          <table>
+            <thead>
+              <tr>
+                <th>Jahr nach Dotation</th>
+                <th>Anrechnung Stiftungsvermögen</th>
+                <th>Pflichtteilsergänzungsanspruch (Stiftung)</th>
+                <th>Pflichtteilsanspruch bei Vorbehaltsnießbrauch</th>
+                <th>Geschütztes Vermögen (Stiftungsvorteil)</th>
+              </tr>
+            </thead>
+            <tbody id="tb_pflichtteil"></tbody>
+          </table>
+        </div>
+
+        <!-- TAB 4: Yearly Trajectory -->
+        <div id="tab_table" class="tab-content">
+          <h2>Deterministische 30-Jahres-Entwicklung (Bruttovermögen vor Exit & jährliche Steuerlast)</h2>
+          <div style="max-height: 460px; overflow-y: auto;">
+            <table>
+              <thead>
+                <tr>
+                  <th>Jahr</th>
+                  <th>Familienstiftung Vermögen</th>
+                  <th>Holding-GmbH Vermögen</th>
+                  <th>Privatvermögen</th>
+                  <th>Steuer Stiftung (J.)</th>
+                  <th>Steuer GmbH (J.)</th>
+                </tr>
+              </thead>
+              <tbody id="tb_yearly"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const INITIAL_STATE = {"inputs": {"initial_wealth_eur": 3000000.0, "real_estate_share": 0.6, "rental_net_yield_pa": 0.04, "real_estate_appreciation_pa": 0.025, "equity_dividend_yield_pa": 0.02, "equity_price_appreciation_pa": 0.055, "annual_beneficiary_distribution_eur": 40000.0, "beneficiary_nv_bescheinigung_children": 2, "charter_beneficiary_scope": "spouse_and_children", "tax_free_endowment_structuring_share": 0.75, "gmbh_commercially_infected": false, "founder_emigrates_year": 8, "personal_marginal_tax_rate": 0.4431, "sell_properties_at_year_30": true}, "setup_endowment_tax": {"endowment_wealth_eur": 3000000.0, "tax_free_business_property_share": 0.75, "taxable_wealth_before_allowance_eur": 750000.0, "charter_scope_key": "spouse_and_children", "charter_scope_label": "Nur Stifter, Ehegatte & Kinder (§ 15 Abs. 2 S. 1 ErbStG -> StKl. I, Freibetrag 400.000 €)", "steuerklasse": "I", "allowance_eur": 400000.0, "statutory_ref": "§ 15 Abs. 2 S. 1 i.V.m. § 16 Abs. 1 Nr. 2 ErbStG", "warning_level": "SAFE", "net_taxable_acquisition_eur": 350000.0, "nominal_tax_rate": 0.15, "setup_gift_tax_eur": 52500.0, "stkl_iii_trap_tax_eur": 894000.0, "saved_vs_stkl_iii_trap_eur": 841500.0, "optimal_stkl_i_400k_tax_eur": 52500.0}, "year30_erbersatzsteuer": {"foundation_net_wealth_year30_eur": 17701568.03, "paragraph_13d_discount_eur": 0.0, "assessed_wealth_eur": 17701568.03, "double_child_allowance_eur": 800000.0, "net_taxable_total_eur": 16901568.03, "half_share_for_rate_lookup_eur": 8450784.01, "stkl_i_rate_applied": 0.23, "erbersatzsteuer_lump_sum_eur": 3887322.0, "effective_tax_rate_on_wealth": 0.2196, "verrentung_annual_installment_eur": 267468.71, "verrentung_interest_rate": 0.055, "verrentung_years": 30, "annual_running_yield_eur": 796570.56, "installment_pct_of_wealth": 0.0151, "installment_pct_of_running_yield": 0.3358, "can_pay_from_running_yield": true}, "year30_real_estate_exit": {"stiftung_capital_gain_eur": 1941048.26, "stiftung_exit_tax_eur": 0.0, "gmbh_capital_gain_eur": 1975621.64, "gmbh_exit_tax_eur": 312642.12, "stiftung_vs_gmbh_property_exit_tax_saved_eur": 312642.12}, "emigration_wegzug_audit": {"founder_emigrates_year": 8, "stiftung_wegzugssteuer_eur": 0.0, "stiftung_legal_basis": "Keine Anteile i.S.d. § 17 EStG -> 0,00 € Wegzugsbesteuerung nach § 6 AStG (Inlandsstiftung unterliegt auch nicht § 15 AStG)", "gmbh_wegzugssteuer_eur": 1091445.44, "gmbh_legal_basis": "§ 6 AStG fiktive Veräußerung der GmbH-Anteile bei Wegzug (60% Teileinkünfteverfahren * 47,475% = ~28,49% Dry Tax)"}, "summary_30yr": {"stiftung_final_net_wealth_eur": 13814246.03, "gmbh_final_net_wealth_eur": 10096395.94, "privat_final_net_wealth_eur": 8864692.26, "stiftung_advantage_vs_gmbh_eur": 3717850.09, "stiftung_advantage_vs_privat_eur": 4949553.77, "cumulative_net_payout_stiftung_eur": 1090744.2, "cumulative_net_payout_gmbh_eur": 1090744.2, "cumulative_net_payout_privat_eur": 1200000.0}, "pflichtteil_melting_schedule": [{"year_after_endowment": 0, "stiftung_recognized_pct": 100.0, "stiftung_pflichtteil_claim_eur": 750000.0, "niessbrauch_pflichtteil_claim_eur": 750000.0, "protected_wealth_advantage_eur": 0.0}, {"year_after_endowment": 1, "stiftung_recognized_pct": 90.0, "stiftung_pflichtteil_claim_eur": 675000.0, "niessbrauch_pflichtteil_claim_eur": 750000.0, "protected_wealth_advantage_eur": 75000.0}, {"year_after_endowment": 2, "stiftung_recognized_pct": 80.0, "stiftung_pflichtteil_claim_eur": 600000.0, "niessbrauch_pflichtteil_claim_eur": 750000.0, "protected_wealth_advantage_eur": 150000.0}, {"year_after_endowment": 3, "stiftung_recognized_pct": 70.0, "stiftung_pflichtteil_claim_eur": 525000.0, "niessbrauch_pflichtteil_claim_eur": 750000.0, "protected_wealth_advantage_eur": 225000.0}, {"year_after_endowment": 4, "stiftung_recognized_pct": 60.0, "stiftung_pflichtteil_claim_eur": 450000.0, "niessbrauch_pflichtteil_claim_eur": 750000.0, "protected_wealth_advantage_eur": 300000.0}, {"year_after_endowment": 5, "stiftung_recognized_pct": 50.0, "stiftung_pflichtteil_claim_eur": 375000.0, "niessbrauch_pflichtteil_claim_eur": 750000.0, "protected_wealth_advantage_eur": 375000.0}, {"year_after_endowment": 6, "stiftung_recognized_pct": 40.0, "stiftung_pflichtteil_claim_eur": 300000.0, "niessbrauch_pflichtteil_claim_eur": 750000.0, "protected_wealth_advantage_eur": 450000.0}, {"year_after_endowment": 7, "stiftung_recognized_pct": 30.0, "stiftung_pflichtteil_claim_eur": 225000.0, "niessbrauch_pflichtteil_claim_eur": 750000.0, "protected_wealth_advantage_eur": 525000.0}, {"year_after_endowment": 8, "stiftung_recognized_pct": 20.0, "stiftung_pflichtteil_claim_eur": 150000.0, "niessbrauch_pflichtteil_claim_eur": 750000.0, "protected_wealth_advantage_eur": 600000.0}, {"year_after_endowment": 9, "stiftung_recognized_pct": 10.0, "stiftung_pflichtteil_claim_eur": 75000.0, "niessbrauch_pflichtteil_claim_eur": 750000.0, "protected_wealth_advantage_eur": 675000.0}, {"year_after_endowment": 10, "stiftung_recognized_pct": 0.0, "stiftung_pflichtteil_claim_eur": 0.0, "niessbrauch_pflichtteil_claim_eur": 750000.0, "protected_wealth_advantage_eur": 750000.0}], "yearly_trajectory": [{"year": 1, "stiftung_gross_wealth_eur": 3099774.48, "gmbh_gross_wealth_eur": 3154263.88, "privat_gross_wealth_eur": 3111359.3, "stiftung_annual_tax_eur": 14744.88, "gmbh_annual_tax_eur": 16377.98, "privat_annual_tax_eur": 55640.7}, {"year": 2, "stiftung_gross_wealth_eur": 3262683.43, "gmbh_gross_wealth_eur": 3319240.49, "privat_gross_wealth_eur": 3228510.3, "stiftung_annual_tax_eur": 15088.87, "gmbh_annual_tax_eur": 16785.04, "privat_annual_tax_eur": 57750.95}, {"year": 3, "stiftung_gross_wealth_eur": 3437000.73, "gmbh_gross_wealth_eur": 3495704.19, "privat_gross_wealth_eur": 3351763.87, "stiftung_annual_tax_eur": 15445.52, "gmbh_annual_tax_eur": 17209.94, "privat_annual_tax_eur": 59973.45}, {"year": 4, "stiftung_gross_wealth_eur": 3623557.41, "gmbh_gross_wealth_eur": 3684486.14, "privat_gross_wealth_eur": 3481447.83, "stiftung_annual_tax_eur": 15815.43, "gmbh_annual_tax_eur": 17653.7, "privat_annual_tax_eur": 62314.3}, {"year": 5, "stiftung_gross_wealth_eur": 3823245.87, "gmbh_gross_wealth_eur": 3886478.44, "privat_gross_wealth_eur": 3617907.87, "stiftung_annual_tax_eur": 16199.27, "gmbh_annual_tax_eur": 18117.39, "privat_annual_tax_eur": 64779.92}, {"year": 6, "stiftung_gross_wealth_eur": 4037024.49, "gmbh_gross_wealth_eur": 4102638.66, "privat_gross_wealth_eur": 3761508.53, "stiftung_annual_tax_eur": 16597.73, "gmbh_annual_tax_eur": 18602.17, "privat_annual_tax_eur": 67377.08}, {"year": 7, "stiftung_gross_wealth_eur": 4265922.46, "gmbh_gross_wealth_eur": 4333994.67, "privat_gross_wealth_eur": 3912634.25, "stiftung_annual_tax_eur": 17011.55, "gmbh_annual_tax_eur": 19109.27, "privat_annual_tax_eur": 70112.94}, {"year": 8, "stiftung_gross_wealth_eur": 4511045.08, "gmbh_gross_wealth_eur": 3490204.35, "privat_gross_wealth_eur": 4071690.44, "stiftung_annual_tax_eur": 17441.52, "gmbh_annual_tax_eur": 1111085.44, "privat_annual_tax_eur": 72995.03}, {"year": 9, "stiftung_gross_wealth_eur": 4773579.4, "gmbh_gross_wealth_eur": 3674705.24, "privat_gross_wealth_eur": 4239104.65, "stiftung_annual_tax_eur": 17888.47, "gmbh_annual_tax_eur": 18975.04, "privat_annual_tax_eur": 76031.32}, {"year": 10, "stiftung_gross_wealth_eur": 5054800.28, "gmbh_gross_wealth_eur": 3872003.32, "privat_gross_wealth_eur": 4415327.78, "stiftung_annual_tax_eur": 18353.28, "gmbh_annual_tax_eur": 19467.14, "privat_annual_tax_eur": 79230.19}, {"year": 11, "stiftung_gross_wealth_eur": 5356076.95, "gmbh_gross_wealth_eur": 4083023.22, "privat_gross_wealth_eur": 4600835.36, "stiftung_annual_tax_eur": 18836.92, "gmbh_annual_tax_eur": 19980.69, "privat_annual_tax_eur": 82600.49}, {"year": 12, "stiftung_gross_wealth_eur": 5678879.96, "gmbh_gross_wealth_eur": 4308757.35, "privat_gross_wealth_eur": 4796128.9, "stiftung_annual_tax_eur": 19340.37, "gmbh_annual_tax_eur": 20516.91, "privat_annual_tax_eur": 86151.55}, {"year": 13, "stiftung_gross_wealth_eur": 6024788.74, "gmbh_gross_wealth_eur": 4550270.93, "privat_gross_wealth_eur": 5001737.33, "stiftung_annual_tax_eur": 19864.72, "gmbh_annual_tax_eur": 21077.09, "privat_annual_tax_eur": 89893.23}, {"year": 14, "stiftung_gross_wealth_eur": 6395499.7, "gmbh_gross_wealth_eur": 4808707.31, "privat_gross_wealth_eur": 5218218.51, "stiftung_annual_tax_eur": 20411.09, "gmbh_annual_tax_eur": 21662.61, "privat_annual_tax_eur": 93835.92}, {"year": 15, "stiftung_gross_wealth_eur": 6792834.88, "gmbh_gross_wealth_eur": 5085293.74, "privat_gross_wealth_eur": 5446160.8, "stiftung_annual_tax_eur": 20980.72, "gmbh_annual_tax_eur": 22274.94, "privat_annual_tax_eur": 97990.57}, {"year": 16, "stiftung_gross_wealth_eur": 7218751.32, "gmbh_gross_wealth_eur": 5381347.61, "privat_gross_wealth_eur": 5686184.75, "stiftung_annual_tax_eur": 21574.88, "gmbh_annual_tax_eur": 22915.66, "privat_annual_tax_eur": 102368.75}, {"year": 17, "stiftung_gross_wealth_eur": 7675351.09, "gmbh_gross_wealth_eur": 5698283.01, "privat_gross_wealth_eur": 5938944.86, "stiftung_annual_tax_eur": 22194.96, "gmbh_annual_tax_eur": 23586.43, "privat_annual_tax_eur": 106982.64}, {"year": 18, "stiftung_gross_wealth_eur": 8164892.02, "gmbh_gross_wealth_eur": 6037617.92, "privat_gross_wealth_eur": 6205131.47, "stiftung_annual_tax_eur": 22842.44, "gmbh_annual_tax_eur": 24289.05, "privat_annual_tax_eur": 111845.12}, {"year": 19, "stiftung_gross_wealth_eur": 8689799.35, "gmbh_gross_wealth_eur": 6400981.84, "privat_gross_wealth_eur": 6485472.71, "stiftung_annual_tax_eur": 23518.87, "gmbh_annual_tax_eur": 25025.42, "privat_annual_tax_eur": 116969.76}, {"year": 20, "stiftung_gross_wealth_eur": 9252678.08, "gmbh_gross_wealth_eur": 6790124.04, "privat_gross_wealth_eur": 6780736.58, "stiftung_annual_tax_eur": 24225.95, "gmbh_annual_tax_eur": 25797.6, "privat_annual_tax_eur": 122370.88}, {"year": 21, "stiftung_gross_wealth_eur": 9856326.43, "gmbh_gross_wealth_eur": 7206922.36, "privat_gross_wealth_eur": 7091733.16, "stiftung_annual_tax_eur": 24965.44, "gmbh_annual_tax_eur": 26607.74, "privat_annual_tax_eur": 128063.57}, {"year": 22, "stiftung_gross_wealth_eur": 10503750.1, "gmbh_gross_wealth_eur": 7653392.73, "privat_gross_wealth_eur": 7419316.91, "stiftung_annual_tax_eur": 25739.27, "gmbh_annual_tax_eur": 27458.19, "privat_annual_tax_eur": 134063.77}, {"year": 23, "stiftung_gross_wealth_eur": 11198177.76, "gmbh_gross_wealth_eur": 8131699.32, "privat_gross_wealth_eur": 7764389.09, "stiftung_annual_tax_eur": 26549.46, "gmbh_annual_tax_eur": 28351.44, "privat_annual_tax_eur": 140388.3}, {"year": 24, "stiftung_gross_wealth_eur": 11943077.61, "gmbh_gross_wealth_eur": 8644165.5, "privat_gross_wealth_eur": 8127900.4, "stiftung_annual_tax_eur": 27398.2, "gmbh_annual_tax_eur": 29290.14, "privat_annual_tax_eur": 147054.88}, {"year": 25, "stiftung_gross_wealth_eur": 12742175.17, "gmbh_gross_wealth_eur": 9193285.57, "privat_gross_wealth_eur": 8510853.64, "stiftung_annual_tax_eur": 28287.81, "gmbh_annual_tax_eur": 30277.14, "privat_annual_tax_eur": 154082.23}, {"year": 26, "stiftung_gross_wealth_eur": 13599472.4, "gmbh_gross_wealth_eur": 9781737.37, "privat_gross_wealth_eur": 8914306.59, "stiftung_annual_tax_eur": 29220.76, "gmbh_annual_tax_eur": 31315.48, "privat_annual_tax_eur": 161490.08}, {"year": 27, "stiftung_gross_wealth_eur": 14519268.29, "gmbh_gross_wealth_eur": 10412395.86, "privat_gross_wealth_eur": 9339375.07, "stiftung_annual_tax_eur": 30199.73, "gmbh_annual_tax_eur": 32408.41, "privat_annual_tax_eur": 169299.25}, {"year": 28, "stiftung_gross_wealth_eur": 15506180.89, "gmbh_gross_wealth_eur": 11088347.59, "privat_gross_wealth_eur": 9787236.08, "stiftung_annual_tax_eur": 31227.54, "gmbh_annual_tax_eur": 33559.42, "privat_annual_tax_eur": 177531.71}, {"year": 29, "stiftung_gross_wealth_eur": 16565171.09, "gmbh_gross_wealth_eur": 11812906.37, "privat_gross_wealth_eur": 10259131.24, "stiftung_annual_tax_eur": 32307.22, "gmbh_annual_tax_eur": 34772.23, "privat_annual_tax_eur": 186210.64}, {"year": 30, "stiftung_gross_wealth_eur": 17701568.03, "gmbh_gross_wealth_eur": 12589630.06, "privat_gross_wealth_eur": 10756370.26, "stiftung_annual_tax_eur": 33442.03, "gmbh_annual_tax_eur": 36050.82, "privat_annual_tax_eur": 195360.49}]};
+
+    const CHARTER_CLASSES = {
+      spouse_and_children: { label: "Nur Stifter, Ehegatte & Kinder (StKl. I · 400.000 € Freibetrag)", stkl: "I", allowance: 400000, warn: "SAFE" },
+      grandchildren: { label: "Einschl. Enkelkinder (StKl. I · 200.000 € Freibetrag)", stkl: "I", allowance: 200000, warn: "SAFE" },
+      great_grandchildren: { label: "Sämtliche Abkömmlinge inkl. Urenkel (StKl. I · 100.000 € Freibetrag)", stkl: "I", allowance: 100000, warn: "OPTIMAL_MULTI_GEN" },
+      siblings_or_nephews: { label: "SATZUNGS-FALLE: Geschwister / Neffen erwähnt -> Steuerklasse II (20.000 € Freibetrag!)", stkl: "II", allowance: 20000, warn: "DANGER" },
+      unrestricted_third_parties: { label: "KATASTROPHEN-FALLE: Ungetrennte Dritte / Lebensgefährte -> Steuerklasse III (30%–50%!)", stkl: "III", allowance: 20000, warn: "CRITICAL" }
+    };
+
+    const BRACKETS = [
+      [75000, 0.07, 0.15, 0.30],
+      [300000, 0.11, 0.20, 0.30],
+      [600000, 0.15, 0.25, 0.30],
+      [6000000, 0.19, 0.30, 0.30],
+      [13000000, 0.23, 0.35, 0.50],
+      [26000000, 0.27, 0.40, 0.50],
+      [Infinity, 0.30, 0.43, 0.50]
+    ];
+
+    function fmtEUR(v) {
+      return new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(v);
+    }
+
+    function calcErbSt(taxable, stkl) {
+      if (taxable <= 0) return { tax: 0, rate: 0 };
+      const rounded = Math.floor(taxable / 100) * 100;
+      if (rounded <= 0) return { tax: 0, rate: 0 };
+      const col = stkl === "I" ? 1 : (stkl === "II" ? 2 : 3);
+      let rate = 0.30, prevUpper = 0, prevRate = 0;
+      for (const b of BRACKETS) {
+        if (rounded <= b[0]) { rate = b[col]; break; }
+        prevUpper = b[0];
+        prevRate = b[col];
+      }
+      let rawTax = rounded * rate;
+      if (prevUpper > 0 && rate > prevRate) {
+        const cap = rate <= 0.30 ? 0.50 : 0.75;
+        const capped = prevUpper * prevRate + (rounded - prevUpper) * cap;
+        rawTax = Math.min(rawTax, capped);
+      }
+      return { tax: rawTax, rate };
+    }
+
+    function switchTab(id, btn) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+      btn.classList.add('active');
+    }
+
+    function recompute() {
+      const wealth = parseFloat(document.getElementById('in_wealth').value);
+      const reShare = parseFloat(document.getElementById('in_re_share').value) / 100.0;
+      const rentYield = parseFloat(document.getElementById('in_rent_yield').value) / 100.0;
+      const reApp = parseFloat(document.getElementById('in_re_app').value) / 100.0;
+      const eqApp = parseFloat(document.getElementById('in_eq_app').value) / 100.0;
+      const dist = parseFloat(document.getElementById('in_dist').value);
+      const nvCount = parseInt(document.getElementById('in_nv').value, 10);
+      const charterKey = document.getElementById('in_charter').value;
+      const structShare = parseFloat(document.getElementById('in_struct').value) / 100.0;
+      const emigYear = parseInt(document.getElementById('in_emig').value, 10);
+      const sellRe = document.getElementById('in_sell_re').checked;
+      const gmbhInf = document.getElementById('in_gmbh_inf').checked;
+
+      document.getElementById('lbl_wealth').textContent = fmtEUR(wealth);
+      document.getElementById('lbl_re_share').textContent = (reShare * 100).toFixed(0) + '%';
+      document.getElementById('lbl_rent_yield').textContent = (rentYield * 100).toFixed(2).replace('.', ',') + '%';
+      document.getElementById('lbl_re_app').textContent = (reApp * 100).toFixed(2).replace('.', ',') + '%';
+      document.getElementById('lbl_eq_app').textContent = (eqApp * 100).toFixed(1).replace('.', ',') + '%';
+      document.getElementById('lbl_dist').textContent = fmtEUR(dist);
+      document.getElementById('lbl_nv').textContent = nvCount.toString();
+      document.getElementById('lbl_struct').textContent = (structShare * 100).toFixed(0) + '%';
+      document.getElementById('lbl_emig').textContent = emigYear === 0 ? 'Kein Wegzug' : ('Jahr ' + emigYear);
+
+      const cCfg = CHARTER_CLASSES[charterKey];
+      const taxableEndowment = Math.max(0, wealth * (1.0 - structShare));
+      const setupChosen = calcErbSt(Math.max(0, taxableEndowment - cCfg.allowance), cCfg.stkl);
+      const setupTrap = calcErbSt(Math.max(0, wealth - 20000), "III");
+      const savedVsTrap = Math.max(0, setupTrap.tax - setupChosen.tax);
+
+      const stStart = Math.max(0, wealth - setupChosen.tax);
+      let stRe = stStart * reShare, stEq = stStart * (1 - reShare);
+      const stReBasis = stRe;
+
+      let gmRe = wealth * reShare, gmEq = wealth * (1 - reShare);
+      const gmReBasis = gmRe;
+
+      let prRe = wealth * reShare, prEq = wealth * (1 - reShare);
+
+      const nvPool = nvCount * 13096.0;
+      const eqDivRate = 0.02;
+      let gmWegzugTax = 0;
+      const rows = [];
+
+      for (let yr = 1; yr <= 30; yr++) {
+        // Stiftung
+        const stRent = stRe * rentYield;
+        const stDiv = stEq * eqDivRate;
+        const stEqGain = stEq * eqApp;
+        const stReGain = stRe * reApp;
+        const stTaxBase = Math.max(0, stRent + 0.05 * (stDiv + stEqGain) - 5000);
+        const stCorpTax = stTaxBase * 0.15825;
+        const stGrossDist = Math.min(dist, stRent + stDiv);
+        const stDistTax = Math.max(0, stGrossDist - nvPool) * 0.26375;
+        stRe += stReGain;
+        stEq = Math.max(0, stEq + (stRent + stDiv + stEqGain) - stCorpTax - stGrossDist);
+
+        // GmbH
+        const gmRent = gmRe * rentYield;
+        const gmDiv = gmEq * eqDivRate;
+        const gmEqGain = gmEq * eqApp;
+        const gmReGain = gmRe * reApp;
+        const gmRentRate = gmbhInf ? 0.29825 : 0.15825;
+        const gmCorpTax = gmRent * gmRentRate + (gmDiv + gmEqGain) * (0.05 * 0.29825);
+        const gmGrossDist = Math.min(dist, gmRent + gmDiv);
+        const gmDistTax = Math.max(0, gmGrossDist - nvPool) * 0.26375;
+        gmRe += gmReGain;
+        gmEq = Math.max(0, gmEq + (gmRent + gmDiv + gmEqGain) - gmCorpTax - gmGrossDist);
+
+        let wegzugThisYr = 0;
+        if (emigYear > 0 && yr === emigYear) {
+          const hidden = Math.max(0, (gmRe + gmEq) - wealth * 0.25);
+          gmWegzugTax = hidden * 0.60 * 0.47475;
+          wegzugThisYr = gmWegzugTax;
+          gmEq = Math.max(0, gmEq - gmWegzugTax);
+        }
+
+        // Privat
+        const prRent = prRe * rentYield;
+        const prDiv = prEq * eqDivRate;
+        const prEqGain = prEq * eqApp;
+        const prReGain = prRe * reApp;
+        const prTax = prRent * 0.4431 + (prDiv + prEqGain) * 0.26375;
+        const prTake = Math.min(dist, Math.max(0, prRent + prDiv - prTax));
+        prRe += prReGain;
+        prEq = Math.max(0, prEq + (prRent + prDiv + prEqGain) - prTax - prTake);
+
+        rows.push({
+          yr,
+          stW: stRe + stEq,
+          gmW: gmRe + gmEq,
+          prW: prRe + prEq,
+          stT: stCorpTax + stDistTax,
+          gmT: gmCorpTax + gmDistTax + wegzugThisYr
+        });
+      }
+
+      const gmReExitTax = sellRe ? Math.max(0, gmRe - gmReBasis) * (gmbhInf ? 0.29825 : 0.15825) : 0;
+      const stBeforeErb = stRe + stEq;
+      const gmAfterExit = gmRe + gmEq - gmReExitTax;
+      const prBeforeErb = prRe + prEq;
+
+      // Erbersatzsteuer Year 30
+      const discount13d = (!sellRe) ? (stRe * 0.10) : 0;
+      const stAssessed = Math.max(0, stBeforeErb - discount13d);
+      const stTaxableTotal = Math.max(0, stAssessed - 800000);
+      const halfErb = calcErbSt(stTaxableTotal / 2.0, "I");
+      const erbersatzLump = halfErb.tax * 2.0;
+      const r = 0.055, n = 30;
+      const annFactor = (r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
+      const erbersatzInstallment = erbersatzLump * annFactor;
+
+      const gmErb = calcErbSt(Math.max(0, (gmAfterExit - 800000) / 2.0), "I").tax * 2.0;
+      const prErb = calcErbSt(Math.max(0, (prBeforeErb - 800000) / 2.0), "I").tax * 2.0;
+
+      const stFinal = stBeforeErb - erbersatzLump;
+      const gmFinal = gmAfterExit - gmErb;
+      const prFinal = prBeforeErb - prErb;
+
+      document.getElementById('kpi_st_wealth').textContent = fmtEUR(stFinal);
+      document.getElementById('kpi_adv_gmbh').textContent = (stFinal >= gmFinal ? '+' : '') + fmtEUR(stFinal - gmFinal);
+      document.getElementById('kpi_erbersatz_rate').textContent = fmtEUR(erbersatzInstallment) + ' / J.';
+      document.getElementById('kpi_erbersatz_sub').textContent =
+        `Einmalbetrag: ${fmtEUR(erbersatzLump)} (${(erbersatzLump / stBeforeErb * 100).toFixed(1).replace('.', ',')}% vom Vermögen)`;
+      document.getElementById('kpi_trap_saved').textContent = fmtEUR(savedVsTrap);
+      document.getElementById('kpi_trap_sub').textContent =
+        `Dotationssteuer: ${fmtEUR(setupChosen.tax)} (StKl. ${cCfg.stkl}) statt ${fmtEUR(setupTrap.tax)} (StKl. III)`;
+
+      document.getElementById('td_st_re_tax').textContent = '0 € (§ 23 EStG steuerfrei!)';
+      document.getElementById('td_gmbh_re_tax').textContent = fmtEUR(gmReExitTax);
+      document.getElementById('td_gmbh_wegzug').textContent =
+        emigYear > 0 ? `${fmtEUR(gmWegzugTax)} Dry Tax in Jahr ${emigYear}` : 'Kein Wegzug ausgewählt';
+
+      // Alert box
+      const alertEl = document.getElementById('charter_alert');
+      if (cCfg.stkl === "I") {
+        alertEl.className = 'alert-box';
+        alertEl.innerHTML = `<strong>Satzungs-Wächter OK (${cCfg.label}):</strong> Steuerklassenprivileg nach § 15 Abs. 2 Satz 1 ErbStG greift! Dotations-Schenkungsteuer bei Gründung: <strong>${fmtEUR(setupChosen.tax)}</strong> (Ersparnis gegenüber unprivilegierter Steuerklasse III: <strong>${fmtEUR(savedVsTrap)}</strong>).`;
+      } else {
+        alertEl.className = 'alert-box danger';
+        alertEl.innerHTML = `<strong>WARNUNG — SATZUNGS-FALLE AKTIV (${cCfg.label}):</strong> Durch Aufnahme von Nicht-Abkömmlingen in den Destinatärskreis verliert die Stiftung das Steuerklassenprivileg I nach § 15 Abs. 2 S. 1 ErbStG! Sofortige Dotationssteuer: <strong>${fmtEUR(setupChosen.tax)}</strong>!`;
+      }
+
+      // Bars
+      const maxW = Math.max(stFinal, gmFinal, prFinal, 1);
+      document.getElementById('bars_container').innerHTML = `
+        <div class="bar-row">
+          <div class="bar-header"><span>1. Rechtsfähige vermögensverwaltende Familienstiftung (§§ 80–88 BGB)</span><span style="color:var(--green)">${fmtEUR(stFinal)}</span></div>
+          <div class="bar-track"><div class="bar-fill" style="width:${(stFinal/maxW*100).toFixed(1)}%; background:var(--green)"></div></div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-header"><span>2. Holding- / Immobilien-GmbH (§ 8 Abs. 2 KStG)</span><span style="color:var(--accent)">${fmtEUR(gmFinal)}</span></div>
+          <div class="bar-track"><div class="bar-fill" style="width:${(gmFinal/maxW*100).toFixed(1)}%; background:var(--accent)"></div></div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-header"><span>3. Direktes Privatvermögen (§ 21 / § 20 EStG)</span><span style="color:var(--gold)">${fmtEUR(prFinal)}</span></div>
+          <div class="bar-track"><div class="bar-fill" style="width:${(prFinal/maxW*100).toFixed(1)}%; background:var(--gold)"></div></div>
+        </div>
+      `;
+
+      // Erbersatzsteuer Table
+      const runningYieldYr30 = stBeforeErb * 0.045;
+      document.getElementById('tb_erbersatz').innerHTML = `
+        <tr><td>Stiftungsvermögen im Jahr 30 (vor Erbersatzsteuer)</td><td><strong>${fmtEUR(stBeforeErb)}</strong></td></tr>
+        <tr><td>Abzgl. 10% Bewertungsabschlag Wohnimmobilien (§ 13d ErbStG)</td><td>-${fmtEUR(discount13d)}</td></tr>
+        <tr><td>Abzgl. doppelter Kinderfreibetrag (§ 15 Abs. 2 Satz 3 i.V.m. § 16 Abs. 1 Nr. 2 ErbStG)</td><td style="color:var(--green)"><strong>-800.000 € (2 × 400.000 €)</strong></td></tr>
+        <tr><td>Steuerpflichtiger Erwerb gesamt</td><td>${fmtEUR(stTaxableTotal)}</td></tr>
+        <tr><td>Halbierter Progressions-Maßstab je fiktives Kind (§ 15 Abs. 2 S. 3 ErbStG)</td><td>${fmtEUR(stTaxableTotal / 2)} (Steuersatz StKl. I: ${(halfErb.rate * 100).toFixed(0)}%)</td></tr>
+        <tr><td><strong>Erbersatzsteuer Einmalbetrag (Jahr 30)</strong></td><td style="color:var(--gold)"><strong>${fmtEUR(erbersatzLump)} (effektiv ${(erbersatzLump / stBeforeErb * 100).toFixed(2).replace('.', ',')}% der Substanz)</strong></td></tr>
+        <tr><td><strong>§ 24 ErbStG Verrentung (30 Jahresraten inkl. 5,5% Verzinsung)</strong></td><td style="color:var(--green)"><strong>${fmtEUR(erbersatzInstallment)} p.a. (${(erbersatzInstallment / runningYieldYr30 * 100).toFixed(1).replace('.', ',')}% der laufenden Jahresrendite)</strong></td></tr>
+      `;
+
+      // Pflichtteil Table
+      let pfHtml = '';
+      for (let y = 0; y <= 10; y++) {
+        const share = Math.max(0, 1.0 - 0.10 * y);
+        const stClaim = wealth * share * 0.25;
+        const nbClaim = wealth * 0.25;
+        pfHtml += `<tr>
+          <td>Jahr ${y}</td>
+          <td>${(share * 100).toFixed(0)}%</td>
+          <td style="color:${y === 10 ? 'var(--green)' : 'var(--text)'}">${fmtEUR(stClaim)}</td>
+          <td style="color:var(--red)">${fmtEUR(nbClaim)} (100% verhaftet)</td>
+          <td style="color:var(--green)">+${fmtEUR(nbClaim - stClaim)}</td>
+        </tr>`;
+      }
+      document.getElementById('tb_pflichtteil').innerHTML = pfHtml;
+
+      // Yearly Table
+      document.getElementById('tb_yearly').innerHTML = rows.map(r => `
+        <tr>
+          <td>Jahr ${r.yr}${emigYear === r.yr ? ' (Wegzug)' : ''}</td>
+          <td style="color:var(--green)"><strong>${fmtEUR(r.stW)}</strong></td>
+          <td>${fmtEUR(r.gmW)}</td>
+          <td>${fmtEUR(r.prW)}</td>
+          <td>${fmtEUR(r.stT)}</td>
+          <td style="color:${emigYear === r.yr ? 'var(--red)' : 'var(--text)'}">${fmtEUR(r.gmT)}</td>
+        </tr>
+      `).join('');
+    }
+
+    document.querySelectorAll('input, select').forEach(el => el.addEventListener('input', recompute));
+    recompute();
+  </script>
+</body>
+</html>

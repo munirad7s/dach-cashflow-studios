@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>MVP #29 · Pfoten & Familie Studio — 1-Time Checkout Portrait Merger (Pet Plus Us Teardown)</title>
+<style>
+  :root {
+    --bg: #FFF8E9;
+    --bg-card: #FFFFFF;
+    --bg-dark: #1E1914;
+    --ink: #29231C;
+    --ink-muted: #6E6356;
+    --accent: #E7F36B;
+    --accent-dark: #A4B137;
+    --terracotta: #C85A32;
+    --sage: #3F624D;
+    --border: #E4DAC6;
+    --radius: 16px;
+    --shadow: 0 10px 30px rgba(41, 35, 28, 0.07);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.5;
+    padding-bottom: 60px;
+  }
+  header {
+    background: var(--bg-dark);
+    color: #FFF8E9;
+    padding: 20px 32px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    border-bottom: 3px solid var(--accent);
+  }
+  .brand-row { display: flex; align-items: center; gap: 14px; }
+  .brand-badge {
+    background: var(--accent);
+    color: var(--ink);
+    font-weight: 800;
+    font-size: 12px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .brand-title { font-size: 20px; font-weight: 800; letter-spacing: -0.02em; }
+  .brand-sub { font-size: 13px; color: #D4C8B4; }
+  .kpi-strip {
+    display: flex;
+    gap: 18px;
+    flex-wrap: wrap;
+  }
+  .kpi-pill {
+    background: rgba(255, 248, 233, 0.09);
+    border: 1px solid rgba(255, 248, 233, 0.18);
+    padding: 6px 14px;
+    border-radius: 10px;
+    font-size: 12px;
+  }
+  .kpi-pill strong { color: var(--accent); font-size: 14px; margin-right: 4px; }
+
+  .container {
+    max-width: 1380px;
+    margin: 26px auto;
+    padding: 0 24px;
+  }
+
+  .tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+  }
+  .tab-btn {
+    background: #EFE6D2;
+    color: var(--ink);
+    border: 1px solid var(--border);
+    padding: 10px 18px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .tab-btn.active {
+    background: var(--ink);
+    color: var(--accent);
+    border-color: var(--ink);
+  }
+
+  .grid-main {
+    display: grid;
+    grid-template-columns: 1.15fr 1fr;
+    gap: 24px;
+  }
+  @media (max-width: 1024px) {
+    .grid-main { grid-template-columns: 1fr; }
+  }
+
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 22px;
+    box-shadow: var(--shadow);
+    margin-bottom: 20px;
+  }
+  .card h2 {
+    font-size: 17px;
+    font-weight: 800;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .card p.sub {
+    font-size: 13px;
+    color: var(--ink-muted);
+    margin-bottom: 16px;
+  }
+
+  .style-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+    gap: 12px;
+  }
+  .style-card {
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 12px;
+    cursor: pointer;
+    background: #FCF9F2;
+    transition: all 0.15s ease;
+    position: relative;
+  }
+  .style-card.selected {
+    border-color: var(--ink);
+    background: #F7F3E3;
+    box-shadow: 0 4px 14px rgba(41,35,28,0.1);
+  }
+  .style-card .tag {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    padding: 2px 7px;
+    border-radius: 99px;
+    background: var(--accent);
+    color: var(--ink);
+    margin-bottom: 6px;
+  }
+  .style-card h4 { font-size: 14px; margin-bottom: 4px; }
+  .style-card p { font-size: 11.5px; color: var(--ink-muted); line-height: 1.35; }
+  .swatches { display: flex; gap: 5px; margin-top: 8px; }
+  .swatch { width: 16px; height: 16px; border-radius: 50%; border: 1px solid rgba(0,0,0,0.15); }
+
+  .subject-controls {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+  }
+  select, input[type="text"], input[type="number"] {
+    padding: 8px 11px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    font-size: 13px;
+    background: #FFFDF8;
+    color: var(--ink);
+  }
+  .btn {
+    background: var(--ink);
+    color: var(--accent);
+    border: none;
+    padding: 9px 15px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+  }
+  .btn-secondary {
+    background: #EFE6D2;
+    color: var(--ink);
+  }
+  .subject-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .subject-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 12px;
+    background: #FAF6EC;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-size: 12.5px;
+  }
+  .subject-badge {
+    font-size: 10px;
+    font-weight: 800;
+    padding: 2px 7px;
+    border-radius: 6px;
+    text-transform: uppercase;
+    margin-right: 8px;
+  }
+  .badge-human { background: #DBEAFE; color: #1E40AF; }
+  .badge-pet { background: #FEF3C7; color: #92400E; }
+  .badge-memorial { background: #F3E8FF; color: #6B21A8; }
+
+  /* Studio Canvas Visualizer */
+  .canvas-preview-wrap {
+    position: relative;
+    width: 100%;
+    max-width: 440px;
+    aspect-ratio: 4 / 5;
+    margin: 0 auto 16px auto;
+    border-radius: 14px;
+    overflow: hidden;
+    border: 3px solid var(--ink);
+    box-shadow: 0 16px 36px rgba(0,0,0,0.18);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 18px;
+    color: #fff;
+  }
+  .safe-bleed-box {
+    position: absolute;
+    inset: 8%;
+    border: 1.5px dashed rgba(255,255,255,0.45);
+    border-radius: 8px;
+    pointer-events: none;
+  }
+  .safe-bleed-label {
+    position: absolute;
+    top: 6px;
+    left: 10px;
+    font-size: 10px;
+    color: rgba(255,255,255,0.75);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  .watermark-overlay {
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      -32deg,
+      rgba(255,255,255,0.0) 0px,
+      rgba(255,255,255,0.0) 48px,
+      rgba(255,255,255,0.14) 48px,
+      rgba(255,255,255,0.14) 72px
+    );
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+  }
+  .watermark-stamp {
+    background: rgba(25, 21, 18, 0.78);
+    border: 1.5px solid var(--accent);
+    color: var(--accent);
+    padding: 8px 16px;
+    border-radius: 999px;
+    font-weight: 800;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .silhouette-stage {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 10px;
+    height: 78%;
+    padding-bottom: 10px;
+  }
+  .silhouette-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    background: rgba(255,255,255,0.14);
+    border: 1.5px solid rgba(255,255,255,0.55);
+    border-radius: 999px 999px 12px 12px;
+    padding: 8px 6px;
+    min-width: 58px;
+    backdrop-filter: blur(4px);
+    text-align: center;
+    transition: all 0.2s ease;
+  }
+  .silhouette-head {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: var(--ink);
+    font-weight: 800;
+    font-size: 11px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 6px;
+    flex-shrink: 0;
+  }
+  .silhouette-name { font-size: 10.5px; font-weight: 700; line-height: 1.15; }
+  .silhouette-meta { font-size: 9.5px; opacity: 0.85; margin-top: 2px; }
+
+  .prompt-box {
+    background: #181512;
+    color: #F5EFE0;
+    padding: 14px;
+    border-radius: 10px;
+    font-family: "IBM Plex Mono", Consolas, monospace;
+    font-size: 11.8px;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    max-height: 250px;
+    overflow-y: auto;
+    margin-top: 10px;
+    border: 1px solid #3A3228;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12.5px;
+    margin-top: 8px;
+  }
+  th, td {
+    text-align: left;
+    padding: 9px 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  th {
+    background: #F5EFE0;
+    font-weight: 800;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .checkout-box {
+    background: #FAF5E6;
+    border: 2px solid var(--ink);
+    border-radius: 14px;
+    padding: 18px;
+  }
+  .checkout-line {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0;
+    font-size: 13.5px;
+  }
+  .checkout-total {
+    display: flex;
+    justify-content: space-between;
+    padding-top: 12px;
+    margin-top: 8px;
+    border-top: 2px solid var(--ink);
+    font-size: 18px;
+    font-weight: 900;
+  }
+  .margin-meter {
+    margin-top: 12px;
+    background: #1E1914;
+    color: #FFF8E9;
+    padding: 12px 14px;
+    border-radius: 10px;
+    font-size: 12px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+  .margin-meter strong { display: block; color: var(--accent); font-size: 15px; }
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<!-- DACH CASHFLOW STUDIOS LAUNCH BAR -->
+<style>
+  #dcs-launch-bar {
+    position: sticky;
+    top: 0;
+    z-index: 99999;
+    background: linear-gradient(90deg, #0b1120 0%, #111827 50%, #0f172a 100%);
+    color: #f8fafc;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.35);
+    padding: 8px 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  }
+  #dcs-launch-bar .dcs-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+  }
+  #dcs-launch-bar .dcs-badge {
+    background: rgba(16, 185, 129, 0.18);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.03em;
+  }
+  #dcs-launch-bar a.dcs-nav {
+    color: #93c5fd;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 12.5px;
+  }
+  #dcs-launch-bar a.dcs-nav:hover {
+    text-decoration: underline;
+    color: #dbeafe;
+  }
+  #dcs-launch-bar .dcs-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  #dcs-launch-bar .dcs-btn {
+    padding: 5px 11px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s ease;
+  }
+  #dcs-launch-bar .dcs-btn-ghost {
+    background: rgba(255,255,255,0.08);
+    color: #e2e8f0;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  #dcs-launch-bar .dcs-btn-primary {
+    background: linear-gradient(135deg, #0ea5e9, #2563eb);
+    color: #ffffff;
+  }
+  #dcs-launch-bar .dcs-btn-emerald {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
+  }
+  @media print {
+    #dcs-launch-bar { display: none !important; }
+  }
+</style>
+<div id="dcs-launch-bar">
+  <div class="dcs-left">
+    <a href="/index.html" class="dcs-nav">← Alle 150 DACH Studios</a>
+    <span class="dcs-badge">MVP #029 VERIFIED</span>
+    <span style="color:#cbd5e1;font-size:12px;">B2B SaaS, Lead-Intent Sniper & AI/MCP Infrastructure</span>
+  </div>
+  <div class="dcs-actions">
+    <button onclick="window.print()" class="dcs-btn dcs-btn-ghost">🖨️ PDF / Dossier drucken</button>
+    <a href="#checkout-modal-49" target="_blank" rel="noopener" class="dcs-btn dcs-btn-primary">⚡ Musterschreiben & Voll-Dossier (€49)</a>
+    <a href="#checkout-modal-299" target="_blank" rel="noopener" class="dcs-btn dcs-btn-emerald">🛡️ B2B Umsetzung buchen (€299 / €1.490)</a>
+  </div>
+</div>
+
+
+<header>
+  <div class="brand-row">
+    <span class="brand-badge">MVP #29 · Studio Engine</span>
+    <div>
+      <div class="brand-title">Pfoten &amp; Familie — AI Portrait Merger Studio</div>
+      <div class="brand-sub">Reverse-Engineered from Pet Plus Us (pet-plus-us.com · $35,027 Verified Stripe Revenue · 0 Subscriptions)</div>
+    </div>
+  </div>
+  <div class="kpi-strip">
+    <div class="kpi-pill"><strong>$30,273</strong> First 40 Days</div>
+    <div class="kpi-pill"><strong>$35,027</strong> All-Time Stripe</div>
+    <div class="kpi-pill"><strong>$19 + $10</strong> 1-Time Checkout</div>
+    <div class="kpi-pill"><strong>3 Previews</strong> Free (No Card)</div>
+    <div class="kpi-pill"><strong>94%+</strong> Digital Margin</div>
+  </div>
+</header>
+
+<div class="container">
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('studio', this)">01 · Multi-Subject Portrait Studio &amp; Checkout</button>
+    <button class="tab-btn" onclick="switchTab('print', this)">02 · 300-DPI Print Specs &amp; Prompt Matrix</button>
+    <button class="tab-btn" onclick="switchTab('teardown', this)">03 · Pet Plus Us ($35k) Teardown Intelligence</button>
+  </div>
+
+  <!-- TAB 1: INTERACTIVE STUDIO -->
+  <div id="tab-studio" class="grid-main">
+    <div>
+      <div class="card">
+        <h2>
+          <span>STEP 01 · Choose Your Studio Look</span>
+          <span style="font-size:12px;color:var(--sage);">First 3 Previews Free · No Card Needed</span>
+        </h2>
+        <p class="sub">Wähle einen Look oder lade eines der 3 vorab berechneten Benchmark-Szenarien:</p>
+        <div class="subject-controls">
+          <button class="btn btn-secondary" onclick="loadScenario(0)">Szenario 1: Familie + Golden Retriever &amp; Dackel</button>
+          <button class="btn btn-secondary" onclick="loadScenario(1)">Szenario 2: 3 Generationen Memorial + Shiba Inu</button>
+          <button class="btn btn-secondary" onclick="loadScenario(2)">Szenario 3: Paar + Maine Coon &amp; Frenchie</button>
+        </div>
+        <div id="style-grid" class="style-grid"></div>
+      </div>
+
+      <div class="card">
+        <h2>
+          <span>STEP 02 · Separate Smartphone Snapshots (2–6 Subjects)</span>
+          <span id="subject-counter" style="font-size:12px;color:var(--terracotta);"></span>
+        </h2>
+        <p class="sub">Kein gemeinsames Gruppenfoto nötig! Füge Menschen &amp; Haustiere hinzu — die Engine berechnet Schulterhöhe, Kopf-Ratio &amp; Sitz-/Schoß-Posture automatisch:</p>
+        <div class="subject-controls">
+          <select id="preset-select"></select>
+          <input type="text" id="custom-name" placeholder="Name (z.B. Bello / Oma Erna)" style="width:185px;" />
+          <input type="text" id="custom-traits" placeholder="Merkmale (Brille, Fellzeichnung...)" style="flex:1;min-width:180px;" />
+          <button class="btn" onclick="addSubject()">+ Foto-Subjekt hinzufügen</button>
+        </div>
+        <div id="subject-list" class="subject-list"></div>
+      </div>
+
+      <div class="card">
+        <h2>
+          <span>Scale &amp; Lighting Harmonization Matrix</span>
+          <span style="font-size:12px;color:var(--ink-muted);">Allometric Breed &amp; Eyeline Staggering</span>
+        </h2>
+        <div style="overflow-x:auto;">
+          <table>
+            <thead>
+              <tr>
+                <th>Subjekt</th>
+                <th>Größe / Kopf</th>
+                <th>Scale vs. Anchor</th>
+                <th>Zugewiesene Ebene &amp; Haltung</th>
+                <th>Kelvin-Abgleich</th>
+              </tr>
+            </thead>
+            <tbody id="scale-table-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT COLUMN: LIVE PREVIEW + 1-TIME CHECKOUT -->
+    <div>
+      <div class="card">
+        <h2>
+          <span>STEP 03 · Free Watermarked Preview (4:5 Safe Bleed)</span>
+          <label style="font-size:12px;cursor:pointer;display:flex;align-items:center;gap:6px;">
+            <input type="checkbox" id="unlock-toggle" onchange="renderAll()" />
+            <span>Paid Unlock (Watermark entfernen)</span>
+          </label>
+        </h2>
+        <p class="sub">Proportionale Höhen- &amp; Eyeline-Vorschau inkl. 8% Beschnitt-Schutzzone für 40×60cm Keilrahmen &amp; 2 kostenlosen Re-Rolls:</p>
+
+        <div id="canvas-preview" class="canvas-preview-wrap">
+          <div class="safe-bleed-box">
+            <span class="safe-bleed-label">8% Print Safe Margin · 4:5 Studio Frame</span>
+          </div>
+          <div id="watermark-layer" class="watermark-overlay">
+            <div class="watermark-stamp">FREE PREVIEW · PET+US STUDIO · 2 FREE RE-ROLLS</div>
+          </div>
+          <div id="silhouette-stage" class="silhouette-stage"></div>
+          <div style="position:relative;z-index:3;display:flex;justify-content:space-between;font-size:11px;background:rgba(0,0,0,0.55);padding:6px 10px;border-radius:8px;">
+            <span id="preview-style-label">Classic Dark Studio</span>
+            <span id="preview-cast-label">3 Humans · 2 Pets</span>
+          </div>
+        </div>
+
+        <div class="checkout-box">
+          <h3 style="font-size:15px;margin-bottom:10px;">STEP 04 · 1-Time Impulse Checkout (Kein Abo!)</h3>
+          <div class="checkout-line">
+            <span>1. Porträt (Digital 4:5 Studio HD + 2 Free Re-Rolls)</span>
+            <strong>19,00 €</strong>
+          </div>
+          <div class="checkout-line">
+            <label style="display:flex;align-items:center;gap:6px;">
+              <span>Extra Porträt-Looks (€10/Stück, bis zu 11 weitere):</span>
+              <input type="number" id="extra-count" value="1" min="0" max="11" style="width:58px;padding:3px 6px;" onchange="renderAll()" />
+            </label>
+            <strong id="extra-price-label">10,00 €</strong>
+          </div>
+          <div class="checkout-line">
+            <label style="cursor:pointer;display:flex;align-items:center;gap:6px;">
+              <input type="checkbox" id="bump-toggle" checked onchange="renderAll()" />
+              <span>Order Bump: +1 Überraschungs-Look zum Aktionspreis (+7,00 €)</span>
+            </label>
+            <strong id="bump-price-label">7,00 €</strong>
+          </div>
+          <div class="checkout-line" style="margin-top:6px;padding-top:8px;border-top:1px dashed var(--border);">
+            <label style="display:flex;align-items:center;gap:6px;">
+              <span>Physisches Print-Upsell (Gelato / Prodigi Dropship):</span>
+            </label>
+            <select id="physical-select" onchange="renderAll()">
+              <option value="none">Nur Digital (95,8% Marge)</option>
+              <option value="leinwand_40x60" selected>40x60cm Galerie-Leinwand (+49,00 €)</option>
+              <option value="framed_print_8x10">20x25cm Gerahmter Fine-Art Print (+79,00 €)</option>
+              <option value="postkarte_a6">10er Set A6 Weihnachts-/Postkarten (+24,00 €)</option>
+            </select>
+          </div>
+          <div class="checkout-line">
+            <label style="cursor:pointer;display:flex;align-items:center;gap:6px;color:var(--sage);font-weight:700;">
+              <input type="checkbox" id="credit-toggle" onchange="renderAll()" />
+              <span>30-Tage "19 € Porträt-Guthaben" auf Leinwand/Rahmen anrechnen</span>
+            </label>
+            <strong id="credit-price-label" style="color:var(--sage);">0,00 €</strong>
+          </div>
+
+          <div class="checkout-total">
+            <span>Einmalzahlung Gesamt (inkl. Versand)</span>
+            <span id="checkout-total-label">85,00 €</span>
+          </div>
+
+          <div class="margin-meter">
+            <div>
+              <span>AI Gen COGS (inkl. 3 Previews)</span>
+              <strong id="econ-ai-cogs">0,15 €</strong>
+            </div>
+            <div>
+              <span>Print + Stripe Gebühr</span>
+              <strong id="econ-print-cogs">16,97 €</strong>
+            </div>
+            <div>
+              <span>Netto-Deckungsbeitrag (Marge)</span>
+              <strong id="econ-net-margin">67,88 € (79,9%)</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 2: PRINT SPECS & MULTI-MODEL PROMPTS -->
+  <div id="tab-print" class="hidden">
+    <div class="card">
+      <h2>
+        <span>Deterministic Multi-Reference Prompts (Identity + Scale Lock)</span>
+        <select id="model-select" onchange="renderAll()">
+          <option value="flux_1_kontext_pro">Flux.1 Kontext Pro (Multi-Image Reference)</option>
+          <option value="openai_gpt_image_1">OpenAI gpt-image-1 (Multi-Reference Edit)</option>
+          <option value="bytedance_seedream_3">ByteDance Seedream 3.0</option>
+        </select>
+      </h2>
+      <p class="sub">Exakte Prompt-Architektur aus <code>pet-plus-us.com/_next/static/immutable/chunks/3lnycu2mjjtgk.js</code> erweitert um anthropometrische Größen-Ratios:</p>
+      <div id="prompt-output" class="prompt-box"></div>
+      <h4 style="margin-top:14px;font-size:13px;">Anti-Hallucination Negative Prompt (verhindert Riesen-Dackel, verschmolzene Gesichter &amp; Extra-Hände):</h4>
+      <div id="negative-output" class="prompt-box" style="max-height:110px;color:#FCA5A5;"></div>
+    </div>
+
+    <div class="card">
+      <h2>300-DPI Print Canvas &amp; Bleed Specifications (Gelato / Prodigi EU)</h2>
+      <p class="sub">Automatische Berechnung von Trim-Pixeln, Beschnittzugabe (3mm Postkarte / 15mm Keilrahmen-Umschlag) und 8% Safe-Margin:</p>
+      <table>
+        <thead>
+          <tr>
+            <th>Format</th>
+            <th>Physische Maße</th>
+            <th>Trim @ 300 DPI</th>
+            <th>Full Bleed @ 300 DPI</th>
+            <th>Safe Margin</th>
+            <th>VK-Preis</th>
+            <th>Dropship COGS</th>
+            <th>Partner</th>
+          </tr>
+        </thead>
+        <tbody id="print-table-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- TAB 3: TEARDOWN INTELLIGENCE -->
+  <div id="tab-teardown" class="hidden">
+    <div class="card">
+      <h2>Pet Plus Us (pet-plus-us.com) — Verified Revenue &amp; Funnel Teardown</h2>
+      <p class="sub">Quelle: Live-Inspektion von <code>https://pet-plus-us.com/</code>, Next.js Turbopack Chunks (<code>2iu3g509e1dmn.js</code> &amp; <code>3lnycu2mjjtgk.js</code>) und <code>trustmrr.com/startup/pet-plus-us.md</code></p>
+      <table>
+        <tbody>
+          <tr><th>Gründer &amp; Entity</th><td>Or Hirschhorn · TYGP Technologies, LLC (Support: <code>mike@pet-plus-us.com</code> · Tel: +1 628-250-2140)</td></tr>
+          <tr><th>Launch &amp; Verifizierter Umsatz</th><td>Gelauncht 06.09.2026 · <strong>$30,273 in den ersten 40 Tagen</strong> · <strong>$35,027 All-Time</strong> ($29,173 letzte 30 Tage · Peak: $1,732/Tag am 08.10.2026)</td></tr>
+          <tr><th>Subscription vs. Impulse</th><td><strong>$0.00 MRR (0 aktive Abos)</strong> · 45,0% Netto-Gewinnmarge nach Meta Ads Spend &amp; Print-Fulfillment · Zum Verkauf gelistet für $65k–$75k (13 Kaufangebote)</td></tr>
+          <tr><th>Katalog &amp; Crew-Filter</th><td><strong>115 kuratierte Looks</strong> in 4 Kategorien (Studio, Cozy, Playful, Outdoors) · Filterbar nach Personenanzahl (Pets only, 1, 2, 3, 5, 6, 7, 8 Personen)</td></tr>
+          <tr><th>Zero-Friction Hook</th><td>Bis zu 12 Looks wählbar (`MAX_PORTRAITS=12`) · Erste 3 Looks erhalten <strong>kostenlose Vorschauen mit Wasserzeichen (`MAX_PREVIEWS=3`)</strong> ohne Account oder Kreditkarte</td></tr>
+          <tr><th>Stripe Pricing Constants</th><td><code>FIRST_CENTS=1900</code> ($19) · <code>EXTRA_CENTS=1000</code> ($10) · <code>STRIPE_PRICE_PORTRAIT_BUMP=700</code> ($7 Order Bump) · <code>REROLL_CAP=2</code> (2 Gratis-Rerolls) · <code>GALLERY_EXTRA_DISCOUNT_PERCENT=30</code></td></tr>
+          <tr><th>Keepsake Upsells &amp; $19 Credit</th><td>Framed Print 8×10" ($89), Velveteen Blanket 50×60" ($99), Mug 11oz ($29), Ornament ($29), Sets ($109 / $119 / $179) · <strong>30-Tage $19 Portrait Credit:</strong> Der gezahlte $19 Digital-Preis wird voll auf Rahmen/Decke/Sets angerechnet!</td></tr>
+          <tr><th>Affiliate-Maschine</th><td><code>/affiliates</code> bietet Pet-Influencern <strong>30% Netto-Revshare</strong> (wöchentliche Auszahlung nach 14 Tagen, 30-Tage Cookie) + <code>/gift</code> Digital-Geschenkpapier-Unwrapping</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+const DATA = {"teardown": {"brand_name": "Pet Plus Us — The AI Portrait Club", "legal_entity": "TYGP Technologies, LLC", "domain": "https://pet-plus-us.com/", "trustmrr_url": "https://trustmrr.com/startup/pet-plus-us.md", "founded_date": "2026-09-06", "founder": "Or Hirschhorn (support alias: mike@pet-plus-us.com, +1 628-250-2140)", "verified_revenue": {"first_40_days_usd": 30273, "all_time_verified_usd": 35027, "last_30_days_usd": 29173, "last_7_days_usd": 7475, "last_24_hours_usd": 879, "peak_daily_revenue_usd": 1732, "peak_date": "2026-10-08", "mrr_usd": 0.0, "active_subscriptions": 0, "net_profit_margin_pct": 45.0, "asking_price_usd": 65000, "acquisition_offers_received": 13, "buyer_pageviews": 2389}, "funnel_mechanics": {"total_curated_looks": 115, "look_categories": ["All", "Studio", "Cozy", "Playful", "Outdoors"], "subject_filters": ["Any", "Pets only", "1", "2", "3", "5", "6", "7", "8"], "max_portraits_per_session": 12, "free_watermarked_previews": 3, "free_rerolls_included": 2, "first_portrait_price_usd": 19.0, "extra_portrait_price_usd": 10.0, "order_bump_extra_portrait_usd": 7.0, "gallery_recovery_discount_pct": 30, "portrait_credit_toward_keepsakes_usd": 19.0, "portrait_credit_window_days": 30, "affiliate_revshare_pct": 30, "affiliate_payout_cadence": "Weekly (after 14-day hold, 30-day cookie)"}, "keepsake_upsells_usd": {"morning_mug_11oz": 29.0, "christmas_ornament_ceramic_heart": 29.0, "framed_print_8x10_white": 89.0, "cuddle_blanket_50x60_velveteen": 99.0, "everyday_set_frame_plus_mug": 109.0, "cozy_set_blanket_plus_mug": 119.0, "home_set_frame_blanket_mug": 179.0}, "ad_angles_and_hooks": [{"angle_id": "impossible_group_photo", "headline": "Do we need a photo together? Nope.", "hook": "Can never get your dog, cat, and toddler to look at the camera at the same time? Upload separate camera-roll snapshots and merge everyone into one studio portrait.", "target_segment": "Young families with hyperactive pets & toddlers"}, {"angle_id": "memorial_bridge_portrait", "headline": "Three generations. And the one who loved them all.", "hook": "Bring a passed pet or beloved grandparent into a warm, cohesive family portrait alongside your newest family members.", "target_segment": "Pet memorial & multi-generational gift buyers"}, {"angle_id": "zero_risk_free_preview", "headline": "First 3 previews free. No account or card needed.", "hook": "Pick up to 12 looks, upload 1 photo per face, and see 3 watermarked previews in 45 seconds before paying a cent.", "target_segment": "Impulse social scrollers (Meta/IG/TikTok Ads) fatigued by AI subscriptions"}, {"angle_id": "holiday_keepsake_credit", "headline": "Your $19 digital portrait counts as a $19 credit toward framed prints & blankets.", "hook": "Buy the digital portrait today for $19 — apply the full $19 toward an $89 framed print or $119 Cozy Set within 30 days.", "target_segment": "Q4 Christmas & Mother's/Father's Day gift buyers"}]}, "presets": {"adult_male": {"category": "human", "label": "Erwachsener (Vater / Partner)", "standing_height_cm": 180.0, "seated_eye_line_cm": 124.0, "shoulder_width_cm": 46.5, "head_height_cm": 23.5, "weight_kg": 80.0}, "adult_female": {"category": "human", "label": "Erwachsene (Mutter / Partnerin)", "standing_height_cm": 166.0, "seated_eye_line_cm": 115.0, "shoulder_width_cm": 39.5, "head_height_cm": 22.0, "weight_kg": 62.0}, "senior_memorial": {"category": "human", "label": "Großelternteil (Memorial / 3 Generationen)", "standing_height_cm": 168.0, "seated_eye_line_cm": 114.0, "shoulder_width_cm": 41.0, "head_height_cm": 22.5, "weight_kg": 68.0}, "child_7yo": {"category": "human", "label": "Kind (ca. 7 Jahre)", "standing_height_cm": 122.0, "seated_eye_line_cm": 86.0, "shoulder_width_cm": 29.0, "head_height_cm": 19.5, "weight_kg": 24.0}, "toddler_2yo": {"category": "human", "label": "Kleinkind / Toddler (ca. 2 Jahre)", "standing_height_cm": 88.0, "seated_eye_line_cm": 62.0, "shoulder_width_cm": 22.5, "head_height_cm": 18.0, "weight_kg": 12.5}, "golden_retriever": {"category": "pet", "label": "Golden Retriever (Großer Hund)", "standing_height_cm": 58.0, "seated_eye_line_cm": 68.0, "shoulder_width_cm": 26.0, "head_height_cm": 21.0, "weight_kg": 31.0}, "dachshund": {"category": "pet", "label": "Dackel / Dachshund (Kleiner Hund)", "standing_height_cm": 23.0, "seated_eye_line_cm": 31.0, "shoulder_width_cm": 15.0, "head_height_cm": 13.5, "weight_kg": 7.5}, "french_bulldog": {"category": "pet", "label": "Französische Bulldogge (Kompakt)", "standing_height_cm": 31.0, "seated_eye_line_cm": 39.0, "shoulder_width_cm": 20.0, "head_height_cm": 16.0, "weight_kg": 11.5}, "shiba_inu": {"category": "pet", "label": "Shiba Inu (Mittelgroßer Hund)", "standing_height_cm": 39.5, "seated_eye_line_cm": 50.0, "shoulder_width_cm": 21.0, "head_height_cm": 17.5, "weight_kg": 10.5}, "maine_coon_cat": {"category": "pet", "label": "Maine Coon Katze (Große Hauskatze)", "standing_height_cm": 30.0, "seated_eye_line_cm": 38.0, "shoulder_width_cm": 16.0, "head_height_cm": 12.5, "weight_kg": 7.2}, "british_shorthair_cat": {"category": "pet", "label": "Britisch Kurzhaar Katze (Kompakt)", "standing_height_cm": 25.0, "seated_eye_line_cm": 32.0, "shoulder_width_cm": 14.5, "head_height_cm": 11.5, "weight_kg": 4.8}}, "styles": {"classic_dark_studio": {"style_id": "classic_dark_studio", "title": "Classic Dark Studio", "category": "Studio", "subtitle": "Seamless charcoal backdrop, 85mm Rembrandt key light, timeless gallery presence.", "target_kelvin": 5000, "key_light_setup": "Large octabox soft key at 45° camera-left + subtle hair/fur rim separator light, 3:1 contrast ratio", "lens_focal_mm": 85, "aperture": "f/2.8", "backdrop_description": "seamless deep charcoal-grey paper backdrop falling softly to matte black at the edges", "scene_directive": "A clean, museum-grade studio group portrait against a seamless deep charcoal-grey paper backdrop with a subtle vignette gradient. Large soft key light from camera left and gentle floor shadow, calm and uncluttered, 85mm prime lens rendering with tack-sharp eye catchlights across all human and pet subjects.", "color_palette": ["#18181B", "#27272A", "#D4AF37", "#F4F4F5"], "popular_badge": true}, "warm_autumn_park": {"style_id": "warm_autumn_park", "title": "Warm Autumn Park", "category": "Outdoors", "subtitle": "Golden-hour amber foliage, weathered oak bench, creamy 85mm bokeh.", "target_kelvin": 3800, "key_light_setup": "Golden-hour low-angle backlight (3800K) + warm silver reflector bounce fill on faces and fur", "lens_focal_mm": 85, "aperture": "f/2.0", "backdrop_description": "sunlit autumn park path with amber oak leaves, golden maple canopy, and creamy depth-of-field bokeh", "scene_directive": "A warm candid editorial photograph of the referenced subjects gathered on and around a weathered wooden park bench surrounded by golden-amber autumn foliage in late-afternoon sun. Warm directional golden-hour rim light on hair and fur, soft natural shadows, rich terracotta and olive wardrobe harmony, relaxed happy expressions.", "color_palette": ["#451A03", "#B45309", "#F59E0B", "#FEF3C7"], "popular_badge": true}, "royal_oil_painting": {"style_id": "royal_oil_painting", "title": "Royal Oil Painting", "category": "Fine Art", "subtitle": "Old-Master chiaroscuro lighting, velvet drape, museum-wall brushwork texture.", "target_kelvin": 4200, "key_light_setup": "Old-Master chiaroscuro high directional window light from camera-left with warm umber shadow falloff", "lens_focal_mm": 50, "aperture": "f/4.0", "backdrop_description": "dark antique emerald-and-umber velvet drape in a candlelit manor library", "scene_directive": "A regal Old-Master fine-art portrait of the referenced subjects arranged around a carved walnut velvet armchair before a dark antique emerald drape. Soft directional chiaroscuro lighting inspired by 19th-century European portraiture, rich tactile fabric and fur rendering, dignified yet warm expressions, museum frame composition.", "color_palette": ["#1E1B18", "#064E3B", "#92400E", "#FDE68A"], "popular_badge": false}, "christmas_fireplace_card": {"style_id": "christmas_fireplace_card", "title": "Christmas Fireplace Card", "category": "Cozy", "subtitle": "Crackling hearth glow, pine garland & warm fairy lights, festive holiday card.", "target_kelvin": 3400, "key_light_setup": "Warm tungsten hearth bounce (3400K) + soft frontal diffused beauty fill to keep faces bright and grain-free", "lens_focal_mm": 50, "aperture": "f/2.2", "backdrop_description": "cozy living room hearth with crackling fireplace, cedar pine garland, and warm bokeh Christmas tree lights", "scene_directive": "A cozy holiday portrait of the referenced subjects gathered on a woven wool rug in front of a glowing stone fireplace trimmed with natural cedar garland and warm white fairy lights. Coordinated cream and forest-green knit sweaters, warm ambient hearth glow balanced with clean facial key light, joyful festive card aesthetic.", "color_palette": ["#14532D", "#7F1D1D", "#D97706", "#FFFBEB"], "popular_badge": true}, "by_the_sea_together": {"style_id": "by_the_sea_together", "title": "By the Sea · Together (Pet Plus Us Hero)", "category": "Outdoors", "subtitle": "Salt air, pale coastal dunes at sunset, linen wardrobe, editorial calm.", "target_kelvin": 4600, "key_light_setup": "Open coastal sunset sky diffusion + soft horizon rim glow, zero harsh shadows", "lens_focal_mm": 85, "aperture": "f/2.5", "backdrop_description": "pale coastal sand dunes beside a calm silver-blue sea under soft pastel sunset clouds", "scene_directive": "A natural editorial photograph of the referenced subjects sitting close together on pale sand beside a calm sea at sunset, dressed in relaxed oatmeal and sky-blue coastal linen. Soft coastal breeze, gentle pastel horizon light, every human and pet face clearly visible and looking into the camera.", "color_palette": ["#0C4A6E", "#38BDF8", "#E7E5E4", "#FFF8E9"], "popular_badge": true}}, "prints": {"digital_base_hd": {"format_id": "digital_base_hd", "name_de": "Digital Portrait (4:5 Studio HD)", "aspect_ratio": "4:5", "physical_width_cm": 20.32, "physical_height_cm": 25.4, "dpi": 300, "bleed_mm": 0.0, "trim_width_px": 2400, "trim_height_px": 3000, "full_bleed_width_px": 2400, "full_bleed_height_px": 3000, "safe_margin_px": 192, "retail_price_eur": 19.0, "wholesale_cogs_eur": 0.08, "fulfillment_partner": "Instant Cloud Download (Stripe Unlock)"}, "digital_4k_upsell": {"format_id": "digital_4k_upsell", "name_de": "Digital 4K Master + Extra Portrait Pack", "aspect_ratio": "4:5", "physical_width_cm": 32.51, "physical_height_cm": 40.64, "dpi": 300, "bleed_mm": 0.0, "trim_width_px": 3840, "trim_height_px": 4800, "full_bleed_width_px": 3840, "full_bleed_height_px": 4800, "safe_margin_px": 307, "retail_price_eur": 10.0, "wholesale_cogs_eur": 0.08, "fulfillment_partner": "Instant 4K TIFF/PNG Download"}, "postkarte_a6": {"format_id": "postkarte_a6", "name_de": "Postkarte / Weihnachtskarte (10.5×14.8cm A6, 10er Set)", "aspect_ratio": "A6 (1:1.41)", "physical_width_cm": 10.5, "physical_height_cm": 14.8, "dpi": 300, "bleed_mm": 3.0, "trim_width_px": 1240, "trim_height_px": 1748, "full_bleed_width_px": 1311, "full_bleed_height_px": 1819, "safe_margin_px": 99, "retail_price_eur": 24.0, "wholesale_cogs_eur": 6.4, "fulfillment_partner": "Gelato DE (350gsm Silk Art Card + Umschläge)"}, "leinwand_40x60": {"format_id": "leinwand_40x60", "name_de": "40x60cm Galerie-Leinwand (Keilrahmen 2cm)", "aspect_ratio": "2:3", "physical_width_cm": 40.0, "physical_height_cm": 60.0, "dpi": 300, "bleed_mm": 15.0, "trim_width_px": 4724, "trim_height_px": 7087, "full_bleed_width_px": 5079, "full_bleed_height_px": 7441, "safe_margin_px": 378, "retail_price_eur": 49.0, "wholesale_cogs_eur": 14.2, "fulfillment_partner": "Gelato / Prodigi EU Dropship (FSC Holzkeilrahmen)"}, "framed_print_8x10": {"format_id": "framed_print_8x10", "name_de": "Gerahmter Fine-Art Print (20×25cm / 8×10 in)", "aspect_ratio": "4:5", "physical_width_cm": 20.32, "physical_height_cm": 25.4, "dpi": 300, "bleed_mm": 3.0, "trim_width_px": 2400, "trim_height_px": 3000, "full_bleed_width_px": 2471, "full_bleed_height_px": 3071, "safe_margin_px": 192, "retail_price_eur": 79.0, "wholesale_cogs_eur": 18.9, "fulfillment_partner": "Prodigi / Gelato Museum Matte + Massivholzrahmen"}}, "benchmark_jobs": [{"job_id": "JOB-2026-001", "scenario_title": "Familie (2 Erwachsene + Kleinkind) + Golden Retriever & Dackel", "style_id": "classic_dark_studio", "style_title": "Classic Dark Studio", "human_count": 3, "pet_count": 2, "total_subjects": 5, "anchor_subject_name": "Markus (Vater)", "anchor_height_cm": 182.0, "scale_harmonization": [{"subject_id": "SUB-H1", "name": "Markus (Vater)", "category": "human", "subtype": "adult_male", "standing_height_cm": 182.0, "seated_eye_line_cm": 125.0, "head_height_cm": 23.8, "scale_ratio_vs_anchor": 1.0, "head_scale_ratio_vs_anchor": 1.0, "assigned_depth_row": "middle_seated_row", "assigned_posture_directive": "Position adult (Markus (Vater), 182cm, 1.00x anchor scale) seated/leaning slightly inward shoulder-to-shoulder, face unobscured and staggered horizontally.", "target_eyeline_y_pct": 28.8, "kelvin_shift_delta": 900, "exposure_normalization_note": "Shift source photo (4100K) by +900K (cool (+daylight)) to match 5000K studio scene; apply Large octabox soft key at 45° camera-left + subtle hair/fur rim separator light, 3:1 contrast ratio."}, {"subject_id": "SUB-H2", "name": "Elena (Mutter)", "category": "human", "subtype": "adult_female", "standing_height_cm": 167.0, "seated_eye_line_cm": 116.0, "head_height_cm": 22.1, "scale_ratio_vs_anchor": 0.918, "head_scale_ratio_vs_anchor": 0.929, "assigned_depth_row": "middle_seated_row", "assigned_posture_directive": "Position adult (Elena (Mutter), 167cm, 0.92x anchor scale) seated/leaning slightly inward shoulder-to-shoulder, face unobscured and staggered horizontally.", "target_eyeline_y_pct": 30.6, "kelvin_shift_delta": -600, "exposure_normalization_note": "Shift source photo (5600K) by -600K (warm (+amber)) to match 5000K studio scene; apply Large octabox soft key at 45° camera-left + subtle hair/fur rim separator light, 3:1 contrast ratio."}, {"subject_id": "SUB-H3", "name": "Leo (Toddler 2J)", "category": "human", "subtype": "toddler_2yo", "standing_height_cm": 88.0, "seated_eye_line_cm": 62.0, "head_height_cm": 18.0, "scale_ratio_vs_anchor": 0.484, "head_scale_ratio_vs_anchor": 0.756, "assigned_depth_row": "front_lap_or_cradle", "assigned_posture_directive": "Seat toddler/young child (Leo (Toddler 2J), 88cm, 0.48x anchor scale) securely on the seated adult's lap at the front center, torso upright, eyes facing lens.", "target_eyeline_y_pct": 44.0, "kelvin_shift_delta": -1200, "exposure_normalization_note": "Shift source photo (6200K) by -1200K (warm (+amber)) to match 5000K studio scene; apply Large octabox soft key at 45° camera-left + subtle hair/fur rim separator light, 3:1 contrast ratio."}, {"subject_id": "SUB-P1", "name": "Bello (Golden Retriever)", "category": "pet", "subtype": "golden_retriever", "standing_height_cm": 58.0, "seated_eye_line_cm": 68.0, "head_height_cm": 21.0, "scale_ratio_vs_anchor": 0.319, "head_scale_ratio_vs_anchor": 0.882, "assigned_depth_row": "front_floor_center", "assigned_posture_directive": "Medium/large pet (Bello (Golden Retriever) [golden_retriever], 58cm shoulder height, 31.5kg, 0.32x human height ratio): seated or lying calmly on the ground at the front center at its true biological scale (head ratio 0.88x adult head), one human hand resting gently on its shoulder.", "target_eyeline_y_pct": 58.0, "kelvin_shift_delta": -800, "exposure_normalization_note": "Shift source photo (5800K) by -800K (warm (+amber)) to match 5000K studio scene; apply Large octabox soft key at 45° camera-left + subtle hair/fur rim separator light, 3:1 contrast ratio."}, {"subject_id": "SUB-P2", "name": "Seppl (Rauhaardackel)", "category": "pet", "subtype": "dachshund", "standing_height_cm": 23.0, "seated_eye_line_cm": 31.0, "head_height_cm": 13.5, "scale_ratio_vs_anchor": 0.126, "head_scale_ratio_vs_anchor": 0.567, "assigned_depth_row": "front_lap_or_cradle", "assigned_posture_directive": "Small/compact pet (Seppl (Rauhaardackel) [dachshund], 23cm shoulder height, 7.8kg, 0.13x human height ratio): safely held in arms or seated on an adult's lap so its face aligns near the family eyeline (head ratio 0.57x adult head) without artificially enlarging its body.", "target_eyeline_y_pct": 46.5, "kelvin_shift_delta": 1800, "exposure_normalization_note": "Shift source photo (3200K) by +1800K (cool (+daylight)) to match 5000K studio scene; apply Large octabox soft key at 45° camera-left + subtle hair/fur rim separator light, 3:1 contrast ratio."}], "prompts": {"flux_1_kontext_pro": "[MODEL: Flux.1 Kontext Pro Multi-Reference Composite] [Ref #1 HUMAN_REF: upload_markus_iphone15.heic -> Markus (Vater) (adult_male, 182cm, 1.00x scale, traits: 36yo, short brown hair, rectangular tortoise-shell glasses, warm smile)] [Ref #2 HUMAN_REF: upload_elena_window.jpg -> Elena (Mutter) (adult_female, 167cm, 0.92x scale, traits: 34yo, shoulder-length wavy chestnut hair, silver stud earrings)] [Ref #3 HUMAN_REF: upload_leo_playground.jpg -> Leo (Toddler 2J) (toddler_2yo, 88cm, 0.48x scale, traits: 2yo toddler boy, curly blonde hair, bright hazel eyes)] [Ref #4 PET_REF: upload_bello_garden.jpg -> Bello (Golden Retriever) (golden_retriever, 58cm, 0.32x scale, traits: Golden Retriever, honey-gold coat with white chest tuft, dark brown eyes)] [Ref #5 PET_REF: upload_seppl_sofa.jpg -> Seppl (Rauhaardackel) (dachshund, 23cm, 0.13x scale, traits: Wirehaired Dachshund, wild-boar brindle coat, bushy eyebrows, floppy ears)] :: A clean, museum-grade studio group portrait against a seamless deep charcoal-grey paper backdrop with a subtle vignette gradient. Large soft key light from camera left and gentle floor shadow, calm and uncluttered, 85mm prime lens rendering with tack-sharp eye catchlights across all human and pet subjects. Exactly 3 referenced people and 2 referenced pet(s), 5 distinct subjects in total, each appearing exactly once. Preserve every uploaded person's identity, age, skin tone, hair, glasses and body type, and each pet's species, breed, actual size, coat and markings from the uploaded references. Never copy sample identities or substitute the animal. Do not invent extra people or children, change anyone's age, or impose genders. Take pose, camera height and viewing angle from this scene, never from the uploaded snapshots. Position adult (Markus (Vater), 182cm, 1.00x anchor scale) seated/leaning slightly inward shoulder-to-shoulder, face unobscured and staggered horizontally. Position adult (Elena (Mutter), 167cm, 0.92x anchor scale) seated/leaning slightly inward shoulder-to-shoulder, face unobscured and staggered horizontally. Seat toddler/young child (Leo (Toddler 2J), 88cm, 0.48x anchor scale) securely on the seated adult's lap at the front center, torso upright, eyes facing lens. Medium/large pet (Bello (Golden Retriever) [golden_retriever], 58cm shoulder height, 31.5kg, 0.32x human height ratio): seated or lying calmly on the ground at the front center at its true biological scale (head ratio 0.88x adult head), one human hand resting gently on its shoulder. Small/compact pet (Seppl (Rauhaardackel) [dachshund], 23cm shoulder height, 7.8kg, 0.13x human height ratio): safely held in arms or seated on an adult's lap so its face aligns near the family eyeline (head ratio 0.57x adult head) without artificially enlarging its body. All 5 faces are sharp, fully visible, unobscured, staggered so none overlaps another, eyes open and looking toward the camera. Large octabox soft key at 45° camera-left + subtle hair/fur rim separator light, 3:1 contrast ratio, 5000K color temperature, 85mm f/2.8 lens rendering. Natural skin and fur texture, coherent hands, limbs and species-appropriate anatomy. Compose a vertical 4:5 portrait with generous 8% bleed margins so nobody is cropped under print or canvas wraps.", "openai_gpt_image_1": "Composite the 5 uploaded reference subjects into one cohesive photorealistic portrait. Reference mapping: [Ref #1 HUMAN_REF: upload_markus_iphone15.heic -> Markus (Vater) (adult_male, 182cm, 1.00x scale, traits: 36yo, short brown hair, rectangular tortoise-shell glasses, warm smile)] [Ref #2 HUMAN_REF: upload_elena_window.jpg -> Elena (Mutter) (adult_female, 167cm, 0.92x scale, traits: 34yo, shoulder-length wavy chestnut hair, silver stud earrings)] [Ref #3 HUMAN_REF: upload_leo_playground.jpg -> Leo (Toddler 2J) (toddler_2yo, 88cm, 0.48x scale, traits: 2yo toddler boy, curly blonde hair, bright hazel eyes)] [Ref #4 PET_REF: upload_bello_garden.jpg -> Bello (Golden Retriever) (golden_retriever, 58cm, 0.32x scale, traits: Golden Retriever, honey-gold coat with white chest tuft, dark brown eyes)] [Ref #5 PET_REF: upload_seppl_sofa.jpg -> Seppl (Rauhaardackel) (dachshund, 23cm, 0.13x scale, traits: Wirehaired Dachshund, wild-boar brindle coat, bushy eyebrows, floppy ears)]. Scene: A clean, museum-grade studio group portrait against a seamless deep charcoal-grey paper backdrop with a subtle vignette gradient. Large soft key light from camera left and gentle floor shadow, calm and uncluttered, 85mm prime lens rendering with tack-sharp eye catchlights across all human and pet subjects. Strict scale & identity rules: Exactly 3 referenced people and 2 referenced pet(s), 5 distinct subjects in total, each appearing exactly once. Preserve every uploaded person's identity, age, skin tone, hair, glasses and body type, and each pet's species, breed, actual size, coat and markings from the uploaded references. Never copy sample identities or substitute the animal. Do not invent extra people or children, change anyone's age, or impose genders. Take pose, camera height and viewing angle from this scene, never from the uploaded snapshots. Position adult (Markus (Vater), 182cm, 1.00x anchor scale) seated/leaning slightly inward shoulder-to-shoulder, face unobscured and staggered horizontally. Position adult (Elena (Mutter), 167cm, 0.92x anchor scale) seated/leaning slightly inward shoulder-to-shoulder, face unobscured and staggered horizontally. Seat toddler/young child (Leo (Toddler 2J), 88cm, 0.48x anchor scale) securely on the seated adult's lap at the front center, torso upright, eyes facing lens. Medium/large pet (Bello (Golden Retriever) [golden_retriever], 58cm shoulder height, 31.5kg, 0.32x human height ratio): seated or lying calmly on the ground at the front center at its true biological scale (head ratio 0.88x adult head), one human hand resting gently on its shoulder. Small/compact pet (Seppl (Rauhaardackel) [dachshund], 23cm shoulder height, 7.8kg, 0.13x human height ratio): safely held in arms or seated on an adult's lap so its face aligns near the family eyeline (head ratio 0.57x adult head) without artificially enlarging its body. All 5 faces are sharp, fully visible, unobscured, staggered so none overlaps another, eyes open and looking toward the camera. Large octabox soft key at 45° camera-left + subtle hair/fur rim separator light, 3:1 contrast ratio, 5000K color temperature, 85mm f/2.8 lens rendering. Natural skin and fur texture, coherent hands, limbs and species-appropriate anatomy. Compose a vertical 4:5 portrait with generous 8% bleed margins so nobody is cropped under print or canvas wraps.", "bytedance_seedream_3": "Masterpiece editorial family and pet portrait, 85mm prime lens, f/2.8, seamless deep charcoal-grey paper backdrop falling softly to matte black at the edges. A clean, museum-grade studio group portrait against a seamless deep charcoal-grey paper backdrop with a subtle vignette gradient. Large soft key light from camera left and gentle floor shadow, calm and uncluttered, 85mm prime lens rendering with tack-sharp eye catchlights across all human and pet subjects. Subject lock: [Ref #1 HUMAN_REF: upload_markus_iphone15.heic -> Markus (Vater) (adult_male, 182cm, 1.00x scale, traits: 36yo, short brown hair, rectangular tortoise-shell glasses, warm smile)] [Ref #2 HUMAN_REF: upload_elena_window.jpg -> Elena (Mutter) (adult_female, 167cm, 0.92x scale, traits: 34yo, shoulder-length wavy chestnut hair, silver stud earrings)] [Ref #3 HUMAN_REF: upload_leo_playground.jpg -> Leo (Toddler 2J) (toddler_2yo, 88cm, 0.48x scale, traits: 2yo toddler boy, curly blonde hair, bright hazel eyes)] [Ref #4 PET_REF: upload_bello_garden.jpg -> Bello (Golden Retriever) (golden_retriever, 58cm, 0.32x scale, traits: Golden Retriever, honey-gold coat with white chest tuft, dark brown eyes)] [Ref #5 PET_REF: upload_seppl_sofa.jpg -> Seppl (Rauhaardackel) (dachshund, 23cm, 0.13x scale, traits: Wirehaired Dachshund, wild-boar brindle coat, bushy eyebrows, floppy ears)]. Exactly 3 referenced people and 2 referenced pet(s), 5 distinct subjects in total, each appearing exactly once. Preserve every uploaded person's identity, age, skin tone, hair, glasses and body type, and each pet's species, breed, actual size, coat and markings from the uploaded references. Never copy sample identities or substitute the animal. Do not invent extra people or children, change anyone's age, or impose genders. Take pose, camera height and viewing angle from this scene, never from the uploaded snapshots. Position adult (Markus (Vater), 182cm, 1.00x anchor scale) seated/leaning slightly inward shoulder-to-shoulder, face unobscured and staggered horizontally. Position adult (Elena (Mutter), 167cm, 0.92x anchor scale) seated/leaning slightly inward shoulder-to-shoulder, face unobscured and staggered horizontally. Seat toddler/young child (Leo (Toddler 2J), 88cm, 0.48x anchor scale) securely on the seated adult's lap at the front center, torso upright, eyes facing lens. Medium/large pet (Bello (Golden Retriever) [golden_retriever], 58cm shoulder height, 31.5kg, 0.32x human height ratio): seated or lying calmly on the ground at the front center at its true biological scale (head ratio 0.88x adult head), one human hand resting gently on its shoulder. Small/compact pet (Seppl (Rauhaardackel) [dachshund], 23cm shoulder height, 7.8kg, 0.13x human height ratio): safely held in arms or seated on an adult's lap so its face aligns near the family eyeline (head ratio 0.57x adult head) without artificially enlarging its body. All 5 faces are sharp, fully visible, unobscured, staggered so none overlaps another, eyes open and looking toward the camera. Large octabox soft key at 45° camera-left + subtle hair/fur rim separator light, 3:1 contrast ratio, 5000K color temperature, 85mm f/2.8 lens rendering. Natural skin and fur texture, coherent hands, limbs and species-appropriate anatomy. Compose a vertical 4:5 portrait with generous 8% bleed margins so nobody is cropped under print or canvas wraps."}, "negative_prompt": "text, watermark, logo, border, collage, split-screen divider, visible seam, illustration, CGI, waxy skin, beauty retouching, extra people, extra subjects, missing subjects, duplicate people, duplicate animals, background people, extra limbs, extra fingers, distorted hands, merged faces or bodies, hidden or cropped faces, changed identity, changed age, invented child, changed pet species or markings, enlarged pet, giant dog, miniaturized adult, humanized animal anatomy, harsh direct flash, cluttered background", "print_specs": {"digital_base_hd": {"format_id": "digital_base_hd", "name_de": "Digital Portrait (4:5 Studio HD)", "aspect_ratio": "4:5", "physical_width_cm": 20.32, "physical_height_cm": 25.4, "dpi": 300, "bleed_mm": 0.0, "trim_width_px": 2400, "trim_height_px": 3000, "full_bleed_width_px": 2400, "full_bleed_height_px": 3000, "safe_margin_px": 192, "retail_price_eur": 19.0, "wholesale_cogs_eur": 0.08, "fulfillment_partner": "Instant Cloud Download (Stripe Unlock)"}, "digital_4k_upsell": {"format_id": "digital_4k_upsell", "name_de": "Digital 4K Master + Extra Portrait Pack", "aspect_ratio": "4:5", "physical_width_cm": 32.51, "physical_height_cm": 40.64, "dpi": 300, "bleed_mm": 0.0, "trim_width_px": 3840, "trim_height_px": 4800, "full_bleed_width_px": 3840, "full_bleed_height_px": 4800, "safe_margin_px": 307, "retail_price_eur": 10.0, "wholesale_cogs_eur": 0.08, "fulfillment_partner": "Instant 4K TIFF/PNG Download"}, "postkarte_a6": {"format_id": "postkarte_a6", "name_de": "Postkarte / Weihnachtskarte (10.5×14.8cm A6, 10er Set)", "aspect_ratio": "A6 (1:1.41)", "physical_width_cm": 10.5, "physical_height_cm": 14.8, "dpi": 300, "bleed_mm": 3.0, "trim_width_px": 1240, "trim_height_px": 1748, "full_bleed_width_px": 1311, "full_bleed_height_px": 1819, "safe_margin_px": 99, "retail_price_eur": 24.0, "wholesale_cogs_eur": 6.4, "fulfillment_partner": "Gelato DE (350gsm Silk Art Card + Umschläge)"}, "leinwand_40x60": {"format_id": "leinwand_40x60", "name_de": "40x60cm Galerie-Leinwand (Keilrahmen 2cm)", "aspect_ratio": "2:3", "physical_width_cm": 40.0, "physical_height_cm": 60.0, "dpi": 300, "bleed_mm": 15.0, "trim_width_px": 4724, "trim_height_px": 7087, "full_bleed_width_px": 5079, "full_bleed_height_px": 7441, "safe_margin_px": 378, "retail_price_eur": 49.0, "wholesale_cogs_eur": 14.2, "fulfillment_partner": "Gelato / Prodigi EU Dropship (FSC Holzkeilrahmen)"}, "framed_print_8x10": {"format_id": "framed_print_8x10", "name_de": "Gerahmter Fine-Art Print (20×25cm / 8×10 in)", "aspect_ratio": "4:5", "physical_width_cm": 20.32, "physical_height_cm": 25.4, "dpi": 300, "bleed_mm": 3.0, "trim_width_px": 2400, "trim_height_px": 3000, "full_bleed_width_px": 2471, "full_bleed_height_px": 3071, "safe_margin_px": 192, "retail_price_eur": 79.0, "wholesale_cogs_eur": 18.9, "fulfillment_partner": "Prodigi / Gelato Museum Matte + Massivholzrahmen"}}, "unit_economics": {"base_portrait_eur": 19.0, "extra_portraits_count": 1, "extra_portraits_eur": 10.0, "order_bump_eur": 7.0, "digital_subtotal_eur": 36.0, "physical_upsell_id": "leinwand_40x60", "physical_upsell_label": "40x60cm Galerie-Leinwand (Keilrahmen 2cm)", "physical_upsell_eur": 49.0, "portrait_credit_applied_eur": 0.0, "gross_checkout_total_eur": 85.0, "ai_generation_cogs_eur": 0.15, "single_portrait_ai_cost_usd": 0.08, "physical_print_dropship_cogs_eur": 14.2, "stripe_processing_fee_eur": 2.77, "total_cogs_eur": 17.12, "net_contribution_profit_eur": 67.88, "blended_gross_margin_pct": 79.9, "pure_digital_29_margin_pct": 95.8}}, {"job_id": "JOB-2026-002", "scenario_title": "3-Generationen Memorial-Porträt + Shiba Inu im Herbstpark", "style_id": "warm_autumn_park", "style_title": "Warm Autumn Park", "human_count": 3, "pet_count": 1, "total_subjects": 4, "anchor_subject_name": "Opa Heinrich (Memorial Foto 2019)", "anchor_height_cm": 174.0, "scale_harmonization": [{"subject_id": "SUB-H4", "name": "Opa Heinrich (Memorial Foto 2019)", "category": "human", "subtype": "senior_memorial", "standing_height_cm": 174.0, "seated_eye_line_cm": 118.0, "head_height_cm": 23.0, "scale_ratio_vs_anchor": 1.0, "head_scale_ratio_vs_anchor": 1.0, "assigned_depth_row": "middle_seated_row", "assigned_posture_directive": "Seat beloved family elder (Opa Heinrich (Memorial Foto 2019), 174cm, 1.00x anchor scale) in the primary armchair/bench position with warm balanced key light and natural skin texture.", "target_eyeline_y_pct": 33.5, "kelvin_shift_delta": 200, "exposure_normalization_note": "Shift source photo (3600K) by +200K (cool (+daylight)) to match 3800K studio scene; apply Golden-hour low-angle backlight (3800K) + warm silver reflector bounce fill on faces and fur."}, {"subject_id": "SUB-H5", "name": "Sarah (Tochter)", "category": "human", "subtype": "adult_female", "standing_height_cm": 169.0, "seated_eye_line_cm": 117.0, "head_height_cm": 22.2, "scale_ratio_vs_anchor": 0.971, "head_scale_ratio_vs_anchor": 0.965, "assigned_depth_row": "middle_seated_row", "assigned_posture_directive": "Position adult (Sarah (Tochter), 169cm, 0.97x anchor scale) seated/leaning slightly inward shoulder-to-shoulder, face unobscured and staggered horizontally.", "target_eyeline_y_pct": 30.3, "kelvin_shift_delta": -1600, "exposure_normalization_note": "Shift source photo (5400K) by -1600K (warm (+amber)) to match 3800K studio scene; apply Golden-hour low-angle backlight (3800K) + warm silver reflector bounce fill on faces and fur."}, {"subject_id": "SUB-H6", "name": "Mia (Enkelin 7J)", "category": "human", "subtype": "child_7yo", "standing_height_cm": 122.0, "seated_eye_line_cm": 86.0, "head_height_cm": 19.5, "scale_ratio_vs_anchor": 0.701, "head_scale_ratio_vs_anchor": 0.848, "assigned_depth_row": "middle_seated_row", "assigned_posture_directive": "Position child (Mia (Enkelin 7J), 122cm, 0.70x anchor scale) seated or kneeling close beside the adults in the front-middle plane, head staggered between adult shoulders.", "target_eyeline_y_pct": 39.0, "kelvin_shift_delta": -1300, "exposure_normalization_note": "Shift source photo (5100K) by -1300K (warm (+amber)) to match 3800K studio scene; apply Golden-hour low-angle backlight (3800K) + warm silver reflector bounce fill on faces and fur."}, {"subject_id": "SUB-P3", "name": "Kiko (Shiba Inu)", "category": "pet", "subtype": "shiba_inu", "standing_height_cm": 39.5, "seated_eye_line_cm": 50.0, "head_height_cm": 17.5, "scale_ratio_vs_anchor": 0.227, "head_scale_ratio_vs_anchor": 0.761, "assigned_depth_row": "front_lap_or_cradle", "assigned_posture_directive": "Small/compact pet (Kiko (Shiba Inu) [shiba_inu], 40cm shoulder height, 10.5kg, 0.23x human height ratio): safely held in arms or seated on an adult's lap so its face aligns near the family eyeline (head ratio 0.76x adult head) without artificially enlarging its body.", "target_eyeline_y_pct": 46.5, "kelvin_shift_delta": -2200, "exposure_normalization_note": "Shift source photo (6000K) by -2200K (warm (+amber)) to match 3800K studio scene; apply Golden-hour low-angle backlight (3800K) + warm silver reflector bounce fill on faces and fur."}], "prompts": {"flux_1_kontext_pro": "[MODEL: Flux.1 Kontext Pro Multi-Reference Composite] [Ref #1 HUMAN_REF: scan_opa_heinrich_2019.jpg -> Opa Heinrich (Memorial Foto 2019) (senior_memorial, 174cm, 1.00x scale, traits: 78yo silver-haired grandfather, wire-rim glasses, kind eyes, tweed vest)] [Ref #2 HUMAN_REF: upload_sarah_selfie.jpg -> Sarah (Tochter) (adult_female, 169cm, 0.97x scale, traits: 41yo woman, auburn hair in loose bun, freckles)] [Ref #3 HUMAN_REF: upload_mia_school.jpg -> Mia (Enkelin 7J) (child_7yo, 122cm, 0.70x scale, traits: 7yo girl, braided brown hair, gap-toothed smile)] [Ref #4 PET_REF: upload_kiko_park.jpg -> Kiko (Shiba Inu) (shiba_inu, 40cm, 0.23x scale, traits: Red sesame Shiba Inu with white urajiro cheek markings and plush curled tail)] :: A warm candid editorial photograph of the referenced subjects gathered on and around a weathered wooden park bench surrounded by golden-amber autumn foliage in late-afternoon sun. Warm directional golden-hour rim light on hair and fur, soft natural shadows, rich terracotta and olive wardrobe harmony, relaxed happy expressions. Exactly 3 referenced people and 1 referenced pet(s), 4 distinct subjects in total, each appearing exactly once. Preserve every uploaded person's identity, age, skin tone, hair, glasses and body type, and each pet's species, breed, actual size, coat and markings from the uploaded references. Never copy sample identities or substitute the animal. Do not invent extra people or children, change anyone's age, or impose genders. Take pose, camera height and viewing angle from this scene, never from the uploaded snapshots. Seat beloved family elder (Opa Heinrich (Memorial Foto 2019), 174cm, 1.00x anchor scale) in the primary armchair/bench position with warm balanced key light and natural skin texture. Position adult (Sarah (Tochter), 169cm, 0.97x anchor scale) seated/leaning slightly inward shoulder-to-shoulder, face unobscured and staggered horizontally. Position child (Mia (Enkelin 7J), 122cm, 0.70x anchor scale) seated or kneeling close beside the adults in the front-middle plane, head staggered between adult shoulders. Small/compact pet (Kiko (Shiba Inu) [shiba_inu], 40cm shoulder height, 10.5kg, 0.23x human height ratio): safely held in arms or seated on an adult's lap so its face aligns near the family eyeline (head ratio 0.76x adult head) without artificially enlarging its body. All 4 faces are sharp, fully visible, unobscured, staggered so none overlaps another, eyes open and looking toward the camera. Golden-hour low-angle backlight (3800K) + warm silver reflector bounce fill on faces and fur, 3800K color temperature, 85mm f/2.0 lens rendering. Natural skin and fur texture, coherent hands, limbs and species-appropriate anatomy. Compose a vertical 4:5 portrait with generous 8% bleed margins so nobody is cropped under print or canvas wraps.", "openai_gpt_image_1": "Composite the 4 uploaded reference subjects into one cohesive photorealistic portrait. Reference mapping: [Ref #1 HUMAN_REF: scan_opa_heinrich_2019.jpg -> Opa Heinrich (Memorial Foto 2019) (senior_memorial, 174cm, 1.00x scale, traits: 78yo silver-haired grandfather, wire-rim glasses, kind eyes, tweed vest)] [Ref #2 HUMAN_REF: upload_sarah_selfie.jpg -> Sarah (Tochter) (adult_female, 169cm, 0.97x scale, traits: 41yo woman, auburn hair in loose bun, freckles)] [Ref #3 HUMAN_REF: upload_mia_school.jpg -> Mia (Enkelin 7J) (child_7yo, 122cm, 0.70x scale, traits: 7yo girl, braided brown hair, gap-toothed smile)] [Ref #4 PET_REF: upload_kiko_park.jpg -> Kiko (Shiba Inu) (shiba_inu, 40cm, 0.23x scale, traits: Red sesame Shiba Inu with white urajiro cheek markings and plush curled tail)]. Scene: A warm candid editorial photograph of the referenced subjects gathered on and around a weathered wooden park bench surrounded by golden-amber autumn foliage in late-afternoon sun. Warm directional golden-hour rim light on hair and fur, soft natural shadows, rich terracotta and olive wardrobe harmony, relaxed happy expressions. Strict scale & identity rules: Exactly 3 referenced people and 1 referenced pet(s), 4 distinct subjects in total, each appearing exactly once. Preserve every uploaded person's identity, age, skin tone, hair, glasses and body type, and each pet's species, breed, actual size, coat and markings from the uploaded references. Never copy sample identities or substitute the animal. Do not invent extra people or children, change anyone's age, or impose genders. Take pose, camera height and viewing angle from this scene, never from the uploaded snapshots. Seat beloved family elder (Opa Heinrich (Memorial Foto 2019), 174cm, 1.00x anchor scale) in the primary armchair/bench position with warm balanced key light and natural skin texture. Position adult (Sarah (Tochter), 169cm, 0.97x anchor scale) seated/leaning slightly inward shoulder-to-shoulder, face unobscured and staggered horizontally. Position child (Mia (Enkelin 7J), 122cm, 0.70x anchor scale) seated or kneeling close beside the adults in the front-middle plane, head staggered between adult shoulders. Small/compact pet (Kiko (Shiba Inu) [shiba_inu], 40cm shoulder height, 10.5kg, 0.23x human height ratio): safely held in arms or seated on an adult's lap so its face aligns near the family eyeline (head ratio 0.76x adult head) without artificially enlarging its body. All 4 faces are sharp, fully visible, unobscured, staggered so none overlaps another, eyes open and looking toward the camera. Golden-hour low-angle backlight (3800K) + warm silver reflector bounce fill on faces and fur, 3800K color temperature, 85mm f/2.0 lens rendering. Natural skin and fur texture, coherent hands, limbs and species-appropriate anatomy. Compose a vertical 4:5 portrait with generous 8% bleed margins so nobody is cropped under print or canvas wraps.", "bytedance_seedream_3": "Masterpiece editorial family and pet portrait, 85mm prime lens, f/2.0, sunlit autumn park path with amber oak leaves, golden maple canopy, and creamy depth-of-field bokeh. A warm candid editorial photograph of the referenced subjects gathered on and around a weathered wooden park bench surrounded by golden-amber autumn foliage in late-afternoon sun. Warm directional golden-hour rim light on hair and fur, soft natural shadows, rich terracotta and olive wardrobe harmony, relaxed happy expressions. Subject lock: [Ref #1 HUMAN_REF: scan_opa_heinrich_2019.jpg -> Opa Heinrich (Memorial Foto 2019) (senior_memorial, 174cm, 1.00x scale, traits: 78yo silver-haired grandfather, wire-rim glasses, kind eyes, tweed vest)] [Ref #2 HUMAN_REF: upload_sarah_selfie.jpg -> Sarah (Tochter) (adult_female, 169cm, 0.97x scale, traits: 41yo woman, auburn hair in loose bun, freckles)] [Ref #3 HUMAN_REF: upload_mia_school.jpg -> Mia (Enkelin 7J) (child_7yo, 122cm, 0.70x scale, traits: 7yo girl, braided brown hair, gap-toothed smile)] [Ref #4 PET_REF: upload_kiko_park.jpg -> Kiko (Shiba Inu) (shiba_inu, 40cm, 0.23x scale, traits: Red sesame Shiba Inu with white urajiro cheek markings and plush curled tail)]. Exactly 3 referenced people and 1 referenced pet(s), 4 distinct subjects in total, each appearing exactly once. Preserve every uploaded person's identity, age, skin tone, hair, glasses and body type, and each pet's species, breed, actual size, coat and markings from the uploaded references. Never copy sample identities or substitute the animal. Do not invent extra people or children, change anyone's age, or impose genders. Take pose, camera height and viewing angle from this scene, never from the uploaded snapshots. Seat beloved family elder (Opa Heinrich (Memorial Foto 2019), 174cm, 1.00x anchor scale) in the primary armchair/bench position with warm balanced key light and natural skin texture. Position adult (Sarah (Tochter), 169cm, 0.97x anchor scale) seated/leaning slightly inward shoulder-to-shoulder, face unobscured and staggered horizontally. Position child (Mia (Enkelin 7J), 122cm, 0.70x anchor scale) seated or kneeling close beside the adults in the front-middle plane, head staggered between adult shoulders. Small/compact pet (Kiko (Shiba Inu) [shiba_inu], 40cm shoulder height, 10.5kg, 0.23x human height ratio): safely held in arms or seated on an adult's lap so its face aligns near the family eyeline (head ratio 0.76x adult head) without artificially enlarging its body. All 4 faces are sharp, fully visible, unobscured, staggered so none overlaps another, eyes open and looking toward the camera. Golden-hour low-angle backlight (3800K) + warm silver reflector bounce fill on faces and fur, 3800K color temperature, 85mm f/2.0 lens rendering. Natural skin and fur texture, coherent hands, limbs and species-appropriate anatomy. Compose a vertical 4:5 portrait with generous 8% bleed margins so nobody is cropped under print or canvas wraps."}, "negative_prompt": "text, watermark, logo, border, collage, split-screen divider, visible seam, illustration, CGI, waxy skin, beauty retouching, extra people, extra subjects, missing subjects, duplicate people, duplicate animals, background people, extra limbs, extra fingers, distorted hands, merged faces or bodies, hidden or cropped faces, changed identity, changed age, invented child, changed pet species or markings, enlarged pet, giant dog, miniaturized adult, humanized animal anatomy, harsh direct flash, cluttered background", "print_specs": {"digital_base_hd": {"format_id": "digital_base_hd", "name_de": "Digital Portrait (4:5 Studio HD)", "aspect_ratio": "4:5", "physical_width_cm": 20.32, "physical_height_cm": 25.4, "dpi": 300, "bleed_mm": 0.0, "trim_width_px": 2400, "trim_height_px": 3000, "full_bleed_width_px": 2400, "full_bleed_height_px": 3000, "safe_margin_px": 192, "retail_price_eur": 19.0, "wholesale_cogs_eur": 0.08, "fulfillment_partner": "Instant Cloud Download (Stripe Unlock)"}, "digital_4k_upsell": {"format_id": "digital_4k_upsell", "name_de": "Digital 4K Master + Extra Portrait Pack", "aspect_ratio": "4:5", "physical_width_cm": 32.51, "physical_height_cm": 40.64, "dpi": 300, "bleed_mm": 0.0, "trim_width_px": 3840, "trim_height_px": 4800, "full_bleed_width_px": 3840, "full_bleed_height_px": 4800, "safe_margin_px": 307, "retail_price_eur": 10.0, "wholesale_cogs_eur": 0.08, "fulfillment_partner": "Instant 4K TIFF/PNG Download"}, "postkarte_a6": {"format_id": "postkarte_a6", "name_de": "Postkarte / Weihnachtskarte (10.5×14.8cm A6, 10er Set)", "aspect_ratio": "A6 (1:1.41)", "physical_width_cm": 10.5, "physical_height_cm": 14.8, "dpi": 300, "bleed_mm": 3.0, "trim_width_px": 1240, "trim_height_px": 1748, "full_bleed_width_px": 1311, "full_bleed_height_px": 1819, "safe_margin_px": 99, "retail_price_eur": 24.0, "wholesale_cogs_eur": 6.4, "fulfillment_partner": "Gelato DE (350gsm Silk Art Card + Umschläge)"}, "leinwand_40x60": {"format_id": "leinwand_40x60", "name_de": "40x60cm Galerie-Leinwand (Keilrahmen 2cm)", "aspect_ratio": "2:3", "physical_width_cm": 40.0, "physical_height_cm": 60.0, "dpi": 300, "bleed_mm": 15.0, "trim_width_px": 4724, "trim_height_px": 7087, "full_bleed_width_px": 5079, "full_bleed_height_px": 7441, "safe_margin_px": 378, "retail_price_eur": 49.0, "wholesale_cogs_eur": 14.2, "fulfillment_partner": "Gelato / Prodigi EU Dropship (FSC Holzkeilrahmen)"}, "framed_print_8x10": {"format_id": "framed_print_8x10", "name_de": "Gerahmter Fine-Art Print (20×25cm / 8×10 in)", "aspect_ratio": "4:5", "physical_width_cm": 20.32, "physical_height_cm": 25.4, "dpi": 300, "bleed_mm": 3.0, "trim_width_px": 2400, "trim_height_px": 3000, "full_bleed_width_px": 2471, "full_bleed_height_px": 3071, "safe_margin_px": 192, "retail_price_eur": 79.0, "wholesale_cogs_eur": 18.9, "fulfillment_partner": "Prodigi / Gelato Museum Matte + Massivholzrahmen"}}, "unit_economics": {"base_portrait_eur": 19.0, "extra_portraits_count": 2, "extra_portraits_eur": 20.0, "order_bump_eur": 7.0, "digital_subtotal_eur": 46.0, "physical_upsell_id": "framed_print_8x10", "physical_upsell_label": "Gerahmter Fine-Art Print (20×25cm / 8×10 in)", "physical_upsell_eur": 79.0, "portrait_credit_applied_eur": 0.0, "gross_checkout_total_eur": 125.0, "ai_generation_cogs_eur": 0.18, "single_portrait_ai_cost_usd": 0.08, "physical_print_dropship_cogs_eur": 18.9, "stripe_processing_fee_eur": 3.92, "total_cogs_eur": 23.0, "net_contribution_profit_eur": 102.0, "blended_gross_margin_pct": 81.6, "pure_digital_29_margin_pct": 95.8}}, {"job_id": "JOB-2026-003", "scenario_title": "Paar + Maine Coon Katze & Französische Bulldogge (Weihnachtskarte)", "style_id": "christmas_fireplace_card", "style_title": "Christmas Fireplace Card", "human_count": 2, "pet_count": 2, "total_subjects": 4, "anchor_subject_name": "Jonas", "anchor_height_cm": 178.0, "scale_harmonization": [{"subject_id": "SUB-H7", "name": "Jonas", "category": "human", "subtype": "adult_male", "standing_height_cm": 178.0, "seated_eye_line_cm": 122.0, "head_height_cm": 23.2, "scale_ratio_vs_anchor": 1.0, "head_scale_ratio_vs_anchor": 1.0, "assigned_depth_row": "middle_seated_row", "assigned_posture_directive": "Position adult (Jonas, 178cm, 1.00x anchor scale) seated/leaning slightly inward shoulder-to-shoulder, face unobscured and staggered horizontally.", "target_eyeline_y_pct": 29.2, "kelvin_shift_delta": -1400, "exposure_normalization_note": "Shift source photo (4800K) by -1400K (warm (+amber)) to match 3400K studio scene; apply Warm tungsten hearth bounce (3400K) + soft frontal diffused beauty fill to keep faces bright and grain-free."}, {"subject_id": "SUB-H8", "name": "Clara", "category": "human", "subtype": "adult_female", "standing_height_cm": 164.0, "seated_eye_line_cm": 114.0, "head_height_cm": 21.8, "scale_ratio_vs_anchor": 0.921, "head_scale_ratio_vs_anchor": 0.94, "assigned_depth_row": "middle_seated_row", "assigned_posture_directive": "Position adult (Clara, 164cm, 0.92x anchor scale) seated/leaning slightly inward shoulder-to-shoulder, face unobscured and staggered horizontally.", "target_eyeline_y_pct": 30.9, "kelvin_shift_delta": -1800, "exposure_normalization_note": "Shift source photo (5200K) by -1800K (warm (+amber)) to match 3400K studio scene; apply Warm tungsten hearth bounce (3400K) + soft frontal diffused beauty fill to keep faces bright and grain-free."}, {"subject_id": "SUB-P4", "name": "Lord Whiskers (Maine Coon)", "category": "pet", "subtype": "maine_coon_cat", "standing_height_cm": 30.0, "seated_eye_line_cm": 38.0, "head_height_cm": 12.5, "scale_ratio_vs_anchor": 0.169, "head_scale_ratio_vs_anchor": 0.539, "assigned_depth_row": "front_lap_or_cradle", "assigned_posture_directive": "Small/compact pet (Lord Whiskers (Maine Coon) [maine_coon_cat], 30cm shoulder height, 7.2kg, 0.17x human height ratio): safely held in arms or seated on an adult's lap so its face aligns near the family eyeline (head ratio 0.54x adult head) without artificially enlarging its body.", "target_eyeline_y_pct": 46.5, "kelvin_shift_delta": -100, "exposure_normalization_note": "Shift source photo (3500K) by -100K (warm (+amber)) to match 3400K studio scene; apply Warm tungsten hearth bounce (3400K) + soft frontal diffused beauty fill to keep faces bright and grain-free."}, {"subject_id": "SUB-P5", "name": "Louie (French Bulldog)", "category": "pet", "subtype": "french_bulldog", "standing_height_cm": 31.0, "seated_eye_line_cm": 39.0, "head_height_cm": 16.0, "scale_ratio_vs_anchor": 0.174, "head_scale_ratio_vs_anchor": 0.69, "assigned_depth_row": "front_lap_or_cradle", "assigned_posture_directive": "Small/compact pet (Louie (French Bulldog) [french_bulldog], 31cm shoulder height, 11.5kg, 0.17x human height ratio): safely held in arms or seated on an adult's lap so its face aligns near the family eyeline (head ratio 0.69x adult head) without artificially enlarging its body.", "target_eyeline_y_pct": 46.5, "kelvin_shift_delta": -2100, "exposure_normalization_note": "Shift source photo (5500K) by -2100K (warm (+amber)) to match 3400K studio scene; apply Warm tungsten hearth bounce (3400K) + soft frontal diffused beauty fill to keep faces bright and grain-free."}], "prompts": {"flux_1_kontext_pro": "[MODEL: Flux.1 Kontext Pro Multi-Reference Composite] [Ref #1 HUMAN_REF: upload_jonas.jpg -> Jonas (adult_male, 178cm, 1.00x scale, traits: 31yo man, trimmed beard, dark wavy hair)] [Ref #2 HUMAN_REF: upload_clara.jpg -> Clara (adult_female, 164cm, 0.92x scale, traits: 29yo woman, blonde bob, dimples)] [Ref #3 PET_REF: upload_whiskers.jpg -> Lord Whiskers (Maine Coon) (maine_coon_cat, 30cm, 0.17x scale, traits: Silver tabby Maine Coon cat with lynx ear tufts, white ruff, emerald eyes)] [Ref #4 PET_REF: upload_louie.jpg -> Louie (French Bulldog) (french_bulldog, 31cm, 0.17x scale, traits: Fawn French Bulldog with black mask and upright bat ears)] :: A cozy holiday portrait of the referenced subjects gathered on a woven wool rug in front of a glowing stone fireplace trimmed with natural cedar garland and warm white fairy lights. Coordinated cream and forest-green knit sweaters, warm ambient hearth glow balanced with clean facial key light, joyful festive card aesthetic. Exactly 2 referenced people and 2 referenced pet(s), 4 distinct subjects in total, each appearing exactly once. Preserve every uploaded person's identity, age, skin tone, hair, glasses and body type, and each pet's species, breed, actual size, coat and markings from the uploaded references. Never copy sample identities or substitute the animal. Do not invent extra people or children, change anyone's age, or impose genders. Take pose, camera height and viewing angle from this scene, never from the uploaded snapshots. Position adult (Jonas, 178cm, 1.00x anchor scale) seated/leaning slightly inward shoulder-to-shoulder, face unobscured and staggered horizontally. Position adult (Clara, 164cm, 0.92x anchor scale) seated/leaning slightly inward shoulder-to-shoulder, face unobscured and staggered horizontally. Small/compact pet (Lord Whiskers (Maine Coon) [maine_coon_cat], 30cm shoulder height, 7.2kg, 0.17x human height ratio): safely held in arms or seated on an adult's lap so its face aligns near the family eyeline (head ratio 0.54x adult head) without artificially enlarging its body. Small/compact pet (Louie (French Bulldog) [french_bulldog], 31cm shoulder height, 11.5kg, 0.17x human height ratio): safely held in arms or seated on an adult's lap so its face aligns near the family eyeline (head ratio 0.69x adult head) without artificially enlarging its body. All 4 faces are sharp, fully visible, unobscured, staggered so none overlaps another, eyes open and looking toward the camera. Warm tungsten hearth bounce (3400K) + soft frontal diffused beauty fill to keep faces bright and grain-free, 3400K color temperature, 50mm f/2.2 lens rendering. Natural skin and fur texture, coherent hands, limbs and species-appropriate anatomy. Compose a vertical 4:5 portrait with generous 8% bleed margins so nobody is cropped under print or canvas wraps.", "openai_gpt_image_1": "Composite the 4 uploaded reference subjects into one cohesive photorealistic portrait. Reference mapping: [Ref #1 HUMAN_REF: upload_jonas.jpg -> Jonas (adult_male, 178cm, 1.00x scale, traits: 31yo man, trimmed beard, dark wavy hair)] [Ref #2 HUMAN_REF: upload_clara.jpg -> Clara (adult_female, 164cm, 0.92x scale, traits: 29yo woman, blonde bob, dimples)] [Ref #3 PET_REF: upload_whiskers.jpg -> Lord Whiskers (Maine Coon) (maine_coon_cat, 30cm, 0.17x scale, traits: Silver tabby Maine Coon cat with lynx ear tufts, white ruff, emerald eyes)] [Ref #4 PET_REF: upload_louie.jpg -> Louie (French Bulldog) (french_bulldog, 31cm, 0.17x scale, traits: Fawn French Bulldog with black mask and upright bat ears)]. Scene: A cozy holiday portrait of the referenced subjects gathered on a woven wool rug in front of a glowing stone fireplace trimmed with natural cedar garland and warm white fairy lights. Coordinated cream and forest-green knit sweaters, warm ambient hearth glow balanced with clean facial key light, joyful festive card aesthetic. Strict scale & identity rules: Exactly 2 referenced people and 2 referenced pet(s), 4 distinct subjects in total, each appearing exactly once. Preserve every uploaded person's identity, age, skin tone, hair, glasses and body type, and each pet's species, breed, actual size, coat and markings from the uploaded references. Never copy sample identities or substitute the animal. Do not invent extra people or children, change anyone's age, or impose genders. Take pose, camera height and viewing angle from this scene, never from the uploaded snapshots. Position adult (Jonas, 178cm, 1.00x anchor scale) seated/leaning slightly inward shoulder-to-shoulder, face unobscured and staggered horizontally. Position adult (Clara, 164cm, 0.92x anchor scale) seated/leaning slightly inward shoulder-to-shoulder, face unobscured and staggered horizontally. Small/compact pet (Lord Whiskers (Maine Coon) [maine_coon_cat], 30cm shoulder height, 7.2kg, 0.17x human height ratio): safely held in arms or seated on an adult's lap so its face aligns near the family eyeline (head ratio 0.54x adult head) without artificially enlarging its body. Small/compact pet (Louie (French Bulldog) [french_bulldog], 31cm shoulder height, 11.5kg, 0.17x human height ratio): safely held in arms or seated on an adult's lap so its face aligns near the family eyeline (head ratio 0.69x adult head) without artificially enlarging its body. All 4 faces are sharp, fully visible, unobscured, staggered so none overlaps another, eyes open and looking toward the camera. Warm tungsten hearth bounce (3400K) + soft frontal diffused beauty fill to keep faces bright and grain-free, 3400K color temperature, 50mm f/2.2 lens rendering. Natural skin and fur texture, coherent hands, limbs and species-appropriate anatomy. Compose a vertical 4:5 portrait with generous 8% bleed margins so nobody is cropped under print or canvas wraps.", "bytedance_seedream_3": "Masterpiece editorial family and pet portrait, 50mm prime lens, f/2.2, cozy living room hearth with crackling fireplace, cedar pine garland, and warm bokeh Christmas tree lights. A cozy holiday portrait of the referenced subjects gathered on a woven wool rug in front of a glowing stone fireplace trimmed with natural cedar garland and warm white fairy lights. Coordinated cream and forest-green knit sweaters, warm ambient hearth glow balanced with clean facial key light, joyful festive card aesthetic. Subject lock: [Ref #1 HUMAN_REF: upload_jonas.jpg -> Jonas (adult_male, 178cm, 1.00x scale, traits: 31yo man, trimmed beard, dark wavy hair)] [Ref #2 HUMAN_REF: upload_clara.jpg -> Clara (adult_female, 164cm, 0.92x scale, traits: 29yo woman, blonde bob, dimples)] [Ref #3 PET_REF: upload_whiskers.jpg -> Lord Whiskers (Maine Coon) (maine_coon_cat, 30cm, 0.17x scale, traits: Silver tabby Maine Coon cat with lynx ear tufts, white ruff, emerald eyes)] [Ref #4 PET_REF: upload_louie.jpg -> Louie (French Bulldog) (french_bulldog, 31cm, 0.17x scale, traits: Fawn French Bulldog with black mask and upright bat ears)]. Exactly 2 referenced people and 2 referenced pet(s), 4 distinct subjects in total, each appearing exactly once. Preserve every uploaded person's identity, age, skin tone, hair, glasses and body type, and each pet's species, breed, actual size, coat and markings from the uploaded references. Never copy sample identities or substitute the animal. Do not invent extra people or children, change anyone's age, or impose genders. Take pose, camera height and viewing angle from this scene, never from the uploaded snapshots. Position adult (Jonas, 178cm, 1.00x anchor scale) seated/leaning slightly inward shoulder-to-shoulder, face unobscured and staggered horizontally. Position adult (Clara, 164cm, 0.92x anchor scale) seated/leaning slightly inward shoulder-to-shoulder, face unobscured and staggered horizontally. Small/compact pet (Lord Whiskers (Maine Coon) [maine_coon_cat], 30cm shoulder height, 7.2kg, 0.17x human height ratio): safely held in arms or seated on an adult's lap so its face aligns near the family eyeline (head ratio 0.54x adult head) without artificially enlarging its body. Small/compact pet (Louie (French Bulldog) [french_bulldog], 31cm shoulder height, 11.5kg, 0.17x human height ratio): safely held in arms or seated on an adult's lap so its face aligns near the family eyeline (head ratio 0.69x adult head) without artificially enlarging its body. All 4 faces are sharp, fully visible, unobscured, staggered so none overlaps another, eyes open and looking toward the camera. Warm tungsten hearth bounce (3400K) + soft frontal diffused beauty fill to keep faces bright and grain-free, 3400K color temperature, 50mm f/2.2 lens rendering. Natural skin and fur texture, coherent hands, limbs and species-appropriate anatomy. Compose a vertical 4:5 portrait with generous 8% bleed margins so nobody is cropped under print or canvas wraps."}, "negative_prompt": "text, watermark, logo, border, collage, split-screen divider, visible seam, illustration, CGI, waxy skin, beauty retouching, extra people, extra subjects, missing subjects, duplicate people, duplicate animals, background people, extra limbs, extra fingers, distorted hands, merged faces or bodies, hidden or cropped faces, changed identity, changed age, invented child, changed pet species or markings, enlarged pet, giant dog, miniaturized adult, humanized animal anatomy, harsh direct flash, cluttered background", "print_specs": {"digital_base_hd": {"format_id": "digital_base_hd", "name_de": "Digital Portrait (4:5 Studio HD)", "aspect_ratio": "4:5", "physical_width_cm": 20.32, "physical_height_cm": 25.4, "dpi": 300, "bleed_mm": 0.0, "trim_width_px": 2400, "trim_height_px": 3000, "full_bleed_width_px": 2400, "full_bleed_height_px": 3000, "safe_margin_px": 192, "retail_price_eur": 19.0, "wholesale_cogs_eur": 0.08, "fulfillment_partner": "Instant Cloud Download (Stripe Unlock)"}, "digital_4k_upsell": {"format_id": "digital_4k_upsell", "name_de": "Digital 4K Master + Extra Portrait Pack", "aspect_ratio": "4:5", "physical_width_cm": 32.51, "physical_height_cm": 40.64, "dpi": 300, "bleed_mm": 0.0, "trim_width_px": 3840, "trim_height_px": 4800, "full_bleed_width_px": 3840, "full_bleed_height_px": 4800, "safe_margin_px": 307, "retail_price_eur": 10.0, "wholesale_cogs_eur": 0.08, "fulfillment_partner": "Instant 4K TIFF/PNG Download"}, "postkarte_a6": {"format_id": "postkarte_a6", "name_de": "Postkarte / Weihnachtskarte (10.5×14.8cm A6, 10er Set)", "aspect_ratio": "A6 (1:1.41)", "physical_width_cm": 10.5, "physical_height_cm": 14.8, "dpi": 300, "bleed_mm": 3.0, "trim_width_px": 1240, "trim_height_px": 1748, "full_bleed_width_px": 1311, "full_bleed_height_px": 1819, "safe_margin_px": 99, "retail_price_eur": 24.0, "wholesale_cogs_eur": 6.4, "fulfillment_partner": "Gelato DE (350gsm Silk Art Card + Umschläge)"}, "leinwand_40x60": {"format_id": "leinwand_40x60", "name_de": "40x60cm Galerie-Leinwand (Keilrahmen 2cm)", "aspect_ratio": "2:3", "physical_width_cm": 40.0, "physical_height_cm": 60.0, "dpi": 300, "bleed_mm": 15.0, "trim_width_px": 4724, "trim_height_px": 7087, "full_bleed_width_px": 5079, "full_bleed_height_px": 7441, "safe_margin_px": 378, "retail_price_eur": 49.0, "wholesale_cogs_eur": 14.2, "fulfillment_partner": "Gelato / Prodigi EU Dropship (FSC Holzkeilrahmen)"}, "framed_print_8x10": {"format_id": "framed_print_8x10", "name_de": "Gerahmter Fine-Art Print (20×25cm / 8×10 in)", "aspect_ratio": "4:5", "physical_width_cm": 20.32, "physical_height_cm": 25.4, "dpi": 300, "bleed_mm": 3.0, "trim_width_px": 2400, "trim_height_px": 3000, "full_bleed_width_px": 2471, "full_bleed_height_px": 3071, "safe_margin_px": 192, "retail_price_eur": 79.0, "wholesale_cogs_eur": 18.9, "fulfillment_partner": "Prodigi / Gelato Museum Matte + Massivholzrahmen"}}, "unit_economics": {"base_portrait_eur": 19.0, "extra_portraits_count": 1, "extra_portraits_eur": 10.0, "order_bump_eur": 0.0, "digital_subtotal_eur": 29.0, "physical_upsell_id": "postkarte_a6", "physical_upsell_label": "Postkarte / Weihnachtskarte (10.5×14.8cm A6, 10er Set)", "physical_upsell_eur": 24.0, "portrait_credit_applied_eur": 0.0, "gross_checkout_total_eur": 53.0, "ai_generation_cogs_eur": 0.12, "single_portrait_ai_cost_usd": 0.08, "physical_print_dropship_cogs_eur": 6.4, "stripe_processing_fee_eur": 1.84, "total_cogs_eur": 8.36, "net_contribution_profit_eur": 44.64, "blended_gross_margin_pct": 84.2, "pure_digital_29_margin_pct": 95.8}}]};
+
+let currentStyleId = "classic_dark_studio";
+let currentSubjects = [];
+
+function init() {
+  const presetSel = document.getElementById("preset-select");
+  Object.entries(DATA.presets).forEach(([key, val]) => {
+    const opt = document.createElement("option");
+    opt.value = key;
+    opt.textContent = `${val.label} (${val.standing_height_cm}cm)`;
+    presetSel.appendChild(opt);
+  });
+
+  const printBody = document.getElementById("print-table-body");
+  Object.values(DATA.prints).forEach(p => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td><strong>${p.name_de}</strong></td>
+      <td>${p.physical_width_cm} × ${p.physical_height_cm} cm (Bleed ${p.bleed_mm}mm)</td>
+      <td>${p.trim_width_px} × ${p.trim_height_px} px</td>
+      <td><strong>${p.full_bleed_width_px} × ${p.full_bleed_height_px} px</strong></td>
+      <td>${p.safe_margin_px} px (8%)</td>
+      <td>${p.retail_price_eur.toFixed(2)} €</td>
+      <td>${p.wholesale_cogs_eur.toFixed(2)} €</td>
+      <td>${p.fulfillment_partner}</td>
+    `;
+    printBody.appendChild(tr);
+  });
+
+  loadScenario(0);
+}
+
+function switchTab(tab, btn) {
+  ["studio", "print", "teardown"].forEach(id => {
+    document.getElementById("tab-" + id).classList.toggle("hidden", id !== tab);
+  });
+  document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+}
+
+function loadScenario(idx) {
+  const job = DATA.benchmark_jobs[idx];
+  currentStyleId = job.style_id;
+  currentSubjects = job.scale_harmonization.map(h => ({
+    subject_id: h.subject_id,
+    name: h.name,
+    category: h.category,
+    subtype: h.subtype,
+    standing_height_cm: h.standing_height_cm,
+    seated_eye_line_cm: h.seated_eye_line_cm,
+    head_height_cm: h.head_height_cm,
+    weight_kg: DATA.presets[h.subtype] ? DATA.presets[h.subtype].weight_kg : 15,
+    coat_or_features: h.subtype,
+    source_lighting_kelvin: DATA.styles[currentStyleId].target_kelvin - h.kelvin_shift_delta,
+    is_memorial_subject: h.subtype === "senior_memorial"
+  }));
+  renderAll();
+}
+
+function addSubject() {
+  if (currentSubjects.length >= 8) {
+    alert("Maximal 8 Subjekte pro Porträt.");
+    return;
+  }
+  const key = document.getElementById("preset-select").value;
+  const preset = DATA.presets[key];
+  const nameInput = document.getElementById("custom-name").value.trim() || preset.label.split(" ")[0];
+  const traitsInput = document.getElementById("custom-traits").value.trim() || preset.label;
+  currentSubjects.push({
+    subject_id: "SUB-" + (currentSubjects.length + 1),
+    name: nameInput,
+    category: preset.category,
+    subtype: key,
+    standing_height_cm: preset.standing_height_cm,
+    seated_eye_line_cm: preset.seated_eye_line_cm,
+    head_height_cm: preset.head_height_cm,
+    weight_kg: preset.weight_kg,
+    coat_or_features: traitsInput,
+    source_lighting_kelvin: 5200,
+    is_memorial_subject: key === "senior_memorial"
+  });
+  document.getElementById("custom-name").value = "";
+  document.getElementById("custom-traits").value = "";
+  renderAll();
+}
+
+function removeSubject(idx) {
+  if (currentSubjects.length <= 1) return;
+  currentSubjects.splice(idx, 1);
+  renderAll();
+}
+
+function renderAll() {
+  const style = DATA.styles[currentStyleId];
+
+  const styleGrid = document.getElementById("style-grid");
+  styleGrid.innerHTML = "";
+  Object.values(DATA.styles).forEach(st => {
+    const div = document.createElement("div");
+    div.className = "style-card" + (st.style_id === currentStyleId ? " selected" : "");
+    div.onclick = () => { currentStyleId = st.style_id; renderAll(); };
+    const swatches = st.color_palette.map(c => `<span class="swatch" style="background:${c}"></span>`).join("");
+    div.innerHTML = `
+      <span class="tag">${st.category}${st.popular_badge ? " · ✦ Popular" : ""}</span>
+      <h4>${st.title}</h4>
+      <p>${st.subtitle}</p>
+      <div class="swatches">${swatches}</div>
+    `;
+    styleGrid.appendChild(div);
+  });
+
+  const humans = currentSubjects.filter(s => s.category === "human");
+  const pets = currentSubjects.filter(s => s.category === "pet");
+  const anchorPool = humans.length ? humans : pets;
+  const anchor = anchorPool.reduce((a, b) => a.standing_height_cm >= b.standing_height_cm ? a : b, anchorPool[0]);
+
+  document.getElementById("subject-counter").textContent =
+    `${humans.length} Mensch(en) · ${pets.length} Haustier(e) · Anchor: ${anchor.name} (${anchor.standing_height_cm}cm)`;
+
+  const subList = document.getElementById("subject-list");
+  subList.innerHTML = "";
+  currentSubjects.forEach((s, idx) => {
+    const badgeClass = s.is_memorial_subject ? "badge-memorial" : (s.category === "human" ? "badge-human" : "badge-pet");
+    const badgeText = s.is_memorial_subject ? "Memorial" : (s.category === "human" ? "Mensch" : "Haustier");
+    const item = document.createElement("div");
+    item.className = "subject-item";
+    item.innerHTML = `
+      <div>
+        <span class="subject-badge ${badgeClass}">${badgeText}</span>
+        <strong>${s.name}</strong> <span style="color:var(--ink-muted)">(${s.subtype} · ${s.standing_height_cm}cm · Kopf ${s.head_height_cm}cm)</span>
+      </div>
+      <button class="btn btn-secondary" style="padding:4px 9px;font-size:11px;" onclick="removeSubject(${idx})">Entfernen</button>
+    `;
+    subList.appendChild(item);
+  });
+
+  const tbody = document.getElementById("scale-table-body");
+  const stage = document.getElementById("silhouette-stage");
+  tbody.innerHTML = "";
+  stage.innerHTML = "";
+
+  const canvas = document.getElementById("canvas-preview");
+  canvas.style.background = `linear-gradient(160deg, ${style.color_palette[0]} 0%, ${style.color_palette[1]} 65%, ${style.color_palette[2]} 100%)`;
+
+  const postureLines = [];
+  currentSubjects.forEach((s) => {
+    const ratio = (s.standing_height_cm / anchor.standing_height_cm).toFixed(2);
+    const headRatio = (s.head_height_cm / anchor.head_height_cm).toFixed(2);
+    const kDelta = style.target_kelvin - s.source_lighting_kelvin;
+    let posture = "";
+    if (s.category === "human") {
+      posture = s.standing_height_cm < 100
+        ? "Lap-Held (Front Center auf Schoß)"
+        : (s.standing_height_cm < 140 ? "Front-Middle Seated (Kopf versetzt)" : "Seated/Leaning Studio Row (85mm Eyeline)");
+    } else {
+      posture = (s.weight_kg <= 12 || s.standing_height_cm <= 33)
+        ? "Lap-Held / In Arms (Sicher auf Schoß gehalten)"
+        : "Front Floor Seated (Natürliche Größe am Boden vorn)";
+    }
+    postureLines.push(`${s.name} (${s.subtype}, ${s.standing_height_cm}cm, ${ratio}x scale -> ${posture})`);
+
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td><strong>${s.name}</strong></td>
+      <td>${s.standing_height_cm} cm / ${s.head_height_cm} cm</td>
+      <td><strong>${ratio}×</strong> (Kopf ${headRatio}×)</td>
+      <td>${posture}</td>
+      <td>${kDelta >= 0 ? "+" + kDelta : kDelta}K → ${style.target_kelvin}K</td>
+    `;
+    tbody.appendChild(tr);
+
+    const col = document.createElement("div");
+    col.className = "silhouette-col";
+    const visualHeightPct = Math.max(28, Math.min(96, Math.round((s.standing_height_cm / anchor.standing_height_cm) * 92)));
+    col.style.height = visualHeightPct + "%";
+    col.innerHTML = `
+      <div class="silhouette-head">${s.category === "pet" ? "🐾" : "👤"}</div>
+      <div class="silhouette-name">${s.name}</div>
+      <div class="silhouette-meta">${s.standing_height_cm}cm (${ratio}×)</div>
+    `;
+    stage.appendChild(col);
+  });
+
+  document.getElementById("preview-style-label").textContent = `${style.title} · ${style.lens_focal_mm}mm ${style.aperture}`;
+  document.getElementById("preview-cast-label").textContent = `${humans.length} Humans · ${pets.length} Pets`;
+  document.getElementById("watermark-layer").style.opacity = document.getElementById("unlock-toggle").checked ? "0" : "1";
+
+  const modelKey = document.getElementById("model-select").value;
+  const promptText = `[MODEL: ${modelKey}] Scene: ${style.scene_directive}\n\n` +
+    `Exactly ${humans.length} referenced people and ${pets.length} referenced pet(s), ${currentSubjects.length} subjects in total, each appearing exactly once. ` +
+    `Preserve every uploaded person's identity, age, skin tone, hair, glasses and body type, and each pet's species, breed, actual size, coat and markings from the uploaded references. ` +
+    `Subject Scale & Posture Directives: ${postureLines.join(" | ")}. ` +
+    `Lighting & Camera: ${style.key_light_setup}, ${style.target_kelvin}K, ${style.lens_focal_mm}mm ${style.aperture}. ` +
+    `Compose a 4:5 portrait with 8% safe bleed margins so nobody is cropped.`;
+  document.getElementById("prompt-output").textContent = promptText;
+  document.getElementById("negative-output").textContent = DATA.benchmark_jobs[0].negative_prompt;
+
+  const extraCount = Math.max(0, parseInt(document.getElementById("extra-count").value || "0", 10));
+  const bumpOn = document.getElementById("bump-toggle").checked;
+  const physKey = document.getElementById("physical-select").value;
+  const creditOn = document.getElementById("credit-toggle").checked;
+
+  const baseEur = 19.0;
+  const extraEur = extraCount * 10.0;
+  const bumpEur = bumpOn ? 7.0 : 0.0;
+  let physEur = 0.0;
+  let physCogs = 0.0;
+  if (physKey !== "none" && DATA.prints[physKey]) {
+    physEur = DATA.prints[physKey].retail_price_eur;
+    physCogs = DATA.prints[physKey].wholesale_cogs_eur;
+  }
+  const creditEur = (creditOn && physEur >= 49.0) ? 19.0 : 0.0;
+  const totalEur = baseEur + extraEur + bumpEur + physEur - creditEur;
+
+  const aiCogs = +(0.045 + (1 + extraCount + (bumpOn ? 1 : 0)) * 0.035).toFixed(2);
+  const stripeFee = +(totalEur * 0.029 + 0.30).toFixed(2);
+  const totalCogs = +(aiCogs + physCogs + stripeFee).toFixed(2);
+  const netProfit = +(totalEur - totalCogs).toFixed(2);
+  const marginPct = +((netProfit / totalEur) * 100).toFixed(1);
+
+  document.getElementById("extra-price-label").textContent = extraEur.toFixed(2).replace(".", ",") + " €";
+  document.getElementById("bump-price-label").textContent = bumpEur.toFixed(2).replace(".", ",") + " €";
+  document.getElementById("credit-price-label").textContent = creditEur > 0 ? "-19,00 €" : "0,00 €";
+  document.getElementById("checkout-total-label").textContent = totalEur.toFixed(2).replace(".", ",") + " €";
+  document.getElementById("econ-ai-cogs").textContent = aiCogs.toFixed(2).replace(".", ",") + " €";
+  document.getElementById("econ-print-cogs").textContent = (physCogs + stripeFee).toFixed(2).replace(".", ",") + " €";
+  document.getElementById("econ-net-margin").textContent = `${netProfit.toFixed(2).replace(".", ",")} € (${marginPct}%)`;
+}
+
+window.addEventListener("DOMContentLoaded", init);
+</script>
+</body>
+</html>

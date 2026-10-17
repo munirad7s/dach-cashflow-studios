@@ -1,0 +1,1329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>MVP #80 — Brand Handle OSINT, Impersonation Radar & EU DSA Art. 16 Takedown Cockpit</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #0b0f19;
+      color: #f3f4f6;
+      line-height: 1.45;
+    }
+    .container {
+      max-width: 1380px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+    .header {
+      background: linear-gradient(135deg, #1e1b4b 0%, #0f172a 100%);
+      border: 1px solid #312e81;
+      border-radius: 14px;
+      padding: 22px 26px;
+      margin-bottom: 22px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+    .kpi-card {
+      background: #111827;
+      border: 1px solid #1f2937;
+      border-radius: 12px;
+      padding: 16px 18px;
+    }
+    .kpi-label {
+      font-size: 12px;
+      color: #9ca3af;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .kpi-val {
+      font-size: 26px;
+      font-weight: 800;
+      margin-top: 4px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #111827;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid #1f2937;
+    }
+    th {
+      background: #1e293b;
+      color: #cbd5e1;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 12px 10px;
+      text-align: left;
+    }
+    td {
+      padding: 12px 10px;
+      border-top: 1px solid #1f2937;
+      vertical-align: top;
+    }
+    .section-title {
+      font-size: 19px;
+      font-weight: 800;
+      margin: 26px 0 12px;
+      color: #f8fafc;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .filter-btn {
+      background: #1e293b;
+      color: #e2e8f0;
+      border: 1px solid #334155;
+      padding: 5px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 12px;
+      margin-left: 6px;
+    }
+    .filter-btn:hover {
+      background: #334155;
+    }
+  </style>
+</head>
+<body>
+
+<!-- DACH CASHFLOW STUDIOS LAUNCH BAR -->
+<style>
+  #dcs-launch-bar {
+    position: sticky;
+    top: 0;
+    z-index: 99999;
+    background: linear-gradient(90deg, #0b1120 0%, #111827 50%, #0f172a 100%);
+    color: #f8fafc;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.35);
+    padding: 8px 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  }
+  #dcs-launch-bar .dcs-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+  }
+  #dcs-launch-bar .dcs-badge {
+    background: rgba(16, 185, 129, 0.18);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.03em;
+  }
+  #dcs-launch-bar a.dcs-nav {
+    color: #93c5fd;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 12.5px;
+  }
+  #dcs-launch-bar a.dcs-nav:hover {
+    text-decoration: underline;
+    color: #dbeafe;
+  }
+  #dcs-launch-bar .dcs-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  #dcs-launch-bar .dcs-btn {
+    padding: 5px 11px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s ease;
+  }
+  #dcs-launch-bar .dcs-btn-ghost {
+    background: rgba(255,255,255,0.08);
+    color: #e2e8f0;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  #dcs-launch-bar .dcs-btn-primary {
+    background: linear-gradient(135deg, #0ea5e9, #2563eb);
+    color: #ffffff;
+  }
+  #dcs-launch-bar .dcs-btn-emerald {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
+  }
+  @media print {
+    #dcs-launch-bar { display: none !important; }
+  }
+</style>
+<div id="dcs-launch-bar">
+  <div class="dcs-left">
+    <a href="/index.html" class="dcs-nav">← Alle 150 DACH Studios</a>
+    <span class="dcs-badge">MVP #080 VERIFIED</span>
+    <span style="color:#cbd5e1;font-size:12px;">B2B SaaS, Lead-Intent Sniper & AI/MCP Infrastructure</span>
+  </div>
+  <div class="dcs-actions">
+    <button onclick="window.print()" class="dcs-btn dcs-btn-ghost">🖨️ PDF / Dossier drucken</button>
+    <a href="#checkout-modal-49" target="_blank" rel="noopener" class="dcs-btn dcs-btn-primary">⚡ Musterschreiben & Voll-Dossier (€49)</a>
+    <a href="#checkout-modal-299" target="_blank" rel="noopener" class="dcs-btn dcs-btn-emerald">🛡️ B2B Umsetzung buchen (€299 / €1.490)</a>
+  </div>
+</div>
+
+  <div class="container">
+    <div class="header">
+      <div>
+        <div style="font-size:12px;font-weight:700;color:#818cf8;text-transform:uppercase;letter-spacing:0.08em;">
+          Milestone Subagent #100 · MVP #80 · Replaces Maigret + Sherlock + Discord Checker
+        </div>
+        <h1 style="margin:4px 0 6px;font-size:24px;color:#fff;">
+          Brand Handle Arbitrage, Impersonation Radar &amp; EU DSA Art. 16 Takedown Engine
+        </h1>
+        <div style="font-size:13px;color:#cbd5e1;">
+          Protected Brand: <strong>SteinScale AI & High-Ticket Coaching GmbH</strong> (<code style="color:#38bdf8;">@steinscale</code>)
+          · Trigger Event: <em>Reel #84 ('How we automated 420 B2B calls in 72h') hit 680,000 views & 4,920 comments 36h ago</em>
+        </div>
+      </div>
+      <div style="text-align:right;background:#0f172a;padding:12px 16px;border-radius:10px;border:1px solid #334155;">
+        <div style="font-size:11px;color:#94a3b8;">Canonical Avatar pHash (64-bit)</div>
+        <div style="font-family:monospace;font-size:15px;font-weight:700;color:#34d399;">0xf8c4a29e3b1d7064</div>
+        <div style="font-size:11px;color:#94a3b8;margin-top:2px;">DPMA DE-302026088412 / EUIPO EUTM-019044812 (Nice Classes 9, 35, 42)</div>
+      </div>
+    </div>
+
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label">Detected Impersonator Clones</div>
+        <div class="kpi-val" style="color:#f87171;">6 Active (6 Critical)</div>
+        <div style="font-size:12px;color:#9ca3af;margin-top:4px;">Across Instagram, Telegram, TikTok, X, Discord</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">30-Day Follower Phishing Exposure</div>
+        <div class="kpi-val" style="color:#fbbf24;">€261,558.00</div>
+        <div style="font-size:12px;color:#9ca3af;margin-top:4px;">Est. 9.5 followers scammed/day via DM traps</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">EU DSA Art. 16 Payloads Ready</div>
+        <div class="kpi-val" style="color:#38bdf8;">6 Legal Notices</div>
+        <div style="font-size:12px;color:#9ca3af;margin-top:4px;">MarkenG § 14 + StGB § 263 + DSA Art. 16</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Top Launch Candidate Readiness</div>
+        <div class="kpi-val" style="color:#34d399;">@valoraflow (96.7/100)</div>
+        <div style="font-size:12px;color:#9ca3af;margin-top:4px;">16/16 Social &amp; TLD surfaces available</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">SaaS Gross Margin vs. Apify</div>
+        <div class="kpi-val" style="color:#a78bfa;">97.7% Margin</div>
+        <div style="font-size:12px;color:#9ca3af;margin-top:4px;">€3.40/mo infra vs. €149/mo creator retainer</div>
+      </div>
+    </div>
+
+    <div class="section-title">
+      <span>1. Active Lookalike Impersonator &amp; Fake Clone Scam Radar</span>
+      <div>
+        <button class="filter-btn" onclick="filterClones('ALL')">All (6)</button>
+        <button class="filter-btn" onclick="filterClones('CRITICAL')">Critical Only (6)</button>
+      </div>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Suspect Handle &amp; Mutation</th>
+          <th>Scraped Bio &amp; Phishing Trap</th>
+          <th style="text-align:center;">Avatar pHash Match</th>
+          <th style="text-align:center;">Bio Cosine</th>
+          <th style="text-align:center;">Affix / Homoglyph</th>
+          <th style="text-align:center;">Composite Score</th>
+          <th style="text-align:right;">30d Phishing Exposure</th>
+          <th style="text-align:center;">Takedown Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        
+            <tr data-severity="CRITICAL" class="clone-row">
+              <td>
+                <div style="font-weight:700;color:#f9fafb;">@steinscale_official_</div>
+                <div style="font-size:12px;color:#9ca3af;">Instagram · <span style="color:#60a5fa;">AFFIX_SCAM</span></div>
+                
+              </td>
+              <td>
+                <div style="font-size:12px;color:#d1d5db;max-width:290px;">"Lukas Stein | Founder @steinscale AI Automation & B2B Revenue Systems. Backup Account! Congrats winner — DM me or message my private WhatsApp +49 1521 9948102 to claim coaching!"</div>
+                <div style="margin-top:4px;"><span style='background:#7f1d1d;color:#fca5a5;padding:2px 6px;border-radius:4px;font-size:11px;'>ACTIVE DM PHISHING</span> <span style="font-size:11px;color:#fbbf24;">Triggers: whatsapp, winner, congrats, claim</span></div>
+              </td>
+              <td style="text-align:center;">
+                <div style="font-weight:700;color:#34d399;">100.0%</div>
+                <div style="font-size:10px;color:#9ca3af;font-family:monospace;">f8c4a29e3b1d7064</div>
+              </td>
+              <td style="text-align:center;font-weight:600;color:#93c5fd;">48.3%</td>
+              <td style="text-align:center;font-weight:600;color:#c084fc;">98.0%</td>
+              <td style="text-align:center;">
+                <div style="font-size:16px;font-weight:800;color:#f9fafb;">98.4</div>
+                <span style="padding:2px 8px;border-radius:999px;font-size:10px;font-weight:700;background:#ef4444;color:#fff;">CRITICAL</span>
+              </td>
+              <td style="text-align:right;">
+                <div style="font-weight:800;color:#f87171;font-size:15px;">€69,300.00</div>
+                <div style="font-size:11px;color:#9ca3af;">~3.08 victims/d @ €750</div>
+              </td>
+              <td style="text-align:center;">
+                <button onclick="toggleDsaModal('dsa-0')" style="background:#2563eb;color:#fff;border:none;padding:6px 10px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;">
+                  DSA Art. 16 Notice
+                </button>
+              </td>
+            </tr>
+            <tr id="dsa-0" style="display:none;background:#0f172a;">
+              <td colspan="8" style="padding:16px;border-left:4px solid #3b82f6;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                  <div>
+                    <strong style="color:#60a5fa;">EU DSA Art. 16 Notice-and-Action Payload (DSA-ART16-5CCD1AB232D60969)</strong>
+                    <span style="color:#9ca3af;font-size:12px;margin-left:10px;">Endpoint: https://help.instagram.com/contact/636276399721841 (Meta Impersonation & DSA Form)</span>
+                  </div>
+                  <button onclick="copyPayload('payload-text-0')" style="background:#10b981;color:#06281e;border:none;padding:5px 12px;border-radius:4px;font-weight:700;cursor:pointer;font-size:12px;">
+                    Copy JSON & Legal Brief
+                  </button>
+                </div>
+                <div style="font-size:12px;color:#e2e8f0;background:#1e293b;padding:10px;border-radius:6px;margin-bottom:8px;">
+                  <strong>Substantiated Legal Explanation:</strong> URGENT IMPERSONATION & FOLLOWER PHISHING SCAM NOTICE (Evidence ID #5ccd1ab232d60969): The account 'steinscale_official_' (https://instagram.com/steinscale_official_) is maliciously impersonating our verified brand/creator 'SteinScale AI & High-Ticket Coaching GmbH' (Canonical Account: steinscale at https://instagram.com/steinscale; Trademark Ref: DPMA DE-302026088412 / EUIPO EUTM-019044812 (Nice Classes 9, 35, 42)). Forensic OSINT verification confirms an Avatar Perceptual Hash match of 100.0%, Bio Cosine Similarity of 48.3%, and handle mutation pattern 'AFFIX_SCAM' (Composite Impersonation Score: 98.4/100). The account actively solicits followers via fraudulent DMs/links (whatsapp, winner, congrats, claim, backup account, dm me, handle_affix:official), creating an estimated 30-day follower fraud exposure of EUR 69,300.00. Immediate suspension and removal requested under EU DSA Art. 16.
+                </div>
+                <pre id="payload-text-0" style="background:#020617;color:#38bdf8;padding:12px;border-radius:6px;font-size:11px;overflow-x:auto;margin:0;">{
+  "notice_id": "DSA-ART16-5CCD1AB232D60969",
+  "timestamp_utc": "2026-10-17T17:06:32Z",
+  "regulation": "EU Regulation 2022/2065 (Digital Services Act) Article 16",
+  "target_platform": "Instagram",
+  "submission_endpoint": "https://help.instagram.com/contact/636276399721841 (Meta Impersonation & DSA Form)",
+  "complainant": {
+    "brand_or_creator_name": "SteinScale AI & High-Ticket Coaching GmbH",
+    "canonical_handle": "steinscale",
+    "canonical_profile_url": "https://instagram.com/steinscale",
+    "trademark_registration": "DPMA DE-302026088412 / EUIPO EUTM-019044812 (Nice Classes 9, 35, 42)",
+    "good_faith_declaration": "I hereby declare in good faith pursuant to Art. 16(2)(d) DSA that the information and allegations contained in this notice are accurate and complete."
+  },
+  "infringing_account": {
+    "suspect_handle": "steinscale_official_",
+    "specific_url": "https://instagram.com/steinscale_official_",
+    "mutation_classification": "AFFIX_SCAM",
+    "composite_impersonation_score": 98.4,
+    "avatar_phash_similarity_pct": 100.0,
+    "bio_cosine_similarity_pct": 48.3,
+    "unicode_confusables": [],
+    "phishing_indicators": [
+      "whatsapp",
+      "winner",
+      "congrats",
+      "claim",
+      "backup account",
+      "dm me",
+      "handle_affix:official"
+    ],
+    "estimated_30d_harm_eur": 69300.0
+  },
+  "legal_basis": [
+    "EU Digital Services Act (Regulation (EU) 2022/2065) Art. 16 Notice-and-Action Mechanism",
+    "StGB § 263 (Computerbetrug / Phishing Impersonation Scam)",
+    "MarkenG § 14 / EUTMR Art. 9 (Unauthorised use of identical/confusingly similar sign in course of trade)",
+    "Instagram Community Guidelines — Authentic Identity & Impersonation Prohibition"
+  ],
+  "substantiated_explanation": "URGENT IMPERSONATION & FOLLOWER PHISHING SCAM NOTICE (Evidence ID #5ccd1ab232d60969): The account 'steinscale_official_' (https://instagram.com/steinscale_official_) is maliciously impersonating our verified brand/creator 'SteinScale AI & High-Ticket Coaching GmbH' (Canonical Account: steinscale at https://instagram.com/steinscale; Trademark Ref: DPMA DE-302026088412 / EUIPO EUTM-019044812 (Nice Classes 9, 35, 42)). Forensic OSINT verification confirms an Avatar Perceptual Hash match of 100.0%, Bio Cosine Similarity of 48.3%, and handle mutation pattern 'AFFIX_SCAM' (Composite Impersonation Score: 98.4/100). The account actively solicits followers via fraudulent DMs/links (whatsapp, winner, congrats, claim, backup account, dm me, handle_affix:official), creating an estimated 30-day follower fraud exposure of EUR 69,300.00. Immediate suspension and removal requested under EU DSA Art. 16."
+}</pre>
+              </td>
+            </tr>
+            
+            <tr data-severity="CRITICAL" class="clone-row">
+              <td>
+                <div style="font-weight:700;color:#f9fafb;">@steinscale_coaching_vip</div>
+                <div style="font-size:12px;color:#9ca3af;">Instagram · <span style="color:#60a5fa;">AFFIX_SCAM</span></div>
+                
+              </td>
+              <td>
+                <div style="font-size:12px;color:#d1d5db;max-width:290px;">"Lukas Stein Private Coaching | Helping DACH agencies scale to 100k/mo. Message me on WhatsApp for remaining 3 mentorship spots."</div>
+                <div style="margin-top:4px;"><span style='background:#7f1d1d;color:#fca5a5;padding:2px 6px;border-radius:4px;font-size:11px;'>ACTIVE DM PHISHING</span> <span style="font-size:11px;color:#fbbf24;">Triggers: whatsapp, private coaching, message me, handle_affix:vip</span></div>
+              </td>
+              <td style="text-align:center;">
+                <div style="font-weight:700;color:#34d399;">96.9%</div>
+                <div style="font-size:10px;color:#9ca3af;font-family:monospace;">f8c4a29e3b1c7060</div>
+              </td>
+              <td style="text-align:center;font-weight:600;color:#93c5fd;">42.1%</td>
+              <td style="text-align:center;font-weight:600;color:#c084fc;">100.0%</td>
+              <td style="text-align:center;">
+                <div style="font-size:16px;font-weight:800;color:#f9fafb;">96.3</div>
+                <span style="padding:2px 8px;border-radius:999px;font-size:10px;font-weight:700;background:#ef4444;color:#fff;">CRITICAL</span>
+              </td>
+              <td style="text-align:right;">
+                <div style="font-weight:800;color:#f87171;font-size:15px;">€36,000.00</div>
+                <div style="font-size:11px;color:#9ca3af;">~0.80 victims/d @ €1,500</div>
+              </td>
+              <td style="text-align:center;">
+                <button onclick="toggleDsaModal('dsa-1')" style="background:#2563eb;color:#fff;border:none;padding:6px 10px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;">
+                  DSA Art. 16 Notice
+                </button>
+              </td>
+            </tr>
+            <tr id="dsa-1" style="display:none;background:#0f172a;">
+              <td colspan="8" style="padding:16px;border-left:4px solid #3b82f6;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                  <div>
+                    <strong style="color:#60a5fa;">EU DSA Art. 16 Notice-and-Action Payload (DSA-ART16-D41B81533CF09A94)</strong>
+                    <span style="color:#9ca3af;font-size:12px;margin-left:10px;">Endpoint: https://help.instagram.com/contact/636276399721841 (Meta Impersonation & DSA Form)</span>
+                  </div>
+                  <button onclick="copyPayload('payload-text-1')" style="background:#10b981;color:#06281e;border:none;padding:5px 12px;border-radius:4px;font-weight:700;cursor:pointer;font-size:12px;">
+                    Copy JSON & Legal Brief
+                  </button>
+                </div>
+                <div style="font-size:12px;color:#e2e8f0;background:#1e293b;padding:10px;border-radius:6px;margin-bottom:8px;">
+                  <strong>Substantiated Legal Explanation:</strong> URGENT IMPERSONATION & FOLLOWER PHISHING SCAM NOTICE (Evidence ID #d41b81533cf09a94): The account 'steinscale_coaching_vip' (https://instagram.com/steinscale_coaching_vip) is maliciously impersonating our verified brand/creator 'SteinScale AI & High-Ticket Coaching GmbH' (Canonical Account: steinscale at https://instagram.com/steinscale; Trademark Ref: DPMA DE-302026088412 / EUIPO EUTM-019044812 (Nice Classes 9, 35, 42)). Forensic OSINT verification confirms an Avatar Perceptual Hash match of 96.9%, Bio Cosine Similarity of 42.1%, and handle mutation pattern 'AFFIX_SCAM' (Composite Impersonation Score: 96.3/100). The account actively solicits followers via fraudulent DMs/links (whatsapp, private coaching, message me, handle_affix:vip, handle_affix:coach, handle_affix:coaching), creating an estimated 30-day follower fraud exposure of EUR 36,000.00. Immediate suspension and removal requested under EU DSA Art. 16.
+                </div>
+                <pre id="payload-text-1" style="background:#020617;color:#38bdf8;padding:12px;border-radius:6px;font-size:11px;overflow-x:auto;margin:0;">{
+  "notice_id": "DSA-ART16-D41B81533CF09A94",
+  "timestamp_utc": "2026-10-17T17:06:32Z",
+  "regulation": "EU Regulation 2022/2065 (Digital Services Act) Article 16",
+  "target_platform": "Instagram",
+  "submission_endpoint": "https://help.instagram.com/contact/636276399721841 (Meta Impersonation & DSA Form)",
+  "complainant": {
+    "brand_or_creator_name": "SteinScale AI & High-Ticket Coaching GmbH",
+    "canonical_handle": "steinscale",
+    "canonical_profile_url": "https://instagram.com/steinscale",
+    "trademark_registration": "DPMA DE-302026088412 / EUIPO EUTM-019044812 (Nice Classes 9, 35, 42)",
+    "good_faith_declaration": "I hereby declare in good faith pursuant to Art. 16(2)(d) DSA that the information and allegations contained in this notice are accurate and complete."
+  },
+  "infringing_account": {
+    "suspect_handle": "steinscale_coaching_vip",
+    "specific_url": "https://instagram.com/steinscale_coaching_vip",
+    "mutation_classification": "AFFIX_SCAM",
+    "composite_impersonation_score": 96.3,
+    "avatar_phash_similarity_pct": 96.9,
+    "bio_cosine_similarity_pct": 42.1,
+    "unicode_confusables": [],
+    "phishing_indicators": [
+      "whatsapp",
+      "private coaching",
+      "message me",
+      "handle_affix:vip",
+      "handle_affix:coach",
+      "handle_affix:coaching"
+    ],
+    "estimated_30d_harm_eur": 36000.0
+  },
+  "legal_basis": [
+    "EU Digital Services Act (Regulation (EU) 2022/2065) Art. 16 Notice-and-Action Mechanism",
+    "StGB § 263 (Computerbetrug / Phishing Impersonation Scam)",
+    "MarkenG § 14 / EUTMR Art. 9 (Unauthorised use of identical/confusingly similar sign in course of trade)",
+    "Instagram Community Guidelines — Authentic Identity & Impersonation Prohibition"
+  ],
+  "substantiated_explanation": "URGENT IMPERSONATION & FOLLOWER PHISHING SCAM NOTICE (Evidence ID #d41b81533cf09a94): The account 'steinscale_coaching_vip' (https://instagram.com/steinscale_coaching_vip) is maliciously impersonating our verified brand/creator 'SteinScale AI & High-Ticket Coaching GmbH' (Canonical Account: steinscale at https://instagram.com/steinscale; Trademark Ref: DPMA DE-302026088412 / EUIPO EUTM-019044812 (Nice Classes 9, 35, 42)). Forensic OSINT verification confirms an Avatar Perceptual Hash match of 96.9%, Bio Cosine Similarity of 42.1%, and handle mutation pattern 'AFFIX_SCAM' (Composite Impersonation Score: 96.3/100). The account actively solicits followers via fraudulent DMs/links (whatsapp, private coaching, message me, handle_affix:vip, handle_affix:coach, handle_affix:coaching), creating an estimated 30-day follower fraud exposure of EUR 36,000.00. Immediate suspension and removal requested under EU DSA Art. 16."
+}</pre>
+              </td>
+            </tr>
+            
+            <tr data-severity="CRITICAL" class="clone-row">
+              <td>
+                <div style="font-weight:700;color:#f9fafb;">@stеinscаle_fx</div>
+                <div style="font-size:12px;color:#9ca3af;">Telegram · <span style="color:#60a5fa;">HOMOGLYPH_IDN</span></div>
+                <br><span style='color:#f87171;font-size:11px;font-weight:600;'>Homoglyphs: U+0435 ('е' -> 'e'), U+0430 ('а' -> 'a')</span>
+              </td>
+              <td>
+                <div style="font-size:12px;color:#d1d5db;max-width:290px;">"Lukas Stein Official Private VIP Crypto & AI Signals Channel. Helping DACH agencies & investors scale. Message me to join guaranteed 10x AI trading pool."</div>
+                <div style="margin-top:4px;"><span style='background:#7f1d1d;color:#fca5a5;padding:2px 6px;border-radius:4px;font-size:11px;'>ACTIVE DM PHISHING</span> <span style="font-size:11px;color:#fbbf24;">Triggers: crypto, signals, message me, guaranteed</span></div>
+              </td>
+              <td style="text-align:center;">
+                <div style="font-weight:700;color:#34d399;">98.4%</div>
+                <div style="font-size:10px;color:#9ca3af;font-family:monospace;">f8c4a29e3b1d7065</div>
+              </td>
+              <td style="text-align:center;font-weight:600;color:#93c5fd;">39.0%</td>
+              <td style="text-align:center;font-weight:600;color:#c084fc;">100.0%</td>
+              <td style="text-align:center;">
+                <div style="font-size:16px;font-weight:800;color:#f9fafb;">96.1</div>
+                <span style="padding:2px 8px;border-radius:999px;font-size:10px;font-weight:700;background:#ef4444;color:#fff;">CRITICAL</span>
+              </td>
+              <td style="text-align:right;">
+                <div style="font-weight:800;color:#f87171;font-size:15px;">€99,000.00</div>
+                <div style="font-size:11px;color:#9ca3af;">~2.75 victims/d @ €1,200</div>
+              </td>
+              <td style="text-align:center;">
+                <button onclick="toggleDsaModal('dsa-2')" style="background:#2563eb;color:#fff;border:none;padding:6px 10px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;">
+                  DSA Art. 16 Notice
+                </button>
+              </td>
+            </tr>
+            <tr id="dsa-2" style="display:none;background:#0f172a;">
+              <td colspan="8" style="padding:16px;border-left:4px solid #3b82f6;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                  <div>
+                    <strong style="color:#60a5fa;">EU DSA Art. 16 Notice-and-Action Payload (DSA-ART16-B5604F1A4951F6A4)</strong>
+                    <span style="color:#9ca3af;font-size:12px;margin-left:10px;">Endpoint: abuse@telegram.org / @notoscam (Telegram Official Scam & Impersonation Takedown)</span>
+                  </div>
+                  <button onclick="copyPayload('payload-text-2')" style="background:#10b981;color:#06281e;border:none;padding:5px 12px;border-radius:4px;font-weight:700;cursor:pointer;font-size:12px;">
+                    Copy JSON & Legal Brief
+                  </button>
+                </div>
+                <div style="font-size:12px;color:#e2e8f0;background:#1e293b;padding:10px;border-radius:6px;margin-bottom:8px;">
+                  <strong>Substantiated Legal Explanation:</strong> URGENT IMPERSONATION & FOLLOWER PHISHING SCAM NOTICE (Evidence ID #b5604f1a4951f6a4): The account 'stеinscаle_fx' (https://t.me/steinscale_fx) is maliciously impersonating our verified brand/creator 'SteinScale AI & High-Ticket Coaching GmbH' (Canonical Account: steinscale at https://instagram.com/steinscale; Trademark Ref: DPMA DE-302026088412 / EUIPO EUTM-019044812 (Nice Classes 9, 35, 42)). Forensic OSINT verification confirms an Avatar Perceptual Hash match of 98.4%, Bio Cosine Similarity of 39.0%, and handle mutation pattern 'HOMOGLYPH_IDN' (Composite Impersonation Score: 96.1/100). Unicode Homoglyph spoofing detected: U+0435 ('е' -> 'e'), U+0430 ('а' -> 'a'). The account actively solicits followers via fraudulent DMs/links (crypto, signals, message me, guaranteed, handle_affix:fx), creating an estimated 30-day follower fraud exposure of EUR 99,000.00. Immediate suspension and removal requested under EU DSA Art. 16.
+                </div>
+                <pre id="payload-text-2" style="background:#020617;color:#38bdf8;padding:12px;border-radius:6px;font-size:11px;overflow-x:auto;margin:0;">{
+  "notice_id": "DSA-ART16-B5604F1A4951F6A4",
+  "timestamp_utc": "2026-10-17T17:06:32Z",
+  "regulation": "EU Regulation 2022/2065 (Digital Services Act) Article 16",
+  "target_platform": "Telegram",
+  "submission_endpoint": "abuse@telegram.org / @notoscam (Telegram Official Scam & Impersonation Takedown)",
+  "complainant": {
+    "brand_or_creator_name": "SteinScale AI & High-Ticket Coaching GmbH",
+    "canonical_handle": "steinscale",
+    "canonical_profile_url": "https://instagram.com/steinscale",
+    "trademark_registration": "DPMA DE-302026088412 / EUIPO EUTM-019044812 (Nice Classes 9, 35, 42)",
+    "good_faith_declaration": "I hereby declare in good faith pursuant to Art. 16(2)(d) DSA that the information and allegations contained in this notice are accurate and complete."
+  },
+  "infringing_account": {
+    "suspect_handle": "stеinscаle_fx",
+    "specific_url": "https://t.me/steinscale_fx",
+    "mutation_classification": "HOMOGLYPH_IDN",
+    "composite_impersonation_score": 96.1,
+    "avatar_phash_similarity_pct": 98.4,
+    "bio_cosine_similarity_pct": 39.0,
+    "unicode_confusables": [
+      "U+0435 ('е' -> 'e')",
+      "U+0430 ('а' -> 'a')"
+    ],
+    "phishing_indicators": [
+      "crypto",
+      "signals",
+      "message me",
+      "guaranteed",
+      "handle_affix:fx"
+    ],
+    "estimated_30d_harm_eur": 99000.0
+  },
+  "legal_basis": [
+    "EU Digital Services Act (Regulation (EU) 2022/2065) Art. 16 Notice-and-Action Mechanism",
+    "StGB § 263 (Computerbetrug / Phishing Impersonation Scam)",
+    "MarkenG § 14 / EUTMR Art. 9 (Unauthorised use of identical/confusingly similar sign in course of trade)",
+    "Telegram Community Guidelines — Authentic Identity & Impersonation Prohibition"
+  ],
+  "substantiated_explanation": "URGENT IMPERSONATION & FOLLOWER PHISHING SCAM NOTICE (Evidence ID #b5604f1a4951f6a4): The account 'stеinscаle_fx' (https://t.me/steinscale_fx) is maliciously impersonating our verified brand/creator 'SteinScale AI & High-Ticket Coaching GmbH' (Canonical Account: steinscale at https://instagram.com/steinscale; Trademark Ref: DPMA DE-302026088412 / EUIPO EUTM-019044812 (Nice Classes 9, 35, 42)). Forensic OSINT verification confirms an Avatar Perceptual Hash match of 98.4%, Bio Cosine Similarity of 39.0%, and handle mutation pattern 'HOMOGLYPH_IDN' (Composite Impersonation Score: 96.1/100). Unicode Homoglyph spoofing detected: U+0435 ('е' -> 'e'), U+0430 ('а' -> 'a'). The account actively solicits followers via fraudulent DMs/links (crypto, signals, message me, guaranteed, handle_affix:fx), creating an estimated 30-day follower fraud exposure of EUR 99,000.00. Immediate suspension and removal requested under EU DSA Art. 16."
+}</pre>
+              </td>
+            </tr>
+            
+            <tr data-severity="CRITICAL" class="clone-row">
+              <td>
+                <div style="font-weight:700;color:#f9fafb;">@steinsca1e_crypto</div>
+                <div style="font-size:12px;color:#9ca3af;">X (Twitter) · <span style="color:#60a5fa;">HOMOGLYPH_IDN</span></div>
+                <br><span style='color:#f87171;font-size:11px;font-weight:600;'>Homoglyphs: U+0031 ('1' -> 'l')</span>
+              </td>
+              <td>
+                <div style="font-size:12px;color:#d1d5db;max-width:290px;">"Lukas Stein @steinscale AI Automation & B2B Systems. Exclusive AI Token Presale & giveaway winner announcements — DM me to claim!"</div>
+                <div style="margin-top:4px;"><span style='background:#7f1d1d;color:#fca5a5;padding:2px 6px;border-radius:4px;font-size:11px;'>ACTIVE DM PHISHING</span> <span style="font-size:11px;color:#fbbf24;">Triggers: giveaway, winner, claim, dm me</span></div>
+              </td>
+              <td style="text-align:center;">
+                <div style="font-weight:700;color:#34d399;">98.4%</div>
+                <div style="font-size:10px;color:#9ca3af;font-family:monospace;">f8c4a29e3b1d7066</div>
+              </td>
+              <td style="text-align:center;font-weight:600;color:#93c5fd;">44.7%</td>
+              <td style="text-align:center;font-weight:600;color:#c084fc;">94.0%</td>
+              <td style="text-align:center;">
+                <div style="font-size:16px;font-weight:800;color:#f9fafb;">95.5</div>
+                <span style="padding:2px 8px;border-radius:999px;font-size:10px;font-weight:700;background:#ef4444;color:#fff;">CRITICAL</span>
+              </td>
+              <td style="text-align:right;">
+                <div style="font-weight:800;color:#f87171;font-size:15px;">€26,190.00</div>
+                <div style="font-size:11px;color:#9ca3af;">~0.97 victims/d @ €900</div>
+              </td>
+              <td style="text-align:center;">
+                <button onclick="toggleDsaModal('dsa-3')" style="background:#2563eb;color:#fff;border:none;padding:6px 10px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;">
+                  DSA Art. 16 Notice
+                </button>
+              </td>
+            </tr>
+            <tr id="dsa-3" style="display:none;background:#0f172a;">
+              <td colspan="8" style="padding:16px;border-left:4px solid #3b82f6;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                  <div>
+                    <strong style="color:#60a5fa;">EU DSA Art. 16 Notice-and-Action Payload (DSA-ART16-0B2D6BCEB6FEDA8D)</strong>
+                    <span style="color:#9ca3af;font-size:12px;margin-left:10px;">Endpoint: https://help.x.com/en/forms/authenticity/impersonation (X Brand Impersonation Flow)</span>
+                  </div>
+                  <button onclick="copyPayload('payload-text-3')" style="background:#10b981;color:#06281e;border:none;padding:5px 12px;border-radius:4px;font-weight:700;cursor:pointer;font-size:12px;">
+                    Copy JSON & Legal Brief
+                  </button>
+                </div>
+                <div style="font-size:12px;color:#e2e8f0;background:#1e293b;padding:10px;border-radius:6px;margin-bottom:8px;">
+                  <strong>Substantiated Legal Explanation:</strong> URGENT IMPERSONATION & FOLLOWER PHISHING SCAM NOTICE (Evidence ID #0b2d6bceb6feda8d): The account 'steinsca1e_crypto' (https://x.com/steinsca1e_crypto) is maliciously impersonating our verified brand/creator 'SteinScale AI & High-Ticket Coaching GmbH' (Canonical Account: steinscale at https://instagram.com/steinscale; Trademark Ref: DPMA DE-302026088412 / EUIPO EUTM-019044812 (Nice Classes 9, 35, 42)). Forensic OSINT verification confirms an Avatar Perceptual Hash match of 98.4%, Bio Cosine Similarity of 44.7%, and handle mutation pattern 'HOMOGLYPH_IDN' (Composite Impersonation Score: 95.5/100). Unicode Homoglyph spoofing detected: U+0031 ('1' -> 'l'). The account actively solicits followers via fraudulent DMs/links (giveaway, winner, claim, dm me, handle_affix:crypto), creating an estimated 30-day follower fraud exposure of EUR 26,190.00. Immediate suspension and removal requested under EU DSA Art. 16.
+                </div>
+                <pre id="payload-text-3" style="background:#020617;color:#38bdf8;padding:12px;border-radius:6px;font-size:11px;overflow-x:auto;margin:0;">{
+  "notice_id": "DSA-ART16-0B2D6BCEB6FEDA8D",
+  "timestamp_utc": "2026-10-17T17:06:32Z",
+  "regulation": "EU Regulation 2022/2065 (Digital Services Act) Article 16",
+  "target_platform": "X (Twitter)",
+  "submission_endpoint": "https://help.x.com/en/forms/authenticity/impersonation (X Brand Impersonation Flow)",
+  "complainant": {
+    "brand_or_creator_name": "SteinScale AI & High-Ticket Coaching GmbH",
+    "canonical_handle": "steinscale",
+    "canonical_profile_url": "https://instagram.com/steinscale",
+    "trademark_registration": "DPMA DE-302026088412 / EUIPO EUTM-019044812 (Nice Classes 9, 35, 42)",
+    "good_faith_declaration": "I hereby declare in good faith pursuant to Art. 16(2)(d) DSA that the information and allegations contained in this notice are accurate and complete."
+  },
+  "infringing_account": {
+    "suspect_handle": "steinsca1e_crypto",
+    "specific_url": "https://x.com/steinsca1e_crypto",
+    "mutation_classification": "HOMOGLYPH_IDN",
+    "composite_impersonation_score": 95.5,
+    "avatar_phash_similarity_pct": 98.4,
+    "bio_cosine_similarity_pct": 44.7,
+    "unicode_confusables": [
+      "U+0031 ('1' -> 'l')"
+    ],
+    "phishing_indicators": [
+      "giveaway",
+      "winner",
+      "claim",
+      "dm me",
+      "handle_affix:crypto"
+    ],
+    "estimated_30d_harm_eur": 26190.0
+  },
+  "legal_basis": [
+    "EU Digital Services Act (Regulation (EU) 2022/2065) Art. 16 Notice-and-Action Mechanism",
+    "StGB § 263 (Computerbetrug / Phishing Impersonation Scam)",
+    "MarkenG § 14 / EUTMR Art. 9 (Unauthorised use of identical/confusingly similar sign in course of trade)",
+    "X (Twitter) Community Guidelines — Authentic Identity & Impersonation Prohibition"
+  ],
+  "substantiated_explanation": "URGENT IMPERSONATION & FOLLOWER PHISHING SCAM NOTICE (Evidence ID #0b2d6bceb6feda8d): The account 'steinsca1e_crypto' (https://x.com/steinsca1e_crypto) is maliciously impersonating our verified brand/creator 'SteinScale AI & High-Ticket Coaching GmbH' (Canonical Account: steinscale at https://instagram.com/steinscale; Trademark Ref: DPMA DE-302026088412 / EUIPO EUTM-019044812 (Nice Classes 9, 35, 42)). Forensic OSINT verification confirms an Avatar Perceptual Hash match of 98.4%, Bio Cosine Similarity of 44.7%, and handle mutation pattern 'HOMOGLYPH_IDN' (Composite Impersonation Score: 95.5/100). Unicode Homoglyph spoofing detected: U+0031 ('1' -> 'l'). The account actively solicits followers via fraudulent DMs/links (giveaway, winner, claim, dm me, handle_affix:crypto), creating an estimated 30-day follower fraud exposure of EUR 26,190.00. Immediate suspension and removal requested under EU DSA Art. 16."
+}</pre>
+              </td>
+            </tr>
+            
+            <tr data-severity="CRITICAL" class="clone-row">
+              <td>
+                <div style="font-weight:700;color:#f9fafb;">@steinscale.support</div>
+                <div style="font-size:12px;color:#9ca3af;">TikTok · <span style="color:#60a5fa;">SUPPORT_DESK_SPOOF</span></div>
+                
+              </td>
+              <td>
+                <div style="font-size:12px;color:#d1d5db;max-width:290px;">"Lukas Stein | Official Support & Giveaway Desk @steinscale AI Automation. Claim your free 1-on-1 setup on Telegram: t.me/steinscale_fx"</div>
+                <div style="margin-top:4px;"><span style='background:#7f1d1d;color:#fca5a5;padding:2px 6px;border-radius:4px;font-size:11px;'>ACTIVE DM PHISHING</span> <span style="font-size:11px;color:#fbbf24;">Triggers: telegram, giveaway, claim, fx</span></div>
+              </td>
+              <td style="text-align:center;">
+                <div style="font-weight:700;color:#34d399;">100.0%</div>
+                <div style="font-size:10px;color:#9ca3af;font-family:monospace;">f8c4a29e3b1d7064</div>
+              </td>
+              <td style="text-align:center;font-weight:600;color:#93c5fd;">40.5%</td>
+              <td style="text-align:center;font-weight:600;color:#c084fc;">95.0%</td>
+              <td style="text-align:center;">
+                <div style="font-size:16px;font-weight:800;color:#f9fafb;">95.4</div>
+                <span style="padding:2px 8px;border-radius:999px;font-size:10px;font-weight:700;background:#ef4444;color:#fff;">CRITICAL</span>
+              </td>
+              <td style="text-align:right;">
+                <div style="font-weight:800;color:#f87171;font-size:15px;">€29,700.00</div>
+                <div style="font-size:11px;color:#9ca3af;">~1.80 victims/d @ €550</div>
+              </td>
+              <td style="text-align:center;">
+                <button onclick="toggleDsaModal('dsa-4')" style="background:#2563eb;color:#fff;border:none;padding:6px 10px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;">
+                  DSA Art. 16 Notice
+                </button>
+              </td>
+            </tr>
+            <tr id="dsa-4" style="display:none;background:#0f172a;">
+              <td colspan="8" style="padding:16px;border-left:4px solid #3b82f6;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                  <div>
+                    <strong style="color:#60a5fa;">EU DSA Art. 16 Notice-and-Action Payload (DSA-ART16-78E9888BC015AD69)</strong>
+                    <span style="color:#9ca3af;font-size:12px;margin-left:10px;">Endpoint: https://www.tiktok.com/legal/report/DSA (TikTok EU DSA Art. 16 & Impersonation Portal)</span>
+                  </div>
+                  <button onclick="copyPayload('payload-text-4')" style="background:#10b981;color:#06281e;border:none;padding:5px 12px;border-radius:4px;font-weight:700;cursor:pointer;font-size:12px;">
+                    Copy JSON & Legal Brief
+                  </button>
+                </div>
+                <div style="font-size:12px;color:#e2e8f0;background:#1e293b;padding:10px;border-radius:6px;margin-bottom:8px;">
+                  <strong>Substantiated Legal Explanation:</strong> URGENT IMPERSONATION & FOLLOWER PHISHING SCAM NOTICE (Evidence ID #78e9888bc015ad69): The account 'steinscale.support' (https://tiktok.com/@steinscale.support) is maliciously impersonating our verified brand/creator 'SteinScale AI & High-Ticket Coaching GmbH' (Canonical Account: steinscale at https://instagram.com/steinscale; Trademark Ref: DPMA DE-302026088412 / EUIPO EUTM-019044812 (Nice Classes 9, 35, 42)). Forensic OSINT verification confirms an Avatar Perceptual Hash match of 100.0%, Bio Cosine Similarity of 40.5%, and handle mutation pattern 'SUPPORT_DESK_SPOOF' (Composite Impersonation Score: 95.4/100). The account actively solicits followers via fraudulent DMs/links (telegram, giveaway, claim, fx, official support, handle_affix:support), creating an estimated 30-day follower fraud exposure of EUR 29,700.00. Immediate suspension and removal requested under EU DSA Art. 16.
+                </div>
+                <pre id="payload-text-4" style="background:#020617;color:#38bdf8;padding:12px;border-radius:6px;font-size:11px;overflow-x:auto;margin:0;">{
+  "notice_id": "DSA-ART16-78E9888BC015AD69",
+  "timestamp_utc": "2026-10-17T17:06:32Z",
+  "regulation": "EU Regulation 2022/2065 (Digital Services Act) Article 16",
+  "target_platform": "TikTok",
+  "submission_endpoint": "https://www.tiktok.com/legal/report/DSA (TikTok EU DSA Art. 16 & Impersonation Portal)",
+  "complainant": {
+    "brand_or_creator_name": "SteinScale AI & High-Ticket Coaching GmbH",
+    "canonical_handle": "steinscale",
+    "canonical_profile_url": "https://instagram.com/steinscale",
+    "trademark_registration": "DPMA DE-302026088412 / EUIPO EUTM-019044812 (Nice Classes 9, 35, 42)",
+    "good_faith_declaration": "I hereby declare in good faith pursuant to Art. 16(2)(d) DSA that the information and allegations contained in this notice are accurate and complete."
+  },
+  "infringing_account": {
+    "suspect_handle": "steinscale.support",
+    "specific_url": "https://tiktok.com/@steinscale.support",
+    "mutation_classification": "SUPPORT_DESK_SPOOF",
+    "composite_impersonation_score": 95.4,
+    "avatar_phash_similarity_pct": 100.0,
+    "bio_cosine_similarity_pct": 40.5,
+    "unicode_confusables": [],
+    "phishing_indicators": [
+      "telegram",
+      "giveaway",
+      "claim",
+      "fx",
+      "official support",
+      "handle_affix:support"
+    ],
+    "estimated_30d_harm_eur": 29700.0
+  },
+  "legal_basis": [
+    "EU Digital Services Act (Regulation (EU) 2022/2065) Art. 16 Notice-and-Action Mechanism",
+    "StGB § 263 (Computerbetrug / Phishing Impersonation Scam)",
+    "MarkenG § 14 / EUTMR Art. 9 (Unauthorised use of identical/confusingly similar sign in course of trade)",
+    "TikTok Community Guidelines — Authentic Identity & Impersonation Prohibition"
+  ],
+  "substantiated_explanation": "URGENT IMPERSONATION & FOLLOWER PHISHING SCAM NOTICE (Evidence ID #78e9888bc015ad69): The account 'steinscale.support' (https://tiktok.com/@steinscale.support) is maliciously impersonating our verified brand/creator 'SteinScale AI & High-Ticket Coaching GmbH' (Canonical Account: steinscale at https://instagram.com/steinscale; Trademark Ref: DPMA DE-302026088412 / EUIPO EUTM-019044812 (Nice Classes 9, 35, 42)). Forensic OSINT verification confirms an Avatar Perceptual Hash match of 100.0%, Bio Cosine Similarity of 40.5%, and handle mutation pattern 'SUPPORT_DESK_SPOOF' (Composite Impersonation Score: 95.4/100). The account actively solicits followers via fraudulent DMs/links (telegram, giveaway, claim, fx, official support, handle_affix:support), creating an estimated 30-day follower fraud exposure of EUR 29,700.00. Immediate suspension and removal requested under EU DSA Art. 16."
+}</pre>
+              </td>
+            </tr>
+            
+            <tr data-severity="CRITICAL" class="clone-row">
+              <td>
+                <div style="font-weight:700;color:#f9fafb;">@steinscale-help</div>
+                <div style="font-size:12px;color:#9ca3af;">Discord · <span style="color:#60a5fa;">SUPPORT_DESK_SPOOF</span></div>
+                
+              </td>
+              <td>
+                <div style="font-size:12px;color:#d1d5db;max-width:290px;">"SteinScale AI Official Support Server & Billing Help Desk. Open a ticket and verify your wallet/account with our admin team."</div>
+                <div style="margin-top:4px;"><span style='background:#1f2937;color:#9ca3af;padding:2px 6px;border-radius:4px;font-size:11px;'>PASSIVE TRAP</span> <span style="font-size:11px;color:#fbbf24;">Triggers: official support, handle_affix:help</span></div>
+              </td>
+              <td style="text-align:center;">
+                <div style="font-weight:700;color:#34d399;">93.8%</div>
+                <div style="font-size:10px;color:#9ca3af;font-family:monospace;">f0c4a29e3b1d7000</div>
+              </td>
+              <td style="text-align:center;font-weight:600;color:#93c5fd;">21.6%</td>
+              <td style="text-align:center;font-weight:600;color:#c084fc;">95.0%</td>
+              <td style="text-align:center;">
+                <div style="font-size:16px;font-weight:800;color:#f9fafb;">82.1</div>
+                <span style="padding:2px 8px;border-radius:999px;font-size:10px;font-weight:700;background:#ef4444;color:#fff;">CRITICAL</span>
+              </td>
+              <td style="text-align:right;">
+                <div style="font-weight:800;color:#f87171;font-size:15px;">€1,368.00</div>
+                <div style="font-size:11px;color:#9ca3af;">~0.12 victims/d @ €380</div>
+              </td>
+              <td style="text-align:center;">
+                <button onclick="toggleDsaModal('dsa-5')" style="background:#2563eb;color:#fff;border:none;padding:6px 10px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;">
+                  DSA Art. 16 Notice
+                </button>
+              </td>
+            </tr>
+            <tr id="dsa-5" style="display:none;background:#0f172a;">
+              <td colspan="8" style="padding:16px;border-left:4px solid #3b82f6;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                  <div>
+                    <strong style="color:#60a5fa;">EU DSA Art. 16 Notice-and-Action Payload (DSA-ART16-B34EC18590FE9C26)</strong>
+                    <span style="color:#9ca3af;font-size:12px;margin-left:10px;">Endpoint: https://dis.gd/request (Discord Trust & Safety Impersonation Report)</span>
+                  </div>
+                  <button onclick="copyPayload('payload-text-5')" style="background:#10b981;color:#06281e;border:none;padding:5px 12px;border-radius:4px;font-weight:700;cursor:pointer;font-size:12px;">
+                    Copy JSON & Legal Brief
+                  </button>
+                </div>
+                <div style="font-size:12px;color:#e2e8f0;background:#1e293b;padding:10px;border-radius:6px;margin-bottom:8px;">
+                  <strong>Substantiated Legal Explanation:</strong> URGENT IMPERSONATION & FOLLOWER PHISHING SCAM NOTICE (Evidence ID #b34ec18590fe9c26): The account 'steinscale-help' (https://discord.gg/steinscale-help) is maliciously impersonating our verified brand/creator 'SteinScale AI & High-Ticket Coaching GmbH' (Canonical Account: steinscale at https://instagram.com/steinscale; Trademark Ref: DPMA DE-302026088412 / EUIPO EUTM-019044812 (Nice Classes 9, 35, 42)). Forensic OSINT verification confirms an Avatar Perceptual Hash match of 93.8%, Bio Cosine Similarity of 21.6%, and handle mutation pattern 'SUPPORT_DESK_SPOOF' (Composite Impersonation Score: 82.1/100). The account actively solicits followers via fraudulent DMs/links (official support, handle_affix:help), creating an estimated 30-day follower fraud exposure of EUR 1,368.00. Immediate suspension and removal requested under EU DSA Art. 16.
+                </div>
+                <pre id="payload-text-5" style="background:#020617;color:#38bdf8;padding:12px;border-radius:6px;font-size:11px;overflow-x:auto;margin:0;">{
+  "notice_id": "DSA-ART16-B34EC18590FE9C26",
+  "timestamp_utc": "2026-10-17T17:06:32Z",
+  "regulation": "EU Regulation 2022/2065 (Digital Services Act) Article 16",
+  "target_platform": "Discord",
+  "submission_endpoint": "https://dis.gd/request (Discord Trust & Safety Impersonation Report)",
+  "complainant": {
+    "brand_or_creator_name": "SteinScale AI & High-Ticket Coaching GmbH",
+    "canonical_handle": "steinscale",
+    "canonical_profile_url": "https://instagram.com/steinscale",
+    "trademark_registration": "DPMA DE-302026088412 / EUIPO EUTM-019044812 (Nice Classes 9, 35, 42)",
+    "good_faith_declaration": "I hereby declare in good faith pursuant to Art. 16(2)(d) DSA that the information and allegations contained in this notice are accurate and complete."
+  },
+  "infringing_account": {
+    "suspect_handle": "steinscale-help",
+    "specific_url": "https://discord.gg/steinscale-help",
+    "mutation_classification": "SUPPORT_DESK_SPOOF",
+    "composite_impersonation_score": 82.1,
+    "avatar_phash_similarity_pct": 93.8,
+    "bio_cosine_similarity_pct": 21.6,
+    "unicode_confusables": [],
+    "phishing_indicators": [
+      "official support",
+      "handle_affix:help"
+    ],
+    "estimated_30d_harm_eur": 1368.0
+  },
+  "legal_basis": [
+    "EU Digital Services Act (Regulation (EU) 2022/2065) Art. 16 Notice-and-Action Mechanism",
+    "StGB § 263 (Computerbetrug / Phishing Impersonation Scam)",
+    "MarkenG § 14 / EUTMR Art. 9 (Unauthorised use of identical/confusingly similar sign in course of trade)",
+    "Discord Community Guidelines — Authentic Identity & Impersonation Prohibition"
+  ],
+  "substantiated_explanation": "URGENT IMPERSONATION & FOLLOWER PHISHING SCAM NOTICE (Evidence ID #b34ec18590fe9c26): The account 'steinscale-help' (https://discord.gg/steinscale-help) is maliciously impersonating our verified brand/creator 'SteinScale AI & High-Ticket Coaching GmbH' (Canonical Account: steinscale at https://instagram.com/steinscale; Trademark Ref: DPMA DE-302026088412 / EUIPO EUTM-019044812 (Nice Classes 9, 35, 42)). Forensic OSINT verification confirms an Avatar Perceptual Hash match of 93.8%, Bio Cosine Similarity of 21.6%, and handle mutation pattern 'SUPPORT_DESK_SPOOF' (Composite Impersonation Score: 82.1/100). The account actively solicits followers via fraudulent DMs/links (official support, handle_affix:help), creating an estimated 30-day follower fraud exposure of EUR 1,368.00. Immediate suspension and removal requested under EU DSA Art. 16."
+}</pre>
+              </td>
+            </tr>
+            
+      </tbody>
+    </table>
+
+    <div class="section-title">
+      <span>2. 16-Surface Brand Launch Matrix (12 Social Platforms + 4 TLDs + DPMA/EUIPO Nice 9/35/42)</span>
+    </div>
+    
+            <div style="background:#1e293b;border:1px solid #334155;border-radius:12px;padding:18px;margin-bottom:18px;">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
+                <div>
+                  <h3 style="margin:0;color:#f8fafc;font-size:17px;">SteinScale AI (Existing Flagship Protection Audit) <span style="color:#38bdf8;font-family:monospace;">(@steinscale)</span></h3>
+                  <div style="font-size:12px;color:#94a3b8;margin-top:3px;">Verdict: <strong style="color:#34d399;">GREENLIGHT LAUNCH — Lock remaining handles immediately</strong></div>
+                </div>
+                <div style="text-align:right;">
+                  <div style="font-size:24px;font-weight:800;color:#34d399;">88.7 / 100</div>
+                  <div style="font-size:11px;color:#94a3b8;">Social Ready: 11/12 · Domains Ready: 4/4</div>
+                </div>
+              </div>
+              <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px;margin-bottom:12px;">
+                
+                <div title="Primary verified creator channel (148k followers)" style="background:#065f46;border:1px solid #34d39944;padding:8px 10px;border-radius:8px;">
+                  <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <span style="font-weight:700;font-size:12px;color:#f9fafb;">Instagram</span>
+                    <span style="font-size:10px;font-weight:800;color:#34d399;">OWNED</span>
+                  </div>
+                  <div style="font-size:11px;color:#d1d5db;font-family:monospace;margin-top:2px;">@steinscale</div>
+                </div>
+                
+                <div title="Verified short-video channel (92k followers)" style="background:#065f46;border:1px solid #34d39944;padding:8px 10px;border-radius:8px;">
+                  <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <span style="font-weight:700;font-size:12px;color:#f9fafb;">TikTok</span>
+                    <span style="font-size:10px;font-weight:800;color:#34d399;">OWNED</span>
+                  </div>
+                  <div style="font-size:11px;color:#d1d5db;font-family:monospace;margin-top:2px;">@steinscale</div>
+                </div>
+                
+                <div title="Verified YouTube channel (64k subscribers)" style="background:#065f46;border:1px solid #34d39944;padding:8px 10px;border-radius:8px;">
+                  <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <span style="font-weight:700;font-size:12px;color:#f9fafb;">YouTube</span>
+                    <span style="font-size:10px;font-weight:800;color:#34d399;">OWNED</span>
+                  </div>
+                  <div style="font-size:11px;color:#d1d5db;font-family:monospace;margin-top:2px;">@steinscale</div>
+                </div>
+                
+                <div title="Verified founder X handle" style="background:#065f46;border:1px solid #34d39944;padding:8px 10px;border-radius:8px;">
+                  <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <span style="font-weight:700;font-size:12px;color:#f9fafb;">X (Twitter)</span>
+                    <span style="font-size:10px;font-weight:800;color:#34d399;">OWNED</span>
+                  </div>
+                  <div style="font-size:11px;color:#d1d5db;font-family:monospace;margin-top:2px;">@steinscale</div>
+                </div>
+                
+                <div title="GmbH Company Page active" style="background:#065f46;border:1px solid #34d39944;padding:8px 10px;border-radius:8px;">
+                  <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <span style="font-weight:700;font-size:12px;color:#f9fafb;">LinkedIn</span>
+                    <span style="font-size:10px;font-weight:800;color:#34d399;">OWNED</span>
+                  </div>
+                  <div style="font-size:11px;color:#d1d5db;font-family:monospace;margin-top:2px;">@steinscale</div>
+                </div>
+                
+                <div title="Organization repo active" style="background:#065f46;border:1px solid #34d39944;padding:8px 10px;border-radius:8px;">
+                  <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <span style="font-weight:700;font-size:12px;color:#f9fafb;">GitHub</span>
+                    <span style="font-size:10px;font-weight:800;color:#34d399;">OWNED</span>
+                  </div>
+                  <div style="font-size:11px;color:#d1d5db;font-family:monospace;margin-top:2px;">@steinscale</div>
+                </div>
+                
+                <div title="r/steinscale unclaimed — lock immediately" style="background:#1e3a8a;border:1px solid #93c5fd44;padding:8px 10px;border-radius:8px;">
+                  <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <span style="font-weight:700;font-size:12px;color:#f9fafb;">Reddit</span>
+                    <span style="font-size:10px;font-weight:800;color:#93c5fd;">AVAILABLE</span>
+                  </div>
+                  <div style="font-size:11px;color:#d1d5db;font-family:monospace;margin-top:2px;">@steinscale</div>
+                </div>
+                
+                <div title="Linked to Instagram handle" style="background:#065f46;border:1px solid #34d39944;padding:8px 10px;border-radius:8px;">
+                  <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <span style="font-weight:700;font-size:12px;color:#f9fafb;">Threads</span>
+                    <span style="font-size:10px;font-weight:800;color:#34d399;">OWNED</span>
+                  </div>
+                  <div style="font-size:11px;color:#d1d5db;font-family:monospace;margin-top:2px;">@steinscale</div>
+                </div>
+                
+                <div title="Available for defensive registration" style="background:#1e3a8a;border:1px solid #93c5fd44;padding:8px 10px;border-radius:8px;">
+                  <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <span style="font-weight:700;font-size:12px;color:#f9fafb;">Twitch</span>
+                    <span style="font-size:10px;font-weight:800;color:#93c5fd;">AVAILABLE</span>
+                  </div>
+                  <div style="font-size:11px;color:#d1d5db;font-family:monospace;margin-top:2px;">@steinscale</div>
+                </div>
+                
+                <div title="Active Whop Academy storefront" style="background:#065f46;border:1px solid #34d39944;padding:8px 10px;border-radius:8px;">
+                  <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <span style="font-weight:700;font-size:12px;color:#f9fafb;">Whop</span>
+                    <span style="font-size:10px;font-weight:800;color:#34d399;">OWNED</span>
+                  </div>
+                  <div style="font-size:11px;color:#d1d5db;font-family:monospace;margin-top:2px;">@steinscale</div>
+                </div>
+                
+                <div title="ALERT: Squatted by crypto phisher — file DSA takedown" style="background:#7f1d1d;border:1px solid #fca5a544;padding:8px 10px;border-radius:8px;">
+                  <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <span style="font-weight:700;font-size:12px;color:#f9fafb;">Telegram</span>
+                    <span style="font-size:10px;font-weight:800;color:#fca5a5;">SQUATTED</span>
+                  </div>
+                  <div style="font-size:11px;color:#d1d5db;font-family:monospace;margin-top:2px;">@steinscale</div>
+                </div>
+                
+                <div title="Custom vanity invite active" style="background:#065f46;border:1px solid #34d39944;padding:8px 10px;border-radius:8px;">
+                  <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <span style="font-weight:700;font-size:12px;color:#f9fafb;">Discord</span>
+                    <span style="font-size:10px;font-weight:800;color:#34d399;">OWNED</span>
+                  </div>
+                  <div style="font-size:11px;color:#d1d5db;font-family:monospace;margin-top:2px;">@steinscale</div>
+                </div>
+                
+                <div title="Primary GmbH domain" style="background:#065f46;border:1px solid #34d39944;padding:8px 10px;border-radius:8px;">
+                  <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <span style="font-weight:700;font-size:12px;color:#f9fafb;">.de Domain</span>
+                    <span style="font-size:10px;font-weight:800;color:#34d399;">OWNED</span>
+                  </div>
+                  <div style="font-size:11px;color:#d1d5db;font-family:monospace;margin-top:2px;">steinscale.de</div>
+                </div>
+                
+                <div title="Global redirect active" style="background:#065f46;border:1px solid #34d39944;padding:8px 10px;border-radius:8px;">
+                  <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <span style="font-weight:700;font-size:12px;color:#f9fafb;">.com Domain</span>
+                    <span style="font-size:10px;font-weight:800;color:#34d399;">OWNED</span>
+                  </div>
+                  <div style="font-size:11px;color:#d1d5db;font-family:monospace;margin-top:2px;">steinscale.com</div>
+                </div>
+                
+                <div title="Available defensive TLD" style="background:#1e3a8a;border:1px solid #93c5fd44;padding:8px 10px;border-radius:8px;">
+                  <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <span style="font-weight:700;font-size:12px;color:#f9fafb;">.io Domain</span>
+                    <span style="font-size:10px;font-weight:800;color:#93c5fd;">AVAILABLE · €39</span>
+                  </div>
+                  <div style="font-size:11px;color:#d1d5db;font-family:monospace;margin-top:2px;">steinscale.io</div>
+                </div>
+                
+                <div title="SaaS product domain" style="background:#065f46;border:1px solid #34d39944;padding:8px 10px;border-radius:8px;">
+                  <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <span style="font-weight:700;font-size:12px;color:#f9fafb;">.ai Domain</span>
+                    <span style="font-size:10px;font-weight:800;color:#34d399;">OWNED</span>
+                  </div>
+                  <div style="font-size:11px;color:#d1d5db;font-family:monospace;margin-top:2px;">steinscale.ai</div>
+                </div>
+                
+              </div>
+              <div style="margin-top:10px;">
+                <div style="font-size:12px;font-weight:700;color:#cbd5e1;text-transform:uppercase;letter-spacing:0.05em;">DPMA & EUIPO Nice Class 9 / 35 / 42 Collision Check</div>
+                
+                <div style="background:#0f172a;padding:8px 12px;border-radius:6px;border-left:3px solid #34d399;margin-top:6px;">
+                  <div style="display:flex;justify-content:space-between;font-size:12px;">
+                    <strong style="color:#f3f4f6;">Class 9 — Downloadable AI Software & SaaS Mobile Apps</strong>
+                    <span style="color:#34d399;font-weight:700;">DPMA: 8% | EUIPO: 11% (LOW)</span>
+                  </div>
+                  <div style="font-size:11px;color:#9ca3af;margin-top:2px;">Conflicts: None detected — <em>Registered & protected (DE-302026088412). Zero opposition.</em></div>
+                </div>
+                
+                <div style="background:#0f172a;padding:8px 12px;border-radius:6px;border-left:3px solid #34d399;margin-top:6px;">
+                  <div style="display:flex;justify-content:space-between;font-size:12px;">
+                    <strong style="color:#f3f4f6;">Class 35 — Business Consultancy, Marketing Automation & Lead Gen</strong>
+                    <span style="color:#34d399;font-weight:700;">DPMA: 12% | EUIPO: 14% (LOW)</span>
+                  </div>
+                  <div style="font-size:11px;color:#9ca3af;margin-top:2px;">Conflicts: None detected — <em>Clean protection across DACH & EU.</em></div>
+                </div>
+                
+                <div style="background:#0f172a;padding:8px 12px;border-radius:6px;border-left:3px solid #34d399;margin-top:6px;">
+                  <div style="display:flex;justify-content:space-between;font-size:12px;">
+                    <strong style="color:#f3f4f6;">Class 42 — SaaS, Cloud AI Agents & IT Platform Hosting</strong>
+                    <span style="color:#34d399;font-weight:700;">DPMA: 9% | EUIPO: 12% (LOW)</span>
+                  </div>
+                  <div style="font-size:11px;color:#9ca3af;margin-top:2px;">Conflicts: None detected — <em>Strong distinctiveness; use as legal anchor for DSA Art. 16 notices.</em></div>
+                </div>
+                
+              </div>
+            </div>
+            
+            <div style="background:#1e293b;border:1px solid #334155;border-radius:12px;padding:18px;margin-bottom:18px;">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
+                <div>
+                  <h3 style="margin:0;color:#f8fafc;font-size:17px;">ValoraFlow AI (New Q4 SaaS Spin-Off Candidate #1) <span style="color:#38bdf8;font-family:monospace;">(@valoraflow)</span></h3>
+                  <div style="font-size:12px;color:#94a3b8;margin-top:3px;">Verdict: <strong style="color:#34d399;">GREENLIGHT LAUNCH — Lock remaining handles immediately</strong></div>
+                </div>
+                <div style="text-align:right;">
+                  <div style="font-size:24px;font-weight:800;color:#34d399;">96.7 / 100</div>
+                  <div style="font-size:11px;color:#94a3b8;">Social Ready: 12/12 · Domains Ready: 4/4</div>
+                </div>
+              </div>
+              <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px;margin-bottom:12px;">
+                
+                <div title="Available" style="background:#1e3a8a;border:1px solid #93c5fd44;padding:8px 10px;border-radius:8px;">
+                  <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <span style="font-weight:700;font-size:12px;color:#f9fafb;">Instagram</span>
+                    <span style="font-size:10px;font-weight:800;color:#93c5fd;">AVAILABLE</span>
+                  </div>
+                  <div style="font-size:11px;color:#d1d5db;font-family:monospace;margin-top:2px;">@valoraflow</div>
+                </div>
+                
+                <div title="Available" style="background:#1e3a8a;border:1px solid #93c5fd44;padding:8px 10px;border-radius:8px;">
+                  <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <span style="font-weight:700;font-size:12px;color:#f9fafb;">TikTok</span>
+                    <span style="font-size:10px;font-weight:800;color:#93c5fd;">AVAILABLE</span>
+                  </div>
+                  <div style="font-size:11px;color:#d1d5db;font-family:monospace;margin-top:2px;">@valoraflow</div>
+                </div>
+                
+                <div title="Available" style="background:#1e3a8a;border:1px solid #93c5fd44;padding:8px 10px;border-radius:8px;">
+                  <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <span style="font-weight:700;font-size:12px;color:#f9fafb;">YouTube</span>
+                    <span style="font-size:10px;font-weight:800;color:#93c5fd;">AVAILABLE</span>
+                  </div>
+                  <div style="font-size:11px;color:#d1d5db;font-family:monospace;margin-top:2px;">@valoraflow</div>
+                </div>
+                
+                <div title="Available" style="background:#1e3a8a;border:1px solid #93c5fd44;padding:8px 10px;border-radius:8px;">
+                  <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <span style="font-weight:700;font-size:12px;color:#f9fafb;">X (Twitter)</span>
+                    <span style="font-size:10px;font-weight:800;color:#93c5fd;">AVAILABLE</span>
+                  </div>
+                  <div style="font-size:11px;color:#d1d5db;font-family:monospace;margin-top:2px;">@valoraflow</div>
+                </div>
+                
+                <div title="Available" style="background:#1e3a8a;border:1px solid #93c5fd44;padding:8px 10px;border-radius:8px;">
+                  <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <span style="font-weight:700;font-size:12px;color:#f9fafb;">LinkedIn</span>
+                    <span style="font-size:10px;font-weight:800;color:#93c5fd;">AVAILABLE</span>
+                  </div>
+                  <div style="font-size:11px;color:#d1d5db;font-family:monospace;margin-top:2px;">@valoraflow</div>
+                </div>
+                
+                <div title="Available" style="background:#1e3a8a;border:1px solid #93c5fd44;padding:8px 10px;border-radius:8px;">
+                  <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <span style="font-weight:700;font-size:12px;color:#f9fafb;">GitHub</span>
+                    <span style="font-size:10px;font-weight:800;color:#93c5fd;">AVAILABLE</span>
+                  </div>
+                  <div style="font-size:11px;color:#d1d5db;font-family:monospace;margin-top:2px;">@valoraflow</div>
+                </div>
+                
+                <div title="Available" style="background:#1e3a8a;border:1px solid #93c5fd44;padding:8px 10px;border-radius:8px;">
+                  <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <span style="font-weight:700;font-size:12px;color:#f9fafb;">Reddit</span>
+                    <span style="font-size:10px;font-weight:800;color:#93c5fd;">AVAILABLE</span>
+                  </div>
+                  <div style="font-size:11px;color:#d1d5db;font-family:monospace;margin-top:2px;">@valoraflow</div>
+                </div>
+                
+                <div title="Available" style="background:#1e3a8a;border:1px solid #93c5fd44;padding:8px 10px;border-radius:8px;">
+                  <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <span style="font-weight:700;font-size:12px;color:#f9fafb;">Threads</span>
+                    <span style="font-size:10px;font-weight:800;color:#93c5fd;">AVAILABLE</span>
+                  </div>
+                  <div style="font-size:11px;color:#d1d5db;font-family:monospace;margin-top:2px;">@valoraflow</div>
+                </div>
+                
+                <div title="Available" style="background:#1e3a8a;border:1px solid #93c5fd44;padding:8px 10px;border-radius:8px;">
+                  <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <span style="font-weight:700;font-size:12px;color:#f9fafb;">Twitch</span>
+                    <span style="font-size:10px;font-weight:800;color:#93c5fd;">AVAILABLE</span>
+                  </div>
+                  <div style="font-size:11px;color:#d1d5db;font-family:monospace;margin-top:2px;">@valoraflow</div>
+                </div>
+                
+                <div title="Available" style="background:#1e3a8a;border:1px solid #93c5fd44;padding:8px 10px;border-radius:8px;">
+                  <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <span style="font-weight:700;font-size:12px;color:#f9fafb;">Whop</span>
+                    <span style="font-size:10px;font-weight:800;color:#93c5fd;">AVAILABLE</span>
+                  </div>
+                  <div style="font-size:11px;color:#d1d5db;font-family:monospace;margin-top:2px;">@valoraflow</div>
+                </div>
+                
+                <div title="Available" style="background:#1e3a8a;border:1px solid #93c5fd44;padding:8px 10px;border-radius:8px;">
+                  <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <span style="font-weight:700;font-size:12px;color:#f9fafb;">Telegram</span>
+                    <span style="font-size:10px;font-weight:800;color:#93c5fd;">AVAILABLE</span>
+                  </div>
+                  <div style="font-size:11px;color:#d1d5db;font-family:monospace;margin-top:2px;">@valoraflow</div>
+                </div>
+                
+                <div title="Available" style="background:#1e3a8a;border:1px solid #93c5fd44;padding:8px 10px;border-radius:8px;">
+                  <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <span style="font-weight:700;font-size:12px;color:#f9fafb;">Discord</span>
+                    <span style="font-size:10px;font-weight:800;color:#93c5fd;">AVAILABLE</span>
+                  </div>
+                  <div style="font-size:11px;color:#d1d5db;font-family:monospace;margin-top:2px;">@valoraflow</div>
+                </div>
+                
+                <div title="Instant DENIC registration" style="background:#1e3a8a;border:1px solid #93c5fd44;padding:8px 10px;border-radius:8px;">
+                  <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <span style="font-weight:700;font-size:12px;color:#f9fafb;">.de Domain</span>
+                    <span style="font-size:10px;font-weight:800;color:#93c5fd;">AVAILABLE · €10</span>
+                  </div>
+                  <div style="font-size:11px;color:#d1d5db;font-family:monospace;margin-top:2px;">valoraflow.de</div>
+                </div>
+                
+                <div title="Instant .com registration" style="background:#1e3a8a;border:1px solid #93c5fd44;padding:8px 10px;border-radius:8px;">
+                  <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <span style="font-weight:700;font-size:12px;color:#f9fafb;">.com Domain</span>
+                    <span style="font-size:10px;font-weight:800;color:#93c5fd;">AVAILABLE · €13</span>
+                  </div>
+                  <div style="font-size:11px;color:#d1d5db;font-family:monospace;margin-top:2px;">valoraflow.com</div>
+                </div>
+                
+                <div title="Instant .io registration" style="background:#1e3a8a;border:1px solid #93c5fd44;padding:8px 10px;border-radius:8px;">
+                  <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <span style="font-weight:700;font-size:12px;color:#f9fafb;">.io Domain</span>
+                    <span style="font-size:10px;font-weight:800;color:#93c5fd;">AVAILABLE · €38</span>
+                  </div>
+                  <div style="font-size:11px;color:#d1d5db;font-family:monospace;margin-top:2px;">valoraflow.io</div>
+                </div>
+                
+                <div title="Instant .ai registration" style="background:#1e3a8a;border:1px solid #93c5fd44;padding:8px 10px;border-radius:8px;">
+                  <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <span style="font-weight:700;font-size:12px;color:#f9fafb;">.ai Domain</span>
+                    <span style="font-size:10px;font-weight:800;color:#93c5fd;">AVAILABLE · €79</span>
+                  </div>
+                  <div style="font-size:11px;color:#d1d5db;font-family:monospace;margin-top:2px;">valoraflow.ai</div>
+                </div>
+                
+              </div>
+              <div style="margin-top:10px;">
+                <div style="font-size:12px;font-weight:700;color:#cbd5e1;text-transform:uppercase;letter-spacing:0.05em;">DPMA & EUIPO Nice Class 9 / 35 / 42 Collision Check</div>
+                
+                <div style="background:#0f172a;padding:8px 12px;border-radius:6px;border-left:3px solid #34d399;margin-top:6px;">
+                  <div style="display:flex;justify-content:space-between;font-size:12px;">
+                    <strong style="color:#f3f4f6;">Class 9 — Downloadable AI Software</strong>
+                    <span style="color:#34d399;font-weight:700;">DPMA: 18% | EUIPO: 22% (LOW)</span>
+                  </div>
+                  <div style="font-size:11px;color:#9ca3af;margin-top:2px;">Conflicts: VALORA PAY (CH-719201, Class 36 only) — <em>No overlap in Class 9; safe to file DPMA fast-track.</em></div>
+                </div>
+                
+                <div style="background:#0f172a;padding:8px 12px;border-radius:6px;border-left:3px solid #34d399;margin-top:6px;">
+                  <div style="display:flex;justify-content:space-between;font-size:12px;">
+                    <strong style="color:#f3f4f6;">Class 35 — B2B Revenue & CRM Automation</strong>
+                    <span style="color:#34d399;font-weight:700;">DPMA: 14% | EUIPO: 19% (LOW)</span>
+                  </div>
+                  <div style="font-size:11px;color:#9ca3af;margin-top:2px;">Conflicts: None detected — <em>Clear in DPMA & EUIPO.</em></div>
+                </div>
+                
+                <div style="background:#0f172a;padding:8px 12px;border-radius:6px;border-left:3px solid #34d399;margin-top:6px;">
+                  <div style="display:flex;justify-content:space-between;font-size:12px;">
+                    <strong style="color:#f3f4f6;">Class 42 — SaaS & AI Workflow Engine</strong>
+                    <span style="color:#34d399;font-weight:700;">DPMA: 11% | EUIPO: 15% (LOW)</span>
+                  </div>
+                  <div style="font-size:11px;color:#9ca3af;margin-top:2px;">Conflicts: None detected — <em>16/16 surfaces available! Best launch candidate (€139.80 total TLD lock cost).</em></div>
+                </div>
+                
+              </div>
+            </div>
+            
+            <div style="background:#1e293b;border:1px solid #334155;border-radius:12px;padding:18px;margin-bottom:18px;">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
+                <div>
+                  <h3 style="margin:0;color:#f8fafc;font-size:17px;">NexusPulse AI (New Q4 SaaS Spin-Off Candidate #2 — High Collision) <span style="color:#38bdf8;font-family:monospace;">(@nexuspulse)</span></h3>
+                  <div style="font-size:12px;color:#94a3b8;margin-top:3px;">Verdict: <strong style="color:#f87171;">HIGH COLLISION RISK — Rebrand or file Nice Class opposition</strong></div>
+                </div>
+                <div style="text-align:right;">
+                  <div style="font-size:24px;font-weight:800;color:#f87171;">29.6 / 100</div>
+                  <div style="font-size:11px;color:#94a3b8;">Social Ready: 5/12 · Domains Ready: 1/4</div>
+                </div>
+              </div>
+              <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px;margin-bottom:12px;">
+                
+                <div title="Held by inactive 2019 fitness page" style="background:#374151;border:1px solid #d1d5db44;padding:8px 10px;border-radius:8px;">
+                  <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <span style="font-weight:700;font-size:12px;color:#f9fafb;">Instagram</span>
+                    <span style="font-size:10px;font-weight:800;color:#d1d5db;">TAKEN · €1,800</span>
+                  </div>
+                  <div style="font-size:11px;color:#d1d5db;font-family:monospace;margin-top:2px;">@nexuspulse</div>
+                </div>
+                
+                <div title="Registered by gaming clip account" style="background:#374151;border:1px solid #d1d5db44;padding:8px 10px;border-radius:8px;">
+                  <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <span style="font-weight:700;font-size:12px;color:#f9fafb;">TikTok</span>
+                    <span style="font-size:10px;font-weight:800;color:#d1d5db;">TAKEN · €950</span>
+                  </div>
+                  <div style="font-size:11px;color:#d1d5db;font-family:monospace;margin-top:2px;">@nexuspulse</div>
+                </div>
+                
+                <div title="Available" style="background:#1e3a8a;border:1px solid #93c5fd44;padding:8px 10px;border-radius:8px;">
+                  <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <span style="font-weight:700;font-size:12px;color:#f9fafb;">YouTube</span>
+                    <span style="font-size:10px;font-weight:800;color:#93c5fd;">AVAILABLE</span>
+                  </div>
+                  <div style="font-size:11px;color:#d1d5db;font-family:monospace;margin-top:2px;">@nexuspulse</div>
+                </div>
+                
+                <div title="Held by crypto trader since 2021" style="background:#374151;border:1px solid #d1d5db44;padding:8px 10px;border-radius:8px;">
+                  <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <span style="font-weight:700;font-size:12px;color:#f9fafb;">X (Twitter)</span>
+                    <span style="font-size:10px;font-weight:800;color:#d1d5db;">TAKEN · €2,500</span>
+                  </div>
+                  <div style="font-size:11px;color:#d1d5db;font-family:monospace;margin-top:2px;">@nexuspulse</div>
+                </div>
+                
+                <div title="Available" style="background:#1e3a8a;border:1px solid #93c5fd44;padding:8px 10px;border-radius:8px;">
+                  <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <span style="font-weight:700;font-size:12px;color:#f9fafb;">LinkedIn</span>
+                    <span style="font-size:10px;font-weight:800;color:#93c5fd;">AVAILABLE</span>
+                  </div>
+                  <div style="font-size:11px;color:#d1d5db;font-family:monospace;margin-top:2px;">@nexuspulse</div>
+                </div>
+                
+                <div title="Taken by open-source repo" style="background:#374151;border:1px solid #d1d5db44;padding:8px 10px;border-radius:8px;">
+                  <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <span style="font-weight:700;font-size:12px;color:#f9fafb;">GitHub</span>
+                    <span style="font-size:10px;font-weight:800;color:#d1d5db;">TAKEN</span>
+                  </div>
+                  <div style="font-size:11px;color:#d1d5db;font-family:monospace;margin-top:2px;">@nexuspulse</div>
+                </div>
+                
+                <div title="Available" style="background:#1e3a8a;border:1px solid #93c5fd44;padding:8px 10px;border-radius:8px;">
+                  <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <span style="font-weight:700;font-size:12px;color:#f9fafb;">Reddit</span>
+                    <span style="font-size:10px;font-weight:800;color:#93c5fd;">AVAILABLE</span>
+                  </div>
+                  <div style="font-size:11px;color:#d1d5db;font-family:monospace;margin-top:2px;">@nexuspulse</div>
+                </div>
+                
+                <div title="Bound to Instagram holder" style="background:#374151;border:1px solid #d1d5db44;padding:8px 10px;border-radius:8px;">
+                  <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <span style="font-weight:700;font-size:12px;color:#f9fafb;">Threads</span>
+                    <span style="font-size:10px;font-weight:800;color:#d1d5db;">TAKEN</span>
+                  </div>
+                  <div style="font-size:11px;color:#d1d5db;font-family:monospace;margin-top:2px;">@nexuspulse</div>
+                </div>
+                
+                <div title="Inactive streamer" style="background:#374151;border:1px solid #d1d5db44;padding:8px 10px;border-radius:8px;">
+                  <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <span style="font-weight:700;font-size:12px;color:#f9fafb;">Twitch</span>
+                    <span style="font-size:10px;font-weight:800;color:#d1d5db;">TAKEN</span>
+                  </div>
+                  <div style="font-size:11px;color:#d1d5db;font-family:monospace;margin-top:2px;">@nexuspulse</div>
+                </div>
+                
+                <div title="Available" style="background:#1e3a8a;border:1px solid #93c5fd44;padding:8px 10px;border-radius:8px;">
+                  <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <span style="font-weight:700;font-size:12px;color:#f9fafb;">Whop</span>
+                    <span style="font-size:10px;font-weight:800;color:#93c5fd;">AVAILABLE</span>
+                  </div>
+                  <div style="font-size:11px;color:#d1d5db;font-family:monospace;margin-top:2px;">@nexuspulse</div>
+                </div>
+                
+                <div title="Handle broker squatting @nexuspulse" style="background:#7f1d1d;border:1px solid #fca5a544;padding:8px 10px;border-radius:8px;">
+                  <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <span style="font-weight:700;font-size:12px;color:#f9fafb;">Telegram</span>
+                    <span style="font-size:10px;font-weight:800;color:#fca5a5;">SQUATTED · €600</span>
+                  </div>
+                  <div style="font-size:11px;color:#d1d5db;font-family:monospace;margin-top:2px;">@nexuspulse</div>
+                </div>
+                
+                <div title="Available" style="background:#1e3a8a;border:1px solid #93c5fd44;padding:8px 10px;border-radius:8px;">
+                  <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <span style="font-weight:700;font-size:12px;color:#f9fafb;">Discord</span>
+                    <span style="font-size:10px;font-weight:800;color:#93c5fd;">AVAILABLE</span>
+                  </div>
+                  <div style="font-size:11px;color:#d1d5db;font-family:monospace;margin-top:2px;">@nexuspulse</div>
+                </div>
+                
+                <div title="Available" style="background:#1e3a8a;border:1px solid #93c5fd44;padding:8px 10px;border-radius:8px;">
+                  <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <span style="font-weight:700;font-size:12px;color:#f9fafb;">.de Domain</span>
+                    <span style="font-size:10px;font-weight:800;color:#93c5fd;">AVAILABLE · €10</span>
+                  </div>
+                  <div style="font-size:11px;color:#d1d5db;font-family:monospace;margin-top:2px;">nexuspulse.de</div>
+                </div>
+                
+                <div title="Sedo aftermarket broker listing ($5,200)" style="background:#78350f;border:1px solid #fcd34d44;padding:8px 10px;border-radius:8px;">
+                  <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <span style="font-weight:700;font-size:12px;color:#f9fafb;">.com Domain</span>
+                    <span style="font-size:10px;font-weight:800;color:#fcd34d;">BROKER €€ · €4,850</span>
+                  </div>
+                  <div style="font-size:11px;color:#d1d5db;font-family:monospace;margin-top:2px;">nexuspulse.com</div>
+                </div>
+                
+                <div title="Registered via GoDaddy" style="background:#374151;border:1px solid #d1d5db44;padding:8px 10px;border-radius:8px;">
+                  <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <span style="font-weight:700;font-size:12px;color:#f9fafb;">.io Domain</span>
+                    <span style="font-size:10px;font-weight:800;color:#d1d5db;">TAKEN · €1,900</span>
+                  </div>
+                  <div style="font-size:11px;color:#d1d5db;font-family:monospace;margin-top:2px;">nexuspulse.io</div>
+                </div>
+                
+                <div title="Afternic premium listing" style="background:#78350f;border:1px solid #fcd34d44;padding:8px 10px;border-radius:8px;">
+                  <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <span style="font-weight:700;font-size:12px;color:#f9fafb;">.ai Domain</span>
+                    <span style="font-size:10px;font-weight:800;color:#fcd34d;">BROKER €€ · €3,200</span>
+                  </div>
+                  <div style="font-size:11px;color:#d1d5db;font-family:monospace;margin-top:2px;">nexuspulse.ai</div>
+                </div>
+                
+              </div>
+              <div style="margin-top:10px;">
+                <div style="font-size:12px;font-weight:700;color:#cbd5e1;text-transform:uppercase;letter-spacing:0.05em;">DPMA & EUIPO Nice Class 9 / 35 / 42 Collision Check</div>
+                
+                <div style="background:#0f172a;padding:8px 12px;border-radius:6px;border-left:3px solid #f87171;margin-top:6px;">
+                  <div style="display:flex;justify-content:space-between;font-size:12px;">
+                    <strong style="color:#f3f4f6;">Class 9 — Downloadable Software & Electronics</strong>
+                    <span style="color:#f87171;font-weight:700;">DPMA: 78% | EUIPO: 84% (HIGH)</span>
+                  </div>
+                  <div style="font-size:11px;color:#9ca3af;margin-top:2px;">Conflicts: NEXUS PULSE SYSTEMS (EUTM-018492011), NEXUS (DE-30201900412) — <em>Severe opposition risk in Class 9; avoid launching under this mark.</em></div>
+                </div>
+                
+                <div style="background:#0f172a;padding:8px 12px;border-radius:6px;border-left:3px solid #f87171;margin-top:6px;">
+                  <div style="display:flex;justify-content:space-between;font-size:12px;">
+                    <strong style="color:#f3f4f6;">Class 35 — Advertising & Business Management</strong>
+                    <span style="color:#f87171;font-weight:700;">DPMA: 64% | EUIPO: 71% (HIGH)</span>
+                  </div>
+                  <div style="font-size:11px;color:#9ca3af;margin-top:2px;">Conflicts: PULSE NEXUS MEDIA GmbH (HRB 219402) — <em>Existing DACH agency holds prior commercial designation rights (§ 5 MarkenG).</em></div>
+                </div>
+                
+                <div style="background:#0f172a;padding:8px 12px;border-radius:6px;border-left:3px solid #f87171;margin-top:6px;">
+                  <div style="display:flex;justify-content:space-between;font-size:12px;">
+                    <strong style="color:#f3f4f6;">Class 42 — SaaS & Cloud Computing</strong>
+                    <span style="color:#f87171;font-weight:700;">DPMA: 74% | EUIPO: 81% (HIGH)</span>
+                  </div>
+                  <div style="font-size:11px;color:#9ca3af;margin-top:2px;">Conflicts: NEXUSPULSE CLOUD (EUTM-018819204) — <em>DO NOT LAUNCH — €15,800+ aftermarket buyout + acute EUIPO opposition risk.</em></div>
+                </div>
+                
+              </div>
+            </div>
+            
+  </div>
+
+  <script>
+    function toggleDsaModal(id) {
+      var row = document.getElementById(id);
+      if (!row) return;
+      row.style.display = (row.style.display === 'none' || row.style.display === '') ? 'table-row' : 'none';
+    }
+    function copyPayload(preId) {
+      var el = document.getElementById(preId);
+      if (!el) return;
+      navigator.clipboard.writeText(el.innerText);
+      alert('Copied EU DSA Art. 16 Takedown Payload to clipboard!');
+    }
+    function filterClones(sev) {
+      var rows = document.querySelectorAll('.clone-row');
+      rows.forEach(function(r) {
+        if (sev === 'ALL' || r.getAttribute('data-severity') === sev) {
+          r.style.display = 'table-row';
+        } else {
+          r.style.display = 'none';
+        }
+      });
+    }
+  </script>
+</body>
+</html>

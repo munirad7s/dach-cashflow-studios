@@ -1,0 +1,1351 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>PrüfungsBlick — DACH Lock-Screen Exam Widget &amp; Offline PWA (MVP #23)</title>
+<meta name="description" content="Bestehe BAMF Einbürgerungstest, FLL-Baumkontrolleur & IHK § 34a mit jedem Blick auf deinen Sperrbildschirm. 100% Offline SM-2 Spaced Repetition.">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="PrüfungsBlick">
+<meta name="theme-color" content="#090d16">
+<style>
+  :root {
+    --bg: #090d16;
+    --panel: #111827;
+    --panel-border: rgba(255, 255, 255, 0.11);
+    --text: #f8fafc;
+    --muted: #94a3b8;
+    --accent: #3b82f6;
+    --emerald: #10b981;
+    --amber: #f59e0b;
+    --rose: #f43f5e;
+    --glass: rgba(24, 32, 50, 0.72);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
+    background: radial-gradient(circle at 20% 0%, #1e293b 0%, #090d16 65%);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 24px 16px 64px;
+    line-height: 1.45;
+  }
+  .container {
+    max-width: 1240px;
+    margin: 0 auto;
+  }
+  header {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    padding-bottom: 22px;
+    border-bottom: 1px solid var(--panel-border);
+    margin-bottom: 26px;
+  }
+  .brand-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #38bdf8;
+    background: rgba(56, 189, 248, 0.12);
+    border: 1px solid rgba(56, 189, 248, 0.3);
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 8px;
+  }
+  h1 {
+    font-size: clamp(22px, 3vw, 32px);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+  .subtitle {
+    color: var(--muted);
+    font-size: 14px;
+    max-width: 680px;
+    margin-top: 4px;
+  }
+  .kpi-row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .kpi-pill {
+    background: var(--panel);
+    border: 1px solid var(--panel-border);
+    border-radius: 12px;
+    padding: 10px 14px;
+    min-width: 145px;
+  }
+  .kpi-pill .val {
+    font-size: 18px;
+    font-weight: 800;
+    color: #fff;
+  }
+  .kpi-pill .lbl {
+    font-size: 11px;
+    color: var(--muted);
+  }
+  .main-grid {
+    display: grid;
+    grid-template-columns: 390px 1fr;
+    gap: 28px;
+    align-items: start;
+  }
+  @media (max-width: 920px) {
+    .main-grid { grid-template-columns: 1fr; }
+  }
+  /* iPhone 16 Pro Lock Screen Frame */
+  .iphone-frame {
+    width: 375px;
+    margin: 0 auto;
+    background: linear-gradient(165deg, #0f172a 0%, #1e1b4b 48%, #090d16 100%);
+    border-radius: 52px;
+    border: 8px solid #273244;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.65), inset 0 0 0 2px rgba(255,255,255,0.08);
+    padding: 18px 20px 28px;
+    position: relative;
+    overflow: hidden;
+  }
+  .dynamic-island {
+    width: 116px;
+    height: 30px;
+    background: #000;
+    border-radius: 999px;
+    margin: 0 auto 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 12px;
+    font-size: 10px;
+    color: #64748b;
+  }
+  /* accessoryInline above clock */
+  .accessory-inline {
+    text-align: center;
+    font-size: 12px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.86);
+    letter-spacing: 0.01em;
+    margin-bottom: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .lock-clock {
+    text-align: center;
+    font-size: 68px;
+    font-weight: 800;
+    line-height: 1.0;
+    letter-spacing: -0.03em;
+    color: rgba(255, 255, 255, 0.94);
+    margin-bottom: 16px;
+    font-variant-numeric: tabular-nums;
+  }
+  /* Lock Screen Widget Shelf (Circular + Rectangular) */
+  .widget-shelf {
+    display: grid;
+    grid-template-columns: 76px 1fr;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .accessory-circular {
+    width: 76px;
+    height: 76px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(16px);
+    border: 1.5px solid rgba(255, 255, 255, 0.22);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+  .circular-pct {
+    font-size: 17px;
+    font-weight: 800;
+  }
+  .circular-sub {
+    font-size: 10px;
+    color: rgba(255,255,255,0.75);
+    font-family: ui-monospace, SFMono-Regular, monospace;
+  }
+  .accessory-rectangular {
+    background: rgba(255, 255, 255, 0.13);
+    backdrop-filter: blur(18px);
+    border: 1.5px solid rgba(255, 255, 255, 0.24);
+    border-radius: 18px;
+    padding: 9px 12px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 76px;
+  }
+  .rect-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: ui-monospace, SFMono-Regular, monospace;
+    font-size: 10px;
+    font-weight: 700;
+    color: #93c5fd;
+  }
+  .rect-main {
+    font-size: 12px;
+    font-weight: 700;
+    color: #fff;
+    margin: 3px 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .rect-actions {
+    display: flex;
+    gap: 6px;
+  }
+  .mini-intent-btn {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.16);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    color: #fff;
+    border-radius: 6px;
+    padding: 2px 4px;
+    font-size: 10px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.1s, background 0.15s;
+  }
+  .mini-intent-btn:hover {
+    background: rgba(255, 255, 255, 0.28);
+  }
+  /* Home Screen systemMedium Interactive Card inside simulator */
+  .system-medium-widget {
+    background: rgba(15, 23, 42, 0.88);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 22px;
+    padding: 14px;
+    margin-bottom: 14px;
+  }
+  .sm-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  .sm-badge {
+    font-family: ui-monospace, SFMono-Regular, monospace;
+    font-size: 11px;
+    font-weight: 800;
+    padding: 3px 8px;
+    border-radius: 999px;
+    background: rgba(59, 130, 246, 0.22);
+    color: #93c5fd;
+  }
+  .sm-weight {
+    font-size: 10px;
+    color: #fbbf24;
+    font-weight: 700;
+  }
+  .sm-question {
+    font-size: 15px;
+    font-weight: 800;
+    margin-bottom: 6px;
+    color: #fff;
+  }
+  .sm-answer {
+    font-size: 13px;
+    color: #cbd5e1;
+    background: rgba(255, 255, 255, 0.06);
+    border-left: 3px solid var(--emerald);
+    padding: 8px 10px;
+    border-radius: 8px;
+    margin-bottom: 8px;
+  }
+  .sm-helper {
+    font-size: 12px;
+    color: #38bdf8;
+    margin-bottom: 10px;
+  }
+  .sm-btn-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+  }
+  .grade-btn {
+    border: none;
+    border-radius: 8px;
+    padding: 7px 4px;
+    font-size: 11px;
+    font-weight: 800;
+    color: #fff;
+    cursor: pointer;
+  }
+  .grade-again { background: #e11d48; }
+  .grade-hard { background: #d97706; }
+  .grade-good { background: #2563eb; }
+  .grade-easy { background: #059669; }
+  .lock-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 12px 0;
+    color: rgba(255,255,255,0.65);
+    font-size: 11px;
+  }
+  /* Right Column Controls */
+  .card-panel {
+    background: var(--panel);
+    border: 1px solid var(--panel-border);
+    border-radius: 18px;
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+  .panel-title {
+    font-size: 16px;
+    font-weight: 800;
+    margin-bottom: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .deck-tabs {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  @media (max-width: 640px) {
+    .deck-tabs { grid-template-columns: 1fr; }
+  }
+  .deck-tab {
+    background: rgba(255,255,255,0.04);
+    border: 1.5px solid var(--panel-border);
+    border-radius: 12px;
+    padding: 12px;
+    color: var(--text);
+    text-align: left;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .deck-tab.active {
+    border-color: #38bdf8;
+    background: rgba(56, 189, 248, 0.12);
+  }
+  .deck-tab .d-title {
+    font-size: 13px;
+    font-weight: 800;
+    margin-bottom: 3px;
+  }
+  .deck-tab .d-meta {
+    font-size: 11px;
+    color: var(--muted);
+  }
+  .controls-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 14px;
+  }
+  select, input[type="number"], .action-btn {
+    background: #1e293b;
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.18);
+    border-radius: 10px;
+    padding: 8px 12px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .action-btn {
+    cursor: pointer;
+    background: linear-gradient(135deg, #2563eb, #0ea5e9);
+    border: none;
+    font-weight: 700;
+  }
+  .action-btn.secondary {
+    background: #334155;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+  th, td {
+    text-align: left;
+    padding: 8px 10px;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+  }
+  th {
+    color: var(--muted);
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 10px;
+    letter-spacing: 0.05em;
+  }
+  .pill-ef {
+    font-family: ui-monospace, SFMono-Regular, monospace;
+    padding: 2px 6px;
+    border-radius: 6px;
+    background: rgba(16, 185, 129, 0.16);
+    color: #34d399;
+    font-weight: 700;
+  }
+  canvas#wallpaperCanvas {
+    display: none;
+  }
+</style>
+</head>
+<body>
+
+<!-- DACH CASHFLOW STUDIOS LAUNCH BAR -->
+<style>
+  #dcs-launch-bar {
+    position: sticky;
+    top: 0;
+    z-index: 99999;
+    background: linear-gradient(90deg, #0b1120 0%, #111827 50%, #0f172a 100%);
+    color: #f8fafc;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.35);
+    padding: 8px 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  }
+  #dcs-launch-bar .dcs-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+  }
+  #dcs-launch-bar .dcs-badge {
+    background: rgba(16, 185, 129, 0.18);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.03em;
+  }
+  #dcs-launch-bar a.dcs-nav {
+    color: #93c5fd;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 12.5px;
+  }
+  #dcs-launch-bar a.dcs-nav:hover {
+    text-decoration: underline;
+    color: #dbeafe;
+  }
+  #dcs-launch-bar .dcs-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  #dcs-launch-bar .dcs-btn {
+    padding: 5px 11px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s ease;
+  }
+  #dcs-launch-bar .dcs-btn-ghost {
+    background: rgba(255,255,255,0.08);
+    color: #e2e8f0;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  #dcs-launch-bar .dcs-btn-primary {
+    background: linear-gradient(135deg, #0ea5e9, #2563eb);
+    color: #ffffff;
+  }
+  #dcs-launch-bar .dcs-btn-emerald {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
+  }
+  @media print {
+    #dcs-launch-bar { display: none !important; }
+  }
+</style>
+<div id="dcs-launch-bar">
+  <div class="dcs-left">
+    <a href="/index.html" class="dcs-nav">← Alle 150 DACH Studios</a>
+    <span class="dcs-badge">MVP #023 VERIFIED</span>
+    <span style="color:#cbd5e1;font-size:12px;">B2B SaaS, Lead-Intent Sniper & AI/MCP Infrastructure</span>
+  </div>
+  <div class="dcs-actions">
+    <button onclick="window.print()" class="dcs-btn dcs-btn-ghost">🖨️ PDF / Dossier drucken</button>
+    <a href="#checkout-modal-49" target="_blank" rel="noopener" class="dcs-btn dcs-btn-primary">⚡ Musterschreiben & Voll-Dossier (€49)</a>
+    <a href="#checkout-modal-299" target="_blank" rel="noopener" class="dcs-btn dcs-btn-emerald">🛡️ B2B Umsetzung buchen (€299 / €1.490)</a>
+  </div>
+</div>
+
+<div class="container">
+  <header>
+    <div>
+      <div class="brand-badge">🔒 MVP #23 • Zero-Server Lock-Screen Micro-Learning</div>
+      <h1>PrüfungsBlick — DACH Lock-Screen Exam Widget</h1>
+      <p class="subtitle">
+        Adaptiert das <strong>100,0 % Margin</strong> Modell von <code>japanese-education-app</code> ($15.682/30d, 1.337 Abos) &amp;
+        <code>Déclic</code> (CA$9.99 One-Time Unlock) für 3 hochpreisige DACH-Pflichtprüfungen: BAMF Einbürgerung, FLL-Baumkontrolle &amp; IHK § 34a.
+      </p>
+    </div>
+    <div class="kpi-row">
+      <div class="kpi-pill">
+        <div class="val">0,00 €</div>
+        <div class="lbl">Server-/LLM-Kosten (100% lokal)</div>
+      </div>
+      <div class="kpi-pill">
+        <div class="val" id="kpiGlances">65× / Tag</div>
+        <div class="lbl">Ø Sperrbildschirm-Blicke</div>
+      </div>
+      <div class="kpi-pill">
+        <div class="val" id="kpiMastery">0%</div>
+        <div class="lbl">SM-2 Deck-Mastery</div>
+      </div>
+    </div>
+  </header>
+
+  <div class="main-grid">
+    <!-- Left Column: Live iPhone 16 Pro Lock Screen Widget Simulator -->
+    <div>
+      <div class="iphone-frame" aria-label="iPhone Lock Screen Simulator">
+        <div class="dynamic-island">
+          <span>🔒 Offline</span>
+          <span>5G • 98%</span>
+        </div>
+
+        <div class="accessory-inline" id="uiInlineTicker">§34a: §127 StPO = Frische Tat • T-14d</div>
+        <div class="lock-clock" id="uiLockClock">09:41</div>
+
+        <!-- iOS Lock Screen Widget Shelf (accessoryCircular + accessoryRectangular) -->
+        <div class="widget-shelf">
+          <div class="accessory-circular" title="WidgetKit .accessoryCircular">
+            <div class="circular-pct" id="uiCircularPct">0%</div>
+            <div class="circular-sub" id="uiCircularDays">T-14d</div>
+          </div>
+
+          <div class="accessory-rectangular" title="WidgetKit .accessoryRectangular (iOS 17 Interactive AppIntent)">
+            <div class="rect-top">
+              <span id="uiRectBadge">§ 127 StPO</span>
+              <span id="uiRectMeta">EF 2.50</span>
+            </div>
+            <div class="rect-main" id="uiRectText">Wann erlaubt § 127 Abs. 1 StPO die Festnahme?</div>
+            <div class="rect-actions">
+              <button class="mini-intent-btn" onclick="toggleReveal()">🔄 Lösung</button>
+              <button class="mini-intent-btn" onclick="gradeCurrentCard(1)">✗ Nochmal</button>
+              <button class="mini-intent-btn" onclick="gradeCurrentCard(5)">✓ Sitzt</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Home Screen / Today View systemMedium Interactive Card -->
+        <div class="system-medium-widget">
+          <div class="sm-header">
+            <span class="sm-badge" id="uiMedBadge">§ 127 StPO</span>
+            <span class="sm-weight" id="uiMedWeight">Sperrfach / Kritisch</span>
+          </div>
+          <div class="sm-question" id="uiMedQuestion">Wann erlaubt § 127 Abs. 1 StPO die Festnahme?</div>
+          <div class="sm-answer" id="uiMedAnswer">
+            Auf frischer Tat betroffen/verfolgt + Fluchtverdacht oder Identität nicht sofort feststellbar.
+          </div>
+          <div class="sm-helper" id="uiMedHelper">💡 Frische Tat + (Flucht ODER kein Ausweis) = Jedermann-Festnahme.</div>
+          <div class="sm-btn-row">
+            <button class="grade-btn grade-again" onclick="gradeCurrentCard(1)">Nochmal (1d)</button>
+            <button class="grade-btn grade-hard" onclick="gradeCurrentCard(3)">Schwer (3d)</button>
+            <button class="grade-btn grade-good" onclick="gradeCurrentCard(4)">Gut (6d)</button>
+            <button class="grade-btn grade-easy" onclick="gradeCurrentCard(5)">Einfach (10d+)</button>
+          </div>
+        </div>
+
+        <div class="lock-footer">
+          <span>🔦 Taschenlampe</span>
+          <span>WidgetKit + AppIntent</span>
+          <span>📷 Kamera</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column: Deck Selector, Language Decoder, Wallpaper Export & SM-2 Queue -->
+    <div>
+      <div class="card-panel">
+        <div class="panel-title">
+          <span>1. Wähle dein DACH-Prüfungspaket (3 High-Stakes Nischen)</span>
+          <span style="font-size:12px;color:var(--muted);">24 Kuratierte Micro-Cards</span>
+        </div>
+        <div class="deck-tabs" id="deckTabs"></div>
+
+        <div class="controls-bar">
+          <label style="font-size:12px;color:var(--muted);">Hilfssprache / Decoder:</label>
+          <select id="langSelect" onchange="renderCurrentCard()">
+            <option value="de">🇩🇪 Nur Deutsch + Eselsbrücke</option>
+            <option value="tr">🇹🇷 Deutsch + Türkçe (TR)</option>
+            <option value="ar">🇸🇦 Deutsch + العربية (AR)</option>
+            <option value="en">🇬🇧 Deutsch + English (EN)</option>
+          </select>
+
+          <label style="font-size:12px;color:var(--muted);">Prüfung in (Tagen):</label>
+          <input type="number" id="examDaysInput" value="14" min="1" max="365" style="width:74px;" onchange="renderCurrentCard()">
+
+          <button class="action-btn" onclick="downloadLockScreenWallpaper()">📱 Sperrbildschirm-Wallpaper (PNG)</button>
+          <button class="action-btn secondary" onclick="nextCardManual()">⏭️ Nächste Karte</button>
+        </div>
+      </div>
+
+      <div class="card-panel">
+        <div class="panel-title">
+          <span>2. SM-2 Spaced-Repetition Queue &amp; Lock-Screen Rotations-Status</span>
+          <span style="font-size:12px;color:#34d399;" id="queueStatusLabel">Alle Daten 100% lokal (localStorage / AppGroup)</span>
+        </div>
+        <div style="overflow-x:auto;">
+          <table>
+            <thead>
+              <tr>
+                <th>Badge</th>
+                <th>Sperrbildschirm-Frage</th>
+                <th>Hilfssprache / Eselsbrücke</th>
+                <th>SM-2 EF</th>
+                <th>Intervall</th>
+              </tr>
+            </thead>
+            <tbody id="cardsTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<canvas id="wallpaperCanvas" width="1179" height="2556"></canvas>
+
+<script>
+const DECKS = {
+  "bamf_einbuergerung": {
+    "id": "bamf_einbuergerung",
+    "title": "Einbürgerungstest / Leben in Deutschland (BAMF)",
+    "short_title": "BAMF Einbürgerung",
+    "icon": "🏛️",
+    "accent_hex": "#f59e0b",
+    "exam_authority": "BAMF (Bundesamt für Migration und Flüchtlinge)",
+    "exam_format": "33 Multiple-Choice-Fragen (30 Bundesfragen + 3 Landesfragen), 60 Min., ≥17 richtig zum Bestehen",
+    "annual_candidates_dach": 220000,
+    "recommended_pricing": {
+      "app_store_one_time_eur": 9.99,
+      "monthly_sub_eur": 3.99,
+      "free_trial_days": 3
+    },
+    "target_exam_days_default": 21
+  },
+  "fll_baumkontrolleur": {
+    "id": "fll_baumkontrolleur",
+    "title": "FLL-Zertifizierter Baumkontrolleur (Botanik, Pilze & VTA)",
+    "short_title": "FLL Baumkontrolle",
+    "icon": "🌳",
+    "accent_hex": "#10b981",
+    "exam_authority": "FLL / Forschungsgesellschaft Landschaftsentwicklung Landschaftsbau e.V.",
+    "exam_format": "Schriftlich + Praktisch/Mündlich am Baum (VTA, Pilzansprache, ZTV-Baumpflege, § 823 BGB)",
+    "annual_candidates_dach": 6500,
+    "recommended_pricing": {
+      "app_store_one_time_eur": 29.99,
+      "monthly_sub_eur": 9.99,
+      "free_trial_days": 3
+    },
+    "target_exam_days_default": 30
+  },
+  "ihk_34a_sachkunde": {
+    "id": "ihk_34a_sachkunde",
+    "title": "IHK § 34a Sachkundeprüfung (Rechtsbegriffe DE/TR/AR)",
+    "short_title": "IHK § 34a Recht",
+    "icon": "🛡️",
+    "accent_hex": "#3b82f6",
+    "exam_authority": "DIHK / Industrie- und Handelskammer (IHK)",
+    "exam_format": "82 Fragen schriftlich (120 Min., ≥50%) + 15 Min. Mündliche Prüfung (Recht & Deeskalation Sperrfach)",
+    "annual_candidates_dach": 48000,
+    "recommended_pricing": {
+      "app_store_one_time_eur": 14.99,
+      "monthly_sub_eur": 4.99,
+      "free_trial_days": 3
+    },
+    "target_exam_days_default": 14
+  }
+};
+const CARDS = [
+  {
+    "id": "bamf_01",
+    "deck_id": "bamf_einbuergerung",
+    "category": "Grundrechte",
+    "badge": "GG Art. 1",
+    "inline_ticker": "BAMF: Art. 1 GG = Menschenwürde",
+    "front_headline": "Was schützt Artikel 1 des Grundgesetzes?",
+    "back_answer": "Die Würde des Menschen ist unantastbar (Ewigkeitsklausel Art. 79 Abs. 3 GG).",
+    "mnemonic_de": "Nr. 1 im Staat = Würde des Menschen.",
+    "translations": {
+      "tr": "İnsan onuru dokunulmazdır (Temel Yasa Madde 1).",
+      "ar": "كرامة الإنسان مصونة ولا يجوز المساس بها (المادة 1).",
+      "en": "Human dignity shall be inviolable (Basic Law Art. 1)."
+    },
+    "exam_weight": "Basiswissen (100% Prüfungsrelevanz)",
+    "difficulty_base": 2.6
+  },
+  {
+    "id": "bamf_02",
+    "deck_id": "bamf_einbuergerung",
+    "category": "Wahlsystem",
+    "badge": "Bundestag",
+    "inline_ticker": "BAMF: Zweitstimme = Parteistimme",
+    "front_headline": "Was entscheidet die Zweitstimme bei der Wahl?",
+    "back_answer": "Die Sitzverteilung der Parteien im Deutschen Bundestag (Erststimme = Direktkandidat).",
+    "mnemonic_de": "Zweitstimme = Zählt für Sitzprozente der Partei!",
+    "translations": {
+      "tr": "İkinci oy (Zweitstimme) partilerin Meclis'teki koltuk oranını belirler.",
+      "ar": "الصوت الثاني يحدد نسبة مقاعد الأحزاب في البرلمان الاتحادي.",
+      "en": "The second vote determines party seat share in the Bundestag."
+    },
+    "exam_weight": "Prüfungsfalle",
+    "difficulty_base": 2.2
+  },
+  {
+    "id": "bamf_03",
+    "deck_id": "bamf_einbuergerung",
+    "category": "Verfassungsorgane",
+    "badge": "Bundesrat",
+    "inline_ticker": "BAMF: Bundesrat = 16 Bundesländer",
+    "front_headline": "Wer wird im Bundesrat vertreten?",
+    "back_answer": "Die Regierungen der 16 Bundesländer (wirken bei Bundesgesetzen mit, Föderalismus).",
+    "mnemonic_de": "BundesRAT = LandesRegierungen am Tisch.",
+    "translations": {
+      "tr": "Bundesrat, 16 eyalet hükümetini federal düzeyde temsil eder.",
+      "ar": "المجلس الاتحادي (Bundesrat) يمثل حكومات الولايات الـ 16.",
+      "en": "The Bundesrat represents the governments of the 16 federal states."
+    },
+    "exam_weight": "Prüfungsfalle",
+    "difficulty_base": 2.3
+  },
+  {
+    "id": "bamf_04",
+    "deck_id": "bamf_einbuergerung",
+    "category": "Gewaltenteilung",
+    "badge": "Art. 20 GG",
+    "inline_ticker": "BAMF: Judikative = Gerichte",
+    "front_headline": "Welche 3 Gewalten teilt der Rechtsstaat?",
+    "back_answer": "Legislative (Gesetzgebung), Exekutive (Regierung/Polizei), Judikative (Gerichte).",
+    "mnemonic_de": "L-E-J: Gesetz machen, ausführen, richten.",
+    "translations": {
+      "tr": "Yasama (Meclis), Yürütme (Hükümet/Polis), Yargı (Mahkemeler).",
+      "ar": "السلطة التشريعية، التنفيذية، والقضائية (المحاكم).",
+      "en": "Legislature (laws), Executive (government/police), Judiciary (courts)."
+    },
+    "exam_weight": "Sperrfach / Kritisch",
+    "difficulty_base": 2.5
+  },
+  {
+    "id": "bamf_05",
+    "deck_id": "bamf_einbuergerung",
+    "category": "Wahlrecht",
+    "badge": "5%-Hürde",
+    "inline_ticker": "BAMF: Sperrklausel = 5% Zweitstimmen",
+    "front_headline": "Was bedeutet die 5%-Hürde bei Bundestagswahlen?",
+    "back_answer": "Eine Partei braucht mind. 5% der Zweitstimmen (oder 3 Direktmandate) für den Einzug.",
+    "mnemonic_de": "5 Finger einer Hand = Mindestanteil im Parlament.",
+    "translations": {
+      "tr": "%5 seçim barajı: Meclise girmek için en az %5 ikinci oy gerekir.",
+      "ar": "عتبة الـ 5%: يحتاج الحزب إلى 5% من الأصوات الثانية لدخول البرلمان.",
+      "en": "5% threshold: Minimum second-vote share required to enter Bundestag."
+    },
+    "exam_weight": "Basiswissen",
+    "difficulty_base": 2.5
+  },
+  {
+    "id": "bamf_06",
+    "deck_id": "bamf_einbuergerung",
+    "category": "Staatsoberhaupt",
+    "badge": "Bundespräs.",
+    "inline_ticker": "BAMF: Bundesversammlung wählt Präs.",
+    "front_headline": "Wer wählt den Bundespräsidenten in Deutschland?",
+    "back_answer": "Die Bundesversammlung (alle Bundestagsabgeordneten + gleich viele Ländervertreter) auf 5 Jahre.",
+    "mnemonic_de": "Nicht das Volk direkt, sondern die Bundesversammlung!",
+    "translations": {
+      "tr": "Cumhurbaşkanını Federal Meclis değil, Bundesversammlung (5 yıllığına) seçer.",
+      "ar": "ينتخب الجمعية الاتحادية (Bundesversammlung) الرئيس الاتحادي لمدة 5 سنوات.",
+      "en": "The Federal Convention (Bundesversammlung) elects the President for 5 years."
+    },
+    "exam_weight": "Prüfungsfalle",
+    "difficulty_base": 2.1
+  },
+  {
+    "id": "bamf_07",
+    "deck_id": "bamf_einbuergerung",
+    "category": "Misstrauensvotum",
+    "badge": "Art. 67 GG",
+    "inline_ticker": "BAMF: Konstruktives Misstrauensvotum",
+    "front_headline": "Wie kann der Bundestag den Kanzler abwählen?",
+    "back_answer": "Nur durch konstruktives Misstrauensvotum: Gleichzeitige Wahl eines Nachfolgers mit Mehrheit.",
+    "mnemonic_de": "Sturz nur mit neuem Kanzler am selben Tag!",
+    "translations": {
+      "tr": "Yapıcı güvensizlik oyu: Sadece yeni başbakan seçilerek mevcut görevden alınabilir.",
+      "ar": "حجب الثقة البنّاء: لا يُعزل المستشار إلا بانتخاب خليفة له بالأغلبية.",
+      "en": "Constructive vote of no confidence: Must elect a successor simultaneously."
+    },
+    "exam_weight": "Prüfungsfalle",
+    "difficulty_base": 2.0
+  },
+  {
+    "id": "bamf_08",
+    "deck_id": "bamf_einbuergerung",
+    "category": "Geschichte",
+    "badge": "23.05.1949",
+    "inline_ticker": "BAMF: 23. Mai 1949 = Grundgesetz",
+    "front_headline": "Was geschah am 23. Mai 1949 in Bonn?",
+    "back_answer": "Verkündung des Grundgesetzes und Gründung der Bundesrepublik Deutschland.",
+    "mnemonic_de": "23. Mai '49 = Geburtstag des Grundgesetzes.",
+    "translations": {
+      "tr": "23 Mayıs 1949: Anayasa (Grundgesetz) ilan edildi ve Federal Almanya kuruldu.",
+      "ar": "23 مايو 1949: إعلان القانون الأساسي وتأسيس جمهورية ألمانيا الاتحادية.",
+      "en": "May 23, 1949: Promulgation of the Basic Law in Bonn."
+    },
+    "exam_weight": "Basiswissen",
+    "difficulty_base": 2.4
+  },
+  {
+    "id": "fll_01",
+    "deck_id": "fll_baumkontrolleur",
+    "category": "Holzpilze",
+    "badge": "Kretzschmaria",
+    "inline_ticker": "FLL: Brandkrustenpilz = Sprödbruch!",
+    "front_headline": "Brandkrustenpilz (Kretzschmaria deusta): Gefahr?",
+    "back_answer": "Moderfäule (Abbau von Zellulose + Lignin) -> akuter, symptomloser Sprödbruch im Stammfuß!",
+    "mnemonic_de": "Schwarz-krustig am Fuß = Keramik-Sprödbruch ohne Vorwarnung!",
+    "translations": {
+      "tr": "Kretzschmaria deusta: Kök boğazında gevrek kırılma (Sprödbruch) tehlikesi!",
+      "ar": "فطر القشرة المحترقة: يسبب تعفناً وكسراً هشاً مفاجئاً في قاعدة الجذع.",
+      "en": "Brittle cinder fungus: Causes soft rot & sudden ceramic-like brittle fracture."
+    },
+    "exam_weight": "Sperrfach / Kritisch",
+    "difficulty_base": 2.0
+  },
+  {
+    "id": "fll_02",
+    "deck_id": "fll_baumkontrolleur",
+    "category": "Holzpilze",
+    "badge": "Meripilus",
+    "inline_ticker": "FLL: Riesenporling = Wurzelfäule",
+    "front_headline": "Riesenporling (Meripilus giganteus) an Buche?",
+    "back_answer": "Intensive Weißfäule an Stark-/Senkerwurzeln -> hohe Windwurfgefahr trotz grüner Krone!",
+    "mnemonic_de": "Riesenporling am Boden = Wurzeln abgebaut, Baum kippt komplett.",
+    "translations": {
+      "tr": "Dev polipor (Meripilus): Kayın ağacında kök çürüklüğü ve devrilme riski.",
+      "ar": "الفطر العملاق (Meripilus): يدمر الجذور الحاملة ويسبب انقلاب الشجرة.",
+      "en": "Giant polypore: White rot on structural roots -> severe windthrow risk."
+    },
+    "exam_weight": "Sperrfach / Kritisch",
+    "difficulty_base": 2.1
+  },
+  {
+    "id": "fll_03",
+    "deck_id": "fll_baumkontrolleur",
+    "category": "Holzpilze",
+    "badge": "Laetiporus",
+    "inline_ticker": "FLL: Schwefelporling = Braunfäule",
+    "front_headline": "Schwefelporling (Laetiporus sulphureus): Fäuletyp?",
+    "back_answer": "Braunfäule im Kernholz (Zelluloseabbau, Würfelbruch) an Eiche, Robinie, Weide, Kirsche.",
+    "mnemonic_de": "Gelb wie Schwefel = Kernholz zerfällt in braune Würfel.",
+    "translations": {
+      "tr": "Kükürt mantarı: Öz odununda kahverengi küp çürüklüğü (Braunfäule) yapar.",
+      "ar": "فطر الكبريت: يسبب التعفن البني التكعيبي في خشب القلب.",
+      "en": "Chicken of the woods: Causes cubical brown rot in heartwood (Oak, Willow)."
+    },
+    "exam_weight": "Sperrfach / Kritisch",
+    "difficulty_base": 2.2
+  },
+  {
+    "id": "fll_04",
+    "deck_id": "fll_baumkontrolleur",
+    "category": "VTA Biomechanik",
+    "badge": "Druckzwiesel",
+    "inline_ticker": "FLL: V-Zwiesel + Rindeneinschluss",
+    "front_headline": "Druckzwiesel (V-Zwiesel) vs. Zugzwiesel (U)?",
+    "back_answer": "V-Zwiesel mit eingewachsener Rinde hat keine Holzverbindung -> hohe Ausbruchgefahr (Kronensicherung!).",
+    "mnemonic_de": "V-Form + Rindennaht = Keilwirkung, Ausbruchgefahr!",
+    "translations": {
+      "tr": "V-çatal (Druckzwiesel): Kabuk sıkışması vardır, kırılma riski yüksektir.",
+      "ar": "التفرع الحاد (V): انحباس اللحاء يمنع التحام الخشب ويزيد خطر الانكسار.",
+      "en": "V-shaped union with included bark: Weak attachment, high splitting risk."
+    },
+    "exam_weight": "Sperrfach / Kritisch",
+    "difficulty_base": 2.3
+  },
+  {
+    "id": "fll_05",
+    "deck_id": "fll_baumkontrolleur",
+    "category": "Recht & FLL",
+    "badge": "§ 823 BGB",
+    "inline_ticker": "FLL: Sichtkontrolle vom Boden aus",
+    "front_headline": "Was fordert die FLL-Richtlinie bei Regelkontrolle?",
+    "back_answer": "Qualifizierte Sichtkontrolle vom Boden aus auf verdächtige Umstände (Verkehrssicherungspflicht).",
+    "mnemonic_de": "Regelkontrolle = Immer erst visuell vom Boden (ohne Bohren).",
+    "translations": {
+      "tr": "Standart ağaç kontrolü yerden nitelikli gözlemsel muayene (Sichtkontrolle) ile yapılır.",
+      "ar": "الفحص الدوري القياسي يتم بصرياً من سطح الأرض لرصد العلامات التحذيرية.",
+      "en": "Standard FLL inspection: Qualified visual ground inspection without invasive tools."
+    },
+    "exam_weight": "Basiswissen",
+    "difficulty_base": 2.5
+  },
+  {
+    "id": "fll_06",
+    "deck_id": "fll_baumkontrolleur",
+    "category": "ZTV-Baumpflege",
+    "badge": "ZTV Schnitt",
+    "inline_ticker": "FLL: Grobast = 5 bis 10 cm Ø",
+    "front_headline": "Ab welchem Durchmesser gilt ein Ast als Starkast?",
+    "back_answer": "Starkast > 10 cm Ø (Grobast 5-10 cm, Schwachast 3-5 cm, Feinast < 3 cm nach ZTV-Baumpflege).",
+    "mnemonic_de": "3 - 5 - 10 cm: Fein (<3), Schwach (3-5), Grob (5-10), Stark (>10).",
+    "translations": {
+      "tr": "ZTV-Baumpflege: Kalın dal (Starkast) > 10 cm, orta dal (Grobast) 5-10 cm.",
+      "ar": "تصنيف الأغصان (ZTV): غصن رئيسي كبير > 10 سم، متوسط 5-10 سم.",
+      "en": "ZTV branch classes: Fine <3cm, Weak 3-5cm, Coarse 5-10cm, Large >10cm."
+    },
+    "exam_weight": "Prüfungsfalle",
+    "difficulty_base": 2.1
+  },
+  {
+    "id": "fll_07",
+    "deck_id": "fll_baumkontrolleur",
+    "category": "Reaktionsholz",
+    "badge": "Zugholz/Druck",
+    "inline_ticker": "FLL: Laubbaum = Zugholz (oben)",
+    "front_headline": "Wo bildet ein Laubbaum Reaktionsholz bei Schrägstand?",
+    "back_answer": "Laubbaum bildet Zugholz an der Oberseite; Nadelbaum bildet Druckholz an der Unterseite.",
+    "mnemonic_de": "Laub ZIEHT oben, Nadel DRÜCKT unten!",
+    "translations": {
+      "tr": "Yapraklı ağaçlar üstte çekme odunu (Zugholz), iğneliler altta basınç odunu yapar.",
+      "ar": "الأشجار العريضة الأوراق تكوّن خشب شد بالأعلى، والصنوبريات خشب ضغط بالأسفل.",
+      "en": "Broadleaves form tension wood on top; conifers form compression wood underneath."
+    },
+    "exam_weight": "Prüfungsfalle",
+    "difficulty_base": 2.2
+  },
+  {
+    "id": "fll_08",
+    "deck_id": "fll_baumkontrolleur",
+    "category": "Holzpilze",
+    "badge": "Ganoderma",
+    "inline_ticker": "FLL: Lackporling = Weißfäule",
+    "front_headline": "Flacher Lackporling (Ganoderma applanatum): Symptom?",
+    "back_answer": "Mehrjährige Konsole mit zimtbraunem Sporenpulver; verursacht selektive Weißfäule im unteren Stamm.",
+    "mnemonic_de": "Zimt-Staub auf der Kappe + weiße Kratzspur unten = Ganoderma.",
+    "translations": {
+      "tr": "Yassı reishi (Ganoderma): Tarçın rengi spor tozu ve alt gövdede beyaz çürüklük.",
+      "ar": "فطر غانوديرما المسطح: مسحوق أبواغ بني قرفي وتعفن أبيض في قاعدة الجذع.",
+      "en": "Artist's bracket: Cinnamon spore dust on cap, white scratchable pore layer, white rot."
+    },
+    "exam_weight": "Sperrfach / Kritisch",
+    "difficulty_base": 2.3
+  },
+  {
+    "id": "ihk34a_01",
+    "deck_id": "ihk_34a_sachkunde",
+    "category": "Strafprozessrecht",
+    "badge": "§ 127 StPO",
+    "inline_ticker": "§34a: §127 StPO = Frische Tat",
+    "front_headline": "Wann erlaubt § 127 Abs. 1 StPO die Festnahme?",
+    "back_answer": "Auf frischer Tat betroffen/verfolgt + Fluchtverdacht oder Identität nicht sofort feststellbar.",
+    "mnemonic_de": "Frische Tat + (Flucht ODER kein Ausweis) = Jedermann-Festnahme.",
+    "translations": {
+      "tr": "Suçüstü yakalama (§ 127 StPO): Kaçma şüphesi veya kimlik tespit edilememesi şarttır.",
+      "ar": "التوقيف المؤقت (§ 127 StPO): التلبس بالجريمة + شبهة الهروب أو مجهولية الهوية.",
+      "en": "Citizen's arrest (§ 127 StPO): Caught in the act + flight risk or unknown identity."
+    },
+    "exam_weight": "Sperrfach / Kritisch",
+    "difficulty_base": 1.9
+  },
+  {
+    "id": "ihk34a_02",
+    "deck_id": "ihk_34a_sachkunde",
+    "category": "Strafrecht",
+    "badge": "§ 32 StGB",
+    "inline_ticker": "§34a: §32 StGB = Notwehr (Angriff)",
+    "front_headline": "Was ist Notwehr (§ 32 StGB / § 227 BGB)?",
+    "back_answer": "Die Verteidigung, die erforderlich ist, um einen gegenwärtigen rechtswidrigen Angriff abzuwenden.",
+    "mnemonic_de": "Gegenwärtig + Rechtswidrig + Erforderlich (mildestes Mittel!).",
+    "translations": {
+      "tr": "Meşru Müdafaa (§ 32 StGB): Halen devam eden hukuka aykırı saldırıyı defetmek için gerekli savunma.",
+      "ar": "الدفاع الشرعي (§ 32 StGB): الدفاع اللازم لصد اعتداء حالي وغير مشروع.",
+      "en": "Self-defense (§ 32 StGB): Necessary defense against a present unlawful attack."
+    },
+    "exam_weight": "Sperrfach / Kritisch",
+    "difficulty_base": 2.1
+  },
+  {
+    "id": "ihk34a_03",
+    "deck_id": "ihk_34a_sachkunde",
+    "category": "Bürgerliches Recht",
+    "badge": "§ 855 BGB",
+    "inline_ticker": "§34a: §855 BGB = Besitzdiener",
+    "front_headline": "Welche Stellung hat der Sicherheitsmitarbeiter (§ 855 BGB)?",
+    "back_answer": "Besitzdiener: Übt die tatsächliche Gewalt weisungsgebunden für den Besitzherrn (Auftraggeber) aus.",
+    "mnemonic_de": "Wachmann = BesitzDIENER (darf Gewaltrecht § 859 BGB für Chef ausüben).",
+    "translations": {
+      "tr": "Zilyet yardımcısı (Besitzdiener § 855 BGB): Müşteri adına talimatla fiili hakimiyet kurar.",
+      "ar": "خادم الحيازة (§ 855 BGB): يمارس السيطرة الفعلية بتعليمات صاحب العمل وله حق حماية الحيازة.",
+      "en": "Possessory servant (§ 855 BGB): Exercises control under instructions of the principal."
+    },
+    "exam_weight": "Prüfungsfalle",
+    "difficulty_base": 2.0
+  },
+  {
+    "id": "ihk34a_04",
+    "deck_id": "ihk_34a_sachkunde",
+    "category": "Bürgerliches Recht",
+    "badge": "§ 228 BGB",
+    "inline_ticker": "§34a: §228 BGB = Defensiver Notstand",
+    "front_headline": "Defensiver (§ 228 BGB) vs. Aggressiver Notstand (§ 904)?",
+    "back_answer": "§ 228: Gefahr geht von der Sache selbst aus (Hund greift an). § 904: Fremde unbeteiligte Sache genutzt (Zaunlatte).",
+    "mnemonic_de": "228 = Böse Sache selbst abwehren; 904 = Unschuldige Sache opfern.",
+    "translations": {
+      "tr": "§ 228 BGB (Savunma): Tehlike eşyanın/hayvanın kendisinden gelir. § 904: Üçüncü kişinin eşyası kullanılır.",
+      "ar": "§ 228 BGB (دفاعي): الخطر يصدر من الشيء نفسه. § 904 (هجومي): استخدام شيء مملوك للغير لدرء خطر.",
+      "en": "§ 228 BGB: Danger originates from the object itself. § 904: Using an uninvolved third-party object."
+    },
+    "exam_weight": "Prüfungsfalle",
+    "difficulty_base": 1.8
+  },
+  {
+    "id": "ihk34a_05",
+    "deck_id": "ihk_34a_sachkunde",
+    "category": "Verfassungsrecht",
+    "badge": "Gewaltmonopol",
+    "inline_ticker": "§34a: Keine Hoheitsrechte (Jedermann)",
+    "front_headline": "Hat ein Sicherheitsmitarbeiter Hoheitsrechte?",
+    "back_answer": "NEIN! Nur Jedermannsrechte + übertragene Selbsthilferechte (Ausnahme: Beliehene wie Luftsicherheit § 5 LuftSiG).",
+    "mnemonic_de": "Kein Zwang zur Taschenkontrolle ohne Einwilligung — wir sind keine Polizei!",
+    "translations": {
+      "tr": "Özel güvenliğin devlet yetkisi (Hoheitsrecht) YOKTUR! Sadece herkesin sahip olduğu hakları kullanır.",
+      "ar": "لا يملك رجل الأمن سلطات سيادية (Hoheitsrechte)؛ يقتصر على حقوق الأفراد العاديين.",
+      "en": "Security guards have NO sovereign police powers—only citizen's rights + delegated property rights."
+    },
+    "exam_weight": "Sperrfach / Kritisch",
+    "difficulty_base": 2.2
+  },
+  {
+    "id": "ihk34a_06",
+    "deck_id": "ihk_34a_sachkunde",
+    "category": "Strafrecht",
+    "badge": "§ 123 StGB",
+    "inline_ticker": "§34a: §123 StGB = Hausfriedensbruch",
+    "front_headline": "Wann liegt Hausfriedensbruch (§ 123 StGB) vor?",
+    "back_answer": "Widerrechtliches Eindringen ODER Verweilen ohne Befugnis trotz Aufforderung des Berechtigten zu gehen.",
+    "mnemonic_de": "Reinschleichen ODER Nicht-Gehen-Wollen = Antragsdelikt § 123 StGB.",
+    "translations": {
+      "tr": "Konut dokunulmazlığının ihlali (§ 123 StGB): İzinsiz girmek veya çık ihtarına rağmen kalmak.",
+      "ar": "انتهاك حرمة المكان (§ 123 StGB): الدخول غير المشروع أو البقاء رغم طلب المغادرة.",
+      "en": "Trespass (§ 123 StGB): Unlawful entry OR remaining after being told to leave by authorized person."
+    },
+    "exam_weight": "Sperrfach / Kritisch",
+    "difficulty_base": 2.3
+  },
+  {
+    "id": "ihk34a_07",
+    "deck_id": "ihk_34a_sachkunde",
+    "category": "Gewerberecht",
+    "badge": "§ 11 BewachV",
+    "inline_ticker": "§34a: Kennschild bei Türsteher/City",
+    "front_headline": "Wann muss ein Kennschild (Name/Kunde-Nr.) getragen werden?",
+    "back_answer": "Bei Kontrollgängen im öffentlichen Verkehrsraum, Diskotheken-Türstehern und Flüchtlingsunterkünften (§ 11 BewachV).",
+    "mnemonic_de": "City-Streife + Disco-Tür + Asylheim = Sichtbares Kennschild Pflicht!",
+    "translations": {
+      "tr": "Yaka kartı (Kennschild § 11 BewachV): Kamusal devriye, disko kapısı ve mülteci yurtlarında zorunludur.",
+      "ar": "بطاقة التعريف المرئية (§ 11 BewachV): إلزامية في الدوريات العامة وأبواب الملاهي ومراكز اللاجئين.",
+      "en": "Visible ID badge (§ 11 BewachV): Mandatory for public patrols, bouncers, and refugee housing."
+    },
+    "exam_weight": "Prüfungsfalle",
+    "difficulty_base": 2.0
+  },
+  {
+    "id": "ihk34a_08",
+    "deck_id": "ihk_34a_sachkunde",
+    "category": "Strafrecht",
+    "badge": "§ 13 StGB",
+    "inline_ticker": "§34a: §13 StGB = Garant (Unterlassen)",
+    "front_headline": "Was bedeutet die Garantenstellung (§ 13 StGB)?",
+    "back_answer": "Rechtspflicht zum Handeln (z.B. Wachvertrag): Untätigkeit trotz Schutzpflicht ist strafbares Unterlassen!",
+    "mnemonic_de": "Vertrag unterschrieben = Garant! Wegschauen = Begehung durch Unterlassen.",
+    "translations": {
+      "tr": "Garantörlük (§ 13 StGB): Sözleşme gereği koruma yükümlülüğü; müdahale etmemek suç oluşturur.",
+      "ar": "مركز الضامن (§ 13 StGB): واجب قانوني بالتدخل بموجب عقد الحراسة؛ الامتناع يعاقب عليه القانون.",
+      "en": "Guarantor duty (§ 13 StGB): Legal duty to act under security contract; omission is punishable."
+    },
+    "exam_weight": "Sperrfach / Kritisch",
+    "difficulty_base": 1.9
+  }
+];
+const BENCHMARKS = {
+  "japanese_education_app": {
+    "trustmrr_url": "https://trustmrr.com/startup/japanese-education-app.md",
+    "revenue_last_30d_usd": 15682,
+    "mrr_usd": 6801,
+    "mrr_growth_30d_pct": 10.5,
+    "all_time_revenue_usd": 45906,
+    "active_subscriptions": 1337,
+    "estimated_users": 25000,
+    "profit_margin_pct": 100.0,
+    "cost_structure": "No costs except Apple Proceeds (100% static local database + WidgetKit)",
+    "asking_price_usd": 100000,
+    "acquisition_offers_received": 7
+  },
+  "declic": {
+    "url": "https://declic.rohitbajaj.dev/",
+    "trustmrr_url": "https://trustmrr.com/startup/declic.md",
+    "launched_date": "2026-10-16",
+    "founder": "Rohit Bajaj (@rohitb47)",
+    "niche": "TCF Canada & TEF Canada French immigration exam vocabulary on iPhone Lock Screen",
+    "pricing_model": "Free app + 3-day widget trial + CA$9.99 one-time widget unlock (RevenueCat)",
+    "catalog_size": "~2,000 words, expressions, and connectors (NCLC 5 to 9+)",
+    "architecture": "100% Offline SwiftUI + WidgetKit + RevenueCat (no user accounts, zero server cost)"
+  }
+};
+
+let activeDeckId = "ihk_34a_sachkunde";
+let activeCardIndex = 0;
+let isRevealed = false;
+
+function getStorageKey(cardId) {
+  return "mvp23_sm2_" + cardId;
+}
+
+function loadCardState(card) {
+  try {
+    const raw = localStorage.getItem(getStorageKey(card.id));
+    if (raw) return JSON.parse(raw);
+  } catch (e) {}
+  return {
+    card_id: card.id,
+    repetitions: 0,
+    interval_days: 0,
+    easiness_factor: card.difficulty_base || 2.5,
+    total_glances: 0
+  };
+}
+
+function saveCardState(state) {
+  try {
+    localStorage.setItem(getStorageKey(state.card_id), JSON.stringify(state));
+  } catch (e) {}
+}
+
+function deckCards() {
+  return CARDS.filter(c => c.deck_id === activeDeckId);
+}
+
+function initDeckTabs() {
+  const container = document.getElementById("deckTabs");
+  container.innerHTML = "";
+  Object.values(DECKS).forEach(deck => {
+    const btn = document.createElement("button");
+    btn.className = "deck-tab" + (deck.id === activeDeckId ? " active" : "");
+    btn.onclick = () => {
+      activeDeckId = deck.id;
+      activeCardIndex = 0;
+      isRevealed = false;
+      document.getElementById("examDaysInput").value = deck.target_exam_days_default;
+      initDeckTabs();
+      renderCurrentCard();
+    };
+    btn.innerHTML = `
+      <div class="d-title">${deck.icon} ${deck.short_title}</div>
+      <div class="d-meta">Unlock: ${deck.recommended_pricing.app_store_one_time_eur.toFixed(2)} € • ${deck.annual_candidates_dach.toLocaleString('de-DE')} Prüflinge/J.</div>
+    `;
+    container.appendChild(btn);
+  });
+}
+
+function getHelperText(card, lang) {
+  if (lang === "de") return "💡 " + card.mnemonic_de;
+  if (lang === "tr") return "🇹🇷 " + card.translations.tr;
+  if (lang === "ar") return "🇸🇦 " + card.translations.ar;
+  return "🇬🇧 " + card.translations.en;
+}
+
+function computeDeckMastery() {
+  const list = deckCards();
+  if (!list.length) return 0;
+  const mastered = list.filter(c => loadCardState(c).repetitions >= 1).length;
+  return Math.round((mastered / list.length) * 100);
+}
+
+function renderCurrentCard() {
+  const list = deckCards();
+  if (!list.length) return;
+  const card = list[activeCardIndex % list.length];
+  const state = loadCardState(card);
+  const lang = document.getElementById("langSelect").value;
+  const days = Math.max(1, parseInt(document.getElementById("examDaysInput").value || "14", 10));
+  const mastery = computeDeckMastery();
+
+  document.getElementById("kpiMastery").textContent = mastery + "%";
+  document.getElementById("uiInlineTicker").textContent = `${card.inline_ticker} • T-${days}d`;
+  document.getElementById("uiCircularPct").textContent = mastery + "%";
+  document.getElementById("uiCircularDays").textContent = `T-${days}d`;
+
+  document.getElementById("uiRectBadge").textContent = card.badge;
+  document.getElementById("uiRectMeta").textContent = `EF ${state.easiness_factor.toFixed(2)}`;
+  document.getElementById("uiRectText").textContent = isRevealed ? card.back_answer : card.front_headline;
+
+  document.getElementById("uiMedBadge").textContent = card.badge + " • " + card.category;
+  document.getElementById("uiMedWeight").textContent = card.exam_weight;
+  document.getElementById("uiMedQuestion").textContent = card.front_headline;
+  document.getElementById("uiMedAnswer").textContent = card.back_answer;
+  document.getElementById("uiMedHelper").textContent = getHelperText(card, lang);
+
+  renderQueueTable(list, lang);
+}
+
+function renderQueueTable(list, lang) {
+  const tbody = document.getElementById("cardsTableBody");
+  tbody.innerHTML = "";
+  list.forEach((c, idx) => {
+    const st = loadCardState(c);
+    const tr = document.createElement("tr");
+    tr.style.cursor = "pointer";
+    if (idx === (activeCardIndex % list.length)) {
+      tr.style.background = "rgba(56, 189, 248, 0.10)";
+    }
+    tr.onclick = () => {
+      activeCardIndex = idx;
+      isRevealed = false;
+      renderCurrentCard();
+    };
+    tr.innerHTML = `
+      <td><strong>${c.badge}</strong></td>
+      <td>${c.front_headline}<div style="color:var(--muted);font-size:11px;">✓ ${c.back_answer}</div></td>
+      <td style="color:#38bdf8;">${getHelperText(c, lang)}</td>
+      <td><span class="pill-ef">${st.easiness_factor.toFixed(2)}</span></td>
+      <td>${st.interval_days} Tg. (${st.repetitions}×)</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function toggleReveal() {
+  isRevealed = !isRevealed;
+  renderCurrentCard();
+}
+
+function nextCardManual() {
+  const list = deckCards();
+  activeCardIndex = (activeCardIndex + 1) % list.length;
+  isRevealed = false;
+  renderCurrentCard();
+}
+
+function gradeCurrentCard(grade) {
+  const list = deckCards();
+  const card = list[activeCardIndex % list.length];
+  const st = loadCardState(card);
+
+  if (grade < 3) {
+    st.repetitions = 0;
+    st.interval_days = 1;
+  } else {
+    if (st.repetitions === 0) st.interval_days = 1;
+    else if (st.repetitions === 1) st.interval_days = (grade === 3) ? 3 : 6;
+    else {
+      const mult = (grade === 3) ? 1.2 : st.easiness_factor;
+      st.interval_days = Math.max(1, Math.round(st.interval_days * mult));
+    }
+    st.repetitions += 1;
+  }
+  const delta = 0.1 - (5 - grade) * (0.08 + (5 - grade) * 0.02);
+  st.easiness_factor = Math.max(1.3, Math.min(3.2, st.easiness_factor + delta));
+  st.total_glances += 1;
+  saveCardState(st);
+
+  activeCardIndex = (activeCardIndex + 1) % list.length;
+  isRevealed = false;
+  renderCurrentCard();
+}
+
+function downloadLockScreenWallpaper() {
+  const list = deckCards();
+  const card = list[activeCardIndex % list.length];
+  const lang = document.getElementById("langSelect").value;
+  const days = Math.max(1, parseInt(document.getElementById("examDaysInput").value || "14", 10));
+  const canvas = document.getElementById("wallpaperCanvas");
+  const ctx = canvas.getContext("2d");
+
+  // OLED Dark Gradient Background (1179 x 2556)
+  const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+  grad.addColorStop(0, "#090d16");
+  grad.addColorStop(0.5, "#111827");
+  grad.addColorStop(1, "#05070c");
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // Widget Card Container below iOS Clock Zone (y = 880)
+  ctx.fillStyle = "rgba(30, 41, 59, 0.86)";
+  ctx.strokeStyle = "rgba(56, 189, 248, 0.55)";
+  ctx.lineWidth = 4;
+  ctx.beginPath();
+  ctx.roundRect(78, 880, 1023, 680, 48);
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.fillStyle = "#38bdf8";
+  ctx.font = "bold 36px monospace";
+  ctx.fillText(`${card.badge}  •  PRÜFUNG IN ${days} TAGEN`, 130, 965);
+
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "bold 46px -apple-system, sans-serif";
+  ctx.fillText(card.front_headline.slice(0, 44), 130, 1060);
+
+  ctx.fillStyle = "#10b981";
+  ctx.font = "600 38px -apple-system, sans-serif";
+  ctx.fillText("✓ " + card.back_answer.slice(0, 52), 130, 1170);
+  if (card.back_answer.length > 52) {
+    ctx.fillText("   " + card.back_answer.slice(52, 104), 130, 1225);
+  }
+
+  ctx.fillStyle = "#fbbf24";
+  ctx.font = "500 34px -apple-system, sans-serif";
+  ctx.fillText(getHelperText(card, lang).slice(0, 58), 130, 1340);
+
+  ctx.fillStyle = "#94a3b8";
+  ctx.font = "500 28px monospace";
+  ctx.fillText("PrüfungsBlick Offline Lock-Screen Card • MVP #23", 130, 1485);
+
+  const link = document.createElement("a");
+  link.download = `lockscreen_${card.id}.png`;
+  link.href = canvas.toDataURL("image/png");
+  link.click();
+}
+
+function updateClock() {
+  const now = new Date();
+  document.getElementById("uiLockClock").textContent = now.toLocaleTimeString("de-DE", {
+    hour: "2-digit",
+    minute: "2-digit"
+  });
+}
+
+initDeckTabs();
+renderCurrentCard();
+updateClock();
+setInterval(updateClock, 15000);
+</script>
+</body>
+</html>

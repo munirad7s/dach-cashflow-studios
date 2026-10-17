@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MVP #153 — Dual-Mode DACH §§ 1, 2, 24, 25 KSVG Künstlersozialkassen- (KSK) Optimierer</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --card: #131b33;
+      --card-alt: #182240;
+      --border: #2a3966;
+      --text: #eef2ff;
+      --muted: #9fb0d9;
+      --accent: #38bdf8;
+      --emerald: #10b981;
+      --amber: #f59e0b;
+      --rose: #f43f5e;
+      --violet: #a855f7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: radial-gradient(circle at top right, #172554 0%, var(--bg) 55%);
+      color: var(--text);
+      line-height: 1.55;
+      padding: 24px;
+    }
+    .container { max-width: 1380px; margin: 0 auto; }
+    .header {
+      background: linear-gradient(135deg, rgba(30,41,59,0.92), rgba(15,23,42,0.96));
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px 28px;
+      margin-bottom: 22px;
+      box-shadow: 0 16px 40px rgba(0,0,0,0.35);
+    }
+    .badge-row { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; }
+    .badge {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      padding: 5px 11px;
+      border-radius: 999px;
+      border: 1px solid rgba(56,189,248,0.4);
+      background: rgba(56,189,248,0.12);
+      color: var(--accent);
+    }
+    .badge.emerald { border-color: rgba(16,185,129,0.45); background: rgba(16,185,129,0.13); color: #34d399; }
+    .badge.amber { border-color: rgba(245,158,11,0.45); background: rgba(245,158,11,0.13); color: #fbbf24; }
+    .badge.violet { border-color: rgba(168,85,247,0.45); background: rgba(168,85,247,0.13); color: #c084fc; }
+    h1 { margin: 0 0 8px 0; font-size: 26px; font-weight: 800; }
+    .subtitle { color: var(--muted); margin: 0; font-size: 14.5px; }
+    .mode-tabs {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 22px;
+      flex-wrap: wrap;
+    }
+    .tab-btn {
+      flex: 1;
+      min-width: 280px;
+      padding: 15px 20px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--card);
+      color: var(--text);
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-align: left;
+    }
+    .tab-btn.active {
+      border-color: var(--accent);
+      background: linear-gradient(135deg, rgba(56,189,248,0.2), rgba(16,185,129,0.14));
+      box-shadow: 0 0 24px rgba(56,189,248,0.2);
+    }
+    .tab-btn small { display: block; font-weight: 400; color: var(--muted); margin-top: 4px; font-size: 12.5px; }
+    .grid { display: grid; grid-template-columns: 1.05fr 1.25fr; gap: 22px; }
+    @media (max-width: 1024px) { .grid { grid-template-columns: 1fr; } }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px 22px;
+    }
+    .card h2 { margin: 0 0 14px 0; font-size: 18px; display: flex; align-items: center; justify-content: space-between; }
+    .form-group { margin-bottom: 13px; }
+    .form-group label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 5px;
+      font-weight: 600;
+    }
+    .form-group input[type="number"], .form-group select {
+      width: 100%;
+      padding: 9px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: #0d1428;
+      color: var(--text);
+      font-size: 14px;
+    }
+    .checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 10px 0;
+      font-size: 13.5px;
+      color: var(--text);
+    }
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 13px;
+      margin-bottom: 18px;
+    }
+    .kpi {
+      background: var(--card-alt);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 16px;
+    }
+    .kpi .label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+    .kpi .val { font-size: 24px; font-weight: 800; margin-top: 4px; }
+    .kpi .sub { font-size: 12px; color: var(--muted); margin-top: 3px; }
+    .val.emerald { color: #34d399; }
+    .val.rose { color: #fb7185; }
+    .val.accent { color: var(--accent); }
+    .val.amber { color: #fbbf24; }
+    .shield-box {
+      background: rgba(16,185,129,0.09);
+      border-left: 4px solid var(--emerald);
+      padding: 11px 14px;
+      border-radius: 8px;
+      margin-bottom: 9px;
+      font-size: 13.5px;
+    }
+    .warn-box {
+      background: rgba(244,63,94,0.11);
+      border-left: 4px solid var(--rose);
+      padding: 11px 14px;
+      border-radius: 8px;
+      margin-bottom: 9px;
+      font-size: 13.5px;
+    }
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 13.5px; }
+    th, td { padding: 9px 10px; border-bottom: 1px solid rgba(255,255,255,0.08); text-align: left; }
+    th { color: var(--muted); font-weight: 600; font-size: 12px; text-transform: uppercase; }
+    .preset-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+    .preset-btn {
+      background: #1e293b;
+      color: var(--accent);
+      border: 1px solid rgba(56,189,248,0.35);
+      border-radius: 8px;
+      padding: 6px 11px;
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .preset-btn:hover { background: rgba(56,189,248,0.18); }
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+
+<!-- DACH CASHFLOW STUDIOS LAUNCH BAR -->
+<style>
+  #dcs-launch-bar {
+    position: sticky;
+    top: 0;
+    z-index: 99999;
+    background: linear-gradient(90deg, #0b1120 0%, #111827 50%, #0f172a 100%);
+    color: #f8fafc;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.35);
+    padding: 8px 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  }
+  #dcs-launch-bar .dcs-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+  }
+  #dcs-launch-bar .dcs-badge {
+    background: rgba(16, 185, 129, 0.18);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.03em;
+  }
+  #dcs-launch-bar a.dcs-nav {
+    color: #93c5fd;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 12.5px;
+  }
+  #dcs-launch-bar a.dcs-nav:hover {
+    text-decoration: underline;
+    color: #dbeafe;
+  }
+  #dcs-launch-bar .dcs-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  #dcs-launch-bar .dcs-btn {
+    padding: 5px 11px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s ease;
+  }
+  #dcs-launch-bar .dcs-btn-ghost {
+    background: rgba(255,255,255,0.08);
+    color: #e2e8f0;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  #dcs-launch-bar .dcs-btn-primary {
+    background: linear-gradient(135deg, #0ea5e9, #2563eb);
+    color: #ffffff;
+  }
+  #dcs-launch-bar .dcs-btn-emerald {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
+  }
+  @media print {
+    #dcs-launch-bar { display: none !important; }
+  }
+</style>
+<div id="dcs-launch-bar">
+  <div class="dcs-left">
+    <a href="/index.html" class="dcs-nav">← Alle 150 DACH Studios</a>
+    <span class="dcs-badge">MVP #153 VERIFIED</span>
+    <span style="color:#cbd5e1;font-size:12px;">DACH LegalTech, Labor Law & Consumer Claims</span>
+  </div>
+  <div class="dcs-actions">
+    <button onclick="window.print()" class="dcs-btn dcs-btn-ghost">🖨️ PDF / Dossier drucken</button>
+    <a href="#checkout-modal-49" target="_blank" rel="noopener" class="dcs-btn dcs-btn-primary">⚡ Musterschreiben & Voll-Dossier (€49)</a>
+    <a href="#checkout-modal-299" target="_blank" rel="noopener" class="dcs-btn dcs-btn-emerald">🛡️ B2B Umsetzung buchen (€299 / €1.490)</a>
+  </div>
+</div>
+
+  <div class="container">
+    <div class="header">
+      <div class="badge-row">
+        <span class="badge">MVP #153 · §§ 1, 2, 24, 25 KSVG</span>
+        <span class="badge emerald">Mode A: B2B 5.0%/4.9% DRV-Betriebsprüfungs-Schutzschild (§ 28p SGB IV)</span>
+        <span class="badge violet">Mode B: Creator 50%-Krankenkassen/Renten-Hebel (spart €4,200–€8,900/J.)</span>
+        <span class="badge amber">BSG B 3 KS 2/13 R &amp; § 24 Abs. 3 KSVG (€1,000-Freigrenze)</span>
+      </div>
+      <h1>Dual-Mode DACH Künstlersozialkassen- (KSK) &amp; Künstlersozialabgabe-Optimierer</h1>
+      <p class="subtitle">
+        Deterministischer Prüfstand für Auftraggeber/Agenturen (Rechnungs-Aufsplittung § 25 Abs. 2 KSVG, GmbH/UG/KG-Rechtsform-Weiche, €1,000-Freigrenze &amp; GmbH-GF-Falle)
+        sowie Solo-Creators/Designer/Copywriter (50%-Arbeitgeberzuschuss der KSK zu GKV, Pflege &amp; Rente nach §§ 1, 2 KSVG).
+      </p>
+    </div>
+
+    <div class="mode-tabs">
+      <button id="tabModeA" class="tab-btn active" onclick="switchMode('A')">
+        🛡️ Mode A: B2B 5.0% Künstlersozialabgabe-Prüfstand (§§ 24, 25 KSVG)
+        <small>4 Schutzschilde für GmbHs, Agenturen &amp; Mittelstand bei der 4-jährigen DRV-Prüfung (§ 28p SGB IV)</small>
+      </button>
+      <button id="tabModeB" class="tab-btn" onclick="switchMode('B')">
+        🚀 Mode B: Solo-Creator &amp; Designer 50%-KSK-Mitgliedschafts-Hebel (§§ 1, 2 KSVG)
+        <small>Halber Beitragssatz für GKV/PV/RV wie ein Angestellter — spart €4,200 bis €8,900/Jahr Netto-Cash!</small>
+      </button>
+    </div>
+
+    <!-- ======================= MODE A PANEL ======================= -->
+    <div id="panelModeA" class="grid">
+      <div class="card">
+        <h2>
+          <span>⚙️ B2B-Parameter &amp; Rechnungs-Aufsplittung</span>
+          <span style="font-size:12px;color:var(--accent);">§§ 24, 25 KSVG</span>
+        </h2>
+        <div class="preset-row">
+          <button class="preset-btn" onclick="loadPresetA('agency')">Preset 1: €50k Agentur-Pauschalrechnung + GF-Falle</button>
+          <button class="preset-btn" onclick="loadPresetA('gmbh_kg')">Preset 2: Rechtsform-Weiche (GmbH &amp; Co. KG / UG)</button>
+          <button class="preset-btn" onclick="loadPresetA('bagatelle')">Preset 3: €1,000 Gelegentlichkeits-Freigrenze (§ 24 Abs. 3)</button>
+        </div>
+
+        <div class="form-group">
+          <label><span>Rechtsform des beauftragten Designers / Creators / Studios (Shield 1)</span></label>
+          <select id="a_legal_form" onchange="recalcModeA()">
+            <option value="Einzelunternehmer_Freiberufler">Einzelunternehmer / Freiberufler / Solo-Creator (5.0% KSK-pflichtig!)</option>
+            <option value="GbR">GbR / Kreativ-Kollektiv (5.0% KSK-pflichtig — BSG B 3 KS 2/09 R)</option>
+            <option value="OHG">OHG (5.0% KSK-pflichtig — BSG B 3 KS 3/13 R)</option>
+            <option value="GmbH">GmbH (0.0% KSK-Abgabe — 100% befreit!)</option>
+            <option value="UG">UG (haftungsbeschränkt) (0.0% KSK-Abgabe — 100% befreit!)</option>
+            <option value="GmbH_Co_KG">GmbH &amp; Co. KG (0.0% KSK-Abgabe — BSG B 3 KS 2/13 R &amp; 1/18 R!)</option>
+            <option value="AG_Ltd_Inc">AG / UK Limited / US Inc. (0.0% KSK-Abgabe — 100% befreit!)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label><span>KSK-Abgabesatz (Prüfungszeitraum 2023–2025: 5.0% | 2026: 4.9%)</span></label>
+          <select id="a_ksk_rate" onchange="recalcModeA()">
+            <option value="0.050">5.0% (Standard-DRV-Prüfungssatz 2023–2025 &amp; 2027)</option>
+            <option value="0.049">4.9% (Kalenderjahr 2026 nach KSV-VO)</option>
+          </select>
+        </div>
+
+        <div class="checkbox-row">
+          <input type="checkbox" id="a_is_verwerter" checked onchange="recalcModeA()" />
+          <label for="a_is_verwerter">Typischer Verwerter nach § 24 Abs. 1 S. 1 KSVG (Werbeagentur, Verlag, Film/TV/Musik-Produktion; falls aus = Eigenwerber/Generalklausel mit €1,000-Freigrenze!)</label>
+        </div>
+
+        <hr style="border:0;border-top:1px solid var(--border);margin:14px 0;" />
+        <div style="font-size:13px;font-weight:700;color:var(--accent);margin-bottom:8px;">
+          Shield 3: Rechnungs-Aufsplittung nach § 25 Abs. 2 KSVG (Netto pro Jahr)
+        </div>
+
+        <div class="form-group">
+          <label><span>1. Rein kreative Leistung (Design, UI/UX, Copywriting, Videoschnitt) [KSK-pflichtig]</span><span id="lbl_a_creative">€10,000</span></label>
+          <input type="number" id="a_creative" value="10000" step="500" min="0" oninput="recalcModeA()" />
+        </div>
+        <div class="form-group">
+          <label><span>2. Urheberrechts-Buyouts / Nutzungsrechte (§ 25 Abs. 1 KSVG) [KSK-pflichtig]</span><span id="lbl_a_buyout">€0</span></label>
+          <input type="number" id="a_buyout" value="0" step="500" min="0" oninput="recalcModeA()" />
+        </div>
+        <div class="form-group">
+          <label><span>3. Durchlaufendes Media-Budget (Meta/Google/TikTok Ads Spend) [0% KSK wenn getrennt!]</span><span id="lbl_a_media">€25,000</span></label>
+          <input type="number" id="a_media" value="25000" step="1000" min="0" oninput="recalcModeA()" />
+        </div>
+        <div class="form-group">
+          <label><span>4. Druckkosten, Vervielfältigung &amp; Material (§ 25 Abs. 2 KSVG) [0% KSK wenn getrennt!]</span><span id="lbl_a_print">€6,000</span></label>
+          <input type="number" id="a_print" value="6000" step="500" min="0" oninput="recalcModeA()" />
+        </div>
+        <div class="form-group">
+          <label><span>5. Technische Programmierung / Backend / DevOps / Hosting [0% KSK wenn getrennt!]</span><span id="lbl_a_tech">€7,000</span></label>
+          <input type="number" id="a_tech" value="7000" step="500" min="0" oninput="recalcModeA()" />
+        </div>
+        <div class="form-group">
+          <label><span>6. Steuerfreie Reisekosten &amp; Spesen (§ 25 Abs. 2 S. 2 KSVG) [0% KSK wenn getrennt!]</span><span id="lbl_a_travel">€2,000</span></label>
+          <input type="number" id="a_travel" value="2000" step="250" min="0" oninput="recalcModeA()" />
+        </div>
+
+        <hr style="border:0;border-top:1px solid var(--border);margin:14px 0;" />
+        <div style="font-size:13px;font-weight:700;color:var(--amber);margin-bottom:8px;">
+          Shield 4: Die GmbH-Geschäftsführer-Eigenwerbungs-Falle
+        </div>
+        <div class="form-group">
+          <label><span>GmbH-Geschäftsführer-Jahresgehalt inkl. Tantieme (€/Jahr)</span></label>
+          <input type="number" id="a_gf_salary" value="96000" step="2000" min="0" oninput="recalcModeA()" />
+        </div>
+        <div class="form-group">
+          <label><span>Geschätzter Kreativ-/PR-/Design-Zeitanteil des GF (%)</span></label>
+          <input type="number" id="a_gf_share" value="15" step="5" min="0" max="100" oninput="recalcModeA()" />
+        </div>
+        <div class="checkbox-row">
+          <input type="checkbox" id="a_gf_separated" checked onchange="recalcModeA()" />
+          <label for="a_gf_separated">Shield 4 aktiv: GF-Vertrag trennt Organ-Management strikt von Kreativ/PR-Vergütung (verhindert 5% KSK auf 100% des GF-Gehalts!)</label>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>
+          <span>📊 DRV-Betriebsprüfungs-Ergebnis (4-Jahres-Prüfzeitraum § 28p SGB IV)</span>
+        </h2>
+        <div class="kpi-grid">
+          <div class="kpi">
+            <div class="label">Unoptimierte KSK-Abgabe (Pauschalrechnung + GF-Falle)</div>
+            <div class="val rose" id="kpi_a_naive_yr">€7,300.00 / J.</div>
+            <div class="sub" id="kpi_a_naive_4yr">4-Jahres-DRV-Nachforderung: €29,200.00</div>
+          </div>
+          <div class="kpi">
+            <div class="label">Optimierte KSK-Abgabe (Mit 4 Schutzschilden)</div>
+            <div class="val emerald" id="kpi_a_opt_yr">€1,220.00 / J.</div>
+            <div class="sub" id="kpi_a_opt_4yr">4-Jahres-Prüfungslast: €4,880.00</div>
+          </div>
+          <div class="kpi">
+            <div class="label">Jährliche B2B-Ersparnis</div>
+            <div class="val accent" id="kpi_a_save_yr">€6,080.00 / J.</div>
+            <div class="sub" id="kpi_a_save_pct">Reduktion um 83.3%</div>
+          </div>
+          <div class="kpi">
+            <div class="label">4-Jahres DRV-Audit-Schutzschild</div>
+            <div class="val amber" id="kpi_a_save_4yr">€24,320.00</div>
+            <div class="sub" id="kpi_a_bagatelle_sub">Verbleibender § 24 Abs. 3 Puffer: €0.00</div>
+          </div>
+        </div>
+
+        <div id="a_shields_container"></div>
+        <div id="a_warnings_container"></div>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Schutzschild / Prüfposition</th>
+              <th>Bemessungsgrundlage</th>
+              <th>Jährlicher KSK-Effekt</th>
+              <th>Rechtsgrundlage</th>
+            </tr>
+          </thead>
+          <tbody id="a_breakdown_tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ======================= MODE B PANEL ======================= -->
+    <div id="panelModeB" class="grid hidden">
+      <div class="card">
+        <h2>
+          <span>🎨 Solo-Creator / Designer / Copywriter Parameter</span>
+          <span style="font-size:12px;color:var(--accent);">§§ 1, 2, 3, 5 KSVG</span>
+        </h2>
+        <div class="preset-row">
+          <button class="preset-btn" onclick="loadPresetB('designer45k')">Preset 1: UI/UX-Designer &amp; Copywriter (€45,000/J.)</button>
+          <button class="preset-btn" onclick="loadPresetB('video68k')">Preset 2: Senior Video-Editor / YouTuber (€68,000/J.)</button>
+          <button class="preset-btn" onclick="loadPresetB('starter18k')">Preset 3: Berufsanfänger Content-Creator (€18,000/J.)</button>
+        </div>
+
+        <div class="form-group">
+          <label><span>Künstlerisch / Publizistisches Tätigkeitsprofil (§ 2 KSVG)</span></label>
+          <select id="b_role" onchange="recalcModeB()">
+            <option value="UI/UX-Designer, Webdesigner &amp; Conversion-Copywriter (§ 2 KSVG)">UI/UX-Designer, Webdesigner &amp; Conversion-Copywriter (§ 2 KSVG)</option>
+            <option value="Video-Editor, Motion-Designer &amp; YouTube/TikTok Content-Creator (§ 2 KSVG)">Video-Editor, Motion-Designer &amp; YouTube/TikTok Content-Creator (§ 2 KSVG)</option>
+            <option value="Werbetexter, PR-Berater, Fachbuchautor &amp; Journalist (§ 2 S. 2 KSVG)">Werbetexter, PR-Berater, Fachbuchautor &amp; Journalist (§ 2 S. 2 KSVG)</option>
+            <option value="Werbefotograf, Illustrator &amp; Brand-Designer (§ 2 S. 1 KSVG)">Werbefotograf, Illustrator &amp; Brand-Designer (§ 2 S. 1 KSVG)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label><span>Geschätzter Jahresgewinn aus künstlerischer/publizistischer Arbeit (€/Jahr)</span></label>
+          <input type="number" id="b_profit" value="45000" step="1000" min="0" oninput="recalcModeB()" />
+        </div>
+
+        <div class="form-group">
+          <label><span>Nicht-künstlerischer Nebengewinn (z.B. SaaS-Hosting/Coaching, Grenze €6,672/J.)</span></label>
+          <input type="number" id="b_side_profit" value="3200" step="500" min="0" oninput="recalcModeB()" />
+        </div>
+
+        <div class="checkbox-row">
+          <input type="checkbox" id="b_childless" checked onchange="recalcModeB()" />
+          <label for="b_childless">Kinderlos über 23 Jahre (Pflegeversicherung inkl. 0.6% Kinderlosenzuschlag)</label>
+        </div>
+        <div class="checkbox-row">
+          <input type="checkbox" id="b_starter" onchange="recalcModeB()" />
+          <label for="b_starter">Berufsanfänger in den ersten 3 Jahren (§ 3 Abs. 2 KSVG: KSK-Mitgliedschaft auch unter €3,900/Jahr Gewinn!)</label>
+        </div>
+        <div class="checkbox-row">
+          <input type="checkbox" id="b_include_rv" checked onchange="recalcModeB()" />
+          <label for="b_include_rv">Altersvorsorge-Äquivalenzvergleich (Freiwillige GKV+PV+RV vs. KSK 50%-GKV+PV+RV)</label>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>
+          <span>💰 KSK 50%-Zuschuss-Auswertung (GKV + Pflege + Rente)</span>
+        </h2>
+        <div class="kpi-grid">
+          <div class="kpi">
+            <div class="label">Regulär Selbstständig (Voller Satz ohne KSK)</div>
+            <div class="val rose" id="kpi_b_reg_yr">€18,864.24 / J.</div>
+            <div class="sub" id="kpi_b_reg_mo">€1,572.02 / Monat</div>
+          </div>
+          <div class="kpi">
+            <div class="label">Mit KSK-Mitgliedschaft (Nur 50% Eigenanteil!)</div>
+            <div class="val emerald" id="kpi_b_ksk_yr">€9,112.50 / J.</div>
+            <div class="sub" id="kpi_b_ksk_mo">€759.38 / Monat</div>
+          </div>
+          <div class="kpi">
+            <div class="label">Jährlicher Netto-Cashflow-Vorteil</div>
+            <div class="val accent" id="kpi_b_save_yr">€9,751.74 / J.</div>
+            <div class="sub" id="kpi_b_save_gkv_only">Davon reine GKV/PV-Ersparnis: €5,266.14 / J.</div>
+          </div>
+          <div class="kpi">
+            <div class="label">5-Jahres-Vermögenshebel (bei 5% ETF-Anlage)</div>
+            <div class="val amber" id="kpi_b_5yr_wealth">€53,884.50</div>
+            <div class="sub" id="kpi_b_subsidy_sub">Virtueller KSK-Arbeitgeberzuschuss: €8,842.50 / J.</div>
+          </div>
+        </div>
+
+        <div id="b_status_container"></div>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Sozialversicherungs-Zweig (2026)</th>
+              <th>Ohne KSK (Freiwillig Selbstständig)</th>
+              <th>Mit KSK (50%-Arbeitnehmer-Anteil)</th>
+              <th>Jährlicher Vorteil</th>
+            </tr>
+          </thead>
+          <tbody id="b_breakdown_tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const BENCHMARKS = {
+  "mode_a_agency_split": {
+    "company_name": "GrowthSaaS & Performance Marketing GmbH",
+    "is_typical_verwerter": true,
+    "contractor_legal_form": "Einzelunternehmer_Freiberufler",
+    "audit_years": 4,
+    "ksk_rate": 0.05,
+    "total_invoice_volume_annual_eur": 50000.0,
+    "assessable_creative_core_annual_eur": 10000.0,
+    "non_assessable_unbundled_annual_eur": 40000.0,
+    "gmbh_gf_total_salary_annual_eur": 96000.0,
+    "gmbh_gf_creative_share_pct": 15.0,
+    "gmbh_gf_contractually_separated": true,
+    "naive_annual_ksk_levy_eur": 7300.0,
+    "naive_4yr_drv_audit_liability_eur": 29200.0,
+    "optimized_annual_ksk_levy_eur": 1220.0,
+    "optimized_4yr_drv_audit_liability_eur": 4880.0,
+    "annual_ksk_savings_eur": 6080.0,
+    "four_year_audit_savings_eur": 24320.0,
+    "savings_pct": 83.3,
+    "shield_1_legal_form_savings_annual_eur": 0.0,
+    "shield_2_bagatelle_triggered": false,
+    "shield_2_bagatelle_headroom_eur": 0.0,
+    "shield_3_invoice_unbundling_savings_annual_eur": 2000.0,
+    "shield_4_gf_separation_savings_annual_eur": 4080.0,
+    "active_shields": [
+      "Shield 3 aktiv (§ 25 Abs. 2 KSVG Rechnungs-Aufsplittung): €40,000.00/Jahr an Media-Spend, Druck/Reproduktion, Backend-Code & steuerfreien Reisekosten separat ausgewiesen -> spart €2,000.00/Jahr!",
+      "Shield 4 aktiv (GF-Vertragstrennung): Geschäftsführervertrag trennt Organ-Management (85%) strikt von Kreativ/PR-Arbeit (15%) -> spart €4,080.00/Jahr!"
+    ],
+    "audit_warnings": [
+      "Rechtsform-Risiko (Einzelunternehmer_Freiberufler): Zahlungen an Einzelunternehmer/GbR/OHG lösen 5.0% KSK-Abgabe aus — selbst wenn der Freelancer NICHT in der KSK ist oder im Ausland (US/UK/Bali) lebt!"
+    ]
+  },
+  "mode_a_gmbh_shield": {
+    "company_name": "E-Commerce Brand Holding GmbH",
+    "is_typical_verwerter": true,
+    "contractor_legal_form": "GmbH_Co_KG",
+    "audit_years": 4,
+    "ksk_rate": 0.05,
+    "total_invoice_volume_annual_eur": 180000.0,
+    "assessable_creative_core_annual_eur": 101000.0,
+    "non_assessable_unbundled_annual_eur": 79000.0,
+    "gmbh_gf_total_salary_annual_eur": 0.0,
+    "gmbh_gf_creative_share_pct": 0.0,
+    "gmbh_gf_contractually_separated": true,
+    "naive_annual_ksk_levy_eur": 9000.0,
+    "naive_4yr_drv_audit_liability_eur": 36000.0,
+    "optimized_annual_ksk_levy_eur": 0.0,
+    "optimized_4yr_drv_audit_liability_eur": 0.0,
+    "annual_ksk_savings_eur": 9000.0,
+    "four_year_audit_savings_eur": 36000.0,
+    "savings_pct": 100.0,
+    "shield_1_legal_form_savings_annual_eur": 5050.0,
+    "shield_2_bagatelle_triggered": false,
+    "shield_2_bagatelle_headroom_eur": 1000.0,
+    "shield_3_invoice_unbundling_savings_annual_eur": 3950.0,
+    "shield_4_gf_separation_savings_annual_eur": 0.0,
+    "active_shields": [
+      "Shield 1 aktiv (GmbH_Co_KG): 0.0% KSK-Abgabe dank Rechtsform-Weiche (BSG B 3 KS 2/13 R & BSG B 3 KS 1/18 R — Zahlungen an eine KG / GmbH & Co. KG lösen KEINE KSK-Abgabe beim Auftraggeber aus (0.0%)!). Spart €5,050.00/Jahr.",
+      "Shield 3 aktiv (§ 25 Abs. 2 KSVG Rechnungs-Aufsplittung): €79,000.00/Jahr an Media-Spend, Druck/Reproduktion, Backend-Code & steuerfreien Reisekosten separat ausgewiesen -> spart €3,950.00/Jahr!"
+    ],
+    "audit_warnings": []
+  },
+  "mode_a_bagatelle_shield": {
+    "company_name": "Mittelstand MedTech Solutions GmbH (Eigenwerber)",
+    "is_typical_verwerter": false,
+    "contractor_legal_form": "Einzelunternehmer_Freiberufler",
+    "audit_years": 4,
+    "ksk_rate": 0.05,
+    "total_invoice_volume_annual_eur": 7150.0,
+    "assessable_creative_core_annual_eur": 950.0,
+    "non_assessable_unbundled_annual_eur": 6200.0,
+    "gmbh_gf_total_salary_annual_eur": 0.0,
+    "gmbh_gf_creative_share_pct": 0.0,
+    "gmbh_gf_contractually_separated": true,
+    "naive_annual_ksk_levy_eur": 357.5,
+    "naive_4yr_drv_audit_liability_eur": 1430.0,
+    "optimized_annual_ksk_levy_eur": 0.0,
+    "optimized_4yr_drv_audit_liability_eur": 0.0,
+    "annual_ksk_savings_eur": 357.5,
+    "four_year_audit_savings_eur": 1430.0,
+    "savings_pct": 100.0,
+    "shield_1_legal_form_savings_annual_eur": 0.0,
+    "shield_2_bagatelle_triggered": true,
+    "shield_2_bagatelle_headroom_eur": 50.0,
+    "shield_3_invoice_unbundling_savings_annual_eur": 310.0,
+    "shield_4_gf_separation_savings_annual_eur": 0.0,
+    "active_shields": [
+      "Shield 2 aktiv (§ 24 Abs. 3 KSVG): Jahres-Kreativentgelte (€950.00) liegen <= €1,000 Freigrenze für Eigenwerber/Generalklausel -> €0.00 KSK-Abgabe!",
+      "Shield 3 aktiv (§ 25 Abs. 2 KSVG Rechnungs-Aufsplittung): €6,200.00/Jahr an Media-Spend, Druck/Reproduktion, Backend-Code & steuerfreien Reisekosten separat ausgewiesen -> spart €310.00/Jahr!"
+    ],
+    "audit_warnings": [
+      "Rechtsform-Risiko (Einzelunternehmer_Freiberufler): Zahlungen an Einzelunternehmer/GbR/OHG lösen 5.0% KSK-Abgabe aus — selbst wenn der Freelancer NICHT in der KSK ist oder im Ausland (US/UK/Bali) lebt!"
+    ]
+  },
+  "mode_b_designer_45k": {
+    "creator_role": "UI/UX-Designer, Webdesigner & Conversion-Copywriter (§ 2 KSVG)",
+    "annual_artistic_profit_eur": 45000.0,
+    "annual_non_artistic_side_profit_eur": 3200.0,
+    "is_childless_over_23": true,
+    "is_berufsanfaenger_first_3_years": false,
+    "include_voluntary_rv_in_regular_comparison": true,
+    "ksk_eligible": true,
+    "ksk_eligibility_status": "Voll KSK-versicherungspflichtig (§§ 1, 2 KSVG): Arbeitseinkommen (€45,000/Jahr) liegt über der Geringfügigkeitsgrenze von €3,900/Jahr (§ 3 Abs. 1 KSVG).",
+    "side_business_gkv_warning": false,
+    "regular_gkv_annual_eur": 8242.2,
+    "regular_pv_annual_eur": 2024.4,
+    "regular_rv_annual_eur": 8965.2,
+    "regular_total_annual_eur": 19231.8,
+    "ksk_gkv_creator_half_annual_eur": 3847.5,
+    "ksk_pv_creator_half_annual_eur": 1080.0,
+    "ksk_rv_creator_half_annual_eur": 4185.0,
+    "ksk_total_creator_annual_eur": 9112.5,
+    "ksk_virtual_employer_subsidy_annual_eur": 8842.5,
+    "annual_cash_savings_vs_full_social_eur": 10119.3,
+    "annual_cash_savings_gkv_pv_only_eur": 5339.1,
+    "five_year_compounded_wealth_gain_eur": 55915.52,
+    "effective_social_rate_regular_pct": 39.9,
+    "effective_social_rate_ksk_pct": 18.9,
+    "recommendations": [
+      "Berufsbild-Positionierung (§ 2 KSVG): Als 'UI/UX-Designer, Webdesigner & Conversion-Copywriter (§ 2 KSVG)' Fokus im KSK-Fragebogen auf eigenschöpferische Gestaltung, Konzeption, UX/UI-Design, Text/Copywriting oder Schnitt/Dramaturgie legen (nicht auf reine technische Administration).",
+      "KSK-Zuschuss-Hebel: Die KSK übernimmt als 'virtueller Arbeitgeber' €8,842.50/Jahr (50% auf GKV, PV & gesetzliche Rente inkl. Krankengeldanspruch ab der 7. Woche!).",
+      "Nebentätigkeits-Sicherheit (§ 5 Abs. 1 Nr. 5 KSVG): Nicht-künstlerischer Zuverdienst (€3,200/Jahr) liegt sicher unter der Grenze von €6,672/Jahr."
+    ]
+  },
+  "mode_b_creator_68k": {
+    "creator_role": "Video-Editor, Motion-Designer & YouTube/TikTok Content-Creator (§ 2 KSVG)",
+    "annual_artistic_profit_eur": 68000.0,
+    "annual_non_artistic_side_profit_eur": 0.0,
+    "is_childless_over_23": false,
+    "is_berufsanfaenger_first_3_years": false,
+    "include_voluntary_rv_in_regular_comparison": true,
+    "ksk_eligible": true,
+    "ksk_eligibility_status": "Voll KSK-versicherungspflichtig (§§ 1, 2 KSVG): Arbeitseinkommen (€68,000/Jahr) liegt über der Geringfügigkeitsgrenze von €3,900/Jahr (§ 3 Abs. 1 KSVG).",
+    "side_business_gkv_warning": false,
+    "regular_gkv_annual_eur": 11628.0,
+    "regular_pv_annual_eur": 2448.0,
+    "regular_rv_annual_eur": 12648.0,
+    "regular_total_annual_eur": 26724.0,
+    "ksk_gkv_creator_half_annual_eur": 5814.0,
+    "ksk_pv_creator_half_annual_eur": 1224.0,
+    "ksk_rv_creator_half_annual_eur": 6324.0,
+    "ksk_total_creator_annual_eur": 13362.0,
+    "ksk_virtual_employer_subsidy_annual_eur": 13362.0,
+    "annual_cash_savings_vs_full_social_eur": 13362.0,
+    "annual_cash_savings_gkv_pv_only_eur": 7038.0,
+    "five_year_compounded_wealth_gain_eur": 73833.48,
+    "effective_social_rate_regular_pct": 39.3,
+    "effective_social_rate_ksk_pct": 19.7,
+    "recommendations": [
+      "Berufsbild-Positionierung (§ 2 KSVG): Als 'Video-Editor, Motion-Designer & YouTube/TikTok Content-Creator (§ 2 KSVG)' Fokus im KSK-Fragebogen auf eigenschöpferische Gestaltung, Konzeption, UX/UI-Design, Text/Copywriting oder Schnitt/Dramaturgie legen (nicht auf reine technische Administration).",
+      "KSK-Zuschuss-Hebel: Die KSK übernimmt als 'virtueller Arbeitgeber' €13,362.00/Jahr (50% auf GKV, PV & gesetzliche Rente inkl. Krankengeldanspruch ab der 7. Woche!).",
+      "Nebentätigkeits-Sicherheit (§ 5 Abs. 1 Nr. 5 KSVG): Nicht-künstlerischer Zuverdienst (€0/Jahr) liegt sicher unter der Grenze von €6,672/Jahr."
+    ]
+  }
+};
+
+    function fmtEUR(val) {
+      return '€' + Number(val).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function switchMode(mode) {
+      document.getElementById('tabModeA').classList.toggle('active', mode === 'A');
+      document.getElementById('tabModeB').classList.toggle('active', mode === 'B');
+      document.getElementById('panelModeA').classList.toggle('hidden', mode !== 'A');
+      document.getElementById('panelModeB').classList.toggle('hidden', mode !== 'B');
+    }
+
+    function loadPresetA(preset) {
+      if (preset === 'agency') {
+        document.getElementById('a_legal_form').value = 'Einzelunternehmer_Freiberufler';
+        document.getElementById('a_ksk_rate').value = '0.050';
+        document.getElementById('a_is_verwerter').checked = true;
+        document.getElementById('a_creative').value = 10000;
+        document.getElementById('a_buyout').value = 0;
+        document.getElementById('a_media').value = 25000;
+        document.getElementById('a_print').value = 6000;
+        document.getElementById('a_tech').value = 7000;
+        document.getElementById('a_travel').value = 2000;
+        document.getElementById('a_gf_salary').value = 96000;
+        document.getElementById('a_gf_share').value = 15;
+        document.getElementById('a_gf_separated').checked = true;
+      } else if (preset === 'gmbh_kg') {
+        document.getElementById('a_legal_form').value = 'GmbH_Co_KG';
+        document.getElementById('a_ksk_rate').value = '0.050';
+        document.getElementById('a_is_verwerter').checked = true;
+        document.getElementById('a_creative').value = 85000;
+        document.getElementById('a_buyout').value = 16000;
+        document.getElementById('a_media').value = 40000;
+        document.getElementById('a_print').value = 15000;
+        document.getElementById('a_tech').value = 20000;
+        document.getElementById('a_travel').value = 4000;
+        document.getElementById('a_gf_salary').value = 0;
+        document.getElementById('a_gf_share').value = 0;
+        document.getElementById('a_gf_separated').checked = true;
+      } else if (preset === 'bagatelle') {
+        document.getElementById('a_legal_form').value = 'Einzelunternehmer_Freiberufler';
+        document.getElementById('a_ksk_rate').value = '0.050';
+        document.getElementById('a_is_verwerter').checked = false;
+        document.getElementById('a_creative').value = 950;
+        document.getElementById('a_buyout').value = 0;
+        document.getElementById('a_media').value = 0;
+        document.getElementById('a_print').value = 2400;
+        document.getElementById('a_tech').value = 3500;
+        document.getElementById('a_travel').value = 300;
+        document.getElementById('a_gf_salary').value = 0;
+        document.getElementById('a_gf_share').value = 0;
+        document.getElementById('a_gf_separated').checked = true;
+      }
+      recalcModeA();
+    }
+
+    function recalcModeA() {
+      const legalForm = document.getElementById('a_legal_form').value;
+      const rate = parseFloat(document.getElementById('a_ksk_rate').value || '0.05');
+      const isVerwerter = document.getElementById('a_is_verwerter').checked;
+      const creative = parseFloat(document.getElementById('a_creative').value || '0');
+      const buyout = parseFloat(document.getElementById('a_buyout').value || '0');
+      const media = parseFloat(document.getElementById('a_media').value || '0');
+      const printCost = parseFloat(document.getElementById('a_print').value || '0');
+      const tech = parseFloat(document.getElementById('a_tech').value || '0');
+      const travel = parseFloat(document.getElementById('a_travel').value || '0');
+      const gfSalary = parseFloat(document.getElementById('a_gf_salary').value || '0');
+      const gfShare = parseFloat(document.getElementById('a_gf_share').value || '0');
+      const gfSeparated = document.getElementById('a_gf_separated').checked;
+
+      document.getElementById('lbl_a_creative').textContent = fmtEUR(creative);
+      document.getElementById('lbl_a_buyout').textContent = fmtEUR(buyout);
+      document.getElementById('lbl_a_media').textContent = fmtEUR(media);
+      document.getElementById('lbl_a_print').textContent = fmtEUR(printCost);
+      document.getElementById('lbl_a_tech').textContent = fmtEUR(tech);
+      document.getElementById('lbl_a_travel').textContent = fmtEUR(travel);
+
+      const assessableCore = creative + buyout;
+      const nonAssessable = media + printCost + tech + travel;
+      const totalInvoice = assessableCore + nonAssessable;
+
+      const exemptForms = ['GmbH', 'UG', 'GmbH_Co_KG', 'AG_Ltd_Inc'];
+      const isExemptForm = exemptForms.includes(legalForm);
+
+      const naiveGfBase = gfShare > 0 ? gfSalary : 0;
+      const naiveBase = totalInvoice + naiveGfBase;
+      const naiveYr = naiveBase * rate;
+      const naive4Yr = naiveYr * 4;
+
+      const optGfBase = gfShare > 0 ? (gfSeparated ? gfSalary * (gfShare / 100.0) : gfSalary) : 0;
+      const optContractorBase = isExemptForm ? 0 : assessableCore;
+      const optTotalBase = optContractorBase + optGfBase;
+
+      const bagatelleTriggered = (!isVerwerter) && (optTotalBase <= 1000.0);
+      const optYr = bagatelleTriggered ? 0.0 : (optTotalBase * rate);
+      const opt4Yr = optYr * 4;
+
+      const saveYr = naiveYr - optYr;
+      const save4Yr = naive4Yr - opt4Yr;
+      const savePct = naiveYr > 0 ? (saveYr / naiveYr * 100.0) : 100.0;
+
+      document.getElementById('kpi_a_naive_yr').textContent = fmtEUR(naiveYr) + ' / J.';
+      document.getElementById('kpi_a_naive_4yr').textContent = '4-Jahres-DRV-Nachforderung: ' + fmtEUR(naive4Yr);
+      document.getElementById('kpi_a_opt_yr').textContent = fmtEUR(optYr) + ' / J.';
+      document.getElementById('kpi_a_opt_4yr').textContent = '4-Jahres-Prüfungslast: ' + fmtEUR(opt4Yr);
+      document.getElementById('kpi_a_save_yr').textContent = fmtEUR(saveYr) + ' / J.';
+      document.getElementById('kpi_a_save_pct').textContent = 'Reduktion um ' + savePct.toFixed(1) + '%';
+      document.getElementById('kpi_a_save_4yr').textContent = fmtEUR(save4Yr);
+      const headroom = Math.max(0, 1000.0 - optTotalBase);
+      document.getElementById('kpi_a_bagatelle_sub').textContent = isVerwerter
+        ? 'Typischer Verwerter (§ 24 Abs. 1 S. 1): keine €1,000-Grenze'
+        : ('§ 24 Abs. 3 Freigrenzen-Puffer: ' + fmtEUR(headroom));
+
+      const shieldsHtml = [];
+      const warnsHtml = [];
+      if (isExemptForm) {
+        shieldsHtml.push(`<div class="shield-box"><strong>Shield 1 aktiv (Rechtsform-Weiche ${legalForm}):</strong> 0.0% KSK-Abgabe auf ${fmtEUR(assessableCore)} Kreativleistung (BSG B 3 KS 2/13 R &amp; B 3 KS 1/18 R) — spart <strong>${fmtEUR(assessableCore * rate)}/Jahr</strong>!</div>`);
+      } else {
+        warnsHtml.push(`<div class="warn-box"><strong>Rechtsform-Hinweis (${legalForm}):</strong> Zahlungen an natürliche Personen / GbR / OHG lösen ${(rate*100).toFixed(1)}% KSK-Abgabe aus — selbst wenn der Freelancer im Ausland sitzt oder nicht in der KSK versichert ist!</div>`);
+      }
+      if (bagatelleTriggered) {
+        shieldsHtml.push(`<div class="shield-box"><strong>Shield 2 aktiv (§ 24 Abs. 3 KSVG Gelegentlichkeits-Freigrenze):</strong> Gesamte Kreativentgelte (${fmtEUR(optTotalBase)}) liegen &le; €1,000/Kalenderjahr &rarr; <strong>€0.00 KSK-Abgabe</strong>!</div>`);
+      }
+      if (nonAssessable > 0) {
+        shieldsHtml.push(`<div class="shield-box"><strong>Shield 3 aktiv (§ 25 Abs. 2 KSVG Rechnungs-Aufsplittung):</strong> ${fmtEUR(nonAssessable)} an Media-Budget, Druck, Backend-Code &amp; steuerfreien Reisekosten abgetrennt &rarr; spart <strong>${fmtEUR(nonAssessable * rate)}/Jahr</strong>!</div>`);
+      }
+      if (gfShare > 0) {
+        if (gfSeparated) {
+          shieldsHtml.push(`<div class="shield-box"><strong>Shield 4 aktiv (GF-Vertragstrennung):</strong> Nur ${gfShare}% (${fmtEUR(optGfBase)}) statt 100% (${fmtEUR(gfSalary)}) des GF-Gehalts bemessen &rarr; spart <strong>${fmtEUR((naiveGfBase - optGfBase) * rate)}/Jahr</strong>!</div>`);
+        } else {
+          warnsHtml.push(`<div class="warn-box"><strong>Tödliche GmbH-GF-Falle:</strong> Ohne vertragliche Trennung belegt die DRV 100% des GF-Gehalts (${fmtEUR(gfSalary)}) mit ${(rate*100).toFixed(1)}% KSK-Abgabe (${fmtEUR(gfSalary * rate)}/Jahr)!</div>`);
+        }
+      }
+      document.getElementById('a_shields_container').innerHTML = shieldsHtml.join('');
+      document.getElementById('a_warnings_container').innerHTML = warnsHtml.join('');
+
+      document.getElementById('a_breakdown_tbody').innerHTML = `
+        <tr>
+          <td>Kreativkern &amp; Buyouts (§ 25 Abs. 1 KSVG)</td>
+          <td>${fmtEUR(assessableCore)}</td>
+          <td>${isExemptForm ? '€0.00 (Shield 1: ' + legalForm + ')' : fmtEUR(assessableCore * rate)}</td>
+          <td>§ 25 Abs. 1 KSVG / BSG B 3 KS 2/13 R</td>
+        </tr>
+        <tr>
+          <td>Media-Spend, Druck, DevOps &amp; Reisekosten (Shield 3)</td>
+          <td>${fmtEUR(nonAssessable)}</td>
+          <td style="color:#34d399;">Ersparnis: ${fmtEUR(nonAssessable * rate)}</td>
+          <td>§ 25 Abs. 2 KSVG (Rechnungs-Aufsplittung)</td>
+        </tr>
+        <tr>
+          <td>GmbH-Geschäftsführer-Eigenwerbung (Shield 4)</td>
+          <td>${fmtEUR(optGfBase)} (statt ${fmtEUR(naiveGfBase)})</td>
+          <td style="color:#34d399;">Ersparnis: ${fmtEUR((naiveGfBase - optGfBase) * rate)}</td>
+          <td>§ 24 Abs. 1 S. 2 KSVG / GF-Vertragstrennung</td>
+        </tr>
+      `;
+    }
+
+    function loadPresetB(preset) {
+      if (preset === 'designer45k') {
+        document.getElementById('b_profit').value = 45000;
+        document.getElementById('b_side_profit').value = 3200;
+        document.getElementById('b_childless').checked = true;
+        document.getElementById('b_starter').checked = false;
+        document.getElementById('b_include_rv').checked = true;
+      } else if (preset === 'video68k') {
+        document.getElementById('b_profit').value = 68000;
+        document.getElementById('b_side_profit').value = 0;
+        document.getElementById('b_childless').checked = false;
+        document.getElementById('b_starter').checked = false;
+        document.getElementById('b_include_rv').checked = true;
+      } else if (preset === 'starter18k') {
+        document.getElementById('b_profit').value = 18000;
+        document.getElementById('b_side_profit').value = 1200;
+        document.getElementById('b_childless').checked = true;
+        document.getElementById('b_starter').checked = true;
+        document.getElementById('b_include_rv').checked = true;
+      }
+      recalcModeB();
+    }
+
+    function recalcModeB() {
+      const profit = parseFloat(document.getElementById('b_profit').value || '0');
+      const sideProfit = parseFloat(document.getElementById('b_side_profit').value || '0');
+      const childless = document.getElementById('b_childless').checked;
+      const starter = document.getElementById('b_starter').checked;
+      const includeRv = document.getElementById('b_include_rv').checked;
+
+      const gkvRate = 0.146 + 0.025; // 17.1%
+      const pvRate = childless ? 0.042 : 0.036;
+      const rvRate = 0.186;
+
+      const totalProfit = profit + sideProfit;
+      const regGkvBase = Math.min(Math.max(totalProfit, 14980.0), 69750.0);
+      const regRvBase = Math.min(Math.max(totalProfit, 3900.0), 96600.0);
+
+      const regGkv = regGkvBase * gkvRate;
+      const regPv = regGkvBase * pvRate;
+      const regRv = includeRv ? (regRvBase * rvRate) : 0.0;
+      const regTotal = regGkv + regPv + regRv;
+
+      const sideWarn = sideProfit > 6672.0;
+      const kskGkvBase = Math.min(Math.max(profit, 3900.0), 69750.0);
+      const kskRvBase = Math.min(Math.max(profit, 3900.0), 96600.0);
+
+      const kskPvCreatorRate = childless ? (0.018 + 0.006) : 0.018;
+      const kskGkv = sideWarn ? regGkv : (kskGkvBase * (gkvRate / 2.0));
+      const kskPv = sideWarn ? regPv : (kskGkvBase * kskPvCreatorRate);
+      const kskRv = kskRvBase * (rvRate / 2.0);
+      const kskTotal = kskGkv + kskPv + kskRv;
+
+      const subsidyGkv = sideWarn ? 0 : (kskGkvBase * (gkvRate / 2.0));
+      const subsidyPv = sideWarn ? 0 : (kskGkvBase * 0.018);
+      const subsidyRv = kskRvBase * (rvRate / 2.0);
+      const totalSubsidy = subsidyGkv + subsidyPv + subsidyRv;
+
+      const saveYr = regTotal - kskTotal;
+      const saveGkvPvOnly = (regGkv + regPv) - (kskGkv + kskPv);
+      const fvFactor = 1 + 1.05 + Math.pow(1.05, 2) + Math.pow(1.05, 3) + Math.pow(1.05, 4);
+      const wealth5Yr = saveYr * fvFactor;
+
+      document.getElementById('kpi_b_reg_yr').textContent = fmtEUR(regTotal) + ' / J.';
+      document.getElementById('kpi_b_reg_mo').textContent = fmtEUR(regTotal / 12.0) + ' / Monat';
+      document.getElementById('kpi_b_ksk_yr').textContent = fmtEUR(kskTotal) + ' / J.';
+      document.getElementById('kpi_b_ksk_mo').textContent = fmtEUR(kskTotal / 12.0) + ' / Monat';
+      document.getElementById('kpi_b_save_yr').textContent = fmtEUR(saveYr) + ' / J.';
+      document.getElementById('kpi_b_save_gkv_only').textContent = 'Davon reine GKV/PV-Ersparnis: ' + fmtEUR(saveGkvPvOnly) + ' / J.';
+      document.getElementById('kpi_b_5yr_wealth').textContent = fmtEUR(wealth5Yr);
+      document.getElementById('kpi_b_subsidy_sub').textContent = 'Virtueller KSK-Arbeitgeberzuschuss: ' + fmtEUR(totalSubsidy) + ' / J.';
+
+      const statusBoxes = [];
+      if (profit >= 3900 || starter) {
+        statusBoxes.push(`<div class="shield-box"><strong>KSK-Mitgliedschaft aktiv (§§ 1, 2 KSVG):</strong> Virtueller 50%-Arbeitgeberzuschuss der KSK in Höhe von <strong>${fmtEUR(totalSubsidy)}/Jahr</strong> gesichert!</div>`);
+      } else {
+        statusBoxes.push(`<div class="warn-box"><strong>Achtung § 3 Abs. 1 KSVG:</strong> Künstlerischer Gewinn (${fmtEUR(profit)}) liegt unter €3,900/Jahr und Berufsanfänger-Privileg (§ 3 Abs. 2 KSVG) ist nicht aktiviert!</div>`);
+      }
+      if (sideWarn) {
+        statusBoxes.push(`<div class="warn-box"><strong>Nebengewerbe-Falle (§ 5 Abs. 1 Nr. 5 KSVG):</strong> Nicht-künstlerischer Gewinn (${fmtEUR(sideProfit)}) übersteigt €6,672/Jahr (€556/Monat) &rarr; KSK-Kranken-/Pflegeversicherung entfällt! Lösung: Nebengewerbe in eigene UG/GmbH ausgliedern.</div>`);
+      }
+      document.getElementById('b_status_container').innerHTML = statusBoxes.join('');
+
+      document.getElementById('b_breakdown_tbody').innerHTML = `
+        <tr>
+          <td>Gesetzliche Krankenversicherung (GKV 17.1%)</td>
+          <td>${fmtEUR(regGkv)} / J.</td>
+          <td>${fmtEUR(kskGkv)} / J. (8.55%)</td>
+          <td style="color:#34d399;">+${fmtEUR(regGkv - kskGkv)} / J.</td>
+        </tr>
+        <tr>
+          <td>Soziale Pflegeversicherung (PV ${(pvRate*100).toFixed(1)}%)</td>
+          <td>${fmtEUR(regPv)} / J.</td>
+          <td>${fmtEUR(kskPv)} / J.</td>
+          <td style="color:#34d399;">+${fmtEUR(regPv - kskPv)} / J.</td>
+        </tr>
+        <tr>
+          <td>Gesetzliche Rentenversicherung (RV 18.6%)</td>
+          <td>${includeRv ? fmtEUR(regRv) + ' / J.' : '€0.00 (nicht versichert)'}</td>
+          <td>${fmtEUR(kskRv)} / J. (9.3% Eigenanteil + ${fmtEUR(subsidyRv)} KSK-Zuschuss!)</td>
+          <td style="color:#34d399;">+${fmtEUR(regRv - kskRv)} / J.</td>
+        </tr>
+      `;
+    }
+
+    recalcModeA();
+    recalcModeB();
+  </script>
+</body>
+</html>

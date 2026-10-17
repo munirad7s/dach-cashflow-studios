@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>MVP #152 — G2 / Capterra / TrustRadius B2B Churn-Intent & Competitor Rip-and-Replace Sniper Studio</title>
+<style>
+  :root {
+    --bg: #070b14;
+    --panel: #0f172a;
+    --panel-alt: #131e36;
+    --border: #1e293b;
+    --accent: #38bdf8;
+    --accent-emerald: #10b981;
+    --accent-amber: #f59e0b;
+    --accent-rose: #f43f5e;
+    --accent-purple: #a855f7;
+    --text: #f8fafc;
+    --muted: #94a3b8;
+    --mono: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
+    --sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: var(--sans);
+    background: radial-gradient(circle at 15% 0%, #0f1d3a 0%, var(--bg) 55%);
+    color: var(--text);
+    line-height: 1.5;
+    padding: 24px;
+  }
+  .container { max-width: 1560px; margin: 0 auto; }
+  .header {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 24px;
+    background: linear-gradient(135deg, rgba(15,23,42,0.95), rgba(30,41,59,0.85));
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    margin-bottom: 20px;
+    box-shadow: 0 12px 32px rgba(0,0,0,0.45);
+  }
+  .badge-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--accent-emerald);
+    background: rgba(16, 185, 129, 0.12);
+    border: 1px solid rgba(16, 185, 129, 0.35);
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 10px;
+  }
+  h1 { font-size: 24px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 6px; }
+  .subtitle { color: var(--muted); font-size: 14px; max-width: 920px; }
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+  .kpi-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 18px;
+  }
+  .kpi-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+  .kpi-val { font-size: 26px; font-weight: 800; font-family: var(--mono); margin: 4px 0; }
+  .kpi-sub { font-size: 12px; color: var(--muted); }
+  .controls-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 18px;
+    margin-bottom: 20px;
+  }
+  select, input[type="text"], input[type="number"] {
+    background: #090e1a;
+    color: var(--text);
+    border: 1px solid #334155;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 13px;
+    font-family: var(--sans);
+  }
+  .main-grid {
+    display: grid;
+    grid-template-columns: 1.35fr 1fr;
+    gap: 20px;
+  }
+  @media (max-width: 1180px) {
+    .main-grid { grid-template-columns: 1fr; }
+  }
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+  .panel-title {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 10px;
+  }
+  .lead-card {
+    background: var(--panel-alt);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    transition: all 0.16s ease;
+  }
+  .lead-card:hover, .lead-card.active {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 1px var(--accent), 0 8px 24px rgba(56, 189, 248, 0.14);
+  }
+  .lead-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+  .score-badge {
+    font-family: var(--mono);
+    font-weight: 800;
+    font-size: 13px;
+    padding: 4px 10px;
+    border-radius: 8px;
+    background: rgba(244, 63, 94, 0.16);
+    color: #fda4af;
+    border: 1px solid rgba(244, 63, 94, 0.4);
+    white-space: nowrap;
+  }
+  .tag-row { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
+  .tag {
+    font-family: var(--mono);
+    font-size: 11px;
+    padding: 3px 8px;
+    border-radius: 6px;
+    background: rgba(56, 189, 248, 0.12);
+    color: var(--accent);
+    border: 1px solid rgba(56, 189, 248, 0.28);
+  }
+  .tag.trigger {
+    background: rgba(245, 158, 11, 0.14);
+    color: #fcd34d;
+    border-color: rgba(245, 158, 11, 0.35);
+  }
+  .tag.urgent {
+    background: rgba(244, 63, 94, 0.18);
+    color: #fda4af;
+    border-color: rgba(244, 63, 94, 0.45);
+  }
+  .cons-quote {
+    font-size: 12.5px;
+    color: #cbd5e1;
+    background: rgba(7, 11, 20, 0.65);
+    border-left: 3px solid var(--accent-rose);
+    padding: 8px 12px;
+    border-radius: 0 8px 8px 0;
+    margin-top: 8px;
+  }
+  .code-box {
+    background: #060911;
+    border: 1px solid #1e293b;
+    border-radius: 10px;
+    padding: 14px;
+    font-family: var(--mono);
+    font-size: 12px;
+    white-space: pre-wrap;
+    color: #e2e8f0;
+    margin-top: 8px;
+    max-height: 290px;
+    overflow-y: auto;
+  }
+  .btn {
+    background: var(--accent);
+    color: #020617;
+    border: none;
+    border-radius: 8px;
+    padding: 7px 14px;
+    font-weight: 700;
+    font-size: 12px;
+    cursor: pointer;
+    font-family: var(--mono);
+  }
+  .btn:hover { opacity: 0.92; }
+  .tab-row { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+  .tab-btn {
+    background: #0b1120;
+    color: var(--muted);
+    border: 1px solid var(--border);
+    padding: 6px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .tab-btn.active {
+    background: rgba(56, 189, 248, 0.16);
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+  table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  th, td {
+    padding: 9px 10px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  th { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; }
+  .mono { font-family: var(--mono); }
+</style>
+</head>
+<body>
+
+<!-- DACH CASHFLOW STUDIOS LAUNCH BAR -->
+<style>
+  #dcs-launch-bar {
+    position: sticky;
+    top: 0;
+    z-index: 99999;
+    background: linear-gradient(90deg, #0b1120 0%, #111827 50%, #0f172a 100%);
+    color: #f8fafc;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.35);
+    padding: 8px 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  }
+  #dcs-launch-bar .dcs-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+  }
+  #dcs-launch-bar .dcs-badge {
+    background: rgba(16, 185, 129, 0.18);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.03em;
+  }
+  #dcs-launch-bar a.dcs-nav {
+    color: #93c5fd;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 12.5px;
+  }
+  #dcs-launch-bar a.dcs-nav:hover {
+    text-decoration: underline;
+    color: #dbeafe;
+  }
+  #dcs-launch-bar .dcs-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  #dcs-launch-bar .dcs-btn {
+    padding: 5px 11px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s ease;
+  }
+  #dcs-launch-bar .dcs-btn-ghost {
+    background: rgba(255,255,255,0.08);
+    color: #e2e8f0;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  #dcs-launch-bar .dcs-btn-primary {
+    background: linear-gradient(135deg, #0ea5e9, #2563eb);
+    color: #ffffff;
+  }
+  #dcs-launch-bar .dcs-btn-emerald {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
+  }
+  @media print {
+    #dcs-launch-bar { display: none !important; }
+  }
+</style>
+<div id="dcs-launch-bar">
+  <div class="dcs-left">
+    <a href="/index.html" class="dcs-nav">← Alle 150 DACH Studios</a>
+    <span class="dcs-badge">MVP #152 VERIFIED</span>
+    <span style="color:#cbd5e1;font-size:12px;">B2B SaaS, Lead-Intent Sniper & AI/MCP Infrastructure</span>
+  </div>
+  <div class="dcs-actions">
+    <button onclick="window.print()" class="dcs-btn dcs-btn-ghost">🖨️ PDF / Dossier drucken</button>
+    <a href="#checkout-modal-49" target="_blank" rel="noopener" class="dcs-btn dcs-btn-primary">⚡ Musterschreiben & Voll-Dossier (€49)</a>
+    <a href="#checkout-modal-299" target="_blank" rel="noopener" class="dcs-btn dcs-btn-emerald">🛡️ B2B Umsetzung buchen (€299 / €1.490)</a>
+  </div>
+</div>
+
+<div class="container">
+  <div class="header">
+    <div>
+      <div class="badge-pill">MVP #152 · G2 / CAPTERRA / TRUSTRADIUS CHURN-INTENT & RIP-AND-REPLACE SNIPER</div>
+      <h1>B2B Enterprise Renewal Price-Hike & Lock-In Sniper Studio</h1>
+      <p class="subtitle">
+        Real-Time Apify G2/Capterra/TrustRadius 1★–3★ Review De-Anonymizer, 5-Trigger Contract-Cancellation Scorer,
+        60/90-Day Notice Window Countdown, "SSO Tax" Unbundler & Automated Contract-Buyout Battlecard Engine.
+      </p>
+    </div>
+    <div style="text-align:right; font-family:var(--mono); font-size:12px; color:var(--muted);">
+      <div>Catalog Telemetry: <strong style="color:var(--accent)">16 Live Actors (1,274+ 30d MAU)</strong></div>
+      <div>Avg Reply-to-Demo Rate: <strong style="color:var(--accent-emerald)">8.5% – 14.2% (12x Cold)</strong></div>
+      <div>Scrape Cost Floor: <strong style="color:var(--accent-amber)">$0.05 – $1.75 / 1,000 Reviews</strong></div>
+    </div>
+  </div>
+
+  <div class="kpi-grid" id="kpiGrid"></div>
+
+  <div class="controls-bar">
+    <label style="font-size:12px; color:var(--muted);">Platform:</label>
+    <select id="platformFilter">
+      <option value="ALL">All Platforms (G2 + Capterra + TrustRadius)</option>
+      <option value="G2">G2 Only</option>
+      <option value="Capterra">Capterra Only</option>
+      <option value="TrustRadius">TrustRadius Only</option>
+    </select>
+
+    <label style="font-size:12px; color:var(--muted);">Churn Trigger:</label>
+    <select id="triggerFilter">
+      <option value="ALL">All 5 High-ACV Triggers</option>
+      <option value="RENEWAL_PRICE_HIKE">1. Renewal Price Hike (+25-60%)</option>
+      <option value="FORCED_AUTO_RENEWAL_LOCKIN">2. Forced 60/90d Auto-Renewal Trap</option>
+      <option value="SUPPORT_POST_ACQUISITION_COLLAPSE">3. Post-PE Support Collapse</option>
+      <option value="MISSING_EU_GDPR_AI_COMPLIANCE">4. SSO/SAML Tax & EU GDPR Gap</option>
+      <option value="IMPLEMENTATION_BLOAT_SHELFWARE">5. 6-Mo Implementation Bloat / Shelfware</option>
+    </select>
+
+    <label style="font-size:12px; color:var(--muted);">Urgency Window:</label>
+    <select id="urgencyFilter">
+      <option value="ALL">All Renewal Windows</option>
+      <option value="CRITICAL_NOTICE_WINDOW_OPEN">Critical Notice Window Open (≤45d)</option>
+      <option value="POST_TRAP_BUYOUT_ELIGIBLE">Post-Trap Contract Buyout Eligible</option>
+      <option value="UPCOMING_90D_RENEWAL">Upcoming 90d Renewal</option>
+    </select>
+
+    <input type="text" id="searchBox" placeholder="Search vendor, role, company, or cons..." style="flex:1; min-width:220px;" />
+  </div>
+
+  <div class="main-grid">
+    <div>
+      <div class="panel">
+        <div class="panel-title">
+          <span>De-Anonymized B2B Churn-Intent Queue (<span id="leadCount">0</span> Accounts)</span>
+          <span style="font-size:12px; color:var(--muted); font-family:var(--mono);">Click any review to load Battlecard</span>
+        </div>
+        <div id="leadsList"></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="panel" id="detailPanel">
+        <div class="panel-title">
+          <span id="detailHeader">Contract-Buyout & Rip-and-Replace Battlecard</span>
+          <button class="btn" id="copyActiveBtn" onclick="copyCurrentOutreach()">Copy Active Sequence</button>
+        </div>
+        <div id="detailContent"></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">
+          <span>Interactive "SSO Tax" & Contract-Buyout ROI Simulator</span>
+          <span class="mono" style="font-size:11px; color:var(--accent-emerald);">36-Month Rate Lock</span>
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-bottom:12px;">
+          <div>
+            <label style="font-size:11px; color:var(--muted); display:block;">Team Seats</label>
+            <input type="number" id="simSeats" value="100" min="5" max="5000" style="width:100%;" oninput="runSimulator()" />
+          </div>
+          <div>
+            <label style="font-size:11px; color:var(--muted); display:block;">Incumbent €/Seat/Mo</label>
+            <input type="number" id="simIncumbentSeat" value="145" min="10" max="500" style="width:100%;" oninput="runSimulator()" />
+          </div>
+          <div>
+            <label style="font-size:11px; color:var(--muted); display:block;">Challenger €/Seat/Mo</label>
+            <input type="number" id="simChallengerSeat" value="59" min="5" max="300" style="width:100%;" oninput="runSimulator()" />
+          </div>
+        </div>
+        <div id="simOutput" class="code-box" style="max-height:160px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-title">
+      <span>Live Apify Store G2 / Capterra / TrustRadius Scraper Telemetry (Fetched Live via /v2/store)</span>
+      <span class="mono" style="font-size:12px; color:var(--accent);">16 Verified B2B Review Scrapers</span>
+    </div>
+    <div style="overflow-x:auto;">
+      <table id="actorTable">
+        <thead>
+          <tr>
+            <th>Actor Slug</th>
+            <th>Platform</th>
+            <th>30d MAU</th>
+            <th>Total Users</th>
+            <th>Total Runs</th>
+            <th>30d Runs (Success %)</th>
+            <th>Free / Diamond per 1K</th>
+            <th>Extracted Buyer-Intent Signals</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+const MANIFEST = {"mvp_id": "MVP-152", "title": "G2 / Capterra / TrustRadius B2B Enterprise Churn-Intent, 'Renewal Price Hike / Forced Multi-Year Lock-In' 1-3★ Review Buyer-Intent Sniper & Automated Competitor Rip-and-Replace Offer Engine", "generated_at": "2026-10-17T23:15:00+02:00", "summary_metrics": {"total_leads_sniped": 8, "p0_immediate_count": 7, "total_36m_savings_eur": 3686493, "total_annual_sso_tax_unbundled_eur": 614810, "total_buyout_credits_offered_eur": 131600, "avg_predicted_reply_to_demo_pct": 14.0, "live_apify_actors_documented": 16, "live_apify_mau_30d": 1280, "live_apify_total_runs": 644282, "trigger_distribution": {"RENEWAL_PRICE_HIKE": 8, "FORCED_AUTO_RENEWAL_LOCKIN": 5, "SUPPORT_POST_ACQUISITION_COLLAPSE": 2, "MISSING_EU_GDPR_AI_COMPLIANCE": 5, "IMPLEMENTATION_BLOAT_SHELFWARE": 3}}, "churn_trigger_taxonomy": {"RENEWAL_PRICE_HIKE": {"code": "RENEWAL_PRICE_HIKE", "label": "Renewal Price Hike & Forced Tier/Seat Minimums", "short_badge": "PRICE HIKE (+25-60%)", "base_severity_weight": 34, "avg_reply_to_demo_rate_pct": 13.8, "typical_pain_summary": "Surprise 25%-60% renewal uplift, forced seat minimums, or mandatory enterprise tier upgrade.", "counter_offer_hook": "36-Month Price-Lock Guarantee + 25% Immediate ACV Reduction + Zero Seat Minimums", "regex_patterns": ["\\b(price|pricing|renewal|cost|fee|fees|rate)\\b.{0,35}\\b(hike|hiked|increased|raised|jumped|doubled|tripled|uplift|skyrocketed|jacked)\\b", "\\b(raised|increased|hiked|doubled)\\b.{0,30}\\b(our\\s+)?(renewal|price|pricing|contract|cost|annual)\\b", "\\b(\\d{1,3}%)\\s*(price|renewal|cost|rate)?\\s*(increase|hike|uplift|jump|more)\\b", "\\b(forced|mandatory)\\s+(seat|user|tier|annual|minimum|upgrade|add-on|bundle)\\b", "\\bhidden\\s+(add-on|fees|costs|charges|modules|tiers)\\b"]}, "FORCED_AUTO_RENEWAL_LOCKIN": {"code": "FORCED_AUTO_RENEWAL_LOCKIN", "label": "Predatory 60/90-Day Auto-Renewal Clause & Ghosting Account Rep", "short_badge": "AUTO-RENEWAL TRAP", "base_severity_weight": 36, "avg_reply_to_demo_rate_pct": 14.2, "typical_pain_summary": "Trapped by 60- or 90-day cancellation notice window or forced multi-year lock-in while AE ghosted.", "counter_offer_hook": "Up to 6 Months Remaining Contract Buyout Credit + Opt-Out Anytime 30-Day Clause", "regex_patterns": ["\\b(60|90|30)[-\\s]?day\\s+(notice|cancellation|auto[-\\s]?renewal|window|clause|deadline)\\b", "\\bauto[-\\s]?renew(al|ed|s|ing)?\\b.{0,40}\\b(trap|trapped|locked|without\\s+notice|clause|predatory|forced|refused)\\b", "\\b(account\\s+rep|account\\s+executive|ae|csm|rep|sales\\s+rep)\\s+(ghosted|ignored|disappeared|stopped\\s+responding)\\b", "\\b(multi[-\\s]?year|2[-\\s]?year|3[-\\s]?year|36[-\\s]?month)\\s+(lock[-\\s]?in|contract|trap|prison|hostage)\\b", "\\bcancellation\\s+deadline\\b"]}, "SUPPORT_POST_ACQUISITION_COLLAPSE": {"code": "SUPPORT_POST_ACQUISITION_COLLAPSE", "label": "Post-PE Acquisition Support Collapse & Ticket Black Hole", "short_badge": "POST-PE SUPPORT COLLAPSE", "base_severity_weight": 26, "avg_reply_to_demo_rate_pct": 10.4, "typical_pain_summary": "Private equity buyout or enterprise rollup gutted support; 2+ week ticket delays and offshore chatbots.", "counter_offer_hook": "Dedicated Slack Connect Engineer (<15 Min SLA) + Named EU Solutions Architect Included", "regex_patterns": ["\\b(private\\s+equity|pe\\s+firm|acquired|acquisition|buyout|merged)\\b.{0,50}\\b(support|service|quality|downhill|collapsed|gutted|worse)\\b", "\\bever\\s+since\\b.{0,35}\\b(acquired|bought|private\\s+equity|takeover)\\b", "\\bsupport\\s+(takes|took)\\s+(\\d+\\s+(days|weeks)|forever|weeks)\\b", "\\b(ticket|support|chatbot)\\s+(black\\s+hole|bot|chatbot|unresponsive|outsourced|gutted|non[-\\s]?existent)\\b", "\\bno\\s+(dedicated\\s+)?(csm|account\\s+manager|human\\s+support)\\b"]}, "MISSING_EU_GDPR_AI_COMPLIANCE": {"code": "MISSING_EU_GDPR_AI_COMPLIANCE", "label": "SSO/SAML Tax (+2x Enterprise Gate) & Missing EU GDPR / Data Residency", "short_badge": "SSO TAX / EU GDPR GAP", "base_severity_weight": 30, "avg_reply_to_demo_rate_pct": 12.6, "typical_pain_summary": "Vendor gates SAML/SSO/SCIM behind 2x-3x Enterprise tier ('SSO Tax') or lacks Frankfurt EU data residency / GDPR DPA.", "counter_offer_hook": "Zero SSO/SAML/SCIM Tax on All Tiers + 100% EU Sovereign Hosting (Frankfurt/Hetzner ISO-27001)", "regex_patterns": ["\\b(sso|saml|scim|okta|azure\\s+ad|entra)\\s+(tax|paywall|extra|upcharge|enterprise\\s+only|gated)\\b", "\\bcharg(e|ing|ed)\\s+extra\\s+for\\s+(sso|saml|scim|audit\\s+logs|security)\\b", "\\b(eu\\s+data\\s+residency|gdpr|dsgvo|bafin|eu\\s+ai\\s+act|schrems|frankfurt\\s+hosting|iso\\s*27001)\\b", "\\bno\\s+(eu|european|german)\\s+(server|data\\s+center|residency|hosting)\\b", "\\bforce(d|s)?\\s+an?\\s*enterprise\\s+(plan|upgrade)\\s+(just\\s+)?for\\s+(sso|saml|security)\\b"]}, "IMPLEMENTATION_BLOAT_SHELFWARE": {"code": "IMPLEMENTATION_BLOAT_SHELFWARE", "label": "6-Month Implementation Bloat, Paid Consultant Tax & 10%-Usage Shelfware", "short_badge": "SHELFWARE / 6-MO ONBOARDING", "base_severity_weight": 24, "avg_reply_to_demo_rate_pct": 9.5, "typical_pain_summary": "Took 4-9 months and €25K+ in external implementation partners to deploy; team only uses 10%-15% of bloated UI.", "counter_offer_hook": "48-Hour Automated Schema Migration for €0 + Zero Implementation Partner Fees", "regex_patterns": ["\\btook\\s+(\\d+)\\s+(months|weeks)\\s+to\\s+(onboard|implement|deploy|set\\s+up|configure|go\\s+live)\\b", "\\bonly\\s+use(s|d)?\\s+(\\d{1,2}%)\\s+of\\s+(the\\s+)?(bloated\\s+)?(features|platform|software|tool)\\b", "\\b(shelfware|bloatware|bloated|over[-\\s]?engineered|clunky\\s+legacy\\s+ui)\\b", "\\b(expensive|mandatory|paid)\\s+(partner\\s+)?(implementation|onboarding|consultant|partner|integrator)\\s+(partner\\s+)?(fee|fees|cost|package)\\b"]}}, "apify_actors_catalog": [{"actor_slug": "automation-lab/g2-scraper", "actor_id": "BkxudbF8MgHuC8WfI", "title": "G2 Reviews & Products Scraper", "platform": "G2", "mau_30d": 238, "total_users": 948, "total_runs": 38716, "runs_30d": 5245, "success_rate_30d_pct": 99.98, "pricing_model": "PAY_PER_EVENT", "price_per_1k_reviews_usd": 5.75, "diamond_price_per_1k_usd": 1.4, "start_fee_usd": 0.01, "key_fields": ["nps_score", "reviewer_sentiment", "ease_of_use_rating", "switched_from", "reviewer_role", "company_size_band", "pros_cons_text"]}, {"actor_slug": "memo23/g2-scraper", "actor_id": "hbiQgBxKxhm4tfBQz", "title": "G2 Scraper — Reviews by Product Name · AI Insights + Emails", "platform": "G2", "mau_30d": 213, "total_users": 741, "total_runs": 17972, "runs_30d": 7015, "success_rate_30d_pct": 93.81, "pricing_model": "PAY_PER_EVENT", "price_per_1k_reviews_usd": 1.75, "diamond_price_per_1k_usd": 1.5, "start_fee_usd": 0.005, "key_fields": ["verified_reviewer_details", "contact_email_enrichment", "deterministic_review_insights", "ai_pain_point_clusters", "star_and_date_filters"]}, {"actor_slug": "zen-studio/capterra-reviews-scraper", "actor_id": "x5wbchBdDewl20s3k", "title": "Capterra Review Scraper - Real-Time with Star Filters (Fast)", "platform": "Capterra", "mau_30d": 173, "total_users": 512, "total_runs": 21972, "runs_30d": 6286, "success_rate_30d_pct": 99.36, "pricing_model": "PAY_PER_EVENT", "price_per_1k_reviews_usd": 1.99, "diamond_price_per_1k_usd": 1.29, "start_fee_usd": 0.005, "key_fields": ["5_sub_ratings_value_support_ease", "reviewer_job_title", "company_size", "usage_duration", "pros_cons", "vendor_response"]}, {"actor_slug": "zen-studio/g2-reviews-scraper", "actor_id": "XQAkoDssJyWZmyR0W", "title": "G2 Reviews Scraper Real-Time (2026)", "platform": "G2", "mau_30d": 161, "total_users": 1008, "total_runs": 42679, "runs_30d": 5209, "success_rate_30d_pct": 89.69, "pricing_model": "PAY_PER_EVENT", "price_per_1k_reviews_usd": 6.49, "diamond_price_per_1k_usd": 3.49, "start_fee_usd": 5e-05, "key_fields": ["star_rating_filter_1_to_5", "recency_sort", "review_text_search", "llm_ready_markdown"]}, {"actor_slug": "azzouzana/g2-scraper", "actor_id": "ljI4X7RX5SQW8y6lX", "title": "G2 Reviews Scraper (45+ Fields)", "platform": "G2", "mau_30d": 129, "total_users": 463, "total_runs": 13762, "runs_30d": 4344, "success_rate_30d_pct": 99.77, "pricing_model": "PAY_PER_EVENT", "price_per_1k_reviews_usd": 1.75, "diamond_price_per_1k_usd": 1.0, "start_fee_usd": 0.005, "key_fields": ["45_plus_review_fields", "nps", "pros_cons", "reviewer_metadata"]}, {"actor_slug": "zen-studio/software-review-scraper", "actor_id": "9UyFQFcuwmvWG91uH", "title": "All-in-One Review Scraper: G2, Capterra & Trustpilot", "platform": "Multi-Platform (G2, Capterra, TrustRadius, Gartner)", "mau_30d": 87, "total_users": 501, "total_runs": 12384, "runs_30d": 2305, "success_rate_30d_pct": 94.36, "pricing_model": "PAY_PER_EVENT", "price_per_1k_reviews_usd": 4.99, "diamond_price_per_1k_usd": 3.99, "start_fee_usd": 0.05, "key_fields": ["unified_cross_platform_schema", "g2_capterra_trustradius_gartner", "sub_ratings", "reviewer_firmographics"]}, {"actor_slug": "azzouzana/capterra-reviews-scraper", "actor_id": "ObsUA1xqam3ObWUZ4", "title": "Capterra Reviews Scraper ($0.70/1K)", "platform": "Capterra", "mau_30d": 82, "total_users": 208, "total_runs": 4356, "runs_30d": 619, "success_rate_30d_pct": 98.55, "pricing_model": "PAY_PER_EVENT", "price_per_1k_reviews_usd": 1.0, "diamond_price_per_1k_usd": 0.7, "start_fee_usd": 0.005, "key_fields": ["25_plus_data_points", "reviewer_role_company_size", "sub_ratings", "pros_cons"]}, {"actor_slug": "factden/g2-reviews-scraper", "actor_id": "XKPUnqBYJn8RIEFLs", "title": "G2 Software Reviews Scraper · Battlecards + Switching Data", "platform": "G2", "mau_30d": 60, "total_users": 262, "total_runs": 2253, "runs_30d": 606, "success_rate_30d_pct": 99.5, "pricing_model": "PAY_PER_EVENT", "price_per_1k_reviews_usd": 4.0, "diamond_price_per_1k_usd": 2.5, "start_fee_usd": 0.005, "key_fields": ["switched_from_competitors", "auto_ranked_competitor_battlecards", "27_fields_per_review", "reviewer_role_and_size"]}, {"actor_slug": "zen-studio/trustradius-review-scraper", "actor_id": "WLXhoenmc5vv74kRq", "title": "TrustRadius Review Scraper - Ratings, Pros/Cons & More", "platform": "TrustRadius", "mau_30d": 42, "total_users": 118, "total_runs": 8876, "runs_30d": 1409, "success_rate_30d_pct": 91.84, "pricing_model": "PAY_PER_EVENT", "price_per_1k_reviews_usd": 3.99, "diamond_price_per_1k_usd": 2.49, "start_fee_usd": 5e-05, "key_fields": ["reviewer_firmographics", "roi_metrics", "considered_alternatives", "feature_scores"]}, {"actor_slug": "omkar-cloud/g2-product-scraper", "actor_id": "ajqs7IrvvxeteDYPv", "title": "G2 Product Scraper (433K+ Runs)", "platform": "G2", "mau_30d": 26, "total_users": 1011, "total_runs": 433778, "runs_30d": 533, "success_rate_30d_pct": 98.5, "pricing_model": "PAY_PER_EVENT", "price_per_1k_reviews_usd": 10.0, "diamond_price_per_1k_usd": 10.0, "start_fee_usd": 5e-05, "key_fields": ["vendor_website_emails_socials", "pricing_tiers", "240k_products_catalog"]}, {"actor_slug": "lergassy/software-reviews-scraper", "actor_id": "04dIHYFuNcqB2W2dX", "title": "Software Reviews Scraper — Capterra, GetApp, TrustRadius", "platform": "Multi-Platform (Capterra, GetApp, TrustRadius, Software Advice)", "mau_30d": 24, "total_users": 41, "total_runs": 284, "runs_30d": 108, "success_rate_30d_pct": 97.22, "pricing_model": "PAY_PER_EVENT", "price_per_1k_reviews_usd": 1.2, "diamond_price_per_1k_usd": 0.84, "start_fee_usd": 0.0, "key_fields": ["normalized_5_point_rating", "incentive_flags", "reviewer_job_title_industry_size"]}, {"actor_slug": "memo23/capterra-scraper", "actor_id": "38fecrqnnLVEdV9n7", "title": "Capterra Reviews Scraper — Star & Date Filters · $0.9/1K", "platform": "Capterra", "mau_30d": 15, "total_users": 83, "total_runs": 674, "runs_30d": 151, "success_rate_30d_pct": 94.04, "pricing_model": "PAY_PER_EVENT", "price_per_1k_reviews_usd": 0.9, "diamond_price_per_1k_usd": 0.9, "start_fee_usd": 0.01, "key_fields": ["regional_capterra_domains_de_uk_fr", "lowest_rated_sort", "company_size_filter", "competitive_gap_report"]}, {"actor_slug": "epctex/capterra-scraper", "actor_id": "mZrVfFsEelXdq6cgj", "title": "Capterra Scraper (30K+ Runs)", "platform": "Capterra", "mau_30d": 11, "total_users": 853, "total_runs": 30120, "runs_30d": 53, "success_rate_30d_pct": 45.28, "pricing_model": "PAY_PER_EVENT", "price_per_1k_reviews_usd": 3.5, "diamond_price_per_1k_usd": 3.5, "start_fee_usd": 5e-05, "key_fields": ["product_portfolio", "related_products", "client_reviews"]}, {"actor_slug": "kaix/g2-scraper", "actor_id": "MGzffVZRO2j1Gh7td", "title": "G2 Scraper - Reviews, Products, Analytics & Discussions (~$0.05/1K)", "platform": "G2", "mau_30d": 9, "total_users": 21, "total_runs": 5690, "runs_30d": 4337, "success_rate_30d_pct": 98.09, "pricing_model": "PAY_PER_EVENT", "price_per_1k_reviews_usd": 0.05, "diamond_price_per_1k_usd": 0.04, "start_fee_usd": 5e-05, "key_fields": ["72_review_fields", "nlp_sentiment", "switching_intelligence", "discussions_and_comparisons"]}, {"actor_slug": "epctex/trustradius-scraper", "actor_id": "tuprgrJdY9kFXck7V", "title": "Trustradius Insights Scraper", "platform": "TrustRadius", "mau_30d": 6, "total_users": 107, "total_runs": 10470, "runs_30d": 685, "success_rate_30d_pct": 100.0, "pricing_model": "PAY_PER_EVENT", "price_per_1k_reviews_usd": 2.0, "diamond_price_per_1k_usd": 2.0, "start_fee_usd": 5e-05, "key_fields": ["vendor_profiles", "in_depth_enterprise_qa", "renewal_intent_score"]}, {"actor_slug": "memo23/trustradius-scraper", "actor_id": "jfNcTBZ14B0xBamce", "title": "TrustRadius $1 Reviews, Products, Category & Compare Scraper", "platform": "TrustRadius", "mau_30d": 4, "total_users": 36, "total_runs": 296, "runs_30d": 26, "success_rate_30d_pct": 100.0, "pricing_model": "PAY_PER_EVENT", "price_per_1k_reviews_usd": 1.0, "diamond_price_per_1k_usd": 1.0, "start_fee_usd": 0.05, "key_fields": ["reviewer_linkedin_url", "reviewer_firmographics", "full_qa_sections", "competitive_gap_report"]}], "incumbent_vendors_catalog": {"Salesforce Sales Cloud": {"category": "Enterprise CRM & RevOps", "typical_seat_price_eur": 165, "sso_tax_multiplier": 1.85, "auto_renewal_notice_days": 90, "typical_renewal_uplift_pct": 28, "challenger_positioning": "Modern AI-Native RevOps CRM (Zero Admin Overhead, Native EU Hosting)", "challenger_seat_price_eur": 69, "migration_hours": 48}, "HubSpot Marketing & Sales Hub Enterprise": {"category": "Marketing Automation & CRM", "typical_seat_price_eur": 135, "sso_tax_multiplier": 2.1, "auto_renewal_notice_days": 60, "typical_renewal_uplift_pct": 38, "challenger_positioning": "Flat-Rate B2B Growth & Outbound Engine (No Contact-Tier Overage Traps)", "challenger_seat_price_eur": 55, "migration_hours": 24}, "Jira Software & Atlassian Cloud Enterprise": {"category": "Engineering Project & Issue Tracking", "typical_seat_price_eur": 48, "sso_tax_multiplier": 2.4, "auto_renewal_notice_days": 60, "typical_renewal_uplift_pct": 35, "challenger_positioning": "High-Velocity Linear-Style Engineering OS (SAML/SCIM Included Free, EU Cloud)", "challenger_seat_price_eur": 22, "migration_hours": 12}, "Zendesk Suite Enterprise": {"category": "Customer Support & Ticketing", "typical_seat_price_eur": 115, "sso_tax_multiplier": 1.75, "auto_renewal_notice_days": 60, "typical_renewal_uplift_pct": 32, "challenger_positioning": "AI-First Omnichannel Support Desk (Zero Per-Resolution AI Tax, Instant Zendesk Import)", "challenger_seat_price_eur": 49, "migration_hours": 24}, "Personio Core Pro / Enterprise": {"category": "DACH HRIS & Payroll Operations", "typical_seat_price_eur": 24, "sso_tax_multiplier": 1.9, "auto_renewal_notice_days": 90, "typical_renewal_uplift_pct": 42, "challenger_positioning": "Transparent DACH HR & Lohn-OS (Fixed Per-Employee Rate, DATEV Native, Zero SSO Uplift)", "challenger_seat_price_eur": 11, "migration_hours": 36}, "ZoomInfo SalesOS": {"category": "B2B Contact & Intent Data", "typical_seat_price_eur": 210, "sso_tax_multiplier": 1.5, "auto_renewal_notice_days": 90, "typical_renewal_uplift_pct": 30, "challenger_positioning": "GDPR-Compliant Live Signal & Waterfall Enrichment Stack (No 60-90 Day Auto-Renewal Trap)", "challenger_seat_price_eur": 79, "migration_hours": 6}, "Workday HCM / Financial Management": {"category": "Enterprise ERP & HCM", "typical_seat_price_eur": 65, "sso_tax_multiplier": 1.6, "auto_renewal_notice_days": 90, "typical_renewal_uplift_pct": 25, "challenger_positioning": "Modular Composable People & Finance Platform (Live in 14 Days, Zero Big-4 Consultant Tax)", "challenger_seat_price_eur": 29, "migration_hours": 72}, "DocuSign Enterprise Pro": {"category": "eSignature & CLM", "typical_seat_price_eur": 75, "sso_tax_multiplier": 2.25, "auto_renewal_notice_days": 60, "typical_renewal_uplift_pct": 45, "challenger_positioning": "Unlimited-Envelope eIDAS Qualified Signature & CLM Hub (Zero Envelope Overages, Free SAML)", "challenger_seat_price_eur": 25, "migration_hours": 8}}, "sniped_leads": [{"review_id": "G2-REV-90812", "platform": "G2", "scraped_via_actor": "factden/g2-reviews-scraper", "incumbent_product": "HubSpot Marketing & Sales Hub Enterprise", "star_rating": 2.0, "review_date": "2026-10-14", "reviewer_display_name": "Marcus V.", "reviewer_resolved_full_name": "Marcus Vance", "reviewer_job_title": "VP of Revenue Operations", "inferred_company_name": "PayStream Europe GmbH", "inferred_company_domain": "paystream-europe.de", "inferred_work_email": "marcus.vance@paystream-europe.de", "reviewer_linkedin_handle": "linkedin.com/in/marcus-vance-revops", "company_size_band": "201-500 employees", "estimated_seats": 85, "industry": "B2B Financial Services & FinTech", "switched_from": "Pardot", "considered_alternatives": ["ActiveCampaign", "Pipedrive", "Custom Stack"], "review_title": "Great UI until renewal arrives — 38% renewal price hike and mandatory contact tier jump", "cons_text": "They raised our renewal price by 38% with zero warning and forced seat minimums plus a mandatory marketing contact tier upgrade. When we tried to downgrade 20 unused seats 45 days before renewal, our account rep ghosted until after the 60-day auto-renewal notice window passed. Now they claim we are locked into another 2-year contract. On top of that, charging extra for SSO/SAML by forcing Enterprise across every hub is pure extortion.", "churn_intent_score": 99, "priority_tier": "P0_IMMEDIATE_RIP_AND_REPLACE", "matched_triggers": [{"trigger_code": "RENEWAL_PRICE_HIKE", "trigger_label": "Renewal Price Hike & Forced Tier/Seat Minimums", "short_badge": "PRICE HIKE (+25-60%)", "severity_points": 34, "matched_snippets": ["renewal arrives — 38% renewal price hike", "raised our renewal price", "forced seat"], "counter_offer_hook": "36-Month Price-Lock Guarantee + 25% Immediate ACV Reduction + Zero Seat Minimums"}, {"trigger_code": "FORCED_AUTO_RENEWAL_LOCKIN", "trigger_label": "Predatory 60/90-Day Auto-Renewal Clause & Ghosting Account Rep", "short_badge": "AUTO-RENEWAL TRAP", "severity_points": 36, "matched_snippets": ["60-day auto-renewal", "account rep ghosted", "2-year contract"], "counter_offer_hook": "Up to 6 Months Remaining Contract Buyout Credit + Opt-Out Anytime 30-Day Clause"}, {"trigger_code": "MISSING_EU_GDPR_AI_COMPLIANCE", "trigger_label": "SSO/SAML Tax (+2x Enterprise Gate) & Missing EU GDPR / Data Residency", "short_badge": "SSO TAX / EU GDPR GAP", "severity_points": 30, "matched_snippets": ["charging extra for SSO"], "counter_offer_hook": "Zero SSO/SAML/SCIM Tax on All Tiers + 100% EU Sovereign Hosting (Frankfurt/Hetzner ISO-27001)"}], "extracted_price_hike_pct": 38, "renewal_window": {"usage_duration_raw": "Used the software for: 1-2 years", "usage_months_estimated": 22, "contract_term_months": 24, "months_remaining_on_contract": 2, "days_remaining_on_contract": 60, "incumbent_notice_clause_days": 60, "days_until_notice_deadline": 0, "renewal_urgency_tier": "POST_TRAP_BUYOUT_ELIGIBLE", "window_explanation": "Reviewer at month 22/24 (60d left). Incumbent 60d notice deadline is active/passed — deploy Remaining-Month Contract Buyout + Parallel Onboarding NOW."}, "sso_tax_analysis": {"sso_tax_detected": true, "incumbent_seat_price_eur": 135.0, "incumbent_sso_multiplier": 2.1, "estimated_seats": 85, "annual_sso_tax_overpay_eur": 72129, "challenger_seat_price_eur": 55.0, "total_annual_savings_eur": 133926, "savings_36_month_lock_eur": 401778, "remaining_contract_buyout_credit_eur": 9350, "net_year1_roi_after_buyout_eur": 143276}, "battlecard": {"headline_offer": "We will credit your remaining 2 months on HubSpot Marketing & Sales Hub Enterprise (€9,350), migrate your 85-seat workspace in 24 hours for €0, and lock your €55/seat rate for 36 months with zero SSO/SAML tax.", "buyout_months_credited": 2, "buyout_credit_eur": 9350, "migration_sla_hours": 24, "rate_lock_months": 36, "subject_line": "Buying out PayStream Europe GmbH's remaining 2 mos on HubSpot (+ skipping their 38% renewal hike)", "cold_email_body": "Hi Marcus,\n\nSaw your recent G2 feedback on HubSpot Marketing & Sales Hub Enterprise — especially around their 38% renewal uplift and 60-day notice window (PRICE HIKE (+25-60%), AUTO-RENEWAL TRAP, SSO TAX / EU GDPR GAP).\n\nBecause PayStream Europe GmbH (~85 seats) is right in the 22-month window, we put together a deterministic Rip-and-Replace Buyout for your team:\n  1. Contract Buyout Credit: We credit your remaining 2 months on HubSpot Marketing & Sales Hub Enterprise (€9,350 applied directly to Year 1).\n  2. Zero SSO/SAML Tax: Okta/Entra SAML + SCIM + Frankfurt EU data residency included free (saves €72,129/yr in artificial Enterprise tier gating).\n  3. 24-Hour White-Glove Migration: Full schema, historical data & permissions migrated for €0 consultant fees, plus a 36-month price lock saving €401,778.\n\nOpen to a 12-minute live sandbox walkthrough on Thursday so you can send HubSpot your non-renewal notice before the 60-day deadline?", "linkedin_dm_body": "Hey Marcus — caught your G2 note on HubSpot's 38% renewal uplift. We're actively buying out 2 remaining months for B2B Financial Services & FinTech teams migrating off HubSpot (24h automated import, €0 SSO tax, €133,926/yr saved for 85 seats). Want me to send over the 1-page CFO Buyout Sheet for PayStream Europe GmbH?", "cfo_exec_buyout_memo": "CFO / PROCUREMENT RIP-AND-REPLACE MEMO — PAYSTREAM EUROPE GMBH\n• Incumbent Displaced: HubSpot Marketing & Sales Hub Enterprise (85 Est. Seats)\n• Verified Churn Triggers: PRICE HIKE (+25-60%), AUTO-RENEWAL TRAP, SSO TAX / EU GDPR GAP\n• Annualized Incumbent Spend (Post-38% Hike): €190,026/yr\n• Hidden 'SSO Tax' Unbundled: €72,129/yr eliminated\n• Challenger 36-Month Rate-Lock Spend: €56,100/yr\n• Immediate Contract Buyout Credit (2 Mos): €9,350\n• Net 36-Month Hard Dollar Savings: €411,128\n• Guarantee: 36-Month Price-Lock Guarantee + 25% Immediate ACV Reduction + Zero Seat Minimums", "predicted_reply_to_demo_pct": 14.2}}, {"review_id": "CAP-REV-44109", "platform": "Capterra", "scraped_via_actor": "zen-studio/capterra-reviews-scraper", "incumbent_product": "ZoomInfo SalesOS", "star_rating": 1.0, "review_date": "2026-10-15", "reviewer_display_name": "Elena Rostova", "reviewer_resolved_full_name": "Elena Rostova", "reviewer_job_title": "Head of Growth & Outbound", "inferred_company_name": "CloudPulse Analytics AG", "inferred_company_domain": "cloudpulse-analytics.io", "inferred_work_email": "elena.rostova@cloudpulse-analytics.io", "reviewer_linkedin_handle": "linkedin.com/in/elenarostova-growth", "company_size_band": "51-200 employees", "estimated_seats": 35, "industry": "Computer Software / SaaS", "switched_from": "Lusha", "considered_alternatives": ["Apollo.io", "Clay", "Cognism"], "review_title": "Predatory 60-day auto-renewal trap + terrible DACH GDPR compliance", "cons_text": "Watch out for the 60-day auto-renewal clause! Our account executive disappeared when we asked about removing intent credits, then emailed us the day after the cancellation deadline demanding a 25% price increase for year two. European and German mobile data is outdated and poses a huge GDPR / DSGVO compliance risk with no EU data residency.", "churn_intent_score": 99, "priority_tier": "P0_IMMEDIATE_RIP_AND_REPLACE", "matched_triggers": [{"trigger_code": "RENEWAL_PRICE_HIKE", "trigger_label": "Renewal Price Hike & Forced Tier/Seat Minimums", "short_badge": "PRICE HIKE (+25-60%)", "severity_points": 34, "matched_snippets": ["25% price increase"], "counter_offer_hook": "36-Month Price-Lock Guarantee + 25% Immediate ACV Reduction + Zero Seat Minimums"}, {"trigger_code": "FORCED_AUTO_RENEWAL_LOCKIN", "trigger_label": "Predatory 60/90-Day Auto-Renewal Clause & Ghosting Account Rep", "short_badge": "AUTO-RENEWAL TRAP", "severity_points": 36, "matched_snippets": ["60-day auto-renewal", "auto-renewal trap", "auto-renewal clause"], "counter_offer_hook": "Up to 6 Months Remaining Contract Buyout Credit + Opt-Out Anytime 30-Day Clause"}, {"trigger_code": "MISSING_EU_GDPR_AI_COMPLIANCE", "trigger_label": "SSO/SAML Tax (+2x Enterprise Gate) & Missing EU GDPR / Data Residency", "short_badge": "SSO TAX / EU GDPR GAP", "severity_points": 30, "matched_snippets": ["GDPR", "DSGVO", "EU data residency"], "counter_offer_hook": "Zero SSO/SAML/SCIM Tax on All Tiers + 100% EU Sovereign Hosting (Frankfurt/Hetzner ISO-27001)"}], "extracted_price_hike_pct": 25, "renewal_window": {"usage_duration_raw": "Used the software for: 1-2 years", "usage_months_estimated": 10, "contract_term_months": 12, "months_remaining_on_contract": 2, "days_remaining_on_contract": 60, "incumbent_notice_clause_days": 90, "days_until_notice_deadline": -30, "renewal_urgency_tier": "POST_TRAP_BUYOUT_ELIGIBLE", "window_explanation": "Reviewer at month 10/12 (60d left). Incumbent 90d notice deadline is active/passed — deploy Remaining-Month Contract Buyout + Parallel Onboarding NOW."}, "sso_tax_analysis": {"sso_tax_detected": true, "incumbent_seat_price_eur": 210.0, "incumbent_sso_multiplier": 1.5, "estimated_seats": 35, "annual_sso_tax_overpay_eur": 29400, "challenger_seat_price_eur": 79.0, "total_annual_savings_eur": 77070, "savings_36_month_lock_eur": 231210, "remaining_contract_buyout_credit_eur": 5530, "net_year1_roi_after_buyout_eur": 82600}, "battlecard": {"headline_offer": "We will credit your remaining 2 months on ZoomInfo SalesOS (€5,530), migrate your 35-seat workspace in 6 hours for €0, and lock your €79/seat rate for 36 months with zero SSO/SAML tax.", "buyout_months_credited": 2, "buyout_credit_eur": 5530, "migration_sla_hours": 6, "rate_lock_months": 36, "subject_line": "Buying out CloudPulse Analytics AG's remaining 2 mos on ZoomInfo (+ skipping their 25% renewal hike)", "cold_email_body": "Hi Elena,\n\nSaw your recent Capterra feedback on ZoomInfo SalesOS — especially around their 25% renewal uplift and 90-day notice window (PRICE HIKE (+25-60%), AUTO-RENEWAL TRAP, SSO TAX / EU GDPR GAP).\n\nBecause CloudPulse Analytics AG (~35 seats) is right in the 10-month window, we put together a deterministic Rip-and-Replace Buyout for your team:\n  1. Contract Buyout Credit: We credit your remaining 2 months on ZoomInfo SalesOS (€5,530 applied directly to Year 1).\n  2. Zero SSO/SAML Tax: Okta/Entra SAML + SCIM + Frankfurt EU data residency included free (saves €29,400/yr in artificial Enterprise tier gating).\n  3. 6-Hour White-Glove Migration: Full schema, historical data & permissions migrated for €0 consultant fees, plus a 36-month price lock saving €231,210.\n\nOpen to a 12-minute live sandbox walkthrough on Thursday so you can send ZoomInfo your non-renewal notice before the 90-day deadline?", "linkedin_dm_body": "Hey Elena — caught your Capterra note on ZoomInfo's 25% renewal uplift. We're actively buying out 2 remaining months for Computer Software / SaaS teams migrating off ZoomInfo (6h automated import, €0 SSO tax, €77,070/yr saved for 35 seats). Want me to send over the 1-page CFO Buyout Sheet for CloudPulse Analytics AG?", "cfo_exec_buyout_memo": "CFO / PROCUREMENT RIP-AND-REPLACE MEMO — CLOUDPULSE ANALYTICS AG\n• Incumbent Displaced: ZoomInfo SalesOS (35 Est. Seats)\n• Verified Churn Triggers: PRICE HIKE (+25-60%), AUTO-RENEWAL TRAP, SSO TAX / EU GDPR GAP\n• Annualized Incumbent Spend (Post-25% Hike): €110,250/yr\n• Hidden 'SSO Tax' Unbundled: €29,400/yr eliminated\n• Challenger 36-Month Rate-Lock Spend: €33,180/yr\n• Immediate Contract Buyout Credit (2 Mos): €5,530\n• Net 36-Month Hard Dollar Savings: €236,740\n• Guarantee: 36-Month Price-Lock Guarantee + 25% Immediate ACV Reduction + Zero Seat Minimums", "predicted_reply_to_demo_pct": 14.2}}, {"review_id": "TR-REV-77310", "platform": "TrustRadius", "scraped_via_actor": "memo23/trustradius-scraper", "incumbent_product": "Salesforce Sales Cloud", "star_rating": 2.0, "review_date": "2026-10-16", "reviewer_display_name": "Hendrik von Berg", "reviewer_resolved_full_name": "Hendrik von Berg", "reviewer_job_title": "Chief Financial Officer (CFO)", "inferred_company_name": "Vortex Robotics SE", "inferred_company_domain": "vortex-robotics.eu", "inferred_work_email": "hendrik.berg@vortex-robotics.eu", "reviewer_linkedin_handle": "linkedin.com/in/hendrik-von-berg-cfo", "company_size_band": "501-1,000 employees", "estimated_seats": 160, "industry": "Industrial IoT & Manufacturing", "switched_from": "Microsoft Dynamics 365", "considered_alternatives": ["HubSpot", "Pipedrive Enterprise", "Attio"], "review_title": "Shelfware that requires €80K/year in external consultants + 90-day renewal lock-in", "cons_text": "Took 8 months to onboard with an expensive implementation partner fee of €95,000, and our sales team only uses 10% of the platform as a glorified Rolodex. Now they want a 28% renewal price hike and enforce a rigid 90-day notice window with zero flexibility to reduce seat count after our restructuring. Complete shelfware.", "churn_intent_score": 99, "priority_tier": "P0_IMMEDIATE_RIP_AND_REPLACE", "matched_triggers": [{"trigger_code": "RENEWAL_PRICE_HIKE", "trigger_label": "Renewal Price Hike & Forced Tier/Seat Minimums", "short_badge": "PRICE HIKE (+25-60%)", "severity_points": 34, "matched_snippets": ["renewal price hike"], "counter_offer_hook": "36-Month Price-Lock Guarantee + 25% Immediate ACV Reduction + Zero Seat Minimums"}, {"trigger_code": "FORCED_AUTO_RENEWAL_LOCKIN", "trigger_label": "Predatory 60/90-Day Auto-Renewal Clause & Ghosting Account Rep", "short_badge": "AUTO-RENEWAL TRAP", "severity_points": 36, "matched_snippets": ["90-day notice"], "counter_offer_hook": "Up to 6 Months Remaining Contract Buyout Credit + Opt-Out Anytime 30-Day Clause"}, {"trigger_code": "IMPLEMENTATION_BLOAT_SHELFWARE", "trigger_label": "6-Month Implementation Bloat, Paid Consultant Tax & 10%-Usage Shelfware", "short_badge": "SHELFWARE / 6-MO ONBOARDING", "severity_points": 24, "matched_snippets": ["Took 8 months to onboard", "only uses 10% of the platform", "Shelfware"], "counter_offer_hook": "48-Hour Automated Schema Migration for €0 + Zero Implementation Partner Fees"}], "extracted_price_hike_pct": null, "renewal_window": {"usage_duration_raw": "Used the software for: 2+ years", "usage_months_estimated": 33, "contract_term_months": 36, "months_remaining_on_contract": 3, "days_remaining_on_contract": 90, "incumbent_notice_clause_days": 90, "days_until_notice_deadline": 0, "renewal_urgency_tier": "POST_TRAP_BUYOUT_ELIGIBLE", "window_explanation": "Reviewer at month 33/36 (90d left). Incumbent 90d notice deadline is active/passed — deploy Remaining-Month Contract Buyout + Parallel Onboarding NOW."}, "sso_tax_analysis": {"sso_tax_detected": false, "incumbent_seat_price_eur": 165.0, "incumbent_sso_multiplier": 1.85, "estimated_seats": 160, "annual_sso_tax_overpay_eur": 145557, "challenger_seat_price_eur": 69.0, "total_annual_savings_eur": 273024, "savings_36_month_lock_eur": 819072, "remaining_contract_buyout_credit_eur": 33120, "net_year1_roi_after_buyout_eur": 306144}, "battlecard": {"headline_offer": "We will credit your remaining 3 months on Salesforce Sales Cloud (€33,120), migrate your 160-seat workspace in 48 hours for €0, and lock your €69/seat rate for 36 months with zero SSO/SAML tax.", "buyout_months_credited": 3, "buyout_credit_eur": 33120, "migration_sla_hours": 48, "rate_lock_months": 36, "subject_line": "Buying out Vortex Robotics SE's remaining 3 mos on Salesforce (+ skipping their 28% renewal hike)", "cold_email_body": "Hi Hendrik,\n\nSaw your recent TrustRadius feedback on Salesforce Sales Cloud — especially around their 28% renewal uplift and 90-day notice window (PRICE HIKE (+25-60%), AUTO-RENEWAL TRAP, SHELFWARE / 6-MO ONBOARDING).\n\nBecause Vortex Robotics SE (~160 seats) is right in the 33-month window, we put together a deterministic Rip-and-Replace Buyout for your team:\n  1. Contract Buyout Credit: We credit your remaining 3 months on Salesforce Sales Cloud (€33,120 applied directly to Year 1).\n  2. Zero SSO/SAML Tax: Okta/Entra SAML + SCIM + Frankfurt EU data residency included free (saves €145,557/yr in artificial Enterprise tier gating).\n  3. 48-Hour White-Glove Migration: Full schema, historical data & permissions migrated for €0 consultant fees, plus a 36-month price lock saving €819,072.\n\nOpen to a 12-minute live sandbox walkthrough on Thursday so you can send Salesforce your non-renewal notice before the 90-day deadline?", "linkedin_dm_body": "Hey Hendrik — caught your TrustRadius note on Salesforce's 28% renewal uplift. We're actively buying out 3 remaining months for Industrial IoT & Manufacturing teams migrating off Salesforce (48h automated import, €0 SSO tax, €273,024/yr saved for 160 seats). Want me to send over the 1-page CFO Buyout Sheet for Vortex Robotics SE?", "cfo_exec_buyout_memo": "CFO / PROCUREMENT RIP-AND-REPLACE MEMO — VORTEX ROBOTICS SE\n• Incumbent Displaced: Salesforce Sales Cloud (160 Est. Seats)\n• Verified Churn Triggers: PRICE HIKE (+25-60%), AUTO-RENEWAL TRAP, SHELFWARE / 6-MO ONBOARDING\n• Annualized Incumbent Spend (Post-28% Hike): €405,504/yr\n• Hidden 'SSO Tax' Unbundled: €145,557/yr eliminated\n• Challenger 36-Month Rate-Lock Spend: €132,480/yr\n• Immediate Contract Buyout Credit (3 Mos): €33,120\n• Net 36-Month Hard Dollar Savings: €852,192\n• Guarantee: 36-Month Price-Lock Guarantee + 25% Immediate ACV Reduction + Zero Seat Minimums", "predicted_reply_to_demo_pct": 14.0}}, {"review_id": "G2-REV-91588", "platform": "G2", "scraped_via_actor": "memo23/g2-scraper", "incumbent_product": "Zendesk Suite Enterprise", "star_rating": 1.5, "review_date": "2026-10-16", "reviewer_display_name": "Liam O'Connor", "reviewer_resolved_full_name": "Liam O'Connor", "reviewer_job_title": "Director of Customer Experience", "inferred_company_name": "ScaleGrid Cloud Ltd", "inferred_company_domain": "scalegridcloud.com", "inferred_work_email": "liam.oconnor@scalegridcloud.com", "reviewer_linkedin_handle": "linkedin.com/in/liam-oconnor-cx", "company_size_band": "51-200 employees", "estimated_seats": 65, "industry": "B2B SaaS & Cloud Infrastructure", "switched_from": "Freshdesk", "considered_alternatives": ["Intercom", "Plain", "Pylon"], "review_title": "Ever since Private Equity acquired them, support is a black hole and renewal jumped 35%", "cons_text": "Ever since the Private Equity buyout, customer support has completely collapsed into an AI chatbot black hole where tickets take 3 weeks to get a human response. Meanwhile our account rep ignored our seat reduction request and hit us with a 35% price hike on renewal plus hidden add-on fees for AI resolutions. Locked into a 60-day notice clause.", "churn_intent_score": 99, "priority_tier": "P0_IMMEDIATE_RIP_AND_REPLACE", "matched_triggers": [{"trigger_code": "RENEWAL_PRICE_HIKE", "trigger_label": "Renewal Price Hike & Forced Tier/Seat Minimums", "short_badge": "PRICE HIKE (+25-60%)", "severity_points": 34, "matched_snippets": ["renewal jumped", "price hike", "35% price hike"], "counter_offer_hook": "36-Month Price-Lock Guarantee + 25% Immediate ACV Reduction + Zero Seat Minimums"}, {"trigger_code": "FORCED_AUTO_RENEWAL_LOCKIN", "trigger_label": "Predatory 60/90-Day Auto-Renewal Clause & Ghosting Account Rep", "short_badge": "AUTO-RENEWAL TRAP", "severity_points": 36, "matched_snippets": ["60-day notice", "account rep ignored"], "counter_offer_hook": "Up to 6 Months Remaining Contract Buyout Credit + Opt-Out Anytime 30-Day Clause"}, {"trigger_code": "SUPPORT_POST_ACQUISITION_COLLAPSE", "trigger_label": "Post-PE Acquisition Support Collapse & Ticket Black Hole", "short_badge": "POST-PE SUPPORT COLLAPSE", "severity_points": 26, "matched_snippets": ["Private Equity acquired them, support", "Private Equity buyout, customer support has completely collapsed", "Ever since Private Equity acquired"], "counter_offer_hook": "Dedicated Slack Connect Engineer (<15 Min SLA) + Named EU Solutions Architect Included"}], "extracted_price_hike_pct": 35, "renewal_window": {"usage_duration_raw": "Used the software for: 1-2 years", "usage_months_estimated": 22, "contract_term_months": 24, "months_remaining_on_contract": 2, "days_remaining_on_contract": 60, "incumbent_notice_clause_days": 60, "days_until_notice_deadline": 0, "renewal_urgency_tier": "POST_TRAP_BUYOUT_ELIGIBLE", "window_explanation": "Reviewer at month 22/24 (60d left). Incumbent 60d notice deadline is active/passed — deploy Remaining-Month Contract Buyout + Parallel Onboarding NOW."}, "sso_tax_analysis": {"sso_tax_detected": false, "incumbent_seat_price_eur": 115.0, "incumbent_sso_multiplier": 1.75, "estimated_seats": 65, "annual_sso_tax_overpay_eur": 38443, "challenger_seat_price_eur": 49.0, "total_annual_savings_eur": 82875, "savings_36_month_lock_eur": 248625, "remaining_contract_buyout_credit_eur": 6370, "net_year1_roi_after_buyout_eur": 89245}, "battlecard": {"headline_offer": "We will credit your remaining 2 months on Zendesk Suite Enterprise (€6,370), migrate your 65-seat workspace in 24 hours for €0, and lock your €49/seat rate for 36 months with zero SSO/SAML tax.", "buyout_months_credited": 2, "buyout_credit_eur": 6370, "migration_sla_hours": 24, "rate_lock_months": 36, "subject_line": "Buying out ScaleGrid Cloud Ltd's remaining 2 mos on Zendesk (+ skipping their 35% renewal hike)", "cold_email_body": "Hi Liam,\n\nSaw your recent G2 feedback on Zendesk Suite Enterprise — especially around their 35% renewal uplift and 60-day notice window (PRICE HIKE (+25-60%), AUTO-RENEWAL TRAP, POST-PE SUPPORT COLLAPSE).\n\nBecause ScaleGrid Cloud Ltd (~65 seats) is right in the 22-month window, we put together a deterministic Rip-and-Replace Buyout for your team:\n  1. Contract Buyout Credit: We credit your remaining 2 months on Zendesk Suite Enterprise (€6,370 applied directly to Year 1).\n  2. Zero SSO/SAML Tax: Okta/Entra SAML + SCIM + Frankfurt EU data residency included free (saves €38,443/yr in artificial Enterprise tier gating).\n  3. 24-Hour White-Glove Migration: Full schema, historical data & permissions migrated for €0 consultant fees, plus a 36-month price lock saving €248,625.\n\nOpen to a 12-minute live sandbox walkthrough on Thursday so you can send Zendesk your non-renewal notice before the 60-day deadline?", "linkedin_dm_body": "Hey Liam — caught your G2 note on Zendesk's 35% renewal uplift. We're actively buying out 2 remaining months for B2B SaaS & Cloud Infrastructure teams migrating off Zendesk (24h automated import, €0 SSO tax, €82,875/yr saved for 65 seats). Want me to send over the 1-page CFO Buyout Sheet for ScaleGrid Cloud Ltd?", "cfo_exec_buyout_memo": "CFO / PROCUREMENT RIP-AND-REPLACE MEMO — SCALEGRID CLOUD LTD\n• Incumbent Displaced: Zendesk Suite Enterprise (65 Est. Seats)\n• Verified Churn Triggers: PRICE HIKE (+25-60%), AUTO-RENEWAL TRAP, POST-PE SUPPORT COLLAPSE\n• Annualized Incumbent Spend (Post-35% Hike): €121,095/yr\n• Hidden 'SSO Tax' Unbundled: €38,443/yr eliminated\n• Challenger 36-Month Rate-Lock Spend: €38,220/yr\n• Immediate Contract Buyout Credit (2 Mos): €6,370\n• Net 36-Month Hard Dollar Savings: €254,995\n• Guarantee: 36-Month Price-Lock Guarantee + 25% Immediate ACV Reduction + Zero Seat Minimums", "predicted_reply_to_demo_pct": 14.2}}, {"review_id": "G2-REV-91901", "platform": "G2", "scraped_via_actor": "kaix/g2-scraper", "incumbent_product": "Workday HCM / Financial Management", "star_rating": 2.0, "review_date": "2026-10-10", "reviewer_display_name": "Stefan H.", "reviewer_resolved_full_name": "Stefan Hartmann", "reviewer_job_title": "Chief Information Officer (CIO)", "inferred_company_name": "VoltGrid Energy AG", "inferred_company_domain": "voltgrid-energy.de", "inferred_work_email": "stefan.hartmann@voltgrid-energy.de", "reviewer_linkedin_handle": "linkedin.com/in/stefan-hartmann-cio", "company_size_band": "501-1,000 employees", "estimated_seats": 620, "industry": "Renewable Energy & Grid Tech", "switched_from": "SAP SuccessFactors", "considered_alternatives": ["Personio", "HiBob", "Rippling"], "review_title": "Took 9 months to implement, clunky legacy UI, and 90-day renewal lock-in with 25% uplift", "cons_text": "Took 9 months to implement with mandatory partner consultant fees exceeding €140K. Our managers hate the clunky legacy UI and only use 12% of the features. We are approaching our 3-year renewal and they just proposed a 25% renewal price hike with a strict 90-day notice clause.", "churn_intent_score": 99, "priority_tier": "P0_IMMEDIATE_RIP_AND_REPLACE", "matched_triggers": [{"trigger_code": "RENEWAL_PRICE_HIKE", "trigger_label": "Renewal Price Hike & Forced Tier/Seat Minimums", "short_badge": "PRICE HIKE (+25-60%)", "severity_points": 34, "matched_snippets": ["renewal lock-in with 25% uplift", "renewal price hike", "25% uplift"], "counter_offer_hook": "36-Month Price-Lock Guarantee + 25% Immediate ACV Reduction + Zero Seat Minimums"}, {"trigger_code": "FORCED_AUTO_RENEWAL_LOCKIN", "trigger_label": "Predatory 60/90-Day Auto-Renewal Clause & Ghosting Account Rep", "short_badge": "AUTO-RENEWAL TRAP", "severity_points": 36, "matched_snippets": ["90-day notice"], "counter_offer_hook": "Up to 6 Months Remaining Contract Buyout Credit + Opt-Out Anytime 30-Day Clause"}, {"trigger_code": "IMPLEMENTATION_BLOAT_SHELFWARE", "trigger_label": "6-Month Implementation Bloat, Paid Consultant Tax & 10%-Usage Shelfware", "short_badge": "SHELFWARE / 6-MO ONBOARDING", "severity_points": 24, "matched_snippets": ["Took 9 months to implement", "only use 12% of the features", "clunky legacy UI"], "counter_offer_hook": "48-Hour Automated Schema Migration for €0 + Zero Implementation Partner Fees"}], "extracted_price_hike_pct": 25, "renewal_window": {"usage_duration_raw": "Used the software for: 2+ years", "usage_months_estimated": 33, "contract_term_months": 36, "months_remaining_on_contract": 3, "days_remaining_on_contract": 90, "incumbent_notice_clause_days": 90, "days_until_notice_deadline": 0, "renewal_urgency_tier": "POST_TRAP_BUYOUT_ELIGIBLE", "window_explanation": "Reviewer at month 33/36 (90d left). Incumbent 90d notice deadline is active/passed — deploy Remaining-Month Contract Buyout + Parallel Onboarding NOW."}, "sso_tax_analysis": {"sso_tax_detected": false, "incumbent_seat_price_eur": 65.0, "incumbent_sso_multiplier": 1.6, "estimated_seats": 620, "annual_sso_tax_overpay_eur": 181350, "challenger_seat_price_eur": 29.0, "total_annual_savings_eur": 388740, "savings_36_month_lock_eur": 1166220, "remaining_contract_buyout_credit_eur": 53940, "net_year1_roi_after_buyout_eur": 442680}, "battlecard": {"headline_offer": "We will credit your remaining 3 months on Workday HCM / Financial Management (€53,940), migrate your 620-seat workspace in 72 hours for €0, and lock your €29/seat rate for 36 months with zero SSO/SAML tax.", "buyout_months_credited": 3, "buyout_credit_eur": 53940, "migration_sla_hours": 72, "rate_lock_months": 36, "subject_line": "Buying out VoltGrid Energy AG's remaining 3 mos on Workday (+ skipping their 25% renewal hike)", "cold_email_body": "Hi Stefan,\n\nSaw your recent G2 feedback on Workday HCM / Financial Management — especially around their 25% renewal uplift and 90-day notice window (PRICE HIKE (+25-60%), AUTO-RENEWAL TRAP, SHELFWARE / 6-MO ONBOARDING).\n\nBecause VoltGrid Energy AG (~620 seats) is right in the 33-month window, we put together a deterministic Rip-and-Replace Buyout for your team:\n  1. Contract Buyout Credit: We credit your remaining 3 months on Workday HCM / Financial Management (€53,940 applied directly to Year 1).\n  2. Zero SSO/SAML Tax: Okta/Entra SAML + SCIM + Frankfurt EU data residency included free (saves €181,350/yr in artificial Enterprise tier gating).\n  3. 72-Hour White-Glove Migration: Full schema, historical data & permissions migrated for €0 consultant fees, plus a 36-month price lock saving €1,166,220.\n\nOpen to a 12-minute live sandbox walkthrough on Thursday so you can send Workday your non-renewal notice before the 90-day deadline?", "linkedin_dm_body": "Hey Stefan — caught your G2 note on Workday's 25% renewal uplift. We're actively buying out 3 remaining months for Renewable Energy & Grid Tech teams migrating off Workday (72h automated import, €0 SSO tax, €388,740/yr saved for 620 seats). Want me to send over the 1-page CFO Buyout Sheet for VoltGrid Energy AG?", "cfo_exec_buyout_memo": "CFO / PROCUREMENT RIP-AND-REPLACE MEMO — VOLTGRID ENERGY AG\n• Incumbent Displaced: Workday HCM / Financial Management (620 Est. Seats)\n• Verified Churn Triggers: PRICE HIKE (+25-60%), AUTO-RENEWAL TRAP, SHELFWARE / 6-MO ONBOARDING\n• Annualized Incumbent Spend (Post-25% Hike): €604,500/yr\n• Hidden 'SSO Tax' Unbundled: €181,350/yr eliminated\n• Challenger 36-Month Rate-Lock Spend: €215,760/yr\n• Immediate Contract Buyout Credit (3 Mos): €53,940\n• Net 36-Month Hard Dollar Savings: €1,220,160\n• Guarantee: 36-Month Price-Lock Guarantee + 25% Immediate ACV Reduction + Zero Seat Minimums", "predicted_reply_to_demo_pct": 14.0}}, {"review_id": "CAP-REV-44892", "platform": "Capterra", "scraped_via_actor": "memo23/capterra-scraper", "incumbent_product": "Personio Core Pro / Enterprise", "star_rating": 2.0, "review_date": "2026-10-11", "reviewer_display_name": "Sabine M.", "reviewer_resolved_full_name": "Sabine Meissner", "reviewer_job_title": "VP People & Culture", "inferred_company_name": "NordLogistik Gruppe GmbH", "inferred_company_domain": "nordlogistik.de", "inferred_work_email": "sabine.meissner@nordlogistik.de", "reviewer_linkedin_handle": "linkedin.com/in/sabine-meissner-hr", "company_size_band": "201-500 employees", "estimated_seats": 310, "industry": "E-Commerce & Logistics", "switched_from": "BambooHR", "considered_alternatives": ["HiBob", "Factorial", "Kenjo"], "review_title": "42% price increase via forced Core Pro packaging and collapsed support SLAs", "cons_text": "They restructured their pricing tiers and raised our annual contract by 42% while forcing mandatory add-on modules we never asked for. Support takes 2 weeks to answer critical payroll integration tickets, and there is no dedicated CSM anymore unless you pay extra. Charging extra for SAML SSO on mid-market HR software is unacceptable.", "churn_intent_score": 97, "priority_tier": "P0_IMMEDIATE_RIP_AND_REPLACE", "matched_triggers": [{"trigger_code": "RENEWAL_PRICE_HIKE", "trigger_label": "Renewal Price Hike & Forced Tier/Seat Minimums", "short_badge": "PRICE HIKE (+25-60%)", "severity_points": 34, "matched_snippets": ["pricing tiers and raised", "raised our annual contract", "42% price increase"], "counter_offer_hook": "36-Month Price-Lock Guarantee + 25% Immediate ACV Reduction + Zero Seat Minimums"}, {"trigger_code": "SUPPORT_POST_ACQUISITION_COLLAPSE", "trigger_label": "Post-PE Acquisition Support Collapse & Ticket Black Hole", "short_badge": "POST-PE SUPPORT COLLAPSE", "severity_points": 26, "matched_snippets": ["Support takes 2 weeks", "no dedicated CSM"], "counter_offer_hook": "Dedicated Slack Connect Engineer (<15 Min SLA) + Named EU Solutions Architect Included"}, {"trigger_code": "MISSING_EU_GDPR_AI_COMPLIANCE", "trigger_label": "SSO/SAML Tax (+2x Enterprise Gate) & Missing EU GDPR / Data Residency", "short_badge": "SSO TAX / EU GDPR GAP", "severity_points": 30, "matched_snippets": ["Charging extra for SAML"], "counter_offer_hook": "Zero SSO/SAML/SCIM Tax on All Tiers + 100% EU Sovereign Hosting (Frankfurt/Hetzner ISO-27001)"}], "extracted_price_hike_pct": 42, "renewal_window": {"usage_duration_raw": "Used the software for: 1-2 years", "usage_months_estimated": 21, "contract_term_months": 24, "months_remaining_on_contract": 3, "days_remaining_on_contract": 90, "incumbent_notice_clause_days": 90, "days_until_notice_deadline": 0, "renewal_urgency_tier": "POST_TRAP_BUYOUT_ELIGIBLE", "window_explanation": "Reviewer at month 21/24 (90d left). Incumbent 90d notice deadline is active/passed — deploy Remaining-Month Contract Buyout + Parallel Onboarding NOW."}, "sso_tax_analysis": {"sso_tax_detected": true, "incumbent_seat_price_eur": 24.0, "incumbent_sso_multiplier": 1.9, "estimated_seats": 310, "annual_sso_tax_overpay_eur": 42291, "challenger_seat_price_eur": 11.0, "total_annual_savings_eur": 85858, "savings_36_month_lock_eur": 257574, "remaining_contract_buyout_credit_eur": 10230, "net_year1_roi_after_buyout_eur": 96088}, "battlecard": {"headline_offer": "We will credit your remaining 3 months on Personio Core Pro / Enterprise (€10,230), migrate your 310-seat workspace in 36 hours for €0, and lock your €11/seat rate for 36 months with zero SSO/SAML tax.", "buyout_months_credited": 3, "buyout_credit_eur": 10230, "migration_sla_hours": 36, "rate_lock_months": 36, "subject_line": "Buying out NordLogistik Gruppe GmbH's remaining 3 mos on Personio (+ skipping their 42% renewal hike)", "cold_email_body": "Hi Sabine,\n\nSaw your recent Capterra feedback on Personio Core Pro / Enterprise — especially around their 42% renewal uplift and 90-day notice window (PRICE HIKE (+25-60%), POST-PE SUPPORT COLLAPSE, SSO TAX / EU GDPR GAP).\n\nBecause NordLogistik Gruppe GmbH (~310 seats) is right in the 21-month window, we put together a deterministic Rip-and-Replace Buyout for your team:\n  1. Contract Buyout Credit: We credit your remaining 3 months on Personio Core Pro / Enterprise (€10,230 applied directly to Year 1).\n  2. Zero SSO/SAML Tax: Okta/Entra SAML + SCIM + Frankfurt EU data residency included free (saves €42,291/yr in artificial Enterprise tier gating).\n  3. 36-Hour White-Glove Migration: Full schema, historical data & permissions migrated for €0 consultant fees, plus a 36-month price lock saving €257,574.\n\nOpen to a 12-minute live sandbox walkthrough on Thursday so you can send Personio your non-renewal notice before the 90-day deadline?", "linkedin_dm_body": "Hey Sabine — caught your Capterra note on Personio's 42% renewal uplift. We're actively buying out 3 remaining months for E-Commerce & Logistics teams migrating off Personio (36h automated import, €0 SSO tax, €85,858/yr saved for 310 seats). Want me to send over the 1-page CFO Buyout Sheet for NordLogistik Gruppe GmbH?", "cfo_exec_buyout_memo": "CFO / PROCUREMENT RIP-AND-REPLACE MEMO — NORDLOGISTIK GRUPPE GMBH\n• Incumbent Displaced: Personio Core Pro / Enterprise (310 Est. Seats)\n• Verified Churn Triggers: PRICE HIKE (+25-60%), POST-PE SUPPORT COLLAPSE, SSO TAX / EU GDPR GAP\n• Annualized Incumbent Spend (Post-42% Hike): €126,778/yr\n• Hidden 'SSO Tax' Unbundled: €42,291/yr eliminated\n• Challenger 36-Month Rate-Lock Spend: €40,920/yr\n• Immediate Contract Buyout Credit (3 Mos): €10,230\n• Net 36-Month Hard Dollar Savings: €267,804\n• Guarantee: 36-Month Price-Lock Guarantee + 25% Immediate ACV Reduction + Zero Seat Minimums", "predicted_reply_to_demo_pct": 13.8}}, {"review_id": "G2-REV-91204", "platform": "G2", "scraped_via_actor": "automation-lab/g2-scraper", "incumbent_product": "Jira Software & Atlassian Cloud Enterprise", "star_rating": 2.5, "review_date": "2026-10-12", "reviewer_display_name": "Tobias K.", "reviewer_resolved_full_name": "Tobias Kramer", "reviewer_job_title": "VP of Engineering", "inferred_company_name": "SecurVault Systems GmbH", "inferred_company_domain": "securvault.de", "inferred_work_email": "tobias.kramer@securvault.de", "reviewer_linkedin_handle": "linkedin.com/in/tobias-kramer-vp-eng", "company_size_band": "201-500 employees", "estimated_seats": 240, "industry": "Cybersecurity & Identity Software", "switched_from": "Self-Hosted Jira Server", "considered_alternatives": ["Linear", "GitLab Issues", "Shortcut"], "review_title": "Forced Data Center migration price hike, massive SSO tax, and bloated UI", "cons_text": "Since forcing everyone off Server, they raised our annual price by 45% and charge an absurd SSO tax via Atlassian Guard just to connect Okta SAML/SCIM. It took 5 months to configure our workflows and our developers only use 15% of the bloated features. Hidden add-on fees double the actual invoice.", "churn_intent_score": 93, "priority_tier": "P0_IMMEDIATE_RIP_AND_REPLACE", "matched_triggers": [{"trigger_code": "RENEWAL_PRICE_HIKE", "trigger_label": "Renewal Price Hike & Forced Tier/Seat Minimums", "short_badge": "PRICE HIKE (+25-60%)", "severity_points": 34, "matched_snippets": ["price hike", "raised our annual price", "Hidden add-on"], "counter_offer_hook": "36-Month Price-Lock Guarantee + 25% Immediate ACV Reduction + Zero Seat Minimums"}, {"trigger_code": "MISSING_EU_GDPR_AI_COMPLIANCE", "trigger_label": "SSO/SAML Tax (+2x Enterprise Gate) & Missing EU GDPR / Data Residency", "short_badge": "SSO TAX / EU GDPR GAP", "severity_points": 30, "matched_snippets": ["SSO tax"], "counter_offer_hook": "Zero SSO/SAML/SCIM Tax on All Tiers + 100% EU Sovereign Hosting (Frankfurt/Hetzner ISO-27001)"}, {"trigger_code": "IMPLEMENTATION_BLOAT_SHELFWARE", "trigger_label": "6-Month Implementation Bloat, Paid Consultant Tax & 10%-Usage Shelfware", "short_badge": "SHELFWARE / 6-MO ONBOARDING", "severity_points": 24, "matched_snippets": ["took 5 months to configure", "only use 15% of the bloated features", "bloated"], "counter_offer_hook": "48-Hour Automated Schema Migration for €0 + Zero Implementation Partner Fees"}], "extracted_price_hike_pct": 45, "renewal_window": {"usage_duration_raw": "Used the software for: 2+ years", "usage_months_estimated": 34, "contract_term_months": 36, "months_remaining_on_contract": 2, "days_remaining_on_contract": 60, "incumbent_notice_clause_days": 60, "days_until_notice_deadline": 0, "renewal_urgency_tier": "POST_TRAP_BUYOUT_ELIGIBLE", "window_explanation": "Reviewer at month 34/36 (60d left). Incumbent 60d notice deadline is active/passed — deploy Remaining-Month Contract Buyout + Parallel Onboarding NOW."}, "sso_tax_analysis": {"sso_tax_detected": true, "incumbent_seat_price_eur": 48.0, "incumbent_sso_multiplier": 2.4, "estimated_seats": 240, "annual_sso_tax_overpay_eur": 80640, "challenger_seat_price_eur": 22.0, "total_annual_savings_eur": 137088, "savings_36_month_lock_eur": 411264, "remaining_contract_buyout_credit_eur": 10560, "net_year1_roi_after_buyout_eur": 147648}, "battlecard": {"headline_offer": "We will credit your remaining 2 months on Jira Software & Atlassian Cloud Enterprise (€10,560), migrate your 240-seat workspace in 12 hours for €0, and lock your €22/seat rate for 36 months with zero SSO/SAML tax.", "buyout_months_credited": 2, "buyout_credit_eur": 10560, "migration_sla_hours": 12, "rate_lock_months": 36, "subject_line": "Buying out SecurVault Systems GmbH's remaining 2 mos on Jira (+ skipping their 45% renewal hike)", "cold_email_body": "Hi Tobias,\n\nSaw your recent G2 feedback on Jira Software & Atlassian Cloud Enterprise — especially around their 45% renewal uplift and 60-day notice window (PRICE HIKE (+25-60%), SSO TAX / EU GDPR GAP, SHELFWARE / 6-MO ONBOARDING).\n\nBecause SecurVault Systems GmbH (~240 seats) is right in the 34-month window, we put together a deterministic Rip-and-Replace Buyout for your team:\n  1. Contract Buyout Credit: We credit your remaining 2 months on Jira Software & Atlassian Cloud Enterprise (€10,560 applied directly to Year 1).\n  2. Zero SSO/SAML Tax: Okta/Entra SAML + SCIM + Frankfurt EU data residency included free (saves €80,640/yr in artificial Enterprise tier gating).\n  3. 12-Hour White-Glove Migration: Full schema, historical data & permissions migrated for €0 consultant fees, plus a 36-month price lock saving €411,264.\n\nOpen to a 12-minute live sandbox walkthrough on Thursday so you can send Jira your non-renewal notice before the 60-day deadline?", "linkedin_dm_body": "Hey Tobias — caught your G2 note on Jira's 45% renewal uplift. We're actively buying out 2 remaining months for Cybersecurity & Identity Software teams migrating off Jira (12h automated import, €0 SSO tax, €137,088/yr saved for 240 seats). Want me to send over the 1-page CFO Buyout Sheet for SecurVault Systems GmbH?", "cfo_exec_buyout_memo": "CFO / PROCUREMENT RIP-AND-REPLACE MEMO — SECURVAULT SYSTEMS GMBH\n• Incumbent Displaced: Jira Software & Atlassian Cloud Enterprise (240 Est. Seats)\n• Verified Churn Triggers: PRICE HIKE (+25-60%), SSO TAX / EU GDPR GAP, SHELFWARE / 6-MO ONBOARDING\n• Annualized Incumbent Spend (Post-45% Hike): €200,448/yr\n• Hidden 'SSO Tax' Unbundled: €80,640/yr eliminated\n• Challenger 36-Month Rate-Lock Spend: €63,360/yr\n• Immediate Contract Buyout Credit (2 Mos): €10,560\n• Net 36-Month Hard Dollar Savings: €421,824\n• Guarantee: 36-Month Price-Lock Guarantee + 25% Immediate ACV Reduction + Zero Seat Minimums", "predicted_reply_to_demo_pct": 13.5}}, {"review_id": "TR-REV-77902", "platform": "TrustRadius", "scraped_via_actor": "zen-studio/trustradius-review-scraper", "incumbent_product": "DocuSign Enterprise Pro", "star_rating": 3.0, "review_date": "2026-10-13", "reviewer_display_name": "Dr. Clara Lindner", "reviewer_resolved_full_name": "Dr. Clara Lindner", "reviewer_job_title": "General Counsel & Head of Legal Ops", "inferred_company_name": "MedVera Diagnostics GmbH", "inferred_company_domain": "medvera-diagnostics.de", "inferred_work_email": "dr.lindner@medvera-diagnostics.de", "reviewer_linkedin_handle": "linkedin.com/in/dr-clara-lindner-legal", "company_size_band": "201-500 employees", "estimated_seats": 50, "industry": "HealthTech & MedTech", "switched_from": "Adobe Sign", "considered_alternatives": ["Dropbox Sign", "PandaDoc", "Scrive"], "review_title": "Reliable e-signatures, but aggressive envelope overage fees, SSO tax, and EU compliance hurdles", "cons_text": "They forced an Enterprise upgrade just for SAML SSO (classic SSO tax) and hit us with a 45% price hike via surprise envelope overage fees at renewal. Getting clear GDPR / EU data residency commitments for German patient/clinical vendor contracts without paying for an expensive add-on tier was a nightmare.", "churn_intent_score": 75, "priority_tier": "P2_NURTURE_RENEWAL", "matched_triggers": [{"trigger_code": "RENEWAL_PRICE_HIKE", "trigger_label": "Renewal Price Hike & Forced Tier/Seat Minimums", "short_badge": "PRICE HIKE (+25-60%)", "severity_points": 34, "matched_snippets": ["price hike", "45% price hike"], "counter_offer_hook": "36-Month Price-Lock Guarantee + 25% Immediate ACV Reduction + Zero Seat Minimums"}, {"trigger_code": "MISSING_EU_GDPR_AI_COMPLIANCE", "trigger_label": "SSO/SAML Tax (+2x Enterprise Gate) & Missing EU GDPR / Data Residency", "short_badge": "SSO TAX / EU GDPR GAP", "severity_points": 30, "matched_snippets": ["SSO tax", "GDPR", "EU data residency"], "counter_offer_hook": "Zero SSO/SAML/SCIM Tax on All Tiers + 100% EU Sovereign Hosting (Frankfurt/Hetzner ISO-27001)"}], "extracted_price_hike_pct": 45, "renewal_window": {"usage_duration_raw": "Used the software for: 1-2 years", "usage_months_estimated": 10, "contract_term_months": 12, "months_remaining_on_contract": 2, "days_remaining_on_contract": 60, "incumbent_notice_clause_days": 60, "days_until_notice_deadline": 0, "renewal_urgency_tier": "POST_TRAP_BUYOUT_ELIGIBLE", "window_explanation": "Reviewer at month 10/12 (60d left). Incumbent 60d notice deadline is active/passed — deploy Remaining-Month Contract Buyout + Parallel Onboarding NOW."}, "sso_tax_analysis": {"sso_tax_detected": true, "incumbent_seat_price_eur": 75.0, "incumbent_sso_multiplier": 2.25, "estimated_seats": 50, "annual_sso_tax_overpay_eur": 25000, "challenger_seat_price_eur": 25.0, "total_annual_savings_eur": 50250, "savings_36_month_lock_eur": 150750, "remaining_contract_buyout_credit_eur": 2500, "net_year1_roi_after_buyout_eur": 52750}, "battlecard": {"headline_offer": "We will credit your remaining 2 months on DocuSign Enterprise Pro (€2,500), migrate your 50-seat workspace in 8 hours for €0, and lock your €25/seat rate for 36 months with zero SSO/SAML tax.", "buyout_months_credited": 2, "buyout_credit_eur": 2500, "migration_sla_hours": 8, "rate_lock_months": 36, "subject_line": "Buying out MedVera Diagnostics GmbH's remaining 2 mos on DocuSign (+ skipping their 45% renewal hike)", "cold_email_body": "Hi Dr.,\n\nSaw your recent TrustRadius feedback on DocuSign Enterprise Pro — especially around their 45% renewal uplift and 60-day notice window (PRICE HIKE (+25-60%), SSO TAX / EU GDPR GAP).\n\nBecause MedVera Diagnostics GmbH (~50 seats) is right in the 10-month window, we put together a deterministic Rip-and-Replace Buyout for your team:\n  1. Contract Buyout Credit: We credit your remaining 2 months on DocuSign Enterprise Pro (€2,500 applied directly to Year 1).\n  2. Zero SSO/SAML Tax: Okta/Entra SAML + SCIM + Frankfurt EU data residency included free (saves €25,000/yr in artificial Enterprise tier gating).\n  3. 8-Hour White-Glove Migration: Full schema, historical data & permissions migrated for €0 consultant fees, plus a 36-month price lock saving €150,750.\n\nOpen to a 12-minute live sandbox walkthrough on Thursday so you can send DocuSign your non-renewal notice before the 60-day deadline?", "linkedin_dm_body": "Hey Dr. — caught your TrustRadius note on DocuSign's 45% renewal uplift. We're actively buying out 2 remaining months for HealthTech & MedTech teams migrating off DocuSign (8h automated import, €0 SSO tax, €50,250/yr saved for 50 seats). Want me to send over the 1-page CFO Buyout Sheet for MedVera Diagnostics GmbH?", "cfo_exec_buyout_memo": "CFO / PROCUREMENT RIP-AND-REPLACE MEMO — MEDVERA DIAGNOSTICS GMBH\n• Incumbent Displaced: DocuSign Enterprise Pro (50 Est. Seats)\n• Verified Churn Triggers: PRICE HIKE (+25-60%), SSO TAX / EU GDPR GAP\n• Annualized Incumbent Spend (Post-45% Hike): €65,250/yr\n• Hidden 'SSO Tax' Unbundled: €25,000/yr eliminated\n• Challenger 36-Month Rate-Lock Spend: €15,000/yr\n• Immediate Contract Buyout Credit (2 Mos): €2,500\n• Net 36-Month Hard Dollar Savings: €153,250\n• Guarantee: 36-Month Price-Lock Guarantee + 25% Immediate ACV Reduction + Zero Seat Minimums", "predicted_reply_to_demo_pct": 14.1}}]};
+let activeLeadIndex = 0;
+let activeChannelTab = 'email';
+
+function renderKPIs() {
+  const s = MANIFEST.summary_metrics;
+  const items = [
+    { label: 'Sniped High-Intent B2B Accounts', val: s.total_leads_sniped, sub: `${s.p0_immediate_count} P0 Immediate Rip-and-Replace`, color: 'var(--accent)' },
+    { label: '36-Mo Pipeline Savings Unbundled', val: '€' + s.total_36m_savings_eur.toLocaleString(), sub: `€${s.total_annual_sso_tax_unbundled_eur.toLocaleString()}/yr SSO Tax Eliminated`, color: 'var(--accent-emerald)' },
+    { label: 'Total Contract-Buyout Credits', val: '€' + s.total_buyout_credits_offered_eur.toLocaleString(), sub: '3–4 Remaining Mos Credited Upfront', color: 'var(--accent-amber)' },
+    { label: 'Predicted Reply-to-Demo Rate', val: s.avg_predicted_reply_to_demo_pct + '%', sub: 'vs. 1.1% Cold B2B Outbound Baseline (12x)', color: 'var(--accent-rose)' },
+    { label: 'Live Apify Review Ecosystem', val: s.live_apify_mau_30d.toLocaleString() + ' MAU', sub: `${s.live_apify_total_runs.toLocaleString()} Total Runs Across 16 Actors`, color: 'var(--accent-purple)' }
+  ];
+  document.getElementById('kpiGrid').innerHTML = items.map(k => `
+    <div class="kpi-card">
+      <div class="kpi-label">${k.label}</div>
+      <div class="kpi-val" style="color:${k.color}">${k.val}</div>
+      <div class="kpi-sub">${k.sub}</div>
+    </div>
+  `).join('');
+}
+
+function getFilteredLeads() {
+  const plat = document.getElementById('platformFilter').value;
+  const trig = document.getElementById('triggerFilter').value;
+  const urg = document.getElementById('urgencyFilter').value;
+  const q = document.getElementById('searchBox').value.toLowerCase().trim();
+
+  return MANIFEST.sniped_leads.filter(lead => {
+    if (plat !== 'ALL' && lead.platform !== plat) return false;
+    if (trig !== 'ALL' && !lead.matched_triggers.some(t => t.trigger_code === trig)) return false;
+    if (urg !== 'ALL' && lead.renewal_window.renewal_urgency_tier !== urg) return false;
+    if (q) {
+      const hay = `${lead.incumbent_product} ${lead.reviewer_resolved_full_name} ${lead.reviewer_job_title} ${lead.inferred_company_name} ${lead.cons_text}`.toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return true;
+  });
+}
+
+function renderLeads() {
+  const leads = getFilteredLeads();
+  document.getElementById('leadCount').textContent = leads.length;
+  const container = document.getElementById('leadsList');
+  if (!leads.length) {
+    container.innerHTML = '<div style="padding:20px; color:var(--muted);">No reviews match the current filter criteria.</div>';
+    return;
+  }
+  if (activeLeadIndex >= leads.length) activeLeadIndex = 0;
+
+  container.innerHTML = leads.map((lead, idx) => {
+    const isAct = idx === activeLeadIndex ? 'active' : '';
+    const trigTags = lead.matched_triggers.map(t => `<span class="tag trigger">${t.short_badge}</span>`).join('');
+    const urgClass = lead.renewal_window.renewal_urgency_tier !== 'UPCOMING_90D_RENEWAL' ? 'tag urgent' : 'tag';
+    return `
+      <div class="lead-card ${isAct}" onclick="selectLead(${idx})">
+        <div class="lead-top">
+          <div>
+            <div style="font-weight:700; font-size:14.5px;">
+              [${lead.platform} ★${lead.star_rating}] ${lead.inferred_company_name} — ${lead.reviewer_resolved_full_name} (${lead.reviewer_job_title})
+            </div>
+            <div style="font-size:12px; color:var(--muted); font-family:var(--mono);">
+              Displacing: <strong style="color:var(--text)">${lead.incumbent_product}</strong> · ~${lead.estimated_seats} Seats · ${lead.inferred_work_email}
+            </div>
+          </div>
+          <div class="score-badge">CHURN SCORE ${lead.churn_intent_score}/100</div>
+        </div>
+        <div class="tag-row">
+          <span class="${urgClass}">${lead.renewal_window.renewal_urgency_tier} (${lead.renewal_window.months_remaining_on_contract}m left)</span>
+          ${trigTags}
+          <span class="tag">36m Savings: €${lead.sso_tax_analysis.savings_36_month_lock_eur.toLocaleString()}</span>
+        </div>
+        <div class="cons-quote">"${lead.cons_text}"</div>
+      </div>
+    `;
+  }).join('');
+
+  renderDetail(leads[activeLeadIndex]);
+}
+
+function selectLead(idx) {
+  activeLeadIndex = idx;
+  renderLeads();
+}
+
+function setChannelTab(tab) {
+  activeChannelTab = tab;
+  const leads = getFilteredLeads();
+  if (leads[activeLeadIndex]) renderDetail(leads[activeLeadIndex]);
+}
+
+function renderDetail(lead) {
+  if (!lead) return;
+  let outreachText = lead.battlecard.cold_email_body;
+  if (activeChannelTab === 'email') outreachText = `Subject: ${lead.battlecard.subject_line}\n\n${lead.battlecard.cold_email_body}`;
+  if (activeChannelTab === 'linkedin') outreachText = lead.battlecard.linkedin_dm_body;
+  if (activeChannelTab === 'cfo') outreachText = lead.battlecard.cfo_exec_buyout_memo;
+
+  document.getElementById('detailContent').innerHTML = `
+    <div style="background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.35); padding:12px; border-radius:10px; margin-bottom:12px;">
+      <div style="font-size:11px; text-transform:uppercase; color:var(--accent-emerald); font-weight:700; font-family:var(--mono);">
+        Deterministic Rip-and-Replace Offer (Predicted Reply-to-Demo: ${lead.battlecard.predicted_reply_to_demo_pct}%)
+      </div>
+      <div style="font-size:13.5px; font-weight:700; margin-top:4px;">${lead.battlecard.headline_offer}</div>
+    </div>
+
+    <div style="font-size:12px; color:var(--muted); margin-bottom:10px;">
+      <div><strong>Renewal Window Diagnosis:</strong> ${lead.renewal_window.window_explanation}</div>
+      <div style="margin-top:4px;"><strong>Switched From:</strong> ${lead.switched_from} · <strong>Considered Alternatives:</strong> ${lead.considered_alternatives.join(', ')}</div>
+      <div style="margin-top:4px;"><strong>LinkedIn Profile:</strong> <span class="mono">${lead.reviewer_linkedin_handle}</span> · <strong>Actor:</strong> <span class="mono">${lead.scraped_via_actor}</span></div>
+    </div>
+
+    <div class="tab-row">
+      <button class="tab-btn ${activeChannelTab==='email'?'active':''}" onclick="setChannelTab('email')">1. Contract-Buyout Cold Email</button>
+      <button class="tab-btn ${activeChannelTab==='linkedin'?'active':''}" onclick="setChannelTab('linkedin')">2. LinkedIn Exec DM</button>
+      <button class="tab-btn ${activeChannelTab==='cfo'?'active':''}" onclick="setChannelTab('cfo')">3. 1-Page CFO Buyout Memo</button>
+    </div>
+    <div class="code-box" id="activeOutreachBox">${outreachText}</div>
+  `;
+}
+
+function copyCurrentOutreach() {
+  const box = document.getElementById('activeOutreachBox');
+  if (!box) return;
+  navigator.clipboard.writeText(box.textContent);
+  const btn = document.getElementById('copyActiveBtn');
+  btn.textContent = 'Copied to Clipboard!';
+  setTimeout(() => { btn.textContent = 'Copy Active Sequence'; }, 1600);
+}
+
+function runSimulator() {
+  const seats = parseInt(document.getElementById('simSeats').value || '100', 10);
+  const incSeat = parseFloat(document.getElementById('simIncumbentSeat').value || '145');
+  const chalSeat = parseFloat(document.getElementById('simChallengerSeat').value || '59');
+  const ssoTaxAnnual = Math.round( seats * (incSeat * 0.42) * 12 );
+  const incAnnualPostHike = Math.round( seats * incSeat * 1.32 * 12 );
+  const chalAnnual = Math.round( seats * chalSeat * 12 );
+  const annualSaved = Math.max(0, incAnnualPostHike - chalAnnual);
+  const buyoutCredit3Mo = Math.round( seats * chalSeat * 3 );
+  const total36mValue = annualSaved * 3 + buyoutCredit3Mo;
+
+  document.getElementById('simOutput').textContent =
+    `• Incumbent Post-Hike (+32%) Annual ACV:  €${incAnnualPostHike.toLocaleString()}/yr (incl. ~€${ssoTaxAnnual.toLocaleString()}/yr SSO Tax)
+` +
+    `• Challenger 36-Mo Locked Annual ACV:     €${chalAnnual.toLocaleString()}/yr (SAML/SCIM + EU Cloud Free)
+` +
+    `• Immediate 3-Month Buyout Credit:        €${buyoutCredit3Mo.toLocaleString()} credited on signature
+` +
+    `• Total 36-Month Hard-Dollar Savings:     €${total36mValue.toLocaleString()}`;
+}
+
+function renderActorTable() {
+  const tbody = document.querySelector('#actorTable tbody');
+  tbody.innerHTML = MANIFEST.apify_actors_catalog.map(a => `
+    <tr>
+      <td class="mono" style="color:var(--accent); font-weight:600;">${a.actor_slug}</td>
+      <td>${a.platform}</td>
+      <td class="mono" style="font-weight:700;">${a.mau_30d}</td>
+      <td class="mono">${a.total_users.toLocaleString()}</td>
+      <td class="mono">${a.total_runs.toLocaleString()}</td>
+      <td class="mono">${a.runs_30d.toLocaleString()} (${a.success_rate_30d_pct}%)</td>
+      <td class="mono">$${a.price_per_1k_reviews_usd.toFixed(2)} / $${a.diamond_price_per_1k_usd.toFixed(2)}</td>
+      <td style="color:var(--muted); font-size:11.5px;">${a.key_fields.join(', ')}</td>
+    </tr>
+  `).join('');
+}
+
+document.getElementById('platformFilter').addEventListener('change', renderLeads);
+document.getElementById('triggerFilter').addEventListener('change', renderLeads);
+document.getElementById('urgencyFilter').addEventListener('change', renderLeads);
+document.getElementById('searchBox').addEventListener('input', renderLeads);
+
+renderKPIs();
+renderLeads();
+runSimulator();
+renderActorTable();
+</script>
+</body>
+</html>

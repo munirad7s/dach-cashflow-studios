@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MVP #115 — DACH Unterhalts-, Wechselmodell- & Elternunterhalts-Studio (Düsseldorfer Tabelle 2025/2026)</title>
+<style>
+  :root {
+    --bg: #0b1020;
+    --card: #131b33;
+    --card-alt: #182342;
+    --text: #eef2ff;
+    --muted: #94a3b8;
+    --accent: #38bdf8;
+    --emerald: #10b981;
+    --amber: #f59e0b;
+    --rose: #f43f5e;
+    --border: #263459;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.55;
+    padding: 28px;
+  }
+  .container { max-width: 1380px; margin: 0 auto; }
+  header {
+    background: linear-gradient(135deg, #131b33 0%, #1e293b 100%);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px 32px;
+    margin-bottom: 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  .badge {
+    display: inline-block;
+    background: rgba(56, 189, 248, 0.15);
+    color: var(--accent);
+    border: 1px solid rgba(56, 189, 248, 0.35);
+    border-radius: 999px;
+    padding: 4px 14px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  h1 { font-size: 1.75rem; font-weight: 800; margin-bottom: 8px; }
+  .subtitle { color: var(--muted); font-size: 0.95rem; max-width: 880px; }
+  .kpi-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .kpi-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+  }
+  .kpi-label { font-size: 0.8rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+  .kpi-val { font-size: 1.65rem; font-weight: 800; margin: 6px 0 4px; color: var(--accent); }
+  .kpi-sub { font-size: 0.82rem; color: var(--muted); }
+  .grid-3 {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(410px, 1fr));
+    gap: 22px;
+    margin-bottom: 26px;
+  }
+  .panel {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+  }
+  .panel h2 {
+    font-size: 1.18rem;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .panel p.desc { color: var(--muted); font-size: 0.86rem; margin-bottom: 18px; }
+  .field-group { margin-bottom: 14px; }
+  .field-group label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.84rem;
+    color: var(--text);
+    margin-bottom: 5px;
+    font-weight: 600;
+  }
+  input[type="range"] {
+    width: 100%;
+    accent-color: var(--accent);
+    cursor: pointer;
+  }
+  select, input[type="number"] {
+    width: 100%;
+    background: var(--card-alt);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 9px 12px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+  }
+  .result-box {
+    background: var(--card-alt);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    margin-top: 16px;
+  }
+  .result-line {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    font-size: 0.88rem;
+  }
+  .result-line:last-child { border-bottom: none; }
+  .highlight-green { color: var(--emerald); font-weight: 700; }
+  .highlight-amber { color: var(--amber); font-weight: 700; }
+  .highlight-rose { color: var(--rose); font-weight: 700; }
+  .alert-banner {
+    margin-top: 12px;
+    padding: 12px 14px;
+    border-radius: 10px;
+    font-size: 0.83rem;
+    font-weight: 600;
+  }
+  .alert-danger { background: rgba(244, 63, 94, 0.14); border: 1px solid rgba(244, 63, 94, 0.4); color: #fda4af; }
+  .alert-success { background: rgba(16, 185, 129, 0.14); border: 1px solid rgba(16, 185, 129, 0.4); color: #6ee7b7; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.84rem;
+    margin-top: 14px;
+  }
+  th, td {
+    padding: 9px 10px;
+    text-align: right;
+    border-bottom: 1px solid var(--border);
+  }
+  th:first-child, td:first-child, th:nth-child(2), td:nth-child(2) { text-align: left; }
+  th { background: var(--card-alt); color: var(--muted); font-weight: 600; }
+  tr.active-row { background: rgba(56, 189, 248, 0.16); font-weight: 700; }
+</style>
+</head>
+<body>
+
+<!-- DACH CASHFLOW STUDIOS LAUNCH BAR -->
+<style>
+  #dcs-launch-bar {
+    position: sticky;
+    top: 0;
+    z-index: 99999;
+    background: linear-gradient(90deg, #0b1120 0%, #111827 50%, #0f172a 100%);
+    color: #f8fafc;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.35);
+    padding: 8px 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  }
+  #dcs-launch-bar .dcs-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+  }
+  #dcs-launch-bar .dcs-badge {
+    background: rgba(16, 185, 129, 0.18);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.03em;
+  }
+  #dcs-launch-bar a.dcs-nav {
+    color: #93c5fd;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 12.5px;
+  }
+  #dcs-launch-bar a.dcs-nav:hover {
+    text-decoration: underline;
+    color: #dbeafe;
+  }
+  #dcs-launch-bar .dcs-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  #dcs-launch-bar .dcs-btn {
+    padding: 5px 11px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s ease;
+  }
+  #dcs-launch-bar .dcs-btn-ghost {
+    background: rgba(255,255,255,0.08);
+    color: #e2e8f0;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  #dcs-launch-bar .dcs-btn-primary {
+    background: linear-gradient(135deg, #0ea5e9, #2563eb);
+    color: #ffffff;
+  }
+  #dcs-launch-bar .dcs-btn-emerald {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
+  }
+  @media print {
+    #dcs-launch-bar { display: none !important; }
+  }
+</style>
+<div id="dcs-launch-bar">
+  <div class="dcs-left">
+    <a href="/index.html" class="dcs-nav">← Alle 150 DACH Studios</a>
+    <span class="dcs-badge">MVP #115 VERIFIED</span>
+    <span style="color:#cbd5e1;font-size:12px;">DACH LegalTech, Labor Law & Consumer Claims</span>
+  </div>
+  <div class="dcs-actions">
+    <button onclick="window.print()" class="dcs-btn dcs-btn-ghost">🖨️ PDF / Dossier drucken</button>
+    <a href="#checkout-modal-49" target="_blank" rel="noopener" class="dcs-btn dcs-btn-primary">⚡ Musterschreiben & Voll-Dossier (€49)</a>
+    <a href="#checkout-modal-299" target="_blank" rel="noopener" class="dcs-btn dcs-btn-emerald">🛡️ B2B Umsetzung buchen (€299 / €1.490)</a>
+  </div>
+</div>
+
+<div class="container">
+  <header>
+    <div>
+      <span class="badge">Milestone MVP #115 · §§ 1601–1615l BGB · OLG Düsseldorf 2025/2026</span>
+      <h1>DACH Unterhalts-, Wechselmodell- & Elternunterhalts-Prüfstand</h1>
+      <p class="subtitle">
+        Deterministischer 3-Säulen-Rechner für <strong>Kindesunterhalt (Düsseldorfer Tabelle 2025/2026 über alle 15 Einkommensgruppen)</strong>,
+        <strong>BGH-Wechselmodell-Quotenberechnung (XII ZB 599/13 &amp; XII ZB 45/15)</strong> und
+        <strong>Elternunterhalt-Klippenrettung (§ 94 Abs. 1a SGB XII — €100.000 Brutto-Schutzschild)</strong>.
+      </p>
+    </div>
+    <div style="min-width:210px;">
+      <label style="font-size:0.8rem;color:var(--muted);display:block;margin-bottom:6px;">Tabellen-Rechtsstand wählen</label>
+      <select id="yearSelect" onchange="recalcAll()">
+        <option value="2026" selected>Düsseldorfer Tabelle 2026 (Kindergeld 259 €)</option>
+        <option value="2025">Düsseldorfer Tabelle 2025 (Kindergeld 255 €)</option>
+      </select>
+    </div>
+  </header>
+
+  <div class="kpi-row">
+    <div class="kpi-card">
+      <div class="kpi-label">Säule 1 · Kindesunterhalt Zahlbetrag</div>
+      <div class="kpi-val" id="kpiZahlbetrag">0,00 € / Mo.</div>
+      <div class="kpi-sub" id="kpiZahlbetragSub">Einkommensgruppe &amp; Bedarfskontrollbetrag</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Säule 2 · Wechselmodell (50/50) Ersparnis</div>
+      <div class="kpi-val" id="kpiWechselErsparnis" style="color:var(--emerald);">0,00 € / Jahr</div>
+      <div class="kpi-sub" id="kpiWechselSub">Gegenüber Residenz-/43%-Umgangsmodell</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Säule 3 · § 94 Abs. 1a SGB XII Klippen-Schutz</div>
+      <div class="kpi-val" id="kpiElternShield" style="color:var(--amber);">0,00 € / Jahr</div>
+      <div class="kpi-sub" id="kpiElternSub">Sozialamt-Regress vor vs. nach bAV/IAB-Rettung</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Mandats- &amp; Vermögensschutz (5 Jahre)</div>
+      <div class="kpi-val" id="kpiFiveYearTotal">0 €</div>
+      <div class="kpi-sub">Kumulierter Familienschutz (Wechselmodell + Elternunterhalt)</div>
+    </div>
+  </div>
+
+  <div class="grid-3">
+    <!-- PILLAR 1 -->
+    <div class="panel">
+      <h2>1. Kindesunterhalt (§§ 1601–1612b BGB)</h2>
+      <p class="desc">Bereinigtes Nettoeinkommen, Auf-/Abgruppierung (1 vs. 2 vs. 3+ Berechtigte) &amp; Bedarfskontrollbetrag.</p>
+
+      <div class="field-group">
+        <label><span>Bruttoeinkommen Pflichtiger (Monat)</span><span id="p1GrossVal">5.800 €</span></label>
+        <input type="range" id="p1Gross" min="1800" max="14000" step="100" value="5800" oninput="recalcAll()">
+      </div>
+      <div class="field-group">
+        <label><span>Nettoeinkommen laut Gehaltsabrechnung</span><span id="p1NetVal">3.750 €</span></label>
+        <input type="range" id="p1Net" min="1300" max="10500" step="50" value="3750" oninput="recalcAll()">
+      </div>
+      <div class="field-group">
+        <label><span>Eheprägende Schulden / Darlehen (Monat)</span><span id="p1DebtVal">150 €</span></label>
+        <input type="range" id="p1Debt" min="0" max="1500" step="25" value="150" oninput="recalcAll()">
+      </div>
+      <div class="field-group">
+        <label><span>Altersstufe Kind 1 &amp; Anzahl Unterhaltsberechtigte</span></label>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <select id="p1Age" onchange="recalcAll()">
+            <option value="0-5">0–5 Jahre (1. Altersstufe)</option>
+            <option value="6-11" selected>6–11 Jahre (2. Altersstufe)</option>
+            <option value="12-17">12–17 Jahre (3. Altersstufe)</option>
+            <option value="18+">Ab 18 Jahre (Volljährig)</option>
+          </select>
+          <select id="p1Deps" onchange="recalcAll()">
+            <option value="1">1 Berechtigter (+1 Höherstufung)</option>
+            <option value="2" selected>2 Berechtigte (Regelfall)</option>
+            <option value="3">3 Berechtigte (-1 Abgruppierung)</option>
+            <option value="4">4 Berechtigte (-2 Abgruppierung)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="result-box">
+        <div class="result-line"><span>Abzug 5% Berufsaufwand (min 50 / max 150 €):</span><span id="p1WorkDed">-150,00 €</span></div>
+        <div class="result-line"><span>Abzug 4% zusätzl. Altersvorsorge (vom Brutto):</span><span id="p1PensDed">-232,00 €</span></div>
+        <div class="result-line"><span><strong>Bereinigtes Nettoeinkommen:</strong></span><span id="p1Bereinigt" class="highlight-green">3.218,00 €</span></div>
+        <div class="result-line"><span>Eingruppierung (Basis → Effektiv inkl. BKB):</span><span id="p1GroupInfo">Gr. 4 → Gr. 4 (115%)</span></div>
+        <div class="result-line"><span>Tabellenbetrag Kind 1:</span><span id="p1TabBetrag">642,00 €</span></div>
+        <div class="result-line"><span>Abzgl. § 1612b BGB Kindergeld-Anrechnung:</span><span id="p1KgDed">-129,50 €</span></div>
+        <div class="result-line"><span><strong>Monatlicher Zahlbetrag (Kind 1):</strong></span><span id="p1Zahlbetrag" class="highlight-amber">512,50 €</span></div>
+      </div>
+    </div>
+
+    <!-- PILLAR 2 -->
+    <div class="panel">
+      <h2>2. BGH-Wechselmodell (50/50) vs. 43/57-Klippe</h2>
+      <p class="desc">BGH XII ZB 599/13 &amp; XII ZB 45/15: Warum 43% Mitbetreuung noch 100% Barunterhalt kostet und erst 50/50 quotal abrechnet.</p>
+
+      <div class="field-group">
+        <label><span>Bereinigtes Netto Elternteil A (Hauptverdiener)</span><span id="p2NetAVal">4.200 €</span></label>
+        <input type="range" id="p2NetA" min="1800" max="9500" step="100" value="4200" oninput="recalcAll()">
+      </div>
+      <div class="field-group">
+        <label><span>Bereinigtes Netto Elternteil B (Co-Elternteil)</span><span id="p2NetBVal">2.600 €</span></label>
+        <input type="range" id="p2NetB" min="1200" max="7500" step="100" value="2600" oninput="recalcAll()">
+      </div>
+      <div class="field-group">
+        <label><span>Betreuungsanteil Elternteil A (%)</span><span id="p2CareVal">50 % (Paritätisch)</span></label>
+        <input type="range" id="p2Care" min="15" max="50" step="1" value="50" oninput="recalcAll()">
+      </div>
+      <div class="field-group">
+        <label><span>Wechselmodell-Mehrbedarf (Fahrt/Wohnraum)</span><span id="p2ExtraVal">120 €</span></label>
+        <input type="range" id="p2Extra" min="0" max="500" step="20" value="120" oninput="recalcAll()">
+      </div>
+
+      <div class="result-box">
+        <div class="result-line"><span>Zahlbetrag im Residenzmodell (&lt;35% Umgang):</span><span id="p2ResidenzVal" class="highlight-rose">667,50 € / Mo.</span></div>
+        <div class="result-line"><span>Zahlbetrag bei 43/57 Umgang (BGH-Klippe!):</span><span id="p2ErweitertVal" class="highlight-amber">624,50 € / Mo.</span></div>
+        <div class="result-line"><span>Kombinierter Bedarf (Gr. <span id="p2CombGrp">12</span>) + Mehrkosten:</span><span id="p2CombNeed">1.102,00 €</span></div>
+        <div class="result-line"><span>Haftungsquote A / B (über 1.750 € Selbstbehalt):</span><span id="p2QuotaVal">74,2 % / 25,8 %</span></div>
+        <div class="result-line"><span><strong>Ausgleichszahlung A → B im 50/50 Wechselmodell:</strong></span><span id="p2WechselVal" class="highlight-green">169,15 € / Mo.</span></div>
+      </div>
+      <div id="p2CliffAlert" class="alert-banner alert-success"></div>
+    </div>
+
+    <!-- PILLAR 3 -->
+    <div class="panel">
+      <h2>3. Elternunterhalt (§ 94 Abs. 1a SGB XII Klippe)</h2>
+      <p class="desc">Die harte €100.000 Jahresbrutto-Klippe (Angehörigen-Entlastungsgesetz) &amp; bAV/IAB-Rettung vor Sozialamt-Regress.</p>
+
+      <div class="field-group">
+        <label><span>Jahresbruttoeinkommen Kind (§ 16 SGB IV)</span><span id="p3GrossVal">106.500 €</span></label>
+        <input type="range" id="p3Gross" min="75000" max="155000" step="500" value="106500" oninput="recalcAll()">
+      </div>
+      <div class="field-group">
+        <label><span>Ungedeckter Heimeigenanteil Elternteil (Sozialamt)</span><span id="p3GapVal">2.850 € / Mo.</span></label>
+        <input type="range" id="p3Gap" min="1500" max="4500" step="50" value="2850" oninput="recalcAll()">
+      </div>
+      <div class="field-group">
+        <label><span>bAV-Entgeltumwandlung (§ 3 Nr. 63 EStG / Jahr)</span><span id="p3BavVal">5.400 €</span></label>
+        <input type="range" id="p3Bav" min="0" max="7728" step="200" value="5400" oninput="recalcAll()">
+      </div>
+      <div class="field-group">
+        <label><span>§ 7g IAB / Denkmal-AfA / Werbungskosten-Hebel</span><span id="p3IabVal">2.500 €</span></label>
+        <input type="range" id="p3Iab" min="0" max="25000" step="500" value="2500" oninput="recalcAll()">
+      </div>
+
+      <div class="result-box">
+        <div class="result-line"><span>§ 16 SGB IV Einkommen VOR Optimierung:</span><span id="p3BeforeInc">105.270 €</span></div>
+        <div class="result-line"><span>Sozialamt-Regress VOR Optimierung:</span><span id="p3BeforeRecourse" class="highlight-rose">1.158,38 € / Mo.</span></div>
+        <div class="result-line"><span>§ 16 SGB IV Einkommen NACH bAV + IAB:</span><span id="p3AfterInc" class="highlight-green">97.370 €</span></div>
+        <div class="result-line"><span><strong>Sozialamt-Regress NACH Optimierung:</strong></span><span id="p3AfterRecourse" class="highlight-green">0,00 € / Mo.</span></div>
+        <div class="result-line"><span><strong>Jährliche Regress-Ersparnis (Schutzschild):</strong></span><span id="p3SavedYr" class="highlight-emerald">13.900,50 € / Jahr</span></div>
+      </div>
+      <div id="p3CliffAlert" class="alert-banner alert-success"></div>
+    </div>
+  </div>
+
+  <!-- FULL DÜSSELDORFER TABELLE -->
+  <div class="panel">
+    <h2>Vollständige Düsseldorfer Tabelle (<span id="tableYearLabel">2026</span>) — Alle 15 Einkommensgruppen (Tabellenbetrag vs. Zahlbetrag)</h2>
+    <p class="desc">Die hervorgehobene Zeile zeigt die aktuell in Säule 1 ermittelte effektive Einkommensgruppe nach Auf-/Abgruppierung und Bedarfskontrollbetrags-Prüfung.</p>
+    <div style="overflow-x:auto;">
+      <table>
+        <thead>
+          <tr>
+            <th>Gruppe</th>
+            <th>Bereinigtes Netto</th>
+            <th>Satz</th>
+            <th>0–5 J. (Tab / Zahl)</th>
+            <th>6–11 J. (Tab / Zahl)</th>
+            <th>12–17 J. (Tab / Zahl)</th>
+            <th>Ab 18 J. (Tab / Zahl)</th>
+            <th>Bedarfskontrollbetrag</th>
+          </tr>
+        </thead>
+        <tbody id="ddTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+const ENGINE_DATA = {"tables": {"2025": [{"group": 1, "income_range_label": "bis 2.100 €", "min_net_eur": 0, "max_net_eur": 2100, "percentage": 100, "bedarfskontrollbetrag_eur": 1450, "tabellenbetrag_eur": {"0-5": 482, "6-11": 554, "12-17": 649, "18+": 693}, "zahlbetrag_eur": {"0-5": 354.5, "6-11": 426.5, "12-17": 521.5, "18+": 438.0}}, {"group": 2, "income_range_label": "2.101 – 2.500 €", "min_net_eur": 2101, "max_net_eur": 2500, "percentage": 105, "bedarfskontrollbetrag_eur": 1750, "tabellenbetrag_eur": {"0-5": 507, "6-11": 582, "12-17": 682, "18+": 728}, "zahlbetrag_eur": {"0-5": 379.5, "6-11": 454.5, "12-17": 554.5, "18+": 473.0}}, {"group": 3, "income_range_label": "2.501 – 2.900 €", "min_net_eur": 2501, "max_net_eur": 2900, "percentage": 110, "bedarfskontrollbetrag_eur": 1850, "tabellenbetrag_eur": {"0-5": 531, "6-11": 610, "12-17": 714, "18+": 763}, "zahlbetrag_eur": {"0-5": 403.5, "6-11": 482.5, "12-17": 586.5, "18+": 508.0}}, {"group": 4, "income_range_label": "2.901 – 3.300 €", "min_net_eur": 2901, "max_net_eur": 3300, "percentage": 115, "bedarfskontrollbetrag_eur": 1950, "tabellenbetrag_eur": {"0-5": 555, "6-11": 638, "12-17": 747, "18+": 797}, "zahlbetrag_eur": {"0-5": 427.5, "6-11": 510.5, "12-17": 619.5, "18+": 542.0}}, {"group": 5, "income_range_label": "3.301 – 3.700 €", "min_net_eur": 3301, "max_net_eur": 3700, "percentage": 120, "bedarfskontrollbetrag_eur": 2050, "tabellenbetrag_eur": {"0-5": 579, "6-11": 665, "12-17": 779, "18+": 832}, "zahlbetrag_eur": {"0-5": 451.5, "6-11": 537.5, "12-17": 651.5, "18+": 577.0}}, {"group": 6, "income_range_label": "3.701 – 4.100 €", "min_net_eur": 3701, "max_net_eur": 4100, "percentage": 128, "bedarfskontrollbetrag_eur": 2150, "tabellenbetrag_eur": {"0-5": 617, "6-11": 710, "12-17": 831, "18+": 888}, "zahlbetrag_eur": {"0-5": 489.5, "6-11": 582.5, "12-17": 703.5, "18+": 633.0}}, {"group": 7, "income_range_label": "4.101 – 4.500 €", "min_net_eur": 4101, "max_net_eur": 4500, "percentage": 136, "bedarfskontrollbetrag_eur": 2250, "tabellenbetrag_eur": {"0-5": 656, "6-11": 754, "12-17": 883, "18+": 943}, "zahlbetrag_eur": {"0-5": 528.5, "6-11": 626.5, "12-17": 755.5, "18+": 688.0}}, {"group": 8, "income_range_label": "4.501 – 4.900 €", "min_net_eur": 4501, "max_net_eur": 4900, "percentage": 144, "bedarfskontrollbetrag_eur": 2350, "tabellenbetrag_eur": {"0-5": 695, "6-11": 798, "12-17": 935, "18+": 998}, "zahlbetrag_eur": {"0-5": 567.5, "6-11": 670.5, "12-17": 807.5, "18+": 743.0}}, {"group": 9, "income_range_label": "4.901 – 5.300 €", "min_net_eur": 4901, "max_net_eur": 5300, "percentage": 152, "bedarfskontrollbetrag_eur": 2450, "tabellenbetrag_eur": {"0-5": 733, "6-11": 843, "12-17": 987, "18+": 1054}, "zahlbetrag_eur": {"0-5": 605.5, "6-11": 715.5, "12-17": 859.5, "18+": 799.0}}, {"group": 10, "income_range_label": "5.301 – 5.700 €", "min_net_eur": 5301, "max_net_eur": 5700, "percentage": 160, "bedarfskontrollbetrag_eur": 2550, "tabellenbetrag_eur": {"0-5": 772, "6-11": 887, "12-17": 1039, "18+": 1109}, "zahlbetrag_eur": {"0-5": 644.5, "6-11": 759.5, "12-17": 911.5, "18+": 854.0}}, {"group": 11, "income_range_label": "5.701 – 6.400 €", "min_net_eur": 5701, "max_net_eur": 6400, "percentage": 168, "bedarfskontrollbetrag_eur": 3050, "tabellenbetrag_eur": {"0-5": 810, "6-11": 931, "12-17": 1091, "18+": 1165}, "zahlbetrag_eur": {"0-5": 682.5, "6-11": 803.5, "12-17": 963.5, "18+": 910.0}}, {"group": 12, "income_range_label": "6.401 – 7.200 €", "min_net_eur": 6401, "max_net_eur": 7200, "percentage": 176, "bedarfskontrollbetrag_eur": 3550, "tabellenbetrag_eur": {"0-5": 849, "6-11": 976, "12-17": 1143, "18+": 1220}, "zahlbetrag_eur": {"0-5": 721.5, "6-11": 848.5, "12-17": 1015.5, "18+": 965.0}}, {"group": 13, "income_range_label": "7.201 – 8.200 €", "min_net_eur": 7201, "max_net_eur": 8200, "percentage": 184, "bedarfskontrollbetrag_eur": 4050, "tabellenbetrag_eur": {"0-5": 887, "6-11": 1020, "12-17": 1195, "18+": 1276}, "zahlbetrag_eur": {"0-5": 759.5, "6-11": 892.5, "12-17": 1067.5, "18+": 1021.0}}, {"group": 14, "income_range_label": "8.201 – 9.700 €", "min_net_eur": 8201, "max_net_eur": 9700, "percentage": 192, "bedarfskontrollbetrag_eur": 4550, "tabellenbetrag_eur": {"0-5": 926, "6-11": 1064, "12-17": 1247, "18+": 1331}, "zahlbetrag_eur": {"0-5": 798.5, "6-11": 936.5, "12-17": 1119.5, "18+": 1076.0}}, {"group": 15, "income_range_label": "9.701 – 11.200 €", "min_net_eur": 9701, "max_net_eur": 11200, "percentage": 200, "bedarfskontrollbetrag_eur": 5050, "tabellenbetrag_eur": {"0-5": 964, "6-11": 1108, "12-17": 1298, "18+": 1386}, "zahlbetrag_eur": {"0-5": 836.5, "6-11": 980.5, "12-17": 1170.5, "18+": 1131.0}}], "2026": [{"group": 1, "income_range_label": "bis 2.100 €", "min_net_eur": 0, "max_net_eur": 2100, "percentage": 100, "bedarfskontrollbetrag_eur": 1450, "tabellenbetrag_eur": {"0-5": 486, "6-11": 558, "12-17": 653, "18+": 698}, "zahlbetrag_eur": {"0-5": 356.5, "6-11": 428.5, "12-17": 523.5, "18+": 439.0}}, {"group": 2, "income_range_label": "2.101 – 2.500 €", "min_net_eur": 2101, "max_net_eur": 2500, "percentage": 105, "bedarfskontrollbetrag_eur": 1750, "tabellenbetrag_eur": {"0-5": 511, "6-11": 586, "12-17": 686, "18+": 733}, "zahlbetrag_eur": {"0-5": 381.5, "6-11": 456.5, "12-17": 556.5, "18+": 474.0}}, {"group": 3, "income_range_label": "2.501 – 2.900 €", "min_net_eur": 2501, "max_net_eur": 2900, "percentage": 110, "bedarfskontrollbetrag_eur": 1850, "tabellenbetrag_eur": {"0-5": 535, "6-11": 614, "12-17": 719, "18+": 768}, "zahlbetrag_eur": {"0-5": 405.5, "6-11": 484.5, "12-17": 589.5, "18+": 509.0}}, {"group": 4, "income_range_label": "2.901 – 3.300 €", "min_net_eur": 2901, "max_net_eur": 3300, "percentage": 115, "bedarfskontrollbetrag_eur": 1950, "tabellenbetrag_eur": {"0-5": 559, "6-11": 642, "12-17": 751, "18+": 803}, "zahlbetrag_eur": {"0-5": 429.5, "6-11": 512.5, "12-17": 621.5, "18+": 544.0}}, {"group": 5, "income_range_label": "3.301 – 3.700 €", "min_net_eur": 3301, "max_net_eur": 3700, "percentage": 120, "bedarfskontrollbetrag_eur": 2050, "tabellenbetrag_eur": {"0-5": 584, "6-11": 670, "12-17": 784, "18+": 838}, "zahlbetrag_eur": {"0-5": 454.5, "6-11": 540.5, "12-17": 654.5, "18+": 579.0}}, {"group": 6, "income_range_label": "3.701 – 4.100 €", "min_net_eur": 3701, "max_net_eur": 4100, "percentage": 128, "bedarfskontrollbetrag_eur": 2150, "tabellenbetrag_eur": {"0-5": 623, "6-11": 715, "12-17": 836, "18+": 894}, "zahlbetrag_eur": {"0-5": 493.5, "6-11": 585.5, "12-17": 706.5, "18+": 635.0}}, {"group": 7, "income_range_label": "4.101 – 4.500 €", "min_net_eur": 4101, "max_net_eur": 4500, "percentage": 136, "bedarfskontrollbetrag_eur": 2250, "tabellenbetrag_eur": {"0-5": 661, "6-11": 759, "12-17": 889, "18+": 950}, "zahlbetrag_eur": {"0-5": 531.5, "6-11": 629.5, "12-17": 759.5, "18+": 691.0}}, {"group": 8, "income_range_label": "4.501 – 4.900 €", "min_net_eur": 4501, "max_net_eur": 4900, "percentage": 144, "bedarfskontrollbetrag_eur": 2350, "tabellenbetrag_eur": {"0-5": 700, "6-11": 804, "12-17": 941, "18+": 1006}, "zahlbetrag_eur": {"0-5": 570.5, "6-11": 674.5, "12-17": 811.5, "18+": 747.0}}, {"group": 9, "income_range_label": "4.901 – 5.300 €", "min_net_eur": 4901, "max_net_eur": 5300, "percentage": 152, "bedarfskontrollbetrag_eur": 2450, "tabellenbetrag_eur": {"0-5": 739, "6-11": 849, "12-17": 993, "18+": 1061}, "zahlbetrag_eur": {"0-5": 609.5, "6-11": 719.5, "12-17": 863.5, "18+": 802.0}}, {"group": 10, "income_range_label": "5.301 – 5.700 €", "min_net_eur": 5301, "max_net_eur": 5700, "percentage": 160, "bedarfskontrollbetrag_eur": 2550, "tabellenbetrag_eur": {"0-5": 778, "6-11": 893, "12-17": 1045, "18+": 1117}, "zahlbetrag_eur": {"0-5": 648.5, "6-11": 763.5, "12-17": 915.5, "18+": 858.0}}, {"group": 11, "income_range_label": "5.701 – 6.400 €", "min_net_eur": 5701, "max_net_eur": 6400, "percentage": 168, "bedarfskontrollbetrag_eur": 3050, "tabellenbetrag_eur": {"0-5": 817, "6-11": 938, "12-17": 1098, "18+": 1173}, "zahlbetrag_eur": {"0-5": 687.5, "6-11": 808.5, "12-17": 968.5, "18+": 914.0}}, {"group": 12, "income_range_label": "6.401 – 7.200 €", "min_net_eur": 6401, "max_net_eur": 7200, "percentage": 176, "bedarfskontrollbetrag_eur": 3550, "tabellenbetrag_eur": {"0-5": 856, "6-11": 983, "12-17": 1150, "18+": 1229}, "zahlbetrag_eur": {"0-5": 726.5, "6-11": 853.5, "12-17": 1020.5, "18+": 970.0}}, {"group": 13, "income_range_label": "7.201 – 8.200 €", "min_net_eur": 7201, "max_net_eur": 8200, "percentage": 184, "bedarfskontrollbetrag_eur": 4050, "tabellenbetrag_eur": {"0-5": 895, "6-11": 1027, "12-17": 1202, "18+": 1285}, "zahlbetrag_eur": {"0-5": 765.5, "6-11": 897.5, "12-17": 1072.5, "18+": 1026.0}}, {"group": 14, "income_range_label": "8.201 – 9.700 €", "min_net_eur": 8201, "max_net_eur": 9700, "percentage": 192, "bedarfskontrollbetrag_eur": 4550, "tabellenbetrag_eur": {"0-5": 934, "6-11": 1072, "12-17": 1254, "18+": 1341}, "zahlbetrag_eur": {"0-5": 804.5, "6-11": 942.5, "12-17": 1124.5, "18+": 1082.0}}, {"group": 15, "income_range_label": "9.701 – 11.200 €", "min_net_eur": 9701, "max_net_eur": 11200, "percentage": 200, "bedarfskontrollbetrag_eur": 5050, "tabellenbetrag_eur": {"0-5": 972, "6-11": 1116, "12-17": 1306, "18+": 1396}, "zahlbetrag_eur": {"0-5": 842.5, "6-11": 986.5, "12-17": 1176.5, "18+": 1137.0}}]}, "kindergeld": {"2025": 255.0, "2026": 259.0}, "defaults": {"pillar1": {"year": 2026, "kindergeld_per_child_eur": 259.0, "income_breakdown": {"gross_monthly_eur": 5800.0, "net_monthly_eur": 3750.0, "is_employed": true, "berufsbedingte_aufwendungen_eur": 150.0, "zusatz_altersvorsorge_eur": 232.0, "eligible_debts_eur": 0.0, "bereinigtes_netto_eur": 3368.0}, "base_income_group": 5, "total_dependents": 1, "dependent_group_shift": 1, "bkb_downgrades": 0, "effective_income_group": 6, "effective_percentage": 128, "bedarfskontrollbetrag_eur": 2150, "selbstbehalt_notwendig_eur": 1450.0, "children": [{"name": "Lukas", "age_years": 9, "age_bracket": "6-11", "is_minor": true, "tabellenbetrag_eur": 715, "kindergeld_anrechnung_eur": 129.5, "zahlbetrag_eur": 585.5}], "total_tabellenbetrag_monthly_eur": 715.0, "total_zahlbetrag_monthly_eur": 585.5, "actual_payable_monthly_eur": 585.5, "actual_payable_annual_eur": 7026.0, "remaining_net_monthly_eur": 2782.5, "is_mangelfall": false}, "pillar2": {"year": 2026, "child_age_years": 9, "age_bracket": "6-11", "care_share_parent_a_pct": 50.0, "active_regime": "Paritätisches Wechselmodell (50/50 nach BGH XII ZB 599/13)", "active_monthly_transfer_eur": 171.25, "residenzmodell": {"income_group_a": 8, "tabellenbetrag_eur": 804, "zahlbetrag_parent_a_eur": 674.5}, "erweitertes_umgangsmodell_43_57": {"income_group_a_downgraded": 7, "tabellenbetrag_eur": 759, "zahlbetrag_parent_a_eur": 629.5, "bgh_cliff_warning": "BGH XII ZB 599/13: Selbst bei 43% vs. 57% Betreuung entfällt die alleinige Barunterhaltspflicht NICHT (max. 1 Stufe Herabstufung)!"}, "paritaetisches_wechselmodell_50_50": {"combined_bereinigtes_netto_eur": 6800.0, "combined_income_group": 12, "combined_tabellenbetrag_eur": 983, "wechselmodell_extra_costs_eur": 120.0, "gesamtbedarf_brutto_eur": 1103.0, "restbedarf_after_half_kg_eur": 973.5, "selbstbehalt_angemessen_eur": 1750.0, "einsetzbar_parent_a_eur": 2450.0, "einsetzbar_parent_b_eur": 850.0, "haftungsquote_parent_a_pct": 74.24, "haftungsquote_parent_b_pct": 25.76, "haftungsanteil_parent_a_eur": 722.75, "haftungsanteil_parent_b_eur": 250.75, "ausgleichsrente_before_kg_eur": 236.0, "betreuungs_kindergeld_ausgleich_eur": 64.75, "net_transfer_parent_a_to_b_eur": 171.25}, "savings_analysis": {"monthly_savings_vs_residenz_eur": 503.25, "annual_savings_vs_residenz_eur": 6039.0, "monthly_savings_vs_43_57_cliff_eur": 458.25, "annual_savings_vs_43_57_cliff_eur": 5499.0, "ten_year_wealth_preservation_eur": 60390.0}}, "pillar3": {"statutory_basis": "§ 94 Abs. 1a SGB XII (Angehörigen-Entlastungsgesetz) & BGH XII ZB 6/24", "cliff_threshold_annual_eur": 100000.0, "child_annual_gross_eur": 106500.0, "spouse_annual_gross_eur": 85000.0, "spouse_income_counted_for_cliff": false, "uncovered_nursing_home_gap_monthly_eur": 2850.0, "before_rescue": {"werbungskosten_annual_eur": 1230.0, "sgb4_gesamteinkommen_annual_eur": 105270.0, "breaches_100k_cliff": true, "monthly_sozialamt_recourse_eur": 951.88, "annual_sozialamt_recourse_eur": 11422.56}, "rescue_levers_applied": {"bav_entgeltumwandlung_3_63_estg_eur": 5400.0, "iab_7g_or_vuv_loss_eur": 2500.0, "ruerup_basisrente_10_estg_eur": 0.0, "exact_reduction_needed_for_shield_eur": 5270.0}, "after_rescue": {"sgb4_gesamteinkommen_annual_eur": 97370.0, "breaches_100k_cliff": false, "shield_active_100_percent": true, "monthly_sozialamt_recourse_eur": 0.0, "annual_sozialamt_recourse_eur": 0.0}, "annual_sozialamt_recourse_saved_eur": 11422.56, "five_year_nursing_home_shield_eur": 57112.8}}};
+
+function fmtEUR(v) {
+  return new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(v);
+}
+
+function findGroup(net, rows) {
+  for (const r of rows) {
+    if (net <= r.max_net_eur) return r.group;
+  }
+  return 15;
+}
+
+function recalcAll() {
+  const year = document.getElementById('yearSelect').value;
+  const rows = ENGINE_DATA.tables[year];
+  const kg = ENGINE_DATA.kindergeld[year];
+  const halfKg = kg / 2.0;
+  document.getElementById('tableYearLabel').textContent = year;
+
+  // --- PILLAR 1 ---
+  const gross1 = parseFloat(document.getElementById('p1Gross').value);
+  const net1 = parseFloat(document.getElementById('p1Net').value);
+  const debt1 = parseFloat(document.getElementById('p1Debt').value);
+  const age1 = document.getElementById('p1Age').value;
+  const deps1 = parseInt(document.getElementById('p1Deps').value, 10);
+
+  document.getElementById('p1GrossVal').textContent = fmtEUR(gross1);
+  document.getElementById('p1NetVal').textContent = fmtEUR(net1);
+  document.getElementById('p1DebtVal').textContent = fmtEUR(debt1);
+
+  const workDed = Math.min(150, Math.max(50, net1 * 0.05));
+  const pensDed = gross1 * 0.04;
+  const bereinigt1 = Math.max(0, net1 - workDed - pensDed - debt1);
+
+  const baseGrp1 = findGroup(bereinigt1, rows);
+  const shift1 = deps1 === 1 ? 1 : (deps1 === 2 ? 0 : -(deps1 - 2));
+  let effGrp1 = Math.max(1, Math.min(15, baseGrp1 + shift1));
+
+  while (effGrp1 > 1) {
+    const rowTry = rows[effGrp1 - 1];
+    const zahlTry = rowTry.zahlbetrag_eur[age1] * deps1;
+    if ((bereinigt1 - zahlTry) < rowTry.bedarfskontrollbetrag_eur) {
+      effGrp1--;
+    } else {
+      break;
+    }
+  }
+
+  const activeRow1 = rows[effGrp1 - 1];
+  const tab1 = activeRow1.tabellenbetrag_eur[age1];
+  const kgDed1 = age1 === '18+' ? kg : halfKg;
+  const zahl1 = activeRow1.zahlbetrag_eur[age1];
+
+  document.getElementById('p1WorkDed').textContent = '-' + fmtEUR(workDed);
+  document.getElementById('p1PensDed').textContent = '-' + fmtEUR(pensDed);
+  document.getElementById('p1Bereinigt').textContent = fmtEUR(bereinigt1);
+  document.getElementById('p1GroupInfo').textContent = `Gr. ${baseGrp1} → Gr. ${effGrp1} (${activeRow1.percentage}%)`;
+  document.getElementById('p1TabBetrag').textContent = fmtEUR(tab1);
+  document.getElementById('p1KgDed').textContent = '-' + fmtEUR(kgDed1);
+  document.getElementById('p1Zahlbetrag').textContent = fmtEUR(zahl1);
+
+  document.getElementById('kpiZahlbetrag').textContent = fmtEUR(zahl1) + ' / Mo.';
+  document.getElementById('kpiZahlbetragSub').textContent = `Gruppe ${effGrp1} (${activeRow1.percentage}%) · BKB ${fmtEUR(activeRow1.bedarfskontrollbetrag_eur)}`;
+
+  // --- PILLAR 2 ---
+  const netA = parseFloat(document.getElementById('p2NetA').value);
+  const netB = parseFloat(document.getElementById('p2NetB').value);
+  const careA = parseFloat(document.getElementById('p2Care').value);
+  const extraWM = parseFloat(document.getElementById('p2Extra').value);
+
+  document.getElementById('p2NetAVal').textContent = fmtEUR(netA);
+  document.getElementById('p2NetBVal').textContent = fmtEUR(netB);
+  document.getElementById('p2CareVal').textContent = careA + ' %' + (careA >= 49 ? ' (Paritätisch 50/50)' : (careA >= 35 ? ' (Erweiterter Umgang)' : ' (Residenzmodell)'));
+  document.getElementById('p2ExtraVal').textContent = fmtEUR(extraWM);
+
+  const grpResA = Math.min(15, findGroup(netA, rows) + 1);
+  const zahlResA = rows[grpResA - 1].zahlbetrag_eur['6-11'];
+  const grpErwA = Math.max(1, grpResA - 1);
+  const zahlErwA = rows[grpErwA - 1].zahlbetrag_eur['6-11'];
+
+  const combNet = netA + netB;
+  const grpComb = findGroup(combNet, rows);
+  const combTab = rows[grpComb - 1].tabellenbetrag_eur['6-11'];
+  const gesamtBedarf = combTab + extraWM;
+  const restBedarf = Math.max(0, gesamtBedarf - halfKg);
+
+  const einA = Math.max(0, netA - 1750);
+  const einB = Math.max(0, netB - 1750);
+  const qA = (einA + einB) > 0 ? (einA / (einA + einB)) : 0.5;
+  const qB = 1.0 - qA;
+
+  const haftA = restBedarf * qA;
+  const ausgleichBeforeKg = haftA - (restBedarf / 2.0);
+  const wechselTransfer = Math.max(0, ausgleichBeforeKg - (halfKg / 2.0));
+
+  document.getElementById('p2ResidenzVal').textContent = fmtEUR(zahlResA) + ' / Mo.';
+  document.getElementById('p2ErweitertVal').textContent = fmtEUR(zahlErwA) + ' / Mo.';
+  document.getElementById('p2CombGrp').textContent = grpComb;
+  document.getElementById('p2CombNeed').textContent = fmtEUR(gesamtBedarf);
+  document.getElementById('p2QuotaVal').textContent = `${(qA*100).toFixed(1)} % / ${(qB*100).toFixed(1)} %`;
+  document.getElementById('p2WechselVal').textContent = fmtEUR(wechselTransfer) + ' / Mo.';
+
+  const savedMoWM = Math.max(0, zahlResA - wechselTransfer);
+  const savedYrWM = savedMoWM * 12.0;
+  document.getElementById('kpiWechselErsparnis').textContent = fmtEUR(savedYrWM) + ' / Jahr';
+  document.getElementById('kpiWechselSub').textContent = `${fmtEUR(savedMoWM)}/Mo. weniger Barunterhalt bei 50/50 statt Residenz`;
+
+  const p2Alert = document.getElementById('p2CliffAlert');
+  if (careA >= 49) {
+    p2Alert.className = 'alert-banner alert-success';
+    p2Alert.textContent = `✓ Paritätisches Wechselmodell aktiv (BGH XII ZB 599/13): Quotale Haftung spart ${fmtEUR(savedMoWM)}/Monat (${fmtEUR(savedYrWM)}/Jahr)!`;
+  } else {
+    p2Alert.className = 'alert-banner alert-danger';
+    p2Alert.textContent = `⚠ BGH-Klippe aktiv (${careA}% Betreuung): Trotz hoher Mitbetreuung schuldet Elternteil A weiterhin ${fmtEUR(careA >= 35 ? zahlErwA : zahlResA)}/Monat Barunterhalt!`;
+  }
+
+  // --- PILLAR 3 ---
+  const gross3 = parseFloat(document.getElementById('p3Gross').value);
+  const gap3 = parseFloat(document.getElementById('p3Gap').value);
+  const bav3 = parseFloat(document.getElementById('p3Bav').value);
+  const iab3 = parseFloat(document.getElementById('p3Iab').value);
+
+  document.getElementById('p3GrossVal').textContent = fmtEUR(gross3);
+  document.getElementById('p3GapVal').textContent = fmtEUR(gap3) + ' / Mo.';
+  document.getElementById('p3BavVal').textContent = fmtEUR(bav3);
+  document.getElementById('p3IabVal').textContent = fmtEUR(iab3);
+
+  const beforeInc = Math.max(0, gross3 - 1230);
+  const afterInc = Math.max(0, beforeInc - bav3 - iab3);
+
+  function calcRecourse(grossVal) {
+    const netMo = (grossVal / 12.0) * 0.58;
+    const bereinigt = Math.max(0, netMo - 150 - (grossVal / 12.0) * 0.05);
+    const excess = Math.max(0, bereinigt - 2650);
+    return Math.min(gap3, excess * 0.5);
+  }
+
+  const recBefore = beforeInc > 100000 ? calcRecourse(gross3) : 0;
+  const recAfter = afterInc > 100000 ? calcRecourse(gross3 - bav3) : 0;
+  const savedYrEltern = Math.max(0, (recBefore - recAfter) * 12.0);
+
+  document.getElementById('p3BeforeInc').textContent = fmtEUR(beforeInc);
+  document.getElementById('p3BeforeRecourse').textContent = fmtEUR(recBefore) + ' / Mo.';
+  document.getElementById('p3AfterInc').textContent = fmtEUR(afterInc);
+  document.getElementById('p3AfterRecourse').textContent = fmtEUR(recAfter) + ' / Mo.';
+  document.getElementById('p3SavedYr').textContent = fmtEUR(savedYrEltern) + ' / Jahr';
+
+  document.getElementById('kpiElternShield').textContent = fmtEUR(savedYrEltern) + ' / Jahr';
+  document.getElementById('kpiElternSub').textContent = afterInc <= 100000
+    ? `100% Schutzschild aktiv (${fmtEUR(afterInc)} ≤ 100.000 €)`
+    : `Noch ${fmtEUR(afterInc - 100000)} über der 100.000 € Klippe!`;
+
+  const p3Alert = document.getElementById('p3CliffAlert');
+  if (afterInc <= 100000) {
+    p3Alert.className = 'alert-banner alert-success';
+    p3Alert.textContent = `✓ § 94 Abs. 1a SGB XII Schutzschild aktiv: Gesamteinkommen (${fmtEUR(afterInc)}) liegt unter 100.000 € — 0,00 € Sozialamt-Regress!`;
+  } else {
+    p3Alert.className = 'alert-banner alert-danger';
+    p3Alert.textContent = `⚠ 100.000 € Klippe gerissen (${fmtEUR(afterInc)}): Noch ${fmtEUR(afterInc - 100000)} zusätzliche bAV/IAB-Minderung nötig für 100% Regress-Befreiung!`;
+  }
+
+  const fiveYrTotal = (savedYrWM + savedYrEltern) * 5.0;
+  document.getElementById('kpiFiveYearTotal').textContent = fmtEUR(fiveYrTotal);
+
+  // Render full table
+  const tbody = document.getElementById('ddTableBody');
+  tbody.innerHTML = rows.map(r => {
+    const cls = r.group === effGrp1 ? ' class="active-row"' : '';
+    return `<tr${cls}>
+      <td>Gruppe ${r.group}</td>
+      <td>${r.income_range_label}</td>
+      <td>${r.percentage} %</td>
+      <td>${r.tabellenbetrag_eur['0-5']} € / <strong>${r.zahlbetrag_eur['0-5'].toFixed(2).replace('.', ',')} €</strong></td>
+      <td>${r.tabellenbetrag_eur['6-11']} € / <strong>${r.zahlbetrag_eur['6-11'].toFixed(2).replace('.', ',')} €</strong></td>
+      <td>${r.tabellenbetrag_eur['12-17']} € / <strong>${r.zahlbetrag_eur['12-17'].toFixed(2).replace('.', ',')} €</strong></td>
+      <td>${r.tabellenbetrag_eur['18+']} € / <strong>${r.zahlbetrag_eur['18+'].toFixed(2).replace('.', ',')} €</strong></td>
+      <td>${fmtEUR(r.bedarfskontrollbetrag_eur)}</td>
+    </tr>`;
+  }).join('');
+}
+
+window.addEventListener('DOMContentLoaded', recalcAll);
+</script>
+</body>
+</html>

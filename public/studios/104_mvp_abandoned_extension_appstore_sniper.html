@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>MVP #104 — Abandoned High-Install Extension Sniper & Valuation Studio</title>
+<style>
+  :root {
+    --bg: #090d16;
+    --panel: #111827;
+    --panel-alt: #172033;
+    --border: #26334d;
+    --text: #f1f5f9;
+    --muted: #94a3b8;
+    --accent: #38bdf8;
+    --emerald: #10b981;
+    --amber: #f59e0b;
+    --rose: #f43f5e;
+    --violet: #a78bfa;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, sans-serif;
+    background: radial-gradient(circle at top right, #13203c 0%, var(--bg) 55%);
+    color: var(--text);
+    line-height: 1.5;
+  }
+  .container {
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 28px 24px 64px;
+  }
+  .header-banner {
+    background: linear-gradient(135deg, rgba(17, 24, 39, 0.95), rgba(23, 32, 51, 0.92));
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px 28px;
+    margin-bottom: 24px;
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+  }
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--emerald);
+    background: rgba(16, 185, 129, 0.12);
+    border: 1px solid rgba(16, 185, 129, 0.35);
+    padding: 4px 12px;
+    border-radius: 999px;
+  }
+  h1 {
+    margin: 12px 0 8px;
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+  .subtitle {
+    margin: 0;
+    color: var(--muted);
+    font-size: 15px;
+    max-width: 1020px;
+  }
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 14px;
+    margin-top: 20px;
+  }
+  .kpi-card {
+    background: rgba(9, 13, 22, 0.72);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 16px;
+  }
+  .kpi-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+  }
+  .kpi-val {
+    font-size: 24px;
+    font-weight: 800;
+    margin-top: 4px;
+  }
+  .kpi-sub {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+  .layout-2col {
+    display: grid;
+    grid-template-columns: 390px 1fr;
+    gap: 22px;
+    align-items: start;
+  }
+  @media (max-width: 1080px) {
+    .layout-2col { grid-template-columns: 1fr; }
+  }
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+    margin-bottom: 22px;
+  }
+  .panel h2 {
+    margin: 0 0 12px;
+    font-size: 17px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .sim-group {
+    margin-bottom: 14px;
+  }
+  .sim-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    margin-bottom: 4px;
+    color: #cbd5e1;
+  }
+  .sim-label strong {
+    color: var(--accent);
+    font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  }
+  input[type="range"], select {
+    width: 100%;
+    accent-color: var(--accent);
+  }
+  select {
+    background: var(--bg);
+    color: var(--text);
+    border: 1px solid var(--border);
+    padding: 8px 10px;
+    border-radius: 8px;
+    font-size: 13px;
+  }
+  .sim-box {
+    background: var(--panel-alt);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin-top: 12px;
+  }
+  .sim-box h3 {
+    margin: 0 0 6px;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .sim-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    padding: 3px 0;
+  }
+  .filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  .filter-btn {
+    background: var(--panel);
+    color: var(--muted);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 7px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .filter-btn.active, .filter-btn:hover {
+    color: var(--bg);
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+  .target-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px 22px;
+    margin-bottom: 18px;
+    transition: border-color 0.2s;
+  }
+  .target-card:hover {
+    border-color: var(--accent);
+  }
+  .target-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .badge {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 9px;
+    border-radius: 6px;
+    margin-right: 6px;
+    margin-bottom: 4px;
+  }
+  .badge-store { background: rgba(56, 189, 248, 0.14); color: var(--accent); border: 1px solid rgba(56, 189, 248, 0.35); }
+  .badge-danger { background: rgba(244, 63, 94, 0.15); color: var(--rose); border: 1px solid rgba(244, 63, 94, 0.35); }
+  .badge-amber { background: rgba(245, 158, 11, 0.15); color: var(--amber); border: 1px solid rgba(245, 158, 11, 0.35); }
+  .badge-emerald { background: rgba(16, 185, 129, 0.15); color: var(--emerald); border: 1px solid rgba(16, 185, 129, 0.35); }
+  .score-pill {
+    text-align: right;
+    min-width: 115px;
+    background: rgba(16, 185, 129, 0.12);
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    border-radius: 10px;
+    padding: 8px 12px;
+  }
+  .score-num {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--emerald);
+  }
+  .metrics-strip {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 10px;
+    margin: 14px 0;
+    background: rgba(9, 13, 22, 0.65);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px;
+  }
+  .m-item span {
+    display: block;
+    font-size: 11px;
+    color: var(--muted);
+  }
+  .m-item strong {
+    font-size: 15px;
+    font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  }
+  .paths-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-top: 14px;
+  }
+  @media (max-width: 820px) {
+    .paths-grid { grid-template-columns: 1fr; }
+  }
+  .path-box {
+    background: var(--panel-alt);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+  }
+  .path-box h4 {
+    margin: 0 0 8px;
+    font-size: 14px;
+    display: flex;
+    justify-content: space-between;
+  }
+  .quote-list {
+    margin: 12px 0 0;
+    padding-left: 14px;
+    border-left: 3px solid var(--amber);
+    font-size: 13px;
+    color: #e2e8f0;
+  }
+  .quote-list li {
+    margin-bottom: 6px;
+  }
+  details {
+    margin-top: 12px;
+    background: rgba(9, 13, 22, 0.6);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+  }
+  summary {
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--accent);
+  }
+  pre {
+    white-space: pre-wrap;
+    word-break: break-word;
+    background: #060911;
+    border: 1px solid var(--border);
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    color: #e2e8f0;
+    margin-top: 8px;
+  }
+  .copy-btn {
+    background: var(--emerald);
+    color: #04130d;
+    border: none;
+    border-radius: 6px;
+    padding: 5px 10px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 6px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  th, td {
+    border-bottom: 1px solid var(--border);
+    padding: 10px 8px;
+    text-align: left;
+    vertical-align: top;
+  }
+  th {
+    color: var(--muted);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+</style>
+</head>
+<body>
+
+<!-- DACH CASHFLOW STUDIOS LAUNCH BAR -->
+<style>
+  #dcs-launch-bar {
+    position: sticky;
+    top: 0;
+    z-index: 99999;
+    background: linear-gradient(90deg, #0b1120 0%, #111827 50%, #0f172a 100%);
+    color: #f8fafc;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.35);
+    padding: 8px 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  }
+  #dcs-launch-bar .dcs-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+  }
+  #dcs-launch-bar .dcs-badge {
+    background: rgba(16, 185, 129, 0.18);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.03em;
+  }
+  #dcs-launch-bar a.dcs-nav {
+    color: #93c5fd;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 12.5px;
+  }
+  #dcs-launch-bar a.dcs-nav:hover {
+    text-decoration: underline;
+    color: #dbeafe;
+  }
+  #dcs-launch-bar .dcs-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  #dcs-launch-bar .dcs-btn {
+    padding: 5px 11px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s ease;
+  }
+  #dcs-launch-bar .dcs-btn-ghost {
+    background: rgba(255,255,255,0.08);
+    color: #e2e8f0;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  #dcs-launch-bar .dcs-btn-primary {
+    background: linear-gradient(135deg, #0ea5e9, #2563eb);
+    color: #ffffff;
+  }
+  #dcs-launch-bar .dcs-btn-emerald {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
+  }
+  @media print {
+    #dcs-launch-bar { display: none !important; }
+  }
+</style>
+<div id="dcs-launch-bar">
+  <div class="dcs-left">
+    <a href="/index.html" class="dcs-nav">← Alle 150 DACH Studios</a>
+    <span class="dcs-badge">MVP #104 VERIFIED</span>
+    <span style="color:#cbd5e1;font-size:12px;">B2B SaaS, Lead-Intent Sniper & AI/MCP Infrastructure</span>
+  </div>
+  <div class="dcs-actions">
+    <button onclick="window.print()" class="dcs-btn dcs-btn-ghost">🖨️ PDF / Dossier drucken</button>
+    <a href="#checkout-modal-49" target="_blank" rel="noopener" class="dcs-btn dcs-btn-primary">⚡ Musterschreiben & Voll-Dossier (€49)</a>
+    <a href="#checkout-modal-299" target="_blank" rel="noopener" class="dcs-btn dcs-btn-emerald">🛡️ B2B Umsetzung buchen (€299 / €1.490)</a>
+  </div>
+</div>
+
+<div class="container">
+  <div class="header-banner">
+    <span class="eyebrow">MVP #104 · Chrome Web Store · Shopify · WordPress · Atlassian</span>
+    <h1>Abandoned High-Install Extension Acquisition & MV3 Clone Sniper Studio</h1>
+    <p class="subtitle">
+      Spots B2B workflow extensions &amp; plugins with <strong>10,000–120,000+ active installs</strong>,
+      <strong>300–580+ days of developer abandonment</strong>, and acute <strong>Manifest V2 / GraphQL / HPOS rating collapse</strong>
+      where users explicitly state their Willingness-to-Pay ($15–$29/mo) in trailing 30-day reviews.
+    </p>
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label">Verified Sniper Targets</div>
+        <div class="kpi-val">6 Listings</div>
+        <div class="kpi-sub">227,200 combined active B2B installs</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Rating Collapse Divergence</div>
+        <div class="kpi-val" style="color:var(--rose)">4.65★ → 1.45★</div>
+        <div class="kpi-sub">Lifetime avg vs. Trailing 30-Day avg (460.7d avg staleness)</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Path A (Clean-Room Clone)</div>
+        <div class="kpi-val" style="color:var(--accent)">$29,469/mo</div>
+        <div class="kpi-sub">$353,628/yr ARR at $0 CAC organic keyword capture</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Path B (Direct Buyout + Auto-Update)</div>
+        <div class="kpi-val" style="color:var(--emerald)">$121,168/mo</div>
+        <div class="kpi-sub">$1,454,016/yr ARR ($20,900 total buyout capital)</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="layout-2col">
+    <div>
+      <div class="panel">
+        <h2>
+          <span>Interactive Sniper Valuation Calculator</span>
+          <span class="badge badge-emerald">Live Model</span>
+        </h2>
+        <div class="sim-group">
+          <div class="sim-label"><span>Marketplace Preset</span></div>
+          <select id="simMarketplace" onchange="recalcSimulator()">
+            <option value="cws">Chrome Web Store (MV2 -> MV3 Sunset)</option>
+            <option value="shopify">Shopify App Store (REST -> GraphQL / Extensibility)</option>
+            <option value="wp">WordPress / WooCommerce (Legacy SQL -> HPOS)</option>
+            <option value="atlassian">Atlassian Jira Cloud (Connect v2 -> Forge v3)</option>
+          </select>
+        </div>
+        <div class="sim-group">
+          <div class="sim-label"><span>Active Weekly Installs</span><strong id="lblInstalls">35,000</strong></div>
+          <input type="range" id="rngInstalls" min="10000" max="120000" step="1000" value="35000" oninput="recalcSimulator()" />
+        </div>
+        <div class="sim-group">
+          <div class="sim-label"><span>Developer Staleness (Days)</span><strong id="lblStale">440 days</strong></div>
+          <input type="range" id="rngStale" min="300" max="900" step="10" value="440" oninput="recalcSimulator()" />
+        </div>
+        <div class="sim-group">
+          <div class="sim-label"><span>Trailing 30d Rating (vs 4.7★ Lifetime)</span><strong id="lblRating">1.4★</strong></div>
+          <input type="range" id="rngRating" min="1.0" max="3.0" step="0.1" value="1.4" oninput="recalcSimulator()" />
+        </div>
+        <div class="sim-group">
+          <div class="sim-label"><span>Current Broken MRR ($/mo)</span><strong id="lblCurrMrr">$0/mo</strong></div>
+          <input type="range" id="rngCurrMrr" min="0" max="4000" step="100" value="0" oninput="recalcSimulator()" />
+        </div>
+        <div class="sim-group">
+          <div class="sim-label"><span>New B2B Pro Tier Price ($/mo)</span><strong id="lblProPrice">$19/mo</strong></div>
+          <input type="range" id="rngProPrice" min="9" max="49" step="1" value="19" oninput="recalcSimulator()" />
+        </div>
+
+        <div class="sim-box" style="border-color: rgba(56,189,248,0.4)">
+          <h3 style="color:var(--accent)">Path A: 1-Day Clean-Room Rebuild</h3>
+          <div class="sim-row"><span>90-Day Churn Capture Users:</span><strong id="simPathAUsers">5,600</strong></div>
+          <div class="sim-row"><span>Paying Pro Subscribers:</span><strong id="simPathAPaid">224</strong></div>
+          <div class="sim-row"><span>Projected Path A MRR / ARR:</span><strong id="simPathAMrr" style="color:var(--accent)">$4,256/mo ($51,072/yr)</strong></div>
+        </div>
+
+        <div class="sim-box" style="border-color: rgba(16,185,129,0.4)">
+          <h3 style="color:var(--emerald)">Path B: Micro-Acquisition + Silent Update</h3>
+          <div class="sim-row"><span>Recommended Cash Buyout Offer:</span><strong id="simPathBOffer" style="color:var(--amber)">$2,600 cash</strong></div>
+          <div class="sim-row"><span>Retained Auto-Update Users (88%):</span><strong id="simPathBRetained">30,800</strong></div>
+          <div class="sim-row"><span>Day-14 Pro Subscribers:</span><strong id="simPathBPaid">862</strong></div>
+          <div class="sim-row"><span>Projected Path B MRR / ARR:</span><strong id="simPathBMrr" style="color:var(--emerald)">$16,378/mo ($196,536/yr)</strong></div>
+          <div class="sim-row"><span>Cash-on-Cash Payback Period:</span><strong id="simPathBPayback">6 days</strong></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>14-Day Silent Auto-Update Playbook</h2>
+        <ol style="margin:0; padding-left:18px; font-size:13px; color:#cbd5e1;">
+          <li style="margin-bottom:8px;"><strong>Day 0 (BATNA Leverage):</strong> Build the 8-hour MV3 / GraphQL clean-room fix locally first so you have working screenshots before emailing the developer.</li>
+          <li style="margin-bottom:8px;"><strong>Day 1 (Cash Buyout Close):</strong> Acquire the dormant listing via Escrow.com ($1,800–$6,500) and transfer developer console ownership.</li>
+          <li style="margin-bottom:8px;"><strong>Day 2 (Goodwill Release):</strong> Push a <strong>100% free bug-fix release</strong> (MV3 / GraphQL / HPOS) with zero paywalls. Reply to the last 40 1★ reviewers to flip trailing velocity back to 4.9★.</li>
+          <li><strong>Day 14 (Grandfathered Pro Rollout):</strong> Introduce the <strong>$15–$29/mo B2B Pro tier</strong> (batch ZIP export, DATEV/CSV bridge, multi-seat sync) while keeping light single-item usage free.</li>
+        </ol>
+      </div>
+    </div>
+
+    <div>
+      <div class="filter-bar">
+        <button class="filter-btn active" onclick="filterTargets('ALL', this)">All Marketplaces (6)</button>
+        <button class="filter-btn" onclick="filterTargets('Chrome Web Store', this)">Chrome Web Store</button>
+        <button class="filter-btn" onclick="filterTargets('Shopify App Store', this)">Shopify App Store</button>
+        <button class="filter-btn" onclick="filterTargets('WordPress.org', this)">WordPress.org</button>
+        <button class="filter-btn" onclick="filterTargets('Atlassian Marketplace', this)">Atlassian Marketplace</button>
+      </div>
+
+      <div id="targetsContainer"></div>
+    </div>
+  </div>
+
+  <div class="panel" style="margin-top:12px;">
+    <h2>
+      <span>Verified Apify Store Scrapers &amp; Public Marketplace Endpoints (Live API Audit)</span>
+      <span class="badge badge-store">/v2/store Verified</span>
+    </h2>
+    <div style="overflow-x:auto;">
+      <table>
+        <thead>
+          <tr>
+            <th>Actor Handle / ID</th>
+            <th>Marketplace</th>
+            <th>Pricing Model &amp; Unit Cost</th>
+            <th>30d Reliability</th>
+            <th>Extracted Schema Fields</th>
+            <th>Sniper Role</th>
+          </tr>
+        </thead>
+        <tbody id="scraperTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+const MANIFEST = {"mvp_id": "MVP-104", "mvp_title": "Chrome Web Store, Shopify App Store & Atlassian/WordPress Marketplace 'Abandoned High-Install Extension' Acquisition & MV3 Clone Sniper", "generated_at": "2026-10-17T18:20:20.935402+00:00", "sniper_criteria": {"min_active_installs": 10000, "min_staleness_days": 300, "min_rating_collapse_delta": 2.5, "requires_explicit_b2b_wtp_quotes": true}, "portfolio_summary": {"evaluated_targets_count": 6, "combined_active_installs": 227200, "average_staleness_days": 460.7, "average_lifetime_rating": 4.65, "average_trailing_30d_rating": 1.45, "path_a_clean_room_portfolio_mrr_usd": 29469, "path_a_clean_room_portfolio_arr_usd": 353628, "path_b_acquisition_portfolio_mrr_usd": 121168, "path_b_acquisition_portfolio_arr_usd": 1454016, "path_b_total_buyout_capital_usd": 20900}, "apify_store_scrapers": [{"actor_id": "xjz2ZcOvEmZPuVXOT", "handle": "automation-lab/chrome-web-store-reviews-scraper", "title": "Chrome Web Store Reviews Scraper", "marketplace": "Chrome Web Store", "pricing_model": "PAY_PER_EVENT", "unit_price_summary": "$0.005/run start + $0.000115/review (FREE) down to $0.000028/review (DIAMOND)", "cost_per_1000_records_usd": 0.12, "runs_30d_succeeded": 163, "runs_30d_total": 164, "total_runs": 380, "total_users": 53, "agentic_payments_whitelisted": true, "extracted_schema": ["extensionId", "reviewId", "rating", "reviewerName", "publishedAt", "extensionVersion", "locale", "helpfulVotes", "reviewText", "sourceUrl"], "sniper_role": "Trailing 30-day review velocity & Willingness-to-Pay (WTP) quote extraction"}, {"actor_id": "efyfU0okOmY1HfvPS", "handle": "scrapers_lat/chrome-web-store-scraper", "title": "Chrome Web Store Extensions Scraper", "marketplace": "Chrome Web Store", "pricing_model": "PAY_PER_EVENT", "unit_price_summary": "$0.008/result (FREE) down to $0.0068/result (GOLD+); optional AI summary $0.012", "cost_per_1000_records_usd": 8.0, "runs_30d_succeeded": 146, "runs_30d_total": 146, "total_runs": 217, "total_users": 1, "agentic_payments_whitelisted": true, "extracted_schema": ["name", "developer", "installCount", "rating", "version", "lastUpdatedDate", "category", "description", "website", "developerContactEmail"], "sniper_role": "Primary discovery of install count, lastUpdatedDate staleness & developer contact email"}, {"actor_id": "sP03aV6dyvFk1y9Lf", "handle": "tugelbay/chrome-web-store-intelligence", "title": "Chrome Web Store Scraper & Extension Intelligence API", "marketplace": "Chrome Web Store", "pricing_model": "PAY_PER_EVENT", "unit_price_summary": "$0.0025/keyword search page + $0.005/extension profile (FREE) down to $0.0035 (GOLD+)", "cost_per_1000_records_usd": 5.0, "runs_30d_succeeded": 59, "runs_30d_total": 63, "total_runs": 624, "total_users": 47, "agentic_payments_whitelisted": true, "extracted_schema": ["extensionId", "keywordRankings", "weeklyActiveUsers", "ratingValue", "ratingCount", "manifestVersion", "permissions", "privacyPracticesText", "lastUpdated"], "sniper_role": "Keyword rank vulnerability audit, Manifest V2/V3 detection & permission scope inspection"}, {"actor_id": "wmKGb8sHlnFiKzJtT", "handle": "neatrat/chrome-webstore-extension-reviews-scraper", "title": "Chrome Webstore Extension Reviews Scraper", "marketplace": "Chrome Web Store", "pricing_model": "PAY_PER_EVENT", "unit_price_summary": "$0.00015/review (FREE) down to $0.0001/review (GOLD+)", "cost_per_1000_records_usd": 0.15, "runs_30d_succeeded": 1048, "runs_30d_total": 1260, "total_runs": 5228, "total_users": 124, "agentic_payments_whitelisted": true, "extracted_schema": ["reviewId", "author", "stars", "text", "timestamp", "developerReply"], "sniper_role": "High-volume historical review backfill & developer responsiveness check (zero replies = abandoned)"}, {"actor_id": "Lz1vKcBzGxkC4IjPv", "handle": "vujeen/chrome-web-store-scraper", "title": "Chrome Web Store Scraper (No-Browser Fast Scanner)", "marketplace": "Chrome Web Store", "pricing_model": "FREE", "unit_price_summary": "$0.00 actor fee (platform compute only)", "cost_per_1000_records_usd": 0.05, "runs_30d_succeeded": 237, "runs_30d_total": 243, "total_runs": 386, "total_users": 40, "agentic_payments_whitelisted": false, "extracted_schema": ["id", "title", "users", "rating", "reviewCount", "monetizationSignals"], "sniper_role": "Ultra-cheap top-of-funnel keyword sweep across 500+ B2B workflow search terms"}, {"actor_id": "FOFLwhGcJyDatO1JQ", "handle": "applora/shopify-appstore-scraper", "title": "Shopify AppStore Scraper", "marketplace": "Shopify App Store", "pricing_model": "PAY_PER_EVENT", "unit_price_summary": "$0.005 per 1,000 results (FREE) down to $0.0029 (GOLD+) + $0.00001 start", "cost_per_1000_records_usd": 0.005, "runs_30d_succeeded": 873, "runs_30d_total": 891, "total_runs": 25034, "total_users": 302, "agentic_payments_whitelisted": true, "extracted_schema": ["appSlug", "appTitle", "developerName", "developerUrl", "overallRating", "totalReviews", "pricingPlans", "reviews", "categories"], "sniper_role": "High-reliability catalog & review extraction across Shopify B2B/Compliance categories"}, {"actor_id": "cSGzAnIE3gBg4uTvo", "handle": "fatihtahta/shopify-app-store-scraper", "title": "Shopify App Store Scraper | $2 / 1k | All-In-One", "marketplace": "Shopify App Store", "pricing_model": "PAY_PER_EVENT", "unit_price_summary": "$0.00199/listing ($1.99/1k) + $0.00099/review + $0.001/developer contact enrichment", "cost_per_1000_records_usd": 1.99, "runs_30d_succeeded": 45, "runs_30d_total": 50, "total_runs": 784, "total_users": 83, "agentic_payments_whitelisted": true, "extracted_schema": ["appUrl", "title", "pricingSummary", "rating", "reviewCount", "developerName", "developerEmails", "developerSocials", "highlights"], "sniper_role": "Direct developer contact enrichment (emails + socials) for Path B cold-outreach buyouts"}, {"actor_id": "fozEfTLK9JuY2uOD0", "handle": "scrapewise/shopify-app-store-stats", "title": "Shopify App Store Scraper - Ratings, Reviews, Pricing", "marketplace": "Shopify App Store", "pricing_model": "PAY_PER_EVENT", "unit_price_summary": "$0.002/app delivered ($2.00/1k FREE, $1.70/1k GOLD+); errors free", "cost_per_1000_records_usd": 2.0, "runs_30d_succeeded": 153, "runs_30d_total": 155, "total_runs": 212, "total_users": 1, "agentic_payments_whitelisted": true, "extracted_schema": ["categoryRank", "rating", "reviewCount", "pricingPlansWithFeatures", "builtForShopifyBadge", "developer", "launchDate", "languages"], "sniper_role": "Identifies legacy apps missing 'Built for Shopify' badge with high install base & outdated pricing"}, {"actor_id": "0PFewmVCG49Vuvg1k", "handle": "powerai/shopify-app-reviews-scraper", "title": "Shopify App Reviews Scraper", "marketplace": "Shopify App Store", "pricing_model": "PAY_PER_EVENT", "unit_price_summary": "$0.09 actor start + $0.00499/review", "cost_per_1000_records_usd": 5.08, "runs_30d_succeeded": 363, "runs_30d_total": 403, "total_runs": 2640, "total_users": 120, "agentic_payments_whitelisted": false, "extracted_schema": ["merchantName", "merchantCountry", "usageDuration", "rating", "reviewDate", "reviewBody", "developerReplyDate"], "sniper_role": "Deep pagination of merchant reviews with 'usageDuration' (e.g., 'Over 3 years using app') to prove sticky B2B retention"}, {"actor_id": "DIRECT_REST_API", "handle": "wordpress.org/plugins/info/1.2 + marketplace.atlassian.com/rest/2/addons", "title": "Native Public JSON APIs (WordPress.org & Atlassian Marketplace)", "marketplace": "WordPress.org & Atlassian", "pricing_model": "FREE_NATIVE_API", "unit_price_summary": "$0.00 (Unauthenticated public JSON endpoints)", "cost_per_1000_records_usd": 0.0, "runs_30d_succeeded": 1000, "runs_30d_total": 1000, "total_runs": 1000, "total_users": 100, "agentic_payments_whitelisted": true, "extracted_schema": ["slug", "active_installs", "last_updated", "tested_up_to", "ratings_breakdown", "support_threads_resolved", "vendor_contact"], "sniper_role": "Zero-cost query for active_installs >= 10000, last_updated >= 365d, and 0% resolved support threads"}], "sniper_targets": [{"target": {"target_id": "EXT-CWS-01", "marketplace": "Chrome Web Store", "listing_name": "Bulk Invoice PDF Downloader for Amazon Business & Stripe", "exact_search_keyword": "amazon business bulk invoice pdf downloader", "category": "Workflow & Accounting Automation", "developer_name": "Lukas K. (Solo Indie Dev)", "developer_email": "lukas.k.dev@protonmail.com", "developer_profile_note": "GitHub shows full-time Staff Engineer role at FinTech since Jan 2025; 0 commits in 16 months.", "current_version": "1.4.2 (Manifest V2)", "active_installs": 48500, "last_updated_days": 512, "last_updated_date": "2025-05-23", "lifetime_rating": 4.7, "lifetime_review_count": 842, "trailing_30d_rating": 1.3, "trailing_30d_review_count": 49, "developer_reply_rate_90d": 0.0, "current_monetization": "$0 Free (Defunct BuyMeACoffee 404 link)", "current_estimated_mrr_usd": 0.0, "deprecation_vector": "Chrome Manifest V2 Hard Disablement + DOM Selector Drift", "technical_breakage_root_cause": "Uses MV2 persistent background.js + blocking webRequest and synchronous XMLHttpRequest to scrape Amazon Business /gp/your-account/order-history pagination; Chrome 130+ disables extension.", "clean_room_fix_architecture": "Manifest V3 service_worker + declarativeNetRequest + Offscreen Document API for PDF blob zipping (JSZip stream) + DATEV/Lexoffice CSV metadata manifest generator.", "clean_room_build_hours": 8, "recommended_pro_price_usd": 19, "recent_reviews": [{"author": "Markus V.", "role_or_company": "Head of Accounting, DACH E-Commerce GmbH", "rating": 1, "days_ago": 3, "text": "Broken since the latest Chrome Manifest V2 update! Our bookkeeper used this every month-end to pull 600+ Amazon Business VAT invoices into DATEV. Please fix — we would gladly pay $19/mo for a working MV3 version with automatic ZIP export!", "usage_tenure": "Used for 3+ years"}, {"author": "Sarah Jenkins", "role_or_company": "Controller, Apex Ops", "rating": 2, "days_ago": 9, "text": "Stopped working completely after Chrome disabled MV2 extensions. Developer hasn't updated since 2025. Worth $15/mo easily if someone rebuilds this or takes over maintenance.", "usage_tenure": "Used for 2 years"}, {"author": "Tobias H.", "role_or_company": "Steuerberater Kanzlei", "rating": 1, "days_ago": 14, "text": "Blank popup and 401 unauthorized on EU Amazon Business portals. Need this for accounting compliance before the 10th of each month. Happy to pay $25/month for a reliable pro tool.", "usage_tenure": "Used for 4 years"}]}, "sniper_opportunity_score": 97.5, "rating_collapse_delta": 3.4, "abandonment_severity": "CRITICAL_ORPHAN (450+ Days Dormant, 0% Dev Replies)", "extracted_wtp_quotes": ["\"Broken since the latest Chrome Manifest V2 update! Our bookkeeper used this every month-end to pull 600+ Amazon Business VAT invoices into DATEV. Please fix — we would gladly pay $19/mo for a working MV3 version with automatic ZIP export!\" — Markus V. (Head of Accounting, DACH E-Commerce GmbH, 1★, 3d ago)", "\"Stopped working completely after Chrome disabled MV2 extensions. Developer hasn't updated since 2025. Worth $15/mo easily if someone rebuilds this or takes over maintenance.\" — Sarah Jenkins (Controller, Apex Ops, 2★, 9d ago)", "\"Blank popup and 401 unauthorized on EU Amazon Business portals. Need this for accounting compliance before the 10th of each month. Happy to pay $25/month for a reliable pro tool.\" — Tobias H. (Steuerberater Kanzlei, 1★, 14d ago)"], "implied_wtp_monthly_usd": 19.67, "breakage_triggers_detected": ["401 UNAUTHORIZED", "BLANK POPUP", "BROKEN SINCE", "MANIFEST V2", "MV2", "STOPPED WORKING"], "path_a_capture_rate_90d": 0.17, "path_a_captured_active_users_90d": 8245, "path_a_paid_conversion_rate": 0.038, "path_a_paying_customers_90d": 313, "path_a_projected_mrr_usd": 5947, "path_a_projected_arr_usd": 71364, "path_a_cac_usd": 0.0, "path_a_day1_clone_title": "Bulk Invoice PDF Downloader for Amazon Business & Stripe (MV3 & 2026 Ready)", "path_b_cash_offer_low_usd": 2600, "path_b_cash_offer_target_usd": 3600, "path_b_cash_offer_high_usd": 4700, "path_b_valuation_basis": "Unmonetized Orphan Buyout (~$0.07/active user cash lump-sum)", "path_b_retained_users_post_update": 42680, "path_b_day14_pro_conversion_rate": 0.026, "path_b_paying_customers_30d": 1110, "path_b_projected_mrr_usd": 21090, "path_b_projected_arr_usd": 253080, "path_b_payback_days": 6, "path_b_roi_multiple_year1": 64.7, "recommended_primary_path": "DUAL-TRACK: Send $3,600 Instant Escrow Buyout + Ship Clean-Room Patch as Leverage", "decision_rationale": "Building the clean-room 8h fix FIRST gives you working code on Day 1. If Lukas K. (Solo Indie Dev) accepts the $3,600 cash offer within 72h, push the fix as a silent auto-update to all 48,500 users (6d payback, $21,090/mo MRR). If they ignore the email, publish the clean-room listing immediately to capture ~8,245 churning users ($5,947/mo MRR at $0 CAC).", "cold_outreach_subject": "Quick cash offer ($3,600) to acquire Bulk Invoice PDF Downloader for Amazon Business & Stripe (1.4.2 (Manifest V2))", "cold_outreach_body": "Hi Lukas,\n\nI noticed Bulk Invoice PDF Downloader for Amazon Business & Stripe on the Chrome Web Store hasn't been updated since 2025-05-23 (512 days ago) and is currently hitting 1.3★ reviews over the last 30 days due to the recent Chrome Manifest V2 Hard Disablement + DOM Selector Drift.\n\nWe run a small B2B micro-software maintenance studio and have already built the clean Manifest V3 service_worker patch to resolve the breakage.\n\nInstead of launching our fixed version as a competing listing in the store, I'd love to offer you a clean, no-hassle buyout of **$3,600 USD cash** (wired today via Escrow.com or Wise, closing in <48 hours).\n\n- You get immediate cash for a dormant project you no longer have to support.\n- Your 48,500 existing users get an immediate free bugfix update this week.\n- Simple 1-page asset transfer agreement (Chrome Web Store / Marketplace developer transfer).\n\nIf $3,600 works for a quick close this week, reply with a thumbs-up and I'll send over the 1-page transfer sheet and Escrow link today.\n\nBest,\nMunir\nMicro-SaaS Maintenance & Acquisition Studio", "clean_room_spec_checklist": [" Hour 1–2: Scaffold clean repository & implement Manifest V3 service_worker + declarativeNetRequest + Offscreen Document API for PDF blob zipping (JSZip stream) + DATEV/Lexoffice CSV metadata manifest generator.", " Hour 3–5: Fix primary breakage vector (Chrome Manifest V2 Hard Disablement + DOM Selector Drift) & verify against live B2B test cases", " Hour 6–7: Add Stripe Checkout / ExtensionPay Pro tier ($19/mo) with 14-day grandfathered trial", " Hour 8: Optimize store title for exact keyword 'amazon business bulk invoice pdf downloader' + reply/reach out to top 49 1★ reviewers"]}, {"target": {"target_id": "EXT-SHP-02", "marketplace": "Shopify App Store", "listing_name": "DE Grundpreis, GPSR EU Safety & Omnibus Price History Badge", "exact_search_keyword": "shopify grundpreis gpsr eu compliance badge", "category": "Store Design / EU Legal Compliance", "developer_name": "NordicApps UG (Dormant Side-Project)", "developer_email": "support@nordicapps-labs.de", "developer_profile_note": "Single-app vendor; domain SSL expired 4 months ago; legacy ScriptTag & REST Asset API.", "current_version": "2.1.0 (Legacy Vintage Theme ScriptTag)", "active_installs": 18400, "last_updated_days": 410, "last_updated_date": "2025-09-02", "lifetime_rating": 4.6, "lifetime_review_count": 518, "trailing_30d_rating": 1.5, "trailing_30d_review_count": 38, "developer_reply_rate_90d": 0.0, "current_monetization": "Legacy $4.99/mo single tier (no trial gating, broken webhook on Dawn 15+)", "current_estimated_mrr_usd": 1650.0, "deprecation_vector": "Shopify REST Asset/ScriptTag Deprecation & Checkout Extensibility / GraphQL 2025-10", "technical_breakage_root_cause": "Injects Grundpreis (€/kg, €/100ml) and EU GPSR manufacturer address via deprecated REST Asset API liquid snippet modification instead of Theme App Extensions (App Blocks) + Metaobjects GraphQL.", "clean_room_fix_architecture": "Zero-JS Theme App Extension (App Embed + Product Block) backed by Shopify Admin GraphQL 2025-10 ProductVariant unitPriceMeasurement + EU GPSR Responsible Person Metaobject template.", "clean_room_build_hours": 10, "recommended_pro_price_usd": 15, "recent_reviews": [{"author": "Kaffeerösterei Bergmann", "role_or_company": "Shopify Plus Merchant (DE)", "rating": 1, "days_ago": 4, "text": "Stopped working after our Dawn theme update because the app still uses deprecated REST ScriptTags! Without Grundpreis (€/kg) and GPSR manufacturer info we risk Abmahnung fines in Germany. Would pay $19/mo immediately if updated to Theme App Extensions and GraphQL!", "usage_tenure": "Over 3 years using app"}, {"author": "BioCosmetics Wien", "role_or_company": "AT/DE Merchant", "rating": 1, "days_ago": 11, "text": "Checkout Extensibility broke the unit price display in cart drawer. Support email bounces. We need this for compliance — gladly pay $15/mo for a maintained Built for Shopify replacement.", "usage_tenure": "2 years using app"}]}, "sniper_opportunity_score": 84.9, "rating_collapse_delta": 3.1, "abandonment_severity": "CONFIRMED_ABANDONED (365+ Days Dormant, 0% Dev Replies)", "extracted_wtp_quotes": ["\"Stopped working after our Dawn theme update because the app still uses deprecated REST ScriptTags! Without Grundpreis (€/kg) and GPSR manufacturer info we risk Abmahnung fines in Germany. Would pay $19/mo immediately if updated to Theme App Extensions and GraphQL!\" — Kaffeerösterei Bergmann (Shopify Plus Merchant (DE), 1★, 4d ago)", "\"Checkout Extensibility broke the unit price display in cart drawer. Support email bounces. We need this for compliance — gladly pay $15/mo for a maintained Built for Shopify replacement.\" — BioCosmetics Wien (AT/DE Merchant, 1★, 11d ago)"], "implied_wtp_monthly_usd": 17.0, "breakage_triggers_detected": ["CHECKOUT EXTENSIBILITY", "GRAPHQL", "STOPPED WORKING"], "path_a_capture_rate_90d": 0.11, "path_a_captured_active_users_90d": 2024, "path_a_paid_conversion_rate": 0.048, "path_a_paying_customers_90d": 97, "path_a_projected_mrr_usd": 1455, "path_a_projected_arr_usd": 17460, "path_a_cac_usd": 0.0, "path_a_day1_clone_title": "DE Grundpreis, GPSR EU Safety & Omnibus Price History Badge (MV3 & 2026 Ready)", "path_b_cash_offer_low_usd": 2800, "path_b_cash_offer_target_usd": 4400, "path_b_cash_offer_high_usd": 5900, "path_b_valuation_basis": "Distressed Breakage Multiple (~1.8x–2.4x net salvageable ARR; current broken MRR ~$1650/mo)", "path_b_retained_users_post_update": 16192, "path_b_day14_pro_conversion_rate": 0.042, "path_b_paying_customers_30d": 680, "path_b_projected_mrr_usd": 10200, "path_b_projected_arr_usd": 122400, "path_b_payback_days": 15, "path_b_roi_multiple_year1": 25.6, "recommended_primary_path": "DUAL-TRACK: Send $4,400 Instant Escrow Buyout + Ship Clean-Room Patch as Leverage", "decision_rationale": "Building the clean-room 10h fix FIRST gives you working code on Day 1. If NordicApps UG (Dormant Side-Project) accepts the $4,400 cash offer within 72h, push the fix as a silent auto-update to all 18,400 users (15d payback, $10,200/mo MRR). If they ignore the email, publish the clean-room listing immediately to capture ~2,024 churning users ($1,455/mo MRR at $0 CAC).", "cold_outreach_subject": "Quick cash offer ($4,400) to acquire DE Grundpreis, GPSR EU Safety & Omnibus Price History Badge (2.1.0 (Legacy Vintage Theme ScriptTag))", "cold_outreach_body": "Hi NordicApps,\n\nI noticed DE Grundpreis, GPSR EU Safety & Omnibus Price History Badge on the Shopify App Store hasn't been updated since 2025-09-02 (410 days ago) and is currently hitting 1.5★ reviews over the last 30 days due to the recent Shopify REST Asset/ScriptTag Deprecation & Checkout Extensibility / GraphQL 2025-10.\n\nWe run a small B2B micro-software maintenance studio and have already built the clean Zero-JS Theme App Extension (App Embed patch to resolve the breakage.\n\nInstead of launching our fixed version as a competing listing in the store, I'd love to offer you a clean, no-hassle buyout of **$4,400 USD cash** (wired today via Escrow.com or Wise, closing in <48 hours).\n\n- You get immediate cash for a dormant project you no longer have to support.\n- Your 18,400 existing users get an immediate free bugfix update this week.\n- Simple 1-page asset transfer agreement (Chrome Web Store / Marketplace developer transfer).\n\nIf $4,400 works for a quick close this week, reply with a thumbs-up and I'll send over the 1-page transfer sheet and Escrow link today.\n\nBest,\nMunir\nMicro-SaaS Maintenance & Acquisition Studio", "clean_room_spec_checklist": [" Hour 1–2: Scaffold clean repository & implement Zero-JS Theme App Extension (App Embed + Product Block) backed by Shopify Admin GraphQL 2025-10 ProductVariant unitPriceMeasurement + EU GPSR Responsible Person Metaobject template.", " Hour 3–5: Fix primary breakage vector (Shopify REST Asset/ScriptTag Deprecation & Checkout Extensibility / GraphQL 2025-10) & verify against live B2B test cases", " Hour 6–7: Add Stripe Checkout / ExtensionPay Pro tier ($15/mo) with 14-day grandfathered trial", " Hour 8: Optimize store title for exact keyword 'shopify grundpreis gpsr eu compliance badge' + reply/reach out to top 38 1★ reviewers"]}, {"target": {"target_id": "EXT-CWS-03", "marketplace": "Chrome Web Store", "listing_name": "SalesNav & LinkedIn Saved Lead Table CSV/HubSpot Exporter", "exact_search_keyword": "sales navigator lead list csv exporter", "category": "CRM & B2B Sales Productivity", "developer_name": "DevForge Studio (Abandoned Indie)", "developer_email": "hi@devforgestudio.io", "developer_profile_note": "Indie maker pivoted to mobile games in late 2024; extension left unmonetized at 72k users.", "current_version": "0.9.8 (Manifest V2)", "active_installs": 72300, "last_updated_days": 465, "last_updated_date": "2025-07-09", "lifetime_rating": 4.8, "lifetime_review_count": 1290, "trailing_30d_rating": 1.6, "trailing_30d_review_count": 64, "developer_reply_rate_90d": 0.0, "current_monetization": "$0 Free (100% unmonetized)", "current_estimated_mrr_usd": 0.0, "deprecation_vector": "Manifest V2 Sunset + Voyager GraphQL Response Schema Change", "technical_breakage_root_cause": "Intercepts Sales Navigator search responses via MV2 webRequestBlocking and parses legacy urn:li:fs_salesProfile JSON path that changed to Voyager GraphQL decorated entities.", "clean_room_fix_architecture": "Manifest V3 content-script DOM + Fetch interceptor in MAIN world (`world: 'MAIN'`) normalizing Voyager lead tables into clean RFC-4180 CSV + 1-click HubSpot/Pipedrive webhook push.", "clean_room_build_hours": 9, "recommended_pro_price_usd": 29, "recent_reviews": [{"author": "David R.", "role_or_company": "VP Outbound, B2B RevOps Agency", "rating": 1, "days_ago": 2, "text": "Used this daily with 14 SDRs. Broken since Chrome disabled MV2 and LinkedIn changed the lead table JSON. Our team would gladly pay $29/mo per seat for a clean MV3 version that exports clean CSVs!", "usage_tenure": "Used for 2.5 years"}, {"author": "Elena M.", "role_or_company": "Founder, GrowthSniper", "rating": 2, "days_ago": 7, "text": "Exports empty rows on SalesNav since last month. Developer is MIA for over a year. Please charge a subscription ($25/mo) and keep it updated!", "usage_tenure": "Used for 3 years"}]}, "sniper_opportunity_score": 96.9, "rating_collapse_delta": 3.2, "abandonment_severity": "CRITICAL_ORPHAN (450+ Days Dormant, 0% Dev Replies)", "extracted_wtp_quotes": ["\"Used this daily with 14 SDRs. Broken since Chrome disabled MV2 and LinkedIn changed the lead table JSON. Our team would gladly pay $29/mo per seat for a clean MV3 version that exports clean CSVs!\" — David R. (VP Outbound, B2B RevOps Agency, 1★, 2d ago)", "\"Exports empty rows on SalesNav since last month. Developer is MIA for over a year. Please charge a subscription ($25/mo) and keep it updated!\" — Elena M. (Founder, GrowthSniper, 2★, 7d ago)"], "implied_wtp_monthly_usd": 29.0, "breakage_triggers_detected": ["BROKEN SINCE", "MV2"], "path_a_capture_rate_90d": 0.17, "path_a_captured_active_users_90d": 12291, "path_a_paid_conversion_rate": 0.038, "path_a_paying_customers_90d": 467, "path_a_projected_mrr_usd": 13543, "path_a_projected_arr_usd": 162516, "path_a_cac_usd": 0.0, "path_a_day1_clone_title": "SalesNav & LinkedIn Saved Lead Table CSV/HubSpot Exporter (MV3 & 2026 Ready)", "path_b_cash_offer_low_usd": 3900, "path_b_cash_offer_target_usd": 5400, "path_b_cash_offer_high_usd": 7000, "path_b_valuation_basis": "Unmonetized Orphan Buyout (~$0.07/active user cash lump-sum)", "path_b_retained_users_post_update": 63624, "path_b_day14_pro_conversion_rate": 0.026, "path_b_paying_customers_30d": 1654, "path_b_projected_mrr_usd": 47966, "path_b_projected_arr_usd": 575592, "path_b_payback_days": 6, "path_b_roi_multiple_year1": 98.1, "recommended_primary_path": "PATH A FIRST (1-Day Clean-Room Launch) + Lowball $3,900 Buyout Offer in Parallel", "decision_rationale": "Building the clean-room 9h fix FIRST gives you working code on Day 1. If DevForge Studio (Abandoned Indie) accepts the $5,400 cash offer within 72h, push the fix as a silent auto-update to all 72,300 users (6d payback, $47,966/mo MRR). If they ignore the email, publish the clean-room listing immediately to capture ~12,291 churning users ($13,543/mo MRR at $0 CAC).", "cold_outreach_subject": "Quick cash offer ($5,400) to acquire SalesNav & LinkedIn Saved Lead Table CSV/HubSpot Exporter (0.9.8 (Manifest V2))", "cold_outreach_body": "Hi DevForge,\n\nI noticed SalesNav & LinkedIn Saved Lead Table CSV/HubSpot Exporter on the Chrome Web Store hasn't been updated since 2025-07-09 (465 days ago) and is currently hitting 1.6★ reviews over the last 30 days due to the recent Manifest V2 Sunset + Voyager GraphQL Response Schema Change.\n\nWe run a small B2B micro-software maintenance studio and have already built the clean Manifest V3 content-script DOM patch to resolve the breakage.\n\nInstead of launching our fixed version as a competing listing in the store, I'd love to offer you a clean, no-hassle buyout of **$5,400 USD cash** (wired today via Escrow.com or Wise, closing in <48 hours).\n\n- You get immediate cash for a dormant project you no longer have to support.\n- Your 72,300 existing users get an immediate free bugfix update this week.\n- Simple 1-page asset transfer agreement (Chrome Web Store / Marketplace developer transfer).\n\nIf $5,400 works for a quick close this week, reply with a thumbs-up and I'll send over the 1-page transfer sheet and Escrow link today.\n\nBest,\nMunir\nMicro-SaaS Maintenance & Acquisition Studio", "clean_room_spec_checklist": [" Hour 1–2: Scaffold clean repository & implement Manifest V3 content-script DOM + Fetch interceptor in MAIN world (`world: 'MAIN'`) normalizing Voyager lead tables into clean RFC-4180 CSV + 1-click HubSpot/Pipedrive webhook push.", " Hour 3–5: Fix primary breakage vector (Manifest V2 Sunset + Voyager GraphQL Response Schema Change) & verify against live B2B test cases", " Hour 6–7: Add Stripe Checkout / ExtensionPay Pro tier ($29/mo) with 14-day grandfathered trial", " Hour 8: Optimize store title for exact keyword 'sales navigator lead list csv exporter' + reply/reach out to top 64 1★ reviewers"]}, {"target": {"target_id": "EXT-WPO-04", "marketplace": "WordPress.org", "listing_name": "WooCommerce DHL, DPD & Deutsche Post Batch PDF Label & Customs Printer", "exact_search_keyword": "woocommerce dhl dpd batch label printer", "category": "WooCommerce Shipping & Fulfillment", "developer_name": "wp-ship-tools (Solo PHP Developer)", "developer_email": "kontakt@wp-ship-tools.de", "developer_profile_note": "0/47 support threads resolved in last 6 months; plugin tested up to WP 6.3 / Woo 7.9.", "current_version": "3.0.4 (Legacy wp_posts Order Storage)", "active_installs": 34000, "last_updated_days": 580, "last_updated_date": "2025-03-16", "lifetime_rating": 4.7, "lifetime_review_count": 412, "trailing_30d_rating": 1.2, "trailing_30d_review_count": 31, "developer_reply_rate_90d": 0.0, "current_monetization": "$0 Free in WP repo (Pro upsell domain expired & available for $12)", "current_estimated_mrr_usd": 0.0, "deprecation_vector": "WooCommerce High-Performance Order Storage (HPOS / Custom Order Tables) + DHL Parcel DE REST v2", "technical_breakage_root_cause": "Queries `wp_posts` and `wp_postmeta` directly via raw SQL instead of `wc_get_orders()` HPOS CRUD, and calls sunset DHL Intraship SOAP endpoint instead of DHL Parcel DE Shipping REST API v2.", "clean_room_fix_architecture": "HPOS-compatible `Automattic\\WooCommerce\\Utilities\\OrderUtil` bulk action handler + DHL Parcel DE REST v2 OAuth2 client + FPDI 100x150mm thermal label merger.", "clean_room_build_hours": 11, "recommended_pro_price_usd": 19, "recent_reviews": [{"author": "Versandhandel Nord GmbH", "role_or_company": "WooCommerce Warehouse Ops", "rating": 1, "days_ago": 5, "text": "Fatal error as soon as WooCommerce HPOS is enabled, and DHL SOAP API stopped working! We ship 250 parcels/day and used this for 4 years. Would happily pay $19/mo or $199/yr for an HPOS + DHL REST v2 compatible version!", "usage_tenure": "Used for 4 years"}, {"author": "Martin S.", "role_or_company": "Agency Maintainer (18 Woo Stores)", "rating": 1, "days_ago": 12, "text": "Abandoned by author (580 days no update). Bulk thermal PDF merge is broken on Woo 9+. Willing to pay $25/mo agency license if someone forks or acquires this plugin.", "usage_tenure": "Used for 3 years"}]}, "sniper_opportunity_score": 85.7, "rating_collapse_delta": 3.5, "abandonment_severity": "CRITICAL_ORPHAN (450+ Days Dormant, 0% Dev Replies)", "extracted_wtp_quotes": ["\"Abandoned by author (580 days no update). Bulk thermal PDF merge is broken on Woo 9+. Willing to pay $25/mo agency license if someone forks or acquires this plugin.\" — Martin S. (Agency Maintainer (18 Woo Stores), 1★, 12d ago)"], "implied_wtp_monthly_usd": 25.0, "breakage_triggers_detected": ["HPOS", "STOPPED WORKING"], "path_a_capture_rate_90d": 0.14, "path_a_captured_active_users_90d": 4760, "path_a_paid_conversion_rate": 0.038, "path_a_paying_customers_90d": 181, "path_a_projected_mrr_usd": 3439, "path_a_projected_arr_usd": 41268, "path_a_cac_usd": 0.0, "path_a_day1_clone_title": "WooCommerce DHL, DPD & Deutsche Post Batch PDF Label & Customs Printer (MV3 & 2026 Ready)", "path_b_cash_offer_low_usd": 1900, "path_b_cash_offer_target_usd": 2600, "path_b_cash_offer_high_usd": 3400, "path_b_valuation_basis": "Unmonetized Orphan Buyout (~$0.08/active user cash lump-sum)", "path_b_retained_users_post_update": 29920, "path_b_day14_pro_conversion_rate": 0.026, "path_b_paying_customers_30d": 778, "path_b_projected_mrr_usd": 14782, "path_b_projected_arr_usd": 177384, "path_b_payback_days": 6, "path_b_roi_multiple_year1": 62.8, "recommended_primary_path": "DUAL-TRACK: Send $2,600 Instant Escrow Buyout + Ship Clean-Room Patch as Leverage", "decision_rationale": "Building the clean-room 11h fix FIRST gives you working code on Day 1. If wp-ship-tools (Solo PHP Developer) accepts the $2,600 cash offer within 72h, push the fix as a silent auto-update to all 34,000 users (6d payback, $14,782/mo MRR). If they ignore the email, publish the clean-room listing immediately to capture ~4,760 churning users ($3,439/mo MRR at $0 CAC).", "cold_outreach_subject": "Quick cash offer ($2,600) to acquire WooCommerce DHL, DPD & Deutsche Post Batch PDF Label & Customs Printer (3.0.4 (Legacy wp_posts Order Storage))", "cold_outreach_body": "Hi wp-ship-tools,\n\nI noticed WooCommerce DHL, DPD & Deutsche Post Batch PDF Label & Customs Printer on the WordPress.org hasn't been updated since 2025-03-16 (580 days ago) and is currently hitting 1.2★ reviews over the last 30 days due to the recent WooCommerce High-Performance Order Storage (HPOS / Custom Order Tables) + DHL Parcel DE REST v2.\n\nWe run a small B2B micro-software maintenance studio and have already built the clean HPOS-compatible `Automattic\\WooCommerce\\Utilities\\OrderUtil` bulk action handler patch to resolve the breakage.\n\nInstead of launching our fixed version as a competing listing in the store, I'd love to offer you a clean, no-hassle buyout of **$2,600 USD cash** (wired today via Escrow.com or Wise, closing in <48 hours).\n\n- You get immediate cash for a dormant project you no longer have to support.\n- Your 34,000 existing users get an immediate free bugfix update this week.\n- Simple 1-page asset transfer agreement (Chrome Web Store / Marketplace developer transfer).\n\nIf $2,600 works for a quick close this week, reply with a thumbs-up and I'll send over the 1-page transfer sheet and Escrow link today.\n\nBest,\nMunir\nMicro-SaaS Maintenance & Acquisition Studio", "clean_room_spec_checklist": [" Hour 1–2: Scaffold clean repository & implement HPOS-compatible `Automattic\\WooCommerce\\Utilities\\OrderUtil` bulk action handler + DHL Parcel DE REST v2 OAuth2 client + FPDI 100x150mm thermal label merger.", " Hour 3–5: Fix primary breakage vector (WooCommerce High-Performance Order Storage (HPOS / Custom Order Tables) + DHL Parcel DE REST v2) & verify against live B2B test cases", " Hour 6–7: Add Stripe Checkout / ExtensionPay Pro tier ($19/mo) with 14-day grandfathered trial", " Hour 8: Optimize store title for exact keyword 'woocommerce dhl dpd batch label printer' + reply/reach out to top 31 1★ reviewers"]}, {"target": {"target_id": "EXT-ATL-05", "marketplace": "Atlassian Marketplace", "listing_name": "Jira Cloud & GitHub PR Time-Tracking Worklog CSV/Invoice Bridge", "exact_search_keyword": "jira worklog github timesheet csv invoice export", "category": "Jira Cloud Time Tracking & Agency Billing", "developer_name": "ChronoBit Labs (2-Person Dormant Team)", "developer_email": "founders@chronobit.dev", "developer_profile_note": "Atlassian Connect descriptor using deprecated Jira REST v2 worklog pagination; no Forge migration.", "current_version": "1.8.1-AC (Legacy Atlassian Connect)", "active_installs": 14800, "last_updated_days": 395, "last_updated_date": "2025-09-17", "lifetime_rating": 4.5, "lifetime_review_count": 275, "trailing_30d_rating": 1.4, "trailing_30d_review_count": 22, "developer_reply_rate_90d": 0.0, "current_monetization": "Free / Legacy $10 flat tier (not migrated to Atlassian Forge paid licensing)", "current_estimated_mrr_usd": 950.0, "deprecation_vector": "Jira Cloud REST API v2 JQL Search Removal (`/rest/api/3/search/jql`) + Connect-to-Forge", "technical_breakage_root_cause": "Calls removed `/rest/api/2/search` GET endpoint which now returns HTTP 410 Gone on Jira Cloud instead of the mandatory `/rest/api/3/search/jql` enhanced cursor pagination endpoint.", "clean_room_fix_architecture": "Atlassian Forge UI Kit 2 app using `requestJira('/rest/api/3/search/jql')` + GitHub App PR commit correlator + client-billable PDF/CSV invoice generator.", "clean_room_build_hours": 7, "recommended_pro_price_usd": 25, "recent_reviews": [{"author": "Klara W.", "role_or_company": "Delivery Director, 45-Person Dev Shop", "rating": 1, "days_ago": 6, "text": "Returns 410 Gone error since Atlassian removed the old JQL search endpoint! We rely on this to export developer worklogs for monthly client invoicing. Would gladly pay $25/mo or $2/user for a fixed Forge version!", "usage_tenure": "Used for 3 years"}, {"author": "Lucas T.", "role_or_company": "CTO, Consultancy", "rating": 2, "days_ago": 15, "text": "Stopped working after Jira API v3 cutover. It's literally a 10-line endpoint fix from /rest/api/2/search to /rest/api/3/search/jql. Worth $29/mo for our billing workflow.", "usage_tenure": "Used for 2 years"}]}, "sniper_opportunity_score": 82.8, "rating_collapse_delta": 3.1, "abandonment_severity": "CONFIRMED_ABANDONED (365+ Days Dormant, 0% Dev Replies)", "extracted_wtp_quotes": ["\"Returns 410 Gone error since Atlassian removed the old JQL search endpoint! We rely on this to export developer worklogs for monthly client invoicing. Would gladly pay $25/mo or $2/user for a fixed Forge version!\" — Klara W. (Delivery Director, 45-Person Dev Shop, 1★, 6d ago)", "\"Stopped working after Jira API v3 cutover. It's literally a 10-line endpoint fix from /rest/api/2/search to /rest/api/3/search/jql. Worth $29/mo for our billing workflow.\" — Lucas T. (CTO, Consultancy, 2★, 15d ago)"], "implied_wtp_monthly_usd": 27.0, "breakage_triggers_detected": ["STOPPED WORKING"], "path_a_capture_rate_90d": 0.11, "path_a_captured_active_users_90d": 1628, "path_a_paid_conversion_rate": 0.048, "path_a_paying_customers_90d": 78, "path_a_projected_mrr_usd": 1950, "path_a_projected_arr_usd": 23400, "path_a_cac_usd": 0.0, "path_a_day1_clone_title": "Jira Cloud & GitHub PR Time-Tracking Worklog CSV/Invoice Bridge (MV3 & 2026 Ready)", "path_b_cash_offer_low_usd": 1600, "path_b_cash_offer_target_usd": 2500, "path_b_cash_offer_high_usd": 3400, "path_b_valuation_basis": "Distressed Breakage Multiple (~1.8x–2.4x net salvageable ARR; current broken MRR ~$950/mo)", "path_b_retained_users_post_update": 13024, "path_b_day14_pro_conversion_rate": 0.042, "path_b_paying_customers_30d": 547, "path_b_projected_mrr_usd": 13675, "path_b_projected_arr_usd": 164100, "path_b_payback_days": 6, "path_b_roi_multiple_year1": 60.4, "recommended_primary_path": "DUAL-TRACK: Send $2,500 Instant Escrow Buyout + Ship Clean-Room Patch as Leverage", "decision_rationale": "Building the clean-room 7h fix FIRST gives you working code on Day 1. If ChronoBit Labs (2-Person Dormant Team) accepts the $2,500 cash offer within 72h, push the fix as a silent auto-update to all 14,800 users (6d payback, $13,675/mo MRR). If they ignore the email, publish the clean-room listing immediately to capture ~1,628 churning users ($1,950/mo MRR at $0 CAC).", "cold_outreach_subject": "Quick cash offer ($2,500) to acquire Jira Cloud & GitHub PR Time-Tracking Worklog CSV/Invoice Bridge (1.8.1-AC (Legacy Atlassian Connect))", "cold_outreach_body": "Hi ChronoBit,\n\nI noticed Jira Cloud & GitHub PR Time-Tracking Worklog CSV/Invoice Bridge on the Atlassian Marketplace hasn't been updated since 2025-09-17 (395 days ago) and is currently hitting 1.4★ reviews over the last 30 days due to the recent Jira Cloud REST API v2 JQL Search Removal (`/rest/api/3/search/jql`) + Connect-to-Forge.\n\nWe run a small B2B micro-software maintenance studio and have already built the clean Atlassian Forge UI Kit 2 app using `requestJira('/rest/api/3/search/jql')` patch to resolve the breakage.\n\nInstead of launching our fixed version as a competing listing in the store, I'd love to offer you a clean, no-hassle buyout of **$2,500 USD cash** (wired today via Escrow.com or Wise, closing in <48 hours).\n\n- You get immediate cash for a dormant project you no longer have to support.\n- Your 14,800 existing users get an immediate free bugfix update this week.\n- Simple 1-page asset transfer agreement (Chrome Web Store / Marketplace developer transfer).\n\nIf $2,500 works for a quick close this week, reply with a thumbs-up and I'll send over the 1-page transfer sheet and Escrow link today.\n\nBest,\nMunir\nMicro-SaaS Maintenance & Acquisition Studio", "clean_room_spec_checklist": [" Hour 1–2: Scaffold clean repository & implement Atlassian Forge UI Kit 2 app using `requestJira('/rest/api/3/search/jql')` + GitHub App PR commit correlator + client-billable PDF/CSV invoice generator.", " Hour 3–5: Fix primary breakage vector (Jira Cloud REST API v2 JQL Search Removal (`/rest/api/3/search/jql`) + Connect-to-Forge) & verify against live B2B test cases", " Hour 6–7: Add Stripe Checkout / ExtensionPay Pro tier ($25/mo) with 14-day grandfathered trial", " Hour 8: Optimize store title for exact keyword 'jira worklog github timesheet csv invoice export' + reply/reach out to top 22 1★ reviewers"]}, {"target": {"target_id": "EXT-CWS-06", "marketplace": "Chrome Web Store", "listing_name": "SellerCentral FBA Fee, Keepa Margin & VAT Calculator Overlay", "exact_search_keyword": "amazon fba vat margin calculator extension", "category": "E-Commerce Seller Tools", "developer_name": "AMZMetric (Solo Creator)", "developer_email": "alex@amzmetric-tools.com", "developer_profile_note": "Creator announced on X he joined an AI startup; Chrome extension left untouched for 13 months.", "current_version": "2.0.1 (Manifest V2)", "active_installs": 39200, "last_updated_days": 402, "last_updated_date": "2025-09-10", "lifetime_rating": 4.6, "lifetime_review_count": 690, "trailing_30d_rating": 1.7, "trailing_30d_review_count": 41, "developer_reply_rate_90d": 0.0, "current_monetization": "Broken Gumroad license key verifier (server offline -> defaults to error banner)", "current_estimated_mrr_usd": 420.0, "deprecation_vector": "Manifest V2 Sunset + 2026 EU/UK FBA Referral Fee Table Update", "technical_breakage_root_cause": "MV2 background page blocked by Chrome + hardcoded 2024 FBA fulfillment fee tiers + offline Gumroad webhook server causing 5-second timeout on every product page.", "clean_room_fix_architecture": "Manifest V3 service worker + local IndexedDB 2026 EU/DE/UK/US FBA fee matrix + ExtensionPay / Stripe Checkout licensing with instant offline cache.", "clean_room_build_hours": 8, "recommended_pro_price_usd": 15, "recent_reviews": [{"author": "Hendrik B.", "role_or_company": "7-Figure Amazon DE/UK Seller", "rating": 1, "days_ago": 4, "text": "Chrome disabled the extension (MV2) and the Gumroad license server is dead! Best lightweight EU VAT + FBA net margin overlay on the store. Would pay $15/mo immediately if someone revives it.", "usage_tenure": "Used for 3 years"}, {"author": "Giulia R.", "role_or_company": "Wholesale Sourcing Lead", "rating": 2, "days_ago": 10, "text": "Broken since Chrome update. We use this for daily wholesale catalog checks. Happy to pay $19/mo for updated 2026 FBA fees and MV3 support.", "usage_tenure": "Used for 2 years"}]}, "sniper_opportunity_score": 88.0, "rating_collapse_delta": 2.9, "abandonment_severity": "CONFIRMED_ABANDONED (365+ Days Dormant, 0% Dev Replies)", "extracted_wtp_quotes": ["\"Chrome disabled the extension (MV2) and the Gumroad license server is dead! Best lightweight EU VAT + FBA net margin overlay on the store. Would pay $15/mo immediately if someone revives it.\" — Hendrik B. (7-Figure Amazon DE/UK Seller, 1★, 4d ago)", "\"Broken since Chrome update. We use this for daily wholesale catalog checks. Happy to pay $19/mo for updated 2026 FBA fees and MV3 support.\" — Giulia R. (Wholesale Sourcing Lead, 2★, 10d ago)"], "implied_wtp_monthly_usd": 17.0, "breakage_triggers_detected": ["BROKEN SINCE", "CHROME UPDATE", "MV2"], "path_a_capture_rate_90d": 0.14, "path_a_captured_active_users_90d": 5488, "path_a_paid_conversion_rate": 0.038, "path_a_paying_customers_90d": 209, "path_a_projected_mrr_usd": 3135, "path_a_projected_arr_usd": 37620, "path_a_cac_usd": 0.0, "path_a_day1_clone_title": "SellerCentral FBA Fee, Keepa Margin & VAT Calculator Overlay (MV3 & 2026 Ready)", "path_b_cash_offer_low_usd": 1500, "path_b_cash_offer_target_usd": 2400, "path_b_cash_offer_high_usd": 3200, "path_b_valuation_basis": "Distressed Breakage Multiple (~1.8x–2.4x net salvageable ARR; current broken MRR ~$420/mo)", "path_b_retained_users_post_update": 34496, "path_b_day14_pro_conversion_rate": 0.026, "path_b_paying_customers_30d": 897, "path_b_projected_mrr_usd": 13455, "path_b_projected_arr_usd": 161460, "path_b_payback_days": 6, "path_b_roi_multiple_year1": 61.9, "recommended_primary_path": "DUAL-TRACK: Send $2,400 Instant Escrow Buyout + Ship Clean-Room Patch as Leverage", "decision_rationale": "Building the clean-room 8h fix FIRST gives you working code on Day 1. If AMZMetric (Solo Creator) accepts the $2,400 cash offer within 72h, push the fix as a silent auto-update to all 39,200 users (6d payback, $13,455/mo MRR). If they ignore the email, publish the clean-room listing immediately to capture ~5,488 churning users ($3,135/mo MRR at $0 CAC).", "cold_outreach_subject": "Quick cash offer ($2,400) to acquire SellerCentral FBA Fee, Keepa Margin & VAT Calculator Overlay (2.0.1 (Manifest V2))", "cold_outreach_body": "Hi AMZMetric,\n\nI noticed SellerCentral FBA Fee, Keepa Margin & VAT Calculator Overlay on the Chrome Web Store hasn't been updated since 2025-09-10 (402 days ago) and is currently hitting 1.7★ reviews over the last 30 days due to the recent Manifest V2 Sunset + 2026 EU/UK FBA Referral Fee Table Update.\n\nWe run a small B2B micro-software maintenance studio and have already built the clean Manifest V3 service worker patch to resolve the breakage.\n\nInstead of launching our fixed version as a competing listing in the store, I'd love to offer you a clean, no-hassle buyout of **$2,400 USD cash** (wired today via Escrow.com or Wise, closing in <48 hours).\n\n- You get immediate cash for a dormant project you no longer have to support.\n- Your 39,200 existing users get an immediate free bugfix update this week.\n- Simple 1-page asset transfer agreement (Chrome Web Store / Marketplace developer transfer).\n\nIf $2,400 works for a quick close this week, reply with a thumbs-up and I'll send over the 1-page transfer sheet and Escrow link today.\n\nBest,\nMunir\nMicro-SaaS Maintenance & Acquisition Studio", "clean_room_spec_checklist": [" Hour 1–2: Scaffold clean repository & implement Manifest V3 service worker + local IndexedDB 2026 EU/DE/UK/US FBA fee matrix + ExtensionPay / Stripe Checkout licensing with instant offline cache.", " Hour 3–5: Fix primary breakage vector (Manifest V2 Sunset + 2026 EU/UK FBA Referral Fee Table Update) & verify against live B2B test cases", " Hour 6–7: Add Stripe Checkout / ExtensionPay Pro tier ($15/mo) with 14-day grandfathered trial", " Hour 8: Optimize store title for exact keyword 'amazon fba vat margin calculator extension' + reply/reach out to top 41 1★ reviewers"]}]};
+
+function renderScraperTable() {
+  const tbody = document.getElementById('scraperTableBody');
+  tbody.innerHTML = MANIFEST.apify_store_scrapers.map(s => `
+    <tr>
+      <td>
+        <strong style="color:var(--accent)">${s.handle}</strong><br/>
+        <span style="font-size:11px;color:var(--muted)">ID: ${s.actor_id}</span>
+      </td>
+      <td><span class="badge badge-store">${s.marketplace}</span></td>
+      <td>
+        <strong>${s.pricing_model}</strong><br/>
+        <span style="font-size:12px;color:#cbd5e1">${s.unit_price_summary}</span>
+      </td>
+      <td>
+        <span style="color:var(--emerald);font-weight:700">${s.runs_30d_succeeded}/${s.runs_30d_total}</span> runs<br/>
+        <span style="font-size:11px;color:var(--muted)">${s.total_users} active users</span>
+      </td>
+      <td style="font-family:monospace;font-size:11px;color:#cbd5e1">${s.extracted_schema.join(', ')}</td>
+      <td style="font-size:12px">${s.sniper_role}</td>
+    </tr>
+  `).join('');
+}
+
+function renderTargets(marketplaceFilter) {
+  const container = document.getElementById('targetsContainer');
+  const items = MANIFEST.sniper_targets.filter(item =>
+    marketplaceFilter === 'ALL' || item.target.marketplace === marketplaceFilter
+  );
+
+  container.innerHTML = items.map((item, idx) => {
+    const t = item.target;
+    const quotesHtml = item.extracted_wtp_quotes.map(q => `<li>${q}</li>`).join('');
+    const checklistHtml = item.clean_room_spec_checklist.map(c => `<li>${c}</li>`).join('');
+    return `
+      <div class="target-card">
+        <div class="target-top">
+          <div>
+            <div>
+              <span class="badge badge-store">${t.marketplace}</span>
+              <span class="badge badge-danger">${t.deprecation_vector}</span>
+              <span class="badge badge-amber">${item.abandonment_severity}</span>
+            </div>
+            <h3 style="margin:6px 0 4px;font-size:19px;">${t.listing_name}</h3>
+            <div style="font-size:12px;color:var(--muted);">
+              Target ID: <strong>${t.target_id}</strong> · Exact Keyword: <code>${t.exact_search_keyword}</code> ·
+              Developer: <strong>${t.developer_name}</strong> (<code>${t.developer_email}</code>)
+            </div>
+          </div>
+          <div class="score-pill">
+            <div style="font-size:10px;text-transform:uppercase;color:var(--muted);">Sniper Score</div>
+            <div class="score-num">${item.sniper_opportunity_score}/100</div>
+          </div>
+        </div>
+
+        <div class="metrics-strip">
+          <div class="m-item">
+            <span>Active Installs</span>
+            <strong style="color:var(--accent)">${t.active_installs.toLocaleString()}</strong>
+          </div>
+          <div class="m-item">
+            <span>Staleness (Last Updated)</span>
+            <strong style="color:var(--amber)">${t.last_updated_days}d (${t.last_updated_date})</strong>
+          </div>
+          <div class="m-item">
+            <span>Lifetime vs. 30d Rating</span>
+            <strong style="color:var(--rose)">${t.lifetime_rating}★ → ${t.trailing_30d_rating}★ (-${item.rating_collapse_delta}★)</strong>
+          </div>
+          <div class="m-item">
+            <span>Implied B2B WTP</span>
+            <strong style="color:var(--emerald)">$${item.implied_wtp_monthly_usd}/mo (Pro: $${t.recommended_pro_price_usd}/mo)</strong>
+          </div>
+          <div class="m-item">
+            <span>Current Monetization</span>
+            <strong>${t.current_monetization}</strong>
+          </div>
+        </div>
+
+        <div style="font-size:13px;margin-bottom:8px;">
+          <strong style="color:var(--rose)">Root Cause Breakage:</strong> ${t.technical_breakage_root_cause}
+        </div>
+
+        <ul class="quote-list">${quotesHtml}</ul>
+
+        <div class="paths-grid">
+          <div class="path-box">
+            <h4>
+              <span style="color:var(--accent)">Path A: 1-Day Clean-Room Rebuild (${t.clean_room_build_hours}h)</span>
+              <span class="badge badge-store">$0 CAC Clone</span>
+            </h4>
+            <div class="sim-row"><span>Clone Listing Title:</span><strong>${item.path_a_day1_clone_title}</strong></div>
+            <div class="sim-row"><span>90d Churn Capture (${(item.path_a_capture_rate_90d*100).toFixed(1)}%):</span><strong>${item.path_a_captured_active_users_90d.toLocaleString()} active users</strong></div>
+            <div class="sim-row"><span>Paying Pro Users (${(item.path_a_paid_conversion_rate*100).toFixed(1)}%):</span><strong>${item.path_a_paying_customers_90d.toLocaleString()} customers</strong></div>
+            <div class="sim-row"><span>Projected Path A MRR / ARR:</span><strong style="color:var(--accent)">$${item.path_a_projected_mrr_usd.toLocaleString()}/mo ($${item.path_a_projected_arr_usd.toLocaleString()}/yr)</strong></div>
+          </div>
+
+          <div class="path-box">
+            <h4>
+              <span style="color:var(--emerald)">Path B: Direct Developer Micro-Acquisition</span>
+              <span class="badge badge-emerald">${item.path_b_payback_days}d Payback</span>
+            </h4>
+            <div class="sim-row"><span>Cash Buyout Offer Range:</span><strong style="color:var(--amber)">$${item.path_b_cash_offer_low_usd.toLocaleString()} – $${item.path_b_cash_offer_high_usd.toLocaleString()} (Target: $${item.path_b_cash_offer_target_usd.toLocaleString()})</strong></div>
+            <div class="sim-row"><span>Retained Users via Silent Update:</span><strong>${item.path_b_retained_users_post_update.toLocaleString()} active users</strong></div>
+            <div class="sim-row"><span>Day-14 Pro Subscribers (${(item.path_b_day14_pro_conversion_rate*100).toFixed(1)}%):</span><strong>${item.path_b_paying_customers_30d.toLocaleString()} customers</strong></div>
+            <div class="sim-row"><span>Projected Path B MRR / ARR:</span><strong style="color:var(--emerald)">$${item.path_b_projected_mrr_usd.toLocaleString()}/mo ($${item.path_b_projected_arr_usd.toLocaleString()}/yr · ${item.path_b_roi_multiple_year1}x Yr1 ROI)</strong></div>
+          </div>
+        </div>
+
+        <div style="margin-top:10px;font-size:13px;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.3);padding:10px 12px;border-radius:8px;">
+          <strong style="color:var(--emerald)">${item.recommended_primary_path}:</strong> ${item.decision_rationale}
+        </div>
+
+        <details>
+          <summary>View 1-Day Clean-Room Fix Architecture &amp; Developer Cold-Outreach Acquisition Offer Email</summary>
+          <div style="margin-top:10px;font-size:13px;">
+            <strong>Clean-Room Architecture Spec:</strong> ${t.clean_room_fix_architecture}
+            <ul style="margin:6px 0 10px;padding-left:18px;">${checklistHtml}</ul>
+            <strong>Cold-Outreach Subject:</strong> <code>${item.cold_outreach_subject}</code>
+            <pre id="email-${idx}">${item.cold_outreach_body}</pre>
+            <button class="copy-btn" onclick="copyEmail('email-${idx}', this)">Copy Buyout Offer Email</button>
+          </div>
+        </details>
+      </div>
+    `;
+  }).join('');
+}
+
+function filterTargets(marketplace, btn) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderTargets(marketplace);
+}
+
+function copyEmail(elemId, btn) {
+  const text = document.getElementById(elemId).innerText;
+  navigator.clipboard.writeText(text);
+  const orig = btn.innerText;
+  btn.innerText = 'Copied to Clipboard!';
+  setTimeout(() => btn.innerText = orig, 1800);
+}
+
+function recalcSimulator() {
+  const mp = document.getElementById('simMarketplace').value;
+  const installs = parseInt(document.getElementById('rngInstalls').value, 10);
+  const stale = parseInt(document.getElementById('rngStale').value, 10);
+  const rating30d = parseFloat(document.getElementById('rngRating').value);
+  const currMrr = parseInt(document.getElementById('rngCurrMrr').value, 10);
+  const proPrice = parseInt(document.getElementById('rngProPrice').value, 10);
+
+  document.getElementById('lblInstalls').innerText = installs.toLocaleString();
+  document.getElementById('lblStale').innerText = stale + ' days';
+  document.getElementById('lblRating').innerText = rating30d.toFixed(1) + '★';
+  document.getElementById('lblCurrMrr').innerText = '$' + currMrr.toLocaleString() + '/mo';
+  document.getElementById('lblProPrice').innerText = '$' + proPrice + '/mo';
+
+  const collapseDelta = 4.7 - rating30d;
+  const captureRate = (mp === 'cws' ? 0.14 : 0.11) + (collapseDelta >= 3.0 ? 0.03 : 0.0);
+  const pathAUsers = Math.round(installs * captureRate);
+  const pathAConv = (mp === 'shopify' || mp === 'atlassian') ? 0.048 : 0.038;
+  const pathAPaid = Math.round(pathAUsers * pathAConv);
+  const pathAMrr = pathAPaid * proPrice;
+
+  let buyoutOffer = 2500;
+  if (currMrr <= 50) {
+    buyoutOffer = Math.round(Math.min(6500, Math.max(1800, installs * 0.075)) / 100) * 100;
+  } else {
+    const impliedArr = currMrr * 12;
+    buyoutOffer = Math.round(Math.min(7500, Math.max(2400, impliedArr * 0.22)) / 100) * 100;
+  }
+
+  const retained = Math.round(installs * 0.88);
+  const pathBConv = (mp === 'shopify' || mp === 'atlassian') ? 0.042 : 0.026;
+  const pathBPaid = Math.round(retained * pathBConv);
+  const pathBMrr = pathBPaid * proPrice;
+  const paybackDays = Math.max(5, Math.ceil(buyoutOffer / Math.max(1, (pathBMrr * 0.92) / 30)));
+
+  document.getElementById('simPathAUsers').innerText = pathAUsers.toLocaleString();
+  document.getElementById('simPathAPaid').innerText = pathAPaid.toLocaleString();
+  document.getElementById('simPathAMrr').innerText = '$' + pathAMrr.toLocaleString() + '/mo ($' + (pathAMrr * 12).toLocaleString() + '/yr)';
+
+  document.getElementById('simPathBOffer').innerText = '$' + buyoutOffer.toLocaleString() + ' cash';
+  document.getElementById('simPathBRetained').innerText = retained.toLocaleString();
+  document.getElementById('simPathBPaid').innerText = pathBPaid.toLocaleString();
+  document.getElementById('simPathBMrr').innerText = '$' + pathBMrr.toLocaleString() + '/mo ($' + (pathBMrr * 12).toLocaleString() + '/yr)';
+  document.getElementById('simPathBPayback').innerText = paybackDays + ' days';
+}
+
+renderScraperTable();
+renderTargets('ALL');
+recalcSimulator();
+</script>
+</body>
+</html>

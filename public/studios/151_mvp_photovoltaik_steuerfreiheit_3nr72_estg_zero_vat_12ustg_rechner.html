@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DACH § 3 Nr. 72 EStG (JStG 2024 30-kWp-Harmonisierung & 100-kWp-Freigrenze) & § 12 Abs. 3 UStG Altanlagen-Entnahme-Simulator</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --card: #131b33;
+      --card-alt: #182342;
+      --border: #2a3968;
+      --text: #eef3ff;
+      --muted: #9fb0d9;
+      --accent: #38bdf8;
+      --gold: #f59e0b;
+      --green: #10b981;
+      --red: #ef4444;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: radial-gradient(circle at top right, #172554, var(--bg) 60%);
+      color: var(--text);
+      line-height: 1.55;
+      padding: 28px 18px 60px;
+    }
+    .container {
+      max-width: 1260px;
+      margin: 0 auto;
+    }
+    .badge-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .badge {
+      background: rgba(56, 189, 248, 0.14);
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      color: var(--accent);
+      font-size: 0.78rem;
+      font-weight: 700;
+      padding: 5px 12px;
+      border-radius: 999px;
+      letter-spacing: 0.03em;
+    }
+    .badge.gold {
+      background: rgba(245, 158, 11, 0.15);
+      border-color: rgba(245, 158, 11, 0.45);
+      color: #fbbf24;
+    }
+    .badge.green {
+      background: rgba(16, 185, 129, 0.15);
+      border-color: rgba(16, 185, 129, 0.45);
+      color: #34d399;
+    }
+    h1 {
+      font-size: 1.95rem;
+      margin: 0 0 10px;
+      line-height: 1.25;
+    }
+    .subtitle {
+      color: var(--muted);
+      font-size: 0.98rem;
+      margin-bottom: 24px;
+    }
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+    .kpi-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px 20px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.28);
+    }
+    .kpi-label {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+    .kpi-value {
+      font-size: 1.75rem;
+      font-weight: 800;
+    }
+    .kpi-sub {
+      font-size: 0.82rem;
+      color: var(--muted);
+      margin-top: 6px;
+    }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(520px, 1fr));
+      gap: 22px;
+      margin-bottom: 26px;
+    }
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 22px;
+      margin-bottom: 24px;
+    }
+    .panel h2 {
+      margin-top: 0;
+      font-size: 1.28rem;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 10px;
+      margin-bottom: 16px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+    }
+    th, td {
+      padding: 10px 10px;
+      text-align: left;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    th {
+      color: var(--muted);
+      font-weight: 600;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+    }
+    .pill-ok {
+      background: rgba(16, 185, 129, 0.18);
+      color: #34d399;
+      padding: 3px 9px;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 0.76rem;
+      display: inline-block;
+    }
+    .pill-fail {
+      background: rgba(239, 68, 68, 0.2);
+      color: #f87171;
+      padding: 3px 9px;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 0.76rem;
+      display: inline-block;
+    }
+    .form-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+    label {
+      display: block;
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-bottom: 5px;
+      font-weight: 600;
+    }
+    input, select, textarea {
+      width: 100%;
+      background: var(--card-alt);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 9px 11px;
+      border-radius: 8px;
+      font-size: 0.92rem;
+    }
+    textarea {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.84rem;
+      min-height: 125px;
+    }
+    .result-banner {
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.45);
+      border-radius: 12px;
+      padding: 15px 18px;
+      margin-top: 14px;
+    }
+    .result-banner.danger {
+      background: rgba(239, 68, 68, 0.14);
+      border-color: rgba(239, 68, 68, 0.5);
+    }
+    .citations {
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+    .citations li {
+      margin-bottom: 6px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- DACH CASHFLOW STUDIOS LAUNCH BAR -->
+<style>
+  #dcs-launch-bar {
+    position: sticky;
+    top: 0;
+    z-index: 99999;
+    background: linear-gradient(90deg, #0b1120 0%, #111827 50%, #0f172a 100%);
+    color: #f8fafc;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.35);
+    padding: 8px 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  }
+  #dcs-launch-bar .dcs-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+  }
+  #dcs-launch-bar .dcs-badge {
+    background: rgba(16, 185, 129, 0.18);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.03em;
+  }
+  #dcs-launch-bar a.dcs-nav {
+    color: #93c5fd;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 12.5px;
+  }
+  #dcs-launch-bar a.dcs-nav:hover {
+    text-decoration: underline;
+    color: #dbeafe;
+  }
+  #dcs-launch-bar .dcs-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  #dcs-launch-bar .dcs-btn {
+    padding: 5px 11px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s ease;
+  }
+  #dcs-launch-bar .dcs-btn-ghost {
+    background: rgba(255,255,255,0.08);
+    color: #e2e8f0;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  #dcs-launch-bar .dcs-btn-primary {
+    background: linear-gradient(135deg, #0ea5e9, #2563eb);
+    color: #ffffff;
+  }
+  #dcs-launch-bar .dcs-btn-emerald {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
+  }
+  @media print {
+    #dcs-launch-bar { display: none !important; }
+  }
+</style>
+<div id="dcs-launch-bar">
+  <div class="dcs-left">
+    <a href="/index.html" class="dcs-nav">← Alle 150 DACH Studios</a>
+    <span class="dcs-badge">MVP #151 VERIFIED</span>
+    <span style="color:#cbd5e1;font-size:12px;">DACH Tax, Corporate & Accounting Arbitrage</span>
+  </div>
+  <div class="dcs-actions">
+    <button onclick="window.print()" class="dcs-btn dcs-btn-ghost">🖨️ PDF / Dossier drucken</button>
+    <a href="#checkout-modal-49" target="_blank" rel="noopener" class="dcs-btn dcs-btn-primary">⚡ Musterschreiben & Voll-Dossier (€49)</a>
+    <a href="#checkout-modal-299" target="_blank" rel="noopener" class="dcs-btn dcs-btn-emerald">🛡️ B2B Umsetzung buchen (€299 / €1.490)</a>
+  </div>
+</div>
+
+  <div class="container">
+    <div class="badge-bar">
+      <span class="badge">MVP #151 · DACH Solar &amp; Speicher Tax Engine</span>
+      <span class="badge gold">§ 3 Nr. 72 EStG · JStG 2024 (30 kWp/Einheit ab 01.01.2025 &amp; 100-kWp-Fallbeil)</span>
+      <span class="badge green">§ 12 Abs. 3 Nr. 4 UStG · BMF 0%-Altanlagen-Entnahme (Speicher / E-Auto / Wärmepumpe)</span>
+    </div>
+
+    <h1>DACH § 3 Nr. 72 EStG &amp; § 12 Abs. 3 UStG Photovoltaik-Steuerfreiheits- &amp; Altanlagen-Entnahme-Simulator</h1>
+    <p class="subtitle">
+      Deterministischer Rechts- &amp; Steuer-Rechner für Vermieter, WEGs, Eigenheimbesitzer und Solarteure:
+      <strong>JStG-2024-Harmonisierung auf 30 kWp je Wohn-/Gewerbeeinheit</strong>, Schutz vor der <strong>100,00-kWp-Freigrenzen-Klippe (BMF Rz. 7)</strong> durch Ehegatten-/GbR-Splitting (bis 300 kWp steuerfrei) sowie <strong>0%-USt-Entnahme von 2018–2022 Bestandsanlagen</strong> ohne § 15a UStG Rückzahlung.
+    </p>
+
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label">Portfolio-Leistung (4 Objekte)</div>
+        <div class="kpi-value" style="color: var(--accent);">137.3 kWp</div>
+        <div class="kpi-sub">Status Quo: 100-kWp-Freigrenze gerissen! (137.3 kWp &gt; 100,0 kWp)</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">§ 3 Nr. 72 EStG Ersparnis (Ehegatten-Split)</div>
+        <div class="kpi-value" style="color: var(--green);">€ 67,889.80</div>
+        <div class="kpi-sub">€ 3,394.49 / Jahr Einkommensteuer + Soli gerettet (20 J.)</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">§ 12 Abs. 3 UStG Altanlagen-Entnahme</div>
+        <div class="kpi-value" style="color: var(--gold);">€ 3,026.70</div>
+        <div class="kpi-sub">€ 302.67 / Jahr 19%-Eigenverbrauchs-USt gespart · € 0,00 § 15a UStG</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Gesamter Steuer-Schutzschild</div>
+        <div class="kpi-value" style="color: #a78bfa;">€ 70,916.50</div>
+        <div class="kpi-sub">Sofort-Hebel im 1. Jahr: € 3,697.16</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Säule 1: § 3 Nr. 72 EStG Portfolio-Audit — JStG 2024 (30 kWp/Einheit) &amp; 100,00-kWp-Freigrenze (BMF v. 17.07.2023 Rz. 7)</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Anlage / Objekt</th>
+            <th>Gebäude &amp; Einheiten</th>
+            <th>Leistung</th>
+            <th>Rechtsregime &amp; Objektgrenze</th>
+            <th>Status Quo (1 Betreiber)</th>
+            <th>Empfohlene Zuordnung (Split)</th>
+            <th>Nach Split</th>
+          </tr>
+        </thead>
+        <tbody>
+          
+          <tr>
+            <td><strong>Objekt 1: EFH München-Solln (Bestandsanlage 2022)</strong><br/><span style="color:var(--muted);font-size:0.78rem;">IBN: 2022-05-14</span></td>
+            <td>EFH · 1 Einheit(en)</td>
+            <td><strong>29.8 kWp</strong></td>
+            <td>
+              30.0 kWp max. (30 kWp/Einh.)<br/>
+              <span style="color:var(--accent);font-size:0.76rem;">Altrecht bis 31.12.2024 (§ 3 Nr. 72 S. 1 Buchst. a EStG a.F.: 30 kWp EFH/Gewerbe)</span>
+            </td>
+            <td>
+              <span class="pill-fail">
+                Steuerpflichtig (€ 617.89/J.)
+              </span>
+            </td>
+            <td><strong>Person_B (Ehegatte)</strong></td>
+            <td>
+              <span class="pill-ok">
+                100% Steuerfrei (§ 3 Nr. 72 EStG)
+              </span>
+            </td>
+          </tr>
+          
+          <tr>
+            <td><strong>Objekt 2: MFH Nürnberg (2 WE, Bestandsanlage 2023)</strong><br/><span style="color:var(--muted);font-size:0.78rem;">IBN: 2023-08-19</span></td>
+            <td>MFH · 2 Einheit(en)</td>
+            <td><strong>29.6 kWp</strong></td>
+            <td>
+              30.0 kWp max. (15 kWp/Einh.)<br/>
+              <span style="color:var(--accent);font-size:0.76rem;">Altrecht bis 31.12.2024 (§ 3 Nr. 72 S. 1 Buchst. b EStG a.F.: 15 kWp/Einheit bei MFH/Gemischt)</span>
+            </td>
+            <td>
+              <span class="pill-fail">
+                Steuerpflichtig (€ 750.14/J.)
+              </span>
+            </td>
+            <td><strong>Person_B (Ehegatte)</strong></td>
+            <td>
+              <span class="pill-ok">
+                100% Steuerfrei (§ 3 Nr. 72 EStG)
+              </span>
+            </td>
+          </tr>
+          
+          <tr>
+            <td><strong>Objekt 3: Gewerbehalle Erlangen (1 GE, Bestandsanlage 2024)</strong><br/><span style="color:var(--muted);font-size:0.78rem;">IBN: 2024-04-10</span></td>
+            <td>COMMERCIAL · 1 Einheit(en)</td>
+            <td><strong>29.9 kWp</strong></td>
+            <td>
+              30.0 kWp max. (30 kWp/Einh.)<br/>
+              <span style="color:var(--accent);font-size:0.76rem;">Altrecht bis 31.12.2024 (§ 3 Nr. 72 S. 1 Buchst. a EStG a.F.: 30 kWp EFH/Gewerbe)</span>
+            </td>
+            <td>
+              <span class="pill-fail">
+                Steuerpflichtig (€ 750.37/J.)
+              </span>
+            </td>
+            <td><strong>Person_A</strong></td>
+            <td>
+              <span class="pill-ok">
+                100% Steuerfrei (§ 3 Nr. 72 EStG)
+              </span>
+            </td>
+          </tr>
+          
+          <tr>
+            <td><strong>Objekt 4: MFH Fürth (2 WE, Neuinstallation 2025 unter JStG 2024 — 48 kWp statt 30 kWp Altrecht!)</strong><br/><span style="color:var(--muted);font-size:0.78rem;">IBN: 2025-03-15</span></td>
+            <td>MFH · 2 Einheit(en)</td>
+            <td><strong>48.0 kWp</strong></td>
+            <td>
+              60.0 kWp max. (30 kWp/Einh.)<br/>
+              <span style="color:var(--accent);font-size:0.76rem;">✨ Durch JStG 2024 (30 statt 15 kWp/WE) steuerfrei freigeschaltet!</span>
+            </td>
+            <td>
+              <span class="pill-fail">
+                Steuerpflichtig (€ 1,276.09/J.)
+              </span>
+            </td>
+            <td><strong>Person_A</strong></td>
+            <td>
+              <span class="pill-ok">
+                100% Steuerfrei (§ 3 Nr. 72 EStG)
+              </span>
+            </td>
+          </tr>
+          
+        </tbody>
+      </table>
+    </div>
+
+    <div class="grid-2">
+      <div class="panel">
+        <h2>Interaktiver Rechner 1: § 3 Nr. 72 EStG JStG-2024 &amp; 100-kWp-Fallbeil-Prüfer</h2>
+        <div class="form-row">
+          <div>
+            <label for="simBuildingType">Gebäudeart</label>
+            <select id="simBuildingType" onchange="recalc3Nr72()">
+              <option value="MFH" selected>Mehrfamilienhaus / Gemischt (MFH)</option>
+              <option value="EFH">Einfamilienhaus (EFH)</option>
+              <option value="COMMERCIAL">Gewerbegebäude (nicht Wohnzwecke)</option>
+            </select>
+          </div>
+          <div>
+            <label for="simUnits">Wohn-/Gewerbeeinheiten</label>
+            <input type="number" id="simUnits" value="2" min="1" max="20" onchange="recalc3Nr72()" oninput="recalc3Nr72()" />
+          </div>
+          <div>
+            <label for="simCommYear">Inbetriebnahme / Erweiterung</label>
+            <select id="simCommYear" onchange="recalc3Nr72()">
+              <option value="2025" selected>Ab 01.01.2025 (JStG 2024: 30 kWp/WE)</option>
+              <option value="2024">Bis 31.12.2024 (Altrecht: 15 kWp/WE bei MFH)</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div>
+            <label for="simRoofKwp">Neue Anlage (kWp)</label>
+            <input type="number" id="simRoofKwp" value="48.0" step="0.5" min="1" max="150" onchange="recalc3Nr72()" oninput="recalc3Nr72()" />
+          </div>
+          <div>
+            <label for="simExistingKwp">Bereits vorhandene PV (Person A, kWp)</label>
+            <input type="number" id="simExistingKwp" value="89.3" step="0.5" min="0" max="250" onchange="recalc3Nr72()" oninput="recalc3Nr72()" />
+          </div>
+          <div>
+            <label for="simTaxRate">Grenzsteuersatz inkl. Soli (%)</label>
+            <input type="number" id="simTaxRate" value="44.31" step="0.5" min="15" max="48" onchange="recalc3Nr72()" oninput="recalc3Nr72()" />
+          </div>
+        </div>
+        <div id="sim3Nr72Banner" class="result-banner"></div>
+      </div>
+
+      <div class="panel">
+        <h2>Interaktiver Rechner 2: § 12 Abs. 3 UStG Altanlagen-Entnahme (2018–2022)</h2>
+        <div class="form-row">
+          <div>
+            <label for="entSelfKwh">Eigenverbrauch pro Jahr (kWh)</label>
+            <input type="number" id="entSelfKwh" value="5400" step="100" min="500" max="50000" onchange="recalcEntnahme()" oninput="recalcEntnahme()" />
+          </div>
+          <div>
+            <label for="entGridPrice">Fiktiver Netto-Strompreis (€/kWh)</label>
+            <input type="number" id="entGridPrice" value="0.295" step="0.005" min="0.15" max="0.60" onchange="recalcEntnahme()" oninput="recalcEntnahme()" />
+          </div>
+          <div>
+            <label for="entDevice">90%-Nachweis (BMF UStAE 12.18)</label>
+            <select id="entDevice" onchange="recalcEntnahme()">
+              <option value="Batteriespeicher (10,2 kWh) + E-Auto + Wärmepumpe" selected>Batteriespeicher + E-Auto / Wärmepumpe (&gt;90% erfüllt)</option>
+              <option value="Batteriespeicher (>= 5 kWh)">Batteriespeicher vorhanden (&gt;90% erfüllt)</option>
+              <option value="E-Fahrzeug (Wallbox)">E-Auto / Wallbox vorhanden (&gt;90% erfüllt)</option>
+              <option value="Wärmepumpe">Wärmepumpe vorhanden (&gt;90% erfüllt)</option>
+              <option value="NONE">Kein Speicher / E-Auto / Wärmepumpe (&lt;90%)</option>
+            </select>
+          </div>
+        </div>
+        <div id="simEntnahmeBanner" class="result-banner"></div>
+        <label for="finanzamtLetter" style="margin-top:12px;">Fertiges Musterschreiben an das Finanzamt (§ 12 Abs. 3 Nr. 4 UStG Entnahmeerklärung):</label>
+        <textarea id="finanzamtLetter" readonly>Hiermit erkläre ich für meine am 2020-06-15 in Betrieb genommene Photovoltaikanlage (14.80 kWp) die Entnahme aus dem Unternehmensvermögen in das Privatvermögen zu 100 % gemäß § 3 Abs. 1b Satz 1 Nr. 1 UStG zum Nullsteuersatz von 0 % nach § 12 Abs. 3 Nr. 4 UStG (BMF-Schreiben vom 27.02.2023, Az. III C 2 - S 7220/22/10002 :010 sowie vom 30.11.2023, Az. III C 2 - S 7220/22/10002 :013). Da der erzeugte Strom mittels Batteriespeicher (10.2 kWh), E-Fahrzeug (nicht zugeordnetes E-Auto / Wallbox), Wärmepumpe (Haushalts-Wärmepumpe) zu mehr als 90 % für nichtunternehmerische Zwecke genutzt wird, greift die BMF-Vereinfachungsregelung. Eine Vorsteuerberichtigung nach § 15a UStG entfällt; die Versteuerung einer unentgeltlichen Wertabgabe auf den Direktverbrauch entfällt ab dem Entnahmezeitpunkt.</textarea>
+      </div>
+    </div>
+
+    <div class="panel citations">
+      <h2>Verankerte Rechtsquellen &amp; BMF-Verwaltungsanweisungen</h2>
+      <ul>
+        <li>§ 3 Nr. 72 Satz 1 EStG i.d.F. des Jahressteuergesetzes 2024 (JStG 2024, BGBl. 2024 I Nr. 387) & § 52 Abs. 4 Satz 29 EStG: Einheitliche 30,0 kWp-Grenze je Wohn-/Gewerbeeinheit für alle Gebäudearten ab 01.01.2025</li><li>BMF-Schreiben vom 17.07.2023 (Az. IV C 6 - S 2121/23/10001 :001, Rz. 7 & Rz. 11): 100,00 kWp als strikte personen-/mitunternehmerschaftsbezogene Freigrenze (Fallbeil-Effekt)</li><li>§ 12 Abs. 3 Nr. 1 & Nr. 4 UStG i.V.m. § 3 Abs. 1b Satz 1 Nr. 1 UStG: 0,0 % Nullsteuersatz für Lieferung, Installation und Entnahme von Photovoltaikanlagen & Batteriespeichern</li><li>BMF-Schreiben vom 27.02.2023 (Az. III C 2 - S 7220/22/10002 :010) & vom 30.11.2023 (Az. III C 2 - S 7220/22/10002 :013, UStAE 12.18): Entnahme von Bestandsanlagen (Regelbesteuerung) zum Nullsteuersatz bei >90 % nichtunternehmerischer Nutzung (Vereinfachungsregelung für Batteriespeicher, E-Auto oder Wärmepumpe) ohne § 15a UStG Vorsteuerkorrektur</li>
+      </ul>
+    </div>
+  </div>
+
+  <script id="mvp-manifest" type="application/json">{
+  "mvp_id": "MVP-151",
+  "title": "DACH § 3 Nr. 72 EStG (JStG 2024 30-kWp-Harmonisierung & 100-kWp-Freigrenze) & § 12 Abs. 3 UStG Altanlagen-Entnahme-Simulator",
+  "legal_citations": [
+    "§ 3 Nr. 72 Satz 1 EStG i.d.F. des Jahressteuergesetzes 2024 (JStG 2024, BGBl. 2024 I Nr. 387) & § 52 Abs. 4 Satz 29 EStG: Einheitliche 30,0 kWp-Grenze je Wohn-/Gewerbeeinheit für alle Gebäudearten ab 01.01.2025",
+    "BMF-Schreiben vom 17.07.2023 (Az. IV C 6 - S 2121/23/10001 :001, Rz. 7 & Rz. 11): 100,00 kWp als strikte personen-/mitunternehmerschaftsbezogene Freigrenze (Fallbeil-Effekt)",
+    "§ 12 Abs. 3 Nr. 1 & Nr. 4 UStG i.V.m. § 3 Abs. 1b Satz 1 Nr. 1 UStG: 0,0 % Nullsteuersatz für Lieferung, Installation und Entnahme von Photovoltaikanlagen & Batteriespeichern",
+    "BMF-Schreiben vom 27.02.2023 (Az. III C 2 - S 7220/22/10002 :010) & vom 30.11.2023 (Az. III C 2 - S 7220/22/10002 :013, UStAE 12.18): Entnahme von Bestandsanlagen (Regelbesteuerung) zum Nullsteuersatz bei >90 % nichtunternehmerischer Nutzung (Vereinfachungsregelung für Batteriespeicher, E-Auto oder Wärmepumpe) ohne § 15a UStG Vorsteuerkorrektur"
+  ],
+  "pillar_1_3nr72_portfolio": {
+    "effective_income_tax_rate_pct": 44.31,
+    "horizon_years": 20,
+    "total_portfolio_kwp": 137.3,
+    "cliff_triggered_status_quo": true,
+    "status_quo_owners": [
+      {
+        "owner": "Person_A",
+        "total_kwp": 137.3,
+        "roof_ids": [
+          "ROOF-01",
+          "ROOF-02",
+          "ROOF-03",
+          "ROOF-04"
+        ],
+        "annual_profit_eur": 7660.79,
+        "exceeds_100kwp_cliff": true
+      }
+    ],
+    "optimized_entity_buckets": [
+      {
+        "entity": "Person_A",
+        "total_kwp": 77.9,
+        "roof_ids": [
+          "ROOF-04",
+          "ROOF-03"
+        ],
+        "annual_profit_eur": 4573.38
+      },
+      {
+        "entity": "Person_B (Ehegatte)",
+        "total_kwp": 59.4,
+        "roof_ids": [
+          "ROOF-01",
+          "ROOF-02"
+        ],
+        "annual_profit_eur": 3087.41
+      }
+    ],
+    "roofs": [
+      {
+        "roof_id": "ROOF-01",
+        "name": "Objekt 1: EFH München-Solln (Bestandsanlage 2022)",
+        "building_type": "EFH",
+        "units_count": 1,
+        "kwp": 29.8,
+        "commissioning_date": "2022-05-14",
+        "expanded_in_2025_or_later": false,
+        "current_owner": "Person_A",
+        "is_jstg_2024_regime": false,
+        "legal_regime": "Altrecht bis 31.12.2024 (§ 3 Nr. 72 S. 1 Buchst. a EStG a.F.: 30 kWp EFH/Gewerbe)",
+        "kwp_per_unit_limit": 30.0,
+        "max_allowed_kwp_for_building": 30.0,
+        "pre_2025_max_kwp_for_building": 30.0,
+        "building_limit_passed": true,
+        "unlocked_by_jstg_2024": false,
+        "annual_generation_kwh": 30992.0,
+        "annual_revenue_eur": 2014.48,
+        "annual_taxable_profit_if_not_exempt_eur": 1394.48,
+        "exempt_status_quo": false,
+        "annual_tax_status_quo_eur": 617.89,
+        "recommended_owner": "Person_B (Ehegatte)",
+        "exempt_after_split": true,
+        "annual_tax_after_split_eur": 0.0
+      },
+      {
+        "roof_id": "ROOF-02",
+        "name": "Objekt 2: MFH Nürnberg (2 WE, Bestandsanlage 2023)",
+        "building_type": "MFH",
+        "units_count": 2,
+        "kwp": 29.6,
+        "commissioning_date": "2023-08-19",
+        "expanded_in_2025_or_later": false,
+        "current_owner": "Person_A",
+        "is_jstg_2024_regime": false,
+        "legal_regime": "Altrecht bis 31.12.2024 (§ 3 Nr. 72 S. 1 Buchst. b EStG a.F.: 15 kWp/Einheit bei MFH/Gemischt)",
+        "kwp_per_unit_limit": 15.0,
+        "max_allowed_kwp_for_building": 30.0,
+        "pre_2025_max_kwp_for_building": 30.0,
+        "building_limit_passed": true,
+        "unlocked_by_jstg_2024": false,
+        "annual_generation_kwh": 29304.0,
+        "annual_revenue_eur": 2402.93,
+        "annual_taxable_profit_if_not_exempt_eur": 1692.93,
+        "exempt_status_quo": false,
+        "annual_tax_status_quo_eur": 750.14,
+        "recommended_owner": "Person_B (Ehegatte)",
+        "exempt_after_split": true,
+        "annual_tax_after_split_eur": 0.0
+      },
+      {
+        "roof_id": "ROOF-03",
+        "name": "Objekt 3: Gewerbehalle Erlangen (1 GE, Bestandsanlage 2024)",
+        "building_type": "COMMERCIAL",
+        "units_count": 1,
+        "kwp": 29.9,
+        "commissioning_date": "2024-04-10",
+        "expanded_in_2025_or_later": false,
+        "current_owner": "Person_A",
+        "is_jstg_2024_regime": false,
+        "legal_regime": "Altrecht bis 31.12.2024 (§ 3 Nr. 72 S. 1 Buchst. a EStG a.F.: 30 kWp EFH/Gewerbe)",
+        "kwp_per_unit_limit": 30.0,
+        "max_allowed_kwp_for_building": 30.0,
+        "pre_2025_max_kwp_for_building": 30.0,
+        "building_limit_passed": true,
+        "unlocked_by_jstg_2024": false,
+        "annual_generation_kwh": 29302.0,
+        "annual_revenue_eur": 2373.46,
+        "annual_taxable_profit_if_not_exempt_eur": 1693.46,
+        "exempt_status_quo": false,
+        "annual_tax_status_quo_eur": 750.37,
+        "recommended_owner": "Person_A",
+        "exempt_after_split": true,
+        "annual_tax_after_split_eur": 0.0
+      },
+      {
+        "roof_id": "ROOF-04",
+        "name": "Objekt 4: MFH Fürth (2 WE, Neuinstallation 2025 unter JStG 2024 — 48 kWp statt 30 kWp Altrecht!)",
+        "building_type": "MFH",
+        "units_count": 2,
+        "kwp": 48.0,
+        "commissioning_date": "2025-03-15",
+        "expanded_in_2025_or_later": true,
+        "current_owner": "Person_A",
+        "is_jstg_2024_regime": true,
+        "legal_regime": "JStG 2024 (§ 3 Nr. 72 S. 1 EStG n.F. ab 01.01.2025: einheitlich 30 kWp/Einheit)",
+        "kwp_per_unit_limit": 30.0,
+        "max_allowed_kwp_for_building": 60.0,
+        "pre_2025_max_kwp_for_building": 30.0,
+        "building_limit_passed": true,
+        "unlocked_by_jstg_2024": true,
+        "annual_generation_kwh": 48480.0,
+        "annual_revenue_eur": 3829.92,
+        "annual_taxable_profit_if_not_exempt_eur": 2879.92,
+        "exempt_status_quo": false,
+        "annual_tax_status_quo_eur": 1276.09,
+        "recommended_owner": "Person_A",
+        "exempt_after_split": true,
+        "annual_tax_after_split_eur": 0.0
+      }
+    ],
+    "status_quo_annual_income_tax_eur": 3394.49,
+    "optimized_annual_income_tax_eur": 0.0,
+    "annual_income_tax_saved_eur": 3394.49,
+    "horizon_20y_income_tax_saved_eur": 67889.8
+  },
+  "pillar_2_12ustg_entnahme_cases": [
+    {
+      "case_id": "ENTNAHME-2020-EFH",
+      "name": "Altanlage 2020 (14,8 kWp + 10,2 kWh Speicher + E-Auto + Wärmepumpe in Regelbesteuerung)",
+      "commissioning_date": "2020-06-15",
+      "kwp": 14.8,
+      "net_acquisition_cost_eur": 21500.0,
+      "input_vat_claimed_eur": 4085.0,
+      "annual_generation_kwh": 14500.0,
+      "self_consumption_kwh": 5400.0,
+      "replacement_grid_price_net_eur_per_kwh": 0.295,
+      "qualifying_devices": [
+        "Batteriespeicher (10.2 kWh)",
+        "E-Fahrzeug (nicht zugeordnetes E-Auto / Wallbox)",
+        "Wärmepumpe (Haushalts-Wärmepumpe)"
+      ],
+      "eligible_for_0pct_entnahme": true,
+      "annual_wertabgabe_base_eur": 1593.0,
+      "annual_self_consumption_vat_19pct_eur": 302.67,
+      "entnahme_vat_due_eur": 0.0,
+      "section_15a_clawback_eur": 0.0,
+      "annual_vat_saved_eur": 302.67,
+      "horizon_years": 10,
+      "cumulative_vat_saved_eur": 3026.7,
+      "finanzamt_letter_snippet": "Hiermit erkläre ich für meine am 2020-06-15 in Betrieb genommene Photovoltaikanlage (14.80 kWp) die Entnahme aus dem Unternehmensvermögen in das Privatvermögen zu 100 % gemäß § 3 Abs. 1b Satz 1 Nr. 1 UStG zum Nullsteuersatz von 0 % nach § 12 Abs. 3 Nr. 4 UStG (BMF-Schreiben vom 27.02.2023, Az. III C 2 - S 7220/22/10002 :010 sowie vom 30.11.2023, Az. III C 2 - S 7220/22/10002 :013). Da der erzeugte Strom mittels Batteriespeicher (10.2 kWh), E-Fahrzeug (nicht zugeordnetes E-Auto / Wallbox), Wärmepumpe (Haushalts-Wärmepumpe) zu mehr als 90 % für nichtunternehmerische Zwecke genutzt wird, greift die BMF-Vereinfachungsregelung. Eine Vorsteuerberichtigung nach § 15a UStG entfällt; die Versteuerung einer unentgeltlichen Wertabgabe auf den Direktverbrauch entfällt ab dem Entnahmezeitpunkt."
+    },
+    {
+      "case_id": "ENTNAHME-2021-MFH",
+      "name": "Altanlage 2021 (24,5 kWp + 15,0 kWh Speicher + Wallbox in Regelbesteuerung)",
+      "commissioning_date": "2021-09-01",
+      "kwp": 24.5,
+      "net_acquisition_cost_eur": 32800.0,
+      "input_vat_claimed_eur": 6232.0,
+      "annual_generation_kwh": 23800.0,
+      "self_consumption_kwh": 7900.0,
+      "replacement_grid_price_net_eur_per_kwh": 0.285,
+      "qualifying_devices": [
+        "Batteriespeicher (15.0 kWh)",
+        "E-Fahrzeug (nicht zugeordnetes E-Auto / Wallbox)"
+      ],
+      "eligible_for_0pct_entnahme": true,
+      "annual_wertabgabe_base_eur": 2251.5,
+      "annual_self_consumption_vat_19pct_eur": 427.79,
+      "entnahme_vat_due_eur": 0.0,
+      "section_15a_clawback_eur": 0.0,
+      "annual_vat_saved_eur": 427.79,
+      "horizon_years": 10,
+      "cumulative_vat_saved_eur": 4277.9,
+      "finanzamt_letter_snippet": "Hiermit erkläre ich für meine am 2021-09-01 in Betrieb genommene Photovoltaikanlage (24.50 kWp) die Entnahme aus dem Unternehmensvermögen in das Privatvermögen zu 100 % gemäß § 3 Abs. 1b Satz 1 Nr. 1 UStG zum Nullsteuersatz von 0 % nach § 12 Abs. 3 Nr. 4 UStG (BMF-Schreiben vom 27.02.2023, Az. III C 2 - S 7220/22/10002 :010 sowie vom 30.11.2023, Az. III C 2 - S 7220/22/10002 :013). Da der erzeugte Strom mittels Batteriespeicher (15.0 kWh), E-Fahrzeug (nicht zugeordnetes E-Auto / Wallbox) zu mehr als 90 % für nichtunternehmerische Zwecke genutzt wird, greift die BMF-Vereinfachungsregelung. Eine Vorsteuerberichtigung nach § 15a UStG entfällt; die Versteuerung einer unentgeltlichen Wertabgabe auf den Direktverbrauch entfällt ab dem Entnahmezeitpunkt."
+    }
+  ],
+  "combined_summary": {
+    "annual_income_tax_saved_eur": 3394.49,
+    "horizon_20y_income_tax_saved_eur": 67889.8,
+    "primary_entnahme_annual_vat_saved_eur": 302.67,
+    "primary_entnahme_10y_vat_saved_eur": 3026.7,
+    "total_first_year_tax_shield_eur": 3697.16,
+    "total_multi_year_tax_shield_eur": 70916.5
+  }
+}</script>
+  <script>
+    function recalc3Nr72() {
+      const bType = document.getElementById('simBuildingType').value;
+      const units = Math.max(1, parseInt(document.getElementById('simUnits').value || '1', 10));
+      const commYear = document.getElementById('simCommYear').value;
+      const roofKwp = parseFloat(document.getElementById('simRoofKwp').value || '0');
+      const existingKwp = parseFloat(document.getElementById('simExistingKwp').value || '0');
+      const taxRate = parseFloat(document.getElementById('simTaxRate').value || '44.31') / 100.0;
+
+      const perUnitLimit = (commYear === '2025' || bType !== 'MFH') ? 30.0 : 15.0;
+      const maxBuildingKwp = Math.min(100.0, units * perUnitLimit);
+      const buildingOk = roofKwp <= maxBuildingKwp + 1e-9;
+      const combinedKwp = existingKwp + roofKwp;
+      const cliffTriggered = combinedKwp > 100.0 + 1e-9;
+
+      const estAnnualProfitAll = combinedKwp * 54.0;
+      const annualTaxAtRisk = estAnnualProfitAll * taxRate;
+      const banner = document.getElementById('sim3Nr72Banner');
+
+      if (!buildingOk) {
+        banner.className = 'result-banner danger';
+        banner.innerHTML = `<strong>❌ Objektgrenze überschritten:</strong> ${roofKwp.toFixed(1)} kWp überschreitet die zulässigen <strong>${maxBuildingKwp.toFixed(1)} kWp</strong> (${units} Einh. × ${perUnitLimit} kWp). Tipp: Bei Inbetriebnahme/Erweiterung ab 01.01.2025 (JStG 2024) gelten 30 kWp je Einheit!`;
+      } else if (cliffTriggered) {
+        banner.className = 'result-banner danger';
+        banner.innerHTML = `<strong>⚠️ 100,00-kWp-Fallbeil ausgelöst (${combinedKwp.toFixed(1)} kWp &gt; 100,0 kWp Freigrenze, BMF Rz. 7)!</strong><br/>Ohne Splitting werden <strong>ALLE Anlagen (${combinedKwp.toFixed(1)} kWp)</strong> rückwirkend voll einkommensteuerpflichtig (Steuerschaden ca. <strong>€ ${annualTaxAtRisk.toFixed(2)}/Jahr</strong> bzw. <strong>€ ${(annualTaxAtRisk*20).toFixed(2)} über 20 Jahre</strong>).<br/>✅ <strong>Lösung:</strong> Neue ${roofKwp.toFixed(1)}-kWp-Anlage auf <strong>Ehegatten (Person B) oder Ehegatten-GbR</strong> anmelden → beide Betreiber bleiben ≤ 100,0 kWp → <strong>€ 0,00 Einkommensteuer!</strong>`;
+      } else {
+        banner.className = 'result-banner';
+        banner.innerHTML = `<strong>✅ 100% Einkommensteuerfrei nach § 3 Nr. 72 EStG:</strong> Objektgrenze eingehalten (${roofKwp.toFixed(1)} ≤ ${maxBuildingKwp.toFixed(1)} kWp) und personenbezogene 100-kWp-Freigrenze gewahrt (${combinedKwp.toFixed(1)} ≤ 100,0 kWp).`;
+      }
+    }
+
+    function recalcEntnahme() {
+      const selfKwh = parseFloat(document.getElementById('entSelfKwh').value || '0');
+      const gridPrice = parseFloat(document.getElementById('entGridPrice').value || '0');
+      const device = document.getElementById('entDevice').value;
+      const annualBase = selfKwh * gridPrice;
+      const annualVat19 = annualBase * 0.19;
+      const tenYearVat = annualVat19 * 10.0;
+      const banner = document.getElementById('simEntnahmeBanner');
+      const letter = document.getElementById('finanzamtLetter');
+
+      if (device === 'NONE') {
+        banner.className = 'result-banner danger';
+        banner.innerHTML = `<strong>❌ Keine 0%-Entnahme nach BMF-Vereinfachungsregelung möglich:</strong> Ohne Batteriespeicher, E-Auto oder Wärmepumpe verbleibt die Anlage im Unternehmensvermögen. Sie zahlen weiterhin <strong>€ ${annualVat19.toFixed(2)}/Jahr</strong> (19% USt auf unentgeltliche Wertabgabe).`;
+      } else {
+        banner.className = 'result-banner';
+        banner.innerHTML = `<strong>✅ 0%-Entnahme nach § 12 Abs. 3 Nr. 4 UStG zulässig (${device}):</strong><br/>• Laufende 19%-Eigenverbrauchs-USt sinkt sofort von <strong>€ ${annualVat19.toFixed(2)}/Jahr auf € 0,00</strong>!<br/>• 10-Jahres-Ersparnis: <strong>€ ${tenYearVat.toFixed(2)}</strong> · Vorsteuerkorrektur nach § 15a UStG: <strong>€ 0,00</strong>!`;
+        letter.value = `Hiermit erkläre ich für meine Photovoltaikanlage die Entnahme aus dem Unternehmensvermögen in das Privatvermögen zu 100 % gemäß § 3 Abs. 1b Satz 1 Nr. 1 UStG zum Nullsteuersatz von 0 % nach § 12 Abs. 3 Nr. 4 UStG (BMF-Schreiben vom 27.02.2023, Az. III C 2 - S 7220/22/10002 :010 sowie vom 30.11.2023, Az. III C 2 - S 7220/22/10002 :013). Da der erzeugte Strom mittels ${device} zu mehr als 90 % für nichtunternehmerische Zwecke genutzt wird, greift die BMF-Vereinfachungsregelung. Eine Vorsteuerberichtigung nach § 15a UStG entfällt; die Versteuerung einer unentgeltlichen Wertabgabe (${selfKwh.toFixed(0)} kWh/Jahr, bisher € ${annualVat19.toFixed(2)} USt/Jahr) entfällt ab sofort.`;
+      }
+    }
+
+    recalc3Nr72();
+    recalcEntnahme();
+  </script>
+</body>
+</html>

@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>MVP #76 — DACH Cookie-Free Impressum & Handelsregister Executive Resolver Cockpit</title>
+<style>
+  :root {
+    --bg: #0b0f19;
+    --card: #111827;
+    --border: #1f2937;
+    --text: #f3f4f6;
+    --muted: #9ca3af;
+    --accent: #10b981;
+    --warn: #f59e0b;
+    --danger: #ef4444;
+    --indigo: #6366f1;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 28px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+  }
+  h1, h2, h3 { margin-top: 0; }
+  .header-banner {
+    background: linear-gradient(135deg, #111827 0%, #1e1b4b 100%);
+    border: 1px solid #312e81;
+    border-radius: 14px;
+    padding: 24px 28px;
+    margin-bottom: 24px;
+  }
+  .header-banner h1 { font-size: 1.55rem; margin-bottom: 8px; color: #fff; }
+  .header-banner p { margin: 0; color: #cbd5e1; font-size: 0.95rem; }
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .kpi-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px;
+  }
+  .kpi-val { font-size: 1.8rem; font-weight: 800; color: var(--accent); }
+  .kpi-label { font-size: 0.83rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+  .section-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 24px;
+  }
+  .filter-bar {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+    align-items: center;
+  }
+  .filter-bar input, .filter-bar select {
+    background: #1f2937;
+    color: #fff;
+    border: 1px solid #374151;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.88rem;
+  }
+  th, td {
+    text-align: left;
+    padding: 14px 12px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  th {
+    color: var(--muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.76rem;
+    letter-spacing: 0.05em;
+    background: #0f172a;
+  }
+  .comp-title { font-weight: 700; font-size: 1rem; color: #fff; margin-bottom: 4px; }
+  .comp-sub { color: var(--muted); font-size: 0.82rem; margin-bottom: 4px; }
+  .comp-reg { font-size: 0.8rem; color: #a5b4fc; }
+  .country-flag {
+    background: #312e81;
+    color: #e0e7ff;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 700;
+    font-size: 0.75rem;
+  }
+  .exec-pill {
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 8px;
+    padding: 8px 10px;
+    margin-bottom: 6px;
+  }
+  .exec-pill.pill-new {
+    border-left: 4px solid var(--accent);
+    background: rgba(16, 185, 129, 0.08);
+  }
+  .role-chip {
+    background: #374151;
+    color: #f9fafb;
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-size: 0.74rem;
+    margin-left: 4px;
+  }
+  .tenure-chip {
+    background: rgba(16, 185, 129, 0.2);
+    color: #6ee7b7;
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-size: 0.74rem;
+    font-weight: 600;
+    margin-left: 4px;
+  }
+  .tag-alpha {
+    display: inline-block;
+    margin-top: 4px;
+    background: rgba(245, 158, 11, 0.18);
+    border: 1px solid #f59e0b;
+    color: #fcd34d;
+    font-size: 0.73rem;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 6px;
+  }
+  .hr-notice {
+    font-size: 0.82rem;
+    color: #d1d5db;
+    background: #0f172a;
+    padding: 8px 10px;
+    border-radius: 6px;
+    border-left: 3px solid var(--indigo);
+    margin-bottom: 6px;
+  }
+  .outgoing-box { font-size: 0.8rem; color: #fca5a5; }
+  .outgoing-box.muted { color: var(--muted); }
+  .score-cell { text-align: center; width: 130px; }
+  .score-circle {
+    width: 54px;
+    height: 54px;
+    border-radius: 50%;
+    border: 3px solid var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    font-weight: 800;
+    margin: 0 auto 6px auto;
+  }
+  .tier-label { font-size: 0.72rem; font-weight: 700; color: var(--muted); }
+  .outreach-box {
+    background: #0f172a;
+    border: 1px solid #1e293b;
+    border-radius: 8px;
+    padding: 10px;
+    font-size: 0.82rem;
+  }
+  .outreach-subj { color: #93c5fd; margin-bottom: 4px; }
+  .outreach-body { color: #e2e8f0; margin-bottom: 6px; }
+  .dork-line { font-size: 0.75rem; color: var(--muted); }
+  .fail-badge {
+    background: rgba(239, 68, 68, 0.2);
+    color: #fca5a5;
+    border: 1px solid #ef4444;
+    padding: 2px 7px;
+    border-radius: 5px;
+    font-weight: 700;
+    font-size: 0.76rem;
+  }
+  a { color: #60a5fa; text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 0.8rem; color: #c4b5fd; }
+</style>
+</head>
+<body>
+
+<!-- DACH CASHFLOW STUDIOS LAUNCH BAR -->
+<style>
+  #dcs-launch-bar {
+    position: sticky;
+    top: 0;
+    z-index: 99999;
+    background: linear-gradient(90deg, #0b1120 0%, #111827 50%, #0f172a 100%);
+    color: #f8fafc;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.35);
+    padding: 8px 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  }
+  #dcs-launch-bar .dcs-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+  }
+  #dcs-launch-bar .dcs-badge {
+    background: rgba(16, 185, 129, 0.18);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.03em;
+  }
+  #dcs-launch-bar a.dcs-nav {
+    color: #93c5fd;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 12.5px;
+  }
+  #dcs-launch-bar a.dcs-nav:hover {
+    text-decoration: underline;
+    color: #dbeafe;
+  }
+  #dcs-launch-bar .dcs-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  #dcs-launch-bar .dcs-btn {
+    padding: 5px 11px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s ease;
+  }
+  #dcs-launch-bar .dcs-btn-ghost {
+    background: rgba(255,255,255,0.08);
+    color: #e2e8f0;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  #dcs-launch-bar .dcs-btn-primary {
+    background: linear-gradient(135deg, #0ea5e9, #2563eb);
+    color: #ffffff;
+  }
+  #dcs-launch-bar .dcs-btn-emerald {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
+  }
+  @media print {
+    #dcs-launch-bar { display: none !important; }
+  }
+</style>
+<div id="dcs-launch-bar">
+  <div class="dcs-left">
+    <a href="/index.html" class="dcs-nav">← Alle 150 DACH Studios</a>
+    <span class="dcs-badge">MVP #076 VERIFIED</span>
+    <span style="color:#cbd5e1;font-size:12px;">B2B SaaS, Lead-Intent Sniper & AI/MCP Infrastructure</span>
+  </div>
+  <div class="dcs-actions">
+    <button onclick="window.print()" class="dcs-btn dcs-btn-ghost">🖨️ PDF / Dossier drucken</button>
+    <a href="#checkout-modal-49" target="_blank" rel="noopener" class="dcs-btn dcs-btn-primary">⚡ Musterschreiben & Voll-Dossier (€49)</a>
+    <a href="#checkout-modal-299" target="_blank" rel="noopener" class="dcs-btn dcs-btn-emerald">🛡️ B2B Umsetzung buchen (€299 / €1.490)</a>
+  </div>
+</div>
+
+
+<div class="header-banner">
+  <h1>🇩🇪🇦🇹🇨🇭 MVP #76: DACH Cookie-Free Impressum & Handelsregister Executive Decision-Maker Resolver</h1>
+  <p>
+    <strong>Statutory Asymmetry Engine (§ 5 DDG / § 8 HGB / FN / Zefix):</strong>
+    Extrahiert Geschäftsführer, Vorstände, Verwaltungsräte & Prokuristen direkt aus dem Pflicht-Impressum und Handelsregister-Bekanntmachungen.
+    Löst LinkedIn-Profile & verifizierte B2B-E-Mails mit <strong>0 LinkedIn-Cookies (0% Ban-Risiko)</strong> auf und erkennt
+    <strong>Neu-Geschäftsführerwechsel (&lt;180 Tage)</strong> noch bevor das LinkedIn-Profil aktualisiert wurde.
+  </p>
+</div>
+
+<div class="kpi-grid">
+  <div class="kpi-card">
+    <div class="kpi-val">6</div>
+    <div class="kpi-label">DACH Firmen (DE/AT/CH) Aufgelöst</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-val">14</div>
+    <div class="kpi-label">Gesetzliche Organe & Prokuristen</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-val">5</div>
+    <div class="kpi-label">Neu-GF Trigger (&lt;180 Tage im Amt)</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-val" style="color:#fcd34d;">3</div>
+    <div class="kpi-label">Stealth-Alpha (HRB vor LinkedIn)</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-val">0%</div>
+    <div class="kpi-label">LinkedIn Cookie / Ban Risiko</div>
+  </div>
+</div>
+
+<div class="section-card">
+  <h2>1. DACH Executive Decision-Maker & New-CEO Trigger Cockpit</h2>
+  <div class="filter-bar">
+    <input type="text" id="searchInput" placeholder="Suche nach Firma, Geschäftsführer, HRB, Stadt..." oninput="applyFilters()" style="min-width:290px;" />
+    <select id="countryFilter" onchange="applyFilters()">
+      <option value="ALL">Alle DACH-Länder (DE / AT / CH)</option>
+      <option value="DE">🇩🇪 Deutschland (§ 5 DDG / HRB)</option>
+      <option value="AT">🇦🇹 Österreich (§ 5 ECG / Firmenbuch FN)</option>
+      <option value="CH">🇨🇭 Schweiz (Zefix / CHE-UID)</option>
+    </select>
+    <select id="triggerFilter" onchange="applyFilters()">
+      <option value="ALL">Alle Geschäftsführer</option>
+      <option value="true">Nur Neu-Bestellungen (&lt;180 Tage Trigger)</option>
+    </select>
+  </div>
+  <table id="execTable">
+    <thead>
+      <tr>
+        <th style="width:22%;">Unternehmen & Register (§ 5 DDG)</th>
+        <th style="width:25%;">Organe (GF / Vorstand / Prokura)</th>
+        <th style="width:22%;">Handelsregister-Veränderung</th>
+        <th style="width:10%;">Budget-Reset Intent</th>
+        <th style="width:21%;">Sofort-Outreach (DE) & SERP-Dork</th>
+      </tr>
+    </thead>
+    <tbody>
+      
+            <tr data-country="DE" data-new="true" data-score="100">
+                <td>
+                    <div class="comp-title">AuriPlast Industrietechnik GmbH</div>
+                    <div class="comp-sub">
+                        <span class="country-flag">DE</span>
+                        70469 Stuttgart ·
+                        <a href="https://auriplast-industrie.de/impressum" target="_blank">auriplast-industrie.de/impressum</a>
+                    </div>
+                    <div class="comp-reg">
+                        ⚖️ <code>HRB 784912</code> (Amtsgericht Stuttgart) · USt: <code>DE 319482710</code>
+                    </div>
+                </td>
+                <td>
+                    <div class="exec-pill pill-new"><strong>Lukas Breitenbach</strong> <span class="role-chip">Geschäftsführer</span> <span class="tenure-chip">19d im Amt</span><br/><small>✉️ <code>lukas.breitenbach@auriplast-industrie.de</code> (96%) · 🔗 <a href="https://de.linkedin.com/in/dr-lukas-breitenbach-70469" target="_blank">/in/dr-lukas-breitenbach-70469</a></small></div><div class="exec-pill pill-std"><strong>Markus Schäfer</strong> <span class="role-chip">Prokurist</span> <span class="tenure-chip">868d im Amt</span><br/><small>✉️ <code>markus.schaefer@auriplast-industrie.de</code> (92%) · 🔗 <a href="https://de.linkedin.com/in/markus-schaefer-0101" target="_blank">/in/markus-schaefer-0101</a></small></div><div class="exec-pill pill-std"><strong>Sandra Köhler</strong> <span class="role-chip">Geschäftsführer</span> <span class="tenure-chip">2042d im Amt</span><br/><small>✉️ <code>sandra.koehler@auriplast-industrie.de</code> (96%) · 🔗 <a href="https://de.linkedin.com/in/sandra-koehler-cfo" target="_blank">/in/sandra-koehler-cfo</a></small></div>
+                    <span class="tag tag-alpha" title="Handelsregister & Impressum zeigen bereits den neuen GF, während das LinkedIn-Profil noch auf der alten Rolle steht — 0% Konkurrenz durch LinkedIn-Scraper!">⚡ STEALTH-ALPHA: HRB VOR LINKEDIN</span>
+                </td>
+                <td>
+                    <div class="hr-notice">28.09.2026 — Amtsgericht Stuttgart HRB 784912: Veränderungen: Nicht mehr Geschäftsführer: Manfred Breitenbach. Bestellt als Geschäftsführer: Dr.-Ing. Lukas Breitenbach, Stuttgart, *14.05.1986, einzelvertretungsberechtigt mit der Befugnis, im Namen der Gesellschaft mit sich im eigenen Namen oder als Vertreter eines Dritten Rechtsgeschäfte abzuschließen.</div>
+                    <div class="outgoing-box">🔄 <strong>Abgelöst:</strong> Manfred Breitenbach</div>
+                </td>
+                <td class="score-cell">
+                    <div class="score-circle" style="border-color: #10b981; color: #10b981;">
+                        100
+                    </div>
+                    <div class="tier-label">CRITICAL_NEW_CEO_WINDOW (&lt;90d)</div>
+                </td>
+                <td>
+                    <div class="outreach-box">
+                        <div class="outreach-subj"><strong>Betreff:</strong> Glückwunsch zur Bestellung bei AuriPlast Industrietechnik GmbH (HRB 784912) – Erste 100 Tage</div>
+                        <div class="outreach-body">Sehr geehrte(r) Herr/Frau Dr.-Ing. Breitenbach, herzlichen Glückwunsch zur Bestellung als Geschäftsführer der AuriPlast Industrietechnik GmbH in der Nachfolge von Manfred Breitenbach (vor 19 Tagen im Register eingetragen). Gerade in den ersten 100 Tagen nach einem Geschäftsführerwechsel stehen bestehende Prozess- und Infrastruktur-Verträge auf dem Prüfstand – genau dazu habe ich eine kurze Benchmark-Analyse für Sie vorbereitet.</div>
+                        <div class="dork-line">🔍 SERP-Dork: <code>site:de.linkedin.com/in/ &quot;Lukas Breitenbach&quot; &quot;AuriPlast&quot;</code></div>
+                    </div>
+                </td>
+            </tr>
+            
+            <tr data-country="AT" data-new="true" data-score="100">
+                <td>
+                    <div class="comp-title">AlpenVolt Photovoltaik &amp; Speichertechnik GmbH</div>
+                    <div class="comp-sub">
+                        <span class="country-flag">AT</span>
+                        4020 Linz ·
+                        <a href="https://alpenvolt-energy.at/impressum" target="_blank">alpenvolt-energy.at/impressum</a>
+                    </div>
+                    <div class="comp-reg">
+                        ⚖️ <code>FN 548291 x</code> (Landesgericht Linz) · USt: <code>ATU76419208</code>
+                    </div>
+                </td>
+                <td>
+                    <div class="exec-pill pill-new"><strong>Tobias Obermair</strong> <span class="role-chip">Geschäftsführer</span> <span class="tenure-chip">29d im Amt</span><br/><small>✉️ <code>tobias.obermair@alpenvolt-energy.at</code> (96%) · 🔗 <a href="https://at.linkedin.com/in/tobias-obermair-alpenvolt" target="_blank">/in/tobias-obermair-alpenvolt</a></small></div><div class="exec-pill pill-std"><strong>Florian Hofer</strong> <span class="role-chip">Prokurist</span> <span class="tenure-chip">609d im Amt</span><br/><small>✉️ <code>florian.hofer@alpenvolt-energy.at</code> (92%) · 🔗 <a href="https://at.linkedin.com/in/florian-hofer-0103" target="_blank">/in/florian-hofer-0103</a></small></div><div class="exec-pill pill-std"><strong>Katharina Moser</strong> <span class="role-chip">Geschäftsführer</span> <span class="tenure-chip">1376d im Amt</span><br/><small>✉️ <code>katharina.moser@alpenvolt-energy.at</code> (96%) · 🔗 <a href="https://at.linkedin.com/in/katharina-moser-0103" target="_blank">/in/katharina-moser-0103</a></small></div>
+                    <span class="tag tag-alpha" title="Handelsregister & Impressum zeigen bereits den neuen GF, während das LinkedIn-Profil noch auf der alten Rolle steht — 0% Konkurrenz durch LinkedIn-Scraper!">⚡ STEALTH-ALPHA: HRB VOR LINKEDIN</span>
+                </td>
+                <td>
+                    <div class="hr-notice">18.09.2026 — Landesgericht Linz FN 548291 x: Veränderungen: Nicht mehr Geschäftsführer: KommR Franz Obermair. Neu bestellt als Geschäftsführer: Mag. (FH) Tobias Obermair, Linz, *03.02.1989, einzelvertretungsberechtigt.</div>
+                    <div class="outgoing-box">🔄 <strong>Abgelöst:</strong> KommR Franz Obermair</div>
+                </td>
+                <td class="score-cell">
+                    <div class="score-circle" style="border-color: #10b981; color: #10b981;">
+                        100
+                    </div>
+                    <div class="tier-label">CRITICAL_NEW_CEO_WINDOW (&lt;90d)</div>
+                </td>
+                <td>
+                    <div class="outreach-box">
+                        <div class="outreach-subj"><strong>Betreff:</strong> Glückwunsch zur Bestellung bei AlpenVolt Photovoltaik &amp; Speichertechnik GmbH (FN 548291 x) – Erste 100 Tage</div>
+                        <div class="outreach-body">Sehr geehrte(r) Herr/Frau Obermair, herzlichen Glückwunsch zur Bestellung als Geschäftsführer der AlpenVolt Photovoltaik &amp; Speichertechnik GmbH in der Nachfolge von KommR Franz Obermair (vor 29 Tagen im Register eingetragen). Gerade in den ersten 100 Tagen nach einem Geschäftsführerwechsel stehen bestehende Prozess- und Infrastruktur-Verträge auf dem Prüfstand – genau dazu habe ich eine kurze Benchmark-Analyse für Sie vorbereitet.</div>
+                        <div class="dork-line">🔍 SERP-Dork: <code>site:at.linkedin.com/in/ &quot;Tobias Obermair&quot; &quot;AlpenVolt&quot;</code></div>
+                    </div>
+                </td>
+            </tr>
+            
+            <tr data-country="DE" data-new="true" data-score="100">
+                <td>
+                    <div class="comp-title">Velox Embedded Automotive Systems AG</div>
+                    <div class="comp-sub">
+                        <span class="country-flag">DE</span>
+                        85540 Haar ·
+                        <a href="https://velox-embedded.de/impressum" target="_blank">velox-embedded.de/impressum</a>
+                    </div>
+                    <div class="comp-reg">
+                        ⚖️ <code>HRB 261094</code> (Amtsgericht München) · USt: <code>DE 301948221</code>
+                    </div>
+                </td>
+                <td>
+                    <div class="exec-pill pill-new"><strong>Christiane Weiß</strong> <span class="role-chip">Vorstand</span> <span class="tenure-chip">15d im Amt</span><br/><small>✉️ <code>christiane.weiss@velox-embedded.de</code> (96%) · 🔗 <a href="https://de.linkedin.com/in/dr-christiane-weiss-automotive" target="_blank">/in/dr-christiane-weiss-automotive</a></small></div><div class="exec-pill pill-std"><strong>Henrik Björkman</strong> <span class="role-chip">Vorstand</span> <span class="tenure-chip">929d im Amt</span><br/><small>✉️ <code>henrik.bjoerkman@velox-embedded.de</code> (96%) · 🔗 <a href="https://de.linkedin.com/in/henrik-bjoerkman-0105" target="_blank">/in/henrik-bjoerkman-0105</a></small></div>
+                    <span class="tag tag-alpha" title="Handelsregister & Impressum zeigen bereits den neuen GF, während das LinkedIn-Profil noch auf der alten Rolle steht — 0% Konkurrenz durch LinkedIn-Scraper!">⚡ STEALTH-ALPHA: HRB VOR LINKEDIN</span>
+                </td>
+                <td>
+                    <div class="hr-notice">02.10.2026 — Amtsgericht München HRB 261094: Veränderungen: Nicht mehr Vorstand: Dr. Stefan Vollmer. Bestellt als Vorstand: Dr. rer. nat. Christiane Weiß, München, *19.07.1985, einzelvertretungsberechtigt.</div>
+                    <div class="outgoing-box">🔄 <strong>Abgelöst:</strong> Stefan Vollmer</div>
+                </td>
+                <td class="score-cell">
+                    <div class="score-circle" style="border-color: #10b981; color: #10b981;">
+                        100
+                    </div>
+                    <div class="tier-label">CRITICAL_NEW_CEO_WINDOW (&lt;90d)</div>
+                </td>
+                <td>
+                    <div class="outreach-box">
+                        <div class="outreach-subj"><strong>Betreff:</strong> Glückwunsch zur Bestellung bei Velox Embedded Automotive Systems AG (HRB 261094) – Erste 100 Tage</div>
+                        <div class="outreach-body">Sehr geehrte(r) Herr/Frau Dr. rer. nat. Weiß, herzlichen Glückwunsch zur Bestellung als Vorstand der Velox Embedded Automotive Systems AG in der Nachfolge von Stefan Vollmer (vor 15 Tagen im Register eingetragen). Gerade in den ersten 100 Tagen nach einem Geschäftsführerwechsel stehen bestehende Prozess- und Infrastruktur-Verträge auf dem Prüfstand – genau dazu habe ich eine kurze Benchmark-Analyse für Sie vorbereitet.</div>
+                        <div class="dork-line">🔍 SERP-Dork: <code>site:de.linkedin.com/in/ &quot;Christiane Weiß&quot; &quot;Velox&quot;</code></div>
+                    </div>
+                </td>
+            </tr>
+            
+            <tr data-country="DE" data-new="true" data-score="90">
+                <td>
+                    <div class="comp-title">Nordwind Kühl- &amp; Pharmalogistik GmbH &amp; Co. KG</div>
+                    <div class="comp-sub">
+                        <span class="country-flag">DE</span>
+                        20457 Hamburg ·
+                        <a href="https://nordwind-logistik.de/impressum" target="_blank">nordwind-logistik.de/impressum</a>
+                    </div>
+                    <div class="comp-reg">
+                        ⚖️ <code>HRA 124890</code> (Amtsgericht Hamburg) · USt: <code>DE 284910455</code>
+                    </div>
+                </td>
+                <td>
+                    <div class="exec-pill pill-new"><strong>Maximilian von Bergmann</strong> <span class="role-chip">Geschäftsführer</span> <span class="tenure-chip">74d im Amt</span><br/><small>✉️ <code>m.von-bergmann@nordwind-logistik.de</code> (96%) · 🔗 <a href="https://de.linkedin.com/in/maximilian-von-bergmann-logistik" target="_blank">/in/maximilian-von-bergmann-logistik</a></small></div><div class="exec-pill pill-std"><strong>Jörg-Uwe Lindner</strong> <span class="role-chip">Geschäftsführer</span> <span class="tenure-chip">2542d im Amt</span><br/><small>✉️ <code>j.lindner@nordwind-logistik.de</code> (96%) · 🔗 <a href="https://de.linkedin.com/in/joerg-lindner-0102" target="_blank">/in/joerg-lindner-0102</a></small></div>
+                    
+                </td>
+                <td>
+                    <div class="hr-notice">04.08.2026 — Amtsgericht Hamburg HRB 159304: Veränderungen: Ausgeschieden als Geschäftsführer: Heinrich Lindner. Bestellt als Geschäftsführer: Maximilian von Bergmann, Hamburg, *22.11.1983, einzelvertretungsberechtigt.</div>
+                    <div class="outgoing-box">🔄 <strong>Abgelöst:</strong> Heinrich Lindner</div>
+                </td>
+                <td class="score-cell">
+                    <div class="score-circle" style="border-color: #10b981; color: #10b981;">
+                        90
+                    </div>
+                    <div class="tier-label">CRITICAL_NEW_CEO_WINDOW (&lt;90d)</div>
+                </td>
+                <td>
+                    <div class="outreach-box">
+                        <div class="outreach-subj"><strong>Betreff:</strong> Glückwunsch zur Bestellung bei Nordwind Kühl- &amp; Pharmalogistik GmbH &amp; Co. KG (HRA 124890) – Erste 100 Tage</div>
+                        <div class="outreach-body">Sehr geehrte(r) Herr/Frau von-Bergmann, herzlichen Glückwunsch zur Bestellung als Geschäftsführer der Nordwind Kühl- &amp; Pharmalogistik GmbH &amp; Co. KG in der Nachfolge von Heinrich Lindner (vor 74 Tagen im Register eingetragen). Gerade in den ersten 100 Tagen nach einem Geschäftsführerwechsel stehen bestehende Prozess- und Infrastruktur-Verträge auf dem Prüfstand – genau dazu habe ich eine kurze Benchmark-Analyse für Sie vorbereitet.</div>
+                        <div class="dork-line">🔍 SERP-Dork: <code>site:de.linkedin.com/in/ &quot;Maximilian von Bergmann&quot; &quot;Nordwind&quot;</code></div>
+                    </div>
+                </td>
+            </tr>
+            
+            <tr data-country="CH" data-new="true" data-score="82">
+                <td>
+                    <div class="comp-title">Helvetic MedTech Systems AG</div>
+                    <div class="comp-sub">
+                        <span class="country-flag">CH</span>
+                        8048 Zürich ·
+                        <a href="https://helvetic-medtech.ch/impressum" target="_blank">helvetic-medtech.ch/impressum</a>
+                    </div>
+                    <div class="comp-reg">
+                        ⚖️ <code>CHE-412.890.331</code> (Kanton Zürich) · USt: <code>CHE-412.890.331 MWST</code>
+                    </div>
+                </td>
+                <td>
+                    <div class="exec-pill pill-new"><strong>Reto Hugentobler</strong> <span class="role-chip">Geschäftsführer</span> <span class="tenure-chip">128d im Amt</span><br/><small>✉️ <code>reto.hugentobler@helvetic-medtech.ch</code> (96%) · 🔗 <a href="https://ch.linkedin.com/in/reto-hugentobler-medtech-ch" target="_blank">/in/reto-hugentobler-medtech-ch</a></small></div><div class="exec-pill pill-std"><strong>Céline Bärtschi</strong> <span class="role-chip">Verwaltungsrat</span> <span class="tenure-chip">1507d im Amt</span><br/><small>✉️ <code>celine.baertschi@helvetic-medtech.ch</code> (96%) · 🔗 <a href="https://ch.linkedin.com/in/celine-baertschi-0104" target="_blank">/in/celine-baertschi-0104</a></small></div><div class="exec-pill pill-std"><strong>Marc-André Zürcher</strong> <span class="role-chip">Verwaltungsrat</span> <span class="tenure-chip">3072d im Amt</span><br/><small>✉️ <code>marc.zuercher@helvetic-medtech.ch</code> (96%) · 🔗 <a href="https://ch.linkedin.com/in/marc-zuercher-0104" target="_blank">/in/marc-zuercher-0104</a></small></div>
+                    
+                </td>
+                <td>
+                    <div class="hr-notice">11.06.2026 — SHAB / Zefix Kanton Zürich CHE-412.890.331: Mutationen: Ausgeschieden als Mitglied des Verwaltungsrats: Beatrix Vontobel. Eingetragen als Geschäftsführer: Reto Hugentobler, von Winterthur, in Zürich, einzelvertretungsberechtigt.</div>
+                    <div class="outgoing-box">🔄 <strong>Abgelöst:</strong> Beatrix Vontobel</div>
+                </td>
+                <td class="score-cell">
+                    <div class="score-circle" style="border-color: #f59e0b; color: #f59e0b;">
+                        82
+                    </div>
+                    <div class="tier-label">HIGH_BUDGET_RESET (&lt;180d)</div>
+                </td>
+                <td>
+                    <div class="outreach-box">
+                        <div class="outreach-subj"><strong>Betreff:</strong> Glückwunsch zur Bestellung bei Helvetic MedTech Systems AG (CHE-412.890.331) – Erste 100 Tage</div>
+                        <div class="outreach-body">Sehr geehrte(r) Herr/Frau Hugentobler, herzlichen Glückwunsch zur Bestellung als Geschäftsführer der Helvetic MedTech Systems AG in der Nachfolge von Beatrix Vontobel (vor 128 Tagen im Register eingetragen). Gerade in den ersten 100 Tagen nach einem Geschäftsführerwechsel stehen bestehende Prozess- und Infrastruktur-Verträge auf dem Prüfstand – genau dazu habe ich eine kurze Benchmark-Analyse für Sie vorbereitet.</div>
+                        <div class="dork-line">🔍 SERP-Dork: <code>site:ch.linkedin.com/in/ &quot;Reto Hugentobler&quot; &quot;Helvetic&quot;</code></div>
+                    </div>
+                </td>
+            </tr>
+            
+            <tr data-country="DE" data-new="false" data-score="44">
+                <td>
+                    <div class="comp-title">RheinWerk Sondermaschinenbau GmbH</div>
+                    <div class="comp-sub">
+                        <span class="country-flag">DE</span>
+                        40470 Düsseldorf ·
+                        <a href="https://rheinwerk-maschinenbau.de/impressum" target="_blank">rheinwerk-maschinenbau.de/impressum</a>
+                    </div>
+                    <div class="comp-reg">
+                        ⚖️ <code>HRB 81205</code> (Amtsgericht Düsseldorf) · USt: <code>DE 194028114</code>
+                    </div>
+                </td>
+                <td>
+                    <div class="exec-pill pill-std"><strong>Karsten Brückner</strong> <span class="role-chip">Geschäftsführer</span> <span class="tenure-chip">2407d im Amt</span><br/><small>✉️ <code>karsten.brueckner@rheinwerk-maschinenbau.de</code> (96%) · 🔗 <a href="https://de.linkedin.com/in/karsten-brueckner-rheinwerk" target="_blank">/in/karsten-brueckner-rheinwerk</a></small></div>
+                    
+                </td>
+                <td>
+                    <div class="hr-notice">15.03.2020 — Amtsgericht Düsseldorf HRB 81205: Bestellt als Geschäftsführer: Dipl.-Wirt.-Ing. Karsten Brückner, Düsseldorf, einzelvertretungsberechtigt.</div>
+                    <div class="outgoing-box muted">Kein aktueller Abgang</div>
+                </td>
+                <td class="score-cell">
+                    <div class="score-circle" style="border-color: #6366f1; color: #6366f1;">
+                        44
+                    </div>
+                    <div class="tier-label">ESTABLISHED_INCUMBENT</div>
+                </td>
+                <td>
+                    <div class="outreach-box">
+                        <div class="outreach-subj"><strong>Betreff:</strong> Kurze Frage an die Geschäftsführung der RheinWerk Sondermaschinenbau GmbH (HRB 81205)</div>
+                        <div class="outreach-body">Sehr geehrte(r) Herr/Frau Brückner, als Geschäftsführer der RheinWerk Sondermaschinenbau GmbH verantworten Sie die strategische Skalierung am Standort. Wir unterstützen führende DACH-Mittelständler dabei, ihre operative Marge ohne zusätzliche Fixkosten auszubauen.</div>
+                        <div class="dork-line">🔍 SERP-Dork: <code>site:de.linkedin.com/in/ &quot;Karsten Brückner&quot; &quot;RheinWerk&quot;</code></div>
+                    </div>
+                </td>
+            </tr>
+            
+    </tbody>
+  </table>
+</div>
+
+<div class="section-card">
+  <h2>2. Warum LinkedIn-People-Scraper scheitern (Live Apify API Teardown)</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Apify Actor</th>
+        <th>MAU (30d)</th>
+        <th>Runs (30d)</th>
+        <th>30d Fehlerrate</th>
+        <th>Preis</th>
+        <th>Technischer Flaschenhals vs. § 5 DDG Statutory Resolver</th>
+      </tr>
+    </thead>
+    <tbody>
+      
+            <tr>
+                <td><code>curious_coder/linkedin-people-search-scraper</code></td>
+                <td>629</td>
+                <td>5,388</td>
+                <td><span class="fail-badge">74.9% FAIL/TIMEOUT</span></td>
+                <td>Free / Legacy $20/mo rental sunset</td>
+                <td>Requires authenticated LinkedIn session cookies (li_at) to paginate /voyager/api/search/dash/clusters. LinkedIn aggressively rate-limits and invalidates session cookies within pages, causing 3,865 hard failures/30d.</td>
+            </tr>
+            
+            <tr>
+                <td><code>peakydev/leads-scraper</code></td>
+                <td>518</td>
+                <td>4,273</td>
+                <td><span class="fail-badge">31.9% FAIL/TIMEOUT</span></td>
+                <td>$0.05 start + $0.003-$0.004/result (was $100/mo)</td>
+                <td>Relies on third-party profile enrichment caches that frequently miss newly appointed DACH Mittelstand Geschäftsführer and fail on rate-limit spikes.</td>
+            </tr>
+            
+            <tr>
+                <td><code>apt_marble/linkedin-decision-makers-scraper-ceos-founders-executives</code></td>
+                <td>20</td>
+                <td>1,212</td>
+                <td><span class="fail-badge">80.2% FAIL/TIMEOUT</span></td>
+                <td>$0.002/result ($2.00 / 1k)</td>
+                <td>Blindly queries Google SERPs for generic job titles + industry keywords without knowing the executive&#x27;s name first. Hits 3,600s timeouts on 971 of 1,212 runs and infers roles from stale/past experience snippets.</td>
+            </tr>
+            
+            <tr>
+                <td><code>lead_radar/sales-navigator-no-session-cookies</code></td>
+                <td>1</td>
+                <td>26</td>
+                <td><span class="fail-badge">100.0% FAIL/TIMEOUT</span></td>
+                <td>$20.00 per Sales Navigator search run</td>
+                <td>Charges $20.00 per single run claiming cookie-free Sales Navigator extraction, currently flagged UNDER_MAINTENANCE with 26/26 failed runs (0% success).</td>
+            </tr>
+            
+    </tbody>
+  </table>
+</div>
+
+<script>
+function applyFilters() {
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  const country = document.getElementById('countryFilter').value;
+  const trigger = document.getElementById('triggerFilter').value;
+  const rows = document.querySelectorAll('#execTable tbody tr');
+  rows.forEach(r => {
+    const textMatch = r.innerText.toLowerCase().includes(q);
+    const countryMatch = (country === 'ALL') || (r.getAttribute('data-country') === country);
+    const triggerMatch = (trigger === 'ALL') || (r.getAttribute('data-new') === trigger);
+    r.style.display = (textMatch && countryMatch && triggerMatch) ? '' : 'none';
+  });
+}
+</script>
+</body>
+</html>

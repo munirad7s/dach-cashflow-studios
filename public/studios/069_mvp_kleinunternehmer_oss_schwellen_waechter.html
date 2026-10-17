@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MVP #69 — DACH § 19 / § 19a UStG Reform, EU-OSS (€10k) & § 13b Reverse-Charge Guardrail Cockpit</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --card: #131b33;
+      --card-border: #24325c;
+      --text: #eaf0ff;
+      --muted: #9aa8c7;
+      --accent: #4f8cff;
+      --ok: #19c37d;
+      --warn: #f5a623;
+      --danger: #ff4d6d;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      padding: 24px;
+    }
+    .container { max-width: 1280px; margin: 0 auto; }
+    header {
+      background: linear-gradient(135deg, #131b33 0%, #1a274d 100%);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+    h1 { margin: 0 0 8px 0; font-size: 1.65rem; }
+    .subtitle { color: var(--muted); font-size: 0.95rem; margin: 0; }
+    .badge-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+    .badge {
+      background: rgba(79, 140, 255, 0.14);
+      border: 1px solid rgba(79, 140, 255, 0.4);
+      color: #b8d2ff;
+      padding: 5px 12px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+      gap: 18px;
+      margin-bottom: 24px;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 20px;
+    }
+    .card h2 { margin-top: 0; font-size: 1.15rem; }
+    .status-pill {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+    .pill-danger { background: rgba(255, 77, 109, 0.18); color: #ff8fa3; border: 1px solid var(--danger); }
+    .pill-warn { background: rgba(245, 166, 35, 0.18); color: #ffd180; border: 1px solid var(--warn); }
+    .pill-ok { background: rgba(25, 195, 125, 0.18); color: #7bf1b8; border: 1px solid var(--ok); }
+    .metric-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 7px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      font-size: 0.9rem;
+    }
+    .metric-row strong { font-variant-numeric: tabular-nums; }
+    .progress-wrap { margin: 12px 0; }
+    .progress-label { display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--muted); margin-bottom: 4px; }
+    .progress-bar { height: 9px; background: #0b1020; border-radius: 999px; overflow: hidden; border: 1px solid #2b3b6b; }
+    .progress-fill { height: 100%; border-radius: 999px; }
+    .sim-box {
+      background: #10182f;
+      border: 1px solid #2e437a;
+      border-radius: 12px;
+      padding: 22px;
+      margin-bottom: 24px;
+    }
+    .sim-controls {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+    .control-group label { display: block; font-size: 0.82rem; color: var(--muted); margin-bottom: 6px; }
+    .control-group input {
+      width: 100%;
+      padding: 8px 10px;
+      border-radius: 6px;
+      border: 1px solid #354c87;
+      background: #0b1020;
+      color: var(--text);
+      font-size: 0.95rem;
+    }
+    table { width: 100%; border-collapse: collapse; font-size: 0.88rem; margin-top: 12px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+    th { color: var(--muted); font-weight: 600; }
+  </style>
+</head>
+<body>
+
+<!-- DACH CASHFLOW STUDIOS LAUNCH BAR -->
+<style>
+  #dcs-launch-bar {
+    position: sticky;
+    top: 0;
+    z-index: 99999;
+    background: linear-gradient(90deg, #0b1120 0%, #111827 50%, #0f172a 100%);
+    color: #f8fafc;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.35);
+    padding: 8px 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  }
+  #dcs-launch-bar .dcs-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+  }
+  #dcs-launch-bar .dcs-badge {
+    background: rgba(16, 185, 129, 0.18);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.03em;
+  }
+  #dcs-launch-bar a.dcs-nav {
+    color: #93c5fd;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 12.5px;
+  }
+  #dcs-launch-bar a.dcs-nav:hover {
+    text-decoration: underline;
+    color: #dbeafe;
+  }
+  #dcs-launch-bar .dcs-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  #dcs-launch-bar .dcs-btn {
+    padding: 5px 11px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s ease;
+  }
+  #dcs-launch-bar .dcs-btn-ghost {
+    background: rgba(255,255,255,0.08);
+    color: #e2e8f0;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  #dcs-launch-bar .dcs-btn-primary {
+    background: linear-gradient(135deg, #0ea5e9, #2563eb);
+    color: #ffffff;
+  }
+  #dcs-launch-bar .dcs-btn-emerald {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
+  }
+  @media print {
+    #dcs-launch-bar { display: none !important; }
+  }
+</style>
+<div id="dcs-launch-bar">
+  <div class="dcs-left">
+    <a href="/index.html" class="dcs-nav">← Alle 150 DACH Studios</a>
+    <span class="dcs-badge">MVP #069 VERIFIED</span>
+    <span style="color:#cbd5e1;font-size:12px;">DACH Tax, Corporate & Accounting Arbitrage</span>
+  </div>
+  <div class="dcs-actions">
+    <button onclick="window.print()" class="dcs-btn dcs-btn-ghost">🖨️ PDF / Dossier drucken</button>
+    <a href="#checkout-modal-49" target="_blank" rel="noopener" class="dcs-btn dcs-btn-primary">⚡ Musterschreiben & Voll-Dossier (€49)</a>
+    <a href="#checkout-modal-299" target="_blank" rel="noopener" class="dcs-btn dcs-btn-emerald">🛡️ B2B Umsetzung buchen (€299 / €1.490)</a>
+  </div>
+</div>
+
+  <div class="container">
+    <header>
+      <h1>DACH § 19 / § 19a UStG Kleinunternehmer-Reform + EU-OSS (€10k) & § 13b Reverse-Charge Guardrail</h1>
+      <p class="subtitle">
+        JStG 2024 / 2025–2026 Echtzeit-Wächter für Solo-Gründer, Freiberufler, Etsy/Shopify-Seller & Indie-Hacker:
+        25.000 € Vorjahresgrenze · 100.000 € taggenauer Hard-Cutoff (Übergangsrechnung) · § 19a UStG EX-Nummer vs. § 18j OSS · § 13b UStG KI/Ads-Steuerfalle
+      </p>
+      <div class="badge-row">
+        <span class="badge">§ 19 Abs. 1 UStG n.F.: 25.000 € / 100.000 € Netto (Sofort-Wechsel!)</span>
+        <span class="badge">§ 19a UStG: BZSt KU-IdNr. (-EX) & Quartalsmeldung</span>
+        <span class="badge">§ 3c Abs. 4 / § 18j UStG: 10.000 € EU-B2C OSS-Schwelle</span>
+        <span class="badge">§ 13b UStG: 19% Reverse-Charge auf OpenAI, Meta, Google, Apify, Vercel</span>
+      </div>
+    </header>
+
+    <section class="sim-box">
+      <h2>Interaktiver Echtzeit-Simulator: § 19 UStG vs. Freiwillige Regelbesteuerung (§ 19 Abs. 3 UStG) & § 13b Falle</h2>
+      <div class="sim-controls">
+        <div class="control-group">
+          <label for="simB2B">Inland/DACH B2B Netto-Umsatz (€/Jahr)</label>
+          <input id="simB2B" type="number" value="22000" step="1000" oninput="recalcSim()" />
+        </div>
+        <div class="control-group">
+          <label for="simB2C">Inland B2C Umsatz (€/Jahr)</label>
+          <input id="simB2C" type="number" value="14000" step="1000" oninput="recalcSim()" />
+        </div>
+        <div class="control-group">
+          <label for="simEuB2C">EU-Ausland B2C Fernverkäufe/Digital (€/Jahr)</label>
+          <input id="simEuB2C" type="number" value="11500" step="500" oninput="recalcSim()" />
+        </div>
+        <div class="control-group">
+          <label for="sim13b">Auslands-SaaS & Ads (§ 13b: OpenAI, Meta, Google € Netto)</label>
+          <input id="sim13b" type="number" value="9500" step="500" oninput="recalcSim()" />
+        </div>
+        <div class="control-group">
+          <label for="simDomExp">Inland Betriebsausgaben Netto (19% Vorsteuer-fähig €)</label>
+          <input id="simDomExp" type="number" value="4000" step="500" oninput="recalcSim()" />
+        </div>
+      </div>
+      <div id="simOutput" class="card" style="background:#0d1428;"></div>
+    </section>
+
+    <div class="grid-3" id="scenarioCards"></div>
+  </div>
+
+  <script>
+    const DATA = {"generated_at": "2026-10-17T18:28:26", "statutory_framework": {"ustg_19_prior_year_net_limit_eur": 25000, "ustg_19_current_year_hard_cutoff_net_eur": 100000, "ustg_19a_eu_wide_net_limit_eur": 100000, "ustg_18j_oss_b2c_eu_threshold_eur": 10000, "ustg_13b_reverse_charge_rate": 0.19}, "scenarios": [{"scenario_id": "SCEN-01-HARD-100K-CUTOFF", "founder_name": "Lukas M. (AI SaaS & Boilerplate Indie Hacker)", "business_model": "Mixed B2B Retainers + B2C Stripe Boilerplates (Crosses €25k & €100k Intra-Year)", "prior_year_net_eur": 19400.0, "has_bzst_ex_id": false, "ex_id_number": null, "b2c_price_elasticity_note": "High B2B share (68%) + strong digital margins", "invoices": [{"invoice_id": "INV-2026-001", "date": "2026-01-18", "customer_name": "KreativAgentur München GmbH", "customer_country": "DE", "customer_type": "B2B", "channel": "Lexoffice", "net_amount_eur": 11800.0, "vat_rate_applicable": 0.19}, {"invoice_id": "INV-2026-002", "date": "2026-02-14", "customer_name": "E-Com Studio Berlin UG", "customer_country": "DE", "customer_type": "B2B", "channel": "Lexoffice", "net_amount_eur": 12400.0, "vat_rate_applicable": 0.19}, {"invoice_id": "INV-2026-003", "date": "2026-03-09", "customer_name": "SaaS Scaling Buyers (Stripe Batch)", "customer_country": "DE", "customer_type": "B2C", "channel": "Stripe", "net_amount_eur": 9500.0, "vat_rate_applicable": 0.19}, {"invoice_id": "INV-2026-004", "date": "2026-04-20", "customer_name": "EU Indie Buyers AT/NL/FR", "customer_country": "AT", "customer_type": "B2C", "channel": "Stripe", "net_amount_eur": 11200.0, "vat_rate_applicable": 0.19}, {"invoice_id": "INV-2026-005", "date": "2026-05-28", "customer_name": "DACH Enterprise Automation Sprint", "customer_country": "DE", "customer_type": "B2B", "channel": "Lexoffice", "net_amount_eur": 24500.0, "vat_rate_applicable": 0.19}, {"invoice_id": "INV-2026-006", "date": "2026-07-11", "customer_name": "Summer Cohort Boilerplate Licenses", "customer_country": "DE", "customer_type": "B2C", "channel": "Stripe", "net_amount_eur": 26800.0, "vat_rate_applicable": 0.19}, {"invoice_id": "INV-2026-007", "date": "2026-08-19", "customer_name": "FinTech Frankfurt AI Retainer", "customer_country": "DE", "customer_type": "B2B", "channel": "Lexoffice", "net_amount_eur": 8500.0, "vat_rate_applicable": 0.19}, {"invoice_id": "INV-2026-008", "date": "2026-09-25", "customer_name": "Q3 Stripe Digital Product Batch", "customer_country": "DE", "customer_type": "B2C", "channel": "Stripe", "net_amount_eur": 14200.0, "vat_rate_applicable": 0.19}], "expenses": [{"expense_id": "EXP-2026-101", "date": "2026-02-01", "vendor_name": "OpenAI Ireland Ltd", "vendor_country": "IE", "category": "AI_SaaS", "net_amount_eur": 3400.0, "domestic_vat_paid_eur": 0.0, "is_reverse_charge_13b": true}, {"expense_id": "EXP-2026-102", "date": "2026-03-15", "vendor_name": "Meta Platforms Ireland Ltd (Ads)", "vendor_country": "IE", "category": "Ads", "net_amount_eur": 8200.0, "domestic_vat_paid_eur": 0.0, "is_reverse_charge_13b": true}, {"expense_id": "EXP-2026-103", "date": "2026-04-10", "vendor_name": "Anthropic PBC (Claude API)", "vendor_country": "US", "category": "AI_SaaS", "net_amount_eur": 2900.0, "domestic_vat_paid_eur": 0.0, "is_reverse_charge_13b": true}, {"expense_id": "EXP-2026-104", "date": "2026-05-05", "vendor_name": "Apify Technologies s.r.o.", "vendor_country": "CZ", "category": "Cloud_Infra", "net_amount_eur": 1450.0, "domestic_vat_paid_eur": 0.0, "is_reverse_charge_13b": true}, {"expense_id": "EXP-2026-105", "date": "2026-06-12", "vendor_name": "Vercel Inc.", "vendor_country": "US", "category": "Cloud_Infra", "net_amount_eur": 960.0, "domestic_vat_paid_eur": 0.0, "is_reverse_charge_13b": true}, {"expense_id": "EXP-2026-106", "date": "2026-07-01", "vendor_name": "Apple Distribution Intl / MacBook Pro DE", "vendor_country": "DE", "category": "Domestic_Equip", "net_amount_eur": 3200.0, "domestic_vat_paid_eur": 608.0, "is_reverse_charge_13b": false}]}, {"scenario_id": "SCEN-02-13B-B2B-TRAP", "founder_name": "Sarah K. (B2B Performance & AI Automation Freelancer)", "business_model": "100% B2B Clients (< €25k Net) with High US/IE Ad & LLM API Spend (§ 13b Trap)", "prior_year_net_eur": 18200.0, "has_bzst_ex_id": true, "ex_id_number": "DE349182741-EX", "b2c_price_elasticity_note": "100% B2B clients can deduct 19% USt effortlessly (Zero price elasticity loss)", "invoices": [{"invoice_id": "INV-2026-101", "date": "2026-02-10", "customer_name": "Mittelstand Digital GmbH", "customer_country": "DE", "customer_type": "B2B", "channel": "Lexoffice", "net_amount_eur": 6500.0, "vat_rate_applicable": 0.19}, {"invoice_id": "INV-2026-102", "date": "2026-04-22", "customer_name": "Autohaus Gruppe Süd GmbH", "customer_country": "DE", "customer_type": "B2B", "channel": "Lexoffice", "net_amount_eur": 7200.0, "vat_rate_applicable": 0.19}, {"invoice_id": "INV-2026-103", "date": "2026-07-15", "customer_name": "Logistik Pro AG", "customer_country": "DE", "customer_type": "B2B", "channel": "Lexoffice", "net_amount_eur": 5800.0, "vat_rate_applicable": 0.19}, {"invoice_id": "INV-2026-104", "date": "2026-09-30", "customer_name": "MedTech Solutions GmbH", "customer_country": "DE", "customer_type": "B2B", "channel": "Lexoffice", "net_amount_eur": 4400.0, "vat_rate_applicable": 0.19}], "expenses": [{"expense_id": "EXP-2026-201", "date": "2026-01-31", "vendor_name": "Google Ireland Ltd (Google Ads)", "vendor_country": "IE", "category": "Ads", "net_amount_eur": 4500.0, "domestic_vat_paid_eur": 0.0, "is_reverse_charge_13b": true}, {"expense_id": "EXP-2026-202", "date": "2026-03-31", "vendor_name": "Meta Platforms Ireland Ltd", "vendor_country": "IE", "category": "Ads", "net_amount_eur": 3800.0, "domestic_vat_paid_eur": 0.0, "is_reverse_charge_13b": true}, {"expense_id": "EXP-2026-203", "date": "2026-06-15", "vendor_name": "OpenAI Ireland Ltd", "vendor_country": "IE", "category": "AI_SaaS", "net_amount_eur": 2600.0, "domestic_vat_paid_eur": 0.0, "is_reverse_charge_13b": true}, {"expense_id": "EXP-2026-204", "date": "2026-08-20", "vendor_name": "Hetzner Online GmbH & Coworking DE", "vendor_country": "DE", "category": "Domestic_Equip", "net_amount_eur": 2800.0, "domestic_vat_paid_eur": 532.0, "is_reverse_charge_13b": false}]}, {"scenario_id": "SCEN-03-EU-OSS-VS-19A", "founder_name": "Miriam T. (Etsy & Gumroad EU Digital Creator)", "business_model": "B2C Digital Products across DE/FR/NL/AT (> €10k EU B2C Threshold)", "prior_year_net_eur": 16800.0, "has_bzst_ex_id": false, "ex_id_number": null, "b2c_price_elasticity_note": "100% B2C consumers cannot deduct VAT; keeping § 19 + § 19a EX-ID preserves 19-21% margin", "invoices": [{"invoice_id": "INV-2026-301", "date": "2026-01-25", "customer_name": "DE Etsy Digital Planners", "customer_country": "DE", "customer_type": "B2C", "channel": "Etsy", "net_amount_eur": 4200.0, "vat_rate_applicable": 0.19}, {"invoice_id": "INV-2026-302", "date": "2026-03-19", "customer_name": "FR/ES/IT Gumroad Notion Bundles", "customer_country": "FR", "customer_type": "B2C", "channel": "Gumroad", "net_amount_eur": 4800.0, "vat_rate_applicable": 0.19}, {"invoice_id": "INV-2026-303", "date": "2026-06-08", "customer_name": "NL/AT/PL Etsy & Shopify Buyers", "customer_country": "NL", "customer_type": "B2C", "channel": "Etsy", "net_amount_eur": 6100.0, "vat_rate_applicable": 0.19}, {"invoice_id": "INV-2026-304", "date": "2026-09-14", "customer_name": "DE Autumn Creator Drop", "customer_country": "DE", "customer_type": "B2C", "channel": "Gumroad", "net_amount_eur": 5300.0, "vat_rate_applicable": 0.19}], "expenses": [{"expense_id": "EXP-2026-301", "date": "2026-02-15", "vendor_name": "Meta Platforms Ireland Ltd (IG Reels Ads)", "vendor_country": "IE", "category": "Ads", "net_amount_eur": 1900.0, "domestic_vat_paid_eur": 0.0, "is_reverse_charge_13b": true}, {"expense_id": "EXP-2026-302", "date": "2026-05-10", "vendor_name": "Stripe Payments Europe Ltd (IE)", "vendor_country": "IE", "category": "Cloud_Infra", "net_amount_eur": 650.0, "domestic_vat_paid_eur": 0.0, "is_reverse_charge_13b": true}, {"expense_id": "EXP-2026-303", "date": "2026-07-22", "vendor_name": "Kamera & Licht Equipment DE", "vendor_country": "DE", "category": "Domestic_Equip", "net_amount_eur": 1500.0, "domestic_vat_paid_eur": 285.0, "is_reverse_charge_13b": false}]}], "analyses": [{"scenario_id": "SCEN-01-HARD-100K-CUTOFF", "founder_name": "Lukas M. (AI SaaS & Boilerplate Indie Hacker)", "business_model": "Mixed B2B Retainers + B2C Stripe Boilerplates (Crosses €25k & €100k Intra-Year)", "prior_year_net_eur": 19400.0, "ytd_domestic_net_eur": 107700.0, "ytd_eu_b2c_net_eur": 11200.0, "ytd_eu_b2b_net_eur": 0.0, "ytd_non_eu_net_eur": 0.0, "ytd_relevant_19_ustg_net_eur": 118900.0, "ytd_eu_wide_19a_net_eur": 118900.0, "daily_velocity_eur": 433.94, "projected_year_end_net_eur": 158388.1, "date_crossed_25k": "2026-03-09", "predicted_25k_date": "2026-03-09", "date_crossed_100k": "2026-08-19", "predicted_100k_date": "2026-08-19", "transition_invoice_id": "INV-2026-007", "transition_invoice_amount_eur": 8500.0, "transition_invoice_uncollected_vat_risk_eur": 1615.0, "subsequent_uncollected_vat_risk_eur": 2698.0, "total_100k_cutoff_vat_damage_eur": 4313.0, "oss_10k_crossed": true, "oss_date_crossed": "2026-04-20", "eu_19a_status": "ALERT: > €10,000 EU-B2C crossed without BZSt EX-ID! Must either register for § 19a UStG (KU-IdNr. -EX + quarterly BZSt report, max €100k EU-wide) OR collect foreign EU VAT via § 18j UStG OSS!", "reverse_charge_13b_base_eur": 16910.0, "reverse_charge_13b_tax_owed_eur": 3212.9, "domestic_input_vat_lost_eur": 608.0, "total_unrecoverable_vat_drag_eur": 3820.9, "net_take_home_kleinunternehmer_eur": 90656.1, "net_take_home_regelbesteuerung_eur": 88938.74, "regelbesteuerung_advantage_eur": -1717.36, "recommended_regime": "MANDATORY SWITCH TO REGELBESTEUERUNG (Intra-Year €100k Cut-Off Triggered)", "recommendation_reason": "Invoice INV-2026-007 on 2026-08-19 crossed €100,000 net (§ 19 Abs. 1 UStG n.F.). Immediate 19% VAT liability applies to INV-2026-007 (€1,615.00) and all subsequent invoices!", "vendor_13b_breakdown": {"OpenAI Ireland Ltd": 646.0, "Meta Platforms Ireland Ltd (Ads)": 1558.0, "Anthropic PBC (Claude API)": 551.0, "Apify Technologies s.r.o.": 275.5, "Vercel Inc.": 182.4}}, {"scenario_id": "SCEN-02-13B-B2B-TRAP", "founder_name": "Sarah K. (B2B Performance & AI Automation Freelancer)", "business_model": "100% B2B Clients (< €25k Net) with High US/IE Ad & LLM API Spend (§ 13b Trap)", "prior_year_net_eur": 18200.0, "ytd_domestic_net_eur": 23900.0, "ytd_eu_b2c_net_eur": 0.0, "ytd_eu_b2b_net_eur": 0.0, "ytd_non_eu_net_eur": 0.0, "ytd_relevant_19_ustg_net_eur": 23900.0, "ytd_eu_wide_19a_net_eur": 23900.0, "daily_velocity_eur": 87.23, "projected_year_end_net_eur": 31838.95, "date_crossed_25k": null, "predicted_25k_date": "2026-10-13", "date_crossed_100k": null, "predicted_100k_date": null, "transition_invoice_id": null, "transition_invoice_amount_eur": 0.0, "transition_invoice_uncollected_vat_risk_eur": 0.0, "subsequent_uncollected_vat_risk_eur": 0.0, "total_100k_cutoff_vat_damage_eur": 0.0, "oss_10k_crossed": false, "oss_date_crossed": null, "eu_19a_status": "ACTIVE: Registered under § 19a UStG (DE349182741-EX). Quarterly BZSt BOP filing due within 1 month after quarter-end.", "reverse_charge_13b_base_eur": 10900.0, "reverse_charge_13b_tax_owed_eur": 2071.0, "domestic_input_vat_lost_eur": 532.0, "total_unrecoverable_vat_drag_eur": 2603.0, "net_take_home_kleinunternehmer_eur": 7597.0, "net_take_home_regelbesteuerung_eur": 10200.0, "regelbesteuerung_advantage_eur": 2603.0, "recommended_regime": "VOLUNTARY OPT-IN TO REGELBESTEUERUNG (§ 19 Abs. 3 UStG Verzicht)", "recommendation_reason": "High B2B share + €2,603.00 unrecoverable § 13b/Input VAT drag makes Regelbesteuerung +€2,603.00/yr more profitable right now.", "vendor_13b_breakdown": {"Google Ireland Ltd (Google Ads)": 855.0, "Meta Platforms Ireland Ltd": 722.0, "OpenAI Ireland Ltd": 494.0}}, {"scenario_id": "SCEN-03-EU-OSS-VS-19A", "founder_name": "Miriam T. (Etsy & Gumroad EU Digital Creator)", "business_model": "B2C Digital Products across DE/FR/NL/AT (> €10k EU B2C Threshold)", "prior_year_net_eur": 16800.0, "ytd_domestic_net_eur": 9500.0, "ytd_eu_b2c_net_eur": 10900.0, "ytd_eu_b2b_net_eur": 0.0, "ytd_non_eu_net_eur": 0.0, "ytd_relevant_19_ustg_net_eur": 20400.0, "ytd_eu_wide_19a_net_eur": 20400.0, "daily_velocity_eur": 74.45, "projected_year_end_net_eur": 27174.25, "date_crossed_25k": null, "predicted_25k_date": "2026-12-01", "date_crossed_100k": null, "predicted_100k_date": null, "transition_invoice_id": null, "transition_invoice_amount_eur": 0.0, "transition_invoice_uncollected_vat_risk_eur": 0.0, "subsequent_uncollected_vat_risk_eur": 0.0, "total_100k_cutoff_vat_damage_eur": 0.0, "oss_10k_crossed": true, "oss_date_crossed": "2026-06-08", "eu_19a_status": "ALERT: > €10,000 EU-B2C crossed without BZSt EX-ID! Must either register for § 19a UStG (KU-IdNr. -EX + quarterly BZSt report, max €100k EU-wide) OR collect foreign EU VAT via § 18j UStG OSS!", "reverse_charge_13b_base_eur": 2550.0, "reverse_charge_13b_tax_owed_eur": 484.5, "domestic_input_vat_lost_eur": 285.0, "total_unrecoverable_vat_drag_eur": 769.5, "net_take_home_kleinunternehmer_eur": 15580.5, "net_take_home_regelbesteuerung_eur": 13092.86, "regelbesteuerung_advantage_eur": -2487.64, "recommended_regime": "APPLY FOR BZSt § 19a UStG EX-ID IMMEDIATELY (Avoid OSS 19-25% EU VAT loss)", "recommendation_reason": "EU-B2C turnover (€10,900.00) crossed €10,000 (§ 3c Abs. 4 UStG), but total EU turnover (€20,400.00) is well under €100,000. Registering for KU-IdNr. (-EX) preserves tax-free B2C margins!", "vendor_13b_breakdown": {"Meta Platforms Ireland Ltd (IG Reels Ads)": 361.0, "Stripe Payments Europe Ltd (IE)": 123.5}}]};
+
+    function fmtEUR(val) {
+      return new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(val);
+    }
+
+    function renderScenarios() {
+      const container = document.getElementById('scenarioCards');
+      container.innerHTML = DATA.analyses.map(a => {
+        const pct25 = Math.min(100, Math.round((a.ytd_relevant_19_ustg_net_eur / 25000) * 100));
+        const pct100 = Math.min(100, Math.round((a.ytd_relevant_19_ustg_net_eur / 100000) * 100));
+        const pctOss = Math.min(100, Math.round((a.ytd_eu_b2c_net_eur / 10000) * 100));
+
+        let pillClass = 'pill-ok';
+        if (a.date_crossed_100k || a.regelbesteuerung_advantage_eur > 0) pillClass = 'pill-danger';
+        else if (a.oss_10k_crossed || a.date_crossed_25k) pillClass = 'pill-warn';
+
+        const vendorRows = Object.entries(a.vendor_13b_breakdown).map(
+          ([v, tax]) => `<tr><td>${v}</td><td><strong>${fmtEUR(tax)}</strong> (19% § 13b)</td></tr>`
+        ).join('');
+
+        return `
+          <div class="card">
+            <span class="status-pill ${pillClass}">${a.recommended_regime}</span>
+            <h2>${a.founder_name}</h2>
+            <p style="color:var(--muted);font-size:0.84rem;margin-top:0;">${a.business_model}</p>
+
+            <div class="progress-wrap">
+              <div class="progress-label">
+                <span>§ 19 UStG 25.000 € Grenze (Folgejahr-Wechsel)</span>
+                <span>${fmtEUR(a.ytd_relevant_19_ustg_net_eur)} / 25.000 € (${pct25}%)</span>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-fill" style="width:${pct25}%;background:${pct25 >= 100 ? 'var(--warn)' : 'var(--accent)'};"></div>
+              </div>
+            </div>
+
+            <div class="progress-wrap">
+              <div class="progress-label">
+                <span>§ 19 UStG 100.000 € Hard-Cutoff (Sofort-Regelbesteuerung!)</span>
+                <span>${fmtEUR(a.ytd_relevant_19_ustg_net_eur)} / 100.000 € (${pct100}%)</span>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-fill" style="width:${pct100}%;background:${pct100 >= 100 ? 'var(--danger)' : 'var(--ok)'};"></div>
+              </div>
+            </div>
+
+            <div class="progress-wrap">
+              <div class="progress-label">
+                <span>§ 18j UStG EU-B2C OSS-Schwelle (10.000 €)</span>
+                <span>${fmtEUR(a.ytd_eu_b2c_net_eur)} / 10.000 € (${pctOss}%)</span>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-fill" style="width:${pctOss}%;background:${pctOss >= 100 ? 'var(--warn)' : 'var(--ok)'};"></div>
+              </div>
+            </div>
+
+            <div class="metric-row"><span>Vorjahresumsatz (Netto):</span><strong>${fmtEUR(a.prior_year_net_eur)}</strong></div>
+            <div class="metric-row"><span>Tages-Velocity (Ø 2026):</span><strong>${fmtEUR(a.daily_velocity_eur)} / Tag</strong></div>
+            <div class="metric-row"><span>Übergangsrechnung (>100k €):</span><strong>${a.transition_invoice_id || 'Keine (< 100k €)'}</strong></div>
+            <div class="metric-row"><span>100k-Cutoff USt-Nachzahlungsrisiko:</span><strong style="color:var(--danger);">${fmtEUR(a.total_100k_cutoff_vat_damage_eur)}</strong></div>
+            <div class="metric-row"><span>§ 13b Reverse-Charge Zahllast (19%):</span><strong style="color:var(--warn);">${fmtEUR(a.reverse_charge_13b_tax_owed_eur)}</strong></div>
+            <div class="metric-row"><span>Verlorene Inlands-Vorsteuer (§ 15 UStG):</span><strong>${fmtEUR(a.domestic_input_vat_lost_eur)}</strong></div>
+            <div class="metric-row"><span>Netto-Überschuss als Kleinunternehmer:</span><strong>${fmtEUR(a.net_take_home_kleinunternehmer_eur)}</strong></div>
+            <div class="metric-row"><span>Netto-Überschuss bei Regelbesteuerung:</span><strong>${fmtEUR(a.net_take_home_regelbesteuerung_eur)}</strong></div>
+            <div class="metric-row"><span>Vorteil Regelbesteuerung:</span><strong style="color:${a.regelbesteuerung_advantage_eur > 0 ? 'var(--ok)' : 'var(--muted)'};">${fmtEUR(a.regelbesteuerung_advantage_eur)}</strong></div>
+
+            <table>
+              <thead><tr><th>§ 13b Auslands-Anbieter</th><th>Geschuldete USt (ohne Vorsteuerabzug)</th></tr></thead>
+              <tbody>${vendorRows}</tbody>
+            </table>
+
+            <p style="font-size:0.82rem;color:#c5d4f7;margin-top:12px;background:rgba(255,255,255,0.04);padding:10px;border-radius:8px;">
+              <strong>Guardrail-Empfehlung:</strong> ${a.recommendation_reason}<br/><br/>
+              <strong>EU § 19a / OSS Status:</strong> ${a.eu_19a_status}
+            </p>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function recalcSim() {
+      const b2b = parseFloat(document.getElementById('simB2B').value || '0');
+      const b2c = parseFloat(document.getElementById('simB2C').value || '0');
+      const euB2c = parseFloat(document.getElementById('simEuB2C').value || '0');
+      const rc13b = parseFloat(document.getElementById('sim13b').value || '0');
+      const domExp = parseFloat(document.getElementById('simDomExp').value || '0');
+
+      const totalNetTurnover = b2b + b2c + euB2c;
+      const rcTax = rc13b * 0.19;
+      const domVat = domExp * 0.19;
+      const totalVatDrag = rcTax + domVat;
+
+      const cutoffExcess = Math.max(0, totalNetTurnover - 100000);
+      const cutoffVatPenalty = cutoffExcess * 0.19;
+
+      const takeHomeKU = totalNetTurnover - rc13b - domExp - totalVatDrag - cutoffVatPenalty;
+      const takeHomeRegel = b2b + ((b2c + euB2c) / 1.19) - rc13b - domExp;
+      const diff = takeHomeRegel - takeHomeKU;
+
+      let statusAlert = '';
+      if (totalNetTurnover > 100000) {
+        statusAlert = `<span class="status-pill pill-danger">ALARM: 100.000 € Hard-Cutoff überschritten! Sofortige Regelbesteuerung ab der Übergangsrechnung!</span>`;
+      } else if (totalNetTurnover > 25000) {
+        statusAlert = `<span class="status-pill pill-warn">WARNUNG: > 25.000 € Netto im laufenden Jahr — Wechsel in die Regelbesteuerung ab 01.01. des Folgejahres!</span>`;
+      } else {
+        statusAlert = `<span class="status-pill pill-ok">UNTER 25.000 €: Kleinunternehmerstatus auch im Folgejahr gesichert</span>`;
+      }
+
+      const ossAlert = euB2c > 10000
+        ? `<span style="color:var(--warn);font-weight:600;">ACHTUNG: EU-B2C (${fmtEUR(euB2c)}) > 10.000 €! Ohne BZSt EX-Nummer (§ 19a UStG) greift sofortige OSS-Steuerpflicht (§ 18j UStG)!</span>`
+        : `<span style="color:var(--ok);">EU-B2C unter 10.000 € (§ 3c Abs. 4 UStG)</span>`;
+
+      document.getElementById('simOutput').innerHTML = `
+        ${statusAlert}
+        <div class="metric-row"><span>Gesamtumsatz (§ 19 UStG relevant):</span><strong>${fmtEUR(totalNetTurnover)}</strong></div>
+        <div class="metric-row"><span>§ 13b UStG Reverse-Charge Steuerlast (19% auf OpenAI/Meta/Google):</span><strong style="color:var(--warn);">${fmtEUR(rcTax)} (echte Zusatzkosten ohne Vorsteuerabzug!)</strong></div>
+        <div class="metric-row"><span>Verlorene Inlands-Vorsteuer (19% auf Hardware/Coworking):</span><strong>${fmtEUR(domVat)}</strong></div>
+        <div class="metric-row"><span>EU-B2C Status (§ 19a EX-ID vs. § 18j OSS):</span><span>${ossAlert}</span></div>
+        <div class="metric-row"><span>Netto-Gewinn als § 19 Kleinunternehmer:</span><strong>${fmtEUR(takeHomeKU)}</strong></div>
+        <div class="metric-row"><span>Netto-Gewinn bei Regelbesteuerung (inkl. vollem Vorsteuerabzug):</span><strong>${fmtEUR(takeHomeRegel)}</strong></div>
+        <div class="metric-row"><span>Ergebnis-Vergleich (Regelbesteuerung vs. § 19 UStG):</span><strong style="color:${diff > 0 ? 'var(--ok)' : 'var(--accent)'};">${diff > 0 ? '+' + fmtEUR(diff) + ' Vorteil für freiwillige Regelbesteuerung (§ 19 Abs. 3 UStG)!' : fmtEUR(Math.abs(diff)) + ' Vorteil für Verbleib in § 19 UStG Kleinunternehmerregelung'}</strong></div>
+      `;
+    }
+
+    renderScenarios();
+    recalcSim();
+  </script>
+</body>
+</html>

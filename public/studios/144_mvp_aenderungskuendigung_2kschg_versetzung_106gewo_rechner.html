@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>MVP #144 — DACH § 2 KSchG Änderungskündigungs- & § 106 GewO Versetzungs-Abwehr-Studio</title>
+<style>
+  :root {
+    --bg: #0b1020;
+    --panel: #131b33;
+    --panel-alt: #192342;
+    --border: #2a3966;
+    --text: #eef2ff;
+    --muted: #9fb0d9;
+    --accent: #38bdf8;
+    --success: #22c55e;
+    --warn: #f59e0b;
+    --danger: #ef4444;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+  }
+  header {
+    padding: 24px 32px;
+    background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+    border-bottom: 1px solid var(--border);
+  }
+  .badge-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+  .badge {
+    font-size: 12px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: rgba(56, 189, 248, 0.15);
+    color: var(--accent);
+    border: 1px solid rgba(56, 189, 248, 0.35);
+  }
+  h1 { margin: 0 0 8px 0; font-size: 24px; }
+  .sub { color: var(--muted); font-size: 14px; max-width: 1050px; }
+  main { max-width: 1440px; margin: 0 auto; padding: 24px 32px; }
+  .preset-bar { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
+  .preset-btn {
+    background: var(--panel);
+    color: var(--text);
+    border: 1px solid var(--border);
+    padding: 10px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 13px;
+  }
+  .preset-btn.active, .preset-btn:hover {
+    border-color: var(--accent);
+    background: rgba(56, 189, 248, 0.14);
+  }
+  .grid { display: grid; grid-template-columns: 420px 1fr; gap: 22px; }
+  @media (max-width: 1100px) { .grid { grid-template-columns: 1fr; } }
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 18px;
+  }
+  .card h2 { margin-top: 0; font-size: 17px; color: var(--accent); }
+  .field { margin-bottom: 12px; }
+  .field label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 4px; font-weight: 600; }
+  .field input[type="number"], .field input[type="date"], .field input[type="text"] {
+    width: 100%;
+    padding: 8px 10px;
+    background: var(--panel-alt);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    font-size: 14px;
+  }
+  .check-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 13px; }
+  .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 18px; }
+  @media (max-width: 900px) { .kpi-grid { grid-template-columns: repeat(2, 1fr); } }
+  .kpi {
+    background: var(--panel-alt);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+  }
+  .kpi .label { font-size: 11px; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+  .kpi .val { font-size: 22px; font-weight: 800; margin: 6px 0 2px 0; }
+  .kpi .hint { font-size: 12px; color: var(--muted); }
+  .pill-ok { color: var(--success); }
+  .pill-warn { color: var(--warn); }
+  .pill-danger { color: var(--danger); }
+  .finding-list { margin: 0; padding-left: 18px; }
+  .finding-list li { margin-bottom: 8px; font-size: 14px; }
+  textarea {
+    width: 100%;
+    min-height: 210px;
+    background: #090d1a;
+    color: #dbeafe;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 12.5px;
+    line-height: 1.45;
+  }
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 900px) { .two-col { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<!-- DACH CASHFLOW STUDIOS LAUNCH BAR -->
+<style>
+  #dcs-launch-bar {
+    position: sticky;
+    top: 0;
+    z-index: 99999;
+    background: linear-gradient(90deg, #0b1120 0%, #111827 50%, #0f172a 100%);
+    color: #f8fafc;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.35);
+    padding: 8px 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  }
+  #dcs-launch-bar .dcs-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+  }
+  #dcs-launch-bar .dcs-badge {
+    background: rgba(16, 185, 129, 0.18);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.03em;
+  }
+  #dcs-launch-bar a.dcs-nav {
+    color: #93c5fd;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 12.5px;
+  }
+  #dcs-launch-bar a.dcs-nav:hover {
+    text-decoration: underline;
+    color: #dbeafe;
+  }
+  #dcs-launch-bar .dcs-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  #dcs-launch-bar .dcs-btn {
+    padding: 5px 11px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s ease;
+  }
+  #dcs-launch-bar .dcs-btn-ghost {
+    background: rgba(255,255,255,0.08);
+    color: #e2e8f0;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  #dcs-launch-bar .dcs-btn-primary {
+    background: linear-gradient(135deg, #0ea5e9, #2563eb);
+    color: #ffffff;
+  }
+  #dcs-launch-bar .dcs-btn-emerald {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
+  }
+  @media print {
+    #dcs-launch-bar { display: none !important; }
+  }
+</style>
+<div id="dcs-launch-bar">
+  <div class="dcs-left">
+    <a href="/index.html" class="dcs-nav">← Alle 150 DACH Studios</a>
+    <span class="dcs-badge">MVP #144 VERIFIED</span>
+    <span style="color:#cbd5e1;font-size:12px;">DACH Tax, Corporate & Accounting Arbitrage</span>
+  </div>
+  <div class="dcs-actions">
+    <button onclick="window.print()" class="dcs-btn dcs-btn-ghost">🖨️ PDF / Dossier drucken</button>
+    <a href="#checkout-modal-49" target="_blank" rel="noopener" class="dcs-btn dcs-btn-primary">⚡ Musterschreiben & Voll-Dossier (€49)</a>
+    <a href="#checkout-modal-299" target="_blank" rel="noopener" class="dcs-btn dcs-btn-emerald">🛡️ B2B Umsetzung buchen (€299 / €1.490)</a>
+  </div>
+</div>
+
+<header>
+  <div class="badge-row">
+    <span class="badge">MVP #144 · DACH Arbeitsrecht</span>
+    <span class="badge">§ 2 S. 2 & § 4 S. 2 KSchG 3-Wochen-Vorbehaltsfrist</span>
+    <span class="badge">BAG 2 AZR 329/06 Entgeltkürzungs-Sperre</span>
+    <span class="badge">§ 106 GewO · LAG Köln 6 Sa 579/23 (500km & Homeoffice)</span>
+    <span class="badge">BAG 10 AZR 330/16 & § 615 BGB Annahmeverzug</span>
+  </div>
+  <h1>DACH § 2 KSchG Änderungskündigungs- & § 106 GewO Versetzungs-Abwehr-Studio</h1>
+  <div class="sub">
+    Deterministische Prüfung gegen „Kalten Personalabbau“: Berechnet die doppelte 3-Wochen-Frist (§ 2 S. 2 & § 4 S. 2 KSchG inkl. § 193 BGB),
+    prüft Entgeltkürzungen nach <b>BAG 2 AZR 329/06</b>, bewertet Homeoffice-Widerrufe & Fernversetzungen nach <b>LAG Köln 6 Sa 579/23</b>
+    und beziffert den Nachzahlungs- (§ 8 KSchG), Annahmeverzugs- (§ 615 BGB) sowie Abfindungs-Hebel (1,25x–1,75x).
+  </div>
+</header>
+<main>
+  <div class="preset-bar" id="presetBar"></div>
+  <div class="grid">
+    <div>
+      <div class="card">
+        <h2>1. Falldaten & § 2 KSchG Fristenlauf</h2>
+        <div class="field">
+          <label>Zugangsdatum der Änderungskündigung / Versetzung</label>
+          <input type="date" id="noticeDate" />
+        </div>
+        <div class="field">
+          <label>Vertragliche Kündigungsfrist in Tagen (leer = Standard &ge; 21 Tage)</label>
+          <input type="number" id="shortNoticeDays" placeholder="z.B. 14 in Probezeit" />
+        </div>
+        <div class="field">
+          <label>Betriebszugehörigkeit (Jahre, § 622 Abs. 2 BGB)</label>
+          <input type="number" step="0.5" id="tenureYears" />
+        </div>
+        <div class="field">
+          <label>Bisheriges Bruttomonatsgehalt (€)</label>
+          <input type="number" step="100" id="currentSalary" />
+        </div>
+        <div class="field">
+          <label>Angebotenes neues Bruttomonatsgehalt (€ nach § 2 KSchG)</label>
+          <input type="number" step="100" id="proposedSalary" />
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>2. BAG 2 AZR 329/06 & § 106 GewO Prüfungsmatrix</h2>
+        <div class="field">
+          <label>Versetzungsdistanz einfacher Weg (km, LAG Köln 6 Sa 579/23)</label>
+          <input type="number" step="10" id="distanceKm" />
+        </div>
+        <div class="field">
+          <label>Bisheriger Homeoffice-Anteil (%)</label>
+          <input type="number" step="5" id="hoShare" />
+        </div>
+        <div class="field">
+          <label>Etablierte Homeoffice-Dauer (Jahre)</label>
+          <input type="number" step="0.5" id="hoYears" />
+        </div>
+        <div class="field">
+          <label>Familiäre & soziale Verwurzelung am Wohnort (1–10)</label>
+          <input type="number" min="1" max="10" id="socialScore" />
+        </div>
+        <div class="check-row"><input type="checkbox" id="chkInsolvency" /> <span>Akute Insolvenzgefahr + Sanierungsplan bewiesen (BAG 2 AZR 329/06)</span></div>
+        <div class="check-row"><input type="checkbox" id="chkClause307" /> <span>AGB-wirksame Versetzungsklausel im Arbeitsvertrag (§ 307 BGB)</span></div>
+        <div class="check-row"><input type="checkbox" id="chkDigital" /> <span>Tätigkeit weiterhin vollumfänglich digital im Homeoffice erfüllbar</span></div>
+        <div class="check-row"><input type="checkbox" id="chkWorksCouncil" /> <span>Betriebsrat nach §§ 102, 99 BetrVG ordnungsgemäß angehört</span></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="kpi-grid">
+        <div class="kpi">
+          <div class="label">§ 2 S. 2 KSchG Vorbehaltsfrist</div>
+          <div class="val pill-warn" id="kpiResDate">—</div>
+          <div class="hint" id="kpiResHint">Klagefrist § 4 S. 2 KSchG</div>
+        </div>
+        <div class="kpi">
+          <div class="label">Unwirksamkeits-Quote (§ 2 KSchG / § 106 GewO)</div>
+          <div class="val pill-ok" id="kpiInvalidProb">—</div>
+          <div class="hint" id="kpiErmessenHint">Unbilligkeits-Score</div>
+        </div>
+        <div class="kpi">
+          <div class="label">6M § 8 KSchG / § 615 BGB Schutz</div>
+          <div class="val pill-ok" id="kpiBackpay">—</div>
+          <div class="hint" id="kpiCutHint">Nachzahlung / Annahmeverzug</div>
+        </div>
+        <div class="kpi">
+          <div class="label">Abfindungs-Hebel (Buyout-Ziel)</div>
+          <div class="val pill-ok" id="kpiBuyout">—</div>
+          <div class="hint" id="kpiNoticeHint">§ 622 Abs. 2 BGB Frist</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Deterministische Rechts- & Strategiebefunde</h2>
+        <ul class="finding-list" id="findingsList"></ul>
+      </div>
+
+      <div class="two-col">
+        <div class="card">
+          <h2>Generator A: § 2 Satz 2 KSchG Vorbehaltsannahme</h2>
+          <textarea id="txtReservation" readonly></textarea>
+        </div>
+        <div class="card">
+          <h2>Generator B: § 106 GewO / LAG Köln 6 Sa 579/23 Abwehr & § 615 BGB Angebot</h2>
+          <textarea id="txtRemonstration" readonly></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+const DATA = {"scenarios": [{"scenario_id": "LAG_KOELN_500KM_HOMEOFFICE", "title": "Szenario 1: 500-km-Versetzung & Homeoffice-Widerruf (LAG Köln 6 Sa 579/23)", "employee_name": "Markus Vance (Senior Projektmanager)", "employer_name": "AutoPlan Engineering GmbH", "role": "Senior Projektmanager Automotive", "age": 55, "tenure_years": 8.5, "current_gross_monthly_eur": 8200.0, "proposed_gross_monthly_eur": 8200.0, "notice_delivery_date": "2026-10-15", "contractual_notice_days": null, "measure_type": "HOMEOFFICE_500KM_VERSETZUNG", "employer_insolvency_imminent": false, "comprehensive_sanierungsplan_proven": false, "management_and_shareholder_contribution": false, "milder_operational_means_exhausted": false, "valid_relocation_clause_307bgb": true, "homeoffice_share_pct": 80.0, "homeoffice_duration_years": 4.5, "relocation_distance_km": 510.0, "tasks_digitally_performable": true, "operational_presence_necessity_proven": false, "family_social_ties_score": 9, "works_council_102_99_betrvg_heard": true}, {"scenario_id": "BAG_329_06_ENTGELTKUERZUNG_25PCT", "title": "Szenario 2: -25 % Entgeltkürzungs-Änderungskündigung (BAG 2 AZR 329/06)", "employee_name": "Dr. Elena Rostova (Principal Architect)", "employer_name": "CloudCore Enterprise AG", "role": "Principal Systems Architect", "age": 44, "tenure_years": 11.0, "current_gross_monthly_eur": 9600.0, "proposed_gross_monthly_eur": 7200.0, "notice_delivery_date": "2026-10-16", "contractual_notice_days": null, "measure_type": "ENTGELTKUERZUNG", "employer_insolvency_imminent": false, "comprehensive_sanierungsplan_proven": false, "management_and_shareholder_contribution": false, "milder_operational_means_exhausted": false, "valid_relocation_clause_307bgb": false, "homeoffice_share_pct": 60.0, "homeoffice_duration_years": 3.0, "relocation_distance_km": 0.0, "tasks_digitally_performable": true, "operational_presence_necessity_proven": false, "family_social_ties_score": 7, "works_council_102_99_betrvg_heard": true}, {"scenario_id": "KOMBI_KALTE_KUENDIGUNG_OHNE_BR", "title": "Szenario 3: Kombi-Falle (-20 % Gehalt + 380 km Umzug + § 102/99 BetrVG-Fehler)", "employee_name": "Stefan Lindner (Head of Operations)", "employer_name": "LogiTech DACH Holding", "role": "Head of Regional Operations", "age": 51, "tenure_years": 15.5, "current_gross_monthly_eur": 10500.0, "proposed_gross_monthly_eur": 8400.0, "notice_delivery_date": "2026-10-12", "contractual_notice_days": 14, "measure_type": "KOMBI_KALTE_KUENDIGUNG", "employer_insolvency_imminent": false, "comprehensive_sanierungsplan_proven": false, "management_and_shareholder_contribution": false, "milder_operational_means_exhausted": false, "valid_relocation_clause_307bgb": false, "homeoffice_share_pct": 90.0, "homeoffice_duration_years": 5.0, "relocation_distance_km": 380.0, "tasks_digitally_performable": true, "operational_presence_necessity_proven": false, "family_social_ties_score": 10, "works_council_102_99_betrvg_heard": false}], "results": [{"scenario_id": "LAG_KOELN_500KM_HOMEOFFICE", "title": "Szenario 1: 500-km-Versetzung & Homeoffice-Widerruf (LAG Köln 6 Sa 579/23)", "notice_delivery_date": "2026-10-15", "reservation_deadline_2kschg": "2026-11-05", "klage_deadline_4kschg": "2026-11-05", "reservation_days_window": 21, "shortened_deadline_warning": false, "monthly_pay_cut_eur": 0.0, "pay_cut_pct": 0.0, "annual_income_loss_eur": 0.0, "bag_2azr_329_06_passed": false, "aenderungskuendigung_invalid_prob_pct": 60.0, "retroactive_8kschg_backpay_6m_eur": 0.0, "relocation_covered_by_contract": true, "billiges_ermessen_315bgb_score": 88.5, "weisung_unbillig_106gewo": true, "no_compliance_duty_bag_10azr_330_16": true, "annahmeverzugslohn_615bgb_6m_eur": 49200.0, "statutory_622bgb_months": 3, "statutory_622bgb_label": "3 Monate zum Monatsende (§ 622 Abs. 2 Nr. 3 BGB)", "effective_exit_date_622bgb": "2027-01-31", "baseline_severance_05x_eur": 34850.0, "reservation_leverage_multiplier": 1.25, "target_buyout_severance_eur": 87125.0, "total_economic_protection_eur": 136325.0, "legal_findings": ["§ 2 Satz 2 & § 4 Satz 2 KSchG Dual-Frist: Vorbehaltsannahme gegenüber AutoPlan Engineering GmbH UND Änderungsschutzklage beim Arbeitsgericht müssen spätestens am 2026-11-05 zugehen.", "LAG Köln 6 Sa 579/23 & § 106 GewO / § 315 BGB Abwehr: Der Widerruf von 80% Homeoffice (4.5 Jahre etabliert) verbunden mit einer 510 km Versetzung verstößt gegen billiges Ermessen (Unbilligkeits-Score 88.5/100). Gemäß BAG 10 AZR 330/16 besteht KEINE Folgepflicht; Weiterangebot der Arbeitskraft im Homeoffice sichert 49,200.00 € Annahmeverzugslohn (§ 615 BGB für 6 Monate)."], "reservation_letter_text": "An: AutoPlan Engineering GmbH (Vorab per Einwurf-Einschreiben & E-Mail)\nAbsender: Markus Vance (Senior Projektmanager)\nDatum: 2026-10-15 | Fristablauf § 2 S. 2 KSchG: 2026-11-05\n\nBetreff: Annahme des Änderungsangebots unter Vorbehalt gemäß § 2 KSchG\n\nSehr geehrte Damen und Herren,\n\nhiermit nehme ich das mir mit Schreiben vom 2026-10-15 unterbreitete Angebot zur Fortsetzung des Arbeitsverhältnisses zu geänderten Bedingungen (insb. Gehaltsänderung auf 8,200.00 € brutto bzw. Ortswechsel über 510 km) gemäß § 2 Satz 1 KSchG UNTER DEM VORBEHALT an, dass die Änderung der Arbeitsbedingungen nicht sozial ungerechtfertigt ist (§ 1 Abs. 2, § 2 KSchG).\n\nIch werde fristgerecht bis zum 2026-11-05 Änderungsschutzklage nach § 4 Satz 2 KSchG beim zuständigen Arbeitsgericht erheben. Bei Obsiegen gilt das Arbeitsverhältnis gemäß § 8 KSchG rückwirkend zu den bisherigen Konditionen (8,200.00 € brutto / etabliertes Homeoffice) fort.\n\nMit freundlichen Grüßen\nMarkus Vance (Senior Projektmanager)", "remonstration_106gewo_text": "An: AutoPlan Engineering GmbH\nBetreff: Zurückweisung der unbilligen Versetzungsweisung (§ 106 GewO, § 315 BGB, LAG Köln 6 Sa 579/23) & wörtliches Arbeitsangebot im Homeoffice (§§ 294, 295, 615 BGB)\n\nSehr geehrte Damen und Herren,\n\nder einseitige Widerruf meiner seit 4.5 Jahren zu 80% ausgeübten Homeoffice-Tätigkeit sowie die Zuweisung eines 510 km entfernten Präsenzarbeitsorts widersprechen billigem Ermessen gemäß § 106 Satz 1 GewO i.V.m. § 315 BGB (vgl. LAG Köln, Urt. v. 11.07.2024 – 6 Sa 579/23). Meine Aufgaben als Senior Projektmanager Automotive sind weiterhin vollumfänglich digital erfüllbar; das mildere Mittel ist die Fortführung im Homeoffice.\n\nUnter Verweis auf BAG, Beschl. v. 14.09.2017 – 10 AZR 330/16 bin ich an eine unbillige Weisung nicht gebunden. Ich biete Ihnen meine Arbeitsleistung hiermit ausdrücklich und unverändert an meinem bisherigen Homeoffice-Arbeitsplatz an (§§ 294, 295 BGB) und mache bei Nichtannahme Annahmeverzugslohn gemäß § 615 Satz 1 BGB (8,200.00 € brutto/Monat) geltend.\n\nMit freundlichen Grüßen\nMarkus Vance (Senior Projektmanager)"}, {"scenario_id": "BAG_329_06_ENTGELTKUERZUNG_25PCT", "title": "Szenario 2: -25 % Entgeltkürzungs-Änderungskündigung (BAG 2 AZR 329/06)", "notice_delivery_date": "2026-10-16", "reservation_deadline_2kschg": "2026-11-06", "klage_deadline_4kschg": "2026-11-06", "reservation_days_window": 21, "shortened_deadline_warning": false, "monthly_pay_cut_eur": 2400.0, "pay_cut_pct": 25.0, "annual_income_loss_eur": 28800.0, "bag_2azr_329_06_passed": false, "aenderungskuendigung_invalid_prob_pct": 86.0, "retroactive_8kschg_backpay_6m_eur": 14400.0, "relocation_covered_by_contract": false, "billiges_ermessen_315bgb_score": 90.5, "weisung_unbillig_106gewo": true, "no_compliance_duty_bag_10azr_330_16": true, "annahmeverzugslohn_615bgb_6m_eur": 57600.0, "statutory_622bgb_months": 4, "statutory_622bgb_label": "4 Monate zum Monatsende (§ 622 Abs. 2 Nr. 4 BGB)", "effective_exit_date_622bgb": "2027-02-28", "baseline_severance_05x_eur": 52800.0, "reservation_leverage_multiplier": 1.35, "target_buyout_severance_eur": 142560.0, "total_economic_protection_eur": 209760.0, "legal_findings": ["§ 2 Satz 2 & § 4 Satz 2 KSchG Dual-Frist: Vorbehaltsannahme gegenüber CloudCore Enterprise AG UND Änderungsschutzklage beim Arbeitsgericht müssen spätestens am 2026-11-06 zugehen.", "BAG 2 AZR 329/06 Entgeltkürzungs-Sperre greift: Die geplante Kürzung um 2,400.00 €/Monat (-25.0%) scheitert an der strengen BAG-Rechtsprechung (keine akute Insolvenzgefahr + kein nachgewiesener Sanierungsplan). Nach § 8 KSchG schuldet der Arbeitgeber rückwirkend 100 % Nachzahlung (14,400.00 € allein für 6 Monate).", "LAG Köln 6 Sa 579/23 & § 106 GewO / § 315 BGB Abwehr: Der Widerruf von 60% Homeoffice (3.0 Jahre etabliert) verbunden mit einer 0 km Versetzung verstößt gegen billiges Ermessen (Unbilligkeits-Score 90.5/100). Gemäß BAG 10 AZR 330/16 besteht KEINE Folgepflicht; Weiterangebot der Arbeitskraft im Homeoffice sichert 57,600.00 € Annahmeverzugslohn (§ 615 BGB für 6 Monate)."], "reservation_letter_text": "An: CloudCore Enterprise AG (Vorab per Einwurf-Einschreiben & E-Mail)\nAbsender: Dr. Elena Rostova (Principal Architect)\nDatum: 2026-10-16 | Fristablauf § 2 S. 2 KSchG: 2026-11-06\n\nBetreff: Annahme des Änderungsangebots unter Vorbehalt gemäß § 2 KSchG\n\nSehr geehrte Damen und Herren,\n\nhiermit nehme ich das mir mit Schreiben vom 2026-10-16 unterbreitete Angebot zur Fortsetzung des Arbeitsverhältnisses zu geänderten Bedingungen (insb. Gehaltsänderung auf 7,200.00 € brutto bzw. Ortswechsel über 0 km) gemäß § 2 Satz 1 KSchG UNTER DEM VORBEHALT an, dass die Änderung der Arbeitsbedingungen nicht sozial ungerechtfertigt ist (§ 1 Abs. 2, § 2 KSchG).\n\nIch werde fristgerecht bis zum 2026-11-06 Änderungsschutzklage nach § 4 Satz 2 KSchG beim zuständigen Arbeitsgericht erheben. Bei Obsiegen gilt das Arbeitsverhältnis gemäß § 8 KSchG rückwirkend zu den bisherigen Konditionen (9,600.00 € brutto / etabliertes Homeoffice) fort.\n\nMit freundlichen Grüßen\nDr. Elena Rostova (Principal Architect)", "remonstration_106gewo_text": "An: CloudCore Enterprise AG\nBetreff: Zurückweisung der unbilligen Versetzungsweisung (§ 106 GewO, § 315 BGB, LAG Köln 6 Sa 579/23) & wörtliches Arbeitsangebot im Homeoffice (§§ 294, 295, 615 BGB)\n\nSehr geehrte Damen und Herren,\n\nder einseitige Widerruf meiner seit 3.0 Jahren zu 60% ausgeübten Homeoffice-Tätigkeit sowie die Zuweisung eines 0 km entfernten Präsenzarbeitsorts widersprechen billigem Ermessen gemäß § 106 Satz 1 GewO i.V.m. § 315 BGB (vgl. LAG Köln, Urt. v. 11.07.2024 – 6 Sa 579/23). Meine Aufgaben als Principal Systems Architect sind weiterhin vollumfänglich digital erfüllbar; das mildere Mittel ist die Fortführung im Homeoffice.\n\nUnter Verweis auf BAG, Beschl. v. 14.09.2017 – 10 AZR 330/16 bin ich an eine unbillige Weisung nicht gebunden. Ich biete Ihnen meine Arbeitsleistung hiermit ausdrücklich und unverändert an meinem bisherigen Homeoffice-Arbeitsplatz an (§§ 294, 295 BGB) und mache bei Nichtannahme Annahmeverzugslohn gemäß § 615 Satz 1 BGB (9,600.00 € brutto/Monat) geltend.\n\nMit freundlichen Grüßen\nDr. Elena Rostova (Principal Architect)"}, {"scenario_id": "KOMBI_KALTE_KUENDIGUNG_OHNE_BR", "title": "Szenario 3: Kombi-Falle (-20 % Gehalt + 380 km Umzug + § 102/99 BetrVG-Fehler)", "notice_delivery_date": "2026-10-12", "reservation_deadline_2kschg": "2026-10-26", "klage_deadline_4kschg": "2026-11-02", "reservation_days_window": 14, "shortened_deadline_warning": true, "monthly_pay_cut_eur": 2100.0, "pay_cut_pct": 20.0, "annual_income_loss_eur": 25200.0, "bag_2azr_329_06_passed": false, "aenderungskuendigung_invalid_prob_pct": 98.5, "retroactive_8kschg_backpay_6m_eur": 12600.0, "relocation_covered_by_contract": false, "billiges_ermessen_315bgb_score": 99.0, "weisung_unbillig_106gewo": true, "no_compliance_duty_bag_10azr_330_16": true, "annahmeverzugslohn_615bgb_6m_eur": 63000.0, "statutory_622bgb_months": 6, "statutory_622bgb_label": "6 Monate zum Monatsende (§ 622 Abs. 2 Nr. 6 BGB)", "effective_exit_date_622bgb": "2027-04-30", "baseline_severance_05x_eur": 81375.0, "reservation_leverage_multiplier": 1.75, "target_buyout_severance_eur": 284812.5, "total_economic_protection_eur": 379312.5, "legal_findings": ["ACHTUNG § 2 Satz 2 KSchG Kurzfrist-Falle: Da die Kündigungsfrist (14 Tage) kürzer als 3 Wochen ist, muss die Vorbehaltsannahme zwingend bis zum 2026-10-26 beim Arbeitgeber eingehen!", "BAG 2 AZR 329/06 Entgeltkürzungs-Sperre greift: Die geplante Kürzung um 2,100.00 €/Monat (-20.0%) scheitert an der strengen BAG-Rechtsprechung (keine akute Insolvenzgefahr + kein nachgewiesener Sanierungsplan). Nach § 8 KSchG schuldet der Arbeitgeber rückwirkend 100 % Nachzahlung (12,600.00 € allein für 6 Monate).", "LAG Köln 6 Sa 579/23 & § 106 GewO / § 315 BGB Abwehr: Der Widerruf von 90% Homeoffice (5.0 Jahre etabliert) verbunden mit einer 380 km Versetzung verstößt gegen billiges Ermessen (Unbilligkeits-Score 99.0/100). Gemäß BAG 10 AZR 330/16 besteht KEINE Folgepflicht; Weiterangebot der Arbeitskraft im Homeoffice sichert 63,000.00 € Annahmeverzugslohn (§ 615 BGB für 6 Monate).", "Formelle Unwirksamkeit (§ 102 Abs. 1 S. 3 & § 99 BetrVG): Fehlende ordnungsgemäße Betriebsratsanhörung zur Änderungskündigung bzw. fehlende Zustimmung zur Versetzung macht die Maßnahme bereits formell nichtig."], "reservation_letter_text": "An: LogiTech DACH Holding (Vorab per Einwurf-Einschreiben & E-Mail)\nAbsender: Stefan Lindner (Head of Operations)\nDatum: 2026-10-12 | Fristablauf § 2 S. 2 KSchG: 2026-10-26\n\nBetreff: Annahme des Änderungsangebots unter Vorbehalt gemäß § 2 KSchG\n\nSehr geehrte Damen und Herren,\n\nhiermit nehme ich das mir mit Schreiben vom 2026-10-12 unterbreitete Angebot zur Fortsetzung des Arbeitsverhältnisses zu geänderten Bedingungen (insb. Gehaltsänderung auf 8,400.00 € brutto bzw. Ortswechsel über 380 km) gemäß § 2 Satz 1 KSchG UNTER DEM VORBEHALT an, dass die Änderung der Arbeitsbedingungen nicht sozial ungerechtfertigt ist (§ 1 Abs. 2, § 2 KSchG).\n\nIch werde fristgerecht bis zum 2026-11-02 Änderungsschutzklage nach § 4 Satz 2 KSchG beim zuständigen Arbeitsgericht erheben. Bei Obsiegen gilt das Arbeitsverhältnis gemäß § 8 KSchG rückwirkend zu den bisherigen Konditionen (10,500.00 € brutto / etabliertes Homeoffice) fort.\n\nMit freundlichen Grüßen\nStefan Lindner (Head of Operations)", "remonstration_106gewo_text": "An: LogiTech DACH Holding\nBetreff: Zurückweisung der unbilligen Versetzungsweisung (§ 106 GewO, § 315 BGB, LAG Köln 6 Sa 579/23) & wörtliches Arbeitsangebot im Homeoffice (§§ 294, 295, 615 BGB)\n\nSehr geehrte Damen und Herren,\n\nder einseitige Widerruf meiner seit 5.0 Jahren zu 90% ausgeübten Homeoffice-Tätigkeit sowie die Zuweisung eines 380 km entfernten Präsenzarbeitsorts widersprechen billigem Ermessen gemäß § 106 Satz 1 GewO i.V.m. § 315 BGB (vgl. LAG Köln, Urt. v. 11.07.2024 – 6 Sa 579/23). Meine Aufgaben als Head of Regional Operations sind weiterhin vollumfänglich digital erfüllbar; das mildere Mittel ist die Fortführung im Homeoffice.\n\nUnter Verweis auf BAG, Beschl. v. 14.09.2017 – 10 AZR 330/16 bin ich an eine unbillige Weisung nicht gebunden. Ich biete Ihnen meine Arbeitsleistung hiermit ausdrücklich und unverändert an meinem bisherigen Homeoffice-Arbeitsplatz an (§§ 294, 295 BGB) und mache bei Nichtannahme Annahmeverzugslohn gemäß § 615 Satz 1 BGB (10,500.00 € brutto/Monat) geltend.\n\nMit freundlichen Grüßen\nStefan Lindner (Head of Operations)"}]};
+let currentIdx = 0;
+
+function formatEUR(val) {
+  return new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(val);
+}
+
+function shift193BGB(dateObj) {
+  const d = new Date(dateObj.getTime());
+  const day = d.getUTCDay();
+  if (day === 6) d.setUTCDate(d.getUTCDate() + 2);
+  else if (day === 0) d.setUTCDate(d.getUTCDate() + 1);
+  return d.toISOString().slice(0, 10);
+}
+
+function addDaysISO(isoStr, days) {
+  const d = new Date(isoStr + "T00:00:00Z");
+  d.setUTCDate(d.getUTCDate() + days);
+  return shift193BGB(d);
+}
+
+function loadPreset(idx) {
+  currentIdx = idx;
+  document.querySelectorAll('.preset-btn').forEach((b, i) => b.classList.toggle('active', i === idx));
+  const sc = DATA.scenarios[idx];
+  document.getElementById('noticeDate').value = sc.notice_delivery_date;
+  document.getElementById('shortNoticeDays').value = sc.contractual_notice_days || '';
+  document.getElementById('tenureYears').value = sc.tenure_years;
+  document.getElementById('currentSalary').value = sc.current_gross_monthly_eur;
+  document.getElementById('proposedSalary').value = sc.proposed_gross_monthly_eur;
+  document.getElementById('distanceKm').value = sc.relocation_distance_km;
+  document.getElementById('hoShare').value = sc.homeoffice_share_pct;
+  document.getElementById('hoYears').value = sc.homeoffice_duration_years;
+  document.getElementById('socialScore').value = sc.family_social_ties_score;
+  document.getElementById('chkInsolvency').checked = sc.employer_insolvency_imminent && sc.comprehensive_sanierungsplan_proven;
+  document.getElementById('chkClause307').checked = sc.valid_relocation_clause_307bgb;
+  document.getElementById('chkDigital').checked = sc.tasks_digitally_performable;
+  document.getElementById('chkWorksCouncil').checked = sc.works_council_102_99_betrvg_heard;
+  recalculate();
+}
+
+function recalculate() {
+  const sc = DATA.scenarios[currentIdx];
+  const noticeDate = document.getElementById('noticeDate').value || '2026-10-15';
+  const shortDaysRaw = parseInt(document.getElementById('shortNoticeDays').value, 10);
+  const resDays = (!isNaN(shortDaysRaw) && shortDaysRaw > 0 && shortDaysRaw < 21) ? shortDaysRaw : 21;
+  const resDeadline = addDaysISO(noticeDate, resDays);
+  const klageDeadline = addDaysISO(noticeDate, 21);
+
+  const tenure = parseFloat(document.getElementById('tenureYears').value) || 0;
+  const curSal = parseFloat(document.getElementById('currentSalary').value) || 0;
+  const propSal = parseFloat(document.getElementById('proposedSalary').value) || 0;
+  const distKm = parseFloat(document.getElementById('distanceKm').value) || 0;
+  const hoShare = parseFloat(document.getElementById('hoShare').value) || 0;
+  const hoYears = parseFloat(document.getElementById('hoYears').value) || 0;
+  const socialScore = parseFloat(document.getElementById('socialScore').value) || 5;
+
+  const insolvency = document.getElementById('chkInsolvency').checked;
+  const clause307 = document.getElementById('chkClause307').checked;
+  const digital = document.getElementById('chkDigital').checked;
+  const brHeard = document.getElementById('chkWorksCouncil').checked;
+
+  const monthlyCut = Math.max(0, curSal - propSal);
+  const cutPct = curSal > 0 ? (monthlyCut / curSal) * 100 : 0;
+
+  let unbilligScore = 0;
+  if (!clause307) unbilligScore += 35;
+  if (distKm >= 100) unbilligScore += Math.min(30, (distKm / 500) * 30);
+  if (hoShare >= 50 && hoYears >= 1.5) unbilligScore += 20;
+  if (digital) unbilligScore += 25;
+  unbilligScore += Math.min(15, socialScore * 1.5);
+  if (!brHeard) unbilligScore += 15;
+  unbilligScore = Math.min(99, Math.round(unbilligScore * 10) / 10);
+
+  const weisungUnbillig = unbilligScore >= 55 || !clause307;
+  let invalidProb = 50;
+  if (monthlyCut > 0 && !insolvency) invalidProb += 36;
+  if (weisungUnbillig && distKm > 50) invalidProb += 10;
+  if (!brHeard) invalidProb = 98.5;
+  invalidProb = Math.min(98.5, Math.round(invalidProb * 10) / 10);
+
+  const backpay6m = monthlyCut * 6;
+  const annahmeverzug6m = weisungUnbillig ? curSal * 6 : 0;
+
+  let mult = 1.0;
+  if (monthlyCut > 0 && !insolvency) mult += 0.35;
+  if (weisungUnbillig && distKm >= 200) mult += 0.25;
+  if (!brHeard) mult += 0.15;
+  mult = Math.min(1.75, Math.max(1.25, Math.round(mult * 100) / 100));
+  const buyout = curSal * tenure * mult;
+
+  document.getElementById('kpiResDate').textContent = resDeadline;
+  document.getElementById('kpiResHint').textContent = (resDays < 21 ? `KURZFRIST (${resDays}T)! ` : '') + `Klage § 4 S. 2: ${klageDeadline}`;
+  document.getElementById('kpiInvalidProb').textContent = invalidProb.toFixed(1) + ' %';
+  document.getElementById('kpiErmessenHint').textContent = `§ 315 BGB Unbilligkeit: ${unbilligScore}/100`;
+  document.getElementById('kpiBackpay').textContent = formatEUR(Math.max(backpay6m, annahmeverzug6m));
+  document.getElementById('kpiCutHint').textContent = monthlyCut > 0 ? `§ 8 KSchG (6M): ${formatEUR(backpay6m)}` : `§ 615 BGB (6M): ${formatEUR(annahmeverzug6m)}`;
+  document.getElementById('kpiBuyout').textContent = formatEUR(buyout);
+  document.getElementById('kpiNoticeHint').textContent = `Faktor ${mult.toFixed(2)}x statt 0,5x Standard`;
+
+  const findings = [];
+  if (resDays < 21) {
+    findings.push(`ACHTUNG § 2 S. 2 KSchG Kurzfrist-Falle: Vorbehaltsannahme muss binnen ${resDays} Tagen bis ${resDeadline} beim Arbeitgeber eingehen!`);
+  } else {
+    findings.push(`§ 2 S. 2 & § 4 S. 2 KSchG Fristwahrung: Vorbehaltserklärung an Arbeitgeber UND Änderungsschutzklage bis spätestens ${klageDeadline} (inkl. § 193 BGB).`);
+  }
+  if (monthlyCut > 0 && !insolvency) {
+    findings.push(`BAG 2 AZR 329/06 Entgeltkürzungs-Sperre: Kürzung um ${formatEUR(monthlyCut)}/Monat (-${cutPct.toFixed(1)}%) ist ohne akute Insolvenzgefahr + Sanierungsplan sozialwidrig (§ 8 KSchG Nachzahlung).`);
+  }
+  if (distKm > 0 || hoShare > 0) {
+    if (weisungUnbillig) {
+      findings.push(`LAG Köln 6 Sa 579/23 & § 106 GewO: Widerruf von ${hoShare}% Homeoffice (${hoYears} J.) + ${distKm} km Versetzung verletzt billiges Ermessen (${unbilligScore}/100). Keine Folgepflicht nach BAG 10 AZR 330/16!`);
+    }
+  }
+  if (!brHeard) {
+    findings.push(`Formelle Unwirksamkeit (§§ 102, 99 BetrVG): Fehlende Betriebsratsanhörung/-zustimmung macht Änderungskündigung und Versetzung sofort unwirksam.`);
+  }
+
+  const ul = document.getElementById('findingsList');
+  ul.innerHTML = '';
+  findings.forEach(f => {
+    const li = document.createElement('li');
+    li.textContent = f;
+    ul.appendChild(li);
+  });
+
+  document.getElementById('txtReservation').value =
+    `An: ${sc.employer_name}\nAbsender: ${sc.employee_name}\nFristablauf § 2 S. 2 KSchG: ${resDeadline}\n\n` +
+    `Betreff: Annahme des Änderungsangebots unter Vorbehalt gemäß § 2 KSchG\n\n` +
+    `Hiermit nehme ich das Änderungsangebot vom ${noticeDate} (neues Entgelt: ${formatEUR(propSal)} / Ort: ${distKm} km) ` +
+    `gemäß § 2 Satz 1 KSchG UNTER DEM VORBEHALT an, dass die Änderung der Arbeitsbedingungen nicht sozial ungerechtfertigt ist. ` +
+    `Änderungsschutzklage gemäß § 4 Satz 2 KSchG wird fristgerecht bis zum ${klageDeadline} erhoben (§ 8 KSchG Rückwirkung).`;
+
+  document.getElementById('txtRemonstration').value =
+    `An: ${sc.employer_name}\nBetreff: Zurückweisung der unbilligen Versetzung (§ 106 GewO, § 315 BGB, LAG Köln 6 Sa 579/23) & Arbeitsangebot (§ 615 BGB)\n\n` +
+    `Der Widerruf meiner seit ${hoYears} Jahren zu ${hoShare}% ausgeübten Homeoffice-Tätigkeit und die ${distKm} km Versetzung ` +
+    `verstoßen gegen billiges Ermessen (§ 106 S. 1 GewO, LAG Köln 6 Sa 579/23). Gemäß BAG 10 AZR 330/16 besteht keine Folgepflicht. ` +
+    `Ich biete meine Arbeitsleistung ausdrücklich im Homeoffice an (§§ 294, 295 BGB) und mache Annahmeverzugslohn nach § 615 BGB (${formatEUR(curSal)}/Monat) geltend.`;
+}
+
+const bar = document.getElementById('presetBar');
+DATA.scenarios.forEach((sc, idx) => {
+  const btn = document.createElement('button');
+  btn.className = 'preset-btn' + (idx === 0 ? ' active' : '');
+  btn.textContent = sc.title;
+  btn.onclick = () => loadPreset(idx);
+  bar.appendChild(btn);
+});
+
+['noticeDate','shortNoticeDays','tenureYears','currentSalary','proposedSalary','distanceKm','hoShare','hoYears','socialScore',
+ 'chkInsolvency','chkClause307','chkDigital','chkWorksCouncil'].forEach(id => {
+  document.getElementById(id).addEventListener('input', recalculate);
+  document.getElementById(id).addEventListener('change', recalculate);
+});
+
+loadPreset(0);
+</script>
+</body>
+</html>

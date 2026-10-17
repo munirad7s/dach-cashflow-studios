@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MVP #33 — Prediction Market Smart-Money Whale & Cross-Venue EV Terminal</title>
+  <style>
+    :root {
+      --bg: #0b0f19;
+      --panel: #111827;
+      --panel-alt: #1e293b;
+      --border: #334155;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --green: #10b981;
+      --red: #f43f5e;
+      --blue: #3b82f6;
+      --amber: #f59e0b;
+      --purple: #a855f7;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      padding: 24px;
+    }
+    .container { max-width: 1480px; margin: 0 auto; }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 18px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    h1 { font-size: 1.65rem; font-weight: 700; letter-spacing: -0.02em; }
+    .subtitle { color: var(--muted); font-size: 0.92rem; margin-top: 4px; }
+    .benchmark-pills { display: flex; gap: 10px; flex-wrap: wrap; }
+    .pill {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 0.8rem;
+    }
+    .pill strong { color: var(--green); }
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+    .kpi-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px;
+    }
+    .kpi-label { color: var(--muted); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.05em; }
+    .kpi-val { font-size: 1.55rem; font-weight: 700; margin-top: 6px; }
+    .kpi-sub { color: var(--muted); font-size: 0.78rem; margin-top: 4px; }
+    section {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 24px;
+      overflow-x: auto;
+    }
+    h2 { font-size: 1.15rem; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    th, td { padding: 11px 10px; text-align: left; border-bottom: 1px solid #1e293b; vertical-align: top; }
+    th { color: var(--muted); font-weight: 600; text-transform: uppercase; font-size: 0.73rem; letter-spacing: 0.04em; background: #0f172a; }
+    td.num { font-variant-numeric: tabular-nums; }
+    .mono-addr { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-weight: 600; color: #e2e8f0; }
+    .sub-addr { font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
+    .event-title { font-weight: 600; color: #f1f5f9; }
+    .tier-badge { padding: 3px 8px; border-radius: 6px; font-size: 0.72rem; font-weight: 700; display: inline-block; }
+    .cluster-pill { padding: 3px 8px; border-radius: 6px; font-weight: 700; font-size: 0.78rem; }
+    .flag-chip {
+      display: inline-block;
+      background: #1e293b;
+      border: 1px solid #334155;
+      color: #cbd5e1;
+      font-size: 0.68rem;
+      padding: 2px 6px;
+      border-radius: 4px;
+      margin: 3px 4px 0 0;
+    }
+    .arb-yes { background: #10b98122; color: #34d399; border: 1px solid #10b98155; padding: 2px 7px; border-radius: 5px; font-weight: 700; font-size: 0.76rem; }
+    .arb-no { background: #1e293b; color: #94a3b8; padding: 2px 7px; border-radius: 5px; font-size: 0.75rem; }
+    .grade-chip { background: #3b82f622; color: #60a5fa; border: 1px solid #3b82f655; padding: 3px 8px; border-radius: 6px; font-weight: 700; font-size: 0.74rem; display: inline-block; }
+    .sim-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    @media (max-width: 960px) { .sim-grid { grid-template-columns: 1fr; } }
+    .control-group { margin-bottom: 12px; }
+    .control-group label { display: block; font-size: 0.8rem; color: var(--muted); margin-bottom: 4px; }
+    .control-group input, .control-group select {
+      width: 100%;
+      background: #0f172a;
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 8px 10px;
+      border-radius: 6px;
+      font-size: 0.88rem;
+    }
+    .sim-output {
+      background: #0f172a;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 0.82rem;
+      white-space: pre-wrap;
+    }
+  </style>
+</head>
+<body>
+
+<!-- DACH CASHFLOW STUDIOS LAUNCH BAR -->
+<style>
+  #dcs-launch-bar {
+    position: sticky;
+    top: 0;
+    z-index: 99999;
+    background: linear-gradient(90deg, #0b1120 0%, #111827 50%, #0f172a 100%);
+    color: #f8fafc;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.35);
+    padding: 8px 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  }
+  #dcs-launch-bar .dcs-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+  }
+  #dcs-launch-bar .dcs-badge {
+    background: rgba(16, 185, 129, 0.18);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.03em;
+  }
+  #dcs-launch-bar a.dcs-nav {
+    color: #93c5fd;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 12.5px;
+  }
+  #dcs-launch-bar a.dcs-nav:hover {
+    text-decoration: underline;
+    color: #dbeafe;
+  }
+  #dcs-launch-bar .dcs-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  #dcs-launch-bar .dcs-btn {
+    padding: 5px 11px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s ease;
+  }
+  #dcs-launch-bar .dcs-btn-ghost {
+    background: rgba(255,255,255,0.08);
+    color: #e2e8f0;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  #dcs-launch-bar .dcs-btn-primary {
+    background: linear-gradient(135deg, #0ea5e9, #2563eb);
+    color: #ffffff;
+  }
+  #dcs-launch-bar .dcs-btn-emerald {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
+  }
+  @media print {
+    #dcs-launch-bar { display: none !important; }
+  }
+</style>
+<div id="dcs-launch-bar">
+  <div class="dcs-left">
+    <a href="/index.html" class="dcs-nav">← Alle 150 DACH Studios</a>
+    <span class="dcs-badge">MVP #033 VERIFIED</span>
+    <span style="color:#cbd5e1;font-size:12px;">E-Commerce, Pricing & Cross-Market Arbitrage</span>
+  </div>
+  <div class="dcs-actions">
+    <button onclick="window.print()" class="dcs-btn dcs-btn-ghost">🖨️ PDF / Dossier drucken</button>
+    <a href="#checkout-modal-49" target="_blank" rel="noopener" class="dcs-btn dcs-btn-primary">⚡ Musterschreiben & Voll-Dossier (€49)</a>
+    <a href="#checkout-modal-299" target="_blank" rel="noopener" class="dcs-btn dcs-btn-emerald">🛡️ B2B Umsetzung buchen (€299 / €1.490)</a>
+  </div>
+</div>
+
+  <div class="container">
+    <header>
+      <div>
+        <h1>🐋 MVP #33: Prediction Market Whale Radar & Cross-Venue Arbitrage / EV Terminal</h1>
+        <div class="subtitle">
+          Brier-Calibrated Smart-Money Scoring • Fresh-Wallet Insider Cluster Detection • Fee-Adjusted Polymarket / Kalshi / Betfair Dutch-Book & Fractional Kelly Engine
+        </div>
+      </div>
+      <div class="benchmark-pills">
+        <div class="pill">Polifly (<code>anonymous-startup-70</code>): <strong>$73,299 MRR</strong> (1,916 subs @ $39/mo)</div>
+        <div class="pill">PokéItem (<code>pokeitem</code>): <strong>$29,857/30d</strong> (+116.6%, 2,420 subs)</div>
+      </div>
+    </header>
+
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label">Tracked Whale Wallets</div>
+        <div class="kpi-val">4</div>
+        <div class="kpi-sub">Best Sharp Brier Score: 0.141</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Fresh-Wallet Insider Alerts</div>
+        <div class="kpi-val" style="color:var(--red)">1</div>
+        <div class="kpi-sub">Max Cluster Score: 100.0/100</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Risk-Free Cross-Venue Arbs</div>
+        <div class="kpi-val" style="color:var(--green)">3 / 4</div>
+        <div class="kpi-sub">Best Net Spread: +5.92% (Fee-Adjusted)</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Peak Directional +EV Edge</div>
+        <div class="kpi-val" style="color:var(--blue)">+34.19%</div>
+        <div class="kpi-sub">Bayesian Sharp De-Vig + Whale Flow</div>
+      </div>
+    </div>
+
+    <section>
+      <h2>⚖️ Cross-Venue Arbitrage & Bayesian +EV Scanner (Polymarket CLOB vs Kalshi vs Sharp Bookmaker)</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Event & Settlement</th>
+            <th>Signal Grade</th>
+            <th>Optimal Cross-Venue Legs (Fee-Adj)</th>
+            <th>Dutch-Book Net Arb & IRR</th>
+            <th>Directional +EV Pick & Bayesian Prob</th>
+            <th>Net EV %</th>
+            <th>Fractional Kelly ($10k Bankroll)</th>
+            <th>Smart-Money Whale Flow</th>
+          </tr>
+        </thead>
+        <tbody>
+          
+            <tr>
+              <td>
+                <div class="event-title">Will OpenAI or Anthropic release a new flagship frontier model by Oct 31, 2026?</div>
+                <div class="sub-addr"><code>frontier_model_release_oct31</code> • Tech / AI • 14d to settle</div>
+              </td>
+              <td><span class="grade-chip">A+ ARB &amp; WHALE LOCK</span></td>
+              <td class="num">
+                <div>YES: <strong>POLYMARKET</strong> @ 0.480 <span class="muted">(raw 0.480)</span></div>
+                <div>NO: <strong>KALSHI</strong> @ 0.492 <span class="muted">(raw 0.475)</span></div>
+              </td>
+              <td class="num">
+                <span class="arb-yes">LOCK +2.83% ($28.30)</span>
+                <div class="sub-addr">Sum: 0.9725 | IRR: +73.8%</div>
+              </td>
+              <td class="num">
+                <div>Buy <strong>YES</strong> on <code>POLYMARKET</code> @ 0.480</div>
+                <div class="sub-addr">Bayesian True: <strong>64.4%</strong> (Sharp De-Vig: 59.3% Y)</div>
+              </td>
+              <td class="num" style="color:#10b981"><strong>+34.19%</strong> <span class="muted">(+1641 bps)</span></td>
+              <td class="num">
+                <div><strong>$789</strong> <span class="muted">(0.25x: 7.89%)</span></div>
+                <div class="sub-addr">0.5x: 15.78% | Full: 31.56%</div>
+              </td>
+              <td>
+                <div class="sub-addr">0xFresh_InsiderCluster_9 (INSIDER_ALERT:98)</div>
+                <div class="sub-addr">Max Insider Cluster: <strong>100/100</strong></div>
+              </td>
+            </tr>
+            
+            <tr>
+              <td>
+                <div class="event-title">Will the Fed cut rates by 25 bps at the Nov 2026 FOMC meeting?</div>
+                <div class="sub-addr"><code>fomc_nov_2026_25bps_cut</code> • Macro / Fed • 21d to settle</div>
+              </td>
+              <td><span class="grade-chip">A+ ARB &amp; WHALE LOCK</span></td>
+              <td class="num">
+                <div>YES: <strong>POLYMARKET</strong> @ 0.600 <span class="muted">(raw 0.600)</span></div>
+                <div>NO: <strong>KALSHI</strong> @ 0.376 <span class="muted">(raw 0.360)</span></div>
+              </td>
+              <td class="num">
+                <span class="arb-yes">LOCK +2.45% ($24.50)</span>
+                <div class="sub-addr">Sum: 0.9761 | IRR: +42.6%</div>
+              </td>
+              <td class="num">
+                <div>Buy <strong>YES</strong> on <code>POLYMARKET</code> @ 0.600</div>
+                <div class="sub-addr">Bayesian True: <strong>71.8%</strong> (Sharp De-Vig: 66.2% Y)</div>
+              </td>
+              <td class="num" style="color:#10b981"><strong>+19.70%</strong> <span class="muted">(+1182 bps)</span></td>
+              <td class="num">
+                <div><strong>$739</strong> <span class="muted">(0.25x: 7.39%)</span></div>
+                <div class="sub-addr">0.5x: 14.77% | Full: 29.55%</div>
+              </td>
+              <td>
+                <div class="sub-addr">0xDomi_MacroSharp (APEX_SHARP:80), 0xQuant_BasisDesk (PRO_WHALE:39)</div>
+                <div class="sub-addr">Max Insider Cluster: <strong>29/100</strong></div>
+              </td>
+            </tr>
+            
+            <tr>
+              <td>
+                <div class="event-title">Will EU Commission grant a Q4 compliance grace extension for GPAI providers?</div>
+                <div class="sub-addr"><code>eu_ai_act_grace_extension</code> • Geopolitics / Reg • 18d to settle</div>
+              </td>
+              <td><span class="grade-chip">A+ RISK-FREE ARB</span></td>
+              <td class="num">
+                <div>YES: <strong>BETFAIR_SHARP</strong> @ 0.284 <span class="muted">(raw 0.280)</span></div>
+                <div>NO: <strong>POLYMARKET</strong> @ 0.660 <span class="muted">(raw 0.660)</span></div>
+              </td>
+              <td class="num">
+                <span class="arb-yes">LOCK +5.92% ($59.20)</span>
+                <div class="sub-addr">Sum: 0.9441 | IRR: +120.0%</div>
+              </td>
+              <td class="num">
+                <div>Buy <strong>NO</strong> on <code>POLYMARKET</code> @ 0.660</div>
+                <div class="sub-addr">Bayesian True: <strong>74.5%</strong> (Sharp De-Vig: 25.5% Y)</div>
+              </td>
+              <td class="num" style="color:#10b981"><strong>+12.94%</strong> <span class="muted">(+854 bps)</span></td>
+              <td class="num">
+                <div><strong>$628</strong> <span class="muted">(0.25x: 6.28%)</span></div>
+                <div class="sub-addr">0.5x: 12.56% | Full: 25.12%</div>
+              </td>
+              <td>
+                <div class="sub-addr">Sharp Odds Only</div>
+                <div class="sub-addr">Max Insider Cluster: <strong>0/100</strong></div>
+              </td>
+            </tr>
+            
+            <tr>
+              <td>
+                <div class="event-title">Will Bitcoin trade above $100,000 before Nov 15, 2026?</div>
+                <div class="sub-addr"><code>btc_100k_before_nov15</code> • Crypto / ETF • 29d to settle</div>
+              </td>
+              <td><span class="grade-chip">A SMART-MONEY +EV</span></td>
+              <td class="num">
+                <div>YES: <strong>POLYMARKET</strong> @ 0.520 <span class="muted">(raw 0.520)</span></div>
+                <div>NO: <strong>BETFAIR_SHARP</strong> @ 0.490 <span class="muted">(raw 0.485)</span></div>
+              </td>
+              <td class="num">
+                <span class="arb-no">No Dutch-Book (-1.04%)</span>
+                <div class="sub-addr">Sum: 1.0105 | IRR: -13.1%</div>
+              </td>
+              <td class="num">
+                <div>Buy <strong>YES</strong> on <code>POLYMARKET</code> @ 0.520</div>
+                <div class="sub-addr">Bayesian True: <strong>59.8%</strong> (Sharp De-Vig: 58.6% Y)</div>
+              </td>
+              <td class="num" style="color:#10b981"><strong>+14.89%</strong> <span class="muted">(+775 bps)</span></td>
+              <td class="num">
+                <div><strong>$404</strong> <span class="muted">(0.25x: 4.04%)</span></div>
+                <div class="sub-addr">0.5x: 8.08% | Full: 16.16%</div>
+              </td>
+              <td>
+                <div class="sub-addr">Sharp Odds Only</div>
+                <div class="sub-addr">Max Insider Cluster: <strong>0/100</strong></div>
+              </td>
+            </tr>
+            
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>🐋 Smart-Money Whale Scorecard & Fresh-Wallet Insider Anomaly Radar</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Wallet / Alias</th>
+            <th>Classification</th>
+            <th>Brier Score (Skill)</th>
+            <th>Historical ROI (Win%)</th>
+            <th>Concentration (HHI)</th>
+            <th>Fresh-Wallet Cluster</th>
+            <th>Smart Score</th>
+            <th>Conviction</th>
+            <th>Active High-Conviction Position & Anomaly Flags</th>
+          </tr>
+        </thead>
+        <tbody>
+          
+            <tr>
+              <td>
+                <div class="mono-addr">0xFresh_InsiderCluster_9</div>
+                <div class="sub-addr">0x99A4d28B...10Fd11</div>
+              </td>
+              <td><span class="tier-badge" style="background:#f43f5e22;color:#f43f5e;border:1px solid #f43f5e55">INSIDER_ALERT</span></td>
+              <td class="num"><strong>0.277</strong> <span class="muted">(-0.11 BSS)</span></td>
+              <td class="num" style="color:#10b981">+194.1% <span class="muted">(100% W)</span></td>
+              <td class="num">96.2% <span class="muted">(HHI 0.93)</span></td>
+              <td class="num"><span class="cluster-pill" style="background:#f43f5e33;color:#fda4af">100.0/100</span></td>
+              <td class="num"><strong style="color:#10b981">+2.0</strong></td>
+              <td class="num"><strong>98.0</strong></td>
+              <td>
+                <div><strong>YES</strong> on <code>frontier_model_release_oct31</code> ($88,500)</div>
+                <div class="flags-wrap"><span class="flag-chip">ULTRA_FRESH_WALLET (6.5h old)</span> <span class="flag-chip">SINGLE_EVENT_ALL_IN (96.2% concentration)</span> <span class="flag-chip">AGGRESSIVE_CLOB_SWEEP (64% top-book consumed)</span> <span class="flag-chip">SYBIL_CLUSTER_DETECTED (5 synced wallets via binance_withdrawal_cluster_77)</span> <span class="flag-chip">PRE_CATALYST_SNIPE (38m before event)</span></div>
+              </td>
+            </tr>
+            
+            <tr>
+              <td>
+                <div class="mono-addr">0xDomi_MacroSharp</div>
+                <div class="sub-addr">0x71C95911...43292e</div>
+              </td>
+              <td><span class="tier-badge" style="background:#10b98122;color:#10b981;border:1px solid #10b98155">APEX_SHARP</span></td>
+              <td class="num"><strong>0.141</strong> <span class="muted">(+0.44 BSS)</span></td>
+              <td class="num" style="color:#10b981">+35.9% <span class="muted">(93% W)</span></td>
+              <td class="num">34.5% <span class="muted">(HHI 0.14)</span></td>
+              <td class="num"><span class="cluster-pill" style="background:#1e293b;color:#94a3b8">12.0/100</span></td>
+              <td class="num"><strong style="color:#10b981">+72.2</strong></td>
+              <td class="num"><strong>79.8</strong></td>
+              <td>
+                <div><strong>YES</strong> on <code>fomc_nov_2026_25bps_cut</code> ($145,000)</div>
+                <div class="flags-wrap"><span class="flag-chip">ELITE_BRIER_CALIBRATION (BS=0.141, ROI=+35.9%)</span></div>
+              </td>
+            </tr>
+            
+            <tr>
+              <td>
+                <div class="mono-addr">0xQuant_BasisDesk</div>
+                <div class="sub-addr">0x38F209cD...712004</div>
+              </td>
+              <td><span class="tier-badge" style="background:#3b82f622;color:#3b82f6;border:1px solid #3b82f655">PRO_WHALE</span></td>
+              <td class="num"><strong>0.166</strong> <span class="muted">(+0.34 BSS)</span></td>
+              <td class="num" style="color:#10b981">+38.0% <span class="muted">(90% W)</span></td>
+              <td class="num">37.1% <span class="muted">(HHI 0.23)</span></td>
+              <td class="num"><span class="cluster-pill" style="background:#1e293b;color:#94a3b8">29.0/100</span></td>
+              <td class="num"><strong style="color:#10b981">+42.6</strong></td>
+              <td class="num"><strong>39.4</strong></td>
+              <td>
+                <div><strong>YES</strong> on <code>fomc_nov_2026_25bps_cut</code> ($115,000)</div>
+                <div class="flags-wrap"><span class="flag-chip">CORRELATED_FUNDING (2 linked wallets)</span></div>
+              </td>
+            </tr>
+            
+            <tr>
+              <td>
+                <div class="mono-addr">0xDegen_HeadlineChaser</div>
+                <div class="sub-addr">0xdead0000...123456</div>
+              </td>
+              <td><span class="tier-badge" style="background:#f59e0b22;color:#f59e0b;border:1px solid #f59e0b55">FADE_CANDIDATE</span></td>
+              <td class="num"><strong>0.443</strong> <span class="muted">(-0.77 BSS)</span></td>
+              <td class="num" style="color:#f43f5e">-91.3% <span class="muted">(10% W)</span></td>
+              <td class="num">42.9% <span class="muted">(HHI 0.18)</span></td>
+              <td class="num"><span class="cluster-pill" style="background:#1e293b;color:#94a3b8">0.0/100</span></td>
+              <td class="num"><strong style="color:#f43f5e">-66.7</strong></td>
+              <td class="num"><strong>5.3</strong></td>
+              <td>
+                <div><strong>NO</strong> on <code>btc_100k_before_nov15</code> ($12,000)</div>
+                <div class="flags-wrap"></div>
+              </td>
+            </tr>
+            
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>🧮 Interactive Fee-Adjusted Arbitrage, Kalshi Ceiling Fee & Fractional Kelly Calculator</h2>
+      <div class="sim-grid">
+        <div>
+          <div class="control-group">
+            <label>Polymarket YES Ask Price (0.01 - 0.99)</label>
+            <input type="number" id="simPolyYes" value="0.60" step="0.01" min="0.01" max="0.99" oninput="runSim()" />
+          </div>
+          <div class="control-group">
+            <label>Kalshi NO Ask Price (0.01 - 0.99, applies exact ceil(0.07 * C * P * (1-P)) fee)</label>
+            <input type="number" id="simKalshiNo" value="0.36" step="0.01" min="0.01" max="0.99" oninput="runSim()" />
+          </div>
+          <div class="control-group">
+            <label>Bayesian True YES Probability (0.01 - 0.99)</label>
+            <input type="number" id="simTrueProb" value="0.69" step="0.01" min="0.01" max="0.99" oninput="runSim()" />
+          </div>
+          <div class="control-group">
+            <label>Bankroll USD ($)</label>
+            <input type="number" id="simBankroll" value="10000" step="500" min="100" oninput="runSim()" />
+          </div>
+        </div>
+        <div>
+          <div class="sim-output" id="simResultBox">Loading calculator...</div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>📲 Real-Time Telegram & Discord Webhook Alert Preview (Top Signal)</h2>
+      <div class="sim-grid">
+        <div>
+          <div class="kpi-label" style="margin-bottom:6px">Telegram Markdown Alert Payload</div>
+          <div class="sim-output">*⚡ CROSS-VENUE ARB LOCK* | `A+ ARB &amp; WHALE LOCK`
+📌 *Market:* Will OpenAI or Anthropic release a new flagship frontier model by Oct 31, 2026?
+━━━━━━━━━━━━━━━━━━━━
+⚖️ *Cross-Venue Dutch Book:* `POLYMARKET YES @ 0.480` + `KALSHI NO @ 0.492`
+💰 *Fee-Adj Net Arb:* `+2.83%` (Annualized IRR: `+73.8%`)
+🎯 *Directional +EV Pick:* Buy *YES* on *POLYMARKET* @ `0.480`
+🧠 *Bayesian True Prob:* `64.4%` | *Net EV:* `+34.19%`
+📐 *Sizing (0.25x Kelly):* `7.89%` bankroll (`$789`)
+🐋 *Whale Flow:* 0xFresh_InsiderCluster_9 (INSIDER_ALERT:98) | *Insider Cluster Score:* `100/100`</div>
+        </div>
+        <div>
+          <div class="kpi-label" style="margin-bottom:6px">Discord Rich Webhook Embed JSON</div>
+          <div class="sim-output">{
+  &quot;username&quot;: &quot;Polifly / WhaleEV Sentinel&quot;,
+  &quot;embeds&quot;: [
+    {
+      &quot;title&quot;: &quot;[A+ ARB &amp; WHALE LOCK] Will OpenAI or Anthropic release a new flagship frontier model by Oct 31, 2026?&quot;,
+      &quot;description&quot;: &quot;**Category:** `Tech / AI` | **Event ID:** `frontier_model_release_oct31`\n**Execution Mode:** Risk-Free Cross-Venue Dutch Book&quot;,
+      &quot;color&quot;: 1096065,
+      &quot;fields&quot;: [
+        {
+          &quot;name&quot;: &quot;\u2696\ufe0f Best Cross-Venue Pair (Fee-Adj)&quot;,
+          &quot;value&quot;: &quot;`POLYMARKET` YES @ **0.480**\n`KALSHI` NO @ **0.492**&quot;,
+          &quot;inline&quot;: true
+        },
+        {
+          &quot;name&quot;: &quot;\ud83d\udcb8 Net Arb Spread &amp; IRR&quot;,
+          &quot;value&quot;: &quot;Net ROI: **+2.83%**\nAnn. IRR: **+73.8%**&quot;,
+          &quot;inline&quot;: true
+        },
+        {
+          &quot;name&quot;: &quot;\ud83c\udfaf Directional +EV &amp; Kelly&quot;,
+          &quot;value&quot;: &quot;Buy **YES** on `POLYMARKET` @ **0.480**\nTrue Prob: **64.4%** (+EV: **+34.19%**)\n0.25x Kelly: **7.89%** (**$789**)&quot;,
+          &quot;inline&quot;: false
+        },
+        {
+          &quot;name&quot;: &quot;\ud83d\udc0b Whale &amp; Insider Telemetry&quot;,
+          &quot;value&quot;: &quot;Active Smart Wallets: 0xFresh_InsiderCluster_9 (INSIDER_ALERT:98)\nFresh-Wallet Insider Cluster Score: **100.0/100**&quot;,
+          &quot;inline&quot;: false
+        }
+      ],
+      &quot;footer&quot;: {
+        &quot;text&quot;: &quot;MVP #33 Whale &amp; Cross-Venue EV Engine \u2022 Tier: Pro ($39/mo) / Quant API ($99/mo)&quot;
+      },
+      &quot;timestamp&quot;: &quot;2026-10-17T13:04:40.080508+00:00&quot;
+    }
+  ]
+}</div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const REPORT_DATA = {"mvp_id": "MVP_33_PREDICTION_WHALE_EV_SCANNER", "summary_metrics": {"generated_at_utc": "2026-10-17T13:04:40.080601+00:00", "total_wallets_scored": 4, "insider_alert_count": 1, "apex_sharp_count": 1, "best_brier_score": 0.1411, "max_fresh_wallet_cluster_score": 100.0, "total_events_scanned": 4, "risk_free_arb_count": 3, "best_net_arb_roi_pct": 5.92, "best_directional_ev_pct": 34.19}, "ecosystem_teardown": {"featured_trustmrr_leaders": [{"slug": "anonymous-startup-70", "de_anonymized_brand": "Polifly (polifly.io / poliflyapp.com on Whop)", "founded_date": "2026-04-21", "verified_payment_provider": "Whop API", "mrr_usd": 73299, "revenue_30d_usd": 34975, "revenue_all_time_usd": 151706, "active_subscriptions": 1916, "profit_margin_pct": 65.0, "asking_price_usd": 2500000, "revenue_multiple": "5.9x", "pricing_structure": "$1 first-week trial -> $39/month recurring subscription via Whop", "core_features": ["Wallet Radar & Smart-Money Whale Tracker", "AI Market & Screenshot Contract Analyzer", "Mispriced Market / Edge Detection & Daily High-Conviction Picks", "Non-custodial Copy-Trading Workflows & Paper-Trading Leaderboard"]}, {"slug": "pokeitem", "de_anonymized_brand": "Pok\u00e9Item (pokeitem.fr)", "founded_date": "2026-05-21", "verified_payment_provider": "RevenueCat API", "mrr_usd": 15002, "revenue_30d_usd": 29857, "revenue_30d_growth_pct": 116.6, "revenue_all_time_usd": 66807, "active_subscriptions": 2420, "estimated_users": 25000, "pricing_structure": "Free (\u20ac0, 20 scans/mo, 10 price alerts) | Premium \u20ac5.99/mo | Premium+ \u20ac49.99/yr | Lifetime \u20ac159.99", "core_features": ["AI Camera Scanner for single cards, graded slabs, sealed boxes & full binder pages", "Real-time multi-marketplace valuation (Cardmarket, eBay, TCGplayer)", "Tier-gated price spike / arbitrage alerts (10 free vs 100+ Premium)"]}], "prediction_market_saas_tiers_benchmark": [{"tool": "Polifly (anonymous-startup-70)", "entry_hook": "$1 / 7-day trial", "pro_tier": "$39/mo", "quant_api_tier": "Whop VIP / Copy-Trading Rules", "whale_scoring": "Wallet Radar (historical P&L + position size alerts)", "arb_mechanism": "AI fair-value vs live Polymarket/Kalshi odds"}, {"tool": "Hashdive / Unusual Predictions", "entry_hook": "Limited market screener", "pro_tier": "$20/mo standalone ($75/mo Unusual Whales bundle)", "quant_api_tier": "Institutional Unusual Whales suite", "whale_scoring": "Smart Score (-100 to +100) + Insider Z-Score anomaly ranking", "arb_mechanism": "Order-flow imbalance & anomalous fresh-wallet concentration"}, {"tool": "Polysights", "entry_hook": "Freemium standard table", "pro_tier": "$29\u2013$49/mo Pro Analytics", "quant_api_tier": "Enterprise surveillance feed", "whale_scoring": "Insider Finder (newly funded wallet + pre-news bet timing)", "arb_mechanism": "30+ CLOB metrics + Polymarket vs Kalshi cross-market spread monitor"}, {"tool": "ArbBets / Oddspedia SureBets", "entry_hook": "Delayed/capped public arbs (<1.5%)", "pro_tier": "$35\u2013$59/mo Live Scanner", "quant_api_tier": "$99+/mo WebSocket & Bot Execution API", "whale_scoring": "Sharp bookmaker (Pinnacle/Betfair) line-originator steam tracking", "arb_mechanism": "Fee-corrected, depth-walked cross-venue Dutch-book + Fractional Kelly"}]}, "whale_scorecards": [{"address": "0x99A4d28B7E12c88320A0491C9eB0217F8810Fd11", "alias": "0xFresh_InsiderCluster_9", "tier_label": "INSIDER_ALERT", "brier_score": 0.2765, "brier_skill_score": -0.1061, "historical_roi_pct": 194.12, "win_rate_pct": 100.0, "resolved_sample_size": 1, "position_concentration_hhi": 0.9254, "max_single_position_share_pct": 96.2, "fresh_wallet_cluster_score": 100.0, "smart_score": 1.96, "whale_conviction_score": 97.96, "anomaly_flags": ["ULTRA_FRESH_WALLET (6.5h old)", "SINGLE_EVENT_ALL_IN (96.2% concentration)", "AGGRESSIVE_CLOB_SWEEP (64% top-book consumed)", "SYBIL_CLUSTER_DETECTED (5 synced wallets via binance_withdrawal_cluster_77)", "PRE_CATALYST_SNIPE (38m before event)"], "primary_active_market_id": "frontier_model_release_oct31", "primary_active_side": "YES", "primary_active_size_usd": 88500.0}, {"address": "0x71C95911E9a5D330f4D621842EC243EE1343292e", "alias": "0xDomi_MacroSharp", "tier_label": "APEX_SHARP", "brier_score": 0.1411, "brier_skill_score": 0.4355, "historical_roi_pct": 35.88, "win_rate_pct": 93.33, "resolved_sample_size": 15, "position_concentration_hhi": 0.1431, "max_single_position_share_pct": 34.52, "fresh_wallet_cluster_score": 12.0, "smart_score": 72.25, "whale_conviction_score": 79.8, "anomaly_flags": ["ELITE_BRIER_CALIBRATION (BS=0.141, ROI=+35.9%)"], "primary_active_market_id": "fomc_nov_2026_25bps_cut", "primary_active_side": "YES", "primary_active_size_usd": 145000.0}, {"address": "0x38F209cD441B889012eFA72190cD310bBe712004", "alias": "0xQuant_BasisDesk", "tier_label": "PRO_WHALE", "brier_score": 0.1662, "brier_skill_score": 0.3353, "historical_roi_pct": 37.97, "win_rate_pct": 90.0, "resolved_sample_size": 10, "position_concentration_hhi": 0.2315, "max_single_position_share_pct": 37.1, "fresh_wallet_cluster_score": 29.0, "smart_score": 42.6, "whale_conviction_score": 39.39, "anomaly_flags": ["CORRELATED_FUNDING (2 linked wallets)"], "primary_active_market_id": "fomc_nov_2026_25bps_cut", "primary_active_side": "YES", "primary_active_size_usd": 115000.0}, {"address": "0xdead000019283746556473829100aBcDeF123456", "alias": "0xDegen_HeadlineChaser", "tier_label": "FADE_CANDIDATE", "brier_score": 0.4427, "brier_skill_score": -0.771, "historical_roi_pct": -91.34, "win_rate_pct": 10.0, "resolved_sample_size": 10, "position_concentration_hhi": 0.1837, "max_single_position_share_pct": 42.86, "fresh_wallet_cluster_score": 0.0, "smart_score": -66.67, "whale_conviction_score": 5.34, "anomaly_flags": [], "primary_active_market_id": "btc_100k_before_nov15", "primary_active_side": "NO", "primary_active_size_usd": 12000.0}], "edge_signals": [{"event_id": "frontier_model_release_oct31", "canonical_title": "Will OpenAI or Anthropic release a new flagship frontier model by Oct 31, 2026?", "category": "Tech / AI", "days_to_settlement": 14, "target_stake_usd": 1000.0, "poly_yes_vwap": 0.48, "poly_no_vwap": 0.53, "kalshi_yes_vwap": 0.54, "kalshi_no_vwap": 0.475, "sharp_devig_yes_prob": 0.5933, "sharp_devig_no_prob": 0.4067, "arb_leg_yes_venue": "polymarket", "arb_leg_yes_raw_vwap": 0.48, "arb_leg_yes_eff_cost": 0.48, "arb_leg_no_venue": "kalshi", "arb_leg_no_raw_vwap": 0.475, "arb_leg_no_eff_cost": 0.4925, "gross_implied_sum": 0.955, "fee_adjusted_implied_sum": 0.9725, "gross_arb_spread_pct": 4.71, "net_arb_roi_pct": 2.83, "net_arb_profit_usd": 28.3, "annualized_arb_irr_pct": 73.8, "is_risk_free_arb": true, "recommended_side": "YES", "recommended_venue": "polymarket", "execution_eff_cost": 0.48, "true_bayesian_prob": 0.6441, "ev_roi_pct": 34.19, "edge_bps": 1641.0, "full_kelly_fraction": 0.3156, "half_kelly_fraction": 0.1578, "quarter_kelly_fraction": 0.0789, "recommended_kelly_usd": 789.0, "supporting_whales": ["0xFresh_InsiderCluster_9 (INSIDER_ALERT:98)"], "max_fresh_wallet_cluster_score": 100.0, "signal_grade": "A+ ARB & WHALE LOCK", "telegram_markdown": "*\u26a1 CROSS-VENUE ARB LOCK* | `A+ ARB & WHALE LOCK`\n\ud83d\udccc *Market:* Will OpenAI or Anthropic release a new flagship frontier model by Oct 31, 2026?\n\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\n\u2696\ufe0f *Cross-Venue Dutch Book:* `POLYMARKET YES @ 0.480` + `KALSHI NO @ 0.492`\n\ud83d\udcb0 *Fee-Adj Net Arb:* `+2.83%` (Annualized IRR: `+73.8%`)\n\ud83c\udfaf *Directional +EV Pick:* Buy *YES* on *POLYMARKET* @ `0.480`\n\ud83e\udde0 *Bayesian True Prob:* `64.4%` | *Net EV:* `+34.19%`\n\ud83d\udcd0 *Sizing (0.25x Kelly):* `7.89%` bankroll (`$789`)\n\ud83d\udc0b *Whale Flow:* 0xFresh_InsiderCluster_9 (INSIDER_ALERT:98) | *Insider Cluster Score:* `100/100`", "discord_embed": {"username": "Polifly / WhaleEV Sentinel", "embeds": [{"title": "[A+ ARB & WHALE LOCK] Will OpenAI or Anthropic release a new flagship frontier model by Oct 31, 2026?", "description": "**Category:** `Tech / AI` | **Event ID:** `frontier_model_release_oct31`\n**Execution Mode:** Risk-Free Cross-Venue Dutch Book", "color": 1096065, "fields": [{"name": "\u2696\ufe0f Best Cross-Venue Pair (Fee-Adj)", "value": "`POLYMARKET` YES @ **0.480**\n`KALSHI` NO @ **0.492**", "inline": true}, {"name": "\ud83d\udcb8 Net Arb Spread & IRR", "value": "Net ROI: **+2.83%**\nAnn. IRR: **+73.8%**", "inline": true}, {"name": "\ud83c\udfaf Directional +EV & Kelly", "value": "Buy **YES** on `POLYMARKET` @ **0.480**\nTrue Prob: **64.4%** (+EV: **+34.19%**)\n0.25x Kelly: **7.89%** (**$789**)", "inline": false}, {"name": "\ud83d\udc0b Whale & Insider Telemetry", "value": "Active Smart Wallets: 0xFresh_InsiderCluster_9 (INSIDER_ALERT:98)\nFresh-Wallet Insider Cluster Score: **100.0/100**", "inline": false}], "footer": {"text": "MVP #33 Whale & Cross-Venue EV Engine \u2022 Tier: Pro ($39/mo) / Quant API ($99/mo)"}, "timestamp": "2026-10-17T13:04:40.080508+00:00"}]}}, {"event_id": "fomc_nov_2026_25bps_cut", "canonical_title": "Will the Fed cut rates by 25 bps at the Nov 2026 FOMC meeting?", "category": "Macro / Fed", "days_to_settlement": 21, "target_stake_usd": 1000.0, "poly_yes_vwap": 0.6, "poly_no_vwap": 0.41, "kalshi_yes_vwap": 0.64, "kalshi_no_vwap": 0.36, "sharp_devig_yes_prob": 0.6622, "sharp_devig_no_prob": 0.3378, "arb_leg_yes_venue": "polymarket", "arb_leg_yes_raw_vwap": 0.6, "arb_leg_yes_eff_cost": 0.6, "arb_leg_no_venue": "kalshi", "arb_leg_no_raw_vwap": 0.36, "arb_leg_no_eff_cost": 0.3761, "gross_implied_sum": 0.96, "fee_adjusted_implied_sum": 0.9761, "gross_arb_spread_pct": 4.17, "net_arb_roi_pct": 2.45, "net_arb_profit_usd": 24.5, "annualized_arb_irr_pct": 42.6, "is_risk_free_arb": true, "recommended_side": "YES", "recommended_venue": "polymarket", "execution_eff_cost": 0.6, "true_bayesian_prob": 0.7182, "ev_roi_pct": 19.7, "edge_bps": 1182.0, "full_kelly_fraction": 0.2955, "half_kelly_fraction": 0.1477, "quarter_kelly_fraction": 0.0739, "recommended_kelly_usd": 739.0, "supporting_whales": ["0xDomi_MacroSharp (APEX_SHARP:80)", "0xQuant_BasisDesk (PRO_WHALE:39)"], "max_fresh_wallet_cluster_score": 29.0, "signal_grade": "A+ ARB & WHALE LOCK", "telegram_markdown": "*\u26a1 CROSS-VENUE ARB LOCK* | `A+ ARB & WHALE LOCK`\n\ud83d\udccc *Market:* Will the Fed cut rates by 25 bps at the Nov 2026 FOMC meeting?\n\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\n\u2696\ufe0f *Cross-Venue Dutch Book:* `POLYMARKET YES @ 0.600` + `KALSHI NO @ 0.376`\n\ud83d\udcb0 *Fee-Adj Net Arb:* `+2.45%` (Annualized IRR: `+42.6%`)\n\ud83c\udfaf *Directional +EV Pick:* Buy *YES* on *POLYMARKET* @ `0.600`\n\ud83e\udde0 *Bayesian True Prob:* `71.8%` | *Net EV:* `+19.70%`\n\ud83d\udcd0 *Sizing (0.25x Kelly):* `7.39%` bankroll (`$739`)\n\ud83d\udc0b *Whale Flow:* 0xDomi_MacroSharp (APEX_SHARP:80), 0xQuant_BasisDesk (PRO_WHALE:39) | *Insider Cluster Score:* `29/100`", "discord_embed": {"username": "Polifly / WhaleEV Sentinel", "embeds": [{"title": "[A+ ARB & WHALE LOCK] Will the Fed cut rates by 25 bps at the Nov 2026 FOMC meeting?", "description": "**Category:** `Macro / Fed` | **Event ID:** `fomc_nov_2026_25bps_cut`\n**Execution Mode:** Risk-Free Cross-Venue Dutch Book", "color": 1096065, "fields": [{"name": "\u2696\ufe0f Best Cross-Venue Pair (Fee-Adj)", "value": "`POLYMARKET` YES @ **0.600**\n`KALSHI` NO @ **0.376**", "inline": true}, {"name": "\ud83d\udcb8 Net Arb Spread & IRR", "value": "Net ROI: **+2.45%**\nAnn. IRR: **+42.6%**", "inline": true}, {"name": "\ud83c\udfaf Directional +EV & Kelly", "value": "Buy **YES** on `POLYMARKET` @ **0.600**\nTrue Prob: **71.8%** (+EV: **+19.70%**)\n0.25x Kelly: **7.39%** (**$739**)", "inline": false}, {"name": "\ud83d\udc0b Whale & Insider Telemetry", "value": "Active Smart Wallets: 0xDomi_MacroSharp (APEX_SHARP:80), 0xQuant_BasisDesk (PRO_WHALE:39)\nFresh-Wallet Insider Cluster Score: **29.0/100**", "inline": false}], "footer": {"text": "MVP #33 Whale & Cross-Venue EV Engine \u2022 Tier: Pro ($39/mo) / Quant API ($99/mo)"}, "timestamp": "2026-10-17T13:04:40.080452+00:00"}]}}, {"event_id": "eu_ai_act_grace_extension", "canonical_title": "Will EU Commission grant a Q4 compliance grace extension for GPAI providers?", "category": "Geopolitics / Reg", "days_to_settlement": 18, "target_stake_usd": 1000.0, "poly_yes_vwap": 0.35, "poly_no_vwap": 0.66, "kalshi_yes_vwap": 0.3, "kalshi_no_vwap": 0.72, "sharp_devig_yes_prob": 0.2546, "sharp_devig_no_prob": 0.7454, "arb_leg_yes_venue": "betfair_sharp", "arb_leg_yes_raw_vwap": 0.28, "arb_leg_yes_eff_cost": 0.2841, "arb_leg_no_venue": "polymarket", "arb_leg_no_raw_vwap": 0.66, "arb_leg_no_eff_cost": 0.66, "gross_implied_sum": 0.94, "fee_adjusted_implied_sum": 0.9441, "gross_arb_spread_pct": 6.38, "net_arb_roi_pct": 5.92, "net_arb_profit_usd": 59.2, "annualized_arb_irr_pct": 120.0, "is_risk_free_arb": true, "recommended_side": "NO", "recommended_venue": "polymarket", "execution_eff_cost": 0.66, "true_bayesian_prob": 0.7454, "ev_roi_pct": 12.94, "edge_bps": 854.0, "full_kelly_fraction": 0.2512, "half_kelly_fraction": 0.1256, "quarter_kelly_fraction": 0.0628, "recommended_kelly_usd": 628.0, "supporting_whales": [], "max_fresh_wallet_cluster_score": 0.0, "signal_grade": "A+ RISK-FREE ARB", "telegram_markdown": "*\u26a1 CROSS-VENUE ARB LOCK* | `A+ RISK-FREE ARB`\n\ud83d\udccc *Market:* Will EU Commission grant a Q4 compliance grace extension for GPAI providers?\n\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\n\u2696\ufe0f *Cross-Venue Dutch Book:* `BETFAIR_SHARP YES @ 0.284` + `POLYMARKET NO @ 0.660`\n\ud83d\udcb0 *Fee-Adj Net Arb:* `+5.92%` (Annualized IRR: `+120.0%`)\n\ud83c\udfaf *Directional +EV Pick:* Buy *NO* on *POLYMARKET* @ `0.660`\n\ud83e\udde0 *Bayesian True Prob:* `74.5%` | *Net EV:* `+12.94%`\n\ud83d\udcd0 *Sizing (0.25x Kelly):* `6.28%` bankroll (`$628`)\n\ud83d\udc0b *Whale Flow:* None flagged | *Insider Cluster Score:* `0/100`", "discord_embed": {"username": "Polifly / WhaleEV Sentinel", "embeds": [{"title": "[A+ RISK-FREE ARB] Will EU Commission grant a Q4 compliance grace extension for GPAI providers?", "description": "**Category:** `Geopolitics / Reg` | **Event ID:** `eu_ai_act_grace_extension`\n**Execution Mode:** Risk-Free Cross-Venue Dutch Book", "color": 1096065, "fields": [{"name": "\u2696\ufe0f Best Cross-Venue Pair (Fee-Adj)", "value": "`BETFAIR_SHARP` YES @ **0.284**\n`POLYMARKET` NO @ **0.660**", "inline": true}, {"name": "\ud83d\udcb8 Net Arb Spread & IRR", "value": "Net ROI: **+5.92%**\nAnn. IRR: **+120.0%**", "inline": true}, {"name": "\ud83c\udfaf Directional +EV & Kelly", "value": "Buy **NO** on `POLYMARKET` @ **0.660**\nTrue Prob: **74.5%** (+EV: **+12.94%**)\n0.25x Kelly: **6.28%** (**$628**)", "inline": false}, {"name": "\ud83d\udc0b Whale & Insider Telemetry", "value": "Active Smart Wallets: None\nFresh-Wallet Insider Cluster Score: **0.0/100**", "inline": false}], "footer": {"text": "MVP #33 Whale & Cross-Venue EV Engine \u2022 Tier: Pro ($39/mo) / Quant API ($99/mo)"}, "timestamp": "2026-10-17T13:04:40.080593+00:00"}]}}, {"event_id": "btc_100k_before_nov15", "canonical_title": "Will Bitcoin trade above $100,000 before Nov 15, 2026?", "category": "Crypto / ETF", "days_to_settlement": 29, "target_stake_usd": 1000.0, "poly_yes_vwap": 0.52, "poly_no_vwap": 0.49, "kalshi_yes_vwap": 0.55, "kalshi_no_vwap": 0.475, "sharp_devig_yes_prob": 0.5859, "sharp_devig_no_prob": 0.4141, "arb_leg_yes_venue": "polymarket", "arb_leg_yes_raw_vwap": 0.52, "arb_leg_yes_eff_cost": 0.5205, "arb_leg_no_venue": "betfair_sharp", "arb_leg_no_raw_vwap": 0.485, "arb_leg_no_eff_cost": 0.49, "gross_implied_sum": 1.005, "fee_adjusted_implied_sum": 1.0105, "gross_arb_spread_pct": -0.5, "net_arb_roi_pct": -1.04, "net_arb_profit_usd": 0.0, "annualized_arb_irr_pct": -13.1, "is_risk_free_arb": false, "recommended_side": "YES", "recommended_venue": "polymarket", "execution_eff_cost": 0.5205, "true_bayesian_prob": 0.598, "ev_roi_pct": 14.89, "edge_bps": 775.0, "full_kelly_fraction": 0.1616, "half_kelly_fraction": 0.0808, "quarter_kelly_fraction": 0.0404, "recommended_kelly_usd": 404.0, "supporting_whales": [], "max_fresh_wallet_cluster_score": 0.0, "signal_grade": "A SMART-MONEY +EV", "telegram_markdown": "*\ud83d\udc0b SMART-MONEY +EV EDGE* | `A SMART-MONEY +EV`\n\ud83d\udccc *Market:* Will Bitcoin trade above $100,000 before Nov 15, 2026?\n\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\n\u2696\ufe0f *Cross-Venue Dutch Book:* `POLYMARKET YES @ 0.520` + `BETFAIR_SHARP NO @ 0.490`\n\ud83d\udcb0 *Fee-Adj Net Arb:* `-1.04%` (Annualized IRR: `-13.1%`)\n\ud83c\udfaf *Directional +EV Pick:* Buy *YES* on *POLYMARKET* @ `0.520`\n\ud83e\udde0 *Bayesian True Prob:* `59.8%` | *Net EV:* `+14.89%`\n\ud83d\udcd0 *Sizing (0.25x Kelly):* `4.04%` bankroll (`$404`)\n\ud83d\udc0b *Whale Flow:* None flagged | *Insider Cluster Score:* `0/100`", "discord_embed": {"username": "Polifly / WhaleEV Sentinel", "embeds": [{"title": "[A SMART-MONEY +EV] Will Bitcoin trade above $100,000 before Nov 15, 2026?", "description": "**Category:** `Crypto / ETF` | **Event ID:** `btc_100k_before_nov15`\n**Execution Mode:** Smart-Money Bayesian +EV", "color": 3900150, "fields": [{"name": "\u2696\ufe0f Best Cross-Venue Pair (Fee-Adj)", "value": "`POLYMARKET` YES @ **0.520**\n`BETFAIR_SHARP` NO @ **0.490**", "inline": true}, {"name": "\ud83d\udcb8 Net Arb Spread & IRR", "value": "Net ROI: **-1.04%**\nAnn. IRR: **-13.1%**", "inline": true}, {"name": "\ud83c\udfaf Directional +EV & Kelly", "value": "Buy **YES** on `POLYMARKET` @ **0.520**\nTrue Prob: **59.8%** (+EV: **+14.89%**)\n0.25x Kelly: **4.04%** (**$404**)", "inline": false}, {"name": "\ud83d\udc0b Whale & Insider Telemetry", "value": "Active Smart Wallets: None\nFresh-Wallet Insider Cluster Score: **0.0/100**", "inline": false}], "footer": {"text": "MVP #33 Whale & Cross-Venue EV Engine \u2022 Tier: Pro ($39/mo) / Quant API ($99/mo)"}, "timestamp": "2026-10-17T13:04:40.080550+00:00"}]}}]};
+    function runSim() {
+      const polyYes = parseFloat(document.getElementById('simPolyYes').value) || 0.5;
+      const kalshiNo = parseFloat(document.getElementById('simKalshiNo').value) || 0.5;
+      const trueProb = parseFloat(document.getElementById('simTrueProb').value) || 0.5;
+      const bankroll = parseFloat(document.getElementById('simBankroll').value) || 10000;
+
+      const stake = 500;
+      const contracts = Math.max(1, Math.round(stake / kalshiNo));
+      const kalshiFee = Math.ceil(0.07 * contracts * kalshiNo * (1 - kalshiNo) * 100) / 100;
+      const kalshiEffNo = kalshiNo + (kalshiFee / contracts);
+      const grossSum = polyYes + kalshiNo;
+      const feeAdjSum = polyYes + kalshiEffNo;
+      const netArbPct = ((1.0 - feeAdjSum) / feeAdjSum) * 100;
+
+      const evYesPct = ((trueProb - polyYes) / polyYes) * 100;
+      const fullKelly = trueProb > polyYes ? (trueProb - polyYes) / (1 - polyYes) : 0;
+      const quarterKelly = fullKelly * 0.25;
+      const recStake = bankroll * quarterKelly;
+
+      document.getElementById('simResultBox').textContent =
+        `[CROSS-VENUE DUTCH-BOOK CHECK]\n` +
+        `• Polymarket YES Effective Cost : ${polyYes.toFixed(4)}\n` +
+        `• Kalshi NO Raw / Fee-Adj Cost  : ${kalshiNo.toFixed(4)} -> ${kalshiEffNo.toFixed(4)} (Kalshi Taker Fee: $${kalshiFee.toFixed(2)} on ${contracts} contracts)\n` +
+        `• Gross Implied Sum             : ${grossSum.toFixed(4)}\n` +
+        `• Fee-Adjusted Implied Sum      : ${feeAdjSum.toFixed(4)} (${feeAdjSum < 1.0 ? '✅ RISK-FREE ARB LOCKED' : '❌ NO RISK-FREE ARB'})\n` +
+        `• Net Fee-Adjusted Arb ROI      : ${netArbPct >= 0 ? '+' : ''}${netArbPct.toFixed(2)}%\n\n` +
+        `[DIRECTIONAL +EV & KELLY SIZING (YES ON POLYMARKET)]\n` +
+        `• Bayesian True Probability     : ${(trueProb * 100).toFixed(1)}%\n` +
+        `• Expected Value (EV ROI)       : ${evYesPct >= 0 ? '+' : ''}${evYesPct.toFixed(2)}%\n` +
+        `• Full / Half / Quarter Kelly   : ${(fullKelly * 100).toFixed(2)}% / ${(fullKelly * 50).toFixed(2)}% / ${(quarterKelly * 100).toFixed(2)}%\n` +
+        `• Recommended 0.25x Kelly Stake : $${recStake.toFixed(2)} (on $${bankroll.toLocaleString()} bankroll)`;
+    }
+    runSim();
+  </script>
+</body>
+</html>

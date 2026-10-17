@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GoBD & § 14 UStG Beleg-Auditor · Interactive Claude MCP App</title>
+<style>
+  :root {
+    --bg: #0b1020;
+    --panel: #131b31;
+    --panel-alt: #192340;
+    --border: #28365e;
+    --text: #eef2ff;
+    --muted: #94a3b8;
+    --accent: #38bdf8;
+    --pass: #10b981;
+    --warn: #f59e0b;
+    --fail: #ef4444;
+    --exempt: #64748b;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 18px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.45;
+  }
+  .header {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 18px;
+    background: linear-gradient(135deg, #131b31 0%, #1e293b 100%);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    margin-bottom: 16px;
+  }
+  .badge-mcp {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: rgba(56, 189, 248, 0.15);
+    color: var(--accent);
+    border: 1px solid rgba(56, 189, 248, 0.35);
+  }
+  .controls {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  button, select {
+    background: var(--panel-alt);
+    color: var(--text);
+    border: 1px solid var(--border);
+    padding: 7px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    cursor: pointer;
+    font-weight: 600;
+  }
+  button.primary {
+    background: #0284c7;
+    border-color: #38bdf8;
+    color: #fff;
+  }
+  button:hover { filter: brightness(1.1); }
+  .kpi-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(175px, 1fr));
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .kpi-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+  }
+  .kpi-label { font-size: 11px; color: var(--muted); text-transform: uppercase; }
+  .kpi-val { font-size: 20px; font-weight: 700; margin-top: 4px; }
+  .layout-grid {
+    display: grid;
+    grid-template-columns: 310px 1fr;
+    gap: 16px;
+  }
+  @media (max-width: 840px) {
+    .layout-grid { grid-template-columns: 1fr; }
+  }
+  .doc-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .doc-item {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px;
+    cursor: pointer;
+    transition: border-color 0.15s;
+  }
+  .doc-item.active {
+    border-color: var(--accent);
+    background: var(--panel-alt);
+  }
+  .status-pill {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+  }
+  .status-GOBD_COMPLIANT, .status-PASS { background: rgba(16, 185, 129, 0.18); color: #34d399; }
+  .status-ACTION_REQUIRED, .status-WARN { background: rgba(245, 158, 11, 0.18); color: #fbbf24; }
+  .status-REJECTED_USTG_14, .status-FAIL { background: rgba(239, 68, 68, 0.18); color: #f87171; }
+  .status-EXEMPT { background: rgba(100, 116, 139, 0.25); color: #cbd5e1; }
+  .detail-panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12.5px;
+    margin-top: 10px;
+  }
+  th, td {
+    border-bottom: 1px solid var(--border);
+    padding: 8px 6px;
+    text-align: left;
+    vertical-align: top;
+  }
+  th { color: var(--muted); font-weight: 600; font-size: 11px; text-transform: uppercase; }
+  .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12px; }
+  .extf-box {
+    margin-top: 14px;
+    background: #070b14;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px;
+    overflow-x: auto;
+    white-space: pre;
+    font-size: 11.5px;
+    color: #a7f3d0;
+  }
+</style>
+</head>
+<body>
+
+<!-- DACH CASHFLOW STUDIOS LAUNCH BAR -->
+<style>
+  #dcs-launch-bar {
+    position: sticky;
+    top: 0;
+    z-index: 99999;
+    background: linear-gradient(90deg, #0b1120 0%, #111827 50%, #0f172a 100%);
+    color: #f8fafc;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.35);
+    padding: 8px 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  }
+  #dcs-launch-bar .dcs-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+  }
+  #dcs-launch-bar .dcs-badge {
+    background: rgba(16, 185, 129, 0.18);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.03em;
+  }
+  #dcs-launch-bar a.dcs-nav {
+    color: #93c5fd;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 12.5px;
+  }
+  #dcs-launch-bar a.dcs-nav:hover {
+    text-decoration: underline;
+    color: #dbeafe;
+  }
+  #dcs-launch-bar .dcs-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  #dcs-launch-bar .dcs-btn {
+    padding: 5px 11px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s ease;
+  }
+  #dcs-launch-bar .dcs-btn-ghost {
+    background: rgba(255,255,255,0.08);
+    color: #e2e8f0;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  #dcs-launch-bar .dcs-btn-primary {
+    background: linear-gradient(135deg, #0ea5e9, #2563eb);
+    color: #ffffff;
+  }
+  #dcs-launch-bar .dcs-btn-emerald {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
+  }
+  @media print {
+    #dcs-launch-bar { display: none !important; }
+  }
+</style>
+<div id="dcs-launch-bar">
+  <div class="dcs-left">
+    <a href="/index.html" class="dcs-nav">← Alle 150 DACH Studios</a>
+    <span class="dcs-badge">MVP #043 VERIFIED</span>
+    <span style="color:#cbd5e1;font-size:12px;">DACH Tax, Corporate & Accounting Arbitrage</span>
+  </div>
+  <div class="dcs-actions">
+    <button onclick="window.print()" class="dcs-btn dcs-btn-ghost">🖨️ PDF / Dossier drucken</button>
+    <a href="#checkout-modal-49" target="_blank" rel="noopener" class="dcs-btn dcs-btn-primary">⚡ Musterschreiben & Voll-Dossier (€49)</a>
+    <a href="#checkout-modal-299" target="_blank" rel="noopener" class="dcs-btn dcs-btn-emerald">🛡️ B2B Umsetzung buchen (€299 / €1.490)</a>
+  </div>
+</div>
+
+  <div class="header">
+    <div>
+      <span class="badge-mcp">MCP App · ui://gobd-beleg-auditor/widget.html</span>
+      <h2 style="margin: 6px 0 2px 0; font-size: 18px;">GoBD / § 14 UStG / XRechnung 3.0 / DATEV Vorkontierungs-Cockpit</h2>
+      <div style="font-size: 12px; color: var(--muted);">Deterministische 10-Punkte-Pflichtangabenprüfung, § 4 Abs. 5 Nr. 2 EStG Bewirtungs-Split (70/30) &amp; DATEV EXTF v700 Export</div>
+    </div>
+    <div class="controls">
+      <label for="skrSelect" style="font-size:12px;color:var(--muted);">Kontenrahmen:</label>
+      <select id="skrSelect" onchange="switchKontenrahmen(this.value)">
+        <option value="SKR03">DATEV SKR03</option>
+        <option value="SKR04">DATEV SKR04</option>
+      </select>
+      <button class="primary" onclick="downloadDatevCsv()">⬇ EXTF_Buchungsstapel.csv</button>
+      <button onclick="syncContextToClaude()">⇄ Sync an Claude Context</button>
+    </div>
+  </div>
+
+  <div class="kpi-row" id="kpiRow"></div>
+
+  <div class="layout-grid">
+    <div class="doc-list" id="docList"></div>
+    <div class="detail-panel" id="detailPanel"></div>
+  </div>
+
+<script>
+const APP_STATE = {"reports": [{"document_id": "DOC-01-XRECHNUNG-UBL", "source_format": "xrechnung_ubl", "supplier_name": "Hetzner Online GmbH", "supplier_address": "Industriestr. 25, 91710 Gunzenhausen, DE", "supplier_tax_id": "DE812871812", "customer_name": "ADAS Systems GmbH", "customer_address": "Königstr. 42, 90402 Nürnberg, DE", "customer_vat_id": "DE349812004", "invoice_number": "RE-2026-88412", "issue_date": "2026-10-14", "delivery_date": "2026-10-14", "item_description": "Dedicated Root Server AX102 & Cloud Storage Oktober 2026 (Lizenzen/Software)", "currency": "EUR", "net_amount": "1200.00", "vat_amount": "228.00", "gross_amount": "1428.00", "tax_rate_percent": "19.00", "is_kleinbetrag": false, "is_reverse_charge": false, "is_bewirtung": false, "bewirtung_anlass": null, "bewirtung_teilnehmer": [], "gobd_sha256_hash": "e46f919a14ac800351e28cbfb38af1722c4fc0c79e5d2119ecaf1bf81312e1e7", "gobd_timestamp_utc": "2026-10-17T14:12:47Z", "overall_status": "GOBD_COMPLIANT", "compliance_score": 100, "vorsteuer_abzugsfaehig_eur": "228.00", "checks": [{"field_id": "USTG_14_4_NR1_SUPPLIER", "legal_ref": "§ 14 Abs. 4 Nr. 1 UStG", "title": "Vollständiger Name & Anschrift des leistenden Unternehmers", "status": "PASS", "extracted_value": "Hetzner Online GmbH | Industriestr. 25, 91710 Gunzenhausen, DE", "explanation": "Leistender Unternehmer vollständig angegeben."}, {"field_id": "USTG_14_4_NR1_CUSTOMER", "legal_ref": "§ 14 Abs. 4 Nr. 1 UStG", "title": "Vollständiger Name & Anschrift des Leistungsempfängers", "status": "PASS", "extracted_value": "ADAS Systems GmbH | Königstr. 42, 90402 Nürnberg, DE", "explanation": "Leistungsempfänger ordnungsgemäß adressiert."}, {"field_id": "USTG_14_4_NR2_TAX_ID", "legal_ref": "§ 14 Abs. 4 Nr. 2 UStG", "title": "Steuernummer oder USt-IdNr. des Ausstellers", "status": "PASS", "extracted_value": "DE812871812", "explanation": "Gültige deutsche USt-IdNr. (DE812871812)"}, {"field_id": "USTG_14_4_NR3_ISSUE_DATE", "legal_ref": "§ 14 Abs. 4 Nr. 3 UStG", "title": "Ausstellungsdatum der Rechnung", "status": "PASS", "extracted_value": "2026-10-14", "explanation": "Rechnungsdatum ISO-konform vorhanden."}, {"field_id": "USTG_14_4_NR4_INVOICE_NO", "legal_ref": "§ 14 Abs. 4 Nr. 4 UStG", "title": "Fortlaufende eindeutige Rechnungsnummer", "status": "PASS", "extracted_value": "RE-2026-88412", "explanation": "Eindeutige Rechnungsnummer geprüft."}, {"field_id": "USTG_14_4_NR5_LINE_DESC", "legal_ref": "§ 14 Abs. 4 Nr. 5 UStG", "title": "Menge & Art (handelsübliche Bezeichnung) der Leistung", "status": "PASS", "extracted_value": "Dedicated Root Server AX102 & Cloud Storage Oktober 2026 (Lizenzen/Software)", "explanation": "Leistungsbeschreibung spezifisch und prüfbar."}, {"field_id": "USTG_14_4_NR6_DELIVERY_DATE", "legal_ref": "§ 14 Abs. 4 Nr. 6 UStG / § 31 Abs. 4 UStDV", "title": "Zeitpunkt der Lieferung oder sonstigen Leistung", "status": "PASS", "extracted_value": "2026-10-14", "explanation": "Leistungsdatum / Leistungszeitraum angegeben."}, {"field_id": "USTG_14_4_NR7_8_MATH", "legal_ref": "§ 14 Abs. 4 Nr. 7 & 8 UStG (EN 16931 BR-CO-15)", "title": "Entgeltaufschlüsselung, Steuersatz & Steuerbetrag", "status": "PASS", "extracted_value": "Netto 1200.00 € | USt 228.00 € (19.00%) | Brutto 1428.00 €", "explanation": "Pfenniggenaue Prüfung bestanden: 1200.00 € Netto + 228.00 € USt (19.00 %) = 1428.00 € Brutto."}, {"field_id": "USTG_14A_SPECIAL_RULES", "legal_ref": "§ 14a UStG / § 4 Abs. 5 EStG", "title": "Sonderprüfungen (§ 13b Reverse Charge / Bewirtung § 4 Abs. 5 EStG)", "status": "EXEMPT", "extracted_value": "Regel-Eingangsrechnung Inland", "explanation": "Keine § 13b Reverse-Charge oder Bewirtungs-Sonderpflichten einschlägig."}, {"field_id": "GOBD_RZ110_IMMUTABILITY", "legal_ref": "GoBD Rz. 64, 110 & 130 (BMF-Schreiben 28.11.2019 / 11.03.2024)", "title": "GoBD Unveränderbarkeits-Hash & Belegverknüpfung", "status": "PASS", "extracted_value": "SHA-256: e46f919a14ac8003... (2026-10-17T14:12:47Z)", "explanation": "Kryptografischer GoBD-Belegfingerabdruck berechnet und Festschreibungskennzeichen (1) für DATEV-Stapel gesetzt."}], "postings": [{"umsatz_brutto_eur": "1428.00", "soll_haben": "S", "wkz": "EUR", "konto_skr03": "4964", "konto_skr04": "6835", "gegenkonto": "70000", "bu_schluessel": "9", "belegdatum_ddmm": "1410", "belegfeld_1": "RE-2026-88412", "buchungstext": "Hetzner Online GmbH - Dedicated Root Server AX102 &", "festschreibung": 1, "kostenstelle_1": "KST-100", "tax_rate_percent": "19.00", "net_amount_eur": "1200.00", "vat_amount_eur": "228.00", "category_key": "software_it_inland_19"}]}, {"document_id": "DOC-02-EU-REVERSE-CHARGE", "source_format": "structured_json", "supplier_name": "Anthropic Ireland, Ltd.", "supplier_address": "6th Floor, South Bank House, Barrow Street, Dublin 4, IE", "supplier_tax_id": "IE4192081OH", "customer_name": "ADAS Systems GmbH", "customer_address": "Königstr. 42, 90402 Nürnberg, DE", "customer_vat_id": "DE349812004", "invoice_number": "ANT-IE-2026-10944", "issue_date": "2026-10-15", "delivery_date": "2026-10-15", "item_description": "Claude API & Enterprise MCP Token Usage October 2026", "currency": "EUR", "net_amount": "850.00", "vat_amount": "0.00", "gross_amount": "850.00", "tax_rate_percent": "0.00", "is_kleinbetrag": false, "is_reverse_charge": true, "is_bewirtung": false, "bewirtung_anlass": null, "bewirtung_teilnehmer": [], "gobd_sha256_hash": "146a52bfbac49a71e3157f7da633ac7766a2353605906d67a6e058236d476918", "gobd_timestamp_utc": "2026-10-17T14:12:47Z", "overall_status": "GOBD_COMPLIANT", "compliance_score": 100, "vorsteuer_abzugsfaehig_eur": "161.50", "checks": [{"field_id": "USTG_14_4_NR1_SUPPLIER", "legal_ref": "§ 14 Abs. 4 Nr. 1 UStG", "title": "Vollständiger Name & Anschrift des leistenden Unternehmers", "status": "PASS", "extracted_value": "Anthropic Ireland, Ltd. | 6th Floor, South Bank House, Barrow Street, Dublin 4, IE", "explanation": "Leistender Unternehmer vollständig angegeben."}, {"field_id": "USTG_14_4_NR1_CUSTOMER", "legal_ref": "§ 14 Abs. 4 Nr. 1 UStG", "title": "Vollständiger Name & Anschrift des Leistungsempfängers", "status": "PASS", "extracted_value": "ADAS Systems GmbH | Königstr. 42, 90402 Nürnberg, DE", "explanation": "Leistungsempfänger ordnungsgemäß adressiert."}, {"field_id": "USTG_14_4_NR2_TAX_ID", "legal_ref": "§ 14 Abs. 4 Nr. 2 UStG", "title": "Steuernummer oder USt-IdNr. des Ausstellers", "status": "PASS", "extracted_value": "IE4192081OH", "explanation": "Gültige EU-USt-IdNr. (IE4192081OH)"}, {"field_id": "USTG_14_4_NR3_ISSUE_DATE", "legal_ref": "§ 14 Abs. 4 Nr. 3 UStG", "title": "Ausstellungsdatum der Rechnung", "status": "PASS", "extracted_value": "2026-10-15", "explanation": "Rechnungsdatum ISO-konform vorhanden."}, {"field_id": "USTG_14_4_NR4_INVOICE_NO", "legal_ref": "§ 14 Abs. 4 Nr. 4 UStG", "title": "Fortlaufende eindeutige Rechnungsnummer", "status": "PASS", "extracted_value": "ANT-IE-2026-10944", "explanation": "Eindeutige Rechnungsnummer geprüft."}, {"field_id": "USTG_14_4_NR5_LINE_DESC", "legal_ref": "§ 14 Abs. 4 Nr. 5 UStG", "title": "Menge & Art (handelsübliche Bezeichnung) der Leistung", "status": "PASS", "extracted_value": "Claude API & Enterprise MCP Token Usage October 2026", "explanation": "Leistungsbeschreibung spezifisch und prüfbar."}, {"field_id": "USTG_14_4_NR6_DELIVERY_DATE", "legal_ref": "§ 14 Abs. 4 Nr. 6 UStG / § 31 Abs. 4 UStDV", "title": "Zeitpunkt der Lieferung oder sonstigen Leistung", "status": "PASS", "extracted_value": "2026-10-15", "explanation": "Leistungsdatum / Leistungszeitraum angegeben."}, {"field_id": "USTG_14_4_NR7_8_MATH", "legal_ref": "§ 14 Abs. 4 Nr. 7 & 8 UStG (EN 16931 BR-CO-15)", "title": "Entgeltaufschlüsselung, Steuersatz & Steuerbetrag", "status": "PASS", "extracted_value": "Netto 850.00 € | USt 0.00 € (0.00%) | Brutto 850.00 €", "explanation": "Reverse-Charge Netto = Brutto (850.00 EUR), ausgewiesene USt = 0.00 EUR (Steuerschuld Übergang 19 % = 161.50 EUR)."}, {"field_id": "USTG_13B_REVERSE_CHARGE", "legal_ref": "§ 13b Abs. 5 & § 14a Abs. 5 UStG", "title": "Reverse-Charge Hinweis & USt-IdNr. des Leistungsempfängers", "status": "PASS", "extracted_value": "Empfänger-USt-IdNr.: DE349812004 | Hinweis: Reverse Charge – Steuerschuldnerschaft des Leistungsempfängers nach § 13b UStG", "explanation": "§ 13b UStG Hinweis und deutsche USt-IdNr. des Empfängers vorhanden."}, {"field_id": "GOBD_RZ110_IMMUTABILITY", "legal_ref": "GoBD Rz. 64, 110 & 130 (BMF-Schreiben 28.11.2019 / 11.03.2024)", "title": "GoBD Unveränderbarkeits-Hash & Belegverknüpfung", "status": "PASS", "extracted_value": "SHA-256: 146a52bfbac49a71... (2026-10-17T14:12:47Z)", "explanation": "Kryptografischer GoBD-Belegfingerabdruck berechnet und Festschreibungskennzeichen (1) für DATEV-Stapel gesetzt."}], "postings": [{"umsatz_brutto_eur": "850.00", "soll_haben": "S", "wkz": "EUR", "konto_skr03": "3123", "konto_skr04": "5923", "gegenkonto": "70000", "bu_schluessel": "94", "belegdatum_ddmm": "1510", "belegfeld_1": "ANT-IE-2026-10944", "buchungstext": "Anthropic Ireland, Ltd. - Claude API & Enterprise MCP To", "festschreibung": 1, "kostenstelle_1": "KST-100", "tax_rate_percent": "19.00", "net_amount_eur": "850.00", "vat_amount_eur": "161.50", "category_key": "cloud_saas_eu_reverse_charge"}]}, {"document_id": "DOC-03-BEWIRTUNG-70-30", "source_format": "ocr_text", "supplier_name": "Bratwurst Röslein GmbH", "supplier_address": "Rathausplatz 6, 90403 Nürnberg, DE", "supplier_tax_id": "241/115/80912", "customer_name": "ADAS Systems GmbH", "customer_address": "Königstr. 42, 90402 Nürnberg, DE", "customer_vat_id": "DE349812004", "invoice_number": "TSE-2026-994120", "issue_date": "2026-10-16", "delivery_date": "2026-10-16", "item_description": "Bewirtung Speisen & Getränke lt. TSE-Kassenbon (TSE-Signatur: 88f1a9c2)", "currency": "EUR", "net_amount": "200.00", "vat_amount": "38.00", "gross_amount": "238.00", "tax_rate_percent": "19.00", "is_kleinbetrag": true, "is_reverse_charge": false, "is_bewirtung": true, "bewirtung_anlass": "Vertragsverhandlung Jahresrahmenvertrag DATEV-Kanzleiautomatisierung Q4/2026", "bewirtung_teilnehmer": ["Munir Adas (ADAS Systems GmbH)", "StB Dr. Thomas Weber (Kanzlei Weber & Partner)", "Sabine Lindner (Leitung FIBU Weber & Partner)"], "gobd_sha256_hash": "5cb463b79c821680aa14338855bd28ca3fc4f3de7eb0e47f5bfb84bb4640d00b", "gobd_timestamp_utc": "2026-10-17T14:12:47Z", "overall_status": "GOBD_COMPLIANT", "compliance_score": 100, "vorsteuer_abzugsfaehig_eur": "38.00", "checks": [{"field_id": "USTG_14_4_NR1_SUPPLIER", "legal_ref": "§ 14 Abs. 4 Nr. 1 UStG", "title": "Vollständiger Name & Anschrift des leistenden Unternehmers", "status": "PASS", "extracted_value": "Bratwurst Röslein GmbH | Rathausplatz 6, 90403 Nürnberg, DE", "explanation": "Leistender Unternehmer vollständig angegeben."}, {"field_id": "USTG_14_4_NR1_CUSTOMER", "legal_ref": "§ 14 Abs. 4 Nr. 1 UStG", "title": "Vollständiger Name & Anschrift des Leistungsempfängers", "status": "PASS", "extracted_value": "ADAS Systems GmbH | Königstr. 42, 90402 Nürnberg, DE", "explanation": "Leistungsempfänger ordnungsgemäß adressiert."}, {"field_id": "USTG_14_4_NR2_TAX_ID", "legal_ref": "§ 33 UStDV / § 14 Abs. 4 Nr. 2 UStG", "title": "Steuernummer oder USt-IdNr. des Ausstellers", "status": "PASS", "extracted_value": "241/115/80912", "explanation": "Gültige deutsche Steuernummer (241/115/80912)"}, {"field_id": "USTG_14_4_NR3_ISSUE_DATE", "legal_ref": "§ 14 Abs. 4 Nr. 3 UStG", "title": "Ausstellungsdatum der Rechnung", "status": "PASS", "extracted_value": "2026-10-16", "explanation": "Rechnungsdatum ISO-konform vorhanden."}, {"field_id": "USTG_14_4_NR4_INVOICE_NO", "legal_ref": "§ 33 UStDV / § 14 Abs. 4 Nr. 4 UStG", "title": "Fortlaufende Rechnungsnummer", "status": "PASS", "extracted_value": "TSE-2026-994120", "explanation": "Rechnungsnummer vorhanden bzw. nach § 33 UStDV bei Kleinbetrag befreit."}, {"field_id": "USTG_14_4_NR5_LINE_DESC", "legal_ref": "§ 14 Abs. 4 Nr. 5 UStG", "title": "Menge & Art (handelsübliche Bezeichnung) der Leistung", "status": "PASS", "extracted_value": "Bewirtung Speisen & Getränke lt. TSE-Kassenbon (TSE-Signatur: 88f1a9c2)", "explanation": "Leistungsbeschreibung spezifisch und prüfbar."}, {"field_id": "USTG_14_4_NR6_DELIVERY_DATE", "legal_ref": "§ 33 UStDV / § 14 Abs. 4 Nr. 6 UStG", "title": "Zeitpunkt der Lieferung oder sonstigen Leistung", "status": "PASS", "extracted_value": "2026-10-16", "explanation": "Bei Kleinbetragsrechnungen <= 250 € ist das separate Leistungsdatum entbehrlich."}, {"field_id": "USTG_14_4_NR7_8_MATH", "legal_ref": "§ 14 Abs. 4 Nr. 7 & 8 UStG (EN 16931 BR-CO-15)", "title": "Entgeltaufschlüsselung, Steuersatz & Steuerbetrag", "status": "PASS", "extracted_value": "Netto 200.00 € | USt 38.00 € (19.00%) | Brutto 238.00 €", "explanation": "Pfenniggenaue Prüfung bestanden: 200.00 € Netto + 38.00 € USt (19.00 %) = 238.00 € Brutto."}, {"field_id": "ESTG_4_5_NR2_BEWIRTUNG", "legal_ref": "§ 4 Abs. 5 Satz 1 Nr. 2 EStG / R 4.10 EStR", "title": "Bewirtungsbeleg: Konkreter Anlass & Teilnehmerliste", "status": "PASS", "extracted_value": "Anlass: 'Vertragsverhandlung Jahresrahmenvertrag DATEV-Kanzleiautomatisierung Q4/2026' | Teilnehmer (3): Munir Adas (ADAS Systems GmbH), StB Dr. Thomas Weber (Kanzlei Weber & Partner), Sabine Lindner (Leitung FIBU Weber & Partner)", "explanation": "Bewirtungsanlass konkret dokumentiert und Teilnehmer vollständig benannt (70%/30% Split zulässig)."}, {"field_id": "GOBD_RZ110_IMMUTABILITY", "legal_ref": "GoBD Rz. 64, 110 & 130 (BMF-Schreiben 28.11.2019 / 11.03.2024)", "title": "GoBD Unveränderbarkeits-Hash & Belegverknüpfung", "status": "PASS", "extracted_value": "SHA-256: 5cb463b79c821680... (2026-10-17T14:12:47Z)", "explanation": "Kryptografischer GoBD-Belegfingerabdruck berechnet und Festschreibungskennzeichen (1) für DATEV-Stapel gesetzt."}], "postings": [{"umsatz_brutto_eur": "166.60", "soll_haben": "S", "wkz": "EUR", "konto_skr03": "4650", "konto_skr04": "6640", "gegenkonto": "70000", "bu_schluessel": "9", "belegdatum_ddmm": "1610", "belegfeld_1": "TSE-2026-994120", "buchungstext": "Bewirtung 70% Bratwurst Röslein GmbH", "festschreibung": 1, "kostenstelle_1": "KST-100", "tax_rate_percent": "19.00", "net_amount_eur": "140.00", "vat_amount_eur": "26.60", "category_key": "bewirtung_70_abziehbar"}, {"umsatz_brutto_eur": "71.40", "soll_haben": "S", "wkz": "EUR", "konto_skr03": "4654", "konto_skr04": "6644", "gegenkonto": "70000", "bu_schluessel": "9", "belegdatum_ddmm": "1610", "belegfeld_1": "TSE-2026-994120", "buchungstext": "Bewirtung 30% n.abz. Bratwurst Röslein GmbH", "festschreibung": 1, "kostenstelle_1": "KST-100", "tax_rate_percent": "19.00", "net_amount_eur": "60.00", "vat_amount_eur": "11.40", "category_key": "bewirtung_30_nicht_abziehbar"}]}, {"document_id": "DOC-04-DEFECTIVE-USTG14", "source_format": "ocr_text", "supplier_name": "Alpha Consulting UG", "supplier_address": "Friedrichstr. 100, 10117 Berlin, DE", "supplier_tax_id": "", "customer_name": "ADAS Systems GmbH", "customer_address": "Königstr. 42, 90402 Nürnberg, DE", "customer_vat_id": "DE349812004", "invoice_number": "2026-09", "issue_date": "2026-10-16", "delivery_date": "", "item_description": "Beratung", "currency": "EUR", "net_amount": "1000.00", "vat_amount": "190.00", "gross_amount": "1190.00", "tax_rate_percent": "19.00", "is_kleinbetrag": false, "is_reverse_charge": false, "is_bewirtung": false, "bewirtung_anlass": null, "bewirtung_teilnehmer": [], "gobd_sha256_hash": "c71d8645a3232b06b74774c8e1baf758aa36681521f3715275c6385d0a77bbf2", "gobd_timestamp_utc": "2026-10-17T14:12:47Z", "overall_status": "REJECTED_USTG_14", "compliance_score": 67, "vorsteuer_abzugsfaehig_eur": "0.00", "checks": [{"field_id": "USTG_14_4_NR1_SUPPLIER", "legal_ref": "§ 14 Abs. 4 Nr. 1 UStG", "title": "Vollständiger Name & Anschrift des leistenden Unternehmers", "status": "PASS", "extracted_value": "Alpha Consulting UG | Friedrichstr. 100, 10117 Berlin, DE", "explanation": "Leistender Unternehmer vollständig angegeben."}, {"field_id": "USTG_14_4_NR1_CUSTOMER", "legal_ref": "§ 14 Abs. 4 Nr. 1 UStG", "title": "Vollständiger Name & Anschrift des Leistungsempfängers", "status": "PASS", "extracted_value": "ADAS Systems GmbH | Königstr. 42, 90402 Nürnberg, DE", "explanation": "Leistungsempfänger ordnungsgemäß adressiert."}, {"field_id": "USTG_14_4_NR2_TAX_ID", "legal_ref": "§ 14 Abs. 4 Nr. 2 UStG", "title": "Steuernummer oder USt-IdNr. des Ausstellers", "status": "FAIL", "extracted_value": "FEHLT", "explanation": "Fehlt komplett (weder Steuernummer noch USt-IdNr. nach § 14 Abs. 4 Nr. 2 UStG)"}, {"field_id": "USTG_14_4_NR3_ISSUE_DATE", "legal_ref": "§ 14 Abs. 4 Nr. 3 UStG", "title": "Ausstellungsdatum der Rechnung", "status": "PASS", "extracted_value": "2026-10-16", "explanation": "Rechnungsdatum ISO-konform vorhanden."}, {"field_id": "USTG_14_4_NR4_INVOICE_NO", "legal_ref": "§ 14 Abs. 4 Nr. 4 UStG", "title": "Fortlaufende eindeutige Rechnungsnummer", "status": "PASS", "extracted_value": "2026-09", "explanation": "Eindeutige Rechnungsnummer geprüft."}, {"field_id": "USTG_14_4_NR5_LINE_DESC", "legal_ref": "§ 14 Abs. 4 Nr. 5 UStG", "title": "Menge & Art (handelsübliche Bezeichnung) der Leistung", "status": "FAIL", "extracted_value": "Beratung", "explanation": "Pauschale Sammelbezeichnung ('Beratung'/'Diverses') oder fehlende Leistungsbeschreibung gefährdet Vorsteuerabzug!"}, {"field_id": "USTG_14_4_NR6_DELIVERY_DATE", "legal_ref": "§ 14 Abs. 4 Nr. 6 UStG / § 31 Abs. 4 UStDV", "title": "Zeitpunkt der Lieferung oder sonstigen Leistung", "status": "FAIL", "extracted_value": "FEHLT", "explanation": "Leistungsdatum nach § 14 Abs. 4 Nr. 6 UStG fehlt (Pflicht auch bei Identität mit Rechnungsdatum)!"}, {"field_id": "USTG_14_4_NR7_8_MATH", "legal_ref": "§ 14 Abs. 4 Nr. 7 & 8 UStG (EN 16931 BR-CO-15)", "title": "Entgeltaufschlüsselung, Steuersatz & Steuerbetrag", "status": "PASS", "extracted_value": "Netto 1000.00 € | USt 190.00 € (19.00%) | Brutto 1190.00 €", "explanation": "Pfenniggenaue Prüfung bestanden: 1000.00 € Netto + 190.00 € USt (19.00 %) = 1190.00 € Brutto."}, {"field_id": "USTG_14A_SPECIAL_RULES", "legal_ref": "§ 14a UStG / § 4 Abs. 5 EStG", "title": "Sonderprüfungen (§ 13b Reverse Charge / Bewirtung § 4 Abs. 5 EStG)", "status": "EXEMPT", "extracted_value": "Regel-Eingangsrechnung Inland", "explanation": "Keine § 13b Reverse-Charge oder Bewirtungs-Sonderpflichten einschlägig."}, {"field_id": "GOBD_RZ110_IMMUTABILITY", "legal_ref": "GoBD Rz. 64, 110 & 130 (BMF-Schreiben 28.11.2019 / 11.03.2024)", "title": "GoBD Unveränderbarkeits-Hash & Belegverknüpfung", "status": "PASS", "extracted_value": "SHA-256: c71d8645a3232b06... (2026-10-17T14:12:47Z)", "explanation": "Kryptografischer GoBD-Belegfingerabdruck berechnet und Festschreibungskennzeichen (1) für DATEV-Stapel gesetzt."}], "postings": [{"umsatz_brutto_eur": "1190.00", "soll_haben": "S", "wkz": "EUR", "konto_skr03": "4964", "konto_skr04": "6835", "gegenkonto": "70000", "bu_schluessel": "9", "belegdatum_ddmm": "1610", "belegfeld_1": "2026-09", "buchungstext": "Alpha Consulting UG - Beratung", "festschreibung": 0, "kostenstelle_1": "KST-100", "tax_rate_percent": "19.00", "net_amount_eur": "1000.00", "vat_amount_eur": "190.00", "category_key": "software_it_inland_19"}]}], "extf_skr03": "EXTF;700;21;Buchungsstapel;13;20261017141247000;;RE;Claude-GoBD-MCP-App;;1001;45001;20260101;4;20261001;20261031;GoBD Audit Stapel (SKR03);AGY;1;0;1;EUR;;;;03\r\nUmsatz (ohne Soll/Haben-Kz);Soll/Haben-Kennzeichen;WKZ Umsatz;Kurs;Basis-Umsatz;WKZ Basis-Umsatz;Konto;Gegenkonto (ohne BU-Schlüssel);BU-Schlüssel;Belegdatum;Belegfeld 1;Belegfeld 2;Skonto;Buchungstext;Postensperre;Diverse Adressnummer;Geschäftspartnerbank;Sachverhalt;Zinssperre;Beleglink;KOST1 - Kostenstelle;Festschreibung\r\n1428,00;S;EUR;;;;4964;70000;9;1410;RE-2026-88412;;;Hetzner Online GmbH - Dedicated Root Server AX102 &;0;;;;0;gobd://sha256/e46f919a14ac800351e28cbf;KST-100;1\r\n850,00;S;EUR;;;;3123;70000;94;1510;ANT-IE-2026-10944;;;Anthropic Ireland, Ltd. - Claude API & Enterprise MCP To;0;;;;0;gobd://sha256/146a52bfbac49a71e3157f7d;KST-100;1\r\n166,60;S;EUR;;;;4650;70000;9;1610;TSE-2026-994120;;;Bewirtung 70% Bratwurst Röslein GmbH;0;;;;0;gobd://sha256/5cb463b79c821680aa143388;KST-100;1\r\n71,40;S;EUR;;;;4654;70000;9;1610;TSE-2026-994120;;;Bewirtung 30% n.abz. Bratwurst Röslein GmbH;0;;;;0;gobd://sha256/5cb463b79c821680aa143388;KST-100;1\r\n1190,00;S;EUR;;;;4964;70000;9;1610;2026-09;;;Alpha Consulting UG - Beratung;0;;;;0;gobd://sha256/c71d8645a3232b06b74774c8;KST-100;0\r\n", "extf_skr04": "EXTF;700;21;Buchungsstapel;13;20261017141247000;;RE;Claude-GoBD-MCP-App;;1001;45001;20260101;4;20261001;20261031;GoBD Audit Stapel (SKR04);AGY;1;0;1;EUR;;;;04\r\nUmsatz (ohne Soll/Haben-Kz);Soll/Haben-Kennzeichen;WKZ Umsatz;Kurs;Basis-Umsatz;WKZ Basis-Umsatz;Konto;Gegenkonto (ohne BU-Schlüssel);BU-Schlüssel;Belegdatum;Belegfeld 1;Belegfeld 2;Skonto;Buchungstext;Postensperre;Diverse Adressnummer;Geschäftspartnerbank;Sachverhalt;Zinssperre;Beleglink;KOST1 - Kostenstelle;Festschreibung\r\n1428,00;S;EUR;;;;6835;70000;9;1410;RE-2026-88412;;;Hetzner Online GmbH - Dedicated Root Server AX102 &;0;;;;0;gobd://sha256/e46f919a14ac800351e28cbf;KST-100;1\r\n850,00;S;EUR;;;;5923;70000;94;1510;ANT-IE-2026-10944;;;Anthropic Ireland, Ltd. - Claude API & Enterprise MCP To;0;;;;0;gobd://sha256/146a52bfbac49a71e3157f7d;KST-100;1\r\n166,60;S;EUR;;;;6640;70000;9;1610;TSE-2026-994120;;;Bewirtung 70% Bratwurst Röslein GmbH;0;;;;0;gobd://sha256/5cb463b79c821680aa143388;KST-100;1\r\n71,40;S;EUR;;;;6644;70000;9;1610;TSE-2026-994120;;;Bewirtung 30% n.abz. Bratwurst Röslein GmbH;0;;;;0;gobd://sha256/5cb463b79c821680aa143388;KST-100;1\r\n1190,00;S;EUR;;;;6835;70000;9;1610;2026-09;;;Alpha Consulting UG - Beratung;0;;;;0;gobd://sha256/c71d8645a3232b06b74774c8;KST-100;0\r\n", "generated_at": "2026-10-17T14:12:47Z"};
+let currentSkr = "SKR03";
+let selectedDocIdx = 0;
+
+function sendMcpPostMessage(method, params) {
+  const payload = {
+    jsonrpc: "2.0",
+    id: "mcp-ui-" + Date.now(),
+    method: method,
+    params: params
+  };
+  if (window.parent && window.parent !== window) {
+    window.parent.postMessage(payload, "*");
+  }
+  console.log("[MCP-App JSON-RPC -> Host]", payload);
+}
+
+function syncContextToClaude() {
+  const rep = APP_STATE.reports[selectedDocIdx];
+  sendMcpPostMessage("ui/updateModelContext", {
+    resourceUri: "ui://gobd-beleg-auditor/widget.html",
+    kontenrahmen: currentSkr,
+    selectedDocumentId: rep.document_id,
+    overallStatus: rep.overall_status,
+    vorsteuerAbzugsfaehigEur: rep.vorsteuer_abzugsfaehig_eur
+  });
+}
+
+function switchKontenrahmen(val) {
+  currentSkr = val;
+  renderAll();
+  syncContextToClaude();
+}
+
+function selectDoc(idx) {
+  selectedDocIdx = idx;
+  renderAll();
+}
+
+function downloadDatevCsv() {
+  const csvContent = currentSkr === "SKR03" ? APP_STATE.extf_skr03 : APP_STATE.extf_skr04;
+  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "EXTF_Buchungsstapel_" + currentSkr + ".csv";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+
+function renderAll() {
+  const reports = APP_STATE.reports;
+  const compliantCount = reports.filter(r => r.overall_status === "GOBD_COMPLIANT").length;
+  const totalVst = reports.reduce((acc, r) => acc + parseFloat(r.vorsteuer_abzugsfaehig_eur), 0).toFixed(2);
+  const totalBookings = reports.reduce((acc, r) => acc + r.postings.length, 0);
+
+  document.getElementById("kpiRow").innerHTML = `
+    <div class="kpi-card"><div class="kpi-label">Geprüfte Belege</div><div class="kpi-val">${reports.length}</div></div>
+    <div class="kpi-card"><div class="kpi-label">GoBD & § 14 UStG Konform</div><div class="kpi-val" style="color:var(--pass)">${compliantCount} / ${reports.length}</div></div>
+    <div class="kpi-card"><div class="kpi-label">Abziehbare Vorsteuer</div><div class="kpi-val" style="color:var(--accent)">${totalVst} €</div></div>
+    <div class="kpi-card"><div class="kpi-label">DATEV Buchungssätze (${currentSkr})</div><div class="kpi-val">${totalBookings} Zeilen</div></div>
+  `;
+
+  document.getElementById("docList").innerHTML = reports.map((r, i) => `
+    <div class="doc-item ${i === selectedDocIdx ? 'active' : ''}" onclick="selectDoc(${i})">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;">
+        <strong style="font-size:13px;">${r.document_id}</strong>
+        <span class="status-pill status-${r.overall_status}">${r.overall_status}</span>
+      </div>
+      <div style="font-size:12px;margin-top:4px;">${r.supplier_name || 'Unbekannter Aussteller'}</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:4px;display:flex;justify-content:space-between;">
+        <span>Format: ${r.source_format}</span>
+        <strong style="color:var(--text)">${r.gross_amount} €</strong>
+      </div>
+    </div>
+  `).join("");
+
+  const r = reports[selectedDocIdx];
+  const checksRows = r.checks.map(c => `
+    <tr>
+      <td><span class="status-pill status-${c.status}">${c.status}</span></td>
+      <td><strong>${c.title}</strong><br><span style="color:var(--muted);font-size:11px;">${c.legal_ref}</span></td>
+      <td class="mono">${c.extracted_value}</td>
+      <td>${c.explanation}</td>
+    </tr>
+  `).join("");
+
+  const postingRows = r.postings.map(p => {
+    const konto = currentSkr === "SKR03" ? p.konto_skr03 : p.konto_skr04;
+    return `
+      <tr>
+        <td class="mono"><strong>${p.umsatz_brutto_eur} € (${p.soll_haben})</strong></td>
+        <td class="mono" style="color:var(--accent);font-weight:700;">${konto}</td>
+        <td class="mono">${p.gegenkonto}</td>
+        <td class="mono">BU ${p.bu_schluessel}</td>
+        <td class="mono">${p.belegdatum_ddmm}</td>
+        <td>${p.buchungstext}</td>
+        <td class="mono">Festschr.=${p.festschreibung}</td>
+      </tr>
+    `;
+  }).join("");
+
+  const csvPreview = currentSkr === "SKR03" ? APP_STATE.extf_skr03 : APP_STATE.extf_skr04;
+
+  document.getElementById("detailPanel").innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;">
+      <div>
+        <h3 style="margin:0;font-size:16px;">${r.supplier_name} — Rechnung ${r.invoice_number || '(Ohne Nr.)'}</h3>
+        <div style="font-size:12px;color:var(--muted);margin-top:2px;">GoBD SHA-256: <span class="mono">${r.gobd_sha256_hash}</span></div>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-size:12px;color:var(--muted);">Compliance-Score</div>
+        <div style="font-size:20px;font-weight:800;">${r.compliance_score}%</div>
+      </div>
+    </div>
+
+    <h4 style="margin:14px 0 4px 0;font-size:13px;color:var(--accent);">1. § 14 Abs. 4 UStG &amp; GoBD 10-Punkte-Prüfprotokoll</h4>
+    <table>
+      <thead><tr><th>Status</th><th>Prüffeld &amp; Rechtsnorm</th><th>Extrahierter Wert</th><th>Prüfergebnis</th></tr></thead>
+      <tbody>${checksRows}</tbody>
+    </table>
+
+    <h4 style="margin:16px 0 4px 0;font-size:13px;color:var(--accent);">2. Deterministische DATEV Vorkontierung (${currentSkr})</h4>
+    <table>
+      <thead><tr><th>Umsatz (S/H)</th><th>Sachkonto (${currentSkr})</th><th>Gegenkonto</th><th>Steuerschl.</th><th>Belegdatum</th><th>Buchungstext</th><th>GoBD-Lock</th></tr></thead>
+      <tbody>${postingRows}</tbody>
+    </table>
+
+    <h4 style="margin:16px 0 4px 0;font-size:13px;color:var(--accent);">3. Live DATEV EXTF v700 Buchungsstapel Vorschau (${currentSkr})</h4>
+    <div class="extf-box mono">${csvPreview}</div>
+  `;
+}
+
+renderAll();
+</script>
+</body>
+</html>

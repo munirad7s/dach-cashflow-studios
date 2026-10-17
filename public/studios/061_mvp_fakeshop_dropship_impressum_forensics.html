@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MVP #61 — DACH Fake-Shop, Meta Page-Transparency & § 5 DDG / HRB Forensics Radar</title>
+  <style>
+    :root {
+      --bg: #0b0f17;
+      --panel: #131b2e;
+      --panel-alt: #19233c;
+      --border: #283655;
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --red: #ef4444;
+      --red-bg: rgba(239, 68, 68, 0.14);
+      --yellow: #f59e0b;
+      --yellow-bg: rgba(245, 158, 11, 0.14);
+      --green: #10b981;
+      --green-bg: rgba(16, 185, 129, 0.14);
+      --accent: #38bdf8;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+    }
+    header {
+      background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 24px 32px;
+    }
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .pill {
+      font-size: 12px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(56, 189, 248, 0.15);
+      color: var(--accent);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+    }
+    .pill.warn {
+      background: var(--red-bg);
+      color: #fca5a5;
+      border-color: rgba(239, 68, 68, 0.4);
+    }
+    h1 {
+      margin: 0 0 8px 0;
+      font-size: 24px;
+      letter-spacing: -0.02em;
+    }
+    .subtitle {
+      color: var(--muted);
+      font-size: 14px;
+      max-width: 1050px;
+    }
+    .container {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 24px 32px;
+    }
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .kpi-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 18px;
+    }
+    .kpi-label {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+    }
+    .kpi-val {
+      font-size: 26px;
+      font-weight: 700;
+      margin: 6px 0 4px 0;
+    }
+    .kpi-sub {
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 20px;
+      background: var(--panel);
+      padding: 14px 18px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+    .controls input, .controls select {
+      background: #0b0f17;
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+    .controls input { flex: 1; min-width: 240px; }
+    .layout {
+      display: grid;
+      grid-template-columns: 420px 1fr;
+      gap: 22px;
+    }
+    @media (max-width: 1080px) {
+      .layout { grid-template-columns: 1fr; }
+    }
+    .case-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .case-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .case-card:hover, .case-card.active {
+      border-color: var(--accent);
+      background: var(--panel-alt);
+      transform: translateY(-1px);
+    }
+    .ampel-tag {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 9px;
+      border-radius: 6px;
+      text-transform: uppercase;
+    }
+    .ampel-RED { background: var(--red-bg); color: #fca5a5; border: 1px solid var(--red); }
+    .ampel-YELLOW { background: var(--yellow-bg); color: #fcd34d; border: 1px solid var(--yellow); }
+    .ampel-GREEN { background: var(--green-bg); color: #6ee7b7; border: 1px solid var(--green); }
+    .detail-pane {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+    }
+    .layer-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 14px;
+      margin: 18px 0;
+    }
+    .layer-box {
+      background: #0e1525;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+    }
+    .layer-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-weight: 600;
+      font-size: 13px;
+    }
+    .flag-list {
+      margin: 8px 0 0 0;
+      padding-left: 18px;
+      font-size: 12.5px;
+      color: #cbd5e1;
+    }
+    .flag-list li { margin-bottom: 5px; }
+    pre.codebox {
+      background: #070a10;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px;
+      font-size: 12px;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      color: #a5f3fc;
+    }
+    .btn {
+      background: var(--accent);
+      color: #0f172a;
+      border: none;
+      padding: 7px 14px;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .meta-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      margin-top: 10px;
+    }
+    .meta-table th, .meta-table td {
+      text-align: left;
+      padding: 7px 10px;
+      border-bottom: 1px solid var(--border);
+    }
+    .meta-table th { color: var(--muted); width: 36%; }
+  </style>
+</head>
+<body>
+
+<!-- DACH CASHFLOW STUDIOS LAUNCH BAR -->
+<style>
+  #dcs-launch-bar {
+    position: sticky;
+    top: 0;
+    z-index: 99999;
+    background: linear-gradient(90deg, #0b1120 0%, #111827 50%, #0f172a 100%);
+    color: #f8fafc;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.35);
+    padding: 8px 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  }
+  #dcs-launch-bar .dcs-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+  }
+  #dcs-launch-bar .dcs-badge {
+    background: rgba(16, 185, 129, 0.18);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.03em;
+  }
+  #dcs-launch-bar a.dcs-nav {
+    color: #93c5fd;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 12.5px;
+  }
+  #dcs-launch-bar a.dcs-nav:hover {
+    text-decoration: underline;
+    color: #dbeafe;
+  }
+  #dcs-launch-bar .dcs-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  #dcs-launch-bar .dcs-btn {
+    padding: 5px 11px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s ease;
+  }
+  #dcs-launch-bar .dcs-btn-ghost {
+    background: rgba(255,255,255,0.08);
+    color: #e2e8f0;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  #dcs-launch-bar .dcs-btn-primary {
+    background: linear-gradient(135deg, #0ea5e9, #2563eb);
+    color: #ffffff;
+  }
+  #dcs-launch-bar .dcs-btn-emerald {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
+  }
+  @media print {
+    #dcs-launch-bar { display: none !important; }
+  }
+</style>
+<div id="dcs-launch-bar">
+  <div class="dcs-left">
+    <a href="/index.html" class="dcs-nav">← Alle 150 DACH Studios</a>
+    <span class="dcs-badge">MVP #061 VERIFIED</span>
+    <span style="color:#cbd5e1;font-size:12px;">DACH LegalTech, Labor Law & Consumer Claims</span>
+  </div>
+  <div class="dcs-actions">
+    <button onclick="window.print()" class="dcs-btn dcs-btn-ghost">🖨️ PDF / Dossier drucken</button>
+    <a href="#checkout-modal-49" target="_blank" rel="noopener" class="dcs-btn dcs-btn-primary">⚡ Musterschreiben & Voll-Dossier (€49)</a>
+    <a href="#checkout-modal-299" target="_blank" rel="noopener" class="dcs-btn dcs-btn-emerald">🛡️ B2B Umsetzung buchen (€299 / €1.490)</a>
+  </div>
+</div>
+
+  <header>
+    <div class="badge-row">
+      <span class="pill">MVP #61 · DACH Fake-Shop & § 5 DDG / HRB Forensics Engine</span>
+      <span class="pill warn">Wave 23 Teardown: maximedupre/facebook-page-transparency-scraper (628 runs/30d · 63.4% FAIL)</span>
+      <span class="pill">seemuapps/instagram-account-age-checker (789 Users · 3,889 runs/30d)</span>
+    </div>
+    <h1>DACH Fake-Shop, Meta Page-Admin Country Mismatch & § 5 DDG Impressum / HRB Forensics Radar</h1>
+    <div class="subtitle">
+      Automated 6-Layer Forensic Verification: (1) Meta Page Transparency & IG Account Age vs. "Traditionsbetrieb seit 1984" claims,
+      (2) Domain Age & Shopify /products.json Dropship CDN Fingerprints, (3) § 5 DDG Impressum + Handelsregister (HRB) & BZSt Mod-11 USt-IdNr. Cross-Check,
+      (4) AGB China/Shenzhen Return-Address Trap, (5) AI Stock-Artisan & Fake Trustpilot HTML Spoof, (6) Instant Visa 13.3 Chargeback + EU DSA Art. 16 Takedown Generator.
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="kpi-grid" id="kpiGrid"></div>
+
+    <div class="controls">
+      <input type="text" id="searchInput" placeholder="Filter by domain, brand, HRB number, EU DSA payer, or city (e.g. München, Shenzhen, HRB 214908)..." />
+      <select id="ampelFilter">
+        <option value="ALL">Alle Ampel-Stufen (Red / Yellow / Green)</option>
+        <option value="RED">ROT — High-Risk Fakeshop / Scam</option>
+        <option value="YELLOW">GELB — Compliance / Offshore Warning</option>
+        <option value="GREEN">GRÜN — Verified DACH Merchant</option>
+      </select>
+    </div>
+
+    <div class="layout">
+      <div class="case-list" id="caseList"></div>
+      <div class="detail-pane" id="detailPane"></div>
+    </div>
+  </div>
+
+  <script>
+    const MANIFEST = {"mvp_id": "MVP_61_DACH_FAKESHOP_DROPSHIP_IMPRESSUM_FORENSICS", "generated_at": "2026-10-17T18:05:00+02:00", "wave23_benchmarks": {"maximedupre/facebook-page-transparency-scraper": {"actor_slug": "maximedupre/facebook-page-transparency-scraper", "platform": "facebook", "title": "Facebook Page Transparency Scraper", "total_users": 46, "monthly_active_users": 12, "runs_30d": 628, "failed_runs_30d": 398, "fail_rate_pct": 63.4, "pricing_model": "PAY_PER_EVENT", "price_per_event_usd": 0.0027, "failure_root_causes": ["Direct navigation to facebook.com/<page>/about_profile_transparency triggers EU Consent + Login Wall Redirect (HTTP 302 -> /login/) on datacenter proxies.", "Hardcoded Comet GraphQL doc_id for ProfileTransparencySectionQuery rotates every 14-21 days, returning empty data.node.page_transparency_info.", "Lack of fallback to public EU DSA Ad Library API fields (beneficiary, payer, page_created_time) which require zero Facebook session cookies."], "our_resilience_fix": "3-Tier Cookieless Transparency Resolver: (1) Meta Ad Library EU DSA Art. 24 GraphQL payload (extracts beneficiary, payer, page_id, page_creation_date without login), (2) Embedded Relay SSR JSON hydration parse from public Ad Library advertiser profile drawer, (3) Cross-platform Instagram `about_this_account` correlation."}, "seemuapps/instagram-account-age-checker": {"actor_slug": "seemuapps/instagram-account-age-checker", "platform": "instagram", "title": "Instagram Account Age & Country Checker", "total_users": 789, "monthly_active_users": 79, "runs_30d": 3889, "failed_runs_30d": 187, "fail_rate_pct": 4.8, "pricing_model": "PAY_PER_EVENT", "price_per_event_usd": 0.006, "demand_signal": "3,889 runs/30d across 789 users proves massive programmatic demand for checking account creation date, country of registration, and former usernames (`hasChangedUsername`) to expose impersonators and fake stores."}}, "summary": {"total_cases_audited": 4, "red_fakeshops_count": 2, "yellow_warning_count": 1, "green_verified_count": 1, "flagged_active_eu_ads": 255, "flagged_monthly_ad_spend_eur": 86100}, "cases": [{"case_id": "DACH-FS-001", "shop_domain": "johanna-karl-muenchen.de", "brand_display_name": "Johanna & Karl — Münchner Taschenmanufaktur (Seit 1984)", "ad_headline": "Schweren Herzens schließen wir nach 42 Jahren unsere Münchner Werkstatt — Bis zu 80% Ruhestands-Rabatt!", "ad_copy_snippet": "Nach über vier Jahrzehnten Handarbeit in München-Schwabing zwingen uns Arthrose und fehlende Nachfolge zur Schließung. Jede Ledertasche wurde von Karl & mir mit Liebe gefertigt. Letzter Ausverkauf!", "claimed_city_de": "München", "claimed_founding_year": 1984, "active_eu_ads_count": 142, "estimated_monthly_ad_spend_eur": 48500, "composite_fraud_score": 98.5, "ampel_color": "RED", "ampel_verdict": "ROT — HIGH-RISK FAKESHOP / DECEPTIVE DROPSHIPPER", "total_forensic_flags": 16, "all_flags": ["HERITAGE_FABRICATION: Ad claims 'Seit 1984' (42 yrs), but FB Page was created 14 days ago (2026-10-03).", "ADMIN_COUNTRY_MISMATCH: 100.0% of Page Admins in ['CN', 'HK'] (0 DACH admins) despite claiming local store in München.", "IG_COUNTRY_MISMATCH: Instagram @johanna_karl_muenchen_official registered in 'HK' (created 2026-09).", "CHAMELEON_REBRANDING: 3 FB page name changes (formerly: Shenzhen Trendy Bag Store, Bella Moda Milano) & 2 IG handle changes.", "EU_DSA_PAYER_SHELL: EU DSA Art. 24 payer is 'Starlight Cross-Border E-Commerce Co., Limited (Kowloon, HK)' (beneficiary: 'Starlight Cross-Border E-Commerce Co., Limited'), contradicting German Traditionsbetrieb persona.", "NEWLY_REGISTERED_DOMAIN: 'johanna-karl-muenchen.de' registered 18 days ago (2026-09-29) via NameCheap, Inc. (Privacy Guardian LLC).", "FAKE_CLEARANCE_ANCHORING: 100.0% of catalog (218/218 SKUs) has permanent compare_at_price inflation (+385% markup) violating § 11 PAngV.", "DROPSHIP_SUPPLY_CHAIN_HASH: `/products.json` exposes supplier CDN/SKU signatures (cdn.shopify.com/s/files/1/0892/cjdropshipping_import_88219.jpg, ae01.alicdn.com/kf/S89a14e2b90c_pu_leather_bag.webp, DS-88412).", "UST_IDNR_INVALID: Invalid BZSt Mod-11,10 check digit (got 9, expected 4) — fabricated USt-IdNr.", "MISSING_VERTRETUNGSBERECHTIGTER: No natural person named as Geschäftsführer/Inhaber (§ 5 Abs. 1 Nr. 1 DDG).", "STOLEN_HRB_HIJACK: Impressum claims 'Johanna & Karl Lederwaren München GmbH' under München HRB 214908, but official Handelsregister record belongs to 'Bavaria Industriekühlung & Klimatechnik GmbH' (Planung, Bau und Wartung gewerblicher Kälteanlagen)!", "OFFSHORE_RETURN_ADDRESS_TRAP: Frontpage promises 'Kostenloser & klimaneutraler DHL-Versand aus unserem Münchner Atelier (1–3 Werktage)', but AGB forces returns to 'Room 402, Building B, Bantian International Center, Longgang District, Shenzhen, Guangdong, 518129, China' (matched hubs: shenzhen, longgang, guangdong).", "WIDERRUFSRECHT_ECONOMIC_BLOCKADE: Estimated consumer return shipping is €54.90 (91.6% of €59.95 AOV) + customs risk.", "ILLEGAL_RESTOCKING_FEE: AGB imposes a 'Wiedereinlagerungsgebühr / Restocking Fee', unlawful under § 357 BGB.", "SYNTHETIC_ARTISAN_PERSONA: Hero workshop photo exhibits 3 generative AI artifacts (Midjourney v6.1 6-finger right hand on male artisan holding awl; Garbled pseudo-German signage on background wall ('LËDERWÄRK MÜNCHN'); Sewing machine needle fused into leather strap with impossible geometry) with EXIF stripped; SynthID/Midjourney frequency watermark detected.", "TRUSTPILOT_SCORE_SPOOFING: Store hardcodes 'Hervorragend 4.9 ★ auf Basis von 4.312 Bewertungen auf Trustpilot', but real Trustpilot rating is 1.3★ (38 scam warnings)."], "layers": {"layer1_meta_transparency": {"layer_id": "L1_META_TRANSPARENCY_IG_AGE", "layer_name": "Meta Page Transparency, IG Account Age & EU DSA Payer", "risk_score": 100, "status": "CRITICAL", "fb_page_age_days": 14, "ig_account_age_days": 32, "claimed_heritage_years": 42, "heritage_gap_years": 42.0, "high_risk_admin_share_pct": 100.0, "admin_countries": {"CN": 4, "HK": 2}, "ig_registration_country": "HK", "dsa_ad_beneficiary": "Starlight Cross-Border E-Commerce Co., Limited", "dsa_ad_payer": "Starlight Cross-Border E-Commerce Co., Limited (Kowloon, HK)", "flags": ["HERITAGE_FABRICATION: Ad claims 'Seit 1984' (42 yrs), but FB Page was created 14 days ago (2026-10-03).", "ADMIN_COUNTRY_MISMATCH: 100.0% of Page Admins in ['CN', 'HK'] (0 DACH admins) despite claiming local store in München.", "IG_COUNTRY_MISMATCH: Instagram @johanna_karl_muenchen_official registered in 'HK' (created 2026-09).", "CHAMELEON_REBRANDING: 3 FB page name changes (formerly: Shenzhen Trendy Bag Store, Bella Moda Milano) & 2 IG handle changes.", "EU_DSA_PAYER_SHELL: EU DSA Art. 24 payer is 'Starlight Cross-Border E-Commerce Co., Limited (Kowloon, HK)' (beneficiary: 'Starlight Cross-Border E-Commerce Co., Limited'), contradicting German Traditionsbetrieb persona."]}, "layer2_domain_dropship": {"layer_id": "L2_DOMAIN_SHOPIFY_FINGERPRINT", "layer_name": "Domain Age, § 11 PAngV Price-Anchor & Shopify Dropship Fingerprint", "risk_score": 100, "status": "CRITICAL", "domain_age_days": 18, "domain_registered_date": "2026-09-29", "domain_registrar": "NameCheap, Inc. (Privacy Guardian LLC)", "discount_ratio_pct": 100.0, "avg_compare_at_markup_pct": 385.0, "dropship_suppliers_detected": ["cdn.shopify.com/s/files/1/0892/cjdropshipping_import_88219.jpg", "ae01.alicdn.com/kf/S89a14e2b90c_pu_leather_bag.webp"], "dropship_sku_matches": ["DS-88412"], "flags": ["NEWLY_REGISTERED_DOMAIN: 'johanna-karl-muenchen.de' registered 18 days ago (2026-09-29) via NameCheap, Inc. (Privacy Guardian LLC).", "FAKE_CLEARANCE_ANCHORING: 100.0% of catalog (218/218 SKUs) has permanent compare_at_price inflation (+385% markup) violating § 11 PAngV.", "DROPSHIP_SUPPLY_CHAIN_HASH: `/products.json` exposes supplier CDN/SKU signatures (cdn.shopify.com/s/files/1/0892/cjdropshipping_import_88219.jpg, ae01.alicdn.com/kf/S89a14e2b90c_pu_leather_bag.webp, DS-88412)."]}, "layer3_impressum_hrb": {"layer_id": "L3_DDG_IMPRESSUM_HRB", "layer_name": "§ 5 DDG Impressum, Handelsregister (HRB) & BZSt USt-IdNr. Check", "risk_score": 100, "status": "CRITICAL", "impressum_company_name": "Johanna & Karl Lederwaren München GmbH", "impressum_amtsgericht": "München", "impressum_hrb_number": "HRB 214908", "hrb_verdict": "STOLEN_HRB_IDENTITY_HIJACK", "official_handelsregister_entity": "Bavaria Industriekühlung & Klimatechnik GmbH", "ust_idnr_validation": {"present": true, "cleaned": "DE294810349", "syntactically_valid": true, "checksum_valid": false, "expected_check_digit": 4, "actual_check_digit": 9, "reason": "Invalid BZSt Mod-11,10 check digit (got 9, expected 4) — fabricated USt-IdNr."}, "flags": ["UST_IDNR_INVALID: Invalid BZSt Mod-11,10 check digit (got 9, expected 4) — fabricated USt-IdNr.", "MISSING_VERTRETUNGSBERECHTIGTER: No natural person named as Geschäftsführer/Inhaber (§ 5 Abs. 1 Nr. 1 DDG).", "STOLEN_HRB_HIJACK: Impressum claims 'Johanna & Karl Lederwaren München GmbH' under München HRB 214908, but official Handelsregister record belongs to 'Bavaria Industriekühlung & Klimatechnik GmbH' (Planung, Bau und Wartung gewerblicher Kälteanlagen)!"]}, "layer4_return_trap": {"layer_id": "L4_RETURN_ADDRESS_TRAP", "layer_name": "§ 355 BGB Widerrufsrecht & Offshore Return-Address Trap", "risk_score": 100, "status": "CRITICAL", "frontpage_shipping_promise": "Kostenloser & klimaneutraler DHL-Versand aus unserem Münchner Atelier (1–3 Werktage)", "agb_return_address_raw": "Room 402, Building B, Bantian International Center, Longgang District, Shenzhen, Guangdong, 518129, China", "return_to_asia_detected": true, "estimated_return_cost_eur": 54.9, "avg_order_value_eur": 59.95, "return_cost_to_aov_ratio_pct": 91.6, "flags": ["OFFSHORE_RETURN_ADDRESS_TRAP: Frontpage promises 'Kostenloser & klimaneutraler DHL-Versand aus unserem Münchner Atelier (1–3 Werktage)', but AGB forces returns to 'Room 402, Building B, Bantian International Center, Longgang District, Shenzhen, Guangdong, 518129, China' (matched hubs: shenzhen, longgang, guangdong).", "WIDERRUFSRECHT_ECONOMIC_BLOCKADE: Estimated consumer return shipping is €54.90 (91.6% of €59.95 AOV) + customs risk.", "ILLEGAL_RESTOCKING_FEE: AGB imposes a 'Wiedereinlagerungsgebühr / Restocking Fee', unlawful under § 357 BGB."]}, "layer5_ai_trustpilot": {"layer_id": "L5_AI_ARTISAN_TRUSTPILOT_SPOOF", "layer_name": "AI Stock-Artisan Visuals & Hardcoded Fake Trustpilot Widget", "risk_score": 90, "status": "CRITICAL", "hero_image_ai_artifacts": ["Midjourney v6.1 6-finger right hand on male artisan holding awl", "Garbled pseudo-German signage on background wall ('LËDERWÄRK MÜNCHN')", "Sewing machine needle fused into leather strap with impossible geometry"], "exif_c2pa_status": "EXIF stripped; SynthID/Midjourney frequency watermark detected", "on_site_trustpilot_claim": "Hervorragend 4.9 ★ auf Basis von 4.312 Bewertungen auf Trustpilot", "trustpilot_widget_html_type": "HARDCODED_STATIC_SVG", "trustpilot_public_profile_reviews": 38, "trustpilot_public_rating": 1.3, "flags": ["SYNTHETIC_ARTISAN_PERSONA: Hero workshop photo exhibits 3 generative AI artifacts (Midjourney v6.1 6-finger right hand on male artisan holding awl; Garbled pseudo-German signage on background wall ('LËDERWÄRK MÜNCHN'); Sewing machine needle fused into leather strap with impossible geometry) with EXIF stripped; SynthID/Midjourney frequency watermark detected.", "TRUSTPILOT_SCORE_SPOOFING: Store hardcodes 'Hervorragend 4.9 ★ auf Basis von 4.312 Bewertungen auf Trustpilot', but real Trustpilot rating is 1.3★ (38 scam warnings)."]}, "layer6_enforcement": {"layer_id": "L6_ENFORCEMENT_COUNTERMEASURES", "layer_name": "§ 5 UWG / Visa 13.3 Chargeback / EU DSA Art. 16 Takedown Generator", "evidence_hash": "E2481A86DED0D33B", "triggered_statutes": ["§ 5 Abs. 2 Nr. 1 & Nr. 3 UWG (Irreführung über betriebliche Herkunft, Alter & geschäftliche Verhältnisse: 'Traditionsbetrieb' / 'Räumungsverkauf')", "§ 11 Abs. 1 PAngV & § 5a UWG (Scheinrabatte / fehlende Angabe des niedrigsten Gesamtpreises der letzten 30 Tage)", "§ 5 Abs. 1 DDG i.V.m. § 3a UWG (Rechtsbruch durch gefälschtes/unvollständiges Impressum & HRB-Identitätstäuschung)", "§ 312d Abs. 1 BGB i.V.m. Art. 246a § 1 Abs. 2 EGBGB (Verschleierung der Rücksendekosten nach China trotz deutscher Shop-Fassade)", "Nr. 2 & Nr. 11 Anhang zu § 3 Abs. 3 UWG ('Schwarze Liste': gefälschte Gütesiegel / manipulierte Trustpilot-Bewertungen)"], "chargeback_reason_code": "Visa 13.3 / Mastercard 4853 (Not as Described / Deceptive Origin)", "chargeback_dossier_text": "=== VISA REASON CODE 13.3 / MASTERCARD 4853 CHARGEBACK EVIDENCE DOSSIER ===\nDispute Reference: CB-DACH-FS-001-E2481A86DED0D33B\nMerchant Domain: johanna-karl-muenchen.de (Johanna & Karl — Münchner Taschenmanufaktur (Seit 1984))\nDispute Category: 13.3 - Not as Described or Defective Merchandise / Deceptive Merchant Identity\nComposite Forensic Fraud Score: 98.5 / 100\n\n1. DECEPTIVE ORIGIN & HERITAGE MISREPRESENTATION:\n   - Merchant advertised 'Schweren Herzens schließen wir nach 42 Jahren unsere Münchner Werkstatt — Bis zu 80% Ruhestands-Rabatt!' claiming a German workshop in München founded in 1984.\n   - Meta Page Transparency (Page ID 100089412049812) proves the page was created on 2026-10-03 (14 days old) and is administered from {'CN': 4, 'HK': 2} (EU DSA Payer: Starlight Cross-Border E-Commerce Co., Limited (Kowloon, HK)).\n\n2. FABRICATED CORPORATE IDENTITY (§ 5 DDG IMPRESSUM):\n   - Merchant Impressum cites 'Johanna & Karl Lederwaren München GmbH', München HRB 214908.\n   - Forensic HRB Result: STOLEN_HRB_IDENTITY_HIJACK (Official Register Record: Bavaria Industriekühlung & Klimatechnik GmbH).\n\n3. ABUSIVE RETURN-ADDRESS TRAP:\n   - Storefront promised 'Kostenloser & klimaneutraler DHL-Versand aus unserem Münchner Atelier (1–3 Werktage)', but post-purchase return instructions require tracked shipment at buyer's expense (€54.90) to: Room 402, Building B, Bantian International Center, Longgang District, Shenzhen, Guangdong, 518129, China.\n   - Under Visa Core Rules (Section 11.10.2.2 - Reason Code 13.3), the merchant fundamentally misrepresented the nature, origin, and manufacturing quality of the goods (cdn.shopify.com/s/files/1/0892/cjdropshipping_import_88219.jpg, ae01.alicdn.com/kf/S89a14e2b90c_pu_leather_bag.webp).", "dsa_art16_notice_payload": {"regulation": "Regulation (EU) 2022/2065 (Digital Services Act) - Article 16 Notice-and-Action", "recipient_vlop": "Meta Platforms Ireland Limited (Meta Ad Library / Facebook & Instagram)", "notice_id": "DSA-ART16-DACH-FS-001-E2481A86DED0D33B", "reported_entities": {"facebook_page_id": "100089412049812", "instagram_handle": "@johanna_karl_muenchen_official", "destination_domain": "johanna-karl-muenchen.de", "eu_dsa_declared_beneficiary": "Starlight Cross-Border E-Commerce Co., Limited", "eu_dsa_declared_payer": "Starlight Cross-Border E-Commerce Co., Limited (Kowloon, HK)", "active_eu_ad_creatives": 142}, "illegality_grounds_de_eu": ["§ 5 Abs. 2 Nr. 1 & Nr. 3 UWG (Irreführung über betriebliche Herkunft, Alter & geschäftliche Verhältnisse: 'Traditionsbetrieb' / 'Räumungsverkauf')", "§ 11 Abs. 1 PAngV & § 5a UWG (Scheinrabatte / fehlende Angabe des niedrigsten Gesamtpreises der letzten 30 Tage)", "§ 5 Abs. 1 DDG i.V.m. § 3a UWG (Rechtsbruch durch gefälschtes/unvollständiges Impressum & HRB-Identitätstäuschung)", "§ 312d Abs. 1 BGB i.V.m. Art. 246a § 1 Abs. 2 EGBGB (Verschleierung der Rücksendekosten nach China trotz deutscher Shop-Fassade)", "Nr. 2 & Nr. 11 Anhang zu § 3 Abs. 3 UWG ('Schwarze Liste': gefälschte Gütesiegel / manipulierte Trustpilot-Bewertungen)"], "forensic_summary": "Systematic deceptive commercial practice targeting German/EU consumers (142 active ads, ~€48,500/mo spend). Advertiser impersonates a closing German heritage business in München while operating from ['CN', 'HK'] with HRB status 'STOLEN_HRB_IDENTITY_HIJACK'.", "requested_action": "Immediate suspension of active ad creatives in EU member states and verification of advertiser legal identity under DSA Art. 24/30 (KYBC)."}}}}, {"case_id": "DACH-FS-002", "shop_domain": "bergmann-orthopaedie-hamburg.de", "brand_display_name": "Bergmann Orthopädie & Schuhmacherei Hamburg (Seit 1988)", "ad_headline": "Letzte Woche! Unser Hamburger Familienbetrieb schließt — Orthopädische Barfußschuhe 75% reduziert", "ad_copy_snippet": "Seit 1988 fertigt Meister Heinrich Bergmann in Hamburg-Eppendorf gelenkschonende Schuhe. Wegen Geschäftsaufgabe räumen wir unser gesamtes deutsches Lager zum Selbstkostenpreis!", "claimed_city_de": "Hamburg", "claimed_founding_year": 1988, "active_eu_ads_count": 89, "estimated_monthly_ad_spend_eur": 31200, "composite_fraud_score": 89.3, "ampel_color": "RED", "ampel_verdict": "ROT — HIGH-RISK FAKESHOP / DECEPTIVE DROPSHIPPER", "total_forensic_flags": 14, "all_flags": ["HERITAGE_FABRICATION: Ad claims 'Seit 1988' (38 yrs), but FB Page was created 29 days ago (2026-09-18).", "ADMIN_COUNTRY_MISMATCH: 100.0% of Page Admins in ['VN', 'HK'] (0 DACH admins) despite claiming local store in Hamburg.", "IG_COUNTRY_MISMATCH: Instagram @bergmann_schuhe_hh registered in 'VN' (created 2026-09).", "CHAMELEON_REBRANDING: 2 FB page name changes (formerly: Saigon Sneakz Global, Bergmann Schuhe Hamburg) & 2 IG handle changes.", "EU_DSA_PAYER_SHELL: EU DSA Art. 24 payer is 'BlueWave Digital Marketing Limited (Wan Chai, HK)' (beneficiary: 'Apex Ecom Scaling PTE / BlueWave HK Ltd'), contradicting German Traditionsbetrieb persona.", "NEWLY_REGISTERED_DOMAIN: 'bergmann-orthopaedie-hamburg.de' registered 35 days ago (2026-09-12) via Gname.com Pte. Ltd..", "FAKE_CLEARANCE_ANCHORING: 100.0% of catalog (140/140 SKUs) has permanent compare_at_price inflation (+320% markup) violating § 11 PAngV.", "DROPSHIP_SUPPLY_CHAIN_HASH: `/products.json` exposes supplier CDN/SKU signatures (dsers-img.cjdropshipping.com/orthopedic_boot_winter_2026.jpg).", "UST_IDNR_INVALID: Missing USt-IdNr. (§ 5 Abs. 1 Nr. 6 DDG violation for commercial e-commerce).", "PHANTOM_HRB_NUMBER: 'HRB 999881' at Amtsgericht 'Hamburg' does not exist in Handelsregister.de.", "OFFSHORE_RETURN_ADDRESS_TRAP: Frontpage promises 'Versandfertig in 24h aus unserem Lager in Hamburg', but AGB forces returns to 'No. 188 Chouzhou North Road, Yiwu City, Zhejiang Province, 322000, P.R. China' (matched hubs: yiwu, zhejiang, china).", "WIDERRUFSRECHT_ECONOMIC_BLOCKADE: Estimated consumer return shipping is €48.99 (98.2% of €49.90 AOV) + customs risk.", "SYNTHETIC_ARTISAN_PERSONA: Hero workshop photo exhibits 2 generative AI artifacts (Asymmetric eyeglasses melting into cheek skin texture (Flux.1 Dev artifact); Background shoe lasts floating without shelf support) with No camera EXIF; PNG tEXt chunk contains ComfyUI workflow residue.", "FAKE_TRUSTPILOT_STATIC_HTML: Store hardcodes '4.8 / 5.0 ★ bei 2.890 verifizierten Kunden' via static SVG/PNG, while de.trustpilot.com/review/bergmann-orthopaedie-hamburg.de has 0 reviews!"], "layers": {"layer1_meta_transparency": {"layer_id": "L1_META_TRANSPARENCY_IG_AGE", "layer_name": "Meta Page Transparency, IG Account Age & EU DSA Payer", "risk_score": 100, "status": "CRITICAL", "fb_page_age_days": 29, "ig_account_age_days": 32, "claimed_heritage_years": 38, "heritage_gap_years": 37.9, "high_risk_admin_share_pct": 100.0, "admin_countries": {"VN": 3, "HK": 1}, "ig_registration_country": "VN", "dsa_ad_beneficiary": "Apex Ecom Scaling PTE / BlueWave HK Ltd", "dsa_ad_payer": "BlueWave Digital Marketing Limited (Wan Chai, HK)", "flags": ["HERITAGE_FABRICATION: Ad claims 'Seit 1988' (38 yrs), but FB Page was created 29 days ago (2026-09-18).", "ADMIN_COUNTRY_MISMATCH: 100.0% of Page Admins in ['VN', 'HK'] (0 DACH admins) despite claiming local store in Hamburg.", "IG_COUNTRY_MISMATCH: Instagram @bergmann_schuhe_hh registered in 'VN' (created 2026-09).", "CHAMELEON_REBRANDING: 2 FB page name changes (formerly: Saigon Sneakz Global, Bergmann Schuhe Hamburg) & 2 IG handle changes.", "EU_DSA_PAYER_SHELL: EU DSA Art. 24 payer is 'BlueWave Digital Marketing Limited (Wan Chai, HK)' (beneficiary: 'Apex Ecom Scaling PTE / BlueWave HK Ltd'), contradicting German Traditionsbetrieb persona."]}, "layer2_domain_dropship": {"layer_id": "L2_DOMAIN_SHOPIFY_FINGERPRINT", "layer_name": "Domain Age, § 11 PAngV Price-Anchor & Shopify Dropship Fingerprint", "risk_score": 100, "status": "CRITICAL", "domain_age_days": 35, "domain_registered_date": "2026-09-12", "domain_registrar": "Gname.com Pte. Ltd.", "discount_ratio_pct": 100.0, "avg_compare_at_markup_pct": 320.0, "dropship_suppliers_detected": ["dsers-img.cjdropshipping.com/orthopedic_boot_winter_2026.jpg"], "dropship_sku_matches": [], "flags": ["NEWLY_REGISTERED_DOMAIN: 'bergmann-orthopaedie-hamburg.de' registered 35 days ago (2026-09-12) via Gname.com Pte. Ltd..", "FAKE_CLEARANCE_ANCHORING: 100.0% of catalog (140/140 SKUs) has permanent compare_at_price inflation (+320% markup) violating § 11 PAngV.", "DROPSHIP_SUPPLY_CHAIN_HASH: `/products.json` exposes supplier CDN/SKU signatures (dsers-img.cjdropshipping.com/orthopedic_boot_winter_2026.jpg)."]}, "layer3_impressum_hrb": {"layer_id": "L3_DDG_IMPRESSUM_HRB", "layer_name": "§ 5 DDG Impressum, Handelsregister (HRB) & BZSt USt-IdNr. Check", "risk_score": 70, "status": "CRITICAL", "impressum_company_name": "Bergmann Orthopädie-Schuhtechnik GmbH", "impressum_amtsgericht": "Hamburg", "impressum_hrb_number": "HRB 999881", "hrb_verdict": "PHANTOM_NONEXISTENT_HRB", "official_handelsregister_entity": null, "ust_idnr_validation": {"present": false, "syntactically_valid": false, "checksum_valid": false, "reason": "Missing USt-IdNr. (§ 5 Abs. 1 Nr. 6 DDG violation for commercial e-commerce)."}, "flags": ["UST_IDNR_INVALID: Missing USt-IdNr. (§ 5 Abs. 1 Nr. 6 DDG violation for commercial e-commerce).", "PHANTOM_HRB_NUMBER: 'HRB 999881' at Amtsgericht 'Hamburg' does not exist in Handelsregister.de."]}, "layer4_return_trap": {"layer_id": "L4_RETURN_ADDRESS_TRAP", "layer_name": "§ 355 BGB Widerrufsrecht & Offshore Return-Address Trap", "risk_score": 90, "status": "CRITICAL", "frontpage_shipping_promise": "Versandfertig in 24h aus unserem Lager in Hamburg", "agb_return_address_raw": "No. 188 Chouzhou North Road, Yiwu City, Zhejiang Province, 322000, P.R. China", "return_to_asia_detected": true, "estimated_return_cost_eur": 48.99, "avg_order_value_eur": 49.9, "return_cost_to_aov_ratio_pct": 98.2, "flags": ["OFFSHORE_RETURN_ADDRESS_TRAP: Frontpage promises 'Versandfertig in 24h aus unserem Lager in Hamburg', but AGB forces returns to 'No. 188 Chouzhou North Road, Yiwu City, Zhejiang Province, 322000, P.R. China' (matched hubs: yiwu, zhejiang, china).", "WIDERRUFSRECHT_ECONOMIC_BLOCKADE: Estimated consumer return shipping is €48.99 (98.2% of €49.90 AOV) + customs risk."]}, "layer5_ai_trustpilot": {"layer_id": "L5_AI_ARTISAN_TRUSTPILOT_SPOOF", "layer_name": "AI Stock-Artisan Visuals & Hardcoded Fake Trustpilot Widget", "risk_score": 90, "status": "CRITICAL", "hero_image_ai_artifacts": ["Asymmetric eyeglasses melting into cheek skin texture (Flux.1 Dev artifact)", "Background shoe lasts floating without shelf support"], "exif_c2pa_status": "No camera EXIF; PNG tEXt chunk contains ComfyUI workflow residue", "on_site_trustpilot_claim": "4.8 / 5.0 ★ bei 2.890 verifizierten Kunden", "trustpilot_widget_html_type": "HARDCODED_STATIC_SVG", "trustpilot_public_profile_reviews": 0, "trustpilot_public_rating": null, "flags": ["SYNTHETIC_ARTISAN_PERSONA: Hero workshop photo exhibits 2 generative AI artifacts (Asymmetric eyeglasses melting into cheek skin texture (Flux.1 Dev artifact); Background shoe lasts floating without shelf support) with No camera EXIF; PNG tEXt chunk contains ComfyUI workflow residue.", "FAKE_TRUSTPILOT_STATIC_HTML: Store hardcodes '4.8 / 5.0 ★ bei 2.890 verifizierten Kunden' via static SVG/PNG, while de.trustpilot.com/review/bergmann-orthopaedie-hamburg.de has 0 reviews!"]}, "layer6_enforcement": {"layer_id": "L6_ENFORCEMENT_COUNTERMEASURES", "layer_name": "§ 5 UWG / Visa 13.3 Chargeback / EU DSA Art. 16 Takedown Generator", "evidence_hash": "2461F43E89B18916", "triggered_statutes": ["§ 5 Abs. 2 Nr. 1 & Nr. 3 UWG (Irreführung über betriebliche Herkunft, Alter & geschäftliche Verhältnisse: 'Traditionsbetrieb' / 'Räumungsverkauf')", "§ 11 Abs. 1 PAngV & § 5a UWG (Scheinrabatte / fehlende Angabe des niedrigsten Gesamtpreises der letzten 30 Tage)", "§ 5 Abs. 1 DDG i.V.m. § 3a UWG (Rechtsbruch durch gefälschtes/unvollständiges Impressum & HRB-Identitätstäuschung)", "§ 312d Abs. 1 BGB i.V.m. Art. 246a § 1 Abs. 2 EGBGB (Verschleierung der Rücksendekosten nach China trotz deutscher Shop-Fassade)", "Nr. 2 & Nr. 11 Anhang zu § 3 Abs. 3 UWG ('Schwarze Liste': gefälschte Gütesiegel / manipulierte Trustpilot-Bewertungen)"], "chargeback_reason_code": "Visa 13.3 / Mastercard 4853 (Not as Described / Deceptive Origin)", "chargeback_dossier_text": "=== VISA REASON CODE 13.3 / MASTERCARD 4853 CHARGEBACK EVIDENCE DOSSIER ===\nDispute Reference: CB-DACH-FS-002-2461F43E89B18916\nMerchant Domain: bergmann-orthopaedie-hamburg.de (Bergmann Orthopädie & Schuhmacherei Hamburg (Seit 1988))\nDispute Category: 13.3 - Not as Described or Defective Merchandise / Deceptive Merchant Identity\nComposite Forensic Fraud Score: 89.3 / 100\n\n1. DECEPTIVE ORIGIN & HERITAGE MISREPRESENTATION:\n   - Merchant advertised 'Letzte Woche! Unser Hamburger Familienbetrieb schließt — Orthopädische Barfußschuhe 75% reduziert' claiming a German workshop in Hamburg founded in 1988.\n   - Meta Page Transparency (Page ID 100091827364551) proves the page was created on 2026-09-18 (29 days old) and is administered from {'VN': 3, 'HK': 1} (EU DSA Payer: BlueWave Digital Marketing Limited (Wan Chai, HK)).\n\n2. FABRICATED CORPORATE IDENTITY (§ 5 DDG IMPRESSUM):\n   - Merchant Impressum cites 'Bergmann Orthopädie-Schuhtechnik GmbH', Hamburg HRB 999881.\n   - Forensic HRB Result: PHANTOM_NONEXISTENT_HRB (Official Register Record: NONE).\n\n3. ABUSIVE RETURN-ADDRESS TRAP:\n   - Storefront promised 'Versandfertig in 24h aus unserem Lager in Hamburg', but post-purchase return instructions require tracked shipment at buyer's expense (€48.99) to: No. 188 Chouzhou North Road, Yiwu City, Zhejiang Province, 322000, P.R. China.\n   - Under Visa Core Rules (Section 11.10.2.2 - Reason Code 13.3), the merchant fundamentally misrepresented the nature, origin, and manufacturing quality of the goods (dsers-img.cjdropshipping.com/orthopedic_boot_winter_2026.jpg).", "dsa_art16_notice_payload": {"regulation": "Regulation (EU) 2022/2065 (Digital Services Act) - Article 16 Notice-and-Action", "recipient_vlop": "Meta Platforms Ireland Limited (Meta Ad Library / Facebook & Instagram)", "notice_id": "DSA-ART16-DACH-FS-002-2461F43E89B18916", "reported_entities": {"facebook_page_id": "100091827364551", "instagram_handle": "@bergmann_schuhe_hh", "destination_domain": "bergmann-orthopaedie-hamburg.de", "eu_dsa_declared_beneficiary": "Apex Ecom Scaling PTE / BlueWave HK Ltd", "eu_dsa_declared_payer": "BlueWave Digital Marketing Limited (Wan Chai, HK)", "active_eu_ad_creatives": 89}, "illegality_grounds_de_eu": ["§ 5 Abs. 2 Nr. 1 & Nr. 3 UWG (Irreführung über betriebliche Herkunft, Alter & geschäftliche Verhältnisse: 'Traditionsbetrieb' / 'Räumungsverkauf')", "§ 11 Abs. 1 PAngV & § 5a UWG (Scheinrabatte / fehlende Angabe des niedrigsten Gesamtpreises der letzten 30 Tage)", "§ 5 Abs. 1 DDG i.V.m. § 3a UWG (Rechtsbruch durch gefälschtes/unvollständiges Impressum & HRB-Identitätstäuschung)", "§ 312d Abs. 1 BGB i.V.m. Art. 246a § 1 Abs. 2 EGBGB (Verschleierung der Rücksendekosten nach China trotz deutscher Shop-Fassade)", "Nr. 2 & Nr. 11 Anhang zu § 3 Abs. 3 UWG ('Schwarze Liste': gefälschte Gütesiegel / manipulierte Trustpilot-Bewertungen)"], "forensic_summary": "Systematic deceptive commercial practice targeting German/EU consumers (89 active ads, ~€31,200/mo spend). Advertiser impersonates a closing German heritage business in Hamburg while operating from ['VN', 'HK'] with HRB status 'PHANTOM_NONEXISTENT_HRB'.", "requested_action": "Immediate suspension of active ad creatives in EU member states and verification of advertiser legal identity under DSA Art. 24/30 (KYBC)."}}}}, {"case_id": "DACH-FS-003", "shop_domain": "lumina-wohndesign.de", "brand_display_name": "Lumina Wohndesign Studio", "ad_headline": "Skandinavische Designer-Tischlampen — Herbst-Sale bis zu 50% sparen", "ad_copy_snippet": "Kabellose LED-Tischleuchten für gemütliche Abende. Jetzt im Herbst-Sale sichern.", "claimed_city_de": "Düsseldorf", "claimed_founding_year": 2024, "active_eu_ads_count": 24, "estimated_monthly_ad_spend_eur": 6400, "composite_fraud_score": 35.5, "ampel_color": "YELLOW", "ampel_verdict": "GELB — COMPLIANCE VIOLATIONS / OFFSHORE FULFILLMENT RISK", "total_forensic_flags": 6, "all_flags": ["MIXED_OFFSHORE_ADMINS: Page has offshore admins {'NL': 2, 'DE': 1, 'ID': 1} alongside DACH claim.", "FAKE_CLEARANCE_ANCHORING: 92.9% of catalog (39/42 SKUs) has permanent compare_at_price inflation (+210% markup) violating § 11 PAngV.", "DROPSHIP_SUPPLY_CHAIN_HASH: `/products.json` exposes supplier CDN/SKU signatures (cdn.shopify.com/s/files/1/0654/dsers_led_lamp_v2.webp).", "UST_IDNR_INVALID: Missing USt-IdNr. (§ 5 Abs. 1 Nr. 6 DDG violation for commercial e-commerce).", "MISSING_VERTRETUNGSBERECHTIGTER: No natural person named as Geschäftsführer/Inhaber (§ 5 Abs. 1 Nr. 1 DDG).", "MISSING_REGISTERGERICHT_HRB: Impressum claims corporate operations without Registergericht + HRB (§ 5 Abs. 1 Nr. 4 DDG)."], "layers": {"layer1_meta_transparency": {"layer_id": "L1_META_TRANSPARENCY_IG_AGE", "layer_name": "Meta Page Transparency, IG Account Age & EU DSA Payer", "risk_score": 15, "status": "PASS", "fb_page_age_days": 341, "ig_account_age_days": 336, "claimed_heritage_years": 2, "heritage_gap_years": 1.1, "high_risk_admin_share_pct": 25.0, "admin_countries": {"NL": 2, "DE": 1, "ID": 1}, "ig_registration_country": "NL", "dsa_ad_beneficiary": "Lumina E-Commerce B.V. (Venlo, NL)", "dsa_ad_payer": "Lumina E-Commerce B.V.", "flags": ["MIXED_OFFSHORE_ADMINS: Page has offshore admins {'NL': 2, 'DE': 1, 'ID': 1} alongside DACH claim."]}, "layer2_domain_dropship": {"layer_id": "L2_DOMAIN_SHOPIFY_FINGERPRINT", "layer_name": "Domain Age, § 11 PAngV Price-Anchor & Shopify Dropship Fingerprint", "risk_score": 65, "status": "WARNING", "domain_age_days": 354, "domain_registered_date": "2025-10-28", "domain_registrar": "STRATO AG", "discount_ratio_pct": 92.9, "avg_compare_at_markup_pct": 210.0, "dropship_suppliers_detected": ["cdn.shopify.com/s/files/1/0654/dsers_led_lamp_v2.webp"], "dropship_sku_matches": [], "flags": ["FAKE_CLEARANCE_ANCHORING: 92.9% of catalog (39/42 SKUs) has permanent compare_at_price inflation (+210% markup) violating § 11 PAngV.", "DROPSHIP_SUPPLY_CHAIN_HASH: `/products.json` exposes supplier CDN/SKU signatures (cdn.shopify.com/s/files/1/0654/dsers_led_lamp_v2.webp)."]}, "layer3_impressum_hrb": {"layer_id": "L3_DDG_IMPRESSUM_HRB", "layer_name": "§ 5 DDG Impressum, Handelsregister (HRB) & BZSt USt-IdNr. Check", "risk_score": 80, "status": "CRITICAL", "impressum_company_name": "Lumina Wohndesign (Lumina E-Commerce B.V.)", "impressum_amtsgericht": "", "impressum_hrb_number": "", "hrb_verdict": "MISSING_HRB", "official_handelsregister_entity": null, "ust_idnr_validation": {"present": false, "syntactically_valid": false, "checksum_valid": false, "reason": "Missing USt-IdNr. (§ 5 Abs. 1 Nr. 6 DDG violation for commercial e-commerce)."}, "flags": ["UST_IDNR_INVALID: Missing USt-IdNr. (§ 5 Abs. 1 Nr. 6 DDG violation for commercial e-commerce).", "MISSING_VERTRETUNGSBERECHTIGTER: No natural person named as Geschäftsführer/Inhaber (§ 5 Abs. 1 Nr. 1 DDG).", "MISSING_REGISTERGERICHT_HRB: Impressum claims corporate operations without Registergericht + HRB (§ 5 Abs. 1 Nr. 4 DDG)."]}, "layer4_return_trap": {"layer_id": "L4_RETURN_ADDRESS_TRAP", "layer_name": "§ 355 BGB Widerrufsrecht & Offshore Return-Address Trap", "risk_score": 0, "status": "PASS", "frontpage_shipping_promise": "Kostenloser Versand nach Deutschland & Österreich (5–9 Werktage)", "agb_return_address_raw": "Lumina Returns c/o PostNL Hub, Tasmanweg 12, 5928 LH Venlo, Niederlande", "return_to_asia_detected": false, "estimated_return_cost_eur": 14.49, "avg_order_value_eur": 64.9, "return_cost_to_aov_ratio_pct": 22.3, "flags": []}, "layer5_ai_trustpilot": {"layer_id": "L5_AI_ARTISAN_TRUSTPILOT_SPOOF", "layer_name": "AI Stock-Artisan Visuals & Hardcoded Fake Trustpilot Widget", "risk_score": 0, "status": "PASS", "hero_image_ai_artifacts": [], "exif_c2pa_status": "Standard studio JPEG", "on_site_trustpilot_claim": "4.3 ★ auf Trustpilot (180 Bewertungen)", "trustpilot_widget_html_type": "OFFICIAL_TRUSTBOX_IFRAME", "trustpilot_public_profile_reviews": 184, "trustpilot_public_rating": 3.7, "flags": []}, "layer6_enforcement": {"layer_id": "L6_ENFORCEMENT_COUNTERMEASURES", "layer_name": "§ 5 UWG / Visa 13.3 Chargeback / EU DSA Art. 16 Takedown Generator", "evidence_hash": "27AA321E226332F6", "triggered_statutes": ["§ 11 Abs. 1 PAngV & § 5a UWG (Scheinrabatte / fehlende Angabe des niedrigsten Gesamtpreises der letzten 30 Tage)", "§ 5 Abs. 1 DDG i.V.m. § 3a UWG (Rechtsbruch durch gefälschtes/unvollständiges Impressum & HRB-Identitätstäuschung)"], "chargeback_reason_code": "Visa 13.3 / Mastercard 4853 (Not as Described / Deceptive Origin)", "chargeback_dossier_text": "=== VISA REASON CODE 13.3 / MASTERCARD 4853 CHARGEBACK EVIDENCE DOSSIER ===\nDispute Reference: CB-DACH-FS-003-27AA321E226332F6\nMerchant Domain: lumina-wohndesign.de (Lumina Wohndesign Studio)\nDispute Category: 13.3 - Not as Described or Defective Merchandise / Deceptive Merchant Identity\nComposite Forensic Fraud Score: 35.5 / 100\n\n1. DECEPTIVE ORIGIN & HERITAGE MISREPRESENTATION:\n   - Merchant advertised 'Skandinavische Designer-Tischlampen — Herbst-Sale bis zu 50% sparen' claiming a German workshop in Düsseldorf founded in 2024.\n   - Meta Page Transparency (Page ID 100077219044120) proves the page was created on 2025-11-10 (341 days old) and is administered from {'NL': 2, 'DE': 1, 'ID': 1} (EU DSA Payer: Lumina E-Commerce B.V.).\n\n2. FABRICATED CORPORATE IDENTITY (§ 5 DDG IMPRESSUM):\n   - Merchant Impressum cites 'Lumina Wohndesign (Lumina E-Commerce B.V.)',  .\n   - Forensic HRB Result: MISSING_HRB (Official Register Record: NONE).\n\n3. ABUSIVE RETURN-ADDRESS TRAP:\n   - Storefront promised 'Kostenloser Versand nach Deutschland & Österreich (5–9 Werktage)', but post-purchase return instructions require tracked shipment at buyer's expense (€14.49) to: Lumina Returns c/o PostNL Hub, Tasmanweg 12, 5928 LH Venlo, Niederlande.\n   - Under Visa Core Rules (Section 11.10.2.2 - Reason Code 13.3), the merchant fundamentally misrepresented the nature, origin, and manufacturing quality of the goods (cdn.shopify.com/s/files/1/0654/dsers_led_lamp_v2.webp).", "dsa_art16_notice_payload": {"regulation": "Regulation (EU) 2022/2065 (Digital Services Act) - Article 16 Notice-and-Action", "recipient_vlop": "Meta Platforms Ireland Limited (Meta Ad Library / Facebook & Instagram)", "notice_id": "DSA-ART16-DACH-FS-003-27AA321E226332F6", "reported_entities": {"facebook_page_id": "100077219044120", "instagram_handle": "@lumina_wohndesign_de", "destination_domain": "lumina-wohndesign.de", "eu_dsa_declared_beneficiary": "Lumina E-Commerce B.V. (Venlo, NL)", "eu_dsa_declared_payer": "Lumina E-Commerce B.V.", "active_eu_ad_creatives": 24}, "illegality_grounds_de_eu": ["§ 11 Abs. 1 PAngV & § 5a UWG (Scheinrabatte / fehlende Angabe des niedrigsten Gesamtpreises der letzten 30 Tage)", "§ 5 Abs. 1 DDG i.V.m. § 3a UWG (Rechtsbruch durch gefälschtes/unvollständiges Impressum & HRB-Identitätstäuschung)"], "forensic_summary": "Systematic deceptive commercial practice targeting German/EU consumers (24 active ads, ~€6,400/mo spend). Advertiser impersonates a closing German heritage business in Düsseldorf while operating from ['NL', 'DE', 'ID'] with HRB status 'MISSING_HRB'.", "requested_action": "Immediate suspension of active ad creatives in EU member states and verification of advertiser legal identity under DSA Art. 24/30 (KYBC)."}}}}, {"case_id": "DACH-FS-004", "shop_domain": "hanseatische-lederwaren-kontor.de", "brand_display_name": "Hanseatische Manufaktur & Lederwaren Kontor GmbH", "ad_headline": "Handgefertigte Aktentaschen aus pflanzlich gegerbtem Vollrindleder — Direkt aus unserer Hamburger Werkstatt", "ad_copy_snippet": "Seit 1998 fertigen wir in Hamburg langlebige Business-Taschen mit lebenslanger Naht-Garantie und eigenem Reparaturservice vor Ort.", "claimed_city_de": "Hamburg", "claimed_founding_year": 1998, "active_eu_ads_count": 11, "estimated_monthly_ad_spend_eur": 4200, "composite_fraud_score": 0.0, "ampel_color": "GREEN", "ampel_verdict": "GRÜN — VERIFIED DACH MERCHANT (§ 5 DDG & HRB OK)", "total_forensic_flags": 0, "all_flags": [], "layers": {"layer1_meta_transparency": {"layer_id": "L1_META_TRANSPARENCY_IG_AGE", "layer_name": "Meta Page Transparency, IG Account Age & EU DSA Payer", "risk_score": 0, "status": "PASS", "fb_page_age_days": 4206, "ig_account_age_days": 3411, "claimed_heritage_years": 28, "heritage_gap_years": 18.7, "high_risk_admin_share_pct": 0.0, "admin_countries": {"DE": 4}, "ig_registration_country": "DE", "dsa_ad_beneficiary": "Hanseatische Manufaktur & Lederwaren Kontor GmbH", "dsa_ad_payer": "Hanseatische Manufaktur & Lederwaren Kontor GmbH", "flags": []}, "layer2_domain_dropship": {"layer_id": "L2_DOMAIN_SHOPIFY_FINGERPRINT", "layer_name": "Domain Age, § 11 PAngV Price-Anchor & Shopify Dropship Fingerprint", "risk_score": 0, "status": "PASS", "domain_age_days": 8247, "domain_registered_date": "2004-03-19", "domain_registrar": "DENIC / Hetzner Online GmbH", "discount_ratio_pct": 8.8, "avg_compare_at_markup_pct": 15.0, "dropship_suppliers_detected": [], "dropship_sku_matches": [], "flags": []}, "layer3_impressum_hrb": {"layer_id": "L3_DDG_IMPRESSUM_HRB", "layer_name": "§ 5 DDG Impressum, Handelsregister (HRB) & BZSt USt-IdNr. Check", "risk_score": 0, "status": "PASS", "impressum_company_name": "Hanseatische Manufaktur & Lederwaren Kontor GmbH", "impressum_amtsgericht": "Hamburg", "impressum_hrb_number": "HRB 149203", "hrb_verdict": "VERIFIED_MATCH", "official_handelsregister_entity": "Hanseatische Manufaktur & Lederwaren Kontor GmbH", "ust_idnr_validation": {"present": true, "cleaned": "DE194028419", "syntactically_valid": true, "checksum_valid": true, "expected_check_digit": 9, "actual_check_digit": 9, "reason": "Valid BZSt Mod-11,10 USt-IdNr."}, "flags": []}, "layer4_return_trap": {"layer_id": "L4_RETURN_ADDRESS_TRAP", "layer_name": "§ 355 BGB Widerrufsrecht & Offshore Return-Address Trap", "risk_score": 0, "status": "PASS", "frontpage_shipping_promise": "DHL GoGreen Versand aus Hamburg (1–2 Werktage) + Kostenlose Retoure mit DHL-Retourenlabel", "agb_return_address_raw": "Hanseatische Manufaktur & Lederwaren Kontor GmbH — Retourenabteilung, Rödingsmarkt 31, 20459 Hamburg, Deutschland", "return_to_asia_detected": false, "estimated_return_cost_eur": 0.0, "avg_order_value_eur": 289.0, "return_cost_to_aov_ratio_pct": 0.0, "flags": []}, "layer5_ai_trustpilot": {"layer_id": "L5_AI_ARTISAN_TRUSTPILOT_SPOOF", "layer_name": "AI Stock-Artisan Visuals & Hardcoded Fake Trustpilot Widget", "risk_score": 0, "status": "PASS", "hero_image_ai_artifacts": [], "exif_c2pa_status": "Canon EOS R5 EXIF + C2PA Content Credentials verified", "on_site_trustpilot_claim": "4.8 ★ auf Trustpilot (912 verifizierte Bewertungen)", "trustpilot_widget_html_type": "OFFICIAL_TRUSTBOX_IFRAME", "trustpilot_public_profile_reviews": 912, "trustpilot_public_rating": 4.8, "flags": []}, "layer6_enforcement": {"layer_id": "L6_ENFORCEMENT_COUNTERMEASURES", "layer_name": "§ 5 UWG / Visa 13.3 Chargeback / EU DSA Art. 16 Takedown Generator", "evidence_hash": "CA4ED7C379C6910C", "triggered_statutes": [], "chargeback_reason_code": "Visa 13.3 / Mastercard 4853 (Not as Described / Deceptive Origin)", "chargeback_dossier_text": "=== VISA REASON CODE 13.3 / MASTERCARD 4853 CHARGEBACK EVIDENCE DOSSIER ===\nDispute Reference: CB-DACH-FS-004-CA4ED7C379C6910C\nMerchant Domain: hanseatische-lederwaren-kontor.de (Hanseatische Manufaktur & Lederwaren Kontor GmbH)\nDispute Category: 13.3 - Not as Described or Defective Merchandise / Deceptive Merchant Identity\nComposite Forensic Fraud Score: 0.0 / 100\n\n1. DECEPTIVE ORIGIN & HERITAGE MISREPRESENTATION:\n   - Merchant advertised 'Handgefertigte Aktentaschen aus pflanzlich gegerbtem Vollrindleder — Direkt aus unserer Hamburger Werkstatt' claiming a German workshop in Hamburg founded in 1998.\n   - Meta Page Transparency (Page ID 100011294810294) proves the page was created on 2015-04-12 (4206 days old) and is administered from {'DE': 4} (EU DSA Payer: Hanseatische Manufaktur & Lederwaren Kontor GmbH).\n\n2. FABRICATED CORPORATE IDENTITY (§ 5 DDG IMPRESSUM):\n   - Merchant Impressum cites 'Hanseatische Manufaktur & Lederwaren Kontor GmbH', Hamburg HRB 149203.\n   - Forensic HRB Result: VERIFIED_MATCH (Official Register Record: Hanseatische Manufaktur & Lederwaren Kontor GmbH).\n\n3. ABUSIVE RETURN-ADDRESS TRAP:\n   - Storefront promised 'DHL GoGreen Versand aus Hamburg (1–2 Werktage) + Kostenlose Retoure mit DHL-Retourenlabel', but post-purchase return instructions require tracked shipment at buyer's expense (€0.00) to: Hanseatische Manufaktur & Lederwaren Kontor GmbH — Retourenabteilung, Rödingsmarkt 31, 20459 Hamburg, Deutschland.\n   - Under Visa Core Rules (Section 11.10.2.2 - Reason Code 13.3), the merchant fundamentally misrepresented the nature, origin, and manufacturing quality of the goods (mass-produced dropship SKU).", "dsa_art16_notice_payload": {"regulation": "Regulation (EU) 2022/2065 (Digital Services Act) - Article 16 Notice-and-Action", "recipient_vlop": "Meta Platforms Ireland Limited (Meta Ad Library / Facebook & Instagram)", "notice_id": "DSA-ART16-DACH-FS-004-CA4ED7C379C6910C", "reported_entities": {"facebook_page_id": "100011294810294", "instagram_handle": "@hanseatische_lederwaren_hh", "destination_domain": "hanseatische-lederwaren-kontor.de", "eu_dsa_declared_beneficiary": "Hanseatische Manufaktur & Lederwaren Kontor GmbH", "eu_dsa_declared_payer": "Hanseatische Manufaktur & Lederwaren Kontor GmbH", "active_eu_ad_creatives": 11}, "illegality_grounds_de_eu": [], "forensic_summary": "Systematic deceptive commercial practice targeting German/EU consumers (11 active ads, ~€4,200/mo spend). Advertiser impersonates a closing German heritage business in Hamburg while operating from ['DE'] with HRB status 'VERIFIED_MATCH'.", "requested_action": "Immediate suspension of active ad creatives in EU member states and verification of advertiser legal identity under DSA Art. 24/30 (KYBC)."}}}}]};
+    let selectedCaseId = MANIFEST.cases[0].case_id;
+
+    function renderKPIs() {
+      const s = MANIFEST.summary;
+      const html = `
+        <div class="kpi-card">
+          <div class="kpi-label">Wave 23 Demand Signal</div>
+          <div class="kpi-val" style="color:var(--accent)">4,517 Runs/30d</div>
+          <div class="kpi-sub">3,889 IG Account Age + 628 FB Page Transparency runs</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Competitor Scraper Fail Rate</div>
+          <div class="kpi-val" style="color:var(--red)">63.4% Failed</div>
+          <div class="kpi-sub">398/628 failed runs on maximedupre (solved via EU DSA GraphQL)</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Audited Storefronts</div>
+          <div class="kpi-val">${s.total_cases_audited} (${s.red_fakeshops_count} ROT)</div>
+          <div class="kpi-sub">${s.yellow_warning_count} GELB · ${s.green_verified_count} GRÜN verified</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Ad Spend Exposed in EU</div>
+          <div class="kpi-val" style="color:var(--yellow)">€${s.flagged_monthly_ad_spend_eur.toLocaleString('de-DE')}/mo</div>
+          <div class="kpi-sub">${s.flagged_active_eu_ads} active deceptive EU ad creatives</div>
+        </div>
+      `;
+      document.getElementById('kpiGrid').innerHTML = html;
+    }
+
+    function getFilteredCases() {
+      const q = document.getElementById('searchInput').value.toLowerCase();
+      const ampel = document.getElementById('ampelFilter').value;
+      return MANIFEST.cases.filter(c => {
+        if (ampel !== 'ALL' && c.ampel_color !== ampel) return false;
+        const blob = JSON.stringify(c).toLowerCase();
+        return blob.includes(q);
+      });
+    }
+
+    function renderCaseList() {
+      const filtered = getFilteredCases();
+      const container = document.getElementById('caseList');
+      if (filtered.length === 0) {
+        container.innerHTML = '<div class="case-card">Keine passenden Shops gefunden.</div>';
+        return;
+      }
+      if (!filtered.some(c => c.case_id === selectedCaseId)) {
+        selectedCaseId = filtered[0].case_id;
+      }
+      container.innerHTML = filtered.map(c => {
+        const l1 = c.layers.layer1_meta_transparency;
+        const l3 = c.layers.layer3_impressum_hrb;
+        return `
+          <div class="case-card ${c.case_id === selectedCaseId ? 'active' : ''}" onclick="selectCase('${c.case_id}')">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+              <span class="ampel-tag ampel-${c.ampel_color}">${c.ampel_color} · Score ${c.composite_fraud_score}</span>
+              <span style="font-size:12px;color:var(--muted)">${c.case_id}</span>
+            </div>
+            <div style="font-weight:700;font-size:15px;">${c.shop_domain}</div>
+            <div style="font-size:12.5px;color:var(--muted);margin-bottom:8px;">${c.brand_display_name}</div>
+            <div style="font-size:12px;display:flex;flex-wrap:wrap;gap:6px;">
+              <span class="pill">Admins: ${JSON.stringify(l1.admin_countries)}</span>
+              <span class="pill">HRB: ${l3.hrb_verdict}</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+      renderDetailPane();
+    }
+
+    function selectCase(id) {
+      selectedCaseId = id;
+      renderCaseList();
+    }
+
+    function copyText(elementId) {
+      const text = document.getElementById(elementId).innerText;
+      navigator.clipboard.writeText(text);
+    }
+
+    function renderDetailPane() {
+      const c = MANIFEST.cases.find(x => x.case_id === selectedCaseId);
+      if (!c) return;
+      const l1 = c.layers.layer1_meta_transparency;
+      const l2 = c.layers.layer2_domain_dropship;
+      const l3 = c.layers.layer3_impressum_hrb;
+      const l4 = c.layers.layer4_return_trap;
+      const l5 = c.layers.layer5_ai_trustpilot;
+      const l6 = c.layers.layer6_enforcement;
+
+      const layerCards = [l1, l2, l3, l4, l5].map(layer => `
+        <div class="layer-box">
+          <div class="layer-header">
+            <span>${layer.layer_name}</span>
+            <span class="ampel-tag ampel-${layer.risk_score >= 70 ? 'RED' : (layer.risk_score >= 35 ? 'YELLOW' : 'GREEN')}">
+              ${layer.risk_score}/100
+            </span>
+          </div>
+          ${layer.flags.length ? `<ul class="flag-list">${layer.flags.map(f => `<li>${f}</li>`).join('')}</ul>` : '<div style="font-size:12px;color:var(--green)">✓ Keine Beanstandungen in diesem Layer.</div>'}
+        </div>
+      `).join('');
+
+      document.getElementById('detailPane').innerHTML = `
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;">
+          <div>
+            <span class="ampel-tag ampel-${c.ampel_color}">${c.ampel_verdict}</span>
+            <h2 style="margin:8px 0 4px 0;">${c.brand_display_name} (${c.shop_domain})</h2>
+            <div style="font-size:13px;color:var(--muted);">Ad Claim: "${c.ad_headline}"</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:28px;font-weight:800;color:${c.ampel_color === 'RED' ? 'var(--red)' : (c.ampel_color === 'YELLOW' ? 'var(--yellow)' : 'var(--green)')}">
+              ${c.composite_fraud_score} / 100
+            </div>
+            <div style="font-size:12px;color:var(--muted);">Composite Forensic Risk</div>
+          </div>
+        </div>
+
+        <table class="meta-table">
+          <tr><th>Meta Page Creation Age vs. Claim</th><td>FB Page age: <b>${l1.fb_page_age_days} days</b> · IG age: <b>${l1.ig_account_age_days} days</b> (Reg: ${l1.ig_registration_country}) vs. Claimed Founding: <b>${c.claimed_founding_year || 'N/A'}</b> (Gap: ${l1.heritage_gap_years} yrs)</td></tr>
+          <tr><th>Page Admin Locations & EU DSA Payer</th><td>Admins: <code>${JSON.stringify(l1.admin_countries)}</code> · DSA Payer: <b>${l1.dsa_ad_payer}</b> (${c.active_eu_ads_count} active EU ads, ~€${c.estimated_monthly_ad_spend_eur.toLocaleString('de-DE')}/mo)</td></tr>
+          <tr><th>§ 5 DDG Impressum & Handelsregister</th><td>Claimed: <b>${l3.impressum_company_name}</b> (${l3.impressum_amtsgericht} ${l3.impressum_hrb_number}) → Verdict: <b>${l3.hrb_verdict}</b> (Official HRB Entity: <i>${l3.official_handelsregister_entity || 'None'}</i>) · USt-IdNr.: ${l3.ust_idnr_validation.reason}</td></tr>
+          <tr><th>§ 355 BGB Return-Address Trap</th><td>Frontpage: "${l4.frontpage_shipping_promise}" → AGB Return Address: <b>${l4.agb_return_address_raw}</b> (Est. Return Cost: <b>€${l4.estimated_return_cost_eur.toFixed(2)}</b> = ${l4.return_cost_to_aov_ratio_pct}% of AOV)</td></tr>
+          <tr><th>Visual & Trustpilot Forensics</th><td>Widget: <b>${l5.trustpilot_widget_html_type}</b> (On-site claim: "${l5.on_site_trustpilot_claim}" vs. Public Trustpilot: ${l5.trustpilot_public_profile_reviews} reviews, Rating: ${l5.trustpilot_public_rating ?? 'N/A'})</td></tr>
+        </table>
+
+        <h3 style="margin:20px 0 8px 0;font-size:16px;">6-Layer Forensic Breakdown</h3>
+        <div class="layer-grid">${layerCards}</div>
+
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:18px;">
+          <h3 style="margin:0;font-size:15px;">Layer 6A: Visa 13.3 / Mastercard 4853 Chargeback Dossier</h3>
+          <button class="btn" onclick="copyText('cbBox')">Copy Chargeback Dossier</button>
+        </div>
+        <pre class="codebox" id="cbBox">${l6.chargeback_dossier_text}</pre>
+
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:18px;">
+          <h3 style="margin:0;font-size:15px;">Layer 6B: EU DSA Art. 16 Notice-and-Action Takedown Payload (Meta Ireland)</h3>
+          <button class="btn" onclick="copyText('dsaBox')">Copy DSA Art. 16 JSON</button>
+        </div>
+        <pre class="codebox" id="dsaBox">${JSON.stringify(l6.dsa_art16_notice_payload, null, 2)}</pre>
+      `;
+    }
+
+    document.getElementById('searchInput').addEventListener('input', renderCaseList);
+    document.getElementById('ampelFilter').addEventListener('change', renderCaseList);
+    renderKPIs();
+    renderCaseList();
+  </script>
+</body>
+</html>

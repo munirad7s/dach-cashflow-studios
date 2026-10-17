@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DACH ErbStG & § 14 BewG Immobilien-Schenkungs- & Nießbrauch-Simulator (MVP #96)</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --card: #131b33;
+      --card-alt: #182342;
+      --border: #2a3968;
+      --text: #eef2ff;
+      --muted: #9fb0db;
+      --accent: #38bdf8;
+      --emerald: #10b981;
+      --amber: #f59e0b;
+      --rose: #f43f5e;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: radial-gradient(circle at top right, #172554, var(--bg) 55%);
+      color: var(--text);
+      line-height: 1.5;
+      padding: 24px;
+    }
+    .container { max-width: 1320px; margin: 0 auto; }
+    header {
+      display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start;
+      gap: 16px; padding-bottom: 20px; border-bottom: 1px solid var(--border); margin-bottom: 24px;
+    }
+    .badge {
+      display: inline-block; padding: 4px 10px; border-radius: 999px; font-size: 12px; font-weight: 700;
+      letter-spacing: 0.04em; text-transform: uppercase; background: rgba(56, 189, 248, 0.15);
+      color: var(--accent); border: 1px solid rgba(56, 189, 248, 0.35); margin-bottom: 8px;
+    }
+    h1 { margin: 0 0 8px 0; font-size: 26px; font-weight: 800; }
+    .subtitle { margin: 0; color: var(--muted); font-size: 14px; max-width: 860px; }
+    .preset-bar { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 22px; }
+    .preset-btn {
+      background: var(--card); color: var(--text); border: 1px solid var(--border);
+      border-radius: 8px; padding: 10px 14px; font-size: 13px; font-weight: 600; cursor: pointer;
+    }
+    .preset-btn:hover, .preset-btn.active {
+      border-color: var(--accent); background: rgba(56, 189, 248, 0.12);
+    }
+    .grid { display: grid; grid-template-columns: 390px 1fr; gap: 22px; }
+    @media (max-width: 1024px) { .grid { grid-template-columns: 1fr; } }
+    .card {
+      background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+      padding: 20px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+    }
+    .card h2 { margin: 0 0 14px 0; font-size: 17px; }
+    .form-group { margin-bottom: 13px; }
+    .form-group label {
+      display: flex; justify-content: space-between; font-size: 12.5px;
+      color: var(--muted); margin-bottom: 5px; font-weight: 600;
+    }
+    .form-group input, .form-group select {
+      width: 100%; padding: 9px 11px; border-radius: 8px; border: 1px solid var(--border);
+      background: #0d1428; color: var(--text); font-size: 14px; font-weight: 600;
+    }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .kpi-strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 20px; }
+    @media (max-width: 820px) { .kpi-strip { grid-template-columns: 1fr 1fr; } }
+    .kpi { background: var(--card-alt); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; }
+    .kpi .label { font-size: 11.5px; color: var(--muted); text-transform: uppercase; font-weight: 700; }
+    .kpi .value { font-size: 22px; font-weight: 800; margin-top: 4px; }
+    .kpi .sub { font-size: 12px; color: var(--muted); margin-top: 3px; }
+    .text-rose { color: var(--rose); }
+    .text-emerald { color: var(--emerald); }
+    .text-accent { color: var(--accent); }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13.5px; }
+    th, td { padding: 11px 12px; text-align: left; border-bottom: 1px solid rgba(255, 255, 255, 0.08); }
+    th { color: var(--muted); font-size: 12px; text-transform: uppercase; }
+    tr.highlight-row { background: rgba(16, 185, 129, 0.11); border-left: 3px solid var(--emerald); }
+    .pill { display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: 11.5px; font-weight: 700; }
+    .pill-danger { background: rgba(244, 63, 94, 0.18); color: var(--rose); }
+    .pill-success { background: rgba(16, 185, 129, 0.18); color: var(--emerald); }
+    .pill-warn { background: rgba(245, 158, 11, 0.18); color: var(--amber); }
+    .legal-box {
+      margin-top: 18px; padding: 14px 16px; border-radius: 10px;
+      background: rgba(56, 189, 248, 0.07); border: 1px solid rgba(56, 189, 248, 0.25);
+      font-size: 13px; color: var(--muted);
+    }
+    .legal-box strong { color: var(--text); }
+  </style>
+</head>
+<body>
+
+<!-- DACH CASHFLOW STUDIOS LAUNCH BAR -->
+<style>
+  #dcs-launch-bar {
+    position: sticky;
+    top: 0;
+    z-index: 99999;
+    background: linear-gradient(90deg, #0b1120 0%, #111827 50%, #0f172a 100%);
+    color: #f8fafc;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.35);
+    padding: 8px 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  }
+  #dcs-launch-bar .dcs-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+  }
+  #dcs-launch-bar .dcs-badge {
+    background: rgba(16, 185, 129, 0.18);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.03em;
+  }
+  #dcs-launch-bar a.dcs-nav {
+    color: #93c5fd;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 12.5px;
+  }
+  #dcs-launch-bar a.dcs-nav:hover {
+    text-decoration: underline;
+    color: #dbeafe;
+  }
+  #dcs-launch-bar .dcs-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  #dcs-launch-bar .dcs-btn {
+    padding: 5px 11px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s ease;
+  }
+  #dcs-launch-bar .dcs-btn-ghost {
+    background: rgba(255,255,255,0.08);
+    color: #e2e8f0;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  #dcs-launch-bar .dcs-btn-primary {
+    background: linear-gradient(135deg, #0ea5e9, #2563eb);
+    color: #ffffff;
+  }
+  #dcs-launch-bar .dcs-btn-emerald {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
+  }
+  @media print {
+    #dcs-launch-bar { display: none !important; }
+  }
+</style>
+<div id="dcs-launch-bar">
+  <div class="dcs-left">
+    <a href="/index.html" class="dcs-nav">← Alle 150 DACH Studios</a>
+    <span class="dcs-badge">MVP #096 VERIFIED</span>
+    <span style="color:#cbd5e1;font-size:12px;">DACH Tax, Corporate & Accounting Arbitrage</span>
+  </div>
+  <div class="dcs-actions">
+    <button onclick="window.print()" class="dcs-btn dcs-btn-ghost">🖨️ PDF / Dossier drucken</button>
+    <a href="#checkout-modal-49" target="_blank" rel="noopener" class="dcs-btn dcs-btn-primary">⚡ Musterschreiben & Voll-Dossier (€49)</a>
+    <a href="#checkout-modal-299" target="_blank" rel="noopener" class="dcs-btn dcs-btn-emerald">🛡️ B2B Umsetzung buchen (€299 / €1.490)</a>
+  </div>
+</div>
+
+<div class="container">
+  <header>
+    <div>
+      <span class="badge">MVP #96 · §§ 10, 13, 13d, 14, 16, 19 ErbStG & §§ 14–16 BewG</span>
+      <h1>DACH Immobilien-Schenkungs-, Vorbehaltsnießbrauch- & 10-Jahres-Kaskaden-Studio</h1>
+      <p class="subtitle">
+        Deterministischer Steuer-Simulator für vorweggenommene Erbfolge: BMF-Sterbetafel-Kapitalwert (§ 14 Abs. 1 BewG mit 5,5% Rechnungszins),
+        Jahreswert-Deckelung (§ 16 BewG: Grundbesitzwert ÷ 18,6), Ehegattenschaukel / 2-Eltern-Freibetrags-Split (2 × 400.000 € = 800.000 € je Kind)
+        und gesetzlicher Härteausgleich (§ 19 Abs. 3 ErbStG).
+      </p>
+    </div>
+  </header>
+
+  <div class="preset-bar">
+    <button class="preset-btn active" onclick="loadPreset(0)" id="preset-0">1. München Familienhaus (1,35 Mio. € · Mutter 62 J.)</button>
+    <button class="preset-btn" onclick="loadPreset(1)" id="preset-1">2. Hamburg Zinshaus / MFH (2,40 Mio. € · § 13d + 2 Kinder)</button>
+    <button class="preset-btn" onclick="loadPreset(2)" id="preset-2">3. Frankfurt ETW (§ 19 Abs. 3 Härteausgleich + § 16 BewG Cap)</button>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <h2>Immobilien- & Familien-Parameter</h2>
+      <div class="form-group">
+        <label><span>Grundbesitzwert (§§ 176–198 BewG)</span><span id="lbl-gbw">1.350.000 €</span></label>
+        <input type="number" id="inp-gbw" value="1350000" step="10000" oninput="recalc()" />
+      </div>
+      <div class="form-group">
+        <label><span>Weiteres Kapitalvermögen (Depot / Cash)</span><span id="lbl-cash">150.000 €</span></label>
+        <input type="number" id="inp-cash" value="150000" step="10000" oninput="recalc()" />
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label><span>Immobilientyp</span></label>
+          <select id="inp-type" onchange="recalc()">
+            <option value="family_home">Eigengenutztes Haus / ETW</option>
+            <option value="rented_residential">Vermietetes Wohnhaus (§ 13d: -10%)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label><span>Jahresnettokaltmiete (§ 15 BewG)</span></label>
+          <input type="number" id="inp-rent" value="48000" step="1200" oninput="recalc()" />
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label><span>Alter Schenker(in) (Jahre)</span></label>
+          <input type="number" id="inp-age" value="62" min="40" max="90" oninput="recalc()" />
+        </div>
+        <div class="form-group">
+          <label><span>Geschlecht (BMF-Sterbetafel)</span></label>
+          <select id="inp-gender" onchange="recalc()">
+            <option value="female">Weiblich (höherer Faktor)</option>
+            <option value="male">Männlich</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label><span>2. Elternteil / Ehegatte vorhanden?</span></label>
+          <select id="inp-spouse" onchange="recalc()">
+            <option value="1">Ja (2 × 400.000 € Split möglich)</option>
+            <option value="0">Nein (nur 1 × 400.000 €)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label><span>Anzahl Kinder / Stämme</span></label>
+          <input type="number" id="inp-children" value="1" min="1" max="6" oninput="recalc()" />
+        </div>
+      </div>
+
+      <div class="legal-box" id="bewg-box"></div>
+    </div>
+
+    <div>
+      <div class="kpi-strip">
+        <div class="kpi">
+          <div class="label">Status Quo Erbschaftsteuer</div>
+          <div class="value text-rose" id="kpi-tax-status-quo">0 €</div>
+          <div class="sub" id="kpi-sub-status-quo">Ungeplanter Erbfall (1 Elternteil)</div>
+        </div>
+        <div class="kpi">
+          <div class="label">§ 14 BewG Nießbrauch-Abzug</div>
+          <div class="value text-accent" id="kpi-niessbrauch">0 €</div>
+          <div class="sub" id="kpi-sub-niessbrauch">BMF-Vervielfältiger × Jahreswert</div>
+        </div>
+        <div class="kpi">
+          <div class="label">Steuer nach Optimum-Plan</div>
+          <div class="value text-emerald" id="kpi-tax-optimum">0 €</div>
+          <div class="sub" id="kpi-sub-optimum">Nießbrauch + 2-Eltern-Split + Kaskade</div>
+        </div>
+        <div class="kpi">
+          <div class="label">Legale Steuer-Ersparnis</div>
+          <div class="value text-emerald" id="kpi-savings">0 €</div>
+          <div class="sub" id="kpi-sub-savings">100% deterministisch nach ErbStG</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Strategie-Vergleich: Ungeplanter Erbfall vs. Vorbehaltsnießbrauch & Ehegattenschaukel</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Gestaltungs-Strategie</th>
+              <th>Steuerwert nach Abzügen</th>
+              <th>Genutzte Freibeträge (§ 16)</th>
+              <th>Stpfl. Erwerb (je Kind)</th>
+              <th>Tarif (§ 19)</th>
+              <th>Steuerlast Gesamt</th>
+            </tr>
+          </thead>
+          <tbody id="strategy-tbody"></tbody>
+        </table>
+
+        <div class="legal-box" id="cascade-roadmap"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const PRESETS = [
+  {
+    "case_id": "MUC_EFH_NIESSBRAUCH_2026",
+    "title": "München-Bogenhausen Familienhaus (Alleineigentum Mutter, 62 J., an 1 Kind)",
+    "city": "München",
+    "property_type": "family_home",
+    "input": {
+      "case_id": "MUC_EFH_NIESSBRAUCH_2026",
+      "title": "München-Bogenhausen Familienhaus (Alleineigentum Mutter, 62 J., an 1 Kind)",
+      "city": "München",
+      "property_type": "family_home",
+      "grundbesitzwert_eur": 1350000.0,
+      "other_liquid_assets_eur": 150000.0,
+      "living_space_sqm": 210.0,
+      "net_annual_rent_eur": 48000.0,
+      "donor_age": 62,
+      "donor_gender": "female",
+      "has_spouse": true,
+      "spouse_age": 64,
+      "spouse_gender": "male",
+      "sole_owner_parent": true,
+      "beneficiary_relationship": "child",
+      "num_children_or_heirs": 1,
+      "child_moves_into_family_home_on_death": false
+    },
+    "statutory_parameters": {
+      "tax_class": "I",
+      "allowance_per_parent_per_heir_eur": 400000,
+      "combined_two_parent_allowance_per_heir_eur": 800000,
+      "two_decade_cascade_allowance_per_heir_eur": 1600000,
+      "section_13d_haircut_eur": 0.0,
+      "deductible_niessbrauch_factor_10_abs_6_erbstg": 1.0,
+      "deductible_niessbrauch_eur": 641232.0
+    },
+    "niessbrauch_valuation": {
+      "grundbesitzwert_eur": 1350000.0,
+      "actual_annual_net_rent_eur": 48000.0,
+      "max_jahreswert_16_bewg_eur": 72580.65,
+      "is_capped_by_16_bewg": false,
+      "effective_jahreswert_eur": 48000.0,
+      "donor_1_multiplier": 13.359,
+      "donor_2_multiplier": 11.724,
+      "effective_bmf_multiplier": 13.359,
+      "niessbrauch_kapitalwert_eur": 641232.0,
+      "niessbrauch_deduction_pct_of_property": 47.5
+    },
+    "strategies": {
+      "A_status_quo_unplanned_inheritance": {
+        "label": "Status Quo: Ungeplanter Erbfall (1 Elternteil, ohne Nießbrauch)",
+        "net_transfer_value_total_eur": 1500000.0,
+        "allowance_used_total_eur": 400000,
+        "taxable_per_heir_rounded_eur": 1085000,
+        "nominal_tax_rate_pct": 19,
+        "haerteausgleich_applied": false,
+        "haerteausgleich_savings_per_heir_eur": 0.0,
+        "tax_per_heir_eur": 206150.0,
+        "total_tax_eur": 206150.0
+      },
+      "B_direct_gift_no_niessbrauch_single_parent": {
+        "label": "Direkt-Schenkung ohne Nießbrauch (nur 1 Elternteil)",
+        "net_transfer_value_total_eur": 1500000.0,
+        "allowance_used_total_eur": 400000,
+        "taxable_per_heir_rounded_eur": 1100000,
+        "nominal_tax_rate_pct": 19,
+        "haerteausgleich_applied": false,
+        "tax_per_heir_eur": 209000.0,
+        "total_tax_eur": 209000.0
+      },
+      "C_niessbrauch_gift_single_parent": {
+        "label": "Vorbehaltsnießbrauch-Schenkung (§ 14 BewG, 1 Elternteil)",
+        "net_transfer_value_total_eur": 858768.0,
+        "niessbrauch_deduction_eur": 641232.0,
+        "allowance_used_total_eur": 400000,
+        "taxable_per_heir_rounded_eur": 458700,
+        "nominal_tax_rate_pct": 15,
+        "haerteausgleich_applied": false,
+        "tax_per_heir_eur": 68805.0,
+        "total_tax_eur": 68805.0
+      },
+      "D_optimum_niessbrauch_ehegattenschaukel_cascade": {
+        "label": "Optimum: Vorbehaltsnießbrauch + 2-Eltern-Split (§ 13 Abs. 1 Nr. 4a) + 10-Jahres-Kaskade (§ 14)",
+        "net_transfer_value_total_eur": 858768.0,
+        "niessbrauch_deduction_eur": 641232.0,
+        "single_tranche_allowance_total_eur": 800000,
+        "single_tranche_total_tax_eur": 4109.0,
+        "tranche_1_today_per_heir_eur": 800000.0,
+        "tranche_2_year_10_per_heir_eur": 58768.0,
+        "cascade_total_tax_eur": 0.0,
+        "total_tax_savings_vs_status_quo_eur": 206150.0,
+        "total_tax_savings_pct": 100.0
+      }
+    }
+  },
+  {
+    "case_id": "HAM_MFH_13D_KASKADE_2026",
+    "title": "Hamburg-Eppendorf Zinshaus / MFH (Vermietet, 65 J. Vater & 62 J. Mutter, an 2 Kinder)",
+    "city": "Hamburg",
+    "property_type": "rented_residential",
+    "input": {
+      "case_id": "HAM_MFH_13D_KASKADE_2026",
+      "title": "Hamburg-Eppendorf Zinshaus / MFH (Vermietet, 65 J. Vater & 62 J. Mutter, an 2 Kinder)",
+      "city": "Hamburg",
+      "property_type": "rented_residential",
+      "grundbesitzwert_eur": 2400000.0,
+      "other_liquid_assets_eur": 200000.0,
+      "living_space_sqm": 520.0,
+      "net_annual_rent_eur": 96000.0,
+      "donor_age": 65,
+      "donor_gender": "male",
+      "has_spouse": true,
+      "spouse_age": 62,
+      "spouse_gender": "female",
+      "sole_owner_parent": true,
+      "beneficiary_relationship": "child",
+      "num_children_or_heirs": 2,
+      "child_moves_into_family_home_on_death": false
+    },
+    "statutory_parameters": {
+      "tax_class": "I",
+      "allowance_per_parent_per_heir_eur": 400000,
+      "combined_two_parent_allowance_per_heir_eur": 800000,
+      "two_decade_cascade_allowance_per_heir_eur": 1600000,
+      "section_13d_haircut_eur": 240000.0,
+      "deductible_niessbrauch_factor_10_abs_6_erbstg": 0.9,
+      "deductible_niessbrauch_eur": 1154217.6
+    },
+    "niessbrauch_valuation": {
+      "grundbesitzwert_eur": 2400000.0,
+      "actual_annual_net_rent_eur": 96000.0,
+      "max_jahreswert_16_bewg_eur": 129032.26,
+      "is_capped_by_16_bewg": false,
+      "effective_jahreswert_eur": 96000.0,
+      "donor_1_multiplier": 11.444,
+      "donor_2_multiplier": 13.359,
+      "effective_bmf_multiplier": 13.359,
+      "niessbrauch_kapitalwert_eur": 1282464.0,
+      "niessbrauch_deduction_pct_of_property": 53.44
+    },
+    "strategies": {
+      "A_status_quo_unplanned_inheritance": {
+        "label": "Status Quo: Ungeplanter Erbfall (1 Elternteil, ohne Nießbrauch)",
+        "net_transfer_value_total_eur": 2360000.0,
+        "allowance_used_total_eur": 800000,
+        "taxable_per_heir_rounded_eur": 772500,
+        "nominal_tax_rate_pct": 19,
+        "haerteausgleich_applied": false,
+        "haerteausgleich_savings_per_heir_eur": 0.0,
+        "tax_per_heir_eur": 146775.0,
+        "total_tax_eur": 293550.0
+      },
+      "B_direct_gift_no_niessbrauch_single_parent": {
+        "label": "Direkt-Schenkung ohne Nießbrauch (nur 1 Elternteil)",
+        "net_transfer_value_total_eur": 2360000.0,
+        "allowance_used_total_eur": 800000,
+        "taxable_per_heir_rounded_eur": 780000,
+        "nominal_tax_rate_pct": 19,
+        "haerteausgleich_applied": false,
+        "tax_per_heir_eur": 148200.0,
+        "total_tax_eur": 296400.0
+      },
+      "C_niessbrauch_gift_single_parent": {
+        "label": "Vorbehaltsnießbrauch-Schenkung (§ 14 BewG, 1 Elternteil)",
+        "net_transfer_value_total_eur": 1205782.4,
+        "niessbrauch_deduction_eur": 1154217.6,
+        "allowance_used_total_eur": 800000,
+        "taxable_per_heir_rounded_eur": 202800,
+        "nominal_tax_rate_pct": 11,
+        "haerteausgleich_applied": false,
+        "tax_per_heir_eur": 22308.0,
+        "total_tax_eur": 44616.0
+      },
+      "D_optimum_niessbrauch_ehegattenschaukel_cascade": {
+        "label": "Optimum: Vorbehaltsnießbrauch + 2-Eltern-Split (§ 13 Abs. 1 Nr. 4a) + 10-Jahres-Kaskade (§ 14)",
+        "net_transfer_value_total_eur": 1205782.4,
+        "niessbrauch_deduction_eur": 1154217.6,
+        "single_tranche_allowance_total_eur": 1600000,
+        "single_tranche_total_tax_eur": 0.0,
+        "tranche_1_today_per_heir_eur": 602891.2,
+        "tranche_2_year_10_per_heir_eur": 0.0,
+        "cascade_total_tax_eur": 0.0,
+        "total_tax_savings_vs_status_quo_eur": 293550.0,
+        "total_tax_savings_pct": 100.0
+      }
+    }
+  },
+  {
+    "case_id": "FRA_HAERTEAUSGLEICH_CLIFF_2026",
+    "title": "Frankfurt-Westend Eigentumswohnung (Tarifsprung & § 19 Abs. 3 Härteausgleich + § 16 BewG Cap)",
+    "city": "Frankfurt am Main",
+    "property_type": "family_home",
+    "input": {
+      "case_id": "FRA_HAERTEAUSGLEICH_CLIFF_2026",
+      "title": "Frankfurt-Westend Eigentumswohnung (Tarifsprung & § 19 Abs. 3 Härteausgleich + § 16 BewG Cap)",
+      "city": "Frankfurt am Main",
+      "property_type": "family_home",
+      "grundbesitzwert_eur": 718000.0,
+      "other_liquid_assets_eur": 0.0,
+      "living_space_sqm": 115.0,
+      "net_annual_rent_eur": 45000.0,
+      "donor_age": 68,
+      "donor_gender": "female",
+      "has_spouse": true,
+      "spouse_age": 70,
+      "spouse_gender": "male",
+      "sole_owner_parent": true,
+      "beneficiary_relationship": "child",
+      "num_children_or_heirs": 1,
+      "child_moves_into_family_home_on_death": false
+    },
+    "statutory_parameters": {
+      "tax_class": "I",
+      "allowance_per_parent_per_heir_eur": 400000,
+      "combined_two_parent_allowance_per_heir_eur": 800000,
+      "two_decade_cascade_allowance_per_heir_eur": 1600000,
+      "section_13d_haircut_eur": 0.0,
+      "deductible_niessbrauch_factor_10_abs_6_erbstg": 1.0,
+      "deductible_niessbrauch_eur": 452648.81
+    },
+    "niessbrauch_valuation": {
+      "grundbesitzwert_eur": 718000.0,
+      "actual_annual_net_rent_eur": 45000.0,
+      "max_jahreswert_16_bewg_eur": 38602.15,
+      "is_capped_by_16_bewg": true,
+      "effective_jahreswert_eur": 38602.15,
+      "donor_1_multiplier": 11.726,
+      "donor_2_multiplier": 10.032,
+      "effective_bmf_multiplier": 11.726,
+      "niessbrauch_kapitalwert_eur": 452648.81,
+      "niessbrauch_deduction_pct_of_property": 63.04
+    },
+    "strategies": {
+      "A_status_quo_unplanned_inheritance": {
+        "label": "Status Quo: Ungeplanter Erbfall (1 Elternteil, ohne Nießbrauch)",
+        "net_transfer_value_total_eur": 718000.0,
+        "allowance_used_total_eur": 400000,
+        "taxable_per_heir_rounded_eur": 303000,
+        "nominal_tax_rate_pct": 15,
+        "haerteausgleich_applied": true,
+        "haerteausgleich_savings_per_heir_eur": 10950.0,
+        "tax_per_heir_eur": 34500.0,
+        "total_tax_eur": 34500.0
+      },
+      "B_direct_gift_no_niessbrauch_single_parent": {
+        "label": "Direkt-Schenkung ohne Nießbrauch (nur 1 Elternteil)",
+        "net_transfer_value_total_eur": 718000.0,
+        "allowance_used_total_eur": 400000,
+        "taxable_per_heir_rounded_eur": 318000,
+        "nominal_tax_rate_pct": 15,
+        "haerteausgleich_applied": true,
+        "tax_per_heir_eur": 42000.0,
+        "total_tax_eur": 42000.0
+      },
+      "C_niessbrauch_gift_single_parent": {
+        "label": "Vorbehaltsnießbrauch-Schenkung (§ 14 BewG, 1 Elternteil)",
+        "net_transfer_value_total_eur": 265351.19,
+        "niessbrauch_deduction_eur": 452648.81,
+        "allowance_used_total_eur": 400000,
+        "taxable_per_heir_rounded_eur": 0,
+        "nominal_tax_rate_pct": 0,
+        "haerteausgleich_applied": false,
+        "tax_per_heir_eur": 0.0,
+        "total_tax_eur": 0.0
+      },
+      "D_optimum_niessbrauch_ehegattenschaukel_cascade": {
+        "label": "Optimum: Vorbehaltsnießbrauch + 2-Eltern-Split (§ 13 Abs. 1 Nr. 4a) + 10-Jahres-Kaskade (§ 14)",
+        "net_transfer_value_total_eur": 265351.19,
+        "niessbrauch_deduction_eur": 452648.81,
+        "single_tranche_allowance_total_eur": 800000,
+        "single_tranche_total_tax_eur": 0.0,
+        "tranche_1_today_per_heir_eur": 265351.19,
+        "tranche_2_year_10_per_heir_eur": 0.0,
+        "cascade_total_tax_eur": 0.0,
+        "total_tax_savings_vs_status_quo_eur": 34500.0,
+        "total_tax_savings_pct": 100.0
+      }
+    }
+  }
+];
+const BMF_ANCHORS = {"40": [16.132, 16.657], "45": [15.498, 16.124], "50": [14.735, 15.485], "55": [13.834, 14.722], "58": [13.23, 14.205], "60": [12.798, 13.832], "61": [12.538, 13.598], "62": [12.272, 13.359], "63": [11.999, 13.106], "64": [11.724, 12.848], "65": [11.444, 12.583], "66": [11.163, 12.308], "67": [10.881, 12.022], "68": [10.599, 11.726], "69": [10.316, 11.421], "70": [10.032, 11.107], "72": [9.452, 10.45], "75": [8.544, 9.41], "78": [7.585, 8.318], "80": [6.935, 7.575], "85": [5.352, 5.768], "90": [3.98, 4.215]};
+
+function fmtEUR(v) {
+  return new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(v);
+}
+
+function getBmfMultiplier(age, gender) {
+  const a = Math.max(40, Math.min(90, Math.round(age)));
+  const idx = gender === 'female' ? 1 : 0;
+  if (BMF_ANCHORS[a]) return BMF_ANCHORS[a][idx];
+  const keys = Object.keys(BMF_ANCHORS).map(Number).sort((x, y) => x - y);
+  for (let i = 0; i < keys.length - 1; i++) {
+    const k0 = keys[i], k1 = keys[i + 1];
+    if (a > k0 && a < k1) {
+      const v0 = BMF_ANCHORS[k0][idx], v1 = BMF_ANCHORS[k1][idx];
+      return +(v0 + ((a - k0) / (k1 - k0)) * (v1 - v0)).toFixed(3);
+    }
+  }
+  return BMF_ANCHORS[90][idx];
+}
+
+function computeTaxStKl1(rawTaxable) {
+  if (rawTaxable <= 0) return { rounded: 0, rate: 0, tax: 0, haerte: false, haerteSaved: 0 };
+  const rounded = Math.floor(rawTaxable / 100) * 100;
+  if (rounded <= 0) return { rounded: 0, rate: 0, tax: 0, haerte: false, haerteSaved: 0 };
+  const brackets = [
+    [75000, 7],
+    [300000, 11],
+    [600000, 15],
+    [6000000, 19],
+    [13000000, 23],
+    [26000000, 27],
+    [1e12, 30]
+  ];
+  let bIdx = 0;
+  for (let i = 0; i < brackets.length; i++) {
+    if (rounded <= brackets[i][0]) { bIdx = i; break; }
+  }
+  const rate = brackets[bIdx][1];
+  const rawTax = Math.floor(rounded * (rate / 100));
+  let finalTax = rawTax;
+  let haerte = false;
+  if (bIdx > 0) {
+    const prevLimit = brackets[bIdx - 1][0];
+    const prevRate = brackets[bIdx - 1][1];
+    const prevMaxTax = Math.floor(prevLimit * (prevRate / 100));
+    const excess = rounded - prevLimit;
+    const capTax = prevMaxTax + Math.floor(excess * 0.50);
+    if (capTax < rawTax) {
+      finalTax = capTax;
+      haerte = true;
+    }
+  }
+  return { rounded, rate, tax: finalTax, haerte, haerteSaved: rawTax - finalTax };
+}
+
+function loadPreset(idx) {
+  document.querySelectorAll('.preset-btn').forEach((b, i) => b.classList.toggle('active', i === idx));
+  const p = PRESETS[idx].input;
+  document.getElementById('inp-gbw').value = p.grundbesitzwert_eur;
+  document.getElementById('inp-cash').value = p.other_liquid_assets_eur;
+  document.getElementById('inp-type').value = p.property_type;
+  document.getElementById('inp-rent').value = p.net_annual_rent_eur;
+  document.getElementById('inp-age').value = p.donor_age;
+  document.getElementById('inp-gender').value = p.donor_gender;
+  document.getElementById('inp-spouse').value = p.has_spouse ? '1' : '0';
+  document.getElementById('inp-children').value = p.num_children_or_heirs;
+  recalc();
+}
+
+function recalc() {
+  const gbw = Math.max(0, Number(document.getElementById('inp-gbw').value) || 0);
+  const cash = Math.max(0, Number(document.getElementById('inp-cash').value) || 0);
+  const propType = document.getElementById('inp-type').value;
+  const rent = Math.max(0, Number(document.getElementById('inp-rent').value) || 0);
+  const age = Math.max(40, Math.min(90, Number(document.getElementById('inp-age').value) || 62));
+  const gender = document.getElementById('inp-gender').value;
+  const hasSpouse = document.getElementById('inp-spouse').value === '1';
+  const children = Math.max(1, Number(document.getElementById('inp-children').value) || 1);
+
+  document.getElementById('lbl-gbw').textContent = fmtEUR(gbw);
+  document.getElementById('lbl-cash').textContent = fmtEUR(cash);
+
+  const isRented = propType === 'rented_residential';
+  const haircut13d = isRented ? gbw * 0.10 : 0;
+  const propAfter13d = gbw - haircut13d;
+
+  const cap16BewG = gbw / 18.6;
+  const isCapped = rent > cap16BewG;
+  const effRent = Math.min(rent, cap16BewG);
+  const mult = getBmfMultiplier(age, gender);
+  const rawKapitalwert = Math.min(gbw, effRent * mult);
+  const deductibleFactor = isRented ? 0.90 : 1.00;
+  const deductibleNiessbrauch = rawKapitalwert * deductibleFactor;
+
+  const netEstateA = propAfter13d + cash;
+  const perChildA = netEstateA / children - (15000 / children);
+  const taxA = computeTaxStKl1(Math.max(0, perChildA - 400000));
+  const totalTaxA = taxA.tax * children;
+
+  const perChildB = (propAfter13d + cash) / children;
+  const taxB = computeTaxStKl1(Math.max(0, perChildB - 400000));
+  const totalTaxB = taxB.tax * children;
+
+  const netGiftC = Math.max(0, propAfter13d - deductibleNiessbrauch) + cash;
+  const perChildC = netGiftC / children;
+  const taxC = computeTaxStKl1(Math.max(0, perChildC - 400000));
+  const totalTaxC = taxC.tax * children;
+
+  const allowancePerChildD = hasSpouse ? 800000 : 400000;
+  const tranche1PerChild = Math.min(perChildC, allowancePerChildD);
+  const tranche2PerChild = Math.max(0, perChildC - tranche1PerChild);
+  const taxD = computeTaxStKl1(Math.max(0, tranche2PerChild - allowancePerChildD));
+  const totalTaxD = taxD.tax * children;
+
+  const savings = Math.max(0, totalTaxA - totalTaxD);
+
+  document.getElementById('kpi-tax-status-quo').textContent = fmtEUR(totalTaxA);
+  document.getElementById('kpi-sub-status-quo').textContent = `Steuersatz: ${taxA.rate}% (${children} Kind${children > 1 ? 'er' : ''})`;
+  document.getElementById('kpi-niessbrauch').textContent = fmtEUR(deductibleNiessbrauch);
+  document.getElementById('kpi-sub-niessbrauch').textContent = `Faktor ${mult.toFixed(3)} × ${fmtEUR(effRent)}/J.`;
+  document.getElementById('kpi-tax-optimum').textContent = fmtEUR(totalTaxD);
+  document.getElementById('kpi-sub-optimum').textContent = hasSpouse ? `Inkl. 2×400k € Eltern-Split` : `1×400k € + 10-J.-Kaskade`;
+  document.getElementById('kpi-savings').textContent = fmtEUR(savings);
+
+  document.getElementById('bewg-box').innerHTML = `
+    <strong>§ 14 & § 16 BewG Nießbrauch-Nachweis:</strong><br/>
+    • Höchstwert Jahreswert (§ 16 BewG = Grundbesitzwert ÷ 18,6): <strong>${fmtEUR(cap16BewG)}/Jahr</strong>
+    ${isCapped ? '<span class="pill pill-warn">§ 16 BewG Deckelung aktiv!</span>' : '<span class="pill pill-success">Voller Mietwert ansetzbar</span>'}<br/>
+    • Maßgeblicher Jahreswert: <strong>${fmtEUR(effRent)}</strong> × BMF-Vervielfältiger (Alter ${age}): <strong>${mult.toFixed(3)}</strong><br/>
+    • Kapitalwert Nießbrauch: <strong>${fmtEUR(rawKapitalwert)}</strong> ${isRented ? '(davon 90% = ' + fmtEUR(deductibleNiessbrauch) + ' abzugsfähig nach § 10 Abs. 6 ErbStG wegen 10% Bewertungsabschlag nach § 13d ErbStG)' : '(100% abzugsfähig nach § 10 Abs. 1 ErbStG)'}
+  `;
+
+  const rows = [
+    {
+      name: 'A) Status Quo: Ungeplanter Erbfall (1 Elternteil)',
+      net: netEstateA,
+      allow: 400000 * children,
+      taxable: taxA.rounded,
+      rate: taxA.rate + '%' + (taxA.haerte ? ' (§ 19 III Härteausgleich)' : ''),
+      total: totalTaxA,
+      cls: 'pill-danger',
+      hl: false
+    },
+    {
+      name: 'B) Schenkung ohne Nießbrauch (1 Elternteil)',
+      net: propAfter13d + cash,
+      allow: 400000 * children,
+      taxable: taxB.rounded,
+      rate: taxB.rate + '%' + (taxB.haerte ? ' (§ 19 III Härteausgleich)' : ''),
+      total: totalTaxB,
+      cls: 'pill-danger',
+      hl: false
+    },
+    {
+      name: 'C) Schenkung MIT Vorbehaltsnießbrauch (§ 14 BewG, 1 Elternteil)',
+      net: netGiftC,
+      allow: 400000 * children,
+      taxable: taxC.rounded,
+      rate: taxC.rate + '%' + (taxC.haerte ? ' (§ 19 III Härteausgleich)' : ''),
+      total: totalTaxC,
+      cls: totalTaxC === 0 ? 'pill-success' : 'pill-warn',
+      hl: false
+    },
+    {
+      name: 'D) OPTIMUM: Vorbehaltsnießbrauch + Ehegattenschaukel (2 Eltern) + 10-J.-Kaskade',
+      net: netGiftC,
+      allow: allowancePerChildD * children,
+      taxable: taxD.rounded,
+      rate: taxD.rate + '%',
+      total: totalTaxD,
+      cls: 'pill-success',
+      hl: true
+    }
+  ];
+
+  document.getElementById('strategy-tbody').innerHTML = rows.map(r => `
+    <tr class="${r.hl ? 'highlight-row' : ''}">
+      <td><strong>${r.name}</strong></td>
+      <td>${fmtEUR(r.net)}</td>
+      <td>${fmtEUR(r.allow)}</td>
+      <td>${fmtEUR(r.taxable)}</td>
+      <td>${r.rate}</td>
+      <td><span class="pill ${r.cls}">${fmtEUR(r.total)}</span></td>
+    </tr>
+  `).join('');
+
+  document.getElementById('cascade-roadmap').innerHTML = `
+    <strong>Notarieller Umsetzungs-Fahrplan (Strategie D):</strong><br/>
+    1. <strong>Ehegattenschaukel / Familienheim-Split (§ 13 Abs. 1 Nr. 4a / § 16 Abs. 1 Nr. 1 ErbStG):</strong>
+    ${hasSpouse ? 'Übertragung eines 50%-Miteigentumsanteils an den Ehegatten (Familienheim nach § 13 Abs. 1 Nr. 4a ErbStG zu 100% steuerfrei ohne Wertgrenze und ohne 10-Jahres-Behaltensfrist!). Dadurch verdoppelt sich der Freibetrag je Kind sofort von 400.000 € auf <strong>800.000 €</strong>.' : 'Kein 2. Elternteil angegeben — Nutzung von 400.000 € Freibetrag je Kind im 10-Jahres-Turnus (§ 14 ErbStG).'}${isRented ? ' Zusätzlich greift der <strong>10% Bewertungsabschlag nach § 13d ErbStG (' + fmtEUR(haircut13d) + ')</strong>.' : ''}<br/>
+    2. <strong>Tranche 1 (Heute, Jahr 0) unter Vorbehaltsnießbrauch (§ 14 BewG):</strong>
+    Abzug des Nießbrauch-Kapitalwerts von <strong>${fmtEUR(deductibleNiessbrauch)}</strong> drückt den steuerlichen Nettowert auf <strong>${fmtEUR(perChildC)} je Kind</strong>.
+    Davon werden heute <strong>${fmtEUR(tranche1PerChild)} je Kind</strong> komplett steuerfrei (0 € Schenkungsteuer) übertragen.<br/>
+    3. <strong>Tranche 2 (Nach 10 Jahren gem. § 14 ErbStG):</strong>
+    ${tranche2PerChild > 0 ? 'Restwert von <strong>' + fmtEUR(tranche2PerChild) + ' je Kind</strong> wird nach Ablauf der 10-Jahres-Frist mit erneuertem Freibetrag übertragen.' : 'Bereits in Tranche 1 zu <strong>100 % steuerfrei (0 €)</strong> übertragen — der 10-Jahres-Freibetrag steht in 10 Jahren für weiteres Vermögen wieder voll zur Verfügung!'}
+  `;
+}
+
+window.addEventListener('DOMContentLoaded', () => loadPreset(0));
+</script>
+</body>
+</html>

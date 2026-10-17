@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MVP #110 — DACH § 6 AStG GmbH-Wegzugssteuer &amp; § 19 Abs. 3 InvStG ETF-500k-Split-Studio (Stand 2025/2026)</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --card: #131b33;
+      --card-alt: #182342;
+      --border: #2a3966;
+      --text: #eef2ff;
+      --muted: #9fb0d9;
+      --accent: #38bdf8;
+      --success: #22c55e;
+      --danger: #f43f5e;
+      --warn: #f59e0b;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: radial-gradient(circle at top right, #172554 0%, var(--bg) 55%);
+      color: var(--text);
+      line-height: 1.55;
+      padding: 24px;
+    }
+    .container { max-width: 1380px; margin: 0 auto; }
+    header {
+      background: linear-gradient(135deg, rgba(30,41,59,0.9), rgba(15,23,42,0.95));
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px 28px;
+      margin-bottom: 24px;
+      box-shadow: 0 12px 32px rgba(0,0,0,0.35);
+    }
+    .badge-row { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; }
+    .badge {
+      font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em;
+      padding: 5px 11px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.16);
+      background: rgba(56,189,248,0.14); color: var(--accent);
+    }
+    .badge.danger { background: rgba(244,63,94,0.16); color: #fda4af; border-color: rgba(244,63,94,0.4); }
+    .badge.success { background: rgba(34,197,94,0.16); color: #86efac; border-color: rgba(34,197,94,0.4); }
+    .badge.warn { background: rgba(245,158,11,0.16); color: #fde68a; border-color: rgba(245,158,11,0.4); }
+    h1 { margin: 0 0 8px 0; font-size: 27px; line-height: 1.25; }
+    .subtitle { margin: 0; color: var(--muted); font-size: 15px; }
+    .kpi-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 16px; margin-bottom: 24px;
+    }
+    .kpi-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 14px; padding: 18px 20px;
+    }
+    .kpi-label { font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); margin-bottom: 6px; }
+    .kpi-value { font-size: 26px; font-weight: 800; margin-bottom: 4px; }
+    .kpi-sub { font-size: 13px; color: var(--muted); }
+    .main-grid { display: grid; grid-template-columns: 420px 1fr; gap: 22px; margin-bottom: 24px; }
+    @media (max-width: 1080px) { .main-grid { grid-template-columns: 1fr; } }
+    .panel {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 16px; padding: 22px; margin-bottom: 22px;
+    }
+    .panel h2 {
+      margin-top: 0; margin-bottom: 14px; font-size: 18px;
+      border-bottom: 1px solid var(--border); padding-bottom: 10px;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .form-group { margin-bottom: 14px; }
+    .form-group label {
+      display: flex; justify-content: space-between;
+      font-size: 13px; font-weight: 600; margin-bottom: 5px; color: #dbeafe;
+    }
+    .form-group input, .form-group select {
+      width: 100%; padding: 9px 11px; background: #0d1428;
+      border: 1px solid var(--border); color: var(--text); border-radius: 8px; font-size: 14px;
+    }
+    .form-group input[type="range"] { padding: 0; accent-color: var(--accent); }
+    table { width: 100%; border-collapse: collapse; font-size: 13.5px; margin-top: 10px; }
+    th, td { padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,0.08); text-align: left; }
+    th {
+      color: var(--muted); font-size: 12px; text-transform: uppercase;
+      letter-spacing: 0.04em; background: rgba(255,255,255,0.03);
+    }
+    .num { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
+    .pill { display: inline-block; padding: 3px 9px; border-radius: 999px; font-size: 11.5px; font-weight: 700; }
+    .pill.red { background: rgba(244,63,94,0.2); color: #fda4af; }
+    .pill.green { background: rgba(34,197,94,0.2); color: #86efac; }
+    .pill.amber { background: rgba(245,158,11,0.2); color: #fde68a; }
+    .callout {
+      background: var(--card-alt); border-left: 4px solid var(--accent);
+      padding: 14px 16px; border-radius: 8px; font-size: 13.5px; margin-top: 14px;
+    }
+    .callout.danger { border-left-color: var(--danger); }
+    .callout.success { border-left-color: var(--success); }
+  </style>
+</head>
+<body>
+
+<!-- DACH CASHFLOW STUDIOS LAUNCH BAR -->
+<style>
+  #dcs-launch-bar {
+    position: sticky;
+    top: 0;
+    z-index: 99999;
+    background: linear-gradient(90deg, #0b1120 0%, #111827 50%, #0f172a 100%);
+    color: #f8fafc;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.35);
+    padding: 8px 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  }
+  #dcs-launch-bar .dcs-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+  }
+  #dcs-launch-bar .dcs-badge {
+    background: rgba(16, 185, 129, 0.18);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.03em;
+  }
+  #dcs-launch-bar a.dcs-nav {
+    color: #93c5fd;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 12.5px;
+  }
+  #dcs-launch-bar a.dcs-nav:hover {
+    text-decoration: underline;
+    color: #dbeafe;
+  }
+  #dcs-launch-bar .dcs-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  #dcs-launch-bar .dcs-btn {
+    padding: 5px 11px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s ease;
+  }
+  #dcs-launch-bar .dcs-btn-ghost {
+    background: rgba(255,255,255,0.08);
+    color: #e2e8f0;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  #dcs-launch-bar .dcs-btn-primary {
+    background: linear-gradient(135deg, #0ea5e9, #2563eb);
+    color: #ffffff;
+  }
+  #dcs-launch-bar .dcs-btn-emerald {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
+  }
+  @media print {
+    #dcs-launch-bar { display: none !important; }
+  }
+</style>
+<div id="dcs-launch-bar">
+  <div class="dcs-left">
+    <a href="/index.html" class="dcs-nav">← Alle 150 DACH Studios</a>
+    <span class="dcs-badge">MVP #110 VERIFIED</span>
+    <span style="color:#cbd5e1;font-size:12px;">DACH Tax, Corporate & Accounting Arbitrage</span>
+  </div>
+  <div class="dcs-actions">
+    <button onclick="window.print()" class="dcs-btn dcs-btn-ghost">🖨️ PDF / Dossier drucken</button>
+    <a href="#checkout-modal-49" target="_blank" rel="noopener" class="dcs-btn dcs-btn-primary">⚡ Musterschreiben & Voll-Dossier (€49)</a>
+    <a href="#checkout-modal-299" target="_blank" rel="noopener" class="dcs-btn dcs-btn-emerald">🛡️ B2B Umsetzung buchen (€299 / €1.490)</a>
+  </div>
+</div>
+
+<div class="container">
+  <header>
+    <div class="badge-row">
+      <span class="badge danger">§ 6 AStG GmbH-Wegzugssteuer (13,75× BewG)</span>
+      <span class="badge warn">NEU seit 01.01.2025: § 19 Abs. 3 InvStG ETF-Wegzugssteuer ab 500.000 € AK je ISIN</span>
+      <span class="badge success">Multi-ETF-Split Arbitrage (&lt; 500k € AK je ISIN = 0 € Steuer)</span>
+      <span class="badge">§ 2 AStG 10-Jahre Erweiterte beschränkte Steuerpflicht</span>
+    </div>
+    <h1>DACH Wegzugsbesteuerung (§ 6 AStG) &amp; Neue ETF-Exit-Tax (§ 19 Abs. 3 InvStG) Simulator</h1>
+    <p class="subtitle">
+      Deterministische Steuer-Engine für GmbH-Gründer, Holding-Gesellschafter &amp; ETF-Investoren beim Wegzug in die Schweiz, nach Dubai (VAE), Zypern, Österreich oder in die USA (Rechtsstand 2025/2026 nach JStG 2024 &amp; ATADUmsG).
+    </p>
+  </header>
+
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-label">1. GmbH Gemeiner Wert (§§ 199–203 BewG)</div>
+      <div class="kpi-value" id="kpi-gmbh-val" style="color: var(--accent);">4,125,000.00 €</div>
+      <div class="kpi-sub">Nachhaltiger Jahresgewinn × <strong>13,75 Kapitalisierungsfaktor</strong> (§ 203 Abs. 1 BewG)</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">2. GmbH Dry-Exit-Tax (§ 6 Abs. 1 AStG)</div>
+      <div class="kpi-value" id="kpi-gmbh-tax" style="color: var(--danger);">1,167,885.00 €</div>
+      <div class="kpi-sub">60 % Teileinkünfteverfahren · 7 Jahresraten à <strong id="kpi-gmbh-rate">166,841 €</strong> (§ 6 Abs. 4 AStG)</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">3. Neue ETF-Wegzugssteuer (§ 19 Abs. 3 InvStG)</div>
+      <div class="kpi-value" id="kpi-etf-tax" style="color: var(--warn);">249,243.75 €</div>
+      <div class="kpi-sub">Ab <strong>500.000 € Anschaffungskosten je ISIN</strong> (30 % TFS → 18,4625 % eff. Steuer)</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">4. Multi-ETF-Split Ersparnis (&lt; 500k € AK/ISIN)</div>
+      <div class="kpi-value" id="kpi-etf-saved" style="color: var(--success);">+249,243.75 €</div>
+      <div class="kpi-sub">Durch Verteilung auf mehrere MSCI World / All-World ISINs vor der 500k-Schwelle: <strong>0,00 €</strong></div>
+    </div>
+  </div>
+
+  <div class="main-grid">
+    <div>
+      <div class="panel">
+        <h2>Interaktive Wegzugs-Parameter</h2>
+
+        <div class="form-group">
+          <label for="inp-dest">Zuzugsland / Jurisdiktion</label>
+          <select id="inp-dest" onchange="recalcStudio()">
+            <option value="CH_ZUG" selected>Schweiz — Kanton Zug / Schwyz (0 % Kursgewinne)</option>
+            <option value="CH_ZURICH">Schweiz — Kanton Zürich (DBA Art. 4 Abs. 4)</option>
+            <option value="AE_DUBAI">VAE — Dubai / Abu Dhabi (0 % Steuer, KEIN DBA!)</option>
+            <option value="CY_NONDOM">Zypern — Non-Dom Regime (EU + Vorzugsregime)</option>
+            <option value="AT_WIEN">Österreich — Wien / Salzburg (27,5 % KESt, Step-up)</option>
+            <option value="US_FLORIDA">USA — Florida / Texas (0 % State Tax)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label><span>Unbeschränkt steuerpflichtig (letzte 12 J.)</span> <strong id="lbl-res-years">12 Jahre</strong></label>
+          <input type="range" id="inp-res-years" min="1" max="12" step="1" value="12" oninput="recalcStudio()" />
+          <div style="font-size:11.5px; color:var(--muted);">Schwelle § 6 Abs. 2 AStG: mindestens <strong>7 aus 12 Jahren</strong></div>
+        </div>
+
+        <div class="form-group">
+          <label><span>GmbH Nachhaltiger Jahresüberschuss (§ 202 BewG)</span> <strong id="lbl-gmbh-profit">300.000 €</strong></label>
+          <input type="range" id="inp-gmbh-profit" min="0" max="1500000" step="10000" value="300000" oninput="recalcStudio()" />
+        </div>
+
+        <div class="form-group">
+          <label><span>GmbH-Beteiligungsquote (§ 17 EStG)</span> <strong id="lbl-gmbh-share">100 %</strong></label>
+          <input type="range" id="inp-gmbh-share" min="0" max="100" step="1" value="100" oninput="recalcStudio()" />
+        </div>
+
+        <div class="form-group">
+          <label><span>GmbH Historische Anschaffungskosten</span> <strong id="lbl-gmbh-ak">25.000 €</strong></label>
+          <input type="number" id="inp-gmbh-ak" value="25000" step="5000" oninput="recalcStudio()" />
+        </div>
+
+        <div class="form-group">
+          <label><span>Persönlicher Grenzsteuersatz (inkl. Reichensteuer)</span> <strong id="lbl-tax-rate">45,0 %</strong></label>
+          <select id="inp-tax-rate" onchange="recalcStudio()">
+            <option value="0.45" selected>45,0 % (Reichensteuer ab 277.826 € + 5,5 % Soli = 47,475 %)</option>
+            <option value="0.42">42,0 % (Spitzensteuersatz + 5,5 % Soli = 44,31 %)</option>
+            <option value="0.35">35,0 % (Moderater Grenzsteuersatz + 5,5 % Soli)</option>
+          </select>
+        </div>
+
+        <hr style="border:0; border-top:1px solid var(--border); margin: 18px 0;" />
+
+        <div class="form-group">
+          <label><span>ETF #1 Anschaffungskosten (Einzel-ISIN)</span> <strong id="lbl-etf1-ak">1.200.000 €</strong></label>
+          <input type="range" id="inp-etf1-ak" min="100000" max="3000000" step="25000" value="1200000" oninput="recalcStudio()" />
+          <div style="font-size:11.5px; color:var(--muted);">Kritische Schwelle § 19 Abs. 3 InvStG: <strong>500.000 € AK je Fonds/ISIN</strong></div>
+        </div>
+
+        <div class="form-group">
+          <label><span>ETF #1 Aktueller Kurswert</span> <strong id="lbl-etf1-mv">2.100.000 €</strong></label>
+          <input type="range" id="inp-etf1-mv" min="100000" max="5000000" step="25000" value="2100000" oninput="recalcStudio()" />
+        </div>
+
+        <div class="form-group">
+          <label><span>Verbleibende deutsche Einkünfte p.a. (§ 2 AStG)</span> <strong id="lbl-de-inc">85.000 €</strong></label>
+          <input type="range" id="inp-de-inc" min="0" max="300000" step="2500" value="85000" oninput="recalcStudio()" />
+          <div style="font-size:11.5px; color:var(--muted);">Freigrenze § 2 Abs. 1 Satz 3 AStG: <strong>16.500 € p.a.</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="panel">
+        <h2>
+          <span>Säule 1: GmbH / Holding Wegzugsbesteuerung (§ 6 AStG i.V.m. §§ 199–203 BewG)</span>
+          <span id="badge-6astg-status" class="pill red">GREIFT (7-aus-12 J. erfüllt)</span>
+        </h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Berechnungsschritt</th>
+              <th>Gesetzliche Grundlage</th>
+              <th class="num">Betrag / Wert</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Nachhaltiger Jahresertrag der GmbH (Ø 3 Jahre)</td>
+              <td>§ 201 / § 202 BewG</td>
+              <td class="num" id="td-gmbh-profit">300,000.00 €</td>
+            </tr>
+            <tr>
+              <td>Gesetzlicher Kapitalisierungsfaktor (fest seit 2016)</td>
+              <td>§ 203 Abs. 1 BewG</td>
+              <td class="num">× 13,75</td>
+            </tr>
+            <tr>
+              <td><strong>Fiktiver Unternehmenswert (Vereinfachtes Ertragswertverfahren)</strong></td>
+              <td>§§ 199–203 BewG</td>
+              <td class="num" id="td-gmbh-comp-val">4,125,000.00 €</td>
+            </tr>
+            <tr>
+              <td>Anteiliger gemeiner Wert minus Anschaffungskosten (Stille Reserven)</td>
+              <td>§ 6 Abs. 1 AStG i.V.m. § 17 Abs. 2 EStG</td>
+              <td class="num" id="td-gmbh-reserves">4,100,000.00 €</td>
+            </tr>
+            <tr>
+              <td>Steuerpflichtiger Teil nach Teileinkünfteverfahren (60 %)</td>
+              <td>§ 3 Nr. 40 lit. c EStG</td>
+              <td class="num" id="td-gmbh-taxable">2,460,000.00 €</td>
+            </tr>
+            <tr>
+              <td><strong>Sofortige Dry-Income-Wegzugssteuer (inkl. 5,5 % Soli)</strong></td>
+              <td>§ 6 Abs. 1 AStG (~28,49 % eff.)</td>
+              <td class="num" style="color:var(--danger); font-size:15px;" id="td-gmbh-tax">1,167,885.00 €</td>
+            </tr>
+            <tr>
+              <td>7 Jahresraten auf Antrag (nur gegen Sicherheitsleistung!)</td>
+              <td>§ 6 Abs. 4 AStG (seit ATADUmsG 2022)</td>
+              <td class="num" id="td-gmbh-installment">166,840.71 € / Jahr</td>
+            </tr>
+            <tr>
+              <td>Benötigte Brutto-Gewinnausschüttung p.a. zur Ratenfinanzierung</td>
+              <td>inkl. 26,375 % KapESt + Soli</td>
+              <td class="num" id="td-gmbh-div-needed">226,608.78 € / Jahr</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="callout danger">
+          <strong>Achtung — Wegfall der EU-/Schweiz-Stundung seit 01.01.2022 (ATADUmsG):</strong>
+          Auch beim Umzug in die Schweiz, nach Österreich oder Zypern gibt es <em>keine</em> zeitlich unbegrenzte, zinslose Stundung mehr.
+          Ohne Rückkehrabsicht (§ 6 Abs. 3 AStG) bleiben nur 7 gleiche Jahresraten gegen Bankbürgschaft/Sicherheitsleistung (§ 6 Abs. 4 AStG).
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>
+          <span>Säule 2: NEUE ETF-Wegzugssteuer seit 01.01.2025 (§ 19 Abs. 3 InvStG — 500.000 € AK-Grenze)</span>
+          <span class="pill amber">JStG 2024</span>
+        </h2>
+        <table>
+          <thead>
+            <tr>
+              <th>ETF / ISIN im Depot</th>
+              <th class="num">Anschaffungskosten (AK)</th>
+              <th class="num">Kurswert Wegzug</th>
+              <th class="num">Stille Reserve</th>
+              <th>&ge; 500k € AK?</th>
+              <th class="num">§ 19 Abs. 3 InvStG Steuer</th>
+              <th>Multi-ETF-Split Plan (&lt; 450k € AK)</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-etfs"></tbody>
+        </table>
+        <div class="callout success" id="callout-etf-split">
+          <strong>Deterministische Multi-ETF-Split Arbitrage (§ 19 Abs. 3 Satz 2 Nr. 2 lit. b InvStG):</strong>
+          Weil der Schwellenwert von <strong>500.000 € Anschaffungskosten</strong> gesetzlich <em>je einzelnem Investmentfonds (je ISIN)</em> geprüft wird,
+          bleibt ein 1,8–2,5 Mio. € schweres Welt-Portfolio komplett steuerfrei (<strong>0,00 € Wegzugssteuer</strong>), wenn beim Aufbau rechtzeitig auf
+          4 bis 6 verschiedene ETF-ISINs (z. B. iShares, Xtrackers, Vanguard, SPDR, Amundi mit jeweils &le; 450.000 € Anschaffungskosten) diversifiziert wird!
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>
+          <span>Säule 3: Gestaltungsvergleich &amp; § 2 AStG (10 Jahre Erweiterte beschränkte Steuerpflicht)</span>
+          <span id="badge-2astg-status" class="pill red">§ 2 AStG AKTIV (10 J.)</span>
+        </h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Gestaltungsstrategie vor Wegzug</th>
+              <th>Rechtsgrundlage</th>
+              <th class="num">GmbH-Exit-Tax</th>
+              <th class="num">ETF-Exit-Tax</th>
+              <th class="num">Setup-Kosten</th>
+              <th class="num">Netto-Ersparnis</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-strategies"></tbody>
+        </table>
+
+        <div class="callout" id="callout-2astg" style="margin-top:16px;">
+          <strong>§ 2 AStG Audit (<span id="sp-dest-name">Schweiz (Kanton Zug / Schwyz)</span>):</strong>
+          <span id="sp-2astg-text"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script id="wegzug-manifest-data" type="application/json">
+{
+  "engine_version": "1.0.0-mvp110",
+  "generated_at_cet": "2026-10-17T20:32:21.131094",
+  "statutory_framework": {
+    "gmbh_exit_tax": "§ 6 Abs. 1–5 AStG i.V.m. § 17 EStG & §§ 199–203 BewG (Kapitalisierungsfaktor 13,75)",
+    "etf_exit_tax_2025": "§ 19 Abs. 3 InvStG & § 49 Abs. 5 InvStG i.d.F. des JStG 2024 (in Kraft seit 01.01.2025, 500.000 € AK-Schwelle je ISIN)",
+    "extended_limited_tax": "§ 2 Abs. 1–5 AStG (Erweiterte beschränkte Steuerpflicht für 10 Jahre bei Niedrigsteuerland & > 16.500 € Freigrenze)"
+  },
+  "flagship_scenario": {
+    "gmbh_exit_tax_6astg": {
+      "entity_name": "AlphaCloud SaaS GmbH (100 % Gründer-Beteiligung)",
+      "shareholding_pct": 100.0,
+      "years_resident_in_last_12": 12,
+      "subject_to_7_of_12_rule": true,
+      "subject_to_1pct_rule": true,
+      "triggers_6astg": true,
+      "sustainable_annual_net_profit_eur": 300000.0,
+      "bewg_capitalization_factor": 13.75,
+      "bewg_company_value_eur": 4125000.0,
+      "applied_company_value_eur": 4125000.0,
+      "shareholder_market_value_eur": 4125000.0,
+      "historical_acquisition_cost_eur": 25000.0,
+      "hidden_reserves_eur": 4100000.0,
+      "teileinkuenfte_taxable_ratio": 0.6,
+      "taxable_gain_eur": 2460000.0,
+      "personal_marginal_tax_rate_pct": 45.0,
+      "effective_tax_rate_on_gain_pct": 28.485,
+      "dry_exit_tax_eur": 1167885.0,
+      "annual_installment_7yr_eur": 166840.71,
+      "monthly_installment_equivalent_eur": 13903.39,
+      "gross_dividend_needed_per_year_eur": 226608.78
+    },
+    "etf_exit_tax_19invstg": {
+      "statutory_basis": "§ 19 Abs. 3 InvStG i.V.m. § 6 AStG (in Kraft seit 01.01.2025 durch JStG 2024)",
+      "acquisition_cost_threshold_per_isin_eur": 500000.0,
+      "safe_harbor_cap_per_isin_eur": 450000.0,
+      "years_resident_in_last_12": 12,
+      "subject_to_7_of_12_rule": true,
+      "total_acquisition_cost_eur": 2180000.0,
+      "total_market_value_eur": 3690000.0,
+      "total_unrealized_gain_eur": 1510000.0,
+      "triggered_isin_count": 2,
+      "total_taxable_gain_after_tfs_eur": 945000.0,
+      "total_etf_exit_tax_unoptimized_eur": 249243.75,
+      "total_etf_exit_tax_with_multi_isin_split_eur": 0.0,
+      "multi_etf_split_arbitrage_savings_eur": 249243.75,
+      "positions": [
+        {
+          "isin": "IE00B4L5Y983",
+          "name": "iShares Core MSCI World UCITS ETF (Acc)",
+          "fund_type": "aktienfonds",
+          "acquisition_cost_eur": 1200000.0,
+          "current_market_value_eur": 2100000.0,
+          "unrealized_gain_eur": 900000.0,
+          "teilfreistellung_rate_pct": 30.0,
+          "effective_tax_rate_pct": 18.4625,
+          "exceeds_500k_ak": true,
+          "exceeds_1pct_fund": false,
+          "is_spezial_investmentfonds": false,
+          "triggers_19_3_invstg": true,
+          "taxable_gain_after_tfs_eur": 630000.0,
+          "dry_etf_exit_tax_eur": 166162.5,
+          "recommended_distinct_isins": 3,
+          "ak_per_split_etf_eur": 400000.0
+        },
+        {
+          "isin": "IE00B5BMR087",
+          "name": "iShares Core S&P 500 UCITS ETF (Acc)",
+          "fund_type": "aktienfonds",
+          "acquisition_cost_eur": 600000.0,
+          "current_market_value_eur": 1050000.0,
+          "unrealized_gain_eur": 450000.0,
+          "teilfreistellung_rate_pct": 30.0,
+          "effective_tax_rate_pct": 18.4625,
+          "exceeds_500k_ak": true,
+          "exceeds_1pct_fund": false,
+          "is_spezial_investmentfonds": false,
+          "triggers_19_3_invstg": true,
+          "taxable_gain_after_tfs_eur": 315000.0,
+          "dry_etf_exit_tax_eur": 83081.25,
+          "recommended_distinct_isins": 2,
+          "ak_per_split_etf_eur": 300000.0
+        },
+        {
+          "isin": "IE00BKM4GZ66",
+          "name": "iShares Core MSCI EM IMI UCITS ETF (unter 500k € AK-Schwelle!)",
+          "fund_type": "aktienfonds",
+          "acquisition_cost_eur": 380000.0,
+          "current_market_value_eur": 540000.0,
+          "unrealized_gain_eur": 160000.0,
+          "teilfreistellung_rate_pct": 30.0,
+          "effective_tax_rate_pct": 18.4625,
+          "exceeds_500k_ak": false,
+          "exceeds_1pct_fund": false,
+          "is_spezial_investmentfonds": false,
+          "triggers_19_3_invstg": false,
+          "taxable_gain_after_tfs_eur": 0.0,
+          "dry_etf_exit_tax_eur": 0.0,
+          "recommended_distinct_isins": 1,
+          "ak_per_split_etf_eur": 380000.0
+        }
+      ],
+      "recommended_splits": [
+        {
+          "original_isin": "IE00B4L5Y983",
+          "original_name": "iShares Core MSCI World UCITS ETF (Acc)",
+          "original_acquisition_cost_eur": 1200000.0,
+          "original_market_value_eur": 2100000.0,
+          "unoptimized_exit_tax_eur": 166162.5,
+          "min_isins_strictly_under_500k": 3,
+          "recommended_isins_at_safe_harbor": 3,
+          "safe_harbor_cap_eur": 450000.0,
+          "acquisition_cost_per_split_isin_eur": 400000.0,
+          "market_value_per_split_isin_eur": 700000.0,
+          "exit_tax_if_split_from_inception_eur": 0.0,
+          "tax_saved_eur": 166162.5,
+          "candidate_substitute_etfs": [
+            "IE00B4L5Y983 (iShares Core MSCI World UCITS ETF)",
+            "IE00BJ0KDQ92 (Xtrackers MSCI World UCITS ETF 1C)",
+            "IE00BK5BQT80 (Vanguard FTSE All-World UCITS ETF Acc)"
+          ]
+        },
+        {
+          "original_isin": "IE00B5BMR087",
+          "original_name": "iShares Core S&P 500 UCITS ETF (Acc)",
+          "original_acquisition_cost_eur": 600000.0,
+          "original_market_value_eur": 1050000.0,
+          "unoptimized_exit_tax_eur": 83081.25,
+          "min_isins_strictly_under_500k": 2,
+          "recommended_isins_at_safe_harbor": 2,
+          "safe_harbor_cap_eur": 450000.0,
+          "acquisition_cost_per_split_isin_eur": 300000.0,
+          "market_value_per_split_isin_eur": 525000.0,
+          "exit_tax_if_split_from_inception_eur": 0.0,
+          "tax_saved_eur": 83081.25,
+          "candidate_substitute_etfs": [
+            "IE00B4L5Y983 (iShares Core MSCI World UCITS ETF)",
+            "IE00BJ0KDQ92 (Xtrackers MSCI World UCITS ETF 1C)"
+          ]
+        }
+      ]
+    },
+    "astg2_extended_limited_tax": {
+      "destination_code": "CH_ZUG",
+      "destination_name_de": "Schweiz (Kanton Zug / Schwyz)",
+      "dba_with_de": true,
+      "eu_eea_or_ch": true,
+      "is_german_citizen": true,
+      "years_resident_in_last_10": 10,
+      "cond_citizenship_and_5_of_10": true,
+      "cond_low_tax_destination": true,
+      "cond_economic_ties": true,
+      "annual_german_non_foreign_income_eur": 85000.0,
+      "freigrenze_16500_eur": 16500.0,
+      "exceeds_16500_freigrenze": true,
+      "triggers_2astg": true,
+      "duration_years": 10,
+      "shadow_progression_rate_pct": 47.48,
+      "annual_2astg_tax_eur": 40353.75,
+      "ten_year_cumulative_2astg_tax_eur": 403537.5,
+      "destination_notes_de": "Privatvermögen-Kursgewinne 0 % ESt; aber Niedrigsteuerland i.S.d. § 2 Abs. 2 AStG & seit 2022 keine zinslose EU/CH-Dauerstundung mehr!"
+    },
+    "combined_unoptimized_dry_exit_tax_eur": 1417128.75,
+    "restructuring_strategies": [
+      {
+        "strategy_id": "UNOPTIMIZED_DIRECT_EXIT",
+        "title_de": "1. Ungeplanter Direkt-Wegzug (Status Quo Falle)",
+        "statutory_norm": "§ 6 Abs. 1 AStG + § 19 Abs. 3 InvStG",
+        "immediate_gmbh_exit_tax_eur": 1167885.0,
+        "immediate_etf_exit_tax_eur": 249243.75,
+        "upfront_structuring_cost_eur": 0.0,
+        "total_cash_burden_eur": 1417128.75,
+        "net_savings_vs_status_quo_eur": 0.0,
+        "Pros_de": "Kein Vorlauf nötig",
+        "Cons_de": "Sofortige Dry-Income-Steuer ohne Liquiditätszufluss; 7-Jahres-Raten (§ 6 Abs. 4 AStG) nur gegen harte Bankbürgschaft/Sicherheitsleistung!"
+      },
+      {
+        "strategy_id": "INSTALLMENTS_PLUS_ETF_SPLIT",
+        "title_de": "2. Multi-ETF-Split (< 500k € AK je ISIN) + 7-Jahres-Ratenzahlung (§ 6 Abs. 4 AStG)",
+        "statutory_norm": "§ 19 Abs. 3 S. 2 Nr. 2b InvStG + § 6 Abs. 4 AStG",
+        "immediate_gmbh_exit_tax_eur": 1167885.0,
+        "immediate_etf_exit_tax_eur": 0.0,
+        "upfront_structuring_cost_eur": 3500.0,
+        "total_cash_burden_eur": 1171385.0,
+        "net_savings_vs_status_quo_eur": 245743.75,
+        "Pros_de": "100 % Entfall der ETF-Wegzugssteuer durch Aufteilung auf mehrere ETFs (< 500k € AK je ISIN); GmbH-Steuer über 7 Jahre zinslos gestreckt.",
+        "Cons_de": "GmbH-Wegzugssteuer bleibt nominal bestehen; Finanzamt verlangt Sicherheitsleistung (z. B. Verpfändung/Depotbürgschaft)."
+      },
+      {
+        "strategy_id": "RETURN_INTENT_6_ABS_3_ASTG",
+        "title_de": "3. Vorübergehende Abwesenheit (7-/12-Jahre-Rückkehroption) + Multi-ETF-Split",
+        "statutory_norm": "§ 6 Abs. 3 AStG + § 19 Abs. 3 S. 2 Nr. 2b InvStG",
+        "immediate_gmbh_exit_tax_eur": 0.0,
+        "immediate_etf_exit_tax_eur": 0.0,
+        "upfront_structuring_cost_eur": 6500.0,
+        "total_cash_burden_eur": 6500.0,
+        "net_savings_vs_status_quo_eur": 1410628.75,
+        "Pros_de": "Volle Stundung ohne Ratenzahlung und regelmäßig ohne Sicherheitsleistung bei glaubhafter Rückkehrabsicht binnen 7 (max. 12) Jahren; Steuer entfällt rückwirkend bei Rückkehr!",
+        "Cons_de": "Kein Verkauf und keine Gewinnausschüttung von > 25 % des gemeinen Werts während der Auslandszeit erlaubt (§ 6 Abs. 3 S. 1 Nr. 2 AStG)."
+      },
+      {
+        "strategy_id": "PRE_EXIT_GMBH_CO_KG_UMWSTG",
+        "title_de": "4. Pre-Exit Formwechsel in gewerblich geprägte GmbH & Co. KG / Stiftung + Multi-ETF-Split",
+        "statutory_norm": "§§ 9, 14 UmwStG + § 50i EStG / Betriebsstättenvorbehalt Art. 7 OECD-MA",
+        "immediate_gmbh_exit_tax_eur": 0.0,
+        "immediate_etf_exit_tax_eur": 0.0,
+        "upfront_structuring_cost_eur": 28000.0,
+        "total_cash_burden_eur": 28000.0,
+        "net_savings_vs_status_quo_eur": 1389128.75,
+        "Pros_de": "Buchwertfortführung beim Formwechsel vor Wegzug, sofern Anteile in einer deutschen geschäftsleitenden Betriebsstätte verhaftet bleiben und deutsches Besteuerungsrecht nicht beschränkt wird (§ 4 Abs. 1 S. 3 EStG).",
+        "Cons_de": "Erfordert echte, substanzhaltige geschäftsleitende Betriebsstätte in Deutschland (Geschäftsführer im Inland) und laufende deutsche Besteuerung der KG-Gewinne; hohe Beratungskosten."
+      }
+    ],
+    "destination_comparison": [
+      {
+        "destination_code": "CH_ZUG",
+        "destination_name_de": "Schweiz (Kanton Zug / Schwyz)",
+        "dba_with_de": true,
+        "eu_eea_or_ch": true,
+        "is_german_citizen": true,
+        "years_resident_in_last_10": 10,
+        "cond_citizenship_and_5_of_10": true,
+        "cond_low_tax_destination": true,
+        "cond_economic_ties": true,
+        "annual_german_non_foreign_income_eur": 85000.0,
+        "freigrenze_16500_eur": 16500.0,
+        "exceeds_16500_freigrenze": true,
+        "triggers_2astg": true,
+        "duration_years": 10,
+        "shadow_progression_rate_pct": 47.48,
+        "annual_2astg_tax_eur": 40353.75,
+        "ten_year_cumulative_2astg_tax_eur": 403537.5,
+        "destination_notes_de": "Privatvermögen-Kursgewinne 0 % ESt; aber Niedrigsteuerland i.S.d. § 2 Abs. 2 AStG & seit 2022 keine zinslose EU/CH-Dauerstundung mehr!"
+      },
+      {
+        "destination_code": "CH_ZURICH",
+        "destination_name_de": "Schweiz (Kanton Zürich)",
+        "dba_with_de": true,
+        "eu_eea_or_ch": true,
+        "is_german_citizen": true,
+        "years_resident_in_last_10": 10,
+        "cond_citizenship_and_5_of_10": true,
+        "cond_low_tax_destination": true,
+        "cond_economic_ties": true,
+        "annual_german_non_foreign_income_eur": 85000.0,
+        "freigrenze_16500_eur": 16500.0,
+        "exceeds_16500_freigrenze": true,
+        "triggers_2astg": true,
+        "duration_years": 10,
+        "shadow_progression_rate_pct": 47.48,
+        "annual_2astg_tax_eur": 40353.75,
+        "ten_year_cumulative_2astg_tax_eur": 403537.5,
+        "destination_notes_de": "Privatvermögen-Kursgewinne 0 % ESt; überdachende Besteuerung Art. 4 Abs. 4 DBA-Schweiz (Wegzug + 5 Jahre) beachten!"
+      },
+      {
+        "destination_code": "AE_DUBAI",
+        "destination_name_de": "Vereinigte Arabische Emirate (Dubai / Abu Dhabi)",
+        "dba_with_de": false,
+        "eu_eea_or_ch": false,
+        "is_german_citizen": true,
+        "years_resident_in_last_10": 10,
+        "cond_citizenship_and_5_of_10": true,
+        "cond_low_tax_destination": true,
+        "cond_economic_ties": true,
+        "annual_german_non_foreign_income_eur": 85000.0,
+        "freigrenze_16500_eur": 16500.0,
+        "exceeds_16500_freigrenze": true,
+        "triggers_2astg": true,
+        "duration_years": 10,
+        "shadow_progression_rate_pct": 47.48,
+        "annual_2astg_tax_eur": 40353.75,
+        "ten_year_cumulative_2astg_tax_eur": 403537.5,
+        "destination_notes_de": "Kein DBA mit Deutschland (seit 01.01.2022 ausgelaufen)! 0 % Einkommensteuer vor Ort, aber volle § 2 AStG Schärfe ohne DBA-Schutzschirm für 10 Jahre."
+      },
+      {
+        "destination_code": "CY_NONDOM",
+        "destination_name_de": "Zypern (Non-Dom Regime / 60-Tage-Regel)",
+        "dba_with_de": true,
+        "eu_eea_or_ch": true,
+        "is_german_citizen": true,
+        "years_resident_in_last_10": 10,
+        "cond_citizenship_and_5_of_10": true,
+        "cond_low_tax_destination": true,
+        "cond_economic_ties": true,
+        "annual_german_non_foreign_income_eur": 85000.0,
+        "freigrenze_16500_eur": 16500.0,
+        "exceeds_16500_freigrenze": true,
+        "triggers_2astg": true,
+        "duration_years": 10,
+        "shadow_progression_rate_pct": 47.48,
+        "annual_2astg_tax_eur": 40353.75,
+        "ten_year_cumulative_2astg_tax_eur": 403537.5,
+        "destination_notes_de": "EU-Mitglied; Non-Dom befreit Dividenden & Kursgewinne (nur 2,65 % GESY), gilt aber wegen Vorzugsbesteuerung als Niedrigsteuergebiet nach § 2 Abs. 2 Nr. 2 AStG."
+      },
+      {
+        "destination_code": "AT_WIEN",
+        "destination_name_de": "Österreich (Wien / Salzburg)",
+        "dba_with_de": true,
+        "eu_eea_or_ch": true,
+        "is_german_citizen": true,
+        "years_resident_in_last_10": 10,
+        "cond_citizenship_and_5_of_10": true,
+        "cond_low_tax_destination": false,
+        "cond_economic_ties": true,
+        "annual_german_non_foreign_income_eur": 85000.0,
+        "freigrenze_16500_eur": 16500.0,
+        "exceeds_16500_freigrenze": true,
+        "triggers_2astg": false,
+        "duration_years": 0,
+        "shadow_progression_rate_pct": 0.0,
+        "annual_2astg_tax_eur": 0.0,
+        "ten_year_cumulative_2astg_tax_eur": 0.0,
+        "destination_notes_de": "Kein Niedrigsteuerland nach § 2 AStG; Österreich gewährt bei Zuzug Step-up auf Marktwert, aber DE fordert dennoch § 6 AStG / § 19 Abs. 3 InvStG Wegzugssteuer."
+      },
+      {
+        "destination_code": "US_FLORIDA",
+        "destination_name_de": "USA (Florida / Texas — 0% State Tax)",
+        "dba_with_de": true,
+        "eu_eea_or_ch": false,
+        "is_german_citizen": true,
+        "years_resident_in_last_10": 10,
+        "cond_citizenship_and_5_of_10": true,
+        "cond_low_tax_destination": true,
+        "cond_economic_ties": true,
+        "annual_german_non_foreign_income_eur": 85000.0,
+        "freigrenze_16500_eur": 16500.0,
+        "exceeds_16500_freigrenze": true,
+        "triggers_2astg": true,
+        "duration_years": 10,
+        "shadow_progression_rate_pct": 47.48,
+        "annual_2astg_tax_eur": 40353.75,
+        "ten_year_cumulative_2astg_tax_eur": 403537.5,
+        "destination_notes_de": "DBA USA-DE vorhanden; bei US-Greencard/Aufenthalt droht ohne Pre-Exit-Planung Doppelbesteuerung ohne Step-up in den USA."
+      }
+    ]
+  }
+}
+</script>
+
+<script>
+const DESTINATIONS = {
+  CH_ZUG: { name: "Schweiz (Kanton Zug / Schwyz)", lowTax: true, dba: true, notes: "Privatvermögen-Kursgewinne 0 % ESt; aber Niedrigsteuerland i.S.d. § 2 Abs. 2 AStG (< 2/3 der deutschen ESt bei 77.000 €)." },
+  CH_ZURICH: { name: "Schweiz (Kanton Zürich)", lowTax: true, dba: true, notes: "Überdachende Besteuerung nach Art. 4 Abs. 4 DBA-Schweiz im Wegzugsjahr + 5 Folgejahre beachten!" },
+  AE_DUBAI: { name: "VAE (Dubai / Abu Dhabi)", lowTax: true, dba: false, notes: "KEIN DBA mit Deutschland seit 01.01.2022! Volle 10-jährige erweiterte beschränkte Steuerpflicht nach § 2 AStG ohne DBA-Schrankenwirkung." },
+  CY_NONDOM: { name: "Zypern (Non-Dom Regime)", lowTax: true, dba: true, notes: "Non-Dom (0 % auf Dividenden/Kursgewinne) gilt als Vorzugsbesteuerung nach § 2 Abs. 2 Nr. 2 AStG -> Niedrigsteuergebiet!" },
+  AT_WIEN: { name: "Österreich (Wien / Salzburg)", lowTax: false, dba: true, notes: "Kein Niedrigsteuerland nach § 2 AStG! Österreich gewährt Step-up bei Zuzug, aber Deutschland besteuert Wegzug nach § 6 AStG / § 19 Abs. 3 InvStG." },
+  US_FLORIDA: { name: "USA (Florida / Texas)", lowTax: true, dba: true, notes: "DBA USA-DE vorhanden; US-Steuerpflicht (Substantial Presence) erfordert Pre-Exit Step-up-Koordination." }
+};
+
+function fmtEur(v) {
+  return new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR', maximumFractionDigits: 2 }).format(v);
+}
+
+function recalcStudio() {
+  const destCode = document.getElementById('inp-dest').value;
+  const resYears = parseInt(document.getElementById('inp-res-years').value, 10);
+  const gmbhProfit = parseFloat(document.getElementById('inp-gmbh-profit').value);
+  const gmbhShare = parseFloat(document.getElementById('inp-gmbh-share').value);
+  const gmbhAk = parseFloat(document.getElementById('inp-gmbh-ak').value || 0);
+  const personalRate = parseFloat(document.getElementById('inp-tax-rate').value);
+  const etf1Ak = parseFloat(document.getElementById('inp-etf1-ak').value);
+  const etf1Mv = Math.max(etf1Ak, parseFloat(document.getElementById('inp-etf1-mv').value));
+  const deInc = parseFloat(document.getElementById('inp-de-inc').value);
+
+  document.getElementById('lbl-res-years').textContent = resYears + " Jahre";
+  document.getElementById('lbl-gmbh-profit').textContent = fmtEur(gmbhProfit);
+  document.getElementById('lbl-gmbh-share').textContent = gmbhShare.toFixed(0) + " %";
+  document.getElementById('lbl-gmbh-ak').textContent = fmtEur(gmbhAk);
+  document.getElementById('lbl-tax-rate').textContent = (personalRate * 100).toFixed(1) + " %";
+  document.getElementById('lbl-etf1-ak').textContent = fmtEur(etf1Ak);
+  document.getElementById('lbl-etf1-mv').textContent = fmtEur(etf1Mv);
+  document.getElementById('lbl-de-inc').textContent = fmtEur(deInc);
+
+  const triggers7of12 = resYears >= 7;
+  const triggersGmbh = triggers7of12 && (gmbhShare >= 1.0);
+
+  const compVal = gmbhProfit * 13.75;
+  const shareVal = compVal * (gmbhShare / 100.0);
+  const hiddenRes = Math.max(0, shareVal - gmbhAk);
+  const taxableGmbh = triggersGmbh ? hiddenRes * 0.60 : 0;
+  const combinedRate = personalRate * 1.055;
+  const gmbhTax = taxableGmbh * combinedRate;
+  const annualRate7 = gmbhTax / 7.0;
+  const grossDivNeeded = annualRate7 / (1.0 - 0.26375);
+
+  document.getElementById('kpi-gmbh-val').textContent = fmtEur(shareVal);
+  document.getElementById('kpi-gmbh-tax').textContent = fmtEur(gmbhTax);
+  document.getElementById('kpi-gmbh-rate').textContent = fmtEur(annualRate7);
+
+  document.getElementById('td-gmbh-profit').textContent = fmtEur(gmbhProfit);
+  document.getElementById('td-gmbh-comp-val').textContent = fmtEur(compVal);
+  document.getElementById('td-gmbh-reserves').textContent = fmtEur(hiddenRes);
+  document.getElementById('td-gmbh-taxable').textContent = fmtEur(taxableGmbh);
+  document.getElementById('td-gmbh-tax').textContent = fmtEur(gmbhTax);
+  document.getElementById('td-gmbh-installment').textContent = fmtEur(annualRate7) + " / Jahr";
+  document.getElementById('td-gmbh-div-needed').textContent = fmtEur(grossDivNeeded) + " / Jahr";
+
+  const badge6 = document.getElementById('badge-6astg-status');
+  if (triggersGmbh) {
+    badge6.className = "pill red";
+    badge6.textContent = "GREIFT (7-aus-12 J. & >= 1 % erfüllt)";
+  } else {
+    badge6.className = "pill green";
+    badge6.textContent = "GREIFT NICHT (< 7 J. oder < 1 %)";
+  }
+
+  const etfs = [
+    { isin: "IE00B4L5Y983", name: "ETF #1: iShares Core MSCI World UCITS ETF", ak: etf1Ak, mv: etf1Mv },
+    { isin: "IE00B5BMR087", name: "ETF #2: iShares Core S&P 500 UCITS ETF", ak: 600000, mv: 1050000 },
+    { isin: "IE00BKM4GZ66", name: "ETF #3: iShares Core MSCI EM IMI (< 500k AK)", ak: 380000, mv: 540000 }
+  ];
+
+  const effEtfTaxRate = 0.70 * 0.26375;
+  let totalEtfTax = 0;
+  const tbodyEtfs = document.getElementById('tbody-etfs');
+  tbodyEtfs.innerHTML = "";
+
+  etfs.forEach(p => {
+    const gain = Math.max(0, p.mv - p.ak);
+    const over500k = p.ak >= 500000;
+    const trig = triggers7of12 && over500k;
+    const tax = trig ? gain * effEtfTaxRate : 0;
+    totalEtfTax += tax;
+    const splitCount = Math.max(1, Math.ceil(p.ak / 450000));
+    const splitAk = p.ak / splitCount;
+
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><strong>${p.isin}</strong><br/><span style="color:var(--muted);font-size:12px;">${p.name}</span></td>
+      <td class="num">${fmtEur(p.ak)}</td>
+      <td class="num">${fmtEur(p.mv)}</td>
+      <td class="num">${fmtEur(gain)}</td>
+      <td><span class="pill ${over500k ? 'red' : 'green'}">${over500k ? 'JA (>= 500k €)' : 'NEIN (< 500k €)'}</span></td>
+      <td class="num" style="color:${tax > 0 ? 'var(--warn)' : 'var(--success)'}">${fmtEur(tax)}</td>
+      <td>${over500k ? `Split auf <strong>${splitCount} ETFs</strong> à ${fmtEur(splitAk)} AK &rarr; <strong style="color:var(--success)">0,00 €</strong>` : `<span style="color:var(--success)">Bereits sicher (&lt; 500k € AK)</span>`}</td>
+    `;
+    tbodyEtfs.appendChild(tr);
+  });
+
+  document.getElementById('kpi-etf-tax').textContent = fmtEur(totalEtfTax);
+  document.getElementById('kpi-etf-saved').textContent = "+" + fmtEur(totalEtfTax);
+
+  const totalUnopt = gmbhTax + totalEtfTax;
+  const strategies = [
+    { title: "1. Ungeplanter Direkt-Wegzug (Status Quo Falle)", norm: "§ 6 Abs. 1 AStG + § 19 Abs. 3 InvStG", gTax: gmbhTax, eTax: totalEtfTax, cost: 0, saved: 0 },
+    { title: "2. Multi-ETF-Split (< 500k € AK/ISIN) + 7-Jahres-Raten", norm: "§ 19 Abs. 3 S. 2 Nr. 2b InvStG + § 6 Abs. 4 AStG", gTax: gmbhTax, eTax: 0, cost: 3500, saved: totalEtfTax - 3500 },
+    { title: "3. Vorübergehende Abwesenheit (7-/12-J. Rückkehr) + ETF-Split", norm: "§ 6 Abs. 3 AStG + § 19 Abs. 3 InvStG", gTax: 0, eTax: 0, cost: 6500, saved: totalUnopt - 6500 },
+    { title: "4. Pre-Exit GmbH & Co. KG Formwechsel (Inlands-Betriebsstätte) + ETF-Split", norm: "§§ 9, 14 UmwStG + § 4 Abs. 1 S. 3 EStG", gTax: 0, eTax: 0, cost: 28000, saved: totalUnopt - 28000 }
+  ];
+
+  const tbodyStrat = document.getElementById('tbody-strategies');
+  tbodyStrat.innerHTML = "";
+  strategies.forEach(s => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><strong>${s.title}</strong></td>
+      <td><span style="color:var(--muted);font-size:12px;">${s.norm}</span></td>
+      <td class="num">${fmtEur(s.gTax)}</td>
+      <td class="num">${fmtEur(s.eTax)}</td>
+      <td class="num">${fmtEur(s.cost)}</td>
+      <td class="num" style="color:${s.saved > 0 ? 'var(--success)' : 'var(--muted)'}">${s.saved > 0 ? '+' + fmtEur(s.saved) : fmtEur(0)}</td>
+    `;
+    tbodyStrat.appendChild(tr);
+  });
+
+  const dest = DESTINATIONS[destCode];
+  const triggers2Astg = dest.lowTax && (deInc > 16500);
+  const annual2AstgTax = triggers2Astg ? deInc * (0.45 * 1.055) : 0;
+  const tenYr2Astg = annual2AstgTax * 10;
+
+  document.getElementById('sp-dest-name').textContent = dest.name;
+  const badge2 = document.getElementById('badge-2astg-status');
+  if (triggers2Astg) {
+    badge2.className = "pill red";
+    badge2.textContent = "§ 2 AStG GREIFT (10 J. Zugriff)";
+    document.getElementById('sp-2astg-text').innerHTML =
+      `Niedrigsteuerland i.S.d. § 2 Abs. 2 AStG UND nicht-ausländische Einkünfte (${fmtEur(deInc)}) überschreiten die <strong>16.500 € Freigrenze</strong>! ` +
+      `Folge: 10 Jahre erweiterte beschränkte Steuerpflicht mit Progressionsvorbehalt (Schattenveranlagung) = <strong>${fmtEur(annual2AstgTax)} p.a.</strong> (10-Jahres-Last: <strong>${fmtEur(tenYr2Astg)}</strong>). ${dest.notes}`;
+  } else {
+    badge2.className = "pill green";
+    badge2.textContent = "§ 2 AStG GREIFT NICHT";
+    document.getElementById('sp-2astg-text').innerHTML =
+      `Entweder kein Niedrigsteuerland nach § 2 Abs. 2 AStG oder inländische Einkünfte (${fmtEur(deInc)}) liegen unter der <strong>16.500 € Freigrenze</strong> (§ 2 Abs. 1 Satz 3 AStG). ${dest.notes}`;
+  }
+}
+
+window.addEventListener('DOMContentLoaded', recalcStudio);
+</script>
+</body>
+</html>

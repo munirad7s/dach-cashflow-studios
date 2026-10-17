@@ -1,0 +1,1199 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MILESTONE MVP #130 — DACH Familien-Steuer-, 80%-Kinderbetreuungs- & Günstigerprüfungs-Studio</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --card: #131b33;
+      --card-alt: #192342;
+      --border: #2a3968;
+      --accent: #38bdf8;
+      --accent-green: #10b981;
+      --accent-amber: #f59e0b;
+      --accent-rose: #f43f5e;
+      --accent-purple: #a855f7;
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: radial-gradient(circle at top right, #172554, var(--bg) 60%);
+      color: var(--text);
+      line-height: 1.55;
+      padding: 24px;
+    }
+    .container { max-width: 1440px; margin: 0 auto; }
+    header {
+      background: linear-gradient(135deg, rgba(30,58,138,0.85), rgba(15,23,42,0.95));
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      margin-bottom: 24px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+    }
+    .badge-row { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; }
+    .badge {
+      padding: 5px 12px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      background: rgba(56,189,248,0.15);
+      color: var(--accent);
+      border: 1px solid rgba(56,189,248,0.4);
+    }
+    .badge.gold {
+      background: rgba(245,158,11,0.18);
+      color: #fbbf24;
+      border-color: rgba(245,158,11,0.5);
+    }
+    .badge.green {
+      background: rgba(16,185,129,0.18);
+      color: #34d399;
+      border-color: rgba(16,185,129,0.45);
+    }
+    h1 { font-size: 1.85rem; font-weight: 800; margin-bottom: 8px; color: #fff; }
+    .subtitle { color: var(--muted); font-size: 0.98rem; max-width: 1100px; }
+    .grid-main {
+      display: grid;
+      grid-template-columns: 430px 1fr;
+      gap: 24px;
+    }
+    @media (max-width: 1100px) {
+      .grid-main { grid-template-columns: 1fr; }
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 22px;
+      margin-bottom: 20px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+    }
+    .card h2 {
+      font-size: 1.15rem;
+      margin-bottom: 14px;
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      padding-bottom: 10px;
+    }
+    .preset-btns { display: flex; flex-direction: column; gap: 8px; margin-bottom: 18px; }
+    .preset-btn {
+      text-align: left;
+      background: var(--card-alt);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 10px 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 0.86rem;
+      font-weight: 600;
+      transition: all 0.15s ease;
+    }
+    .preset-btn:hover, .preset-btn.active {
+      border-color: var(--accent);
+      background: rgba(56,189,248,0.14);
+    }
+    .form-group { margin-bottom: 13px; }
+    .form-group label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.83rem;
+      color: var(--muted);
+      margin-bottom: 5px;
+      font-weight: 600;
+    }
+    .form-group input[type="range"] { width: 100%; accent-color: var(--accent); cursor: pointer; }
+    .form-group select, .form-group input[type="number"] {
+      width: 100%;
+      padding: 8px 11px;
+      background: #0f172a;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: #fff;
+      font-size: 0.9rem;
+    }
+    .checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      font-size: 0.85rem;
+      margin: 8px 0;
+      cursor: pointer;
+    }
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+    .kpi {
+      background: var(--card-alt);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+    }
+    .kpi .label { font-size: 0.76rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+    .kpi .value { font-size: 1.55rem; font-weight: 800; margin: 6px 0 4px; color: #fff; }
+    .kpi .value.green { color: var(--accent-green); }
+    .kpi .value.amber { color: var(--accent-amber); }
+    .kpi .value.cyan { color: var(--accent); }
+    .kpi .sub { font-size: 0.78rem; color: var(--muted); }
+    table { width: 100%; border-collapse: collapse; font-size: 0.87rem; margin-top: 8px; }
+    th, td {
+      padding: 10px 12px;
+      text-align: left;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+    }
+    th { color: var(--muted); font-weight: 600; font-size: 0.78rem; text-transform: uppercase; }
+    .num { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
+    .alert-box {
+      padding: 13px 16px;
+      border-radius: 10px;
+      margin-top: 12px;
+      font-size: 0.86rem;
+      font-weight: 500;
+    }
+    .alert-warn {
+      background: rgba(244,63,94,0.15);
+      border: 1px solid rgba(244,63,94,0.5);
+      color: #fda4af;
+    }
+    .alert-ok {
+      background: rgba(16,185,129,0.14);
+      border: 1px solid rgba(16,185,129,0.45);
+      color: #6ee7b7;
+    }
+    .alert-info {
+      background: rgba(56,189,248,0.13);
+      border: 1px solid rgba(56,189,248,0.4);
+      color: #bae6fd;
+    }
+    .bar-wrap {
+      background: #0b1020;
+      height: 12px;
+      border-radius: 999px;
+      overflow: hidden;
+      margin: 6px 0;
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+    .bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), var(--accent-green));
+      transition: width 0.25s ease;
+    }
+    .pill {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+    .pill-win { background: rgba(16,185,129,0.2); color: #34d399; }
+    .pill-kg { background: rgba(56,189,248,0.2); color: #38bdf8; }
+  </style>
+</head>
+<body>
+
+<!-- DACH CASHFLOW STUDIOS LAUNCH BAR -->
+<style>
+  #dcs-launch-bar {
+    position: sticky;
+    top: 0;
+    z-index: 99999;
+    background: linear-gradient(90deg, #0b1120 0%, #111827 50%, #0f172a 100%);
+    color: #f8fafc;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.35);
+    padding: 8px 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  }
+  #dcs-launch-bar .dcs-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+  }
+  #dcs-launch-bar .dcs-badge {
+    background: rgba(16, 185, 129, 0.18);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.03em;
+  }
+  #dcs-launch-bar a.dcs-nav {
+    color: #93c5fd;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 12.5px;
+  }
+  #dcs-launch-bar a.dcs-nav:hover {
+    text-decoration: underline;
+    color: #dbeafe;
+  }
+  #dcs-launch-bar .dcs-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  #dcs-launch-bar .dcs-btn {
+    padding: 5px 11px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s ease;
+  }
+  #dcs-launch-bar .dcs-btn-ghost {
+    background: rgba(255,255,255,0.08);
+    color: #e2e8f0;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  #dcs-launch-bar .dcs-btn-primary {
+    background: linear-gradient(135deg, #0ea5e9, #2563eb);
+    color: #ffffff;
+  }
+  #dcs-launch-bar .dcs-btn-emerald {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
+  }
+  @media print {
+    #dcs-launch-bar { display: none !important; }
+  }
+</style>
+<div id="dcs-launch-bar">
+  <div class="dcs-left">
+    <a href="/index.html" class="dcs-nav">← Alle 150 DACH Studios</a>
+    <span class="dcs-badge">MVP #130 VERIFIED</span>
+    <span style="color:#cbd5e1;font-size:12px;">DACH Tax, Corporate & Accounting Arbitrage</span>
+  </div>
+  <div class="dcs-actions">
+    <button onclick="window.print()" class="dcs-btn dcs-btn-ghost">🖨️ PDF / Dossier drucken</button>
+    <a href="#checkout-modal-49" target="_blank" rel="noopener" class="dcs-btn dcs-btn-primary">⚡ Musterschreiben & Voll-Dossier (€49)</a>
+    <a href="#checkout-modal-299" target="_blank" rel="noopener" class="dcs-btn dcs-btn-emerald">🛡️ B2B Umsetzung buchen (€299 / €1.490)</a>
+  </div>
+</div>
+
+<div class="container">
+  <header>
+    <div class="badge-row">
+      <span class="badge gold">MILESTONE MVP #130</span>
+      <span class="badge green">§ 10 Abs. 1 Nr. 5 EStG (80% bis €4.800/Kind ab 2025!)</span>
+      <span class="badge">§§ 31, 32, 66 EStG Günstigerprüfung + Soli/KiSt-Schattenentlastung</span>
+      <span class="badge">§ 24b EStG StKl II Guard & § 10 Abs. 1 Nr. 9 Schulgeld</span>
+    </div>
+    <h1>DACH Familien-Steuer-, 80%-Kinderbetreuungs- & Günstigerprüfungs-Optimierer</h1>
+    <p class="subtitle">
+      Deterministische Simulations-Engine für 8,5 Mio. Familien in Deutschland: JStG-2024-Reform der Kinderbetreuungskosten
+      (<strong>80 % Abzug bis 4.800 € pro Kind</strong> ab VZ 2025 + steuerfreier Arbeitgeberzuschuss nach <strong>§ 3 Nr. 33 EStG</strong>
+      + Oma/Opa-Fahrtkosten & Au-Pair 50%-Pauschale), exakte <strong>Kindergeld-vs.-Kinderfreibetrag-Günstigerprüfung</strong>
+      inkl. zwingender Soli-/Kirchensteuer-Schattenentlastung (<strong>§ 3 Abs. 2a SolzG, § 51a EStG</strong>) sowie
+      <strong>§ 24b EStG Alleinerziehenden-Entlastungsbetrag</strong> & <strong>§ 10 Abs. 1 Nr. 9 EStG Privatschul-Abzug</strong>.
+    </p>
+  </header>
+
+  <div class="grid-main">
+    <!-- LEFT CONTROLS -->
+    <div>
+      <div class="card">
+        <h2>1. Referenz-Szenarien (Presets)</h2>
+        <div class="preset-btns">
+          <button class="preset-btn active" onclick="loadPreset(0)">Szenario 1: Doppelverdiener (2 Kinder, Kita + Au-Pair/Oma, VZ 2026)</button>
+          <button class="preset-btn" onclick="loadPreset(1)">Szenario 2: Alleinerziehend StKl II (§ 24b EStG + 2 Kinder, VZ 2026)</button>
+          <button class="preset-btn" onclick="loadPreset(2)">Szenario 3: High-Earner & Privatschule (§ 10 Nr. 9 + KFB-Sieg, VZ 2026)</button>
+        </div>
+
+        <h2>2. Familien- & Einkommens-Parameter</h2>
+        <div class="form-group">
+          <label><span>Veranlagungszeitraum (Gesetzesstand)</span></label>
+          <select id="yearSelect" onchange="recalc()">
+            <option value="2026" selected>2026 (259 € KG / 9.756 € KFB / 80% Betreuung bis 4.800 €)</option>
+            <option value="2025">2025 (255 € KG / 9.600 € KFB / 80% Betreuung bis 4.800 €)</option>
+            <option value="2024">2024 Alt-Recht (250 € KG / 9.540 € KFB / 2/3 Betreuung bis 4.000 €)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label><span>Veranlagungsart (§ 32a EStG)</span></label>
+          <select id="filingSelect" onchange="recalc()">
+            <option value="married_joint">Zusammenveranlagung (Splittingtarif § 32a Abs. 5 EStG)</option>
+            <option value="single">Einzelveranlagung / Alleinerziehend (Grundtarif)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label><span>Zu versteuerndes Einkommen vor Familienabzügen</span><strong id="zveVal">118.000 €</strong></label>
+          <input type="range" id="zveRange" min="25000" max="280000" step="1000" value="118000" oninput="recalc()" />
+        </div>
+
+        <div class="form-group">
+          <label><span>Anzahl kindergeldberechtigter Kinder</span><strong id="childCountVal">2</strong></label>
+          <input type="range" id="childCountRange" min="1" max="4" step="1" value="2" oninput="recalc()" />
+        </div>
+
+        <div class="form-group">
+          <label><span>Kirchensteuersatz (§ 51a EStG)</span></label>
+          <select id="kistSelect" onchange="recalc()">
+            <option value="0.08" selected>8 % (Bayern / Baden-Württemberg)</option>
+            <option value="0.09">9 % (Übrige Bundesländer)</option>
+            <option value="0.0">0 % (Konfessionslos)</option>
+          </select>
+        </div>
+
+        <h2>3. Säule 1: Kinderbetreuung (§ 10 Abs. 1 Nr. 5 & § 3 Nr. 33)</h2>
+        <div class="form-group">
+          <label><span>Kita / Krippe / Hort / Tagesmutter (ohne Essen, gesamt/Jahr)</span><strong id="kitaVal">9.800 €</strong></label>
+          <input type="range" id="kitaRange" min="0" max="24000" step="200" value="9800" oninput="recalc()" />
+        </div>
+
+        <div class="form-group">
+          <label><span>Steuerfreier AG-Kindergartenzuschuss (§ 3 Nr. 33 EStG/Jahr)</span><strong id="agSubVal">2.400 €</strong></label>
+          <input type="range" id="agSubRange" min="0" max="8000" step="200" value="2400" oninput="recalc()" />
+        </div>
+
+        <div class="form-group">
+          <label><span>Au-Pair Gesamtpaket (50% Betreuung § 10 Nr. 5 / 50% § 35a)</span><strong id="aupairVal">7.200 €</strong></label>
+          <input type="range" id="aupairRange" min="0" max="14000" step="300" value="7200" oninput="recalc()" />
+        </div>
+
+        <div class="form-group">
+          <label><span>Oma/Opa Betreuungs-Fahrten (km/Jahr × 0,30 € unbar)</span><strong id="omaKmVal">1.800 km (540 €)</strong></label>
+          <input type="range" id="omaKmRange" min="0" max="6000" step="100" value="1800" oninput="recalc()" />
+        </div>
+
+        <label class="checkbox-row">
+          <input type="checkbox" id="bankTransferCheck" checked onchange="recalc()" />
+          <span>Unbare Zahlung per Überweisung/Lastschrift (§ 10 Abs. 1 Nr. 5 S. 4 EStG)</span>
+        </label>
+
+        <h2>4. Säule 3: § 24b Alleinerziehende & § 10 Nr. 9 Schulgeld</h2>
+        <label class="checkbox-row">
+          <input type="checkbox" id="singleParentCheck" onchange="recalc()" />
+          <span>Alleinerziehenden-Haushalt (§ 24b EStG Steuerklasse II Anspruch)</span>
+        </label>
+        <label class="checkbox-row">
+          <input type="checkbox" id="otherAdultTrapCheck" onchange="recalc()" />
+          <span>WARN-TEST: Weitere volljährige Person im Haushalt (§ 24b Abs. 3 Falle!)</span>
+        </label>
+        <div class="form-group" style="margin-top:10px;">
+          <label><span>Privatschul-Schulgeld (§ 10 Abs. 1 Nr. 9 EStG, gesamt/Jahr)</span><strong id="schoolVal">0 €</strong></label>
+          <input type="range" id="schoolRange" min="0" max="40000" step="500" value="0" oninput="recalc()" />
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT DASHBOARD -->
+    <div>
+      <div class="kpi-grid">
+        <div class="kpi">
+          <div class="label">Gesamter Familien-Vorteil / Jahr</div>
+          <div class="value green" id="kpiTotalBenefit">0 €</div>
+          <div class="sub" id="kpiTotalSub">Kindergeld + Steuererstattungen + § 3 Nr. 33</div>
+        </div>
+        <div class="kpi">
+          <div class="label">Säule 1: Kinderbetreuung (80% Abzug)</div>
+          <div class="value cyan" id="kpiCareDeduction">0 €</div>
+          <div class="sub" id="kpiCareSub">JStG 2024 Bonus ggü. Alt-Recht: +0 €</div>
+        </div>
+        <div class="kpi">
+          <div class="label">Säule 2: Günstigerprüfung (§ 31 EStG)</div>
+          <div class="value amber" id="kpiGuenstiger">0 €</div>
+          <div class="sub" id="kpiGuenstigerSub">Ergebnis: Kindergeld vs. KFB</div>
+        </div>
+        <div class="kpi">
+          <div class="label">Soli + KiSt Schattenentlastung</div>
+          <div class="value green" id="kpiShadow">0 €</div>
+          <div class="sub">§ 3 Abs. 2a SolzG & § 51a EStG (immer KFB!)</div>
+        </div>
+      </div>
+
+      <!-- PILLAR 1 DETAIL CARD -->
+      <div class="card">
+        <h2>
+          <span>Säule 1: § 10 Abs. 1 Nr. 5 EStG Kinderbetreuungskosten (80%-Reform) + § 3 Nr. 33 EStG + § 35a Overflow</span>
+          <span class="pill pill-win" id="p1RateBadge">80% Abzug bis 4.800 €/Kind</span>
+        </h2>
+        <div id="cashWarningBox"></div>
+        <table>
+          <thead>
+            <tr>
+              <th>Position / Rechtsgrundlage</th>
+              <th class="num">Betrag / Bemessung</th>
+              <th class="num">Steuerlicher Effekt</th>
+            </tr>
+          </thead>
+          <tbody id="p1TableBody"></tbody>
+        </table>
+        <div style="margin-top: 14px;">
+          <div style="display:flex; justify-content:space-between; font-size:0.82rem; color:var(--muted);">
+            <span>Ausschöpfung Höchstbetrag § 10 Abs. 1 Nr. 5 EStG</span>
+            <span id="capUtilizationLabel">0 / 9.600 €</span>
+          </div>
+          <div class="bar-wrap"><div class="bar-fill" id="capBarFill" style="width:0%"></div></div>
+        </div>
+      </div>
+
+      <!-- PILLAR 2 DETAIL CARD -->
+      <div class="card">
+        <h2>
+          <span>Säule 2: §§ 31, 32, 66 EStG Günstigerprüfung (Kindergeld vs. Kinderfreibetrag + BEA)</span>
+          <span class="pill pill-kg" id="p2WinnerBadge">Analyse läuft</span>
+        </h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Prüfungsschritt (§ 31 S. 4 EStG / § 3 Abs. 2a SolzG / § 51a EStG)</th>
+              <th class="num">Ohne KFB</th>
+              <th class="num">Mit vollem KFB</th>
+              <th class="num">Differenz / Vorteil</th>
+            </tr>
+          </thead>
+          <tbody id="p2TableBody"></tbody>
+        </table>
+        <div class="alert-box alert-info" id="p2CrossoverInfo" style="margin-top:14px;"></div>
+      </div>
+
+      <!-- PILLAR 3 DETAIL CARD -->
+      <div class="card">
+        <h2>
+          <span>Säule 3: § 24b EStG Alleinerziehenden-Entlastungsbetrag (StKl II) & § 10 Abs. 1 Nr. 9 Schulgeld</span>
+          <span class="pill pill-win">4.260 € + 240 € / 30% Schulgeld bis 5.000 €</span>
+        </h2>
+        <div id="p3AlertBox"></div>
+        <table>
+          <thead>
+            <tr>
+              <th>Entlastungsinstrument</th>
+              <th>Status / Restriktion</th>
+              <th class="num">Abzugsbetrag (Sonderausgaben / § 24b)</th>
+            </tr>
+          </thead>
+          <tbody id="p3TableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const PRESETS = [
+  {
+    "scenario_id": "S1_DUAL_EARNER_KITA_AUPAIR_2026",
+    "title": "Szenario 1: Doppelverdiener-Ehepaar (2 Kinder: Kita + Au-Pair/Oma-Arbitrage, VZ 2026)",
+    "year": 2026,
+    "filing_status": "married_joint",
+    "gross_zve_before_family_eur": 118000.0,
+    "zve_after_pillar1_and_3_eur": 108736.0,
+    "marginal_est_rate_pct": 36.0,
+    "pillar1_child_care": {
+      "statutory_rate_pct": 80.0,
+      "max_deduction_per_child_eur": 4800.0,
+      "total_raw_care_costs_eur": 13940.0,
+      "total_non_deductible_meals_eur": 1560.0,
+      "total_employer_3nr33_tax_free_eur": 2400.0,
+      "total_sonderausgaben_current_eur": 9264.0,
+      "total_sonderausgaben_pre2025_eur": 7720.0,
+      "jstg2024_reform_extra_deduction_eur": 1544.0,
+      "sec35a_overflow_eligible_expenses_eur": 3600.0,
+      "sec35a_direct_tax_credit_20pct_eur": 720.0,
+      "cash_payment_warnings": [],
+      "children": [
+        {
+          "name": "Leo (3 J., Krippe + § 3 Nr. 33 AG-Zuschuss)",
+          "age": 3,
+          "eligible_under_14_or_disabled": true,
+          "paid_via_bank_transfer": true,
+          "gross_care_expenses_eur": 7140.0,
+          "meals_excluded_eur": 840.0,
+          "employer_subsidy_3nr33_eur": 2400.0,
+          "aupair_care_share_50pct_eur": 0.0,
+          "aupair_household_share_35a_eur": 0.0,
+          "grandparent_care_total_eur": 540.0,
+          "net_parent_care_burden_eur": 5580.0,
+          "capped_care_burden_eur": 5580.0,
+          "sonderausgaben_80pct_eur": 4464.0,
+          "sonderausgaben_pre2025_66pct_eur": 3720.0,
+          "jstg2024_extra_deduction_eur": 744.0,
+          "unused_cap_headroom_eur": 336.0
+        },
+        {
+          "name": "Mia (8 J., Hort + Au-Pair 50%-Pauschale)",
+          "age": 8,
+          "eligible_under_14_or_disabled": true,
+          "paid_via_bank_transfer": true,
+          "gross_care_expenses_eur": 6800.0,
+          "meals_excluded_eur": 720.0,
+          "employer_subsidy_3nr33_eur": 0.0,
+          "aupair_care_share_50pct_eur": 3600.0,
+          "aupair_household_share_35a_eur": 3600.0,
+          "grandparent_care_total_eur": 0.0,
+          "net_parent_care_burden_eur": 6800.0,
+          "capped_care_burden_eur": 6000.0,
+          "sonderausgaben_80pct_eur": 4800.0,
+          "sonderausgaben_pre2025_66pct_eur": 4000.0,
+          "jstg2024_extra_deduction_eur": 800.0,
+          "unused_cap_headroom_eur": 0.0
+        }
+      ]
+    },
+    "pillar2_guenstigerpruefung": {
+      "year": 2026,
+      "num_children": 2,
+      "kindergeld_monthly_per_child_eur": 259.0,
+      "kindergeld_annual_per_child_eur": 3108.0,
+      "kfb_total_per_child_eur": 9756.0,
+      "kfb_existenz_per_child_eur": 6828.0,
+      "kfb_bea_per_child_eur": 2928.0,
+      "total_kindergeld_cash_eur": 6216.0,
+      "total_kfb_allowance_eur": 19512.0,
+      "zve_before_kfb_eur": 108736.0,
+      "zve_after_kfb_eur": 89224.0,
+      "est_without_kfb_eur": 24230.0,
+      "est_with_kfb_eur": 17412.0,
+      "est_saving_from_kfb_eur": 6818.0,
+      "kfb_wins_guenstigerpruefung": true,
+      "additional_est_refund_above_kindergeld_eur": 602.0,
+      "soli_shadow_saving_eur": 0.0,
+      "kist_shadow_saving_eur": 545.44,
+      "total_soli_kist_shadow_relief_eur": 545.44,
+      "total_family_benefit_pillar2_eur": 7363.44,
+      "crossover_zve_1child_eur": 86106
+    },
+    "pillar3_single_parent_and_school": {
+      "sec24b_full_year_potential_eur": 4500.0,
+      "sec24b_granted_deduction_eur": 0.0,
+      "sec24b_trap_triggered": false,
+      "sec24b_lost_deduction_eur": 0.0,
+      "sec24b_status_note": "Nicht alleinstehend / Zusammenveranlagung (§ 26b EStG Splittingtarif aktiv).",
+      "schulgeld_total_tuition_eur": 0.0,
+      "schulgeld_total_sonderausgaben_eur": 0.0,
+      "school_children": [
+        {
+          "name": "Leo (3 J., Krippe + § 3 Nr. 33 AG-Zuschuss)",
+          "tuition_paid_eur": 0.0,
+          "raw_30pct_eur": 0.0,
+          "capped_sonderausgaben_10nr9_eur": 0.0,
+          "optimal_tuition_ceiling_eur": 16666.67
+        },
+        {
+          "name": "Mia (8 J., Hort + Au-Pair 50%-Pauschale)",
+          "tuition_paid_eur": 0.0,
+          "raw_30pct_eur": 0.0,
+          "capped_sonderausgaben_10nr9_eur": 0.0,
+          "optimal_tuition_ceiling_eur": 16666.67
+        }
+      ]
+    },
+    "summary": {
+      "total_deductions_p1_p3_eur": 9264.0,
+      "est_saved_by_p1_p3_eur": 3468.0,
+      "soli_kist_saved_by_p1_p3_eur": 252.32,
+      "sec35a_direct_tax_credit_eur": 720.0,
+      "employer_3nr33_tax_free_subsidy_eur": 2400.0,
+      "kindergeld_cash_eur": 6216.0,
+      "kfb_extra_est_refund_eur": 602.0,
+      "soli_kist_kfb_shadow_relief_eur": 545.44,
+      "total_annual_family_benefit_eur": 14203.76
+    }
+  },
+  {
+    "scenario_id": "S2_SINGLE_PARENT_STKL2_GUARD_2026",
+    "title": "Szenario 2: Alleinerziehende (Steuerklasse II § 24b EStG + 2 Kinder + Kita 80%, VZ 2026)",
+    "year": 2026,
+    "filing_status": "single",
+    "gross_zve_before_family_eur": 64000.0,
+    "zve_after_pillar1_and_3_eur": 53132.0,
+    "marginal_est_rate_pct": 36.0,
+    "pillar1_child_care": {
+      "statutory_rate_pct": 80.0,
+      "max_deduction_per_child_eur": 4800.0,
+      "total_raw_care_costs_eur": 8560.0,
+      "total_non_deductible_meals_eur": 1100.0,
+      "total_employer_3nr33_tax_free_eur": 1200.0,
+      "total_sonderausgaben_current_eur": 6368.0,
+      "total_sonderausgaben_pre2025_eur": 5306.67,
+      "jstg2024_reform_extra_deduction_eur": 1061.33,
+      "sec35a_overflow_eligible_expenses_eur": 0.0,
+      "sec35a_direct_tax_credit_20pct_eur": 0.0,
+      "cash_payment_warnings": [],
+      "children": [
+        {
+          "name": "Noah (5 J., Kindergarten)",
+          "age": 5,
+          "eligible_under_14_or_disabled": true,
+          "paid_via_bank_transfer": true,
+          "gross_care_expenses_eur": 5400.0,
+          "meals_excluded_eur": 600.0,
+          "employer_subsidy_3nr33_eur": 1200.0,
+          "aupair_care_share_50pct_eur": 0.0,
+          "aupair_household_share_35a_eur": 0.0,
+          "grandparent_care_total_eur": 0.0,
+          "net_parent_care_burden_eur": 4800.0,
+          "capped_care_burden_eur": 4800.0,
+          "sonderausgaben_80pct_eur": 3840.0,
+          "sonderausgaben_pre2025_66pct_eur": 3200.0,
+          "jstg2024_extra_deduction_eur": 640.0,
+          "unused_cap_headroom_eur": 960.0
+        },
+        {
+          "name": "Emma (11 J., Nachmittagshort)",
+          "age": 11,
+          "eligible_under_14_or_disabled": true,
+          "paid_via_bank_transfer": true,
+          "gross_care_expenses_eur": 3160.0,
+          "meals_excluded_eur": 500.0,
+          "employer_subsidy_3nr33_eur": 0.0,
+          "aupair_care_share_50pct_eur": 0.0,
+          "aupair_household_share_35a_eur": 0.0,
+          "grandparent_care_total_eur": 360.0,
+          "net_parent_care_burden_eur": 3160.0,
+          "capped_care_burden_eur": 3160.0,
+          "sonderausgaben_80pct_eur": 2528.0,
+          "sonderausgaben_pre2025_66pct_eur": 2106.67,
+          "jstg2024_extra_deduction_eur": 421.33,
+          "unused_cap_headroom_eur": 2272.0
+        }
+      ]
+    },
+    "pillar2_guenstigerpruefung": {
+      "year": 2026,
+      "num_children": 2,
+      "kindergeld_monthly_per_child_eur": 259.0,
+      "kindergeld_annual_per_child_eur": 3108.0,
+      "kfb_total_per_child_eur": 9756.0,
+      "kfb_existenz_per_child_eur": 6828.0,
+      "kfb_bea_per_child_eur": 2928.0,
+      "total_kindergeld_cash_eur": 6216.0,
+      "total_kfb_allowance_eur": 19512.0,
+      "zve_before_kfb_eur": 53132.0,
+      "zve_after_kfb_eur": 33620.0,
+      "est_without_kfb_eur": 11665.0,
+      "est_with_kfb_eur": 5260.0,
+      "est_saving_from_kfb_eur": 6405.0,
+      "kfb_wins_guenstigerpruefung": true,
+      "additional_est_refund_above_kindergeld_eur": 189.0,
+      "soli_shadow_saving_eur": 0.0,
+      "kist_shadow_saving_eur": 576.45,
+      "total_soli_kist_shadow_relief_eur": 576.45,
+      "total_family_benefit_pillar2_eur": 6981.45,
+      "crossover_zve_1child_eur": 45467
+    },
+    "pillar3_single_parent_and_school": {
+      "sec24b_full_year_potential_eur": 4500.0,
+      "sec24b_granted_deduction_eur": 4500.0,
+      "sec24b_trap_triggered": false,
+      "sec24b_lost_deduction_eur": 0.0,
+      "sec24b_status_note": "Steuerklasse II / § 24b EStG voll gewährt (12/12 Monate).",
+      "schulgeld_total_tuition_eur": 0.0,
+      "schulgeld_total_sonderausgaben_eur": 0.0,
+      "school_children": [
+        {
+          "name": "Noah (5 J., Kindergarten)",
+          "tuition_paid_eur": 0.0,
+          "raw_30pct_eur": 0.0,
+          "capped_sonderausgaben_10nr9_eur": 0.0,
+          "optimal_tuition_ceiling_eur": 16666.67
+        },
+        {
+          "name": "Emma (11 J., Nachmittagshort)",
+          "tuition_paid_eur": 0.0,
+          "raw_30pct_eur": 0.0,
+          "capped_sonderausgaben_10nr9_eur": 0.0,
+          "optimal_tuition_ceiling_eur": 16666.67
+        }
+      ]
+    },
+    "summary": {
+      "total_deductions_p1_p3_eur": 10868.0,
+      "est_saved_by_p1_p3_eur": 4139.0,
+      "soli_kist_saved_by_p1_p3_eur": 306.45,
+      "sec35a_direct_tax_credit_eur": 0.0,
+      "employer_3nr33_tax_free_subsidy_eur": 1200.0,
+      "kindergeld_cash_eur": 6216.0,
+      "kfb_extra_est_refund_eur": 189.0,
+      "soli_kist_kfb_shadow_relief_eur": 576.45,
+      "total_annual_family_benefit_eur": 12626.9
+    }
+  },
+  {
+    "scenario_id": "S3_HIGH_INCOME_PRIVATE_SCHOOL_2026",
+    "title": "Szenario 3: High-Earner Familie (Privatschule § 10 Abs. 1 Nr. 9 + volle KFB- & Soli-Entlastung, VZ 2026)",
+    "year": 2026,
+    "filing_status": "married_joint",
+    "gross_zve_before_family_eur": 185000.0,
+    "zve_after_pillar1_and_3_eur": 171000.0,
+    "marginal_est_rate_pct": 42.0,
+    "pillar1_child_care": {
+      "statutory_rate_pct": 80.0,
+      "max_deduction_per_child_eur": 4800.0,
+      "total_raw_care_costs_eur": 6000.0,
+      "total_non_deductible_meals_eur": 0.0,
+      "total_employer_3nr33_tax_free_eur": 0.0,
+      "total_sonderausgaben_current_eur": 4800.0,
+      "total_sonderausgaben_pre2025_eur": 4000.0,
+      "jstg2024_reform_extra_deduction_eur": 800.0,
+      "sec35a_overflow_eligible_expenses_eur": 0.0,
+      "sec35a_direct_tax_credit_20pct_eur": 0.0,
+      "cash_payment_warnings": [],
+      "children": [
+        {
+          "name": "Maximilian (12 J., Internationale Privatschule + Hort)",
+          "age": 12,
+          "eligible_under_14_or_disabled": true,
+          "paid_via_bank_transfer": true,
+          "gross_care_expenses_eur": 6000.0,
+          "meals_excluded_eur": 0.0,
+          "employer_subsidy_3nr33_eur": 0.0,
+          "aupair_care_share_50pct_eur": 0.0,
+          "aupair_household_share_35a_eur": 0.0,
+          "grandparent_care_total_eur": 0.0,
+          "net_parent_care_burden_eur": 6000.0,
+          "capped_care_burden_eur": 6000.0,
+          "sonderausgaben_80pct_eur": 4800.0,
+          "sonderausgaben_pre2025_66pct_eur": 4000.0,
+          "jstg2024_extra_deduction_eur": 800.0,
+          "unused_cap_headroom_eur": 0.0
+        },
+        {
+          "name": "Clara (15 J., Privates Gymnasium)",
+          "age": 15,
+          "eligible_under_14_or_disabled": false,
+          "paid_via_bank_transfer": true,
+          "gross_care_expenses_eur": 0.0,
+          "meals_excluded_eur": 0.0,
+          "employer_subsidy_3nr33_eur": 0.0,
+          "aupair_care_share_50pct_eur": 0.0,
+          "aupair_household_share_35a_eur": 0.0,
+          "grandparent_care_total_eur": 0.0,
+          "net_parent_care_burden_eur": 0.0,
+          "capped_care_burden_eur": 0.0,
+          "sonderausgaben_80pct_eur": 0.0,
+          "sonderausgaben_pre2025_66pct_eur": 0.0,
+          "jstg2024_extra_deduction_eur": 0.0,
+          "unused_cap_headroom_eur": 4800.0
+        }
+      ]
+    },
+    "pillar2_guenstigerpruefung": {
+      "year": 2026,
+      "num_children": 2,
+      "kindergeld_monthly_per_child_eur": 259.0,
+      "kindergeld_annual_per_child_eur": 3108.0,
+      "kfb_total_per_child_eur": 9756.0,
+      "kfb_existenz_per_child_eur": 6828.0,
+      "kfb_bea_per_child_eur": 2928.0,
+      "total_kindergeld_cash_eur": 6216.0,
+      "total_kfb_allowance_eur": 19512.0,
+      "zve_before_kfb_eur": 171000.0,
+      "zve_after_kfb_eur": 151488.0,
+      "est_without_kfb_eur": 49548.0,
+      "est_with_kfb_eur": 41352.0,
+      "est_saving_from_kfb_eur": 8196.0,
+      "kfb_wins_guenstigerpruefung": true,
+      "additional_est_refund_above_kindergeld_eur": 1980.0,
+      "soli_shadow_saving_eur": 975.32,
+      "kist_shadow_saving_eur": 655.68,
+      "total_soli_kist_shadow_relief_eur": 1631.0,
+      "total_family_benefit_pillar2_eur": 9827.0,
+      "crossover_zve_1child_eur": 86106
+    },
+    "pillar3_single_parent_and_school": {
+      "sec24b_full_year_potential_eur": 4500.0,
+      "sec24b_granted_deduction_eur": 0.0,
+      "sec24b_trap_triggered": false,
+      "sec24b_lost_deduction_eur": 0.0,
+      "sec24b_status_note": "Nicht alleinstehend / Zusammenveranlagung (§ 26b EStG Splittingtarif aktiv).",
+      "schulgeld_total_tuition_eur": 32000.0,
+      "schulgeld_total_sonderausgaben_eur": 9200.0,
+      "school_children": [
+        {
+          "name": "Maximilian (12 J., Internationale Privatschule + Hort)",
+          "tuition_paid_eur": 18000.0,
+          "raw_30pct_eur": 5400.0,
+          "capped_sonderausgaben_10nr9_eur": 5000.0,
+          "optimal_tuition_ceiling_eur": 16666.67
+        },
+        {
+          "name": "Clara (15 J., Privates Gymnasium)",
+          "tuition_paid_eur": 14000.0,
+          "raw_30pct_eur": 4200.0,
+          "capped_sonderausgaben_10nr9_eur": 4200.0,
+          "optimal_tuition_ceiling_eur": 16666.67
+        }
+      ]
+    },
+    "summary": {
+      "total_deductions_p1_p3_eur": 14000.0,
+      "est_saved_by_p1_p3_eur": 5880.0,
+      "soli_kist_saved_by_p1_p3_eur": 1170.12,
+      "sec35a_direct_tax_credit_eur": 0.0,
+      "employer_3nr33_tax_free_subsidy_eur": 0.0,
+      "kindergeld_cash_eur": 6216.0,
+      "kfb_extra_est_refund_eur": 1980.0,
+      "soli_kist_kfb_shadow_relief_eur": 1631.0,
+      "total_annual_family_benefit_eur": 16877.12
+    }
+  }
+];
+const PARAMS = {
+  "2024": {
+    "year": 2024,
+    "law_basis": "EStG 2024 (vor JStG 2024 Kinderbetreuungs-Reform)",
+    "kindergeld_monthly": 250.0,
+    "kindergeld_annual": 3000.0,
+    "kfb_existenz": 6612.0,
+    "kfb_bea": 2928.0,
+    "kfb_total": 9540.0,
+    "care_deduction_rate": 0.6666666666666666,
+    "care_expense_cap_per_child": 6000.0,
+    "care_max_deduction_per_child": 4000.0,
+    "alleinerziehend_base": 4260.0,
+    "alleinerziehend_extra_child": 240.0,
+    "schulgeld_rate": 0.3,
+    "schulgeld_max_deduction_per_child": 5000.0,
+    "grundfreibetrag": 11784.0,
+    "zone2_end": 17005.0,
+    "zone3_end": 66760.0,
+    "zone4_end": 277825.0,
+    "soli_freigrenze_single": 18130.0
+  },
+  "2025": {
+    "year": 2025,
+    "law_basis": "JStG 2024 & Steuerfortentwicklungsgesetz (ab 01.01.2025)",
+    "kindergeld_monthly": 255.0,
+    "kindergeld_annual": 3060.0,
+    "kfb_existenz": 6672.0,
+    "kfb_bea": 2928.0,
+    "kfb_total": 9600.0,
+    "care_deduction_rate": 0.8,
+    "care_expense_cap_per_child": 6000.0,
+    "care_max_deduction_per_child": 4800.0,
+    "alleinerziehend_base": 4260.0,
+    "alleinerziehend_extra_child": 240.0,
+    "schulgeld_rate": 0.3,
+    "schulgeld_max_deduction_per_child": 5000.0,
+    "grundfreibetrag": 12096.0,
+    "zone2_end": 17443.0,
+    "zone3_end": 68480.0,
+    "zone4_end": 277825.0,
+    "soli_freigrenze_single": 19950.0
+  },
+  "2026": {
+    "year": 2026,
+    "law_basis": "EStG 2026 (Steuerfortentwicklungsgesetz / JStG 2024)",
+    "kindergeld_monthly": 259.0,
+    "kindergeld_annual": 3108.0,
+    "kfb_existenz": 6828.0,
+    "kfb_bea": 2928.0,
+    "kfb_total": 9756.0,
+    "care_deduction_rate": 0.8,
+    "care_expense_cap_per_child": 6000.0,
+    "care_max_deduction_per_child": 4800.0,
+    "alleinerziehend_base": 4260.0,
+    "alleinerziehend_extra_child": 240.0,
+    "schulgeld_rate": 0.3,
+    "schulgeld_max_deduction_per_child": 5000.0,
+    "grundfreibetrag": 12348.0,
+    "zone2_end": 17799.0,
+    "zone3_end": 69878.0,
+    "zone4_end": 277825.0,
+    "soli_freigrenze_single": 20350.0
+  }
+};
+
+function fmtEUR(v) {
+  return new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(v);
+}
+
+function computeEstSingle(zve, year) {
+  const z = Math.floor(Math.max(0, zve));
+  const p = PARAMS[year];
+  const gfb = p.grundfreibetrag, z2 = p.zone2_end, z3 = p.zone3_end, z4 = p.zone4_end;
+  if (z <= gfb) return 0;
+  if (z <= z2) {
+    const y = (z - gfb) / 10000.0;
+    if (year === 2024) return Math.floor((979.18 * y + 1400.0) * y);
+    if (year === 2025) return Math.floor((932.30 * y + 1400.0) * y);
+    return Math.floor((914.51 * y + 1400.0) * y);
+  }
+  if (z <= z3) {
+    const w = (z - z2) / 10000.0;
+    if (year === 2024) return Math.floor((192.59 * w + 2397.0) * w + 966.53);
+    if (year === 2025) return Math.floor((176.64 * w + 2397.0) * w + 1015.13);
+    return Math.floor((173.10 * w + 2397.0) * w + 1034.87);
+  }
+  if (z <= z4) {
+    if (year === 2024) return Math.floor(0.42 * z - 10602.13);
+    if (year === 2025) return Math.floor(0.42 * z - 10911.92);
+    return Math.floor(0.42 * z - 11135.63);
+  }
+  if (year === 2024) return Math.floor(0.45 * z - 18936.88);
+  if (year === 2025) return Math.floor(0.45 * z - 19246.67);
+  return Math.floor(0.45 * z - 19470.38);
+}
+
+function computeEst(zve, filing, year) {
+  if (filing === 'married_joint') return 2 * computeEstSingle(Math.max(0, zve) / 2.0, year);
+  return computeEstSingle(Math.max(0, zve), year);
+}
+
+function computeSoli(est, filing, year) {
+  const fg = PARAMS[year].soli_freigrenze_single * (filing === 'married_joint' ? 2.0 : 1.0);
+  if (est <= fg) return 0;
+  return Math.min(0.055 * est, 0.119 * (est - fg));
+}
+
+function loadPreset(idx) {
+  document.querySelectorAll('.preset-btn').forEach((b, i) => b.classList.toggle('active', i === idx));
+  if (idx === 0) {
+    document.getElementById('yearSelect').value = '2026';
+    document.getElementById('filingSelect').value = 'married_joint';
+    document.getElementById('zveRange').value = 118000;
+    document.getElementById('childCountRange').value = 2;
+    document.getElementById('kistSelect').value = '0.08';
+    document.getElementById('kitaRange').value = 9800;
+    document.getElementById('agSubRange').value = 2400;
+    document.getElementById('aupairRange').value = 7200;
+    document.getElementById('omaKmRange').value = 1800;
+    document.getElementById('bankTransferCheck').checked = true;
+    document.getElementById('singleParentCheck').checked = false;
+    document.getElementById('otherAdultTrapCheck').checked = false;
+    document.getElementById('schoolRange').value = 0;
+  } else if (idx === 1) {
+    document.getElementById('yearSelect').value = '2026';
+    document.getElementById('filingSelect').value = 'single';
+    document.getElementById('zveRange').value = 64000;
+    document.getElementById('childCountRange').value = 2;
+    document.getElementById('kistSelect').value = '0.09';
+    document.getElementById('kitaRange').value = 8200;
+    document.getElementById('agSubRange').value = 1200;
+    document.getElementById('aupairRange').value = 0;
+    document.getElementById('omaKmRange').value = 1200;
+    document.getElementById('bankTransferCheck').checked = true;
+    document.getElementById('singleParentCheck').checked = true;
+    document.getElementById('otherAdultTrapCheck').checked = false;
+    document.getElementById('schoolRange').value = 0;
+  } else {
+    document.getElementById('yearSelect').value = '2026';
+    document.getElementById('filingSelect').value = 'married_joint';
+    document.getElementById('zveRange').value = 185000;
+    document.getElementById('childCountRange').value = 2;
+    document.getElementById('kistSelect').value = '0.08';
+    document.getElementById('kitaRange').value = 6000;
+    document.getElementById('agSubRange').value = 0;
+    document.getElementById('aupairRange').value = 0;
+    document.getElementById('omaKmRange').value = 0;
+    document.getElementById('bankTransferCheck').checked = true;
+    document.getElementById('singleParentCheck').checked = false;
+    document.getElementById('otherAdultTrapCheck').checked = false;
+    document.getElementById('schoolRange').value = 32000;
+  }
+  recalc();
+}
+
+function recalc() {
+  const year = parseInt(document.getElementById('yearSelect').value, 10);
+  const p = PARAMS[year];
+  const filing = document.getElementById('filingSelect').value;
+  const zveGross = parseFloat(document.getElementById('zveRange').value);
+  const children = parseInt(document.getElementById('childCountRange').value, 10);
+  const kistRate = parseFloat(document.getElementById('kistSelect').value);
+  const kita = parseFloat(document.getElementById('kitaRange').value);
+  const agSub = parseFloat(document.getElementById('agSubRange').value);
+  const aupair = parseFloat(document.getElementById('aupairRange').value);
+  const omaKm = parseFloat(document.getElementById('omaKmRange').value);
+  const unbar = document.getElementById('bankTransferCheck').checked;
+  const isSingleParent = document.getElementById('singleParentCheck').checked;
+  const otherAdultTrap = document.getElementById('otherAdultTrapCheck').checked;
+  const schoolTuition = parseFloat(document.getElementById('schoolRange').value);
+
+  document.getElementById('zveVal').textContent = fmtEUR(zveGross);
+  document.getElementById('childCountVal').textContent = children;
+  document.getElementById('kitaVal').textContent = fmtEUR(kita);
+  document.getElementById('agSubVal').textContent = fmtEUR(agSub);
+  document.getElementById('aupairVal').textContent = fmtEUR(aupair);
+  const omaEur = omaKm * 0.30;
+  document.getElementById('omaKmVal').textContent = `${omaKm} km (${fmtEUR(omaEur)})`;
+  document.getElementById('schoolVal').textContent = fmtEUR(schoolTuition);
+
+  // Pillar 1 calculation
+  const aupairCare = 0.50 * aupair;
+  const aupairHousehold35a = 0.50 * aupair;
+  const grossCare = kita + aupairCare + omaEur;
+  const netParentCare = Math.max(0, grossCare - agSub);
+  const maxExpenseCapTotal = children * p.care_expense_cap_per_child;
+  const maxDeductionCapTotal = children * p.care_max_deduction_per_child;
+
+  const cappedCareExpense = unbar ? Math.min(netParentCare, maxExpenseCapTotal) : 0;
+  const careDeductionCurr = cappedCareExpense * p.care_deduction_rate;
+  const careDeduction2024 = unbar ? Math.min(netParentCare, maxExpenseCapTotal) * (2.0 / 3.0) : 0;
+  const jstgBonusDeduction = Math.max(0, careDeductionCurr - careDeduction2024);
+  const sec35aCredit = unbar ? Math.min(4000, 0.20 * aupairHousehold35a) : 0;
+
+  // Pillar 3 calculation
+  const potential24b = children > 0 ? (p.alleinerziehend_base + (children - 1) * p.alleinerziehend_extra_child) : 0;
+  let granted24b = 0;
+  if (isSingleParent && filing === 'single' && !otherAdultTrap) {
+    granted24b = potential24b;
+  }
+  const maxSchulgeldCap = children * p.schulgeld_max_deduction_per_child;
+  const schulgeldDeduction = Math.min(maxSchulgeldCap, 0.30 * schoolTuition);
+
+  const totalP1P3Deductions = careDeductionCurr + granted24b + schulgeldDeduction;
+  const zveAfterP1P3 = Math.max(0, zveGross - totalP1P3Deductions);
+
+  // Pillar 2 Günstigerprüfung
+  const totalKG = children * p.kindergeld_annual;
+  const totalKFB = children * p.kfb_total;
+  const estBaseNoP1P3 = computeEst(zveGross, filing, year);
+  const estWithoutKFB = computeEst(zveAfterP1P3, filing, year);
+  const estWithKFB = computeEst(Math.max(0, zveAfterP1P3 - totalKFB), filing, year);
+
+  const estSavedByKFB = estWithoutKFB - estWithKFB;
+  const kfbWins = estSavedByKFB > totalKG;
+  const extraEstAboveKG = kfbWins ? (estSavedByKFB - totalKG) : 0;
+
+  // Shadow relief on Soli & KiSt
+  const soliNoKFB = computeSoli(estWithoutKFB, filing, year);
+  const soliWithKFB = computeSoli(estWithKFB, filing, year);
+  const soliShadow = soliNoKFB - soliWithKFB;
+  const kistShadow = (estWithoutKFB - estWithKFB) * kistRate;
+  const totalShadow = soliShadow + kistShadow;
+
+  const estSavedByP1P3 = estBaseNoP1P3 - estWithoutKFB;
+  const totalBenefit = totalKG + extraEstAboveKG + totalShadow + estSavedByP1P3 + sec35aCredit + agSub;
+
+  // Update KPIs
+  document.getElementById('kpiTotalBenefit').textContent = fmtEUR(totalBenefit);
+  document.getElementById('kpiCareDeduction').textContent = fmtEUR(careDeductionCurr);
+  document.getElementById('kpiCareSub').textContent = `JStG 2024 Bonus ggü. 2/3-Alt-Recht: +${fmtEUR(jstgBonusDeduction)} Abzug`;
+  document.getElementById('kpiGuenstiger').textContent = fmtEUR(totalKG + extraEstAboveKG);
+  document.getElementById('kpiGuenstigerSub').textContent = kfbWins
+    ? `KFB siegt! (${fmtEUR(totalKG)} KG + ${fmtEUR(extraEstAboveKG)} ESt-Zusatz)`
+    : `Kindergeld siegt (${fmtEUR(totalKG)} Auszahlung steuerfrei)`;
+  document.getElementById('kpiShadow').textContent = fmtEUR(totalShadow);
+
+  // Warning box for cash payment
+  const warnBox = document.getElementById('cashWarningBox');
+  if (!unbar) {
+    warnBox.innerHTML = `<div class="alert-box alert-warn"><strong>ACHTUNG § 10 Abs. 1 Nr. 5 Satz 4 EStG:</strong> Barzahlung ausgewählt! Ohne Überweisung/Lastschrift und Rechnung beträgt der Sonderausgabenabzug zwingend <strong>0 €</strong> (Totalverlust von ${fmtEUR(Math.min(netParentCare, maxExpenseCapTotal) * p.care_deduction_rate)} Abzug!).</div>`;
+  } else {
+    warnBox.innerHTML = '';
+  }
+
+  // Pillar 1 table
+  document.getElementById('p1RateBadge').textContent = `${Math.round(p.care_deduction_rate * 100)}% Abzug bis ${fmtEUR(p.care_max_deduction_per_child)}/Kind`;
+  document.getElementById('p1TableBody').innerHTML = `
+    <tr>
+      <td>Brutto-Betreuungskosten (Kita/Hort ${fmtEUR(kita)} + 50% Au-Pair ${fmtEUR(aupairCare)} + Oma-Fahrten ${fmtEUR(omaEur)})</td>
+      <td class="num">${fmtEUR(grossCare)}</td>
+      <td class="num">Ausgangsbasis</td>
+    </tr>
+    <tr>
+      <td>Abzgl. steuer- & SV-freier Arbeitgeberzuschuss (§ 3 Nr. 33 EStG, BFH VI R 33/20)</td>
+      <td class="num">- ${fmtEUR(agSub)}</td>
+      <td class="num" style="color:var(--accent-green);">100% steuerfrei (+${fmtEUR(agSub)})</td>
+    </tr>
+    <tr>
+      <td>Verbleibende eigene Belastung (gedeckelt auf ${fmtEUR(maxExpenseCapTotal)} für ${children} Kind(er))</td>
+      <td class="num">${fmtEUR(cappedCareExpense)}</td>
+      <td class="num">Bemessung § 10 Abs. 1 Nr. 5</td>
+    </tr>
+    <tr>
+      <td><strong>Sonderausgabenabzug Kinderbetreuung (${Math.round(p.care_deduction_rate * 100)} % nach § 10 Abs. 1 Nr. 5 EStG)</strong></td>
+      <td class="num"><strong>${fmtEUR(careDeductionCurr)}</strong></td>
+      <td class="num" style="color:var(--accent);">ca. ${fmtEUR(estSavedByP1P3)} ESt-Ersparnis (inkl. Säule 3)</td>
+    </tr>
+    <tr>
+      <td>Au-Pair Haushaltsanteil (50% nach BMF-Schreiben → § 35a Abs. 2 EStG Direktabzug 20%)</td>
+      <td class="num">${fmtEUR(aupairHousehold35a)}</td>
+      <td class="num" style="color:var(--accent-green);">+ ${fmtEUR(sec35aCredit)} direkter Steuerabzug</td>
+    </tr>
+  `;
+
+  const pctCap = maxDeductionCapTotal > 0 ? Math.min(100, Math.round((careDeductionCurr / maxDeductionCapTotal) * 100)) : 0;
+  document.getElementById('capUtilizationLabel').textContent = `${fmtEUR(careDeductionCurr)} / ${fmtEUR(maxDeductionCapTotal)} (${pctCap}%)`;
+  document.getElementById('capBarFill').style.width = `${pctCap}%`;
+
+  // Pillar 2 table
+  const badge2 = document.getElementById('p2WinnerBadge');
+  badge2.textContent = kfbWins ? 'Kinderfreibetrag siegt (§ 31 EStG)' : 'Kindergeld behält Vorsprung (§ 31 EStG)';
+  badge2.className = 'pill ' + (kfbWins ? 'pill-win' : 'pill-kg');
+
+  document.getElementById('p2TableBody').innerHTML = `
+    <tr>
+      <td>Zu versteuerndes Einkommen (nach Säule 1 & 3)</td>
+      <td class="num">${fmtEUR(zveAfterP1P3)}</td>
+      <td class="num">${fmtEUR(Math.max(0, zveAfterP1P3 - totalKFB))} (-${fmtEUR(totalKFB)} KFB)</td>
+      <td class="num">${fmtEUR(totalKFB)} Freibetrag</td>
+    </tr>
+    <tr>
+      <td>Tarifliche Einkommensteuer (§ 32a EStG)</td>
+      <td class="num">${fmtEUR(estWithoutKFB)}</td>
+      <td class="num">${fmtEUR(estWithKFB)}</td>
+      <td class="num">${fmtEUR(estSavedByKFB)} Tarifvorteil KFB</td>
+    </tr>
+    <tr>
+      <td>Gezahltes Kindergeld (§ 66 EStG: ${children} × ${fmtEUR(p.kindergeld_annual)}/Jahr)</td>
+      <td class="num">${fmtEUR(totalKG)}</td>
+      <td class="num">Anrechnung (§ 31 S. 4)</td>
+      <td class="num" style="color:var(--accent-green);">+${fmtEUR(extraEstAboveKG)} Zusatz-ESt-Erstattung</td>
+    </tr>
+    <tr>
+      <td><strong>Zwingende Schattenentlastung Soli (§ 3 Abs. 2a SolzG) & KiSt (§ 51a EStG)</strong></td>
+      <td class="num">${fmtEUR(soliNoKFB + estWithoutKFB * kistRate)}</td>
+      <td class="num">${fmtEUR(soliWithKFB + estWithKFB * kistRate)}</td>
+      <td class="num" style="color:var(--accent-green);"><strong>+${fmtEUR(totalShadow)} immer gespart!</strong></td>
+    </tr>
+  `;
+
+  document.getElementById('p2CrossoverInfo').innerHTML =
+    `<strong>Günstigerprüfungs-Mechanik (§ 31 EStG):</strong> Selbst wenn das ausgezahlte Kindergeld (${fmtEUR(totalKG)}) höher ist als der ESt-Vorteil des Kinderfreibetrags (${fmtEUR(estSavedByKFB)}), zieht das Finanzamt für Solidaritätszuschlag und Kirchensteuer <strong>immer</strong> den vollen Kinderfreibetrag von ${fmtEUR(totalKFB)} ab (Ersparnis hier: <strong>${fmtEUR(totalShadow)}</strong>).`;
+
+  // Pillar 3 table & trap alert
+  const p3Alert = document.getElementById('p3AlertBox');
+  if (isSingleParent && filing === 'single' && otherAdultTrap) {
+    p3Alert.innerHTML = `<div class="alert-box alert-warn"><strong>HAUSHALTSGEMEINSCHAFTS-FALLE (§ 24b Abs. 3 EStG) AKTIV:</strong> Durch eine weitere volljährige Person im Haushalt entfällt der gesamte Entlastungsbetrag für Alleinerziehende von <strong>${fmtEUR(potential24b)}</strong> komplett (Steuerklasse II Verlust)!</div>`;
+  } else if (isSingleParent && filing === 'single') {
+    p3Alert.innerHTML = `<div class="alert-box alert-ok"><strong>§ 24b EStG Steuerklasse II aktiv:</strong> Voller Entlastungsbetrag von <strong>${fmtEUR(granted24b)}</strong> (4.260 € Basis + ${children - 1} × 240 € Erhöhungsbetrag) wird vom Einkommen abgezogen.</div>`;
+  } else {
+    p3Alert.innerHTML = '';
+  }
+
+  document.getElementById('p3TableBody').innerHTML = `
+    <tr>
+      <td>§ 24b EStG Entlastungsbetrag für Alleinerziehende (StKl II: 4.260 € + 240 €/w. Kind)</td>
+      <td>${isSingleParent && filing === 'single' ? (otherAdultTrap ? 'VERLUST wg. § 24b Abs. 3 Haushaltsgemeinschaft!' : 'Aktiv (Steuerklasse II)') : 'Nicht aktiv (Splittingtarif / nicht alleinerziehend)'}</td>
+      <td class="num">${fmtEUR(granted24b)}</td>
+    </tr>
+    <tr>
+      <td>§ 10 Abs. 1 Nr. 9 EStG Privatschul-Schulgeld (30 % von ${fmtEUR(schoolTuition)}, max. 5.000 €/Kind)</td>
+      <td>${schoolTuition > 0 ? 'Anerkannte Ersatz-/Ergänzungsschule (ohne Verpflegung/Unterkunft)' : 'Kein Schulgeld eingetragen'}</td>
+      <td class="num">${fmtEUR(schulgeldDeduction)}</td>
+    </tr>
+  `;
+}
+
+window.addEventListener('DOMContentLoaded', () => loadPreset(0));
+</script>
+</body>
+</html>

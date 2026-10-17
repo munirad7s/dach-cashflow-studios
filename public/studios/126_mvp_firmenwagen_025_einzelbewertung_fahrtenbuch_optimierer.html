@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MVP #126 — DACH Firmenwagen-Steuer-Arbitrage-Simulator (§ 6 Abs. 1 Nr. 4 & § 8 Abs. 2 S. 5 EStG)</title>
+<style>
+  :root {
+    --bg: #0b1020;
+    --card: #131b33;
+    --card-border: #25335a;
+    --accent: #10b981;
+    --accent-blue: #3b82f6;
+    --warn: #f59e0b;
+    --danger: #ef4444;
+    --text: #f1f5f9;
+    --muted: #94a3b8;
+  }
+  * { box-sizing: border-box; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+  body { margin: 0; background: var(--bg); color: var(--text); line-height: 1.5; padding: 24px; }
+  .container { max-width: 1360px; margin: 0 auto; }
+  header {
+    background: linear-gradient(135deg, #131b33 0%, #0f2942 100%);
+    border: 1px solid var(--card-border);
+    border-radius: 14px;
+    padding: 24px 28px;
+    margin-bottom: 24px;
+  }
+  .badge-row { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; }
+  .badge {
+    font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
+    padding: 4px 10px; border-radius: 999px; background: rgba(16, 185, 129, 0.15);
+    color: var(--accent); border: 1px solid rgba(16, 185, 129, 0.4);
+  }
+  .badge.blue { background: rgba(59, 130, 246, 0.15); color: #60a5fa; border-color: rgba(59, 130, 246, 0.4); }
+  .badge.warn { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border-color: rgba(245, 158, 11, 0.4); }
+  h1 { margin: 0 0 8px 0; font-size: 24px; font-weight: 800; }
+  .subtitle { margin: 0; color: var(--muted); font-size: 14px; }
+  .grid { display: grid; grid-template-columns: 440px 1fr; gap: 24px; }
+  @media (max-width: 1024px) { .grid { grid-template-columns: 1fr; } }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 20px;
+  }
+  .card h2 { margin: 0 0 16px 0; font-size: 17px; border-bottom: 1px solid var(--card-border); padding-bottom: 10px; }
+  .preset-btns { display: flex; flex-direction: column; gap: 8px; margin-bottom: 18px; }
+  .preset-btn {
+    text-align: left; background: #1a2544; color: var(--text); border: 1px solid var(--card-border);
+    padding: 10px 12px; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600;
+    transition: all 0.15s;
+  }
+  .preset-btn:hover, .preset-btn.active { border-color: var(--accent); background: rgba(16, 185, 129, 0.12); }
+  .form-group { margin-bottom: 12px; }
+  .form-group label { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-bottom: 4px; font-weight: 600; }
+  .form-group input, .form-group select {
+    width: 100%; padding: 8px 10px; border-radius: 6px; border: 1px solid var(--card-border);
+    background: #0b1020; color: var(--text); font-size: 14px;
+  }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 20px; }
+  @media (max-width: 800px) { .kpi-grid { grid-template-columns: repeat(2, 1fr); } }
+  .kpi {
+    background: #0e1629; border: 1px solid var(--card-border); border-radius: 10px; padding: 14px;
+  }
+  .kpi .label { font-size: 11px; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+  .kpi .val { font-size: 24px; font-weight: 800; margin-top: 4px; color: var(--accent); }
+  .kpi .sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .alert-box {
+    padding: 14px 16px; border-radius: 10px; margin-bottom: 18px; font-size: 13.5px; font-weight: 600;
+  }
+  .alert-rescued { background: rgba(16, 185, 129, 0.14); border: 1px solid var(--accent); color: #6ee7b7; }
+  .alert-danger { background: rgba(239, 68, 68, 0.15); border: 1px solid var(--danger); color: #fca5a5; }
+  table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13.5px; }
+  th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--card-border); }
+  th { color: var(--muted); font-size: 12px; text-transform: uppercase; }
+  tr.winner { background: rgba(16, 185, 129, 0.12); font-weight: 700; }
+  .rec-list { list-style: none; padding: 0; margin: 12px 0 0 0; display: flex; flex-direction: column; gap: 10px; }
+  .rec-list li {
+    background: #0e1629; border-left: 4px solid var(--accent-blue); padding: 12px 14px;
+    border-radius: 6px; font-size: 13px;
+  }
+  .template-box {
+    background: #080c17; border: 1px solid var(--card-border); border-radius: 8px;
+    padding: 14px; font-family: 'JetBrains Mono', monospace; font-size: 12px;
+    white-space: pre-wrap; color: #cbd5e1; margin-top: 12px; max-height: 240px; overflow-y: auto;
+  }
+  .btn-copy {
+    margin-top: 10px; background: var(--accent-blue); color: white; border: none;
+    padding: 8px 14px; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 12px;
+  }
+</style>
+</head>
+<body>
+
+<!-- DACH CASHFLOW STUDIOS LAUNCH BAR -->
+<style>
+  #dcs-launch-bar {
+    position: sticky;
+    top: 0;
+    z-index: 99999;
+    background: linear-gradient(90deg, #0b1120 0%, #111827 50%, #0f172a 100%);
+    color: #f8fafc;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.35);
+    padding: 8px 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  }
+  #dcs-launch-bar .dcs-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+  }
+  #dcs-launch-bar .dcs-badge {
+    background: rgba(16, 185, 129, 0.18);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.03em;
+  }
+  #dcs-launch-bar a.dcs-nav {
+    color: #93c5fd;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 12.5px;
+  }
+  #dcs-launch-bar a.dcs-nav:hover {
+    text-decoration: underline;
+    color: #dbeafe;
+  }
+  #dcs-launch-bar .dcs-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  #dcs-launch-bar .dcs-btn {
+    padding: 5px 11px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s ease;
+  }
+  #dcs-launch-bar .dcs-btn-ghost {
+    background: rgba(255,255,255,0.08);
+    color: #e2e8f0;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  #dcs-launch-bar .dcs-btn-primary {
+    background: linear-gradient(135deg, #0ea5e9, #2563eb);
+    color: #ffffff;
+  }
+  #dcs-launch-bar .dcs-btn-emerald {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
+  }
+  @media print {
+    #dcs-launch-bar { display: none !important; }
+  }
+</style>
+<div id="dcs-launch-bar">
+  <div class="dcs-left">
+    <a href="/index.html" class="dcs-nav">← Alle 150 DACH Studios</a>
+    <span class="dcs-badge">MVP #126 VERIFIED</span>
+    <span style="color:#cbd5e1;font-size:12px;">DACH Tax, Corporate & Accounting Arbitrage</span>
+  </div>
+  <div class="dcs-actions">
+    <button onclick="window.print()" class="dcs-btn dcs-btn-ghost">🖨️ PDF / Dossier drucken</button>
+    <a href="#checkout-modal-49" target="_blank" rel="noopener" class="dcs-btn dcs-btn-primary">⚡ Musterschreiben & Voll-Dossier (€49)</a>
+    <a href="#checkout-modal-299" target="_blank" rel="noopener" class="dcs-btn dcs-btn-emerald">🛡️ B2B Umsetzung buchen (€299 / €1.490)</a>
+  </div>
+</div>
+
+<div class="container">
+  <header>
+    <div class="badge-row">
+      <span class="badge">§ 6 Abs. 1 Nr. 4 EStG (0,25% BLP-Klippe bis 100.000 €)</span>
+      <span class="badge blue">§ 8 Abs. 2 S. 5 EStG (0,002% Einzelbewertung Homeoffice)</span>
+      <span class="badge warn">§ 3 Nr. 46 & Nr. 50 EStG (BMF 0,34 €/kWh Ladekosten-Reform 2026)</span>
+    </div>
+    <h1>DACH Firmenwagen-Steuer-Arbitrage- & Homeoffice-Einzelbewertungs-Simulator</h1>
+    <p class="subtitle">
+      Deterministischer Rechner für 0,25%-Elektro-Bruttolistenpreis-Klippen (BFH VI R 51/99 Nachrüst-Weiche),
+      0,002%-Tagesbewertung bei &lt;180 Bürofahrten/Jahr, Kostendeckelung &amp; elektronisches Fahrtenbuch.
+    </p>
+  </header>
+
+  <div class="grid">
+    <div class="card">
+      <h2>1. Fahrzeug-, BLP- &amp; Homeoffice-Parameter</h2>
+      <div class="preset-btns" id="presetButtons"></div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Antriebsart (§ 6 EStG)</label>
+          <select id="powertrain" onchange="recalc()">
+            <option value="BEV">Reines Elektrofahrzeug (BEV — 0,25% / 0,5%)</option>
+            <option value="PHEV_QUALIFIED">Plug-in-Hybrid (qualifiziert — 0,5%)</option>
+            <option value="ICE_OR_NONQUAL_HYBRID">Verbrenner / Mild-Hybrid (1,0%)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Erstzulassungs-Kohorte (0,25%-Grenze)</label>
+          <select id="cohort" onchange="recalc()">
+            <option value="from_jul_2025_100k">Ab 01.07.2025: 100.000 € BLP-Grenze</option>
+            <option value="draft_95k">Gesetzentwurf-Stufe: 95.000 € BLP-Grenze</option>
+            <option value="2024_h1_2025_70k">01/2024 – 06/2025: 70.000 € BLP-Grenze</option>
+            <option value="pre_2024_60k">Vor 2024: 60.000 € BLP-Grenze</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Basis-BLP ab Werk (€)</label>
+          <input type="number" id="baseBlp" step="100" oninput="recalc()">
+        </div>
+        <div class="form-group">
+          <label>Feste Werk-Sonderausstattung (€)</label>
+          <input type="number" id="factoryOpt" step="100" oninput="recalc()">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>
+          <span>Nachträglicher Händler-Einbau nach EZ (BFH VI R 51/99, €)</span>
+          <span style="color:var(--accent)">BLP-frei!</span>
+        </label>
+        <input type="number" id="retrofitOpt" step="50" oninput="recalc()">
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Arbeitsweg einfach (km)</label>
+          <input type="number" id="commuteKm" min="0" max="200" oninput="recalc()">
+        </div>
+        <div class="form-group">
+          <label>Bürotage / Jahr (max. 180 für 0,002%)</label>
+          <input type="number" id="officeDays" min="0" max="250" oninput="recalc()">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Gesamtfahrleistung / Jahr (km)</label>
+          <input type="number" id="totalKm" step="1000" oninput="recalc()">
+        </div>
+        <div class="form-group">
+          <label>Reine Privatfahrten / Jahr (km)</label>
+          <input type="number" id="privateKm" step="500" oninput="recalc()">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Tats. Gesamtkosten / Jahr (Brutto €)</label>
+          <input type="number" id="actualCosts" step="200" oninput="recalc()">
+        </div>
+        <div class="form-group">
+          <label>Grenzsteuer + SV-Satz (z.B. 0.45)</label>
+          <input type="number" id="taxRate" step="0.01" min="0.15" max="0.60" oninput="recalc()">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Heim-Wallbox Ladung (kWh/Monat)</label>
+          <input type="number" id="homeKwh" step="10" oninput="recalc()">
+        </div>
+        <div class="form-group">
+          <label>Hausstromtarif (€/kWh vs. 0,34 € BMF)</label>
+          <input type="number" id="homeTariff" step="0.01" oninput="recalc()">
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div id="cliffAlert" class="alert-box"></div>
+
+      <div class="kpi-grid">
+        <div class="kpi">
+          <div class="label">Netto-Steuerersparnis / Jahr</div>
+          <div class="val" id="kpiAnnualTaxSave">0 €</div>
+          <div class="sub" id="kpiBestMethodSub">Beste Methode</div>
+        </div>
+        <div class="kpi">
+          <div class="label">Davon 0,002% Homeoffice-Hebel</div>
+          <div class="val" id="kpiCommuteSave" style="color:#60a5fa">0 €</div>
+          <div class="sub" id="kpiOfficeDaysSub">statt 0,03% Monatspauschale</div>
+        </div>
+        <div class="kpi">
+          <div class="label">Steuerfreier Ladestrom / Jahr</div>
+          <div class="val" id="kpiChargingSave" style="color:#fbbf24">0 €</div>
+          <div class="sub">§ 3 Nr. 50 EStG (BMF 0,34 €/kWh / Tarif)</div>
+        </div>
+        <div class="kpi">
+          <div class="label">Gesamt-Vorteil (36 Mon. Leasing)</div>
+          <div class="val" id="kpiLeaseTotal">0 €</div>
+          <div class="sub">Netto-Gehaltsplus + Auslagenersatz</div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom: 20px;">
+        <h2>2. Methoden-Vergleich: Geldwerter Vorteil (Brutto-Steuerbasis / Jahr)</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Versteuerungsmethode (§ 6 Abs. 1 Nr. 4 / § 8 Abs. 2 EStG)</th>
+              <th>Relevanter BLP</th>
+              <th>Geldwerter Vorteil / Jahr</th>
+              <th>Steuer- &amp; SV-Last / Jahr</th>
+              <th>Netto-Vorteil ggü. Standard</th>
+            </tr>
+          </thead>
+          <tbody id="comparisonTableBody"></tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <h2>3. Konkrete Handlungsanweisungen &amp; Nachweis-Generator (Lohnbüro / Anlage N)</h2>
+        <ul class="rec-list" id="recList"></ul>
+        <div class="template-box" id="letterTemplate"></div>
+        <button class="btn-copy" onclick="copyTemplate()">Nachweis-Schreiben für Lohnbüro / Finanzamt kopieren</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const PRESET_CASES = [{"case_id": "case_1_bev_100k_cliff_homeoffice", "title": "BMW i5 eDrive40 / Audi A6 e-tron (100.000 € BLP-Klippe + 55 Tage Homeoffice)", "persona": "IT-Director / Senior Consultant (45% Grenzsteuersatz, 42 km Arbeitsweg, 55 Bürotage/Jahr)", "powertrain": "BEV", "registration_cohort": "from_jul_2025_100k", "base_blp_eur": 91800.0, "factory_options_eur": 7900.0, "retrofitted_options_eur": 2900.0, "commute_km_one_way": 42, "office_days_per_year": 55, "total_km_per_year": 24000, "private_km_per_year": 11500, "actual_annual_vehicle_costs_eur": 13800.0, "marginal_income_tax_rate": 0.4431, "social_security_marginal_rate": 0.0, "lease_months": 36, "home_charged_kwh_per_month": 260.0, "actual_home_strompreis_eur_kwh": 0.37, "has_workplace_free_charging": true, "legacy_pauschale_mode": false}, {"case_id": "case_2_bev_70k_bestandsschutz_trap", "title": "VW ID.7 Tourer Pro / Mercedes EQE (EZ 04/2025 — 70.000 € Alt-Klippe + Anlage N Rückholung)", "persona": "Teamlead Engineering (42% Grenzsteuersatz + SV-Anteil, 38 km Arbeitsweg, 48 Bürotage/Jahr)", "powertrain": "BEV", "registration_cohort": "2024_h1_2025_70k", "base_blp_eur": 64500.0, "factory_options_eur": 5300.0, "retrofitted_options_eur": 1850.0, "commute_km_one_way": 38, "office_days_per_year": 48, "total_km_per_year": 20000, "private_km_per_year": 9000, "actual_annual_vehicle_costs_eur": 10400.0, "marginal_income_tax_rate": 0.42, "social_security_marginal_rate": 0.08, "lease_months": 48, "home_charged_kwh_per_month": 210.0, "actual_home_strompreis_eur_kwh": 0.35, "has_workplace_free_charging": false, "legacy_pauschale_mode": false}, {"case_id": "case_3_ice_kostendeckelung_fahrtenbuch", "title": "Porsche Cayenne / BMW X5 40d Verbrenner (128.500 € BLP — 0,002% + Kostendeckelung / Fahrtenbuch)", "persona": "GmbH-Geschäftsführer / Freiberufler (45% Spitzensteuersatz, 45 km Arbeitsweg, 60 Bürotage/Jahr)", "powertrain": "ICE_OR_NONQUAL_HYBRID", "registration_cohort": "from_jul_2025_100k", "base_blp_eur": 112000.0, "factory_options_eur": 16500.0, "retrofitted_options_eur": 0.0, "commute_km_one_way": 45, "office_days_per_year": 60, "total_km_per_year": 30000, "private_km_per_year": 4200, "actual_annual_vehicle_costs_eur": 16900.0, "marginal_income_tax_rate": 0.45, "social_security_marginal_rate": 0.0, "lease_months": 36, "home_charged_kwh_per_month": 0.0, "actual_home_strompreis_eur_kwh": 0.34, "has_workplace_free_charging": false, "legacy_pauschale_mode": false}];
+const COHORT_CAPS = {
+  "pre_2024_60k": 60000,
+  "2024_h1_2025_70k": 70000,
+  "draft_95k": 95000,
+  "from_jul_2025_100k": 100000
+};
+
+let activePresetIdx = 0;
+
+function formatEur(val) {
+  return new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(val);
+}
+
+function roundDown100(val) {
+  return Math.floor(Math.max(0, val) / 100) * 100;
+}
+
+function getRates(powertrain, rawBlp, cap) {
+  if (powertrain === 'BEV') {
+    return rawBlp <= cap ? [0.0025, 0.25] : [0.005, 0.50];
+  } else if (powertrain === 'PHEV_QUALIFIED') {
+    return [0.005, 0.50];
+  }
+  return [0.01, 1.0];
+}
+
+function loadPreset(idx) {
+  activePresetIdx = idx;
+  const c = PRESET_CASES[idx];
+  document.getElementById('powertrain').value = c.powertrain;
+  document.getElementById('cohort').value = c.registration_cohort;
+  document.getElementById('baseBlp').value = c.base_blp_eur;
+  document.getElementById('factoryOpt').value = c.factory_options_eur;
+  document.getElementById('retrofitOpt').value = c.retrofitted_options_eur;
+  document.getElementById('commuteKm').value = c.commute_km_one_way;
+  document.getElementById('officeDays').value = c.office_days_per_year;
+  document.getElementById('totalKm').value = c.total_km_per_year;
+  document.getElementById('privateKm').value = c.private_km_per_year;
+  document.getElementById('actualCosts').value = c.actual_annual_vehicle_costs_eur;
+  document.getElementById('taxRate').value = (c.marginal_income_tax_rate + c.social_security_marginal_rate).toFixed(2);
+  document.getElementById('homeKwh').value = c.home_charged_kwh_per_month;
+  document.getElementById('homeTariff').value = c.actual_home_strompreis_eur_kwh;
+
+  document.querySelectorAll('.preset-btn').forEach((b, i) => {
+    b.classList.toggle('active', i === idx);
+  });
+  recalc();
+}
+
+function recalc() {
+  const powertrain = document.getElementById('powertrain').value;
+  const cohort = document.getElementById('cohort').value;
+  const baseBlp = parseFloat(document.getElementById('baseBlp').value) || 0;
+  const factoryOpt = parseFloat(document.getElementById('factoryOpt').value) || 0;
+  const retrofitOpt = parseFloat(document.getElementById('retrofitOpt').value) || 0;
+  const commuteKm = parseFloat(document.getElementById('commuteKm').value) || 0;
+  const officeDays = Math.min(180, Math.max(0, parseFloat(document.getElementById('officeDays').value) || 0));
+  const totalKm = Math.max(1, parseFloat(document.getElementById('totalKm').value) || 1);
+  const privateKm = parseFloat(document.getElementById('privateKm').value) || 0;
+  const actualCosts = parseFloat(document.getElementById('actualCosts').value) || 0;
+  const taxRate = Math.min(0.65, Math.max(0.1, parseFloat(document.getElementById('taxRate').value) || 0.42));
+  const homeKwh = parseFloat(document.getElementById('homeKwh').value) || 0;
+  const homeTariff = parseFloat(document.getElementById('homeTariff').value) || 0.34;
+
+  const cap = COHORT_CAPS[cohort] || 100000;
+  const unoptRaw = baseBlp + factoryOpt + retrofitOpt;
+  const optRaw = baseBlp + factoryOpt;
+  const unoptRounded = roundDown100(unoptRaw);
+  const optRounded = roundDown100(optRaw);
+
+  const [rateUnopt, factorUnopt] = getRates(powertrain, unoptRaw, cap);
+  const [rateOpt, factorOpt] = getRates(powertrain, optRaw, cap);
+
+  const annualGwvUnopt = (unoptRounded * rateUnopt + unoptRounded * 0.0003 * factorUnopt * commuteKm) * 12;
+  const annualGwvPauschal003OptBlp = (optRounded * rateOpt + optRounded * 0.0003 * factorOpt * commuteKm) * 12;
+  const annualGwvPauschal0002Opt = (optRounded * rateOpt * 12) + (optRounded * 0.00002 * factorOpt * commuteKm * officeDays);
+  const annualGwvKostendeckelung = Math.min(annualGwvPauschal0002Opt, actualCosts);
+
+  const afaShare = 0.65 * actualCosts * factorOpt;
+  const runningShare = 0.35 * actualCosts;
+  const beneficialKm = Math.min(totalKm, privateKm + officeDays * commuteKm * 2);
+  const annualGwvFahrtenbuch = (afaShare + runningShare) * (beneficialKm / totalKm);
+
+  const methods = [
+    { name: "1. Standard-Lohnbüro (Werk-BLP inkl. Zubehör + 0,03% Monatspauschale)", blp: unoptRounded, gwv: annualGwvUnopt },
+    { name: "2. BLP-Nachrüst-Weiche (BFH VI R 51/99) + 0,03% Monatspauschale", blp: optRounded, gwv: annualGwvPauschal003OptBlp },
+    { name: "3. Pauschal (0,25%/0,5%/1%) + 0,002% Homeoffice-Einzelbewertung (§ 8 Abs. 2 S. 5)", blp: optRounded, gwv: annualGwvPauschal0002Opt },
+    { name: "4. Kostendeckelung auf tatsächliche Gesamtkosten (BMF)", blp: optRounded, gwv: annualGwvKostendeckelung },
+    { name: "5. Elektronisches Fahrtenbuch (§ 6 Abs. 1 Nr. 4 S. 3 EStG)", blp: optRounded, gwv: annualGwvFahrtenbuch }
+  ];
+
+  const minGwv = Math.min(...methods.slice(1).map(m => m.gwv));
+  const bestMethod = methods.slice(1).find(m => Math.abs(m.gwv - minGwv) < 0.01);
+
+  const annualTaxSave = Math.max(0, annualGwvUnopt - minGwv) * taxRate;
+  const commuteAloneSave = Math.max(0, annualGwvPauschal003OptBlp - annualGwvPauschal0002Opt) * taxRate;
+  const cliffAloneSave = Math.max(0, annualGwvUnopt - annualGwvPauschal003OptBlp) * taxRate;
+
+  const chargingSave = (powertrain === 'BEV' || powertrain === 'PHEV_QUALIFIED')
+    ? homeKwh * Math.max(0.34, homeTariff) * 12 : 0;
+
+  const alertEl = document.getElementById('cliffAlert');
+  if (powertrain === 'BEV' && unoptRaw > cap && optRaw <= cap) {
+    alertEl.className = 'alert-box alert-rescued';
+    alertEl.innerHTML = `⚡ <strong>0,25%-BLP-Klippen-Rettung aktiv (§ 6 Abs. 1 Nr. 4 S. 2 Nr. 3 EStG):</strong> Werk-BLP inkl. Zubehör (${formatEur(unoptRaw)}) reißt die ${formatEur(cap)}-Grenze (0,50%-Falle!). Durch nachträglichen Händler-Einbau von ${formatEur(retrofitOpt)} sinkt der maßgebliche BLP auf ${formatEur(optRaw)} &rarr; <strong>0,25%-Privileg gesichert (+${formatEur(cliffAloneSave)}/Jahr Netto)!</strong>`;
+  } else if (powertrain === 'BEV' && optRaw > cap) {
+    alertEl.className = 'alert-box alert-danger';
+    alertEl.innerHTML = `⚠️ <strong>Achtung 0,50%-BLP-Klippe überschritten:</strong> Selbst ohne Nachrüst-Zubehör liegt der Werk-BLP (${formatEur(optRaw)}) um ${formatEur(optRaw - cap)} über der ${formatEur(cap)}-Schwelle. Sonderausstattung ab Werk um mindestens ${formatEur(optRaw - cap)} reduzieren, um den Steuersatz zu halbieren!`;
+  } else {
+    alertEl.className = 'alert-box alert-rescued';
+    alertEl.innerHTML = `✅ <strong>Status:</strong> Maßgeblicher Bruttolistenpreis (abgerundet ${formatEur(optRounded)}) nutzt den optimalen Satz von ${(rateOpt*100).toFixed(2)}%/Monat.`;
+  }
+
+  document.getElementById('kpiAnnualTaxSave').textContent = formatEur(annualTaxSave);
+  document.getElementById('kpiBestMethodSub').textContent = bestMethod.name.replace(/^[0-9]+\.\s*/, '');
+  document.getElementById('kpiCommuteSave').textContent = formatEur(commuteAloneSave);
+  document.getElementById('kpiOfficeDaysSub').textContent = `bei ${officeDays} Bürotagen (${commuteKm} km)`;
+  document.getElementById('kpiChargingSave').textContent = formatEur(chargingSave);
+  document.getElementById('kpiLeaseTotal').textContent = formatEur((annualTaxSave + chargingSave) * 3);
+
+  const tbody = document.getElementById('comparisonTableBody');
+  tbody.innerHTML = '';
+  methods.forEach((m, idx) => {
+    const tr = document.createElement('tr');
+    if (idx > 0 && Math.abs(m.gwv - minGwv) < 0.01) tr.className = 'winner';
+    const taxCost = m.gwv * taxRate;
+    const netDiff = (annualGwvUnopt - m.gwv) * taxRate;
+    tr.innerHTML = `
+      <td>${m.name}</td>
+      <td>${formatEur(m.blp)}</td>
+      <td>${formatEur(m.gwv)}</td>
+      <td>${formatEur(taxCost)}</td>
+      <td style="color:${netDiff > 0 ? '#10b981' : '#94a3b8'}">${netDiff > 0 ? '+' + formatEur(netDiff) : 'Baseline'}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  const recs = [];
+  if (cliffAloneSave > 0) {
+    recs.push(`<strong>Sonderausstattungs-Weiche (BFH VI R 51/99):</strong> ${formatEur(retrofitOpt)} Ausstattung (z.B. Winterkompletträder, Dachbox) separat beim Händler nach Erstzulassung beauftragen &rarr; spart <strong>${formatEur(cliffAloneSave)}/Jahr Netto</strong>.`);
+  }
+  if (commuteAloneSave > 0) {
+    recs.push(`<strong>0,002%-Einzelbewertung (§ 8 Abs. 2 S. 5 EStG):</strong> Monatliche Anwesenheitsliste (${officeDays} Tage/Jahr statt 180 Tage Fiktion) einreichen oder per Anlage N korrigieren &rarr; spart <strong>${formatEur(commuteAloneSave)}/Jahr Netto</strong>.`);
+  }
+  if (chargingSave > 0) {
+    recs.push(`<strong>Steuerfreier Ladestrom-Auslagenersatz (§ 3 Nr. 50 EStG / BMF 11.11.2025):</strong> Seit 01.01.2026 sind die alten 30€/70€-Pauschalen entfallen. Über Wallbox-Zähler mit 0,34 €/kWh Strompreispauschale bzw. Hausstromtarif (${homeTariff.toFixed(2)} €/kWh) <strong>${formatEur(chargingSave)}/Jahr steuerfrei</strong> erstatten lassen.`);
+  }
+  document.getElementById('recList').innerHTML = recs.map(r => `<li>${r}</li>`).join('');
+
+  document.getElementById('letterTemplate').textContent =
+`An die Personalabteilung / Lohnbuchhaltung (bzw. Finanzamt zur Anlage N)
+Betreff: Antrag auf Einzelbewertung der Fahrten Wohnung – erste Tätigkeitsstätte (§ 8 Abs. 2 Satz 5 EStG) & Ladekosten-Auslagenersatz (§ 3 Nr. 50 EStG)
+
+Sehr geehrte Damen und Herren,
+
+hiermit beantrage ich für meinen überlassenen Dienstwagen (maßgeblicher abgerundeter Bruttolistenpreis: ${formatEur(optRounded)}, Versteuerungssatz: ${(rateOpt*100).toFixed(2)} %) die Anwendung der kalendertäglichen Einzelbewertung mit 0,002 % (bzw. ${(0.002 * factorOpt).toFixed(4)} % unter Berücksichtigung des Elektro-/Hybrid-Abschlags nach § 6 Abs. 1 Nr. 4 Satz 2 EStG) je Entfernungskilometer (${commuteKm} km).
+
+Im Kalenderjahr 2026 suche ich die erste Tätigkeitsstätte aufgrund meiner Homeoffice-/Außendienst-Regelung an voraussichtlich ${officeDays} Tagen (unterhalb der 180-Tage-Grenze) auf. Die datumsgenaue Monatsaufzeichnung liegt bei.
+Jährlicher geldwerter Vorteil Arbeitsweg nach Einzelbewertung: ${formatEur(optRounded * 0.00002 * factorOpt * commuteKm * officeDays)} (statt ${formatEur(optRounded * 0.0003 * factorOpt * commuteKm * 12)} nach 0,03 %-Regelung).
+
+Zudem reiche ich gemäß BMF-Schreiben vom 11.11.2025 den Zählernachweis meiner privaten Wallbox (${homeKwh} kWh/Monat) zur steuerfreien Auslagenerstattung nach § 3 Nr. 50 EStG (${formatEur(chargingSave)}/Jahr) ein.`;
+}
+
+function copyTemplate() {
+  navigator.clipboard.writeText(document.getElementById('letterTemplate').textContent);
+}
+
+const btnContainer = document.getElementById('presetButtons');
+PRESET_CASES.forEach((c, idx) => {
+  const btn = document.createElement('button');
+  btn.className = 'preset-btn' + (idx === 0 ? ' active' : '');
+  btn.textContent = `Szenario ${idx + 1}: ${c.title}`;
+  btn.onclick = () => loadPreset(idx);
+  btnContainer.appendChild(btn);
+});
+
+loadPreset(0);
+</script>
+</body>
+</html>

@@ -1,0 +1,1093 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chefdurchwahl.de — 1-Screen DACH Telesales Power-Dialer &amp; § 5 DDG Enricher</title>
+    <style>
+        :root {
+            --bg: #0b0f0e;
+            --panel: #121816;
+            --panel-alt: #18201d;
+            --border: #25312c;
+            --text: #eef3f0;
+            --muted: #8fa199;
+            --green: #10b981;
+            --green-bright: #34d399;
+            --green-soft: rgba(16, 185, 129, 0.14);
+            --amber: #f59e0b;
+            --amber-soft: rgba(245, 158, 11, 0.15);
+            --blue: #38bdf8;
+            --danger: #ef4444;
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: var(--text);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, sans-serif;
+            font-size: 14px;
+            line-height: 1.45;
+        }
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 22px;
+            border-bottom: 1px solid var(--border);
+            background: #0e1412;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 800;
+            font-size: 17px;
+            letter-spacing: -0.02em;
+        }
+        .brand-badge {
+            background: var(--green-soft);
+            color: var(--green-bright);
+            border: 1px solid rgba(52, 211, 153, 0.35);
+            padding: 3px 9px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+        .kpi-strip {
+            display: flex;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+        .kpi {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+        }
+        .kpi strong {
+            color: var(--green-bright);
+            font-size: 14px;
+            margin-right: 4px;
+        }
+        .workspace {
+            display: grid;
+            grid-template-columns: 380px 1fr 370px;
+            height: calc(100vh - 59px);
+            overflow: hidden;
+        }
+        @media (max-width: 1200px) {
+            .workspace {
+                grid-template-columns: 1fr;
+                height: auto;
+                overflow: visible;
+            }
+        }
+        .col {
+            border-right: 1px solid var(--border);
+            overflow-y: auto;
+            padding: 16px;
+        }
+        .col:last-child { border-right: none; }
+        .filter-bar {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+        }
+        .filter-btn {
+            background: var(--panel);
+            color: var(--muted);
+            border: 1px solid var(--border);
+            border-radius: 7px;
+            padding: 6px 10px;
+            font-size: 12px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .filter-btn.active {
+            background: var(--green-soft);
+            color: var(--green-bright);
+            border-color: var(--green);
+        }
+        .lead-card {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: border-color 0.15s, background 0.15s;
+        }
+        .lead-card:hover { border-color: #3b4f47; }
+        .lead-card.active {
+            border-color: var(--green-bright);
+            background: var(--panel-alt);
+            box-shadow: 0 0 0 1px var(--green-bright);
+        }
+        .lead-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 8px;
+        }
+        .grade {
+            font-weight: 800;
+            font-size: 11px;
+            padding: 2px 7px;
+            border-radius: 5px;
+            background: var(--green-soft);
+            color: var(--green-bright);
+        }
+        .grade.grade-B {
+            background: var(--amber-soft);
+            color: var(--amber);
+        }
+        .lead-owner {
+            margin-top: 6px;
+            font-weight: 700;
+            color: #fff;
+            font-size: 13.5px;
+        }
+        .lead-phone {
+            margin-top: 4px;
+            font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+            font-size: 12.5px;
+            color: var(--green-bright);
+        }
+        .lead-tags {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+        .tag {
+            font-size: 11px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            background: #1f2925;
+            color: var(--muted);
+        }
+        .tag.warn {
+            background: var(--amber-soft);
+            color: #fbbf24;
+        }
+        .cockpit-header {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 18px;
+            margin-bottom: 14px;
+        }
+        .call-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 14px;
+        }
+        .btn-call {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--green);
+            color: #04130d;
+            font-weight: 800;
+            font-size: 15px;
+            padding: 11px 18px;
+            border-radius: 9px;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+        }
+        .btn-secondary {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--panel-alt);
+            color: var(--text);
+            border: 1px solid var(--border);
+            font-weight: 600;
+            font-size: 13px;
+            padding: 10px 14px;
+            border-radius: 9px;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+        .box {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px;
+            margin-bottom: 12px;
+        }
+        .box h3 {
+            margin: 0 0 8px 0;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--muted);
+        }
+        .script-quote {
+            background: #0d1311;
+            border-left: 3px solid var(--green-bright);
+            padding: 12px 14px;
+            border-radius: 0 8px 8px 0;
+            font-size: 14px;
+            line-height: 1.55;
+            color: #e2ece7;
+        }
+        .objection-card {
+            border-top: 1px solid var(--border);
+            padding-top: 9px;
+            margin-top: 9px;
+        }
+        .objection-card:first-of-type {
+            border-top: none;
+            padding-top: 0;
+            margin-top: 0;
+        }
+        .objection-q {
+            font-weight: 700;
+            color: #fbbf24;
+            font-size: 12.5px;
+        }
+        .objection-a {
+            margin-top: 3px;
+            color: var(--text);
+            font-size: 12.5px;
+        }
+        .dispo-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+        .dispo-btn {
+            background: var(--panel-alt);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 8px 10px;
+            border-radius: 7px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: left;
+        }
+        .dispo-btn:hover { border-color: var(--green-bright); }
+        textarea {
+            width: 100%;
+            min-height: 80px;
+            background: #0d1311;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            padding: 10px;
+            font-family: inherit;
+            font-size: 13px;
+            resize: vertical;
+        }
+        pre {
+            background: #080b0a;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px;
+            font-size: 11.5px;
+            overflow-x: auto;
+            color: #a7f3d0;
+            max-height: 260px;
+        }
+        .kv {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            border-bottom: 1px dashed #1f2a25;
+            font-size: 12.5px;
+        }
+        .kv span:first-child { color: var(--muted); }
+        .kv span:last-child { font-weight: 600; text-align: right; }
+    </style>
+</head>
+<body>
+
+<!-- DACH CASHFLOW STUDIOS LAUNCH BAR -->
+<style>
+  #dcs-launch-bar {
+    position: sticky;
+    top: 0;
+    z-index: 99999;
+    background: linear-gradient(90deg, #0b1120 0%, #111827 50%, #0f172a 100%);
+    color: #f8fafc;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.35);
+    padding: 8px 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  }
+  #dcs-launch-bar .dcs-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+  }
+  #dcs-launch-bar .dcs-badge {
+    background: rgba(16, 185, 129, 0.18);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.03em;
+  }
+  #dcs-launch-bar a.dcs-nav {
+    color: #93c5fd;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 12.5px;
+  }
+  #dcs-launch-bar a.dcs-nav:hover {
+    text-decoration: underline;
+    color: #dbeafe;
+  }
+  #dcs-launch-bar .dcs-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  #dcs-launch-bar .dcs-btn {
+    padding: 5px 11px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s ease;
+  }
+  #dcs-launch-bar .dcs-btn-ghost {
+    background: rgba(255,255,255,0.08);
+    color: #e2e8f0;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  #dcs-launch-bar .dcs-btn-primary {
+    background: linear-gradient(135deg, #0ea5e9, #2563eb);
+    color: #ffffff;
+  }
+  #dcs-launch-bar .dcs-btn-emerald {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
+  }
+  @media print {
+    #dcs-launch-bar { display: none !important; }
+  }
+</style>
+<div id="dcs-launch-bar">
+  <div class="dcs-left">
+    <a href="/index.html" class="dcs-nav">← Alle 150 DACH Studios</a>
+    <span class="dcs-badge">MVP #020 VERIFIED</span>
+    <span style="color:#cbd5e1;font-size:12px;">E-Commerce, Pricing & Cross-Market Arbitrage</span>
+  </div>
+  <div class="dcs-actions">
+    <button onclick="window.print()" class="dcs-btn dcs-btn-ghost">🖨️ PDF / Dossier drucken</button>
+    <a href="#checkout-modal-49" target="_blank" rel="noopener" class="dcs-btn dcs-btn-primary">⚡ Musterschreiben & Voll-Dossier (€49)</a>
+    <a href="#checkout-modal-299" target="_blank" rel="noopener" class="dcs-btn dcs-btn-emerald">🛡️ B2B Umsetzung buchen (€299 / €1.490)</a>
+  </div>
+</div>
+
+    <header>
+        <div class="brand">
+            <span>📞 CHEFDURCHWAHL.DE</span>
+            <span class="brand-badge">§ 5 DDG Impressum + Kleinanzeigen + Handelsregister Enricher</span>
+        </div>
+        <div class="kpi-strip">
+            <div class="kpi"><strong>6</strong>Geprüfte DACH Betriebe</div>
+            <div class="kpi"><strong>5/6</strong>015x/016x/017x Chefdurchwahl</div>
+            <div class="kpi"><strong>2</strong>Ohne eigene Website (Kleinanzeigen PRO)</div>
+            <div class="kpi"><strong>5</strong>Persönliche Chef-E-Mail</div>
+        </div>
+    </header>
+
+    <main class="workspace">
+        <!-- LEFT COLUMN: Lead Queue & Filters -->
+        <section class="col" aria-label="Lead-Queue">
+            <div class="filter-bar">
+                <button class="filter-btn active" onclick="filterLeads('all', this)">Alle (6)</button>
+                <button class="filter-btn" onclick="filterLeads('mobile', this)">Nur 015x/016x/017x (5)</button>
+                <button class="filter-btn" onclick="filterLeads('noweb', this)">Kein Webauftritt (2)</button>
+                <button class="filter-btn" onclick="filterLeads('nopixel', this)">Ohne Meta-Pixel</button>
+            </div>
+            <div id="lead-list"></div>
+        </section>
+
+        <!-- CENTER COLUMN: 1-Screen Call Cockpit -->
+        <section class="col" aria-label="Power-Dialer Cockpit">
+            <div class="cockpit-header">
+                <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;">
+                    <div>
+                        <span id="ck-category" style="color:var(--green-bright);font-size:12px;font-weight:700;"></span>
+                        <h1 id="ck-company" style="margin:3px 0 4px 0;font-size:21px;"></h1>
+                        <div id="ck-address" style="color:var(--muted);font-size:13px;"></div>
+                    </div>
+                    <div id="ck-grade" class="grade" style="font-size:15px;padding:6px 12px;">A+</div>
+                </div>
+
+                <div class="call-actions">
+                    <a id="ck-tel-link" class="btn-call" href="tel:+491728459123">
+                        <span>📲 Chef direkt anrufen:</span>
+                        <span id="ck-mobile-display">+49 172 8459123</span>
+                    </a>
+                    <a id="ck-wa-link" class="btn-secondary" href="https://wa.me/491728459123" target="_blank" rel="noopener">
+                        💬 WhatsApp senden
+                    </a>
+                    <a id="ck-landline-link" class="btn-secondary" href="tel:+49897488210">
+                        ☎️ Zentrale: <span id="ck-landline-display">+49 89 7488210</span>
+                    </a>
+                </div>
+            </div>
+
+            <div class="grid-2">
+                <div class="box" style="margin-bottom:0;">
+                    <h3>§ 5 DDG Entscheider &amp; Registerdaten</h3>
+                    <div class="kv"><span>Entscheider:</span><span id="ck-owner"></span></div>
+                    <div class="kv"><span>Rolle laut Impressum:</span><span id="ck-role"></span></div>
+                    <div class="kv"><span>Rechtsform:</span><span id="ck-legal"></span></div>
+                    <div class="kv"><span>Registergericht:</span><span id="ck-court"></span></div>
+                    <div class="kv"><span>Handelsregister-Nr.:</span><span id="ck-hrb"></span></div>
+                    <div class="kv"><span>USt-IdNr.:</span><span id="ck-vat"></span></div>
+                    <div class="kv"><span>Kammer (HWK):</span><span id="ck-hwk"></span></div>
+                    <div class="kv"><span>Direkte E-Mail:</span><span id="ck-email"></span></div>
+                </div>
+
+                <div class="box" style="margin-bottom:0;">
+                    <h3>Digitale Reifegrad-Signale &amp; Lücken</h3>
+                    <div class="kv"><span>Reifegrad-Score:</span><span id="ck-score"></span></div>
+                    <div class="kv"><span>Eigene Website:</span><span id="ck-sig-web"></span></div>
+                    <div class="kv"><span>HTTPS / SSL aktiv:</span><span id="ck-sig-ssl"></span></div>
+                    <div class="kv"><span>Google Tag / Analytics:</span><span id="ck-sig-gtag"></span></div>
+                    <div class="kv"><span>Meta / Facebook Pixel:</span><span id="ck-sig-pixel"></span></div>
+                    <div class="kv"><span>Online-Terminbuchung:</span><span id="ck-sig-booking"></span></div>
+                    <div style="margin-top:8px;font-size:12px;color:#fbbf24;" id="ck-gaps"></div>
+                </div>
+            </div>
+
+            <div class="box">
+                <h3>Personalisierter Leitfaden (Ohne Vorzimmer direkt zum Inhaber)</h3>
+                <div id="ck-script" class="script-quote"></div>
+                <div id="ck-uwg" style="margin-top:8px;font-size:11.5px;color:var(--muted);"></div>
+            </div>
+
+            <div class="box">
+                <h3>Einwandbehandlung (DACH Handwerk &amp; Mittelstand)</h3>
+                <div class="objection-card">
+                    <div class="objection-q">„Woher haben Sie meine Handynummer?!“</div>
+                    <div class="objection-a">
+                        „Herr/Frau <span class="js-owner-surname">Inhaber</span>, Ihre Mobilnummer steht öffentlich in Ihrem
+                        gesetzlichen Impressum / Ihren Rechtlichen Angaben nach § 5 DDG als direkter Ansprechpartner.
+                        Ich rufe bewusst Sie direkt an statt im Büro Zeit zu stehlen — dauert 25 Sekunden.“
+                    </div>
+                </div>
+                <div class="objection-card">
+                    <div class="objection-q">„Wir haben genug Aufträge / Bücher sind voll!“</div>
+                    <div class="objection-a">
+                        „Genau deshalb rufe ich an: Wenn die Bücher voll sind, kosten unqualifizierte Preisanfragen am
+                        Handy jeden Tag 45 Minuten. Wir schalten einen 60-Sekunden-Vorfilter davor, damit nur noch
+                        Wunschprojekte oder passende Gesellen-Bewerbungen auf Ihrem Handy landen.“
+                    </div>
+                </div>
+                <div class="objection-card">
+                    <div class="objection-q">„Schicken Sie mir erstmal eine E-Mail an info@…“</div>
+                    <div class="objection-a">
+                        „Gerne direkt an Ihre persönliche Adresse (<span id="ck-objection-email"></span>), damit es nicht im
+                        Sammelpostfach untergeht — lassen Sie uns für Donnerstag 17:00 Uhr 10 Minuten reservieren, falls
+                        das 2-Minuten-Demo-Video für Sie Sinn ergibt.“
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- RIGHT COLUMN: Call Disposition, Notes & MCP Tool Schema -->
+        <section class="col" aria-label="CRM Notizen & MCP Integration">
+            <div class="box">
+                <h3>1-Klick Anruf-Ergebnis (Pipeline)</h3>
+                <div class="dispo-grid">
+                    <button class="dispo-btn" onclick="logCall('Termin gebucht ✅')">📅 Termin gebucht</button>
+                    <button class="dispo-btn" onclick="logCall('Wiedervorlage morgen ⏰')">⏰ Rückruf morgen</button>
+                    <button class="dispo-btn" onclick="logCall('Auf Baustelle / Mailbox 📱')">📱 Auf Baustelle / Mailbox</button>
+                    <button class="dispo-btn" onclick="logCall('Kein Bedarf ❌')">❌ Kein Bedarf</button>
+                </div>
+                <div id="dispo-status" style="margin-top:8px;font-size:12px;color:var(--green-bright);"></div>
+            </div>
+
+            <div class="box">
+                <h3>Gesprächsnotizen &amp; Wiedervorlage</h3>
+                <textarea id="call-notes" placeholder="Notizen während des Gesprächs tippen (wird pro Lead im Browser gespeichert)..."></textarea>
+            </div>
+
+            <div class="box">
+                <h3>Claude / ChatGPT MCP Tool (`search_dach_owner_leads`)</h3>
+                <p style="margin:0 0 8px 0;font-size:12px;color:var(--muted);">
+                    Analog zu <code>coldcaller.pro/mcp</code> für Claude Desktop, Claude Code &amp; Cursor:
+                </p>
+                <pre id="mcp-schema-box">{
+  &quot;server_name&quot;: &quot;chefdurchwahl-dach-mcp&quot;,
+  &quot;version&quot;: &quot;1.0.0&quot;,
+  &quot;protocol_versions&quot;: [
+    &quot;2025-11-25&quot;,
+    &quot;2025-06-18&quot;
+  ],
+  &quot;endpoint&quot;: &quot;https://chefdurchwahl.de/mcp&quot;,
+  &quot;tools&quot;: [
+    {
+      &quot;name&quot;: &quot;search_dach_owner_leads&quot;,
+      &quot;description&quot;: &quot;Durchsucht deutsche KMU, Handwerksbetriebe und Kleinanzeigen-&#x27;Rechtliche Angaben&#x27; nach Gewerk/Branche und Stadt/PLZ. Extrahiert deterministisch gemäß § 5 DDG den Geschäftsführer/Inhaber, Handelsregister (Amtsgericht + HRB/HRA), USt-IdNr., direkte Mobilnummern (015x/016x/017x in E.164) sowie digitale Reifegrad-Signale.&quot;,
+      &quot;inputSchema&quot;: {
+        &quot;type&quot;: &quot;object&quot;,
+        &quot;properties&quot;: {
+          &quot;category&quot;: {
+            &quot;type&quot;: &quot;string&quot;,
+            &quot;description&quot;: &quot;Branche oder Gewerk, z.B. &#x27;SHK Meisterbetrieb&#x27;, &#x27;Dachdecker&#x27;, &#x27;Pflegedienst&#x27;, &#x27;Hausverwaltung&#x27;&quot;
+          },
+          &quot;city_or_plz&quot;: {
+            &quot;type&quot;: &quot;string&quot;,
+            &quot;description&quot;: &quot;Stadt, Bundesland oder 2- bis 5-stellige PLZ (z.B. &#x27;Nürnberg&#x27;, &#x27;80&#x27;, &#x27;NRW&#x27;)&quot;
+          },
+          &quot;only_direct_mobile&quot;: {
+            &quot;type&quot;: &quot;boolean&quot;,
+            &quot;default&quot;: true,
+            &quot;description&quot;: &quot;Wenn true, werden nur Betriebe mit verifizierter 015x/016x/017x Chefdurchwahl geliefert.&quot;
+          },
+          &quot;filter_digital_gap&quot;: {
+            &quot;type&quot;: &quot;string&quot;,
+            &quot;enum&quot;: [
+              &quot;any&quot;,
+              &quot;no_website_kleinanzeigen_only&quot;,
+              &quot;no_meta_pixel&quot;,
+              &quot;no_booking_widget&quot;
+            ],
+            &quot;default&quot;: &quot;any&quot;,
+            &quot;description&quot;: &quot;Filtert nach fehlender digitaler Infrastruktur für Agentur- &amp; SaaS-Pitches.&quot;
+          },
+          &quot;limit&quot;: {
+            &quot;type&quot;: &quot;integer&quot;,
+            &quot;default&quot;: 25,
+            &quot;minimum&quot;: 1,
+            &quot;maximum&quot;: 200
+          }
+        },
+        &quot;required&quot;: [
+          &quot;category&quot;
+        ]
+      }
+    },
+    {
+      &quot;name&quot;: &quot;parse_impressum_chefdurchwahl&quot;,
+      &quot;description&quot;: &quot;Parst einen einzelnen § 5 DDG Impressum-Text oder Kleinanzeigen &#x27;Rechtliche Angaben&#x27; Block und gibt Inhaber/Geschäftsführer, HRB/HRA, USt-IdNr. und E.164 Mobilnummer zurück.&quot;,
+      &quot;inputSchema&quot;: {
+        &quot;type&quot;: &quot;object&quot;,
+        &quot;properties&quot;: {
+          &quot;company_name&quot;: {
+            &quot;type&quot;: &quot;string&quot;
+          },
+          &quot;source_url&quot;: {
+            &quot;type&quot;: &quot;string&quot;
+          },
+          &quot;raw_html&quot;: {
+            &quot;type&quot;: &quot;string&quot;
+          }
+        },
+        &quot;required&quot;: [
+          &quot;raw_html&quot;
+        ]
+      }
+    }
+  ]
+}</pre>
+            </div>
+
+            <div class="box">
+                <h3>Aktueller Lead als JSON-Payload</h3>
+                <pre id="lead-json-box"></pre>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        const LEADS = [
+  {
+    "lead_id": "dach-001",
+    "company_name": "AlpenSolar & Wärmepumpen Technik GmbH",
+    "legal_form": "GmbH",
+    "category": "SHK & Photovoltaik Meisterbetrieb",
+    "city": "München",
+    "postal_code": "81379",
+    "street_address": "Gmunder Straße 42",
+    "source_type": "website_impressum",
+    "source_url": "https://alpensolar-waermepumpen-muenchen.de/impressum",
+    "owner_names": [
+      "Dipl.-Ing. Markus Obermeier"
+    ],
+    "primary_owner": "Dipl.-Ing. Markus Obermeier",
+    "owner_role": "Geschäftsführer",
+    "register_court": "Amtsgericht München",
+    "register_type": "HRB",
+    "register_number": "HRB 264819",
+    "vat_id": "DE318492105",
+    "hwk_chamber": "Handwerkskammer für München und Oberbayern",
+    "mobile_numbers_e164": [
+      "+491728459123"
+    ],
+    "primary_mobile_e164": "+491728459123",
+    "primary_mobile_display": "+49 172 8459123",
+    "landline_numbers_e164": [
+      "+49897488210"
+    ],
+    "primary_landline_e164": "+49897488210",
+    "has_direct_mobile": true,
+    "personal_emails": [
+      "m.obermeier@alpensolar-muenchen.de"
+    ],
+    "generic_emails": [
+      "info@alpensolar-muenchen.de"
+    ],
+    "primary_email": "m.obermeier@alpensolar-muenchen.de",
+    "email_is_personal": true,
+    "digital_signals": {
+      "has_ssl": true,
+      "has_meta_pixel": false,
+      "has_google_tag": true,
+      "has_booking_widget": false,
+      "has_dedicated_website": true,
+      "maturity_score": 60,
+      "missing_gaps": [
+        "Kein Meta Pixel (keine Social-Recruiting/Retargeting Ads)",
+        "Kein Online-Terminbuchungs-Widget / Lead-Funnel"
+      ],
+      "recommended_pitch_angle": "Statische Visitenkarten-Website ohne Pixel & ohne Online-Anfragefunnel — Pitch für automatisierte Kunden-/Fachkräfte-Vorqualifizierung."
+    },
+    "uwg_b2b_presumed_consent_hook": "§ 7 Abs. 2 Nr. 1 UWG (Mutmaßliche Einwilligung B2B): Konkreter Sachbezug zu SHK & Photovoltaik Meisterbetrieb in München — Kein Meta Pixel (keine Social-Recruiting/Retargeting Ads).",
+    "call_script_opener": "Moin Dipl.-Ing. Markus Obermeier, hier ist [Name] — ich habe gesehen, Sie sind als Geschäftsführer bei AlpenSolar & Wärmepumpen Technik GmbH in München direkt mit Ihrer +49 172  eingetragen. Kurze Frage zu Ihrem SHK & Photovoltaik Meisterbetrieb: Statische Visitenkarten-Website ohne Pixel & ohne Online-Anfragefunnel — Pitch für automatisierte Kunden-/Fachkräfte-Vorqualifizierung.",
+    "lead_grade": "A+"
+  },
+  {
+    "lead_id": "dach-002",
+    "company_name": "Bedachungen & Holzbau Komatowski",
+    "legal_form": "Einzelunternehmen / Meisterbetrieb",
+    "category": "Dachdecker & Zimmerei",
+    "city": "Dortmund",
+    "postal_code": "44145",
+    "street_address": "Borsigstraße 19",
+    "source_type": "kleinanzeigen_rechtliche_angaben",
+    "source_url": "https://www.kleinanzeigen.de/pro/bedachungen-komatowski-dortmund",
+    "owner_names": [
+      "Krzysztof Komatowski"
+    ],
+    "primary_owner": "Krzysztof Komatowski",
+    "owner_role": "Inhaber",
+    "register_court": "",
+    "register_type": "",
+    "register_number": "",
+    "vat_id": "DE294810553",
+    "hwk_chamber": "Handwerkskammer Dortmund",
+    "mobile_numbers_e164": [
+      "+4915162849017"
+    ],
+    "primary_mobile_e164": "+4915162849017",
+    "primary_mobile_display": "+49 151 62849017",
+    "landline_numbers_e164": [
+      "+492319844120"
+    ],
+    "primary_landline_e164": "+492319844120",
+    "has_direct_mobile": true,
+    "personal_emails": [
+      "komatowski.dach@t-online.de"
+    ],
+    "generic_emails": [],
+    "primary_email": "komatowski.dach@t-online.de",
+    "email_is_personal": true,
+    "digital_signals": {
+      "has_ssl": false,
+      "has_meta_pixel": false,
+      "has_google_tag": false,
+      "has_booking_widget": false,
+      "has_dedicated_website": false,
+      "maturity_score": 0,
+      "missing_gaps": [
+        "Keine eigene Website (nur Kleinanzeigen-Profil)",
+        "Kein Google Tag / Conversion-Tracking",
+        "Kein Meta Pixel (keine Social-Recruiting/Retargeting Ads)",
+        "Kein Online-Terminbuchungs-Widget / Lead-Funnel"
+      ],
+      "recommended_pitch_angle": "Inseriert gewerblich auf Kleinanzeigen, hat aber keine eigene Website — Sofort-Pitch für schlüsselfertige Handwerker-Landingpage + WhatsApp-Anfragenfilter."
+    },
+    "uwg_b2b_presumed_consent_hook": "§ 7 Abs. 2 Nr. 1 UWG (Mutmaßliche Einwilligung B2B): Konkreter Sachbezug zu Dachdecker & Zimmerei in Dortmund — Keine eigene Website (nur Kleinanzeigen-Profil).",
+    "call_script_opener": "Moin Krzysztof Komatowski, hier ist [Name] — ich habe gesehen, Sie sind als Inhaber bei Bedachungen & Holzbau Komatowski in Dortmund direkt mit Ihrer +49 151  eingetragen. Kurze Frage zu Ihrem Dachdecker & Zimmerei: Inseriert gewerblich auf Kleinanzeigen, hat aber keine eigene Website — Sofort-Pitch für schlüsselfertige Handwerker-Landingpage + WhatsApp-Anfragenfilter.",
+    "lead_grade": "A+"
+  },
+  {
+    "lead_id": "dach-003",
+    "company_name": "PflegeHerz Ambulanter Pflegedienst Franken GmbH",
+    "legal_form": "GmbH",
+    "category": "Ambulanter Pflegedienst",
+    "city": "Nürnberg",
+    "postal_code": "90443",
+    "street_address": "Rothenburger Str. 118",
+    "source_type": "website_impressum",
+    "source_url": "https://pflegeherz-nuernberg.de/impressum",
+    "owner_names": [
+      "Sabine Lindner",
+      "Stefan Lindner"
+    ],
+    "primary_owner": "Sabine Lindner",
+    "owner_role": "Geschäftsführer",
+    "register_court": "Amtsgericht Nürnberg",
+    "register_type": "HRB",
+    "register_number": "HRB 38912",
+    "vat_id": "DE341098221",
+    "hwk_chamber": "",
+    "mobile_numbers_e164": [
+      "+4917643988214"
+    ],
+    "primary_mobile_e164": "+4917643988214",
+    "primary_mobile_display": "+49 176 43988214",
+    "landline_numbers_e164": [
+      "+499114508810"
+    ],
+    "primary_landline_e164": "+499114508810",
+    "has_direct_mobile": true,
+    "personal_emails": [
+      "s.lindner@pflegeherz-nuernberg.de"
+    ],
+    "generic_emails": [
+      "verwaltung@pflegeherz-nuernberg.de"
+    ],
+    "primary_email": "s.lindner@pflegeherz-nuernberg.de",
+    "email_is_personal": true,
+    "digital_signals": {
+      "has_ssl": true,
+      "has_meta_pixel": false,
+      "has_google_tag": false,
+      "has_booking_widget": false,
+      "has_dedicated_website": true,
+      "maturity_score": 40,
+      "missing_gaps": [
+        "Kein Google Tag / Conversion-Tracking",
+        "Kein Meta Pixel (keine Social-Recruiting/Retargeting Ads)",
+        "Kein Online-Terminbuchungs-Widget / Lead-Funnel"
+      ],
+      "recommended_pitch_angle": "Statische Visitenkarten-Website ohne Pixel & ohne Online-Anfragefunnel — Pitch für automatisierte Kunden-/Fachkräfte-Vorqualifizierung."
+    },
+    "uwg_b2b_presumed_consent_hook": "§ 7 Abs. 2 Nr. 1 UWG (Mutmaßliche Einwilligung B2B): Konkreter Sachbezug zu Ambulanter Pflegedienst in Nürnberg — Kein Google Tag / Conversion-Tracking.",
+    "call_script_opener": "Moin Sabine Lindner, hier ist [Name] — ich habe gesehen, Sie sind als Geschäftsführer bei PflegeHerz Ambulanter Pflegedienst Franken GmbH in Nürnberg direkt mit Ihrer +49 176  eingetragen. Kurze Frage zu Ihrem Ambulanter Pflegedienst: Statische Visitenkarten-Website ohne Pixel & ohne Online-Anfragefunnel — Pitch für automatisierte Kunden-/Fachkräfte-Vorqualifizierung.",
+    "lead_grade": "A+"
+  },
+  {
+    "lead_id": "dach-004",
+    "company_name": "RheinMain Elektro & KNX Systemtechnik e.K.",
+    "legal_form": "e.K.",
+    "category": "Elektroinstallation & Smart Home",
+    "city": "Frankfurt am Main",
+    "postal_code": "60314",
+    "street_address": "Hanauer Landstraße 211",
+    "source_type": "website_impressum",
+    "source_url": "http://rheinmain-elektro-knx.de/impressum.html",
+    "owner_names": [
+      "Elektromeister Torsten Becker"
+    ],
+    "primary_owner": "Elektromeister Torsten Becker",
+    "owner_role": "Inhaber",
+    "register_court": "Amtsgericht Frankfurt am Main",
+    "register_type": "HRA",
+    "register_number": "HRA 51904",
+    "vat_id": "DE198745632",
+    "hwk_chamber": "Handwerkskammer Frankfurt-Rhein-Main",
+    "mobile_numbers_e164": [
+      "+4916094732108"
+    ],
+    "primary_mobile_e164": "+4916094732108",
+    "primary_mobile_display": "+49 160 94732108",
+    "landline_numbers_e164": [
+      "+49694055890"
+    ],
+    "primary_landline_e164": "+49694055890",
+    "has_direct_mobile": true,
+    "personal_emails": [
+      "torsten.becker@rheinmain-elektro-knx.de"
+    ],
+    "generic_emails": [],
+    "primary_email": "torsten.becker@rheinmain-elektro-knx.de",
+    "email_is_personal": true,
+    "digital_signals": {
+      "has_ssl": false,
+      "has_meta_pixel": false,
+      "has_google_tag": false,
+      "has_booking_widget": false,
+      "has_dedicated_website": true,
+      "maturity_score": 25,
+      "missing_gaps": [
+        "Kein SSL (HTTP-Warnung im Browser)",
+        "Kein Google Tag / Conversion-Tracking",
+        "Kein Meta Pixel (keine Social-Recruiting/Retargeting Ads)",
+        "Kein Online-Terminbuchungs-Widget / Lead-Funnel"
+      ],
+      "recommended_pitch_angle": "Statische Visitenkarten-Website ohne Pixel & ohne Online-Anfragefunnel — Pitch für automatisierte Kunden-/Fachkräfte-Vorqualifizierung."
+    },
+    "uwg_b2b_presumed_consent_hook": "§ 7 Abs. 2 Nr. 1 UWG (Mutmaßliche Einwilligung B2B): Konkreter Sachbezug zu Elektroinstallation & Smart Home in Frankfurt am Main — Kein SSL (HTTP-Warnung im Browser).",
+    "call_script_opener": "Moin Elektromeister Torsten Becker, hier ist [Name] — ich habe gesehen, Sie sind als Inhaber bei RheinMain Elektro & KNX Systemtechnik e.K. in Frankfurt am Main direkt mit Ihrer +49 160  eingetragen. Kurze Frage zu Ihrem Elektroinstallation & Smart Home: Statische Visitenkarten-Website ohne Pixel & ohne Online-Anfragefunnel — Pitch für automatisierte Kunden-/Fachkräfte-Vorqualifizierung.",
+    "lead_grade": "A+"
+  },
+  {
+    "lead_id": "dach-005",
+    "company_name": "Bavaria Gerüstbau & Höhenzugangstechnik UG (haftungsbeschränkt)",
+    "legal_form": "UG (haftungsbeschränkt)",
+    "category": "Gerüstbau & Bauaufzüge",
+    "city": "Augsburg",
+    "postal_code": "86156",
+    "street_address": "Ulmer Straße 94",
+    "source_type": "kleinanzeigen_rechtliche_angaben",
+    "source_url": "https://www.kleinanzeigen.de/s-anzeige/geruestbau-augsburg/289104921",
+    "owner_names": [
+      "Hakan Yilmaz"
+    ],
+    "primary_owner": "Hakan Yilmaz",
+    "owner_role": "Geschäftsführer",
+    "register_court": "Amtsgericht Augsburg",
+    "register_type": "HRB",
+    "register_number": "HRB 35418",
+    "vat_id": "DE355901482",
+    "hwk_chamber": "",
+    "mobile_numbers_e164": [
+      "+491735519042"
+    ],
+    "primary_mobile_e164": "+491735519042",
+    "primary_mobile_display": "+49 173 5519042",
+    "landline_numbers_e164": [],
+    "primary_landline_e164": "",
+    "has_direct_mobile": true,
+    "personal_emails": [
+      "h.yilmaz@bavaria-geruestbau.de"
+    ],
+    "generic_emails": [],
+    "primary_email": "h.yilmaz@bavaria-geruestbau.de",
+    "email_is_personal": true,
+    "digital_signals": {
+      "has_ssl": false,
+      "has_meta_pixel": false,
+      "has_google_tag": false,
+      "has_booking_widget": false,
+      "has_dedicated_website": false,
+      "maturity_score": 0,
+      "missing_gaps": [
+        "Keine eigene Website (nur Kleinanzeigen-Profil)",
+        "Kein Google Tag / Conversion-Tracking",
+        "Kein Meta Pixel (keine Social-Recruiting/Retargeting Ads)",
+        "Kein Online-Terminbuchungs-Widget / Lead-Funnel"
+      ],
+      "recommended_pitch_angle": "Inseriert gewerblich auf Kleinanzeigen, hat aber keine eigene Website — Sofort-Pitch für schlüsselfertige Handwerker-Landingpage + WhatsApp-Anfragenfilter."
+    },
+    "uwg_b2b_presumed_consent_hook": "§ 7 Abs. 2 Nr. 1 UWG (Mutmaßliche Einwilligung B2B): Konkreter Sachbezug zu Gerüstbau & Bauaufzüge in Augsburg — Keine eigene Website (nur Kleinanzeigen-Profil).",
+    "call_script_opener": "Moin Hakan Yilmaz, hier ist [Name] — ich habe gesehen, Sie sind als Geschäftsführer bei Bavaria Gerüstbau & Höhenzugangstechnik UG (haftungsbeschränkt) in Augsburg direkt mit Ihrer +49 173  eingetragen. Kurze Frage zu Ihrem Gerüstbau & Bauaufzüge: Inseriert gewerblich auf Kleinanzeigen, hat aber keine eigene Website — Sofort-Pitch für schlüsselfertige Handwerker-Landingpage + WhatsApp-Anfragenfilter.",
+    "lead_grade": "A+"
+  },
+  {
+    "lead_id": "dach-006",
+    "company_name": "Nordlicht Hausverwaltung & Immobilien GmbH",
+    "legal_form": "GmbH",
+    "category": "WEG- & Mietverwaltung",
+    "city": "Hamburg",
+    "postal_code": "22083",
+    "street_address": "Hamburger Straße 11",
+    "source_type": "website_impressum",
+    "source_url": "https://nordlicht-hausverwaltung-hh.de/impressum",
+    "owner_names": [
+      "Dr. Henrik von Berg"
+    ],
+    "primary_owner": "Dr. Henrik von Berg",
+    "owner_role": "Geschäftsführer",
+    "register_court": "Amtsgericht Hamburg",
+    "register_type": "HRB",
+    "register_number": "HRB 154329",
+    "vat_id": "DE287654319",
+    "hwk_chamber": "",
+    "mobile_numbers_e164": [],
+    "primary_mobile_e164": "",
+    "primary_mobile_display": "Nur Festnetz",
+    "landline_numbers_e164": [
+      "+494022899100"
+    ],
+    "primary_landline_e164": "+494022899100",
+    "has_direct_mobile": false,
+    "personal_emails": [],
+    "generic_emails": [
+      "info@nordlicht-hausverwaltung-hh.de"
+    ],
+    "primary_email": "info@nordlicht-hausverwaltung-hh.de",
+    "email_is_personal": false,
+    "digital_signals": {
+      "has_ssl": true,
+      "has_meta_pixel": true,
+      "has_google_tag": false,
+      "has_booking_widget": true,
+      "has_dedicated_website": true,
+      "maturity_score": 80,
+      "missing_gaps": [
+        "Kein Google Tag / Conversion-Tracking"
+      ],
+      "recommended_pitch_angle": "Digital fortgeschritten — Pitch für B2B-Vertriebsautomatisierung & ZUGFeRD/ERP-Prozesse."
+    },
+    "uwg_b2b_presumed_consent_hook": "§ 7 Abs. 2 Nr. 1 UWG (Mutmaßliche Einwilligung B2B): Konkreter Sachbezug zu WEG- & Mietverwaltung in Hamburg — Kein Google Tag / Conversion-Tracking.",
+    "call_script_opener": "Moin Dr. Henrik von Berg, hier ist [Name] — ich habe gesehen, Sie sind als Geschäftsführer bei Nordlicht Hausverwaltung & Immobilien GmbH in Hamburg direkt mit Ihrer Nummer eingetragen. Kurze Frage zu Ihrem WEG- & Mietverwaltung: Digital fortgeschritten — Pitch für B2B-Vertriebsautomatisierung & ZUGFeRD/ERP-Prozesse.",
+    "lead_grade": "B"
+  }
+];
+        let currentFilter = 'all';
+        let selectedLeadId = LEADS.length ? LEADS[0].lead_id : null;
+        const notesStore = {};
+        const statusStore = {};
+
+        function getFilteredLeads() {
+            return LEADS.filter(lead => {
+                if (currentFilter === 'mobile') return lead.has_direct_mobile;
+                if (currentFilter === 'noweb') return !lead.digital_signals.has_dedicated_website;
+                if (currentFilter === 'nopixel') return !lead.digital_signals.has_meta_pixel;
+                return true;
+            });
+        }
+
+        function filterLeads(mode, btn) {
+            currentFilter = mode;
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            if (btn) btn.classList.add('active');
+            const list = getFilteredLeads();
+            if (list.length && !list.some(l => l.lead_id === selectedLeadId)) {
+                selectedLeadId = list[0].lead_id;
+            }
+            renderLeadList();
+            if (selectedLeadId) selectLead(selectedLeadId);
+        }
+
+        function renderLeadList() {
+            const container = document.getElementById('lead-list');
+            const list = getFilteredLeads();
+            container.innerHTML = list.map(lead => {
+                const activeCls = lead.lead_id === selectedLeadId ? 'active' : '';
+                const gradeCls = lead.lead_grade.startsWith('A') ? 'grade-A' : 'grade-B';
+                const webTag = !lead.digital_signals.has_dedicated_website
+                    ? '<span class="tag warn">Kleinanzeigen-Only</span>'
+                    : '<span class="tag">' + (lead.register_number || lead.legal_form) + '</span>';
+                const statusBadge = statusStore[lead.lead_id]
+                    ? '<span class="tag" style="color:#34d399;">' + statusStore[lead.lead_id] + '</span>'
+                    : '';
+                return `
+                <article class="lead-card ${activeCls}" onclick="selectLead('${lead.lead_id}')">
+                    <div class="lead-top">
+                        <div>
+                            <div style="font-weight:700;font-size:13.5px;">${lead.company_name}</div>
+                            <div style="color:var(--muted);font-size:11.5px;">${lead.postal_code} ${lead.city} · ${lead.category}</div>
+                        </div>
+                        <span class="grade ${gradeCls}">${lead.lead_grade}</span>
+                    </div>
+                    <div class="lead-owner">👤 ${lead.primary_owner || 'Unbekannt'} (${lead.owner_role || 'Inhaber'})</div>
+                    <div class="lead-phone">📲 ${lead.primary_mobile_display}</div>
+                    <div class="lead-tags">
+                        ${webTag}
+                        <span class="tag">Score ${lead.digital_signals.maturity_score}/100</span>
+                        ${statusBadge}
+                    </div>
+                </article>`;
+            }).join('');
+        }
+
+        function selectLead(leadId) {
+            selectedLeadId = leadId;
+            const lead = LEADS.find(l => l.lead_id === leadId);
+            if (!lead) return;
+
+            document.getElementById('ck-category').textContent = lead.category + ' · ' + lead.source_type;
+            document.getElementById('ck-company').textContent = lead.company_name;
+            document.getElementById('ck-address').textContent = lead.street_address + ', ' + lead.postal_code + ' ' + lead.city + ' — ' + lead.source_url;
+            document.getElementById('ck-grade').textContent = 'Lead ' + lead.lead_grade;
+
+            const telLink = document.getElementById('ck-tel-link');
+            const waLink = document.getElementById('ck-wa-link');
+            if (lead.has_direct_mobile) {
+                telLink.href = 'tel:' + lead.primary_mobile_e164;
+                document.getElementById('ck-mobile-display').textContent = lead.primary_mobile_display;
+                waLink.href = 'https://wa.me/' + lead.primary_mobile_e164.replace('+', '');
+                waLink.style.display = 'inline-flex';
+            } else {
+                telLink.href = 'tel:' + lead.primary_landline_e164;
+                document.getElementById('ck-mobile-display').textContent = 'Nur Festnetz (' + lead.primary_landline_e164 + ')';
+                waLink.style.display = 'none';
+            }
+
+            const llLink = document.getElementById('ck-landline-link');
+            if (lead.primary_landline_e164) {
+                llLink.href = 'tel:' + lead.primary_landline_e164;
+                document.getElementById('ck-landline-display').textContent = lead.primary_landline_e164;
+                llLink.style.display = 'inline-flex';
+            } else {
+                llLink.style.display = 'none';
+            }
+
+            document.getElementById('ck-owner').textContent = (lead.owner_names || []).join(', ') || '—';
+            document.getElementById('ck-role').textContent = lead.owner_role || '—';
+            document.getElementById('ck-legal').textContent = lead.legal_form || '—';
+            document.getElementById('ck-court').textContent = lead.register_court || 'Kein HR-Eintrag (Kleingewerbe/Meister)';
+            document.getElementById('ck-hrb').textContent = lead.register_number || '—';
+            document.getElementById('ck-vat').textContent = lead.vat_id || '—';
+            document.getElementById('ck-hwk').textContent = lead.hwk_chamber || '—';
+            document.getElementById('ck-email').textContent = lead.primary_email + (lead.email_is_personal ? ' (Persönlich)' : ' (Zentrale)');
+
+            const sig = lead.digital_signals;
+            document.getElementById('ck-score').textContent = sig.maturity_score + ' / 100';
+            document.getElementById('ck-sig-web').textContent = sig.has_dedicated_website ? '✅ Ja' : '❌ Nein (Kleinanzeigen)';
+            document.getElementById('ck-sig-ssl').textContent = sig.has_ssl ? '✅ HTTPS' : '❌ Kein SSL';
+            document.getElementById('ck-sig-gtag').textContent = sig.has_google_tag ? '✅ Aktiv' : '❌ Fehlt';
+            document.getElementById('ck-sig-pixel').textContent = sig.has_meta_pixel ? '✅ Aktiv' : '❌ Fehlt';
+            document.getElementById('ck-sig-booking').textContent = sig.has_booking_widget ? '✅ Vorhanden' : '❌ Fehlt';
+            document.getElementById('ck-gaps').textContent = '⚡ Pitch-Hebel: ' + sig.recommended_pitch_angle;
+
+            document.getElementById('ck-script').textContent = lead.call_script_opener;
+            document.getElementById('ck-uwg').textContent = lead.uwg_b2b_presumed_consent_hook;
+            document.getElementById('ck-objection-email').textContent = lead.primary_email || 'Ihre E-Mail';
+
+            const surname = (lead.primary_owner || 'Inhaber').split(' ').slice(-1)[0];
+            document.querySelectorAll('.js-owner-surname').forEach(el => el.textContent = surname);
+
+            const notesEl = document.getElementById('call-notes');
+            notesEl.value = notesStore[lead.lead_id] || '';
+            notesEl.oninput = () => { notesStore[lead.lead_id] = notesEl.value; };
+
+            document.getElementById('dispo-status').textContent = statusStore[lead.lead_id]
+                ? 'Aktueller Status: ' + statusStore[lead.lead_id]
+                : '';
+
+            document.getElementById('lead-json-box').textContent = JSON.stringify(lead, null, 2);
+            renderLeadList();
+        }
+
+        function logCall(statusText) {
+            if (!selectedLeadId) return;
+            const now = new Date().toLocaleTimeString('de-DE', {hour: '2-digit', minute: '2-digit'});
+            statusStore[selectedLeadId] = statusText + ' (' + now + ')';
+            document.getElementById('dispo-status').textContent = 'Gespeichert: ' + statusStore[selectedLeadId];
+            renderLeadList();
+        }
+
+        if (selectedLeadId) selectLead(selectedLeadId);
+    </script>
+</body>
+</html>

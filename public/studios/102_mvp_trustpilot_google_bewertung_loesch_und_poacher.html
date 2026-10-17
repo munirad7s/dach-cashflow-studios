@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MVP #102 — Trustpilot/Google/Kununu 1-Star Competitor Churn Poacher & BGH VI ZR 34/15 Lösch-Engine</title>
+  <style>
+    :root {
+      --bg: #0b0f17;
+      --panel: #131b2a;
+      --panel-alt: #182336;
+      --border: #26354d;
+      --text: #e6edf7;
+      --muted: #93a4be;
+      --accent: #38bdf8;
+      --emerald: #10b981;
+      --amber: #f59e0b;
+      --rose: #f43f5e;
+      --violet: #a78bfa;
+      --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --mono: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      line-height: 1.5;
+    }
+    header {
+      background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 24px 32px;
+    }
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      background: rgba(56, 189, 248, 0.14);
+      color: var(--accent);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+    }
+    .badge.emerald {
+      background: rgba(16, 185, 129, 0.14);
+      color: var(--emerald);
+      border-color: rgba(16, 185, 129, 0.35);
+    }
+    .badge.rose {
+      background: rgba(244, 63, 94, 0.14);
+      color: var(--rose);
+      border-color: rgba(244, 63, 94, 0.35);
+    }
+    .badge.amber {
+      background: rgba(245, 158, 11, 0.14);
+      color: var(--amber);
+      border-color: rgba(245, 158, 11, 0.35);
+    }
+    h1 {
+      margin: 0 0 6px 0;
+      font-size: 24px;
+      font-weight: 700;
+    }
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 14px;
+      padding: 20px 32px;
+      background: #0e1522;
+      border-bottom: 1px solid var(--border);
+    }
+    .kpi-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 16px;
+    }
+    .kpi-label {
+      font-size: 12px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .kpi-val {
+      font-size: 24px;
+      font-weight: 700;
+      margin-top: 4px;
+    }
+    .kpi-sub {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+    .nav-tabs {
+      display: flex;
+      gap: 8px;
+      padding: 14px 32px 0 32px;
+      border-bottom: 1px solid var(--border);
+      background: #0e1522;
+    }
+    .tab-btn {
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid transparent;
+      border-bottom: none;
+      padding: 10px 18px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      border-radius: 8px 8px 0 0;
+    }
+    .tab-btn.active {
+      background: var(--bg);
+      color: var(--accent);
+      border-color: var(--border);
+    }
+    main {
+      padding: 24px 32px 48px 32px;
+      max-width: 1480px;
+      margin: 0 auto;
+    }
+    .tab-pane {
+      display: none;
+    }
+    .tab-pane.active {
+      display: block;
+    }
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(440px, 1fr));
+      gap: 18px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px 20px;
+    }
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .card-title {
+      font-size: 16px;
+      font-weight: 700;
+      margin: 0;
+    }
+    .quote-box {
+      background: var(--panel-alt);
+      border-left: 3px solid var(--rose);
+      padding: 10px 12px;
+      border-radius: 6px;
+      font-size: 13px;
+      color: #cbd5e1;
+      margin: 10px 0;
+    }
+    .script-box {
+      background: #090d14;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px;
+      font-family: var(--mono);
+      font-size: 12px;
+      white-space: pre-wrap;
+      color: #d1fae5;
+      max-height: 280px;
+      overflow-y: auto;
+      margin-top: 8px;
+    }
+    .btn {
+      background: rgba(56, 189, 248, 0.16);
+      color: var(--accent);
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      border-radius: 6px;
+      padding: 6px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .btn:hover {
+      background: rgba(56, 189, 248, 0.28);
+    }
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+    input, select, textarea {
+      width: 100%;
+      background: #090d14;
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 8px 10px;
+      font-family: var(--font);
+      font-size: 13px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    th, td {
+      padding: 11px 14px;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+    }
+    th {
+      background: var(--panel-alt);
+      color: var(--muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 11px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- DACH CASHFLOW STUDIOS LAUNCH BAR -->
+<style>
+  #dcs-launch-bar {
+    position: sticky;
+    top: 0;
+    z-index: 99999;
+    background: linear-gradient(90deg, #0b1120 0%, #111827 50%, #0f172a 100%);
+    color: #f8fafc;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.35);
+    padding: 8px 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  }
+  #dcs-launch-bar .dcs-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+  }
+  #dcs-launch-bar .dcs-badge {
+    background: rgba(16, 185, 129, 0.18);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.03em;
+  }
+  #dcs-launch-bar a.dcs-nav {
+    color: #93c5fd;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 12.5px;
+  }
+  #dcs-launch-bar a.dcs-nav:hover {
+    text-decoration: underline;
+    color: #dbeafe;
+  }
+  #dcs-launch-bar .dcs-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  #dcs-launch-bar .dcs-btn {
+    padding: 5px 11px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s ease;
+  }
+  #dcs-launch-bar .dcs-btn-ghost {
+    background: rgba(255,255,255,0.08);
+    color: #e2e8f0;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  #dcs-launch-bar .dcs-btn-primary {
+    background: linear-gradient(135deg, #0ea5e9, #2563eb);
+    color: #ffffff;
+  }
+  #dcs-launch-bar .dcs-btn-emerald {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
+  }
+  @media print {
+    #dcs-launch-bar { display: none !important; }
+  }
+</style>
+<div id="dcs-launch-bar">
+  <div class="dcs-left">
+    <a href="/index.html" class="dcs-nav">← Alle 150 DACH Studios</a>
+    <span class="dcs-badge">MVP #102 VERIFIED</span>
+    <span style="color:#cbd5e1;font-size:12px;">B2B SaaS, Lead-Intent Sniper & AI/MCP Infrastructure</span>
+  </div>
+  <div class="dcs-actions">
+    <button onclick="window.print()" class="dcs-btn dcs-btn-ghost">🖨️ PDF / Dossier drucken</button>
+    <a href="#checkout-modal-49" target="_blank" rel="noopener" class="dcs-btn dcs-btn-primary">⚡ Musterschreiben & Voll-Dossier (€49)</a>
+    <a href="#checkout-modal-299" target="_blank" rel="noopener" class="dcs-btn dcs-btn-emerald">🛡️ B2B Umsetzung buchen (€299 / €1.490)</a>
+  </div>
+</div>
+
+  <header>
+    <div class="badge-row">
+      <span class="badge">MVP #102 · Round 21 Gold-Dive</span>
+      <span class="badge emerald">780+ Catalog MAU / 1,850+ Live Store MAU</span>
+      <span class="badge rose">Play A: 1-Star Competitor Churn Poacher</span>
+      <span class="badge amber">Play B: BGH VI ZR 34/15 & VI ZR 1244/20 Lösch-Dossier</span>
+    </div>
+    <h1>Trustpilot / Google / Kununu 1-Star Churn Poacher & BGH VI ZR 34/15 Lösch-Engine</h1>
+    <p class="subtitle">
+      Dual-Use B2B Revenue Engine: (1) Konvertiert verärgerte 1-bis-2-Sterne-Kunden der Konkurrenz in warme Wechsel-Leads ·
+      (2) Erzwingt die Löschung unbewiesener 1-Stern-Bewertungen über die BGH-Host-Provider-Prüfpflicht (Az. VI ZR 34/15 & VI ZR 1244/20 + Art. 16 DSA).
+    </p>
+  </header>
+
+  <section class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-label">Poachable Competitor Leads</div>
+      <div class="kpi-val" style="color: var(--emerald);">5 High-Intent Leads</div>
+      <div class="kpi-sub">Ø Poach-Readiness: 98.4/100</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Poachable Pipeline ACV</div>
+      <div class="kpi-val" style="color: var(--accent);">€42,157 ARR</div>
+      <div class="kpi-sub">5x–8x höhere Antwortrate als Kaltakquise</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">BGH VI ZR 34/15 Lösch-Dossiers</div>
+      <div class="kpi-val" style="color: var(--amber);">4 Anträge bereit</div>
+      <div class="kpi-sub">Ø Lösch-Wahrscheinlichkeit: 94.0%</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Gesparte Agentur-Gebühren</div>
+      <div class="kpi-val" style="color: var(--violet);">€946.00</div>
+      <div class="kpi-sub">Statt €199–€299 pro gelöschter Bewertung</div>
+    </div>
+  </section>
+
+  <nav class="nav-tabs">
+    <button class="tab-btn active" onclick="switchTab('poacher', this)">Play A · 1-Star Competitor Churn Poacher (5)</button>
+    <button class="tab-btn" onclick="switchTab('bgh', this)">Play B · BGH VI ZR 34/15 & VI ZR 1244/20 Lösch-Dossiers (4)</button>
+    <button class="tab-btn" onclick="switchTab('generator', this)">Interaktiver BGH Lösch-Generator (Live-Test)</button>
+    <button class="tab-btn" onclick="switchTab('teardown', this)">Apify Trustpilot Ecosystem Teardown</button>
+  </nav>
+
+  <main>
+    <section id="tab-poacher" class="tab-pane active">
+      <div id="poacher-cards" class="card-grid"></div>
+    </section>
+
+    <section id="tab-bgh" class="tab-pane">
+      <div id="bgh-cards" class="card-grid"></div>
+    </section>
+
+    <section id="tab-generator" class="tab-pane">
+      <div class="card">
+        <h2 style="margin-top:0;">Live BGH VI ZR 34/15 & VI ZR 1244/20 Notice-and-Takedown Generator</h2>
+        <p style="color:var(--muted);font-size:13px;">
+          Geben Sie eine beliebige 1-Stern-Bewertung (Google, Trustpilot, Kununu) ein. Die Engine prüft Pseudonymität,
+          fehlende Rechnungs-/Vorgangsreferenz, Tatsachenbehauptungen und erstellt sofort den fertigen Art.-16-DSA-Löschantrag.
+        </p>
+        <div class="form-grid">
+          <div>
+            <label>Portal</label>
+            <select id="gen-portal" onchange="runLiveGenerator()">
+              <option value="google">Google Business Profile (Google Ireland Ltd.)</option>
+              <option value="trustpilot">Trustpilot (Trustpilot A/S)</option>
+              <option value="kununu">Kununu (New Work SE)</option>
+            </select>
+          </div>
+          <div>
+            <label>Betroffenes Unternehmen (Mandant / Eigenes Profil)</label>
+            <input id="gen-company" value="Meisterbetrieb Franken Solar GmbH (franken-solar.de)" oninput="runLiveGenerator()" />
+          </div>
+          <div>
+            <label>Angezeigter Verfassername / Pseudonym</label>
+            <input id="gen-author" value="Thomas K." oninput="runLiveGenerator()" />
+          </div>
+          <div>
+            <label>Bewertungsdatum & Sterne</label>
+            <input id="gen-date" value="17.10.2026 · 1 Stern" oninput="runLiveGenerator()" />
+          </div>
+          <div style="grid-column: span 2;">
+            <label>Beanstandeter Bewertungstext</label>
+            <textarea id="gen-text" rows="3" oninput="runLiveGenerator()">Reine Abzocke! Haben 850 Euro berechnet obwohl der Monteur nur 20 Minuten da war und die Wärmepumpe funktioniert immer noch nicht. Telefonisch niemand erreichbar!</textarea>
+          </div>
+        </div>
+        <div id="gen-metrics" class="badge-row"></div>
+        <div id="gen-output" class="script-box" style="max-height:420px;"></div>
+      </div>
+    </section>
+
+    <section id="tab-teardown" class="tab-pane">
+      <div class="card">
+        <h2 style="margin-top:0;">Apify Trustpilot & Review Scraper Cluster Teardown</h2>
+        <table id="apify-table">
+          <thead>
+            <tr>
+              <th>Actor Slug</th>
+              <th>Catalog / Live MAU</th>
+              <th>Pricing Model</th>
+              <th>Key Extracted Fields</th>
+              <th>Primary Commercial Play</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const POACH_LEADS = [{"review_id": "TP-DE-2026-99104", "portal": "trustpilot", "competitor_name": "BillCloud360 ERP GmbH", "competitor_domain": "billcloud360-erp.de", "stars": 1, "review_date": "2026-10-15", "reviewer_display_name": "Markus Bergmann", "resolved_company_name": "Bergmann Elektrotechnik GmbH", "resolved_company_domain": "bergmann-elektrotechnik.de", "resolved_decision_maker_role": "Geschäftsführer", "reviewer_location": "Nürnberg", "primary_pain_code": "DATEV_XRECHNUNG_ERP_DEFECT", "primary_pain_label": "DATEV / XRechnung / ZUGFeRD / GoBD-Schnittstellen-Defekt", "secondary_pain_codes": ["SUPPORT_BLACKHOLE_SLA_BREACH", "LEISTUNGSMANGEL_FEHLBEHANDLUNG"], "matched_pain_keywords": ["datev", "xrechnung", "steuerberater", "schnittstelle", "xml fehler", "kundenservice reagiert nicht", "ticket", "chatbot", "fehlerhaft"], "competitor_ignored_review": true, "poach_readiness_score": 99, "poach_priority_tier": "TIER_1_IMMEDIATE_SNIPE", "estimated_switch_acv_eur": 7837, "extracted_quote_snippet": "Seit dem Oktober-Update ist die DATEV Schnittstelle fehlerhaft und unser Steuerberater bekommt nur defekte Buchungsstapel", "hook_angle": "Nativ zertifizierte DATEV-Unternehmen-online & EN-16931 XRechnung/ZUGFeRD Engine ohne manuelle XML-Nachbearbeitung.", "migration_offer": "15-Minuten Live-Import Ihrer bestehenden Kunden-, Artikel- und Rechnungsdaten inkl. Steuerberater-Testexport.", "linkedin_dm_script": "Hallo Markus, ich habe gerade Ihren Erfahrungsbericht zu BillCloud360 ERP GmbH bzgl. „DATEV Schnittstelle fehlerhaft & XRechnung XML Export bricht ab!“ gesehen – insbesondere das Thema DATEV. Wir migrieren aktuell jede Woche DACH-Teams von BillCloud360 ERP GmbH in unter 24h inkl. 15-Minuten Live-Import Ihrer bestehenden Kunden-, Artikel- und Rechnungsdaten inkl. Steuerberater-Testexport. Sollen wir Ihnen einen 10-Minuten-Testzugang mit Ihren echten Strukturen zeigen?", "value_audit_email_subject": "Ihr Feedback zu BillCloud360 ERP GmbH (DATEV Schnittstelle fehlerhaft & XRechnung XML Export bricht ab!) // Sofort-Lösung für Bergmann Elektrotechnik GmbH", "value_audit_email_body": "Guten Tag Markus Bergmann,\n\nbei unserem Branchen-Monitoring auf Trustpilot ist uns Ihre aktuelle Bewertung zu BillCloud360 ERP GmbH vom 2026-10-15 aufgefallen:\n»Seit dem Oktober-Update ist die DATEV Schnittstelle fehlerhaft und unser Steuerberater bekommt nur defekte Buchungsstapel.«\n\nGenau wegen dieser Reibungspunkte (datev, xrechnung, steuerberater) wechseln derzeit zahlreiche Betriebe aus dem Bereich SHK & Elektrotechnik Handwerk (38 MA) von BillCloud360 ERP GmbH zu unserer Plattform:\n\n• Nativ zertifizierte DATEV-Unternehmen-online & EN-16931 XRechnung/ZUGFeRD Engine ohne manuelle XML-Nachbearbeitung.\n• Wechsel-Angebot für Bergmann Elektrotechnik GmbH: 15-Minuten Live-Import Ihrer bestehenden Kunden-, Artikel- und Rechnungsdaten inkl. Steuerberater-Testexport.\n\nDarf ich Ihnen am Donnerstag in 15 Minuten live zeigen, wie der Datenimport aus BillCloud360 ERP GmbH ohne Ausfallzeit im Tagesgeschäft abläuft?\n\nBeste Grüße\nMigration-Desk DACH"}, {"review_id": "TP-DE-2026-99118", "portal": "trustpilot", "competitor_name": "StaffMaster HR Cloud", "competitor_domain": "staffmaster-hr.de", "stars": 1, "review_date": "2026-10-14", "reviewer_display_name": "Sandra Lindner", "resolved_company_name": "Lindner Medizintechnik GmbH & Co. KG", "resolved_company_domain": "lindner-medizintechnik.de", "resolved_decision_maker_role": "Head of HR & Finance", "reviewer_location": "München", "primary_pain_code": "PREISERHOEHUNG_KNEBELVERTRAG", "primary_pain_label": "Preiserhöhung & Knebelvertrag / Kündigungsfalle", "secondary_pain_codes": ["ACCOUNT_FREEZE_BILLING_ERROR", "SUPPORT_BLACKHOLE_SLA_BREACH"], "matched_pain_keywords": ["preiserhöhung", "knebelvertrag", "vertragsverlängerung", "kündigungsfrist", "12 monate verlängert", "doppelt abgebucht", "sepa", "kundenservice reagiert nicht"], "competitor_ignored_review": true, "poach_readiness_score": 99, "poach_priority_tier": "TIER_1_IMMEDIATE_SNIPE", "estimated_switch_acv_eur": 13200, "extracted_quote_snippet": "Absolute Frechheit: Erst eine Preiserhöhung ohne Vorwarnung von 390 € auf 645 € monatlich, und als wir widersprochen haben, beruft man sich auf eine automatische Vertragsverlängerung um 12 Monate verlängert wegen 3 Monaten Kündigungsfrist", "hook_angle": "Nahtloser Wechsel mit Laufzeit-Übernahme (bis zu 6 Monate beitragsfrei während Ihrer Restlaufzeit) & Preisgarantie ohne automatische 12-Monats-Knebelverlängerung.", "migration_offer": "Kostenloser Vertrags- & Daten-Umzug in 24h + 100% monatlich kündbar nach Onboarding.", "linkedin_dm_script": "Hallo Sandra, ich habe gerade Ihren Erfahrungsbericht zu StaffMaster HR Cloud bzgl. „Preiserhöhung ohne Vorwarnung um 65% und 12 Monate Knebelvertrag!“ gesehen – insbesondere das Thema Preiserhöhung & Knebelvertrag. Wir migrieren aktuell jede Woche DACH-Teams von StaffMaster HR Cloud in unter 24h inkl. Kostenloser Vertrags- & Daten-Umzug in 24h + 100% monatlich kündbar nach Onboarding. Sollen wir Ihnen einen 10-Minuten-Testzugang mit Ihren echten Strukturen zeigen?", "value_audit_email_subject": "Ihr Feedback zu StaffMaster HR Cloud (Preiserhöhung ohne Vorwarnung um 65% und 12 Monate Knebelvertrag!) // Sofort-Lösung für Lindner Medizintechnik GmbH & Co. KG", "value_audit_email_body": "Guten Tag Sandra Lindner,\n\nbei unserem Branchen-Monitoring auf Trustpilot ist uns Ihre aktuelle Bewertung zu StaffMaster HR Cloud vom 2026-10-14 aufgefallen:\n»Absolute Frechheit: Erst eine Preiserhöhung ohne Vorwarnung von 390 € auf 645 € monatlich, und als wir widersprochen haben, beruft man sich auf eine automatische Vertragsverlängerung um 12 Monate verlängert wegen 3 Monaten Kündigungsfrist.«\n\nGenau wegen dieser Reibungspunkte (preiserhöhung, knebelvertrag, vertragsverlängerung) wechseln derzeit zahlreiche Betriebe aus dem Bereich Medizintechnik / Mittelstand (64 MA) von StaffMaster HR Cloud zu unserer Plattform:\n\n• Nahtloser Wechsel mit Laufzeit-Übernahme (bis zu 6 Monate beitragsfrei während Ihrer Restlaufzeit) & Preisgarantie ohne automatische 12-Monats-Knebelverlängerung.\n• Wechsel-Angebot für Lindner Medizintechnik GmbH & Co. KG: Kostenloser Vertrags- & Daten-Umzug in 24h + 100% monatlich kündbar nach Onboarding.\n\nDarf ich Ihnen am Donnerstag in 15 Minuten live zeigen, wie der Datenimport aus StaffMaster HR Cloud ohne Ausfallzeit im Tagesgeschäft abläuft?\n\nBeste Grüße\nMigration-Desk DACH"}, {"review_id": "GMB-DE-2026-44021", "portal": "google", "competitor_name": "ImmoVerwalt24 Hausverwaltung", "competitor_domain": "immoverwalt24-frankfurt.de", "stars": 1, "review_date": "2026-10-16", "reviewer_display_name": "Dr. Christian Voigt", "resolved_company_name": "WEG Beirat Mendelssohnstraße (48 Einheiten)", "resolved_company_domain": "weg-beirat-mendelssohnstrasse-48-einheiten.de", "resolved_decision_maker_role": "Beiratsvorsitzender WEG", "reviewer_location": "Frankfurt am Main", "primary_pain_code": "SUPPORT_BLACKHOLE_SLA_BREACH", "primary_pain_label": "Support-Blackhole, SLA-Bruch & Systemausfall", "secondary_pain_codes": ["LEISTUNGSMANGEL_FEHLBEHANDLUNG"], "matched_pain_keywords": ["niemand erreichbar", "wochenlang", "verspätet", "fehlerhaft"], "competitor_ignored_review": true, "poach_readiness_score": 99, "poach_priority_tier": "TIER_1_IMMEDIATE_SNIPE", "estimated_switch_acv_eur": 7920, "extracted_quote_snippet": "Für unsere WEG mit 48 Einheiten liegt die Jahresabrechnung trotz Frist immer noch nicht vor", "hook_angle": "Persönlicher DACH-Ansprechpartner in Nürnberg/München mit < 15 Min. Reaktionszeit statt Chatbot-Schleife.", "migration_offer": "Direkte WhatsApp/Slack-Engineering-Bridge + kostenloser Parallelbetrieb für 30 Tage.", "linkedin_dm_script": "Hallo Dr., ich habe gerade Ihren Erfahrungsbericht zu ImmoVerwalt24 Hausverwaltung bzgl. „Hausgeldabrechnung 9 Monate verspätet & niemand erreichbar“ gesehen – insbesondere das Thema Support-Blackhole, SLA-Bruch & Systemausfall. Wir migrieren aktuell jede Woche DACH-Teams von ImmoVerwalt24 Hausverwaltung in unter 24h inkl. Direkte WhatsApp/Slack-Engineering-Bridge + kostenloser Parallelbetrieb für 30 Tage. Sollen wir Ihnen einen 10-Minuten-Testzugang mit Ihren echten Strukturen zeigen?", "value_audit_email_subject": "Ihr Feedback zu ImmoVerwalt24 Hausverwaltung (Hausgeldabrechnung 9 Monate verspätet & niemand erreichbar) // Sofort-Lösung für WEG Beirat Mendelssohnstraße (48 Einheiten)", "value_audit_email_body": "Guten Tag Dr. Christian Voigt,\n\nbei unserem Branchen-Monitoring auf Google ist uns Ihre aktuelle Bewertung zu ImmoVerwalt24 Hausverwaltung vom 2026-10-16 aufgefallen:\n»Für unsere WEG mit 48 Einheiten liegt die Jahresabrechnung trotz Frist immer noch nicht vor.«\n\nGenau wegen dieser Reibungspunkte (niemand erreichbar, wochenlang, verspätet) wechseln derzeit zahlreiche Betriebe aus dem Bereich WEG & Mietverwaltung (48 Wohneinheiten) von ImmoVerwalt24 Hausverwaltung zu unserer Plattform:\n\n• Persönlicher DACH-Ansprechpartner in Nürnberg/München mit < 15 Min. Reaktionszeit statt Chatbot-Schleife.\n• Wechsel-Angebot für WEG Beirat Mendelssohnstraße (48 Einheiten): Direkte WhatsApp/Slack-Engineering-Bridge + kostenloser Parallelbetrieb für 30 Tage.\n\nDarf ich Ihnen am Donnerstag in 15 Minuten live zeigen, wie der Datenimport aus ImmoVerwalt24 Hausverwaltung ohne Ausfallzeit im Tagesgeschäft abläuft?\n\nBeste Grüße\nMigration-Desk DACH"}, {"review_id": "OMR-DE-2026-77312", "portal": "omr", "competitor_name": "DocuFlow DMS Enterprise", "competitor_domain": "docuflow-enterprise.de", "stars": 2, "review_date": "2026-10-11", "reviewer_display_name": "TobiasKrämer", "resolved_company_name": "Krämer & Partner Steuerberatungsgesellschaft mbB", "resolved_company_domain": "kraemer-partner-steuerberatungsgesellschaft-mbb.de", "resolved_decision_maker_role": "Partner / Steuerberater", "reviewer_location": "Stuttgart", "primary_pain_code": "DATEV_XRECHNUNG_ERP_DEFECT", "primary_pain_label": "DATEV / XRechnung / ZUGFeRD / GoBD-Schnittstellen-Defekt", "secondary_pain_codes": ["SUPPORT_BLACKHOLE_SLA_BREACH", "LEISTUNGSMANGEL_FEHLBEHANDLUNG"], "matched_pain_keywords": ["zugferd", "gobd", "ticket", "fehlerhaft"], "competitor_ignored_review": true, "poach_readiness_score": 99, "poach_priority_tier": "TIER_1_IMMEDIATE_SNIPE", "estimated_switch_acv_eur": 5775, "extracted_quote_snippet": "Wir hatten DocuFlow für 18 Mandanten im Einsatz", "hook_angle": "Nativ zertifizierte DATEV-Unternehmen-online & EN-16931 XRechnung/ZUGFeRD Engine ohne manuelle XML-Nachbearbeitung.", "migration_offer": "15-Minuten Live-Import Ihrer bestehenden Kunden-, Artikel- und Rechnungsdaten inkl. Steuerberater-Testexport.", "linkedin_dm_script": "Hallo TobiasKrämer, ich habe gerade Ihren Erfahrungsbericht zu DocuFlow DMS Enterprise bzgl. „GoBD-Archivierung lückenhaft & ZUGFeRD-Parser fällt bei Sammelrechnungen aus“ gesehen – insbesondere das Thema DATEV. Wir migrieren aktuell jede Woche DACH-Teams von DocuFlow DMS Enterprise in unter 24h inkl. 15-Minuten Live-Import Ihrer bestehenden Kunden-, Artikel- und Rechnungsdaten inkl. Steuerberater-Testexport. Sollen wir Ihnen einen 10-Minuten-Testzugang mit Ihren echten Strukturen zeigen?", "value_audit_email_subject": "Ihr Feedback zu DocuFlow DMS Enterprise (GoBD-Archivierung lückenhaft & ZUGFeRD-Parser fällt bei Sammelrechnungen aus) // Sofort-Lösung für Krämer & Partner Steuerberatungsgesellschaft mbB", "value_audit_email_body": "Guten Tag TobiasKrämer,\n\nbei unserem Branchen-Monitoring auf Omr ist uns Ihre aktuelle Bewertung zu DocuFlow DMS Enterprise vom 2026-10-11 aufgefallen:\n»Wir hatten DocuFlow für 18 Mandanten im Einsatz.«\n\nGenau wegen dieser Reibungspunkte (zugferd, gobd, ticket) wechseln derzeit zahlreiche Betriebe aus dem Bereich Steuerberatung & Wirtschaftsprüfung (28 MA) von DocuFlow DMS Enterprise zu unserer Plattform:\n\n• Nativ zertifizierte DATEV-Unternehmen-online & EN-16931 XRechnung/ZUGFeRD Engine ohne manuelle XML-Nachbearbeitung.\n• Wechsel-Angebot für Krämer & Partner Steuerberatungsgesellschaft mbB: 15-Minuten Live-Import Ihrer bestehenden Kunden-, Artikel- und Rechnungsdaten inkl. Steuerberater-Testexport.\n\nDarf ich Ihnen am Donnerstag in 15 Minuten live zeigen, wie der Datenimport aus DocuFlow DMS Enterprise ohne Ausfallzeit im Tagesgeschäft abläuft?\n\nBeste Grüße\nMigration-Desk DACH"}, {"review_id": "KUN-DE-2026-51089", "portal": "kununu", "competitor_name": "CloudMSP Süd Systemhaus GmbH", "competitor_domain": "cloudmsp-sued.de", "stars": 1, "review_date": "2026-10-13", "reviewer_display_name": "Ex-Senior-Systemengineer", "resolved_company_name": "CloudMSP Süd Bestandskunden-Pool (Augsburg/Ulm)", "resolved_company_domain": "cloudmsp-sued-bestandskunden-pool-augsburg-ulm.de", "resolved_decision_maker_role": "IT-Leitung Mittelstand (Kunden-Poaching-Signal)", "reviewer_location": "Augsburg", "primary_pain_code": "EMPLOYER_CHURN_KUNUNU_SIGNAL", "primary_pain_label": "Kununu B2B-Vendor-Instabilität (Fluktuation & Key-Account-Ausfall)", "secondary_pain_codes": ["SUPPORT_BLACKHOLE_SLA_BREACH"], "matched_pain_keywords": ["fluktuation", "kündigen", "unterbesetzt", "vertrieb bricht", "ticket", "systemausfall", "wochenlang"], "competitor_ignored_review": true, "poach_readiness_score": 96, "poach_priority_tier": "TIER_1_IMMEDIATE_SNIPE", "estimated_switch_acv_eur": 7425, "extracted_quote_snippet": "Hohe Fluktuation in der gesamten Technik: 6 von 8 Senior-Systemengineers kündigen in Q3/Q4, die Hotline ist komplett unterbesetzt und SLA-Tickets von Mittelstandskunden bleiben wochenlang liegen", "hook_angle": "Stabile DACH-Engineering- & Account-Betreuung ohne ständigen Ansprechpartner-Wechsel.", "migration_offer": "Risikofreier Architektur- & Anbieter-Backup-Check für Ihre Geschäftsführung.", "linkedin_dm_script": "Hallo Ex-Senior-Systemengineer, ich habe gerade Ihren Erfahrungsbericht zu CloudMSP Süd Systemhaus GmbH bzgl. „Extreme Fluktuation – 6 von 8 Senior-Technikern haben gekündigt, Support bricht weg“ gesehen – insbesondere das Thema Kununu B2B-Vendor-Instabilität (Fluktuation & Key-Account-Ausfall). Wir migrieren aktuell jede Woche DACH-Teams von CloudMSP Süd Systemhaus GmbH in unter 24h inkl. Risikofreier Architektur- & Anbieter-Backup-Check für Ihre Geschäftsführung. Sollen wir Ihnen einen 10-Minuten-Testzugang mit Ihren echten Strukturen zeigen?", "value_audit_email_subject": "Ihr Feedback zu CloudMSP Süd Systemhaus GmbH (Extreme Fluktuation – 6 von 8 Senior-Technikern haben gekündigt, Support bricht weg) // Sofort-Lösung für CloudMSP Süd Bestandskunden-Pool (Augsburg/Ulm)", "value_audit_email_body": "Guten Tag Ex-Senior-Systemengineer,\n\nbei unserem Branchen-Monitoring auf Kununu ist uns Ihre aktuelle Bewertung zu CloudMSP Süd Systemhaus GmbH vom 2026-10-13 aufgefallen:\n»Hohe Fluktuation in der gesamten Technik: 6 von 8 Senior-Systemengineers kündigen in Q3/Q4, die Hotline ist komplett unterbesetzt und SLA-Tickets von Mittelstandskunden bleiben wochenlang liegen.«\n\nGenau wegen dieser Reibungspunkte (fluktuation, kündigen, unterbesetzt) wechseln derzeit zahlreiche Betriebe aus dem Bereich Managed IT Services / Systemhaus (Augsburg/Ulm) von CloudMSP Süd Systemhaus GmbH zu unserer Plattform:\n\n• Stabile DACH-Engineering- & Account-Betreuung ohne ständigen Ansprechpartner-Wechsel.\n• Wechsel-Angebot für CloudMSP Süd Bestandskunden-Pool (Augsburg/Ulm): Risikofreier Architektur- & Anbieter-Backup-Check für Ihre Geschäftsführung.\n\nDarf ich Ihnen am Donnerstag in 15 Minuten live zeigen, wie der Datenimport aus CloudMSP Süd Systemhaus GmbH ohne Ausfallzeit im Tagesgeschäft abläuft?\n\nBeste Grüße\nMigration-Desk DACH"}];
+    const DELETION_DOSSIERS = [{"review_id": "GMB-DEL-2026-8801", "portal": "google", "portal_legal_entity": "Google Ireland Limited", "portal_legal_address": "Gordon House, Barrow Street, Dublin 4, D04 E5W5, Irland", "portal_dsa_channel": "Google Legal Removal Portal (Art. 16 DSA Meldeverfahren) / removals@google.com", "affected_business_name": "Zahnarztpraxis Dr. med. dent. Weber & Kollegen MVZ", "affected_business_domain": "zahnarzt-weber-nuernberg.de", "stars": 1, "review_date": "2026-10-14", "reviewer_display_name": "Max M.", "is_pseudonym_or_anonymous": true, "has_verifiable_invoice_or_tx_ref": false, "client_denies_customer_contact": true, "triggered_legal_vectors": ["VECTOR_1_BESTREITEN_KUNDENEIGENSCHAFT (BGH VI ZR 1244/20 & VI ZR 34/15)", "VECTOR_2_UNWAHRE_TATSACHENBEHAUPTUNG (§§ 823 Abs. 1, 824, 1004 BGB)", "VECTOR_3_SCHMAEHKRITIK_KREDITGEFAEHRDUNG (§§ 185, 186 StGB / § 824 BGB)"], "primary_bgh_citations": ["BGH, Urteil v. 01.03.2016 – VI ZR 34/15 (Jameda II: Prüfpflichten des Host-Providers bei Beanstandung)", "BGH, Urteil v. 09.08.2022 – VI ZR 1244/20 (Hotelbewertungsportal: Schlichtes Bestreiten des Kundenkontakts genügt)", "Art. 16 Verordnung (EU) 2022/2065 (Digital Services Act – Melde- und Abhilfeverfahren)", "§§ 823 Abs. 1, 1004 Abs. 1 S. 1 BGB analog i.V.m. Art. 2 Abs. 1, Art. 19 Abs. 3 GG (Unternehmerisches Persönlichkeitsrecht / Gewerbebetrieb)", "BVerfG, Beschluss v. 19.05.2020 – 1 BvR 2397/19 (Grenzen der Meinungsfreiheit bei Schmähkritik & unwahren Tatsachen)"], "unverified_factual_claims": ["„480 €“ (Konkrete Zahlungs-/Schadensbehauptung (dem Beweis zugänglich))", "„abgebucht“ (Behauptung eines Abrechnungs- oder Vertragsvorgangs)", "„fehlbehandlung“ (Tatsachenbehauptung über Behandlungs- oder Lieferablauf)"], "defamation_or_schmaehkritik_terms": ["betrüger", "abzocke", "unseriös"], "deletion_probability_pct": 95, "risk_classification": "HIGH_SUCCESS_PROBABILITY (Störerhaftungs-Automatik bei Nichtvorlage von Belegen)", "agency_fee_saved_eur": 199.0, "statutory_deadline_date": "27.10.2026", "formal_notice_subject": "Rechtsverletzungsanzeige nach Art. 16 DSA & Aufforderung zur Löschung (BGH VI ZR 34/15 & VI ZR 1244/20) – 1-Sterne-Bewertung vom 2026-10-14 durch „Max M.“ [Ref: GMB-DEL-2026-8801]", "formal_notice_letter_de": "An:\nGoogle Ireland Limited\nGordon House, Barrow Street, Dublin 4, D04 E5W5, Irland\nKanal: Google Legal Removal Portal (Art. 16 DSA Meldeverfahren) / removals@google.com\n\nBetreff: Rechtsverletzungsanzeige nach Art. 16 DSA & Aufforderung zur Löschung (BGH VI ZR 34/15 & VI ZR 1244/20) – 1-Sterne-Bewertung vom 2026-10-14 durch „Max M.“ [Ref: GMB-DEL-2026-8801]\n\nSehr geehrte Damen und Herren,\n\nnamens und im Auftrag der Zahnarztpraxis Dr. med. dent. Weber & Kollegen MVZ (zahnarzt-weber-nuernberg.de) zeigen wir Ihnen hiermit gemäß Art. 16 der Verordnung (EU) 2022/2065 (Digital Services Act – DSA) sowie unter Bezugnahme auf die gefestigte höchstrichterliche Rechtsprechung des Bundesgerichtshofs (BGH, Urt. v. 01.03.2016 – VI ZR 34/15; BGH, Urt. v. 09.08.2022 – VI ZR 1244/20) eine rechtsverletzende Bewertung auf Ihrem Portal „Google Business Profile (Google Maps / Suche)“ an und fordern Sie zur unverzüglichen Prüfung und Löschung auf.\n\nI. Beanstandete Bewertung (Art. 16 Abs. 2 lit. b DSA)\n• Betroffenes Unternehmensprofil: Zahnarztpraxis Dr. med. dent. Weber & Kollegen MVZ (zahnarzt-weber-nuernberg.de)\n• Bewertungs-ID / Referenz: GMB-DEL-2026-8801\n• Angezeigter Verfassername / Pseudonym: „Max M.“\n• Bewertung / Datum: 1 von 5 Sternen vom 2026-10-14\n• Beanstandeter Wortlaut:\n  „Reine Abzocke und Fehlbehandlung! – Reine Abzocke! Man wird 2 Stunden im Wartezimmer sitzen gelassen und dann werden 480 € für Leistungen abgebucht, die nie besprochen waren. Absolut unseriöse Betrüger-Praxis, Finger weg!“\n\nII. Rechtliche Begründung der Rechtswidrigkeit (Art. 16 Abs. 2 lit. a DSA)\n\n1. Ausdrückliches Bestreiten jeglichen geschäftlichen Kontakts (BGH, Urt. v. 09.08.2022 – VI ZR 1244/20)\nDer Verfasser tritt unter der Bezeichnung „Max M.“ auf, unter der in unseren Buchhaltungs-, CRM- und Auftragsdaten keinerlei Zuordnung möglich ist. Auch aus dem Bewertungstext selbst ergibt sich die Identität des Verfassers oder ein konkreter Geschäftsvorgang nicht.\nWir bestreiten hiermit ausdrücklich, dass zwischen dem Verfasser „Max M.“ und unserem Unternehmen jemals ein Kunden-, Mandats-, Behandlungs- oder sonstiges Geschäftsverhältnis bestanden hat.\n\nNach dem Grundsatzurteil des Bundesgerichtshofs vom 09.08.2022 (Az. VI ZR 1244/20, Rn. 26 ff.) genügt dieses schlichte Bestreiten des geschäftlichen Kontakts vollumfänglich, um Ihre sekundären Prüfpflichten als Host-Provider auszulösen. Eine weitergehende Darlegungslast trifft das bewertete Unternehmen nicht, sofern sich die Identität des Bewertenden nicht unmittelbar aus der Bewertung selbst ergibt. Ohnedies fehlt einer Bewertung ohne tatsächlichen Leistungs- oder Geschäftskontakt jede sachliche Grundlage, sodass das unternehmerische Persönlichkeitsrecht (§§ 823 Abs. 1, 1004 Abs. 1 S. 1 BGB analog i.V.m. Art. 2 Abs. 1, Art. 19 Abs. 3 GG) die Meinungsfreiheit des Verfassers überwiegt.\n\n2. Unwahre Tatsachenbehauptungen & Darlegungslast (BGH, Urt. v. 01.03.2016 – VI ZR 34/15)\nÜber das Fehlen eines Kundenkontakts hinaus werden in dem Beitrag folgende dem Beweis zugängliche Tatsachenbehauptungen aufgestellt, deren Wahrheitsgehalt wir ausdrücklich als unwahr bestreiten:\n  - „480 €“ (Konkrete Zahlungs-/Schadensbehauptung (dem Beweis zugänglich))\n  - „abgebucht“ (Behauptung eines Abrechnungs- oder Vertragsvorgangs)\n  - „fehlbehandlung“ (Tatsachenbehauptung über Behandlungs- oder Lieferablauf)\nZudem enthält der Beitrag ehrverletzende bzw. geschäftsschädigende Ausdrücke (betrüger, abzocke, unseriös), die nach § 824 BGB (Kreditgefährdung) sowie §§ 185, 186 StGB rechtswidrig sind.\n\nFür unwahre Tatsachenbehauptungen greift der Schutz des Art. 5 Abs. 1 GG nicht ein. Nach den Grundsätzen der „Jameda II“-Entscheidung (BGH VI ZR 34/15) sind Sie als Host-Provider verpflichtet, unsere Beanstandung an den Verfasser weiterzuleiten und diesen aufzufordern, Ihnen den behaupteten geschäftlichen Kontakt sowie den Sachverhalt durch geeignete objektive Nachweise (insb. Rechnung, Auftragsbestätigung, Vertragsunterlagen, geschwärzter Leistungsnachweis) glaubhaft zu machen.\n\nIII. Aufforderung und Fristsetzung\nWir fordern Sie daher auf, das Prüfverfahren unverzüglich einzuleiten und den streitgegenständlichen Beitrag – spätestens jedoch bei Ausbleiben fristgerechter, valider Belege des Verfassers – bis zum\n\n    27.10.2026 (10 Kalendertage)\n\nvollständig zu löschen und uns die Löschung schriftlich zu bestätigen. Sollte die Bewertung nach Fristablauf ohne substantiierte Nachweise fortbestehen, haften Sie unmittelbar als mittelbarer Störer auf Unterlassung (§ 1004 Abs. 1 S. 1 BGB analog).\n\nMit freundlichen Grüßen\n\nRechts- & Reputationsabteilung\nZahnarztpraxis Dr. med. dent. Weber & Kollegen MVZ\n"}, {"review_id": "TP-DEL-2026-8802", "portal": "trustpilot", "portal_legal_entity": "Trustpilot A/S", "portal_legal_address": "Pilestræde 58, 5. sal, 1112 København K, Dänemark", "portal_dsa_channel": "Trustpilot Content Integrity Team (contentintegrity@trustpilot.com / Art. 16 DSA Notice)", "affected_business_name": "SolarTechnik Franken GmbH", "affected_business_domain": "solartechnik-franken.de", "stars": 1, "review_date": "2026-10-12", "reviewer_display_name": "User77491", "is_pseudonym_or_anonymous": true, "has_verifiable_invoice_or_tx_ref": false, "client_denies_customer_contact": true, "triggered_legal_vectors": ["VECTOR_1_BESTREITEN_KUNDENEIGENSCHAFT (BGH VI ZR 1244/20 & VI ZR 34/15)", "VECTOR_2_UNWAHRE_TATSACHENBEHAUPTUNG (§§ 823 Abs. 1, 824, 1004 BGB)", "VECTOR_3_SCHMAEHKRITIK_KREDITGEFAEHRDUNG (§§ 185, 186 StGB / § 824 BGB)"], "primary_bgh_citations": ["BGH, Urteil v. 01.03.2016 – VI ZR 34/15 (Jameda II: Prüfpflichten des Host-Providers bei Beanstandung)", "BGH, Urteil v. 09.08.2022 – VI ZR 1244/20 (Hotelbewertungsportal: Schlichtes Bestreiten des Kundenkontakts genügt)", "Art. 16 Verordnung (EU) 2022/2065 (Digital Services Act – Melde- und Abhilfeverfahren)", "§§ 823 Abs. 1, 1004 Abs. 1 S. 1 BGB analog i.V.m. Art. 2 Abs. 1, Art. 19 Abs. 3 GG (Unternehmerisches Persönlichkeitsrecht / Gewerbebetrieb)", "BVerfG, Beschluss v. 19.05.2020 – 1 BvR 2397/19 (Grenzen der Meinungsfreiheit bei Schmähkritik & unwahren Tatsachen)"], "unverified_factual_claims": ["„000 euro“ (Konkrete Zahlungs-/Schadensbehauptung (dem Beweis zugänglich))", "„niemand erreichbar“ (Tatsachenbehauptung zur Nichterreichbarkeit / Leistungszeit)"], "defamation_or_schmaehkritik_terms": ["betrug", "kriminell", "kriminelle", "abzockmasche"], "deletion_probability_pct": 95, "risk_classification": "HIGH_SUCCESS_PROBABILITY (Störerhaftungs-Automatik bei Nichtvorlage von Belegen)", "agency_fee_saved_eur": 249.0, "statutory_deadline_date": "27.10.2026", "formal_notice_subject": "Rechtsverletzungsanzeige nach Art. 16 DSA & Aufforderung zur Löschung (BGH VI ZR 34/15 & VI ZR 1244/20) – 1-Sterne-Bewertung vom 2026-10-12 durch „User77491“ [Ref: TP-DEL-2026-8802]", "formal_notice_letter_de": "An:\nTrustpilot A/S\nPilestræde 58, 5. sal, 1112 København K, Dänemark\nKanal: Trustpilot Content Integrity Team (contentintegrity@trustpilot.com / Art. 16 DSA Notice)\n\nBetreff: Rechtsverletzungsanzeige nach Art. 16 DSA & Aufforderung zur Löschung (BGH VI ZR 34/15 & VI ZR 1244/20) – 1-Sterne-Bewertung vom 2026-10-12 durch „User77491“ [Ref: TP-DEL-2026-8802]\n\nSehr geehrte Damen und Herren,\n\nnamens und im Auftrag der SolarTechnik Franken GmbH (solartechnik-franken.de) zeigen wir Ihnen hiermit gemäß Art. 16 der Verordnung (EU) 2022/2065 (Digital Services Act – DSA) sowie unter Bezugnahme auf die gefestigte höchstrichterliche Rechtsprechung des Bundesgerichtshofs (BGH, Urt. v. 01.03.2016 – VI ZR 34/15; BGH, Urt. v. 09.08.2022 – VI ZR 1244/20) eine rechtsverletzende Bewertung auf Ihrem Portal „Trustpilot Bewertungsportal (de.trustpilot.com)“ an und fordern Sie zur unverzüglichen Prüfung und Löschung auf.\n\nI. Beanstandete Bewertung (Art. 16 Abs. 2 lit. b DSA)\n• Betroffenes Unternehmensprofil: SolarTechnik Franken GmbH (solartechnik-franken.de)\n• Bewertungs-ID / Referenz: TP-DEL-2026-8802\n• Angezeigter Verfassername / Pseudonym: „User77491“\n• Bewertung / Datum: 1 von 5 Sternen vom 2026-10-12\n• Beanstandeter Wortlaut:\n  „Kriminelle Abzockmasche – Anlage nie geliefert! – Vorsicht vor dieser Firma! Haben angeblich 12.000 Euro Anzahlung kassiert und die Photovoltaikanlage nie geliefert. Telefonisch niemand erreichbar, für mich glatter Betrug!“\n\nII. Rechtliche Begründung der Rechtswidrigkeit (Art. 16 Abs. 2 lit. a DSA)\n\n1. Ausdrückliches Bestreiten jeglichen geschäftlichen Kontakts (BGH, Urt. v. 09.08.2022 – VI ZR 1244/20)\nDer Verfasser tritt unter der Bezeichnung „User77491“ auf, unter der in unseren Buchhaltungs-, CRM- und Auftragsdaten keinerlei Zuordnung möglich ist. Auch aus dem Bewertungstext selbst ergibt sich die Identität des Verfassers oder ein konkreter Geschäftsvorgang nicht.\nWir bestreiten hiermit ausdrücklich, dass zwischen dem Verfasser „User77491“ und unserem Unternehmen jemals ein Kunden-, Mandats-, Behandlungs- oder sonstiges Geschäftsverhältnis bestanden hat.\n\nNach dem Grundsatzurteil des Bundesgerichtshofs vom 09.08.2022 (Az. VI ZR 1244/20, Rn. 26 ff.) genügt dieses schlichte Bestreiten des geschäftlichen Kontakts vollumfänglich, um Ihre sekundären Prüfpflichten als Host-Provider auszulösen. Eine weitergehende Darlegungslast trifft das bewertete Unternehmen nicht, sofern sich die Identität des Bewertenden nicht unmittelbar aus der Bewertung selbst ergibt. Ohnedies fehlt einer Bewertung ohne tatsächlichen Leistungs- oder Geschäftskontakt jede sachliche Grundlage, sodass das unternehmerische Persönlichkeitsrecht (§§ 823 Abs. 1, 1004 Abs. 1 S. 1 BGB analog i.V.m. Art. 2 Abs. 1, Art. 19 Abs. 3 GG) die Meinungsfreiheit des Verfassers überwiegt.\n\n2. Unwahre Tatsachenbehauptungen & Darlegungslast (BGH, Urt. v. 01.03.2016 – VI ZR 34/15)\nÜber das Fehlen eines Kundenkontakts hinaus werden in dem Beitrag folgende dem Beweis zugängliche Tatsachenbehauptungen aufgestellt, deren Wahrheitsgehalt wir ausdrücklich als unwahr bestreiten:\n  - „000 euro“ (Konkrete Zahlungs-/Schadensbehauptung (dem Beweis zugänglich))\n  - „niemand erreichbar“ (Tatsachenbehauptung zur Nichterreichbarkeit / Leistungszeit)\nZudem enthält der Beitrag ehrverletzende bzw. geschäftsschädigende Ausdrücke (betrug, kriminell, kriminelle, abzockmasche), die nach § 824 BGB (Kreditgefährdung) sowie §§ 185, 186 StGB rechtswidrig sind.\n\nFür unwahre Tatsachenbehauptungen greift der Schutz des Art. 5 Abs. 1 GG nicht ein. Nach den Grundsätzen der „Jameda II“-Entscheidung (BGH VI ZR 34/15) sind Sie als Host-Provider verpflichtet, unsere Beanstandung an den Verfasser weiterzuleiten und diesen aufzufordern, Ihnen den behaupteten geschäftlichen Kontakt sowie den Sachverhalt durch geeignete objektive Nachweise (insb. Rechnung, Auftragsbestätigung, Vertragsunterlagen, geschwärzter Leistungsnachweis) glaubhaft zu machen.\n\nIII. Aufforderung und Fristsetzung\nWir fordern Sie daher auf, das Prüfverfahren unverzüglich einzuleiten und den streitgegenständlichen Beitrag – spätestens jedoch bei Ausbleiben fristgerechter, valider Belege des Verfassers – bis zum\n\n    27.10.2026 (10 Kalendertage)\n\nvollständig zu löschen und uns die Löschung schriftlich zu bestätigen. Sollte die Bewertung nach Fristablauf ohne substantiierte Nachweise fortbestehen, haften Sie unmittelbar als mittelbarer Störer auf Unterlassung (§ 1004 Abs. 1 S. 1 BGB analog).\n\nMit freundlichen Grüßen\n\nRechts- & Reputationsabteilung\nSolarTechnik Franken GmbH\n"}, {"review_id": "KUN-DEL-2026-8803", "portal": "kununu", "portal_legal_entity": "New Work SE", "portal_legal_address": "Am Strandkai 1, 20457 Hamburg, Deutschland", "portal_dsa_channel": "Kununu Community Support & Legal Compliance (support@kununu.com / Art. 16 DSA)", "affected_business_name": "LogistikPro Spedition GmbH", "affected_business_domain": "logistikpro-spedition.de", "stars": 1, "review_date": "2026-10-10", "reviewer_display_name": "Ex-Angestellter", "is_pseudonym_or_anonymous": true, "has_verifiable_invoice_or_tx_ref": false, "client_denies_customer_contact": true, "triggered_legal_vectors": ["VECTOR_1_BESTREITEN_KUNDENEIGENSCHAFT (BGH VI ZR 1244/20 & VI ZR 34/15)", "VECTOR_3_SCHMAEHKRITIK_KREDITGEFAEHRDUNG (§§ 185, 186 StGB / § 824 BGB)", "VECTOR_5_KUNUNU_ARBEITGEBERKONTAKT_NACHWEISPFLICHT (OLG Hamburg 7 W 11/24 & BGH VI ZR 1244/20)"], "primary_bgh_citations": ["BGH, Urteil v. 01.03.2016 – VI ZR 34/15 (Jameda II: Prüfpflichten des Host-Providers bei Beanstandung)", "BGH, Urteil v. 09.08.2022 – VI ZR 1244/20 (Hotelbewertungsportal: Schlichtes Bestreiten des Kundenkontakts genügt)", "Art. 16 Verordnung (EU) 2022/2065 (Digital Services Act – Melde- und Abhilfeverfahren)", "§§ 823 Abs. 1, 1004 Abs. 1 S. 1 BGB analog i.V.m. Art. 2 Abs. 1, Art. 19 Abs. 3 GG (Unternehmerisches Persönlichkeitsrecht / Gewerbebetrieb)", "BVerfG, Beschluss v. 19.05.2020 – 1 BvR 2397/19 (Grenzen der Meinungsfreiheit bei Schmähkritik & unwahren Tatsachen)", "OLG Hamburg, Beschluss v. 08.02.2024 – 7 W 11/24 (Kununu: Löschungspflicht bei Nichtaufklärung der Identität des Bewertenden)"], "unverified_factual_claims": [], "defamation_or_schmaehkritik_terms": ["urkundenfälschung"], "deletion_probability_pct": 95, "risk_classification": "HIGH_SUCCESS_PROBABILITY (Störerhaftungs-Automatik bei Nichtvorlage von Belegen)", "agency_fee_saved_eur": 299.0, "statutory_deadline_date": "27.10.2026", "formal_notice_subject": "Rechtsverletzungsanzeige nach Art. 16 DSA & Aufforderung zur Löschung (BGH VI ZR 34/15 & VI ZR 1244/20) – 1-Sterne-Bewertung vom 2026-10-10 durch „Ex-Angestellter“ [Ref: KUN-DEL-2026-8803]", "formal_notice_letter_de": "An:\nNew Work SE\nAm Strandkai 1, 20457 Hamburg, Deutschland\nKanal: Kununu Community Support & Legal Compliance (support@kununu.com / Art. 16 DSA)\n\nBetreff: Rechtsverletzungsanzeige nach Art. 16 DSA & Aufforderung zur Löschung (BGH VI ZR 34/15 & VI ZR 1244/20) – 1-Sterne-Bewertung vom 2026-10-10 durch „Ex-Angestellter“ [Ref: KUN-DEL-2026-8803]\n\nSehr geehrte Damen und Herren,\n\nnamens und im Auftrag der LogistikPro Spedition GmbH (logistikpro-spedition.de) zeigen wir Ihnen hiermit gemäß Art. 16 der Verordnung (EU) 2022/2065 (Digital Services Act – DSA) sowie unter Bezugnahme auf die gefestigte höchstrichterliche Rechtsprechung des Bundesgerichtshofs (BGH, Urt. v. 01.03.2016 – VI ZR 34/15; BGH, Urt. v. 09.08.2022 – VI ZR 1244/20) eine rechtsverletzende Bewertung auf Ihrem Portal „Kununu Arbeitgeberbewertungsportal (kununu.com)“ an und fordern Sie zur unverzüglichen Prüfung und Löschung auf.\n\nI. Beanstandete Bewertung (Art. 16 Abs. 2 lit. b DSA)\n• Betroffenes Unternehmensprofil: LogistikPro Spedition GmbH (logistikpro-spedition.de)\n• Bewertungs-ID / Referenz: KUN-DEL-2026-8803\n• Angezeigter Verfassername / Pseudonym: „Ex-Angestellter“\n• Bewertung / Datum: 1 von 5 Sternen vom 2026-10-10\n• Beanstandeter Wortlaut:\n  „Gehälter werden unterschlagen & Disponent Herr S. schikaniert Fahrer – Überstunden werden systematisch nicht ausbezahlt und Sozialversicherungsbeiträge nicht abgeführt. Reine Ausbeutung und Urkundenfälschung bei den Lenkzeiten!“\n\nII. Rechtliche Begründung der Rechtswidrigkeit (Art. 16 Abs. 2 lit. a DSA)\n\n1. Ausdrückliches Bestreiten jeglichen geschäftlichen Kontakts (BGH, Urt. v. 09.08.2022 – VI ZR 1244/20)\nDer Verfasser tritt unter der Bezeichnung „Ex-Angestellter“ auf, unter der in unseren Buchhaltungs-, CRM- und Auftragsdaten keinerlei Zuordnung möglich ist. Auch aus dem Bewertungstext selbst ergibt sich die Identität des Verfassers oder ein konkreter Geschäftsvorgang nicht.\nWir bestreiten hiermit ausdrücklich, dass zwischen dem Verfasser „Ex-Angestellter“ und unserem Unternehmen jemals ein Arbeits-, Ausbildungs- oder Bewerberverhältnis bestanden hat.\n\nNach dem Grundsatzurteil des Bundesgerichtshofs vom 09.08.2022 (Az. VI ZR 1244/20, Rn. 26 ff.) genügt dieses schlichte Bestreiten des geschäftlichen Kontakts vollumfänglich, um Ihre sekundären Prüfpflichten als Host-Provider auszulösen. Eine weitergehende Darlegungslast trifft das bewertete Unternehmen nicht, sofern sich die Identität des Bewertenden nicht unmittelbar aus der Bewertung selbst ergibt. Ohnedies fehlt einer Bewertung ohne tatsächlichen Leistungs- oder Geschäftskontakt jede sachliche Grundlage, sodass das unternehmerische Persönlichkeitsrecht (§§ 823 Abs. 1, 1004 Abs. 1 S. 1 BGB analog i.V.m. Art. 2 Abs. 1, Art. 19 Abs. 3 GG) die Meinungsfreiheit des Verfassers überwiegt.\n\n2. Unwahre Tatsachenbehauptungen & Darlegungslast (BGH, Urt. v. 01.03.2016 – VI ZR 34/15)\nÜber das Fehlen eines Kundenkontakts hinaus werden in dem Beitrag folgende dem Beweis zugängliche Tatsachenbehauptungen aufgestellt, deren Wahrheitsgehalt wir ausdrücklich als unwahr bestreiten:\n  - Pauschal herabsetzende Bewertung ohne überprüfbare Tatsachengrundlage.\nZudem enthält der Beitrag ehrverletzende bzw. geschäftsschädigende Ausdrücke (urkundenfälschung), die nach § 824 BGB (Kreditgefährdung) sowie §§ 185, 186 StGB rechtswidrig sind.\n\nFür unwahre Tatsachenbehauptungen greift der Schutz des Art. 5 Abs. 1 GG nicht ein. Nach den Grundsätzen der „Jameda II“-Entscheidung (BGH VI ZR 34/15) sind Sie als Host-Provider verpflichtet, unsere Beanstandung an den Verfasser weiterzuleiten und diesen aufzufordern, Ihnen den behaupteten geschäftlichen Kontakt sowie den Sachverhalt durch geeignete objektive Nachweise (insb. Rechnung, Auftragsbestätigung, Vertragsunterlagen, geschwärzter Leistungsnachweis) glaubhaft zu machen.\n\nIII. Aufforderung und Fristsetzung\nWir fordern Sie daher auf, das Prüfverfahren unverzüglich einzuleiten und den streitgegenständlichen Beitrag – spätestens jedoch bei Ausbleiben fristgerechter, valider Belege des Verfassers – bis zum\n\n    27.10.2026 (10 Kalendertage)\n\nvollständig zu löschen und uns die Löschung schriftlich zu bestätigen. Sollte die Bewertung nach Fristablauf ohne substantiierte Nachweise fortbestehen, haften Sie unmittelbar als mittelbarer Störer auf Unterlassung (§ 1004 Abs. 1 S. 1 BGB analog).\n\nMit freundlichen Grüßen\n\nRechts- & Reputationsabteilung\nLogistikPro Spedition GmbH\n"}, {"review_id": "GMB-DEL-2026-8804", "portal": "google", "portal_legal_entity": "Google Ireland Limited", "portal_legal_address": "Gordon House, Barrow Street, Dublin 4, D04 E5W5, Irland", "portal_dsa_channel": "Google Legal Removal Portal (Art. 16 DSA Meldeverfahren) / removals@google.com", "affected_business_name": "Autohaus & Meisterwerkstatt König GmbH", "affected_business_domain": "autohaus-koenig-erlangen.de", "stars": 1, "review_date": "2026-10-16", "reviewer_display_name": "Local Guide_99", "is_pseudonym_or_anonymous": true, "has_verifiable_invoice_or_tx_ref": false, "client_denies_customer_contact": true, "triggered_legal_vectors": ["VECTOR_1_BESTREITEN_KUNDENEIGENSCHAFT (BGH VI ZR 1244/20 & VI ZR 34/15)", "VECTOR_4_SUBSTANZLOSE_ABWERTUNG_OHNE_TATSACHENKERN (BGH VI ZR 34/15)"], "primary_bgh_citations": ["BGH, Urteil v. 01.03.2016 – VI ZR 34/15 (Jameda II: Prüfpflichten des Host-Providers bei Beanstandung)", "BGH, Urteil v. 09.08.2022 – VI ZR 1244/20 (Hotelbewertungsportal: Schlichtes Bestreiten des Kundenkontakts genügt)", "Art. 16 Verordnung (EU) 2022/2065 (Digital Services Act – Melde- und Abhilfeverfahren)", "§§ 823 Abs. 1, 1004 Abs. 1 S. 1 BGB analog i.V.m. Art. 2 Abs. 1, Art. 19 Abs. 3 GG (Unternehmerisches Persönlichkeitsrecht / Gewerbebetrieb)"], "unverified_factual_claims": [], "defamation_or_schmaehkritik_terms": [], "deletion_probability_pct": 91, "risk_classification": "HIGH_SUCCESS_PROBABILITY (Störerhaftungs-Automatik bei Nichtvorlage von Belegen)", "agency_fee_saved_eur": 199.0, "statutory_deadline_date": "27.10.2026", "formal_notice_subject": "Rechtsverletzungsanzeige nach Art. 16 DSA & Aufforderung zur Löschung (BGH VI ZR 34/15 & VI ZR 1244/20) – 1-Sterne-Bewertung vom 2026-10-16 durch „Local Guide_99“ [Ref: GMB-DEL-2026-8804]", "formal_notice_letter_de": "An:\nGoogle Ireland Limited\nGordon House, Barrow Street, Dublin 4, D04 E5W5, Irland\nKanal: Google Legal Removal Portal (Art. 16 DSA Meldeverfahren) / removals@google.com\n\nBetreff: Rechtsverletzungsanzeige nach Art. 16 DSA & Aufforderung zur Löschung (BGH VI ZR 34/15 & VI ZR 1244/20) – 1-Sterne-Bewertung vom 2026-10-16 durch „Local Guide_99“ [Ref: GMB-DEL-2026-8804]\n\nSehr geehrte Damen und Herren,\n\nnamens und im Auftrag der Autohaus & Meisterwerkstatt König GmbH (autohaus-koenig-erlangen.de) zeigen wir Ihnen hiermit gemäß Art. 16 der Verordnung (EU) 2022/2065 (Digital Services Act – DSA) sowie unter Bezugnahme auf die gefestigte höchstrichterliche Rechtsprechung des Bundesgerichtshofs (BGH, Urt. v. 01.03.2016 – VI ZR 34/15; BGH, Urt. v. 09.08.2022 – VI ZR 1244/20) eine rechtsverletzende Bewertung auf Ihrem Portal „Google Business Profile (Google Maps / Suche)“ an und fordern Sie zur unverzüglichen Prüfung und Löschung auf.\n\nI. Beanstandete Bewertung (Art. 16 Abs. 2 lit. b DSA)\n• Betroffenes Unternehmensprofil: Autohaus & Meisterwerkstatt König GmbH (autohaus-koenig-erlangen.de)\n• Bewertungs-ID / Referenz: GMB-DEL-2026-8804\n• Angezeigter Verfassername / Pseudonym: „Local Guide_99“\n• Bewertung / Datum: 1 von 5 Sternen vom 2026-10-16\n• Beanstandeter Wortlaut:\n  „1 Stern – Katastrophe, nie wieder!“\n\nII. Rechtliche Begründung der Rechtswidrigkeit (Art. 16 Abs. 2 lit. a DSA)\n\n1. Ausdrückliches Bestreiten jeglichen geschäftlichen Kontakts (BGH, Urt. v. 09.08.2022 – VI ZR 1244/20)\nDer Verfasser tritt unter der Bezeichnung „Local Guide_99“ auf, unter der in unseren Buchhaltungs-, CRM- und Auftragsdaten keinerlei Zuordnung möglich ist. Auch aus dem Bewertungstext selbst ergibt sich die Identität des Verfassers oder ein konkreter Geschäftsvorgang nicht.\nWir bestreiten hiermit ausdrücklich, dass zwischen dem Verfasser „Local Guide_99“ und unserem Unternehmen jemals ein Kunden-, Mandats-, Behandlungs- oder sonstiges Geschäftsverhältnis bestanden hat.\n\nNach dem Grundsatzurteil des Bundesgerichtshofs vom 09.08.2022 (Az. VI ZR 1244/20, Rn. 26 ff.) genügt dieses schlichte Bestreiten des geschäftlichen Kontakts vollumfänglich, um Ihre sekundären Prüfpflichten als Host-Provider auszulösen. Eine weitergehende Darlegungslast trifft das bewertete Unternehmen nicht, sofern sich die Identität des Bewertenden nicht unmittelbar aus der Bewertung selbst ergibt. Ohnedies fehlt einer Bewertung ohne tatsächlichen Leistungs- oder Geschäftskontakt jede sachliche Grundlage, sodass das unternehmerische Persönlichkeitsrecht (§§ 823 Abs. 1, 1004 Abs. 1 S. 1 BGB analog i.V.m. Art. 2 Abs. 1, Art. 19 Abs. 3 GG) die Meinungsfreiheit des Verfassers überwiegt.\n\n2. Unwahre Tatsachenbehauptungen & Darlegungslast (BGH, Urt. v. 01.03.2016 – VI ZR 34/15)\nÜber das Fehlen eines Kundenkontakts hinaus werden in dem Beitrag folgende dem Beweis zugängliche Tatsachenbehauptungen aufgestellt, deren Wahrheitsgehalt wir ausdrücklich als unwahr bestreiten:\n  - Pauschal herabsetzende Bewertung ohne überprüfbare Tatsachengrundlage.\n\nFür unwahre Tatsachenbehauptungen greift der Schutz des Art. 5 Abs. 1 GG nicht ein. Nach den Grundsätzen der „Jameda II“-Entscheidung (BGH VI ZR 34/15) sind Sie als Host-Provider verpflichtet, unsere Beanstandung an den Verfasser weiterzuleiten und diesen aufzufordern, Ihnen den behaupteten geschäftlichen Kontakt sowie den Sachverhalt durch geeignete objektive Nachweise (insb. Rechnung, Auftragsbestätigung, Vertragsunterlagen, geschwärzter Leistungsnachweis) glaubhaft zu machen.\n\nIII. Aufforderung und Fristsetzung\nWir fordern Sie daher auf, das Prüfverfahren unverzüglich einzuleiten und den streitgegenständlichen Beitrag – spätestens jedoch bei Ausbleiben fristgerechter, valider Belege des Verfassers – bis zum\n\n    27.10.2026 (10 Kalendertage)\n\nvollständig zu löschen und uns die Löschung schriftlich zu bestätigen. Sollte die Bewertung nach Fristablauf ohne substantiierte Nachweise fortbestehen, haften Sie unmittelbar als mittelbarer Störer auf Unterlassung (§ 1004 Abs. 1 S. 1 BGB analog).\n\nMit freundlichen Grüßen\n\nRechts- & Reputationsabteilung\nAutohaus & Meisterwerkstatt König GmbH\n"}];
+    const APIFY_ECOSYSTEM = [{"actor_slug": "epctex/trustpilot-scraper", "catalog_mau": 318, "status_live_api": "Legacy / Consolidated in Store (318 MAU in 8,107-actor snapshot)", "pricing_model": "Compute + Proxy ($15-$29/mo typical)", "key_fields": ["companyDomain", "stars", "reviewTitle", "reviewBody", "reviewerName", "isVerified", "experienceDate", "companyReply"], "primary_buyer_use_case": "Bulk competitor 1-2 star review scraping & negative sentiment monitoring"}, {"actor_slug": "nikita-sviridenko/trustpilot-reviews-scraper", "actor_id": "fLXimoyuhE1UQgDbM", "catalog_mau": 291, "live_total_runs": 124380, "live_total_users": 2090, "live_bookmarks": 583, "pricing_model": "Free / Compute-based (1024 MB default)", "key_fields": ["title", "description", "score", "reviewer", "country", "isVerified", "experienceDate", "companyResponse"], "primary_buyer_use_case": "Star-rating & verification-status filtered review feeds for lead gen & reputation tracking"}, {"actor_slug": "lukaskrivka/trustpilot-reviews-scraper", "catalog_mau": 171, "status_live_api": "Legacy Store Scraper (171 MAU in 8,107-actor snapshot)", "pricing_model": "Compute-based", "key_fields": ["rating", "text", "title", "publishedDate", "authorName", "location"], "primary_buyer_use_case": "Scheduled Trustpilot domain dumps to CSV/Excel for agency reputation audits"}, {"actor_slug": "memo23/trustpilot-scraper-ppe", "actor_id": "HYuOke00wY4emLHz1", "catalog_mau": 691, "live_total_runs": 175576, "live_total_users": 3126, "pricing_model": "Pay-Per-Event ($0.65/1k results + $0.05 AI pain-point analysis + $0.02 review insights)", "key_fields": ["40+ fields", "incremental sync newer than date", "pain-point-analysis", "review-insights", "additional-data (email/contact discovery)"], "primary_buyer_use_case": "Bypasses ~200-review web pagination cap; daily incremental sync + contact enrichment"}, {"actor_slug": "automation-lab/trustpilot", "catalog_mau": 869, "live_total_runs": 167871, "live_total_users": 2884, "pricing_model": "Pay-Per-Event / Compute", "key_fields": ["star filter", "language filter", "verified status", "company reply timestamps"], "primary_buyer_use_case": "High-frequency automated reputation & competitor review pipelines"}];
+
+    function switchTab(id, btn) {
+      document.querySelectorAll('.tab-pane').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+      document.getElementById('tab-' + id).classList.add('active');
+      btn.classList.add('active');
+    }
+
+    function copyText(text, btn) {
+      navigator.clipboard.writeText(text);
+      const orig = btn.innerText;
+      btn.innerText = 'Kopiert ✓';
+      setTimeout(() => btn.innerText = orig, 1500);
+    }
+
+    function renderPoacherCards() {
+      const container = document.getElementById('poacher-cards');
+      container.innerHTML = POACH_LEADS.map(lead => `
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="badge-row">
+                <span class="badge rose">${lead.portal.toUpperCase()} · ${lead.stars}★ bei ${lead.competitor_name}</span>
+                <span class="badge emerald">Score: ${lead.poach_readiness_score}/100 (${lead.poach_priority_tier})</span>
+                <span class="badge amber">Est. ACV: €${lead.estimated_switch_acv_eur.toLocaleString('de-DE')}/Jahr</span>
+              </div>
+              <h3 class="card-title">${lead.resolved_company_name} — ${lead.reviewer_display_name} (${lead.resolved_decision_maker_role})</h3>
+              <div style="font-size:12px;color:var(--muted);">Ort: ${lead.reviewer_location} · Domain-Hint: ${lead.resolved_company_domain} · Pain: <strong>${lead.primary_pain_label}</strong></div>
+            </div>
+          </div>
+          <div class="quote-box">„${lead.extracted_quote_snippet}.“</div>
+          <div style="font-size:12px;margin-bottom:6px;">
+            <strong>Erkannte Trigger-Keywords:</strong> ${lead.matched_pain_keywords.join(', ')}<br/>
+            <strong>Wechsel-Angebot:</strong> ${lead.migration_offer}
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;">
+            <span style="font-size:12px;font-weight:600;color:var(--accent);">Personalisiertes Outbound-Skript (E-Mail & LinkedIn)</span>
+            <button class="btn" onclick='copyText(${JSON.stringify(lead.value_audit_email_body)}, this)'>Outreach kopieren</button>
+          </div>
+          <div class="script-box">Betreff: ${lead.value_audit_email_subject}
+
+${lead.value_audit_email_body}</div>
+        </div>
+      `).join('');
+    }
+
+    function renderBghCards() {
+      const container = document.getElementById('bgh-cards');
+      container.innerHTML = DELETION_DOSSIERS.map(d => `
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="badge-row">
+                <span class="badge amber">${d.portal.toUpperCase()} · ${d.stars}★ von „${d.reviewer_display_name}“</span>
+                <span class="badge emerald">Lösch-Chance: ${d.deletion_probability_pct}%</span>
+                <span class="badge">Ersparnis: €${d.agency_fee_saved_eur.toFixed(2)}</span>
+              </div>
+              <h3 class="card-title">${d.affected_business_name}</h3>
+              <div style="font-size:12px;color:var(--muted);">Adressat: ${d.portal_legal_entity} · Frist bis: ${d.statutory_deadline_date}</div>
+            </div>
+          </div>
+          <div style="font-size:12px;margin-bottom:8px;">
+            <strong>Ausgelöste BGH-Vektoren:</strong><br/>
+            ${d.triggered_legal_vectors.map(v => `• ${v}`).join('<br/>')}
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;">
+            <span style="font-size:12px;font-weight:600;color:var(--accent);">Fertiges Art. 16 DSA & BGH VI ZR 34/15 / VI ZR 1244/20 Schreiben</span>
+            <button class="btn" onclick='copyText(${JSON.stringify(d.formal_notice_letter_de)}, this)'>Schriftsatz kopieren</button>
+          </div>
+          <div class="script-box">${d.formal_notice_letter_de}</div>
+        </div>
+      `).join('');
+    }
+
+    function renderApifyTable() {
+      const tbody = document.querySelector('#apify-table tbody');
+      tbody.innerHTML = APIFY_ECOSYSTEM.map(a => `
+        <tr>
+          <td><code>${a.actor_slug}</code></td>
+          <td><strong>${a.catalog_mau} MAU</strong> ${a.live_total_runs ? `(${a.live_total_runs.toLocaleString()} Runs)` : ''}</td>
+          <td>${a.pricing_model}</td>
+          <td>${(a.key_fields || []).join(', ')}</td>
+          <td>${a.primary_buyer_use_case}</td>
+        </tr>
+      `).join('');
+    }
+
+    function runLiveGenerator() {
+      const portal = document.getElementById('gen-portal').value;
+      const company = document.getElementById('gen-company').value;
+      const author = document.getElementById('gen-author').value;
+      const dateStr = document.getElementById('gen-date').value;
+      const text = document.getElementById('gen-text').value;
+
+      const isPseudo = /^([A-ZÄÖÜ][a-zäöüß]+\s+[A-ZÄÖÜ]\.|Kunde|User|Local Guide|Ex-|Anonym)/i.test(author.trim()) || !author.trim().includes(' ');
+      const hasAbzocke = /(abzocke|betrug|betrüger|kriminell|unseriös|fälschung)/i.test(text);
+      const prob = Math.min(95, 76 + (isPseudo ? 10 : 0) + (hasAbzocke ? 6 : 0));
+
+      document.getElementById('gen-metrics').innerHTML = `
+        <span class="badge emerald">Berechnete Lösch-Wahrscheinlichkeit: ${prob}%</span>
+        <span class="badge amber">Pseudonym erkannt: ${isPseudo ? 'JA (BGH VI ZR 1244/20 greift sofort)' : 'Prüfung Kundenkontakt'}</span>
+        <span class="badge rose">Schmähkritik / § 824 BGB Indiz: ${hasAbzocke ? 'JA' : 'Tatsachenrüge'}</span>
+      `;
+
+      document.getElementById('gen-output').textContent =
+`An Portalbetreiber (${portal.toUpperCase()}) — Rechtsverletzungsanzeige nach Art. 16 DSA & BGH VI ZR 34/15 / VI ZR 1244/20
+
+Betroffenes Unternehmen: ${company}
+Beanstandete Bewertung von „${author}“ (${dateStr}):
+„${text}“
+
+1. Bestreiten des geschäftlichen Kontakts (BGH, Urt. v. 09.08.2022 – VI ZR 1244/20):
+Unter dem Namen „${author}“ ist in unseren Kundendaten kein Geschäftsvorgang auffindbar. Wir bestreiten ausdrücklich, dass jemals ein Vertrags- oder Kundenverhältnis bestanden hat. Nach BGH VI ZR 1244/20 genügt dieses schlichte Bestreiten, um Ihre Prüf- und Weiterleitungspflicht als Host-Provider auszulösen.
+
+2. Unwahre Tatsachenbehauptung (BGH, Urt. v. 01.03.2016 – VI ZR 34/15):
+Die im Beitrag enthaltenen Tatsachenbehauptungen bestreiten wir als unwahr. Wir fordern Sie auf, vom Verfasser binnen 10 Kalendertagen objektive Belege (Rechnung / Auftragsbestätigung) anzufordern und die Bewertung bei Nichtvorlage unverzüglich zu löschen.`;
+    }
+
+    renderPoacherCards();
+    renderBghCards();
+    renderApifyTable();
+    runLiveGenerator();
+  </script>
+</body>
+</html>

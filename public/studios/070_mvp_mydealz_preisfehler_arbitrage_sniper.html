@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>MVP #70 — DACH mydealz.de Preisfehler-Arbitrage & D2C Coupon-Leak Firewall Cockpit</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #0b0f19; color: #e2e8f0; margin: 0; padding: 28px; }
+  h1, h2, h3 { color: #f8fafc; margin-top: 0; }
+  .header-bar { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid #1e293b; padding-bottom: 18px; margin-bottom: 24px; }
+  .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 28px; }
+  .kpi-card { background: #111827; border: 1px solid #1f2937; border-radius: 10px; padding: 16px; }
+  .kpi-label { font-size: 12px; text-transform: uppercase; color: #94a3b8; letter-spacing: 0.05em; }
+  .kpi-val { font-size: 26px; font-weight: 700; margin-top: 6px; color: #38bdf8; }
+  .kpi-sub { font-size: 12px; color: #64748b; margin-top: 4px; }
+  table { width: 100%; border-collapse: collapse; background: #111827; border-radius: 10px; overflow: hidden; margin-bottom: 32px; font-size: 13px; }
+  th { background: #1e293b; color: #cbd5e1; text-align: left; padding: 12px; font-weight: 600; }
+  td { padding: 12px; border-bottom: 1px solid #1f2937; vertical-align: top; }
+  .num { text-align: right; font-variant-numeric: tabular-nums; }
+  .hot { color: #fb923c; font-weight: 700; }
+  .profit { color: #34d399; }
+  .pill { display: inline-block; padding: 3px 8px; border-radius: 999px; font-size: 11px; background: #1e293b; color: #e2e8f0; }
+  .pill.danger { background: #7f1d1d; color: #fecaca; border: 1px solid #ef4444; }
+  .leak-card { background: #111827; border: 1px solid #374151; border-left: 4px solid #ef4444; border-radius: 10px; padding: 18px; margin-bottom: 18px; }
+  .leak-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .bleed-metric { color: #f87171; font-size: 15px; }
+  pre { background: #030712; border: 1px solid #1f2937; padding: 12px; border-radius: 6px; overflow-x: auto; font-size: 12px; color: #a7f3d0; }
+  .curl-box { color: #93c5fd; }
+  code { background: #1e293b; padding: 2px 5px; border-radius: 4px; color: #facc15; }
+</style>
+</head>
+<body>
+
+<!-- DACH CASHFLOW STUDIOS LAUNCH BAR -->
+<style>
+  #dcs-launch-bar {
+    position: sticky;
+    top: 0;
+    z-index: 99999;
+    background: linear-gradient(90deg, #0b1120 0%, #111827 50%, #0f172a 100%);
+    color: #f8fafc;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.35);
+    padding: 8px 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  }
+  #dcs-launch-bar .dcs-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+  }
+  #dcs-launch-bar .dcs-badge {
+    background: rgba(16, 185, 129, 0.18);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.03em;
+  }
+  #dcs-launch-bar a.dcs-nav {
+    color: #93c5fd;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 12.5px;
+  }
+  #dcs-launch-bar a.dcs-nav:hover {
+    text-decoration: underline;
+    color: #dbeafe;
+  }
+  #dcs-launch-bar .dcs-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  #dcs-launch-bar .dcs-btn {
+    padding: 5px 11px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s ease;
+  }
+  #dcs-launch-bar .dcs-btn-ghost {
+    background: rgba(255,255,255,0.08);
+    color: #e2e8f0;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  #dcs-launch-bar .dcs-btn-primary {
+    background: linear-gradient(135deg, #0ea5e9, #2563eb);
+    color: #ffffff;
+  }
+  #dcs-launch-bar .dcs-btn-emerald {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
+  }
+  @media print {
+    #dcs-launch-bar { display: none !important; }
+  }
+</style>
+<div id="dcs-launch-bar">
+  <div class="dcs-left">
+    <a href="/index.html" class="dcs-nav">← Alle 150 DACH Studios</a>
+    <span class="dcs-badge">MVP #070 VERIFIED</span>
+    <span style="color:#cbd5e1;font-size:12px;">E-Commerce, Pricing & Cross-Market Arbitrage</span>
+  </div>
+  <div class="dcs-actions">
+    <button onclick="window.print()" class="dcs-btn dcs-btn-ghost">🖨️ PDF / Dossier drucken</button>
+    <a href="#checkout-modal-49" target="_blank" rel="noopener" class="dcs-btn dcs-btn-primary">⚡ Musterschreiben & Voll-Dossier (€49)</a>
+    <a href="#checkout-modal-299" target="_blank" rel="noopener" class="dcs-btn dcs-btn-emerald">🛡️ B2B Umsetzung buchen (€299 / €1.490)</a>
+  </div>
+</div>
+
+  <div class="header-bar">
+    <div>
+      <h1>MVP #70: DACH mydealz.de Preisfehler-Arbitrage &amp; D2C Coupon-Leak Firewall</h1>
+      <p style="color:#94a3b8;margin:4px 0 0 0;">Replacing fragile Pepper.com scrapers (<code>saswave/mydealz-scraper</code> 83.4% fail rate · <code>saswave/hot-uk-deals-scraper</code> 66.5% fail rate · <code>saswave/dealabs-scraper</code> 63.6% fail rate)</p>
+    </div>
+    <div style="text-align:right;font-size:12px;color:#94a3b8;">
+      Engine Version: <code>1.0.0-dach</code><br>
+      Tax/Fee Model: <code>DE 19% USt. + Amazon FBA DE + § 119 BGB Storno-Score</code>
+    </div>
+  </div>
+
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-label">Pepper Network Scraper Failure Bottleneck</div>
+      <div class="kpi-val" style="color:#f87171;">10,560 / 14,797</div>
+      <div class="kpi-sub">71.37% 30d Fail Rate across mydealz + HUKD + Dealabs</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Mode A: Instant Arbitrage Batch Net Profit</div>
+      <div class="kpi-val" style="color:#34d399;">+€1,362.34</div>
+      <div class="kpi-sub">After 19% USt., Amazon DE FBA Referral &amp; DHL Inbound</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Mode B: D2C Margin Bleed Intercepted</div>
+      <div class="kpi-val" style="color:#fbbf24;">€28,983.80 / hr</div>
+      <div class="kpi-sub">Auto-capped via Shopify GraphQL &amp; Shopware 6 API</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Peak Deal Heat Velocity</div>
+      <div class="kpi-val" style="color:#fb923c;">+60.1°/min</div>
+      <div class="kpi-sub">Triggers sub-60s Telegram/Webhook Sniping Alert (&ge;25°/min)</div>
+    </div>
+  </div>
+
+  <h2>Mode A — DACH Amazon FBA / Geizhals.de Preisfehler &amp; Reseller Arbitrage Sniper</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Platform / ID</th>
+        <th>Deal Title, Merchant &amp; Identifiers (EAN / ASIN)</th>
+        <th class="num">Heat Velocity</th>
+        <th class="num">Landed Buy</th>
+        <th class="num">Keepa 90d / Geizhals</th>
+        <th class="num">19% USt. &amp; FBA Fees</th>
+        <th class="num">Net Profit / ROI</th>
+        <th>§ 119 BGB Storno Risk</th>
+        <th>Sniper Decision</th>
+      </tr>
+    </thead>
+    <tbody>
+      
+            <tr>
+                <td><span class="pill">mydealz.de</span><br><small>#2784910</small></td>
+                <td><strong>[Preisfehler] Philips Hue Pro Bridge + 3x White &amp; Color E27 Starter-Set durch Gutschein-Kombi</strong><br><small>Merchant: MediaMarkt DE | EAN: <code>8719514291171</code> | ASIN: <code>B099N5J412</code></small></td>
+                <td class="num hot">+60.1°/min</td>
+                <td class="num">€64.99<br><small>Net: €54.61</small></td>
+                <td class="num">€139.99<br><small>Geizhals Δ: +€67.51</small></td>
+                <td class="num">€11.97 USt.<br><small>€26.80 FBA+DHL</small></td>
+                <td class="num profit"><strong>+€36.23</strong><br><small>ROI: 66.3%</small></td>
+                <td><span class="pill" style="background:#f59e0b22;color:#f59e0b;border:1px solid #f59e0b">48/100 · MEDIUM (Speed-Critical Dispatch)</span></td>
+                <td><span class="pill" style="background:#10b98122;color:#10b981;border:1px solid #10b981"><strong>SNIPE_IMMEDIATELY</strong> (Qty: 15)</span></td>
+            </tr>
+            
+            <tr>
+                <td><span class="pill">mydealz.de</span><br><small>#2784955</small></td>
+                <td><strong>Makita DDF484RTJ Akku-Bohrschrauber 18V (2x 5,0 Ah + Ladegeraet im MAKPAC) - Amazon Konter</strong><br><small>Merchant: Amazon.de | EAN: <code>0088381826440</code> | ASIN: <code>B01M4N9W7A</code></small></td>
+                <td class="num hot">+34.2°/min</td>
+                <td class="num">€189.00<br><small>Net: €158.82</small></td>
+                <td class="num">€289.00<br><small>Geizhals Δ: +€90.00</small></td>
+                <td class="num">€15.96 USt.<br><small>€41.93 FBA+DHL</small></td>
+                <td class="num profit"><strong>+€42.11</strong><br><small>ROI: 26.5%</small></td>
+                <td><span class="pill" style="background:#10b98122;color:#10b981;border:1px solid #10b981">5/100 · LOW (Auto-Fulfillment Safe)</span></td>
+                <td><span class="pill" style="background:#10b98122;color:#10b981;border:1px solid #10b981"><strong>SNIPE_IMMEDIATELY</strong> (Qty: 15)</span></td>
+            </tr>
+            
+            <tr>
+                <td><span class="pill">mydealz.de</span><br><small>#2785012</small></td>
+                <td><strong>LEGO Icons 10316 Der Herr der Ringe: Bruchtal (Rivendell) durch 20% Corporate + 10% Newsletter-Stack</strong><br><small>Merchant: Alternate.de | EAN: <code>5702017418629</code> | ASIN: <code>B0BV7R7H7P</code></small></td>
+                <td class="num hot">+33.1°/min</td>
+                <td class="num">€319.99<br><small>Net: €268.90</small></td>
+                <td class="num">€449.99<br><small>Geizhals Δ: +€104.91</small></td>
+                <td class="num">€20.76 USt.<br><small>€75.95 FBA+DHL</small></td>
+                <td class="num profit"><strong>+€33.29</strong><br><small>ROI: 12.4%</small></td>
+                <td><span class="pill" style="background:#10b98122;color:#10b981;border:1px solid #10b981">27/100 · LOW (Auto-Fulfillment Safe)</span></td>
+                <td><span class="pill" style="background:#f59e0b22;color:#f59e0b;border:1px solid #f59e0b"><strong>SKIP_LOW_NET_MARGIN</strong> (Qty: 0)</span></td>
+            </tr>
+            
+            <tr>
+                <td><span class="pill">mydealz.de</span><br><small>#2785088</small></td>
+                <td><strong>[Gutschein-Stacking] HOLY Energy &amp; Iced Tea Probierpaket + 2x Tubs fuer 34,90€ statt 79,90€ (Podcast-Code + Treuepunkte)</strong><br><small>Merchant: HOLY D2C Store (Shopify Plus) | EAN: <code>4260678920145</code> | ASIN: <code>B0C8WG9X11</code></small></td>
+                <td class="num hot">+50.9°/min</td>
+                <td class="num">€34.90<br><small>Net: €29.33</small></td>
+                <td class="num">€79.90<br><small>Geizhals Δ: +€45.00</small></td>
+                <td class="num">€7.19 USt.<br><small>€18.14 FBA+DHL</small></td>
+                <td class="num profit"><strong>+€19.67</strong><br><small>ROI: 67.1%</small></td>
+                <td><span class="pill" style="background:#ef444422;color:#ef4444;border:1px solid #ef4444">98/100 · HIGH (§ 119 BGB Storno Likely)</span></td>
+                <td><span class="pill" style="background:#f59e0b22;color:#f59e0b;border:1px solid #f59e0b"><strong>SNIPE_SMALL_LOT_HIGH_STORNO</strong> (Qty: 2)</span></td>
+            </tr>
+            
+            <tr>
+                <td><span class="pill">dealabs.com</span><br><small>#3341890</small></td>
+                <td><strong>[Erreur de prix] Cafetiere Expresso Broyeur De&#x27;Longhi Magnifica Evo ECAM290.61.B + Code cumulable</strong><br><small>Merchant: Boulanger FR | EAN: <code>8004399021396</code> | ASIN: <code>B09LVG6M8Q</code></small></td>
+                <td class="num hot">+59.2°/min</td>
+                <td class="num">€229.00<br><small>Net: €192.44</small></td>
+                <td class="num">€399.00<br><small>Geizhals Δ: +€156.00</small></td>
+                <td class="num">€27.15 USt.<br><small>€68.90 FBA+DHL</small></td>
+                <td class="num profit"><strong>+€73.95</strong><br><small>ROI: 38.4%</small></td>
+                <td><span class="pill" style="background:#ef444422;color:#ef4444;border:1px solid #ef4444">92/100 · HIGH (§ 119 BGB Storno Likely)</span></td>
+                <td><span class="pill" style="background:#f59e0b22;color:#f59e0b;border:1px solid #f59e0b"><strong>SNIPE_SMALL_LOT_HIGH_STORNO</strong> (Qty: 2)</span></td>
+            </tr>
+            
+    </tbody>
+  </table>
+
+  <h2>Mode B — D2C Brand Coupon-Leak &amp; Gutschein-Stacking Firewall (Shopify Plus / Shopware 6)</h2>
+  
+            <div class="leak-card">
+                <div class="leak-header">
+                    <div>
+                        <span class="pill danger">CRITICAL_STACKING_BLEED</span>
+                        <strong>HOLY D2C Store (Shopify Plus) (mydealz.de #2785088)</strong>
+                    </div>
+                    <div class="bleed-metric">Margin Bleed: <strong>-€5,936.36 / hr</strong> (214 orders/hr)</div>
+                </div>
+                <p><strong>Leaked Primary Code:</strong> <code>GEMISCHTES30</code> &nbsp;|&nbsp;
+                   <strong>Stacked Combination:</strong> <code>GEMISCHTES30 + HOLYCLUB15 + FREESHIPDE</code> &nbsp;|&nbsp;
+                   <strong>Intended Channel:</strong> Podcast VIP Host-Read (Single-Use Intended, Non-Combinable)</p>
+                <p><strong>Normal Basket AOV:</strong> €79.90 &rarr; <strong>Compromised Checkout:</strong> €34.90
+                   (<strong>-56.3%</strong>) &nbsp;|&nbsp;
+                   <strong>Unit Contribution Margin after COGS &amp; 19% USt.:</strong> <span style="color:#ef4444;font-weight:700">€-0.37/order</span></p>
+                <details open>
+                    <summary>Automated SHOPIFY_PLUS Kill-Switch / Cap Payload &amp; Webhook cURL</summary>
+                    <pre>{
+  &quot;endpoint&quot;: &quot;https://de.weareholy.com/admin/api/2025-10/graphql.json&quot;,
+  &quot;operationName&quot;: &quot;CapAndDisableCombinesOnLeakedCode&quot;,
+  &quot;query&quot;: &quot;mutation discountCodeBasicUpdate($id: ID!, $basicCodeDiscount: DiscountCodeBasicInput!) { discountCodeBasicUpdate(id: $id, basicCodeDiscount: $basicCodeDiscount) { codeDiscountNode { id } userErrors { field message } } }&quot;,
+  &quot;variables&quot;: {
+    &quot;id&quot;: &quot;gid://shopify/DiscountCodeNode/1094827163921&quot;,
+    &quot;basicCodeDiscount&quot;: {
+      &quot;usageLimit&quot;: 50,
+      &quot;appliesOncePerCustomer&quot;: true,
+      &quot;combinesWith&quot;: {
+        &quot;orderDiscounts&quot;: false,
+        &quot;productDiscounts&quot;: false,
+        &quot;shippingDiscounts&quot;: false
+      }
+    }
+  },
+  &quot;emergencyDeactivateMutation&quot;: {
+    &quot;query&quot;: &quot;mutation discountCodeDeactivate($id: ID!) { discountCodeDeactivate(id: $id) { codeDiscountNode { id } userErrors { field message } } }&quot;,
+    &quot;variables&quot;: {
+      &quot;id&quot;: &quot;gid://shopify/DiscountCodeNode/1094827163921&quot;
+    }
+  }
+}</pre>
+                    <pre class="curl-box">curl -X POST https://de.weareholy.com/admin/api/2025-10/graphql.json -H &#x27;X-Shopify-Access-Token: $SHOPIFY_ADMIN_TOKEN&#x27; -H &#x27;Content-Type: application/json&#x27; -d &#x27;{&quot;query&quot;: &quot;mutation discountCodeDeactivate($id: ID!) { discountCodeDeactivate(id: $id) { codeDiscountNode { id } userErrors { field message } } }&quot;, &quot;variables&quot;: {&quot;id&quot;: &quot;gid://shopify/DiscountCodeNode/1094827163921&quot;}}&#x27;</pre>
+                </details>
+            </div>
+            
+            <div class="leak-card">
+                <div class="leak-header">
+                    <div>
+                        <span class="pill danger">CRITICAL_STACKING_BLEED</span>
+                        <strong>Boulanger FR (dealabs.com #3341890)</strong>
+                    </div>
+                    <div class="bleed-metric">Margin Bleed: <strong>-€23,047.44 / hr</strong> (249 orders/hr)</div>
+                </div>
+                <p><strong>Leaked Primary Code:</strong> <code>BLG-CAFE50</code> &nbsp;|&nbsp;
+                   <strong>Stacked Combination:</strong> <code>BLG-CAFE50 + WELCOME15</code> &nbsp;|&nbsp;
+                   <strong>Intended Channel:</strong> CRM Reactivation Segment (15 EUR Loyalty Voucher stacked on 50 EUR Instant Rebate)</p>
+                <p><strong>Normal Basket AOV:</strong> €399.00 &rarr; <strong>Compromised Checkout:</strong> €229.00
+                   (<strong>-42.6%</strong>) &nbsp;|&nbsp;
+                   <strong>Unit Contribution Margin after COGS &amp; 19% USt.:</strong> <span style="color:#ef4444;font-weight:700">€-7.46/order</span></p>
+                <details open>
+                    <summary>Automated SHOPWARE_6 Kill-Switch / Cap Payload &amp; Webhook cURL</summary>
+                    <pre>{
+  &quot;endpoint&quot;: &quot;https://www.boulanger.com/api/promotion/a8f49c12e04b41d89c74201948102a7b&quot;,
+  &quot;method&quot;: &quot;PATCH&quot;,
+  &quot;body&quot;: {
+    &quot;active&quot;: false,
+    &quot;preventCombination&quot;: true,
+    &quot;maxRedemptionsGlobal&quot;: 50,
+    &quot;maxRedemptionsPerCustomer&quot;: 1
+  }
+}</pre>
+                    <pre class="curl-box">curl -X PATCH https://www.boulanger.com/api/promotion/a8f49c12e04b41d89c74201948102a7b -H &#x27;Authorization: Bearer $SHOPWARE_ADMIN_TOKEN&#x27; -H &#x27;Content-Type: application/json&#x27; -d &#x27;{&quot;active&quot;: false, &quot;preventCombination&quot;: true, &quot;maxRedemptionsGlobal&quot;: 50, &quot;maxRedemptionsPerCustomer&quot;: 1}&#x27;</pre>
+                </details>
+            </div>
+            
+</body>
+</html>

@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MVP #154 — DACH §§ 43, 96a, 253a & 307i SGB VI Erwerbsminderungsrenten- & Hinzuverdienst-Studio</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --card: #131b33;
+      --card-alt: #182342;
+      --border: #2a3966;
+      --text: #eef2ff;
+      --muted: #9eb0d9;
+      --accent: #38bdf8;
+      --emerald: #10b981;
+      --amber: #f59e0b;
+      --rose: #f43f5e;
+      --violet: #a78bfa;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: radial-gradient(circle at top right, #172554, var(--bg) 55%);
+      color: var(--text);
+      line-height: 1.5;
+      padding: 24px;
+    }
+    .container {
+      max-width: 1360px;
+      margin: 0 auto;
+    }
+    header {
+      background: linear-gradient(135deg, rgba(30, 58, 138, 0.75), rgba(15, 23, 42, 0.92));
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px 28px;
+      margin-bottom: 24px;
+      box-shadow: 0 14px 36px rgba(0, 0, 0, 0.35);
+    }
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .badge {
+      font-size: 0.76rem;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(56, 189, 248, 0.15);
+      border: 1px solid rgba(56, 189, 248, 0.45);
+      color: var(--accent);
+    }
+    .badge.emerald {
+      background: rgba(16, 185, 129, 0.15);
+      border-color: rgba(16, 185, 129, 0.45);
+      color: var(--emerald);
+    }
+    .badge.amber {
+      background: rgba(245, 158, 11, 0.15);
+      border-color: rgba(245, 158, 11, 0.45);
+      color: var(--amber);
+    }
+    h1 {
+      margin: 0 0 8px 0;
+      font-size: 1.65rem;
+      font-weight: 800;
+    }
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+    .preset-bar {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 12px;
+      margin-bottom: 22px;
+    }
+    .preset-btn {
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 14px 16px;
+      border-radius: 12px;
+      text-align: left;
+      cursor: pointer;
+      transition: all 0.18s ease;
+    }
+    .preset-btn:hover, .preset-btn.active {
+      border-color: var(--accent);
+      background: var(--card-alt);
+      box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.22);
+    }
+    .preset-btn strong {
+      display: block;
+      font-size: 0.92rem;
+      margin-bottom: 4px;
+      color: var(--accent);
+    }
+    .preset-btn span {
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+    .grid-main {
+      display: grid;
+      grid-template-columns: 420px 1fr;
+      gap: 22px;
+    }
+    @media (max-width: 1060px) {
+      .grid-main { grid-template-columns: 1fr; }
+    }
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px;
+    }
+    .panel h2 {
+      margin: 0 0 14px 0;
+      font-size: 1.12rem;
+      color: var(--accent);
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 8px;
+    }
+    .form-group {
+      margin-bottom: 12px;
+    }
+    .form-group label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.82rem;
+      color: var(--muted);
+      margin-bottom: 4px;
+      font-weight: 600;
+    }
+    .form-group input, .form-group select {
+      width: 100%;
+      padding: 8px 10px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: #0d1428;
+      color: var(--text);
+      font-size: 0.9rem;
+    }
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(215px, 1fr));
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+    .kpi-card {
+      background: var(--card-alt);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 16px;
+    }
+    .kpi-label {
+      font-size: 0.76rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .kpi-val {
+      font-size: 1.42rem;
+      font-weight: 800;
+      margin: 4px 0;
+      color: var(--text);
+    }
+    .kpi-val.emerald { color: var(--emerald); }
+    .kpi-val.accent { color: var(--accent); }
+    .kpi-val.amber { color: var(--amber); }
+    .kpi-val.rose { color: var(--rose); }
+    .kpi-sub {
+      font-size: 0.76rem;
+      color: var(--muted);
+    }
+    .pillar-box {
+      background: #0f172e;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+    .pillar-box h3 {
+      margin: 0 0 10px 0;
+      font-size: 1rem;
+      color: var(--text);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+    }
+    th, td {
+      padding: 8px 10px;
+      border-bottom: 1px solid rgba(42, 57, 102, 0.6);
+      text-align: left;
+    }
+    th {
+      color: var(--muted);
+      font-weight: 600;
+    }
+    .alert {
+      padding: 12px 14px;
+      border-radius: 10px;
+      font-size: 0.84rem;
+      margin-top: 10px;
+      border-left: 4px solid var(--emerald);
+      background: rgba(16, 185, 129, 0.1);
+    }
+    .alert.warn {
+      border-left-color: var(--rose);
+      background: rgba(244, 63, 94, 0.12);
+    }
+    .alert.info {
+      border-left-color: var(--accent);
+      background: rgba(56, 189, 248, 0.1);
+    }
+  </style>
+</head>
+<body>
+
+<!-- DACH CASHFLOW STUDIOS LAUNCH BAR -->
+<style>
+  #dcs-launch-bar {
+    position: sticky;
+    top: 0;
+    z-index: 99999;
+    background: linear-gradient(90deg, #0b1120 0%, #111827 50%, #0f172a 100%);
+    color: #f8fafc;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.35);
+    padding: 8px 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  }
+  #dcs-launch-bar .dcs-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+  }
+  #dcs-launch-bar .dcs-badge {
+    background: rgba(16, 185, 129, 0.18);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.03em;
+  }
+  #dcs-launch-bar a.dcs-nav {
+    color: #93c5fd;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 12.5px;
+  }
+  #dcs-launch-bar a.dcs-nav:hover {
+    text-decoration: underline;
+    color: #dbeafe;
+  }
+  #dcs-launch-bar .dcs-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  #dcs-launch-bar .dcs-btn {
+    padding: 5px 11px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s ease;
+  }
+  #dcs-launch-bar .dcs-btn-ghost {
+    background: rgba(255,255,255,0.08);
+    color: #e2e8f0;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  #dcs-launch-bar .dcs-btn-primary {
+    background: linear-gradient(135deg, #0ea5e9, #2563eb);
+    color: #ffffff;
+  }
+  #dcs-launch-bar .dcs-btn-emerald {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
+  }
+  @media print {
+    #dcs-launch-bar { display: none !important; }
+  }
+</style>
+<div id="dcs-launch-bar">
+  <div class="dcs-left">
+    <a href="/index.html" class="dcs-nav">← Alle 150 DACH Studios</a>
+    <span class="dcs-badge">MVP #154 VERIFIED</span>
+    <span style="color:#cbd5e1;font-size:12px;">DACH LegalTech, Labor Law & Consumer Claims</span>
+  </div>
+  <div class="dcs-actions">
+    <button onclick="window.print()" class="dcs-btn dcs-btn-ghost">🖨️ PDF / Dossier drucken</button>
+    <a href="#checkout-modal-49" target="_blank" rel="noopener" class="dcs-btn dcs-btn-primary">⚡ Musterschreiben & Voll-Dossier (€49)</a>
+    <a href="#checkout-modal-299" target="_blank" rel="noopener" class="dcs-btn dcs-btn-emerald">🛡️ B2B Umsetzung buchen (€299 / €1.490)</a>
+  </div>
+</div>
+
+  <div class="container">
+    <header>
+      <div class="badge-row">
+        <span class="badge">MVP #154 · SGB VI §§ 43, 73, 77, 96a, 253a, 307i/j</span>
+        <span class="badge emerald">Zurechnungszeit 2026: 66 J. + 3 Mo. (§ 253a SGB VI)</span>
+        <span class="badge amber">Hinzuverdienst 2026: €20.763,75 (Volle EM) / €41.527,50+ (Teilweise EM)</span>
+        <span class="badge emerald">Bestandsrenten-Dauerzuschlag: +7,5 % / +4,5 % (§ 307i SGB VI)</span>
+      </div>
+      <h1>DACH Erwerbsminderungsrenten-, Zurechnungszeit- & § 96a SGB VI Hinzuverdienst-Optimierer</h1>
+      <p class="subtitle">
+        Deterministische Simulation für volle & teilweise Erwerbsminderungsrente (&lt;3h vs. 3–&lt;6h/Tag + Arbeitsmarktrente),
+        § 73 SGB VI 4-Jahres-Günstigerprüfung, dynamischen § 96a-Hinzuverdienst (inkl. 40%-Teil-Anrechnung) & 3/5-Belegungs-Wächter.
+      </p>
+    </header>
+
+    <div class="preset-bar" id="presetBar"></div>
+
+    <div class="grid-main">
+      <div class="panel">
+        <h2>Eingabeparameter (§§ 43, 73, 96a, 253a SGB VI)</h2>
+
+        <div class="form-group">
+          <label><span>Berechnungsjahr & Rechtsstand</span></label>
+          <select id="inpYear">
+            <option value="2026" selected>2026 (Bezugsgröße €3.955/Mo. · ZZ 66J+3M · RW €42,52 ab 07/2026)</option>
+            <option value="2025">2025 (Bezugsgröße €3.745/Mo. · ZZ 66J+2M · RW €40,79 ab 07/2025)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label><span>Alter bei Eintritt der Erwerbsminderung (Jahre)</span><span id="lblAge">38 J.</span></label>
+          <input type="number" id="inpAge" min="20" max="66" step="1" value="38" />
+        </div>
+
+        <div class="form-group">
+          <label><span>Entgeltpunkte VOR den letzten 4 Jahren (Gesundphase)</span></label>
+          <input type="number" id="inpEpBefore4y" min="0" max="90" step="0.1" value="21.7" />
+        </div>
+
+        <div class="form-group">
+          <label><span>Belegte Monate VOR den letzten 4 Jahren</span></label>
+          <input type="number" id="inpMonthsBefore4y" min="12" max="540" step="1" value="168" />
+        </div>
+
+        <div class="form-group">
+          <label><span>Entgeltpunkte IN den letzten 4 Jahren (Krankheits-/Teilzeitphase)</span></label>
+          <input type="number" id="inpEpLast4y" min="0" max="10" step="0.1" value="2.4" />
+        </div>
+
+        <div class="form-group">
+          <label><span>Höchste Jahres-Entgeltpunkte der letzten 15 Jahre (§ 96a Abs. 1c Nr. 1)</span></label>
+          <input type="number" id="inpMaxEp15y" min="0.5" max="2.1" step="0.05" value="1.75" />
+        </div>
+
+        <div class="form-group">
+          <label><span>Tägliches Restleistungsvermögen (Stunden/Tag)</span></label>
+          <input type="number" id="inpDailyHours" min="0" max="8" step="0.5" value="2.5" />
+        </div>
+
+        <div class="form-group">
+          <label><span>Teilzeitarbeitsmarkt verschlossen? (Arbeitsmarktrente)</span></label>
+          <select id="inpArbeitsmarkt">
+            <option value="true" selected>Ja — Volle Arbeitsmarktrente trotz 3 bis &lt;6h/Tag möglich</option>
+            <option value="false">Nein — Reguläre Teilrente (Faktor 0,5) bei 3 bis &lt;6h/Tag</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label><span>Rentenbeginn-Kohorte (§§ 307i/j SGB VI Bestandsrenten-Zuschlag)</span></label>
+          <select id="inpCohort">
+            <option value="2019_or_later" selected>Ab 01.01.2019 (Neurenten-Regime mit voller § 253a Zurechnungszeit)</option>
+            <option value="2001_to_06_2014">01.01.2001 – 30.06.2014 (+7,5 % Dauerzuschlag § 307i SGB VI)</option>
+            <option value="07_2014_to_12_2018">01.07.2014 – 31.12.2018 (+4,5 % Dauerzuschlag § 307i SGB VI)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label><span>Geplanter Brutto-Hinzuverdienst pro Jahr (€/Jahr)</span></label>
+          <input type="number" id="inpHinzu" min="0" max="120000" step="500" value="20700" />
+        </div>
+
+        <div class="form-group">
+          <label><span>Pflichtbeitragsmonate in den letzten 60 Monaten (3/5-Regel: min. 36)</span></label>
+          <input type="number" id="inpCompulsory60m" min="0" max="60" step="1" value="48" />
+        </div>
+
+        <div class="form-group">
+          <label><span>Private Berufsunfähigkeitsrente (BU-Rente, €/Monat — 0% Anrechnung!)</span></label>
+          <input type="number" id="inpPrivateBu" min="0" max="10000" step="100" value="1800" />
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>Ergebnis-Cockpit: Zurechnungszeit, Hinzuverdienst & Gesamtversorgung</h2>
+
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <div class="kpi-label">Volle EM-Rente Brutto / Netto</div>
+            <div class="kpi-val emerald" id="kpiFullEm">€0,00</div>
+            <div class="kpi-sub" id="kpiFullEmSub">Netto nach KVdR/PV</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">§ 253a Zurechnungszeit-Booster</div>
+            <div class="kpi-val accent" id="kpiZzBooster">+0,00 EP</div>
+            <div class="kpi-sub" id="kpiZzSub">Projektion bis 66 J. + 3 Mo.</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">§ 96a Hinzuverdienstgrenze (Volle EM)</div>
+            <div class="kpi-val amber" id="kpiFullCap">€20.763,75</div>
+            <div class="kpi-sub" id="kpiFullCapSub">3/8 × 14 × Bezugsgröße</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Gesamt-Zufluss / Monat (EM + BU + Hinzu)</div>
+            <div class="kpi-val emerald" id="kpiTotalMonthly">€0,00</div>
+            <div class="kpi-sub" id="kpiTotalSub">Inkl. 0% BU-Anrechnung (§ 96a Abs. 2)</div>
+          </div>
+        </div>
+
+        <div class="pillar-box">
+          <h3>Säule 1: § 253a SGB VI Zurechnungszeit, § 73 Günstigerprüfung & § 307i Bestandsrenten-Zuschlag</h3>
+          <table>
+            <tbody id="tblPillar1"></tbody>
+          </table>
+          <div id="alertSec73" class="alert info"></div>
+        </div>
+
+        <div class="pillar-box">
+          <h3>Säule 2: § 96a SGB VI Dynamische Hinzuverdienstgrenzen (2025/2026) & 40%-Teil-Anrechnung</h3>
+          <table>
+            <tbody id="tblPillar2"></tbody>
+          </table>
+          <div id="alertHinzu" class="alert"></div>
+        </div>
+
+        <div class="pillar-box">
+          <h3>Säule 3: 3/5-Belegungs-Wächter (§ 43 Abs. 1 Nr. 2 SGB VI) & Private BU-Rente (0,0 % Anrechnung)</h3>
+          <table>
+            <tbody id="tblPillar3"></tbody>
+          </table>
+          <div id="alertBelegung" class="alert"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const SCENARIOS = [{"id": "scenario_1_young_it_lead_sec73_zurechnungszeit", "title": "1. IT-Architektin (38 J.) mit Burnout/Long-COVID — § 253a Zurechnungszeit + § 73 Günstigerprüfung", "description": "Erkrankung mit 38 J.: 14 Jahre Vollzeit (1,55 EP/Jahr = 21,70 EP), danach 4 Jahre Krankengeld/Teilzeit (nur 2,40 EP). § 73 SGB VI blendet die 4 Krankheitsjahre aus, § 253a SGB VI projiziert 1,55 EP/Jahr über 28,25 Jahre bis 66 J. + 3 Mo.!", "inputs": {"year": 2026, "onset_age_years": 38, "onset_age_months": 0, "historical_ep_before_last_4y": 21.7, "historical_months_before_last_4y": 168, "last_4y_ep": 2.4, "last_4y_months": 48, "daily_work_capacity_hours": 2.5, "part_time_market_closed_arbeitsmarktrente": true, "pension_start_period": "2019_or_later", "max_ep_last_15_years": 1.75, "planned_annual_hinzuverdienst_eur": 20700.0, "compulsory_months_in_last_60m": 48, "stretching_months_sec43_abs4": 12, "private_bu_monthly_eur": 1800.0}, "zurechnungszeit_result": {"year": 2026, "onset_age_years": 38, "onset_age_months": 0, "zurechnungszeit_end_label": "66 Jahre + 3 Monate", "zurechnungszeit_months_added": 339, "zurechnungszeit_years_added": 28.25, "historical_ep_before_last_4y": 21.7, "historical_months_before_last_4y": 168, "last_4y_ep": 2.4, "last_4y_months": 48, "avg_ep_per_year_grundbewertung": 1.3389, "avg_ep_per_year_vergleichsbewertung_sec73": 1.55, "guenstigerpruefung_sec73_applied": true, "effective_ep_per_year_for_zurechnungszeit": 1.55, "ep_earned_actual": 24.1, "ep_from_zurechnungszeit": 43.7875, "ep_gain_from_sec73_vergleichsbewertung": 5.9639, "total_raw_entgeltpunkte": 67.8875, "abschlag_pct": 10.8, "zugangsfaktor": 0.892, "bestandsrenten_zuschlag_pct": 0.0, "bestandsrenten_regime_label": "Neurenten-Regime ab 2019 (Volle Zurechnungszeit nach § 253a SGB VI bis 66 J. + 3 Mo. in 2026)", "persoenliche_ep_full_em": 60.5556, "persoenliche_ep_partial_em": 30.2778, "rentenwert_eur": 42.52, "gross_monthly_full_em_eur": 2574.82, "net_monthly_full_em_eur": 2269.7, "gross_monthly_partial_em_eur": 1287.41, "net_monthly_partial_em_eur": 1134.85, "arbeitsmarktrente_eligible": false, "arbeitsmarktrente_monthly_uplift_gross_eur": 0.0, "zurechnungszeit_monthly_booster_gross_eur": 1660.76}, "hinzuverdienst_result": {"year": 2026, "bezugsgroesse_monthly_eur": 3955.0, "full_em_annual_cap_eur": 20763.75, "full_em_monthly_equivalent_eur": 1730.31, "partial_em_min_annual_cap_eur": 41527.5, "partial_em_min_monthly_equivalent_eur": 3460.62, "max_ep_last_15_years": 1.75, "partial_em_indiv_statutory_cap_eur": 67274.55, "partial_em_indiv_14x_extended_cap_eur": 78486.98, "partial_em_effective_annual_cap_eur": 67274.55, "planned_annual_hinzuverdienst_eur": 20700.0, "planned_daily_hours": 2.5, "time_limit_warning_full_em": false, "time_limit_warning_partial_em": false, "full_em_excess_income_eur": 0.0, "full_em_annual_offset_40pct_eur": 0.0, "full_em_monthly_offset_eur": 0.0, "full_em_adjusted_gross_monthly_pension_eur": 2574.82, "partial_em_excess_income_eur": 0.0, "partial_em_annual_offset_40pct_eur": 0.0, "partial_em_monthly_offset_eur": 0.0, "partial_em_adjusted_gross_monthly_pension_eur": 1287.41, "old_2022_cap_eur": 6300.0, "reform_cap_gain_full_em_eur": 14463.75}, "eligibility_bu_result": {"total_insured_months_wartezeit": 216, "wartezeit_60m_fulfilled": true, "compulsory_months_in_last_60m": 48, "stretching_months_sec43_abs4": 12, "three_fifths_belegung_fulfilled": true, "statutory_em_eligible": true, "months_missing_for_3_5_rule": 0, "minijob_opt_in_monthly_cost_eur": 21.71, "voluntary_min_contribution_monthly_eur": 112.16, "present_value_em_pension_at_stake_eur": 872863.98, "private_bu_monthly_eur": 1800.0, "private_bu_offset_on_statutory_em_eur": 0.0, "combined_monthly_gross_full_em_plus_bu_plus_hinzuverdienst_eur": 6099.82, "combined_monthly_net_full_em_plus_bu_plus_hinzuverdienst_eur": 5794.7, "recommendations": ["3/5-Belegung (§ 43 Abs. 1 Nr. 2 SGB VI) erfüllt (48/36 Monate). Bei Wechsel in Selbstständigkeit Lücke > 24 Monate zwingend vermeiden (Minijob-Opt-In für €21.71/Mo.).", "§ 43 Abs. 4 SGB VI Streckung aktiv: Der 5-Jahres-Zeitraum verlängert sich um 12 Monate (z. B. Kindererziehungs-/Berücksichtigungszeiten bis 10. Lj., Krankheit, Arbeitslosigkeit).", "§ 96a Abs. 2 SGB VI Schutzschild: Ihre private BU-Rente (€1,800.00/Mo.) sowie Kapital- und Mieteinkünfte werden zu 0,0 % auf die gesetzliche EM-Rente angerechnet!"]}}, {"id": "scenario_2_partial_em_high_earner_arbeitsmarktrente", "title": "2. Senior-Ingenieur (49 J., 3 bis <6h/Tag) — § 96a Individueller Hinzuverdienst vs. Arbeitsmarktrente", "description": "23 Jahre vor Vor-Erkrankung (36,80 EP = 1,60 EP/Jahr), letzte 4 Jahre 3,60 EP, Spitzenwert 1,95 EP. Mit § 96a Abs. 1c Nr. 1 SGB VI bis zu €74.963/Jahr (bzw. €87.457 dyn.) Hinzuverdienst bei teilweiser EM oder volle Arbeitsmarktrente bei verschlossenem Teilzeitmarkt.", "inputs": {"year": 2026, "onset_age_years": 49, "onset_age_months": 0, "historical_ep_before_last_4y": 36.8, "historical_months_before_last_4y": 276, "last_4y_ep": 3.6, "last_4y_months": 48, "daily_work_capacity_hours": 4.5, "part_time_market_closed_arbeitsmarktrente": true, "pension_start_period": "2019_or_later", "max_ep_last_15_years": 1.95, "planned_annual_hinzuverdienst_eur": 41500.0, "compulsory_months_in_last_60m": 60, "stretching_months_sec43_abs4": 0, "private_bu_monthly_eur": 2200.0}, "zurechnungszeit_result": {"year": 2026, "onset_age_years": 49, "onset_age_months": 0, "zurechnungszeit_end_label": "66 Jahre + 3 Monate", "zurechnungszeit_months_added": 207, "zurechnungszeit_years_added": 17.25, "historical_ep_before_last_4y": 36.8, "historical_months_before_last_4y": 276, "last_4y_ep": 3.6, "last_4y_months": 48, "avg_ep_per_year_grundbewertung": 1.4963, "avg_ep_per_year_vergleichsbewertung_sec73": 1.6, "guenstigerpruefung_sec73_applied": true, "effective_ep_per_year_for_zurechnungszeit": 1.6, "ep_earned_actual": 40.4, "ep_from_zurechnungszeit": 27.6, "ep_gain_from_sec73_vergleichsbewertung": 1.7889, "total_raw_entgeltpunkte": 68.0, "abschlag_pct": 10.8, "zugangsfaktor": 0.892, "bestandsrenten_zuschlag_pct": 0.0, "bestandsrenten_regime_label": "Neurenten-Regime ab 2019 (Volle Zurechnungszeit nach § 253a SGB VI bis 66 J. + 3 Mo. in 2026)", "persoenliche_ep_full_em": 60.656, "persoenliche_ep_partial_em": 30.328, "rentenwert_eur": 42.52, "gross_monthly_full_em_eur": 2579.09, "net_monthly_full_em_eur": 2273.47, "gross_monthly_partial_em_eur": 1289.55, "net_monthly_partial_em_eur": 1136.74, "arbeitsmarktrente_eligible": true, "arbeitsmarktrente_monthly_uplift_gross_eur": 1289.54, "zurechnungszeit_monthly_booster_gross_eur": 1046.81}, "hinzuverdienst_result": {"year": 2026, "bezugsgroesse_monthly_eur": 3955.0, "full_em_annual_cap_eur": 20763.75, "full_em_monthly_equivalent_eur": 1730.31, "partial_em_min_annual_cap_eur": 41527.5, "partial_em_min_monthly_equivalent_eur": 3460.62, "max_ep_last_15_years": 1.95, "partial_em_indiv_statutory_cap_eur": 74963.07, "partial_em_indiv_14x_extended_cap_eur": 87456.92, "partial_em_effective_annual_cap_eur": 74963.07, "planned_annual_hinzuverdienst_eur": 41500.0, "planned_daily_hours": 4.5, "time_limit_warning_full_em": true, "time_limit_warning_partial_em": false, "full_em_excess_income_eur": 20736.25, "full_em_annual_offset_40pct_eur": 8294.5, "full_em_monthly_offset_eur": 691.21, "full_em_adjusted_gross_monthly_pension_eur": 1887.88, "partial_em_excess_income_eur": 0.0, "partial_em_annual_offset_40pct_eur": 0.0, "partial_em_monthly_offset_eur": 0.0, "partial_em_adjusted_gross_monthly_pension_eur": 1289.55, "old_2022_cap_eur": 6300.0, "reform_cap_gain_full_em_eur": 14463.75}, "eligibility_bu_result": {"total_insured_months_wartezeit": 324, "wartezeit_60m_fulfilled": true, "compulsory_months_in_last_60m": 60, "stretching_months_sec43_abs4": 0, "three_fifths_belegung_fulfilled": true, "statutory_em_eligible": true, "months_missing_for_3_5_rule": 0, "minijob_opt_in_monthly_cost_eur": 21.71, "voluntary_min_contribution_monthly_eur": 112.16, "present_value_em_pension_at_stake_eur": 533871.63, "private_bu_monthly_eur": 2200.0, "private_bu_offset_on_statutory_em_eur": 0.0, "combined_monthly_gross_full_em_plus_bu_plus_hinzuverdienst_eur": 7546.21, "combined_monthly_net_full_em_plus_bu_plus_hinzuverdienst_eur": 7322.5, "recommendations": ["3/5-Belegung (§ 43 Abs. 1 Nr. 2 SGB VI) erfüllt (60/36 Monate). Bei Wechsel in Selbstständigkeit Lücke > 24 Monate zwingend vermeiden (Minijob-Opt-In für €21.71/Mo.).", "§ 96a Abs. 2 SGB VI Schutzschild: Ihre private BU-Rente (€2,200.00/Mo.) sowie Kapital- und Mieteinkünfte werden zu 0,0 % auf die gesetzliche EM-Rente angerechnet!"]}}, {"id": "scenario_3_bestandsrentner_sec307i_topup_and_side_income", "title": "3. Bestandsrentner (Rentenbeginn 2012, <3h/Tag) — +7,5 % § 307i Dauerzuschlag + €20.763,75 Hinzuverdienst", "description": "EM-Rente seit 2012: erhält seit 12/2025 dauerhaft +7,5 % Zuschlag an persönlichen Entgeltpunkten (§ 307i SGB VI) direkt in der Rente und nutzt die neue § 96a-Grenze von €20.763,75/Jahr (€1.730/Mo.) bei <3h/Tag ohne 1 Cent Rentenkürzung!", "inputs": {"year": 2026, "onset_age_years": 45, "onset_age_months": 0, "historical_ep_before_last_4y": 24.0, "historical_months_before_last_4y": 240, "last_4y_ep": 3.2, "last_4y_months": 48, "daily_work_capacity_hours": 2.0, "part_time_market_closed_arbeitsmarktrente": false, "pension_start_period": "2001_to_06_2014", "max_ep_last_15_years": 1.35, "planned_annual_hinzuverdienst_eur": 20763.75, "compulsory_months_in_last_60m": 30, "stretching_months_sec43_abs4": 24, "private_bu_monthly_eur": 1200.0}, "zurechnungszeit_result": {"year": 2026, "onset_age_years": 45, "onset_age_months": 0, "zurechnungszeit_end_label": "66 Jahre + 3 Monate", "zurechnungszeit_months_added": 255, "zurechnungszeit_years_added": 21.25, "historical_ep_before_last_4y": 24.0, "historical_months_before_last_4y": 240, "last_4y_ep": 3.2, "last_4y_months": 48, "avg_ep_per_year_grundbewertung": 1.1333, "avg_ep_per_year_vergleichsbewertung_sec73": 1.2, "guenstigerpruefung_sec73_applied": true, "effective_ep_per_year_for_zurechnungszeit": 1.2, "ep_earned_actual": 27.2, "ep_from_zurechnungszeit": 25.5, "ep_gain_from_sec73_vergleichsbewertung": 1.4167, "total_raw_entgeltpunkte": 52.7, "abschlag_pct": 10.8, "zugangsfaktor": 0.892, "bestandsrenten_zuschlag_pct": 7.5, "bestandsrenten_regime_label": "§ 307i Abs. 1 Nr. 1 SGB VI (+7,5 % Bestandsrenten-Dauerzuschlag, Rentenbeginn 01/2001–06/2014)", "persoenliche_ep_full_em": 50.534, "persoenliche_ep_partial_em": 25.267, "rentenwert_eur": 42.52, "gross_monthly_full_em_eur": 2148.71, "net_monthly_full_em_eur": 1894.09, "gross_monthly_partial_em_eur": 1074.35, "net_monthly_partial_em_eur": 947.04, "arbeitsmarktrente_eligible": false, "arbeitsmarktrente_monthly_uplift_gross_eur": 0.0, "zurechnungszeit_monthly_booster_gross_eur": 1039.7}, "hinzuverdienst_result": {"year": 2026, "bezugsgroesse_monthly_eur": 3955.0, "full_em_annual_cap_eur": 20763.75, "full_em_monthly_equivalent_eur": 1730.31, "partial_em_min_annual_cap_eur": 41527.5, "partial_em_min_monthly_equivalent_eur": 3460.62, "max_ep_last_15_years": 1.35, "partial_em_indiv_statutory_cap_eur": 51897.51, "partial_em_indiv_14x_extended_cap_eur": 60547.1, "partial_em_effective_annual_cap_eur": 51897.51, "planned_annual_hinzuverdienst_eur": 20763.75, "planned_daily_hours": 2.0, "time_limit_warning_full_em": false, "time_limit_warning_partial_em": false, "full_em_excess_income_eur": 0.0, "full_em_annual_offset_40pct_eur": 0.0, "full_em_monthly_offset_eur": 0.0, "full_em_adjusted_gross_monthly_pension_eur": 2148.71, "partial_em_excess_income_eur": 0.0, "partial_em_annual_offset_40pct_eur": 0.0, "partial_em_monthly_offset_eur": 0.0, "partial_em_adjusted_gross_monthly_pension_eur": 1074.35, "old_2022_cap_eur": 6300.0, "reform_cap_gain_full_em_eur": 14463.75}, "eligibility_bu_result": {"total_insured_months_wartezeit": 288, "wartezeit_60m_fulfilled": true, "compulsory_months_in_last_60m": 30, "stretching_months_sec43_abs4": 24, "three_fifths_belegung_fulfilled": false, "statutory_em_eligible": false, "months_missing_for_3_5_rule": 6, "minijob_opt_in_monthly_cost_eur": 21.71, "voluntary_min_contribution_monthly_eur": 112.16, "present_value_em_pension_at_stake_eur": 547921.05, "private_bu_monthly_eur": 1200.0, "private_bu_offset_on_statutory_em_eur": 0.0, "combined_monthly_gross_full_em_plus_bu_plus_hinzuverdienst_eur": 5079.02, "combined_monthly_net_full_em_plus_bu_plus_hinzuverdienst_eur": 4824.4, "recommendations": ["WARNUNG 3/5-Belegung (§ 43 Abs. 1 Nr. 2 SGB VI): Es fehlen 6 Pflichtbeitragsmonate im 60-Monats-Zeitraum! Barwert in Gefahr: €547,921.05. Sofort-Hebel: Minijob mit RV-Opt-In (§ 6 Abs. 1b SGB VI, ab €21.71/Monat Eigenanteil) oder Antragspflichtversicherung nach § 4 Abs. 2 SGB VI aufnehmen.", "§ 43 Abs. 4 SGB VI Streckung aktiv: Der 5-Jahres-Zeitraum verlängert sich um 24 Monate (z. B. Kindererziehungs-/Berücksichtigungszeiten bis 10. Lj., Krankheit, Arbeitslosigkeit).", "§ 96a Abs. 2 SGB VI Schutzschild: Ihre private BU-Rente (€1,200.00/Mo.) sowie Kapital- und Mieteinkünfte werden zu 0,0 % auf die gesetzliche EM-Rente angerechnet!"]}}];
+    const PARAMS = {"2025": {"year": 2025, "bezugsgroesse_monthly_eur": 3745.0, "bezugsgroesse_annual_eur": 44940.0, "vorlaeufiges_durchschnittsentgelt_eur": 50493.0, "aktueller_rentenwert_h1_eur": 39.32, "aktueller_rentenwert_h2_eur": 40.79, "zurechnungszeit_end_years": 66, "zurechnungszeit_end_months": 2, "zurechnungszeit_total_months": 794, "abschlag_ref_age_years": 65, "abschlag_ref_age_months": 2, "max_abschlag_pct": 10.8, "kv_pv_deduction_pct": 11.75, "minijob_limit_eur": 556.0}, "2026": {"year": 2026, "bezugsgroesse_monthly_eur": 3955.0, "bezugsgroesse_annual_eur": 47460.0, "vorlaeufiges_durchschnittsentgelt_eur": 51944.0, "aktueller_rentenwert_h1_eur": 40.79, "aktueller_rentenwert_h2_eur": 42.52, "zurechnungszeit_end_years": 66, "zurechnungszeit_end_months": 3, "zurechnungszeit_total_months": 795, "abschlag_ref_age_years": 65, "abschlag_ref_age_months": 4, "max_abschlag_pct": 10.8, "kv_pv_deduction_pct": 11.85, "minijob_limit_eur": 603.0}};
+
+    function fmtEur(v) {
+      return new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(v);
+    }
+    function fmtNum(v, d = 2) {
+      return new Intl.NumberFormat('de-DE', { minimumFractionDigits: d, maximumFractionDigits: d }).format(v);
+    }
+
+    function loadScenario(idx) {
+      const sc = SCENARIOS[idx];
+      const inp = sc.inputs;
+      document.getElementById('inpYear').value = String(inp.year);
+      document.getElementById('inpAge').value = inp.onset_age_years;
+      document.getElementById('inpEpBefore4y').value = inp.historical_ep_before_last_4y;
+      document.getElementById('inpMonthsBefore4y').value = inp.historical_months_before_last_4y;
+      document.getElementById('inpEpLast4y').value = inp.last_4y_ep;
+      document.getElementById('inpMaxEp15y').value = inp.max_ep_last_15_years;
+      document.getElementById('inpDailyHours').value = inp.daily_work_capacity_hours;
+      document.getElementById('inpArbeitsmarkt').value = String(inp.part_time_market_closed_arbeitsmarktrente);
+      document.getElementById('inpCohort').value = inp.pension_start_period;
+      document.getElementById('inpHinzu').value = inp.planned_annual_hinzuverdienst_eur;
+      document.getElementById('inpCompulsory60m').value = inp.compulsory_months_in_last_60m;
+      document.getElementById('inpPrivateBu').value = inp.private_bu_monthly_eur;
+
+      document.querySelectorAll('.preset-btn').forEach((b, i) => {
+        b.classList.toggle('active', i === idx);
+      });
+      recalc();
+    }
+
+    function recalc() {
+      const year = parseInt(document.getElementById('inpYear').value, 10);
+      const p = PARAMS[year];
+      const age = parseFloat(document.getElementById('inpAge').value) || 38;
+      document.getElementById('lblAge').textContent = age + ' J.';
+      const epBefore4y = parseFloat(document.getElementById('inpEpBefore4y').value) || 0;
+      const moBefore4y = Math.max(1, parseInt(document.getElementById('inpMonthsBefore4y').value, 10) || 1);
+      const epLast4y = parseFloat(document.getElementById('inpEpLast4y').value) || 0;
+      const moLast4y = 48;
+      const maxEp15y = parseFloat(document.getElementById('inpMaxEp15y').value) || 1.0;
+      const dailyHours = parseFloat(document.getElementById('inpDailyHours').value) || 0;
+      const arbeitsmarktClosed = document.getElementById('inpArbeitsmarkt').value === 'true';
+      const cohort = document.getElementById('inpCohort').value;
+      const hinzu = parseFloat(document.getElementById('inpHinzu').value) || 0;
+      const comp60m = parseInt(document.getElementById('inpCompulsory60m').value, 10) || 0;
+      const privateBu = parseFloat(document.getElementById('inpPrivateBu').value) || 0;
+
+      const onsetMonths = Math.round(age * 12);
+      const zzMonthsAdded = Math.max(0, p.zurechnungszeit_total_months - onsetMonths);
+      const zzYearsAdded = zzMonthsAdded / 12.0;
+
+      const totalActualEp = epBefore4y + epLast4y;
+      const totalActualMonths = moBefore4y + moLast4y;
+
+      const epMoGrund = totalActualEp / totalActualMonths;
+      const epMoVergleich = epBefore4y / moBefore4y;
+      const sec73Active = epMoVergleich > epMoGrund;
+      const effEpMo = Math.max(epMoGrund, epMoVergleich);
+
+      const epZz = zzMonthsAdded * effEpMo;
+      const epZzGainSec73 = Math.max(0, epZz - (zzMonthsAdded * epMoGrund));
+      const rawEp = totalActualEp + epZz;
+
+      const refMonths = p.abschlag_ref_age_years * 12 + p.abschlag_ref_age_months;
+      const abschlagPct = Math.min(p.max_abschlag_pct, Math.max(0, (refMonths - onsetMonths) * 0.3));
+      const zf = 1.0 - (abschlagPct / 100.0);
+
+      let zuschlagPct = 0.0;
+      if (cohort === '2001_to_06_2014') zuschlagPct = 7.5;
+      else if (cohort === '07_2014_to_12_2018') zuschlagPct = 4.5;
+      const zuschlagMult = 1.0 + (zuschlagPct / 100.0);
+
+      const rw = p.aktueller_rentenwert_h2_eur;
+      const pepFull = rawEp * zf * zuschlagMult;
+      const pepPartial = pepFull * 0.5;
+      const grossFull = pepFull * rw;
+      const grossPartial = pepPartial * rw;
+      const kvFactor = 1.0 - (p.kv_pv_deduction_pct / 100.0);
+      const netFull = grossFull * kvFactor;
+      const netPartial = grossPartial * kvFactor;
+      const zzBoosterEur = (epZz * zf * zuschlagMult) * rw;
+
+      // Pillar 2: § 96a SGB VI
+      const bzMo = p.bezugsgroesse_monthly_eur;
+      const fullCap = (3.0 / 8.0) * 14.0 * bzMo;
+      const partialMinCap = (6.0 / 8.0) * 14.0 * bzMo;
+      const partialIndivStatCap = 9.72 * bzMo * maxEp15y;
+      const partialIndiv14xCap = 9.72 * (14.0 / 12.0) * bzMo * maxEp15y;
+      const partialEffCap = Math.max(partialMinCap, partialIndivStatCap);
+
+      const fullExcess = Math.max(0, hinzu - fullCap);
+      const fullOffsetMo = (fullExcess * 0.40) / 12.0;
+      const adjFullGross = Math.max(0, grossFull - fullOffsetMo);
+
+      const partialExcess = Math.max(0, hinzu - partialEffCap);
+      const partialOffsetMo = (partialExcess * 0.40) / 12.0;
+      const adjPartialGross = Math.max(0, grossPartial - partialOffsetMo);
+
+      const totalMonthlyGross = adjFullGross + privateBu + (hinzu / 12.0);
+      const totalMonthlyNet = (adjFullGross * kvFactor) + privateBu + (hinzu / 12.0);
+
+      document.getElementById('kpiFullEm').textContent = fmtEur(grossFull) + ' / Mo.';
+      document.getElementById('kpiFullEmSub').textContent =
+        'Netto: ' + fmtEur(netFull) + ' · Teil-EM (50%): ' + fmtEur(grossPartial);
+
+      document.getElementById('kpiZzBooster').textContent =
+        '+' + fmtNum(epZz, 2) + ' EP (' + fmtEur(zzBoosterEur) + '/Mo.)';
+      document.getElementById('kpiZzSub').textContent =
+        'Zurechnungszeit: +' + fmtNum(zzYearsAdded, 2) + ' Jahre bis ' +
+        p.zurechnungszeit_end_years + ' J. + ' + p.zurechnungszeit_end_months + ' Mo.';
+
+      document.getElementById('kpiFullCap').textContent = fmtEur(fullCap) + ' / Jahr';
+      document.getElementById('kpiFullCapSub').textContent =
+        'Teil-EM Grenze: ' + fmtEur(partialEffCap) + '/Jahr (Min: ' + fmtEur(partialMinCap) + ')';
+
+      document.getElementById('kpiTotalMonthly').textContent = fmtEur(totalMonthlyGross) + ' / Mo.';
+      document.getElementById('kpiTotalSub').textContent =
+        'Netto-Äquivalent: ' + fmtEur(totalMonthlyNet) + ' (EM + Private BU + Hinzuverdienst)';
+
+      // Table 1
+      document.getElementById('tblPillar1').innerHTML = `
+        <tr><th>Parameter</th><th>Grundbewertung (§ 72 SGB VI)</th><th>Vergleichsbewertung (§ 73 SGB VI) & Ergebnis</th></tr>
+        <tr>
+          <td>Durchschnittswert Zurechnungszeit</td>
+          <td>${fmtNum(epMoGrund * 12, 3)} EP / Jahr (inkl. 4 Krankheitsjahre)</td>
+          <td><strong>${fmtNum(effEpMo * 12, 3)} EP / Jahr</strong> (${sec73Active ? '§ 73 Günstigerprüfung aktiv!' : 'Grundbewertung maßgeblich'})</td>
+        </tr>
+        <tr>
+          <td>Zurechnungszeit (§ 253a SGB VI)</td>
+          <td>${zzMonthsAdded} Monate (${fmtNum(zzYearsAdded, 2)} Jahre)</td>
+          <td><strong>+${fmtNum(epZz, 2)} Entgeltpunkte</strong> (davon +${fmtNum(epZzGainSec73, 2)} EP durch § 73 SGB VI)</td>
+        </tr>
+        <tr>
+          <td>Abschlag (§ 77 Abs. 2 SGB VI) & Bestandszuschlag (§ 307i)</td>
+          <td>Abschlag: -${fmtNum(abschlagPct, 1)} % (Zugangsfaktor ${fmtNum(zf, 3)})</td>
+          <td>Bestandszuschlag: <strong>+${fmtNum(zuschlagPct, 1)} %</strong> · Aktueller Rentenwert: <strong>${fmtEur(rw)}/EP</strong></td>
+        </tr>
+        <tr>
+          <td>Monatsrente Volle EM vs. Teilweise EM</td>
+          <td>Teilweise EM (RAF 0,5): <strong>${fmtEur(grossPartial)}</strong> brutto (${fmtEur(netPartial)} netto)</td>
+          <td>Volle EM / Arbeitsmarktrente (RAF 1,0): <strong>${fmtEur(grossFull)}</strong> brutto (${fmtEur(netFull)} netto)</td>
+        </tr>
+      `;
+
+      document.getElementById('alertSec73').innerHTML =
+        sec73Active
+          ? `<strong>§ 73 SGB VI Günstigerprüfung schützt Ihre Rente:</strong> Durch das Ausblenden der letzten 48 einkommensschwachen Krankheitsmonate steigt Ihr Zurechnungszeit-Schnitt von ${fmtNum(epMoGrund * 12, 2)} auf ${fmtNum(epMoVergleich * 12, 2)} EP/Jahr (+${fmtNum(epZzGainSec73, 2)} EP = <strong>+${fmtEur(epZzGainSec73 * zf * zuschlagMult * rw)}/Monat</strong> lebenslang!).`
+          : `<strong>Hinweis Arbeitsmarktrente:</strong> Bei 3 bis &lt;6h/Tag Restleistungsvermögen und verschlossenem Teilzeitarbeitsmarkt zahlt die DRV die <strong>volle EM-Rente (${fmtEur(grossFull)}/Mo.)</strong> statt der halben Teil-EM (${fmtEur(grossPartial)}/Mo.)!`;
+
+      // Table 2
+      document.getElementById('tblPillar2').innerHTML = `
+        <tr><th>Rentenart nach § 96a SGB VI</th><th>Jährliche Hinzuverdienstgrenze (${year})</th><th>Überschreitung & 40%-Teil-Anrechnung</th><th>Ausgezahlte Bruttorente</th></tr>
+        <tr>
+          <td><strong>Volle EM (&lt; 3 Std./Tag)</strong><br><small>§ 96a Abs. 1c Nr. 2: 3/8 × 14 × Bezugsgröße</small></td>
+          <td><strong>${fmtEur(fullCap)} / Jahr</strong><br><small>(${fmtEur(fullCap / 12)} / Monat · +${fmtEur(fullCap - 6300)} ggü. Alt-Deckel)</small></td>
+          <td>Überschreitung: ${fmtEur(fullExcess)}/Jahr<br>Abzug (40%): <strong>-${fmtEur(fullOffsetMo)} / Monat</strong></td>
+          <td><strong>${fmtEur(adjFullGross)} / Monat</strong></td>
+        </tr>
+        <tr>
+          <td><strong>Teilweise EM (3 bis &lt; 6 Std./Tag)</strong><br><small>§ 96a Abs. 1c Nr. 1: Mind. 6/8 × 14 × BG oder 9,72 × BG × EP</small></td>
+          <td><strong>${fmtEur(partialEffCap)} / Jahr</strong><br><small>(Mindestgrenze: ${fmtEur(partialMinCap)} · 14x-Sensitivität: ${fmtEur(partialIndiv14xCap)})</small></td>
+          <td>Überschreitung: ${fmtEur(partialExcess)}/Jahr<br>Abzug (40%): <strong>-${fmtEur(partialOffsetMo)} / Monat</strong></td>
+          <td><strong>${fmtEur(adjPartialGross)} / Monat</strong></td>
+        </tr>
+      `;
+
+      const alertHinzuEl = document.getElementById('alertHinzu');
+      if (dailyHours >= 3.0) {
+        alertHinzuEl.className = 'alert warn';
+        alertHinzuEl.innerHTML =
+          `<strong>Zeit-Wächter (§ 43 Abs. 2 SGB VI):</strong> Bei ${dailyHours} Std./Tag liegt das Pensum ab 3,0 Std./Tag! Für die <em>volle</em> EM-Rente muss die tägliche Arbeitszeit zwingend <strong>unter 3 Stunden/Tag</strong> bleiben (Ausnahme: unschädliche Arbeitserprobung nach § 43 Abs. 7 SGB VI oder passive Einkünfte/Tantiemen).`;
+      } else {
+        alertHinzuEl.className = 'alert';
+        alertHinzuEl.innerHTML =
+          `<strong>Grünes Licht nach § 96a SGB VI:</strong> Bei ${dailyHours} Std./Tag (&lt; 3,0 Std./Tag) dürfen Sie in ${year} bis zu <strong>${fmtEur(fullCap)}/Jahr</strong> hinzuverdienen, ohne dass 1 Cent von Ihrer vollen EM-Rente abgezogen wird!`;
+      }
+
+      // Table 3
+      const minijobCost = p.minijob_limit_eur * 0.036;
+      const pvStake = grossFull * 12 * Math.max(5, zzYearsAdded);
+      document.getElementById('tblPillar3').innerHTML = `
+        <tr><th>Prüfpunkt (§ 43 Abs. 1 Nr. 2 & § 96a Abs. 2 SGB VI)</th><th>Status / Wert</th><th>Finanzieller Hebel</th></tr>
+        <tr>
+          <td>3/5-Belegung (36 Pflichtmonate in 60 Monaten)</td>
+          <td><strong>${comp60m} / 36 Monate</strong> (${comp60m >= 36 ? 'ERFÜLLT' : 'KRITISCHE LÜCKE!'})</td>
+          <td>Abgesicherter EM-Renten-Barwert: <strong>${fmtEur(pvStake)}</strong></td>
+        </tr>
+        <tr>
+          <td>Erhaltungs-Trick für Selbstständige / Privatiers</td>
+          <td>Minijob (€${p.minijob_limit_eur}) mit RV-Pflicht (§ 6 Abs. 1b SGB VI)</td>
+          <td>Nur <strong>${fmtEur(minijobCost)} / Monat</strong> Eigenanteil (3,6 %) sichert 100 % EM-Schutz!</td>
+        </tr>
+        <tr>
+          <td>Private BU-Rente (${fmtEur(privateBu)} / Monat)</td>
+          <td><strong>0,0 % Anrechnung (§ 96a Abs. 2 SGB VI)</strong></td>
+          <td>Kombinierter Zufluss: <strong>${fmtEur(totalMonthlyGross)} / Monat</strong> brutto</td>
+        </tr>
+      `;
+
+      const alertBel = document.getElementById('alertBelegung');
+      if (comp60m < 36) {
+        alertBel.className = 'alert warn';
+        alertBel.innerHTML =
+          `<strong>ALARM 3/5-Belegung (§ 43 Abs. 1 Nr. 2 SGB VI):</strong> Nur ${comp60m} von 36 Pflichtbeitragsmonaten in den letzten 60 Monaten! Ohne Gegensteuerung droht der Totalverlust von <strong>${fmtEur(pvStake)}</strong> EM-Rentenbarwert. Sofort Überbrückungstatbestände (§ 43 Abs. 4 SGB VI: Kindererziehung bis 10. Lj., Krankheit) prüfen und Minijob mit RV-Opt-In (${fmtEur(minijobCost)}/Mo.) starten!`;
+      } else {
+        alertBel.className = 'alert';
+        alertBel.innerHTML =
+          `<strong>3/5-Belegung & BU-Kombination optimal:</strong> Ihr gesetzlicher EM-Schutz ist aktiv (${comp60m}/36 Monate), und Ihre private BU-Rente (${fmtEur(privateBu)}/Mo.) bleibt nach § 96a Abs. 2 SGB VI zu 100 % anrechnungsfrei!`;
+      }
+    }
+
+    // Init preset buttons
+    const bar = document.getElementById('presetBar');
+    SCENARIOS.forEach((sc, idx) => {
+      const btn = document.createElement('button');
+      btn.className = 'preset-btn' + (idx === 0 ? ' active' : '');
+      btn.innerHTML = `<strong>${sc.title}</strong><span>${sc.description}</span>`;
+      btn.onclick = () => loadScenario(idx);
+      bar.appendChild(btn);
+    });
+
+    document.querySelectorAll('input, select').forEach(el => {
+      el.addEventListener('input', recalc);
+      el.addEventListener('change', recalc);
+    });
+
+    loadScenario(0);
+  </script>
+</body>
+</html>
