@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>MVP #127 — DACH ImmoScout24/Immowelt Privatverkäufer-Sniper &amp; §§ 656a–656d BGB Prüfstand</title>
+<style>
+  :root {
+    --bg: #0b1020;
+    --panel: #131b33;
+    --border: #26335d;
+    --text: #e8eefc;
+    --sub: #9ab0df;
+    --accent: #38bdf8;
+    --pos: #34d399;
+    --warn: #fbbf24;
+    --neg: #f87171;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 24px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.45;
+  }
+  h1, h2, h3 { margin-top: 0; }
+  .header {
+    background: linear-gradient(135deg, #131b33 0%, #1a274d 100%);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 20px;
+  }
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+  .kpi {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+  }
+  .kpi .val { font-size: 1.65rem; font-weight: 700; color: var(--accent); margin-top: 4px; }
+  .section {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 22px;
+    overflow-x: auto;
+  }
+  table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+  th, td { border-bottom: 1px solid var(--border); padding: 10px 8px; text-align: left; vertical-align: top; }
+  th { color: var(--accent); font-weight: 600; background: rgba(56, 189, 248, 0.06); }
+  .sub { color: var(--sub); font-size: 0.82rem; }
+  .pos { color: var(--pos); font-weight: 600; }
+  .neg { color: var(--neg); font-weight: 600; }
+  .tag {
+    display: inline-block;
+    padding: 2px 7px;
+    border-radius: 5px;
+    font-size: 0.76rem;
+    font-weight: 600;
+    background: rgba(154, 176, 223, 0.16);
+    color: var(--text);
+    margin: 2px 2px 0 0;
+  }
+  .tag-danger { background: rgba(248, 113, 113, 0.2); color: #fca5a5; border: 1px solid rgba(248, 113, 113, 0.4); }
+  .tag-warn { background: rgba(251, 191, 36, 0.18); color: #fde68a; border: 1px solid rgba(251, 191, 36, 0.35); }
+  .tag-ok { background: rgba(52, 211, 153, 0.18); color: #6ee7b7; border: 1px solid rgba(52, 211, 153, 0.35); }
+  .calc-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 12px;
+    margin-top: 12px;
+  }
+  label { display: block; font-size: 0.82rem; color: var(--sub); margin-bottom: 4px; }
+  input, select {
+    width: 100%;
+    padding: 8px 10px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: #0b1020;
+    color: var(--text);
+  }
+  .verdict-box {
+    margin-top: 16px;
+    padding: 14px 16px;
+    border-radius: 8px;
+    border: 1px solid var(--accent);
+    background: rgba(56, 189, 248, 0.08);
+  }
+</style>
+</head>
+<body>
+
+<!-- DACH CASHFLOW STUDIOS LAUNCH BAR -->
+<style>
+  #dcs-launch-bar {
+    position: sticky;
+    top: 0;
+    z-index: 99999;
+    background: linear-gradient(90deg, #0b1120 0%, #111827 50%, #0f172a 100%);
+    color: #f8fafc;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.35);
+    padding: 8px 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  }
+  #dcs-launch-bar .dcs-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+  }
+  #dcs-launch-bar .dcs-badge {
+    background: rgba(16, 185, 129, 0.18);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.03em;
+  }
+  #dcs-launch-bar a.dcs-nav {
+    color: #93c5fd;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 12.5px;
+  }
+  #dcs-launch-bar a.dcs-nav:hover {
+    text-decoration: underline;
+    color: #dbeafe;
+  }
+  #dcs-launch-bar .dcs-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  #dcs-launch-bar .dcs-btn {
+    padding: 5px 11px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s ease;
+  }
+  #dcs-launch-bar .dcs-btn-ghost {
+    background: rgba(255,255,255,0.08);
+    color: #e2e8f0;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  #dcs-launch-bar .dcs-btn-primary {
+    background: linear-gradient(135deg, #0ea5e9, #2563eb);
+    color: #ffffff;
+  }
+  #dcs-launch-bar .dcs-btn-emerald {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
+  }
+  @media print {
+    #dcs-launch-bar { display: none !important; }
+  }
+</style>
+<div id="dcs-launch-bar">
+  <div class="dcs-left">
+    <a href="/index.html" class="dcs-nav">← Alle 150 DACH Studios</a>
+    <span class="dcs-badge">MVP #127 VERIFIED</span>
+    <span style="color:#cbd5e1;font-size:12px;">DACH LegalTech, Labor Law & Consumer Claims</span>
+  </div>
+  <div class="dcs-actions">
+    <button onclick="window.print()" class="dcs-btn dcs-btn-ghost">🖨️ PDF / Dossier drucken</button>
+    <a href="#checkout-modal-49" target="_blank" rel="noopener" class="dcs-btn dcs-btn-primary">⚡ Musterschreiben & Voll-Dossier (€49)</a>
+    <a href="#checkout-modal-299" target="_blank" rel="noopener" class="dcs-btn dcs-btn-emerald">🛡️ B2B Umsetzung buchen (€299 / €1.490)</a>
+  </div>
+</div>
+
+  <div class="header">
+    <h1>DACH ImmoScout24 / Immowelt / Kleinanzeigen Privatverkäufer-Sniper &amp; §§ 656a–656d BGB Prüfstand (MVP #127)</h1>
+    <p class="sub">
+      Play A: Off-Market &bdquo;Von Privat&ldquo;-Standzeit-Sniper (&ge;45 Tage, &ge;2 Preissenkungen) + Erbengemeinschafts- &amp; § 71 GEG Sanierungs-Spread (&le;0.72&times; Mikrolage) ·
+      Play B: Deterministischer §§ 656a–656d BGB Halbteilungs- &amp; BGH I ZR 32/23 / I ZR 113/22 / I ZR 135/22 Provisions-Prüfer
+    </p>
+  </div>
+
+  <div class="kpi-grid">
+    <div class="kpi">
+      <div class="sub">Apify DACH Immo Runs (Kumuliert)</div>
+      <div class="val">2,457,309</div>
+      <div class="sub">177,305 Runs (30d) · 588 MAU</div>
+    </div>
+    <div class="kpi">
+      <div class="sub">Play A: Stale Privatverkäufer (&ge;45d)</div>
+      <div class="val">2 / 6</div>
+      <div class="sub">&le;0.72&times; Mikrolage-Deals: 5</div>
+    </div>
+    <div class="kpi">
+      <div class="sub">Play A: Netto-Aufteiler-Spread</div>
+      <div class="val">€563,072</div>
+      <div class="sub">inkl. § 71 GEG CapEx &amp; KfW-261 Zuschuss</div>
+    </div>
+    <div class="kpi">
+      <div class="sub">Play B: § 656c/d BGB &amp; BGH Entlastung</div>
+      <div class="val pos">€80,293.50</div>
+      <div class="sub">3 Gesamtnichtigkeiten (BGH I ZR 32/23)</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Interaktiver §§ 656a–656d BGB &amp; BGH I ZR 32/23 / I ZR 113/22 Live-Simulations-Rechner</h2>
+    <div class="calc-grid">
+      <div>
+        <label>Kaufpreis (€)</label>
+        <input id="sim_price" type="number" value="500000" step="10000" oninput="runSim()"/>
+      </div>
+      <div>
+        <label>Objektkategorie (§ 656a BGB)</label>
+        <select id="sim_cat" onchange="runSim()">
+          <option value="EIGENTUMSWOHNUNG">Eigentumswohnung (§ 656a BGB)</option>
+          <option value="EINFAMILIENHAUS">Einfamilienhaus (§ 656a BGB)</option>
+          <option value="EFH_MIT_EINLIEGERWOHNUNG">EFH mit Einliegerwohnung (BGH I ZR 135/22)</option>
+          <option value="MEHRFAMILIENHAUS">Mehrfamilienhaus &ge;3 WE (Kein § 656a Schutz)</option>
+        </select>
+      </div>
+      <div>
+        <label>Vertragsmodell (§ 656c vs. § 656d BGB)</label>
+        <select id="sim_model" onchange="runSim()">
+          <option value="DOPPELMAKLER_656C">§ 656c BGB Doppelmakler</option>
+          <option value="ABWAELZUNG_656D">§ 656d BGB Abwälzung vom Verkäufer</option>
+        </select>
+      </div>
+      <div>
+        <label>Käuferprovision lt. Exposé (% inkl. MwSt.)</label>
+        <input id="sim_buyer_pct" type="number" value="3.57" step="0.01" oninput="runSim()"/>
+      </div>
+      <div>
+        <label>Verkäuferprovision nominal (% inkl. MwSt.)</label>
+        <input id="sim_seller_pct" type="number" value="3.57" step="0.01" oninput="runSim()"/>
+      </div>
+      <div>
+        <label>Geheimer Verkäufer-Rabatt / Kickback (€)</label>
+        <input id="sim_kickback" type="number" value="8925" step="500" oninput="runSim()"/>
+      </div>
+      <div>
+        <label>Reservierungsgebühr lt. AGB (€ — BGH I ZR 113/22)</label>
+        <input id="sim_res_fee" type="number" value="3500" step="250" oninput="runSim()"/>
+      </div>
+      <div>
+        <label>§ 656a Textform &amp; § 656d Zahlungsnachweis</label>
+        <select id="sim_flags" onchange="runSim()">
+          <option value="text_ok_proof_no">Textform JA · Verkäufer-Zahlungsnachweis FEHLT</option>
+          <option value="text_ok_proof_yes">Textform JA · Verkäufer-Zahlungsnachweis LIEGT VOR</option>
+          <option value="text_no">KEINE Textform (§ 656a BGB Verstoß)</option>
+        </select>
+      </div>
+    </div>
+    <div id="sim_output" class="verdict-box"></div>
+  </div>
+
+  <div class="section">
+    <h2>Play A — ImmoScout24 / Immowelt / Kleinanzeigen Privatverkäufer-, Erbengemeinschafts- &amp; § 71 GEG Spread-Sniper</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Inserat &amp; Portal</th>
+          <th>Titel, Status &amp; NLP-Trigger</th>
+          <th>Preisverlauf &amp; Standzeit</th>
+          <th>€/m² vs. Mikrolage &amp; BRW</th>
+          <th>§ 71 GEG Sanierungs-Hebel</th>
+          <th>Aufteiler / Fix-&amp;-Flip Spread</th>
+        </tr>
+      </thead>
+      <tbody>
+        
+            <tr>
+                <td>
+                    <strong>IS24-154892011</strong><br/>
+                    <span class="sub">ImmoScout24 · 81825 München-Trudering</span><br/>
+                    <span class="sub">Actor: <code>memo23/immobilienscout24-scraper</code></span>
+                </td>
+                <td>
+                    <strong>PROVISIONSFREI VON PRIVAT: Freistehendes EFH aus Nachlass / Erbengemeinschaft – Bastlerhaus!</strong><br/>
+                    <span class="tag tag-danger">STALE PRIVATVERKÄUFER (&ge;45d &amp; &ge;2 Cuts)</span> <span class="tag tag-ok">&le;0.72x DEAL (0.69x)</span><br/>
+                    <div style="margin-top:4px"><span class="tag tag-warn">ERBENGEMEINSCHAFT_NACHLASS: erbengemeinschaft, aus nachlass, erbschein</span> <span class="tag tag-warn">SANIERUNGSBEDUERFTIG_BASTLER: renovierungsbedürftig, sanierungsbedürftig, bastlerhaus</span> <span class="tag tag-warn">GEG_ENERGIE_HEBEL: energieeffizienzklasse h, effizienzklasse h, ölheizung</span> <span class="tag tag-warn">AUFTEILER_BEZUGSFREI: unvermietet, bezugsfrei, ausbaureserve</span> </div>
+                </td>
+                <td>
+                    €980,000 &rarr; <strong>€765,000</strong><br/>
+                    <span class="neg">-21.9% (3 Preissenkungen)</span><br/>
+                    <span class="sub">Standzeit: 78 Tage · Score: 100/100</span>
+                </td>
+                <td>
+                    <strong>€5,276/m²</strong><br/>
+                    <span class="sub">Mikrolage: €7,600/m² (+30.6%)</span><br/>
+                    <span class="sub">BRW: €1,650/m²</span>
+                </td>
+                <td>
+                    Klasse <strong>H</strong><br/>
+                    Brutto: €130,500<br/>
+                    KfW-Förderung: -€32,500<br/>
+                    <strong>Netto: €98,000</strong>
+                </td>
+                <td>
+                    Exit: €1,057,920<br/>
+                    <strong>Spread: €152,845</strong><br/>
+                    <span class="pos">ROI: 16.9%</span>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>
+                    <strong>IS24-155104892</strong><br/>
+                    <span class="sub">ImmoScout24 · 60385 Frankfurt am Main</span><br/>
+                    <span class="sub">Actor: <code>clearpath/immoscout24-api-pro</code></span>
+                </td>
+                <td>
+                    <strong>Altbau-Eigentumswohnung (bezugsfrei, sanierungsbedürftig) mit Balkon in Frankfurt-Bornheim</strong><br/>
+                    <span class="tag">MAKLER (52d)</span> <span class="tag tag-ok">&le;0.72x DEAL (0.71x)</span><br/>
+                    <div style="margin-top:4px"><span class="tag tag-warn">SANIERUNGSBEDUERFTIG_BASTLER: sanierungsbedürftig</span> <span class="tag tag-warn">GEG_ENERGIE_HEBEL: energieeffizienzklasse g, effizienzklasse g</span> <span class="tag tag-warn">AUFTEILER_BEZUGSFREI: unvermietet, bezugsfrei</span> </div>
+                </td>
+                <td>
+                    €540,000 &rarr; <strong>€500,000</strong><br/>
+                    <span class="neg">-7.4% (1 Preissenkungen)</span><br/>
+                    <span class="sub">Standzeit: 52 Tage · Score: 0/100</span>
+                </td>
+                <td>
+                    <strong>€4,630/m²</strong><br/>
+                    <span class="sub">Mikrolage: €6,500/m² (+28.8%)</span><br/>
+                    <span class="sub">BRW: €2,400/m²</span>
+                </td>
+                <td>
+                    Klasse <strong>G</strong><br/>
+                    Brutto: €82,080<br/>
+                    KfW-Förderung: -€22,982<br/>
+                    <strong>Netto: €59,098</strong>
+                </td>
+                <td>
+                    Exit: €673,920<br/>
+                    <strong>Spread: €74,822</strong><br/>
+                    <span class="pos">ROI: 12.5%</span>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>
+                    <strong>IW-26984120</strong><br/>
+                    <span class="sub">Immowelt · 70563 Stuttgart-Vaihingen</span><br/>
+                    <span class="sub">Actor: <code>igolaizola/immowelt-scraper</code></span>
+                </td>
+                <td>
+                    <strong>Großzügiges Einfamilienhaus mit Einliegerwohnung aus Scheidung – sofort frei!</strong><br/>
+                    <span class="tag">MAKLER (61d)</span> <span class="tag tag-ok">&le;0.72x DEAL (0.71x)</span><br/>
+                    <div style="margin-top:4px"><span class="tag tag-warn">ERBENGEMEINSCHAFT_NACHLASS: scheidung</span> <span class="tag tag-warn">SANIERUNGSBEDUERFTIG_BASTLER: renovierungsbedürftig</span> <span class="tag tag-warn">AUFTEILER_BEZUGSFREI: unvermietet, sofort frei</span> </div>
+                </td>
+                <td>
+                    €840,000 &rarr; <strong>€780,000</strong><br/>
+                    <span class="neg">-7.1% (1 Preissenkungen)</span><br/>
+                    <span class="sub">Standzeit: 61 Tage · Score: 0/100</span>
+                </td>
+                <td>
+                    <strong>€4,457/m²</strong><br/>
+                    <span class="sub">Mikrolage: €6,300/m² (+29.2%)</span><br/>
+                    <span class="sub">BRW: €1,450/m²</span>
+                </td>
+                <td>
+                    Klasse <strong>F</strong><br/>
+                    Brutto: €106,750<br/>
+                    KfW-Förderung: -€29,890<br/>
+                    <strong>Netto: €76,860</strong>
+                </td>
+                <td>
+                    Exit: €1,058,400<br/>
+                    <strong>Spread: €146,940</strong><br/>
+                    <span class="pos">ROI: 16.1%</span>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>
+                    <strong>KA-2894105521</strong><br/>
+                    <span class="sub">Kleinanzeigen · 51069 Köln-Dellbrück</span><br/>
+                    <span class="sub">Actor: <code>clearpath/kleinanzeigen-immobilien-api-pro</code></span>
+                </td>
+                <td>
+                    <strong>Doppelhaushälfte von Privat – Nachlassverkauf, sanierungsbedürftig, Energieklasse G</strong><br/>
+                    <span class="tag tag-danger">STALE PRIVATVERKÄUFER (&ge;45d &amp; &ge;2 Cuts)</span> <span class="tag tag-ok">&le;0.72x DEAL (0.65x)</span><br/>
+                    <div style="margin-top:4px"><span class="tag tag-warn">ERBENGEMEINSCHAFT_NACHLASS: erbengemeinschaft, aus nachlass, nachlassverkauf</span> <span class="tag tag-warn">SANIERUNGSBEDUERFTIG_BASTLER: sanierungsbedürftig, bastlerhaus, handwerkerobjekt</span> <span class="tag tag-warn">GEG_ENERGIE_HEBEL: energieeffizienzklasse g, effizienzklasse g, nachtspeicher</span> <span class="tag tag-warn">AUFTEILER_BEZUGSFREI: bezugsfrei</span> </div>
+                </td>
+                <td>
+                    €520,000 &rarr; <strong>€415,000</strong><br/>
+                    <span class="neg">-20.2% (2 Preissenkungen)</span><br/>
+                    <span class="sub">Standzeit: 64 Tage · Score: 100/100</span>
+                </td>
+                <td>
+                    <strong>€3,144/m²</strong><br/>
+                    <span class="sub">Mikrolage: €4,850/m² (+35.2%)</span><br/>
+                    <span class="sub">BRW: €920/m²</span>
+                </td>
+                <td>
+                    Klasse <strong>G</strong><br/>
+                    Brutto: €100,320<br/>
+                    KfW-Förderung: -€28,090<br/>
+                    <strong>Netto: €72,230</strong>
+                </td>
+                <td>
+                    Exit: €614,592<br/>
+                    <strong>Spread: €92,087</strong><br/>
+                    <span class="pos">ROI: 17.6%</span>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>
+                    <strong>IS24-155390114</strong><br/>
+                    <span class="sub">ImmoScout24 · 13187 Berlin-Pankow</span><br/>
+                    <span class="sub">Actor: <code>memo23/immobilienscout24-scraper</code></span>
+                </td>
+                <td>
+                    <strong>3-Zimmer-ETW in Berlin-Pankow – bezugsfrei, Ausbaureserve</strong><br/>
+                    <span class="tag">MAKLER (34d)</span> <span class="tag">0.83x Median</span><br/>
+                    <div style="margin-top:4px"><span class="tag tag-warn">SANIERUNGSBEDUERFTIG_BASTLER: modernisierungsbedürftig</span> <span class="tag tag-warn">AUFTEILER_BEZUGSFREI: unvermietet, bezugsfrei, ausbaureserve</span> </div>
+                </td>
+                <td>
+                    €410,000 &rarr; <strong>€395,000</strong><br/>
+                    <span class="neg">-3.7% (1 Preissenkungen)</span><br/>
+                    <span class="sub">Standzeit: 34 Tage · Score: 0/100</span>
+                </td>
+                <td>
+                    <strong>€4,489/m²</strong><br/>
+                    <span class="sub">Mikrolage: €5,400/m² (+16.9%)</span><br/>
+                    <span class="sub">BRW: €1,800/m²</span>
+                </td>
+                <td>
+                    Klasse <strong>E</strong><br/>
+                    Brutto: €40,480<br/>
+                    KfW-Förderung: -€8,096<br/>
+                    <strong>Netto: €32,384</strong>
+                </td>
+                <td>
+                    Exit: €456,192<br/>
+                    <strong>Spread: €-2,792</strong><br/>
+                    <span class="pos">ROI: -0.6%</span>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>
+                    <strong>IW-27019488</strong><br/>
+                    <span class="sub">Immowelt · 04229 Leipzig-Plagwitz</span><br/>
+                    <span class="sub">Actor: <code>memo23/immowelt-scraper</code></span>
+                </td>
+                <td>
+                    <strong>Aufteiler-Mehrfamilienhaus (6 WE) aus Erbengemeinschaft – Teilungserklärung möglich!</strong><br/>
+                    <span class="tag">MAKLER (85d)</span> <span class="tag tag-ok">&le;0.72x DEAL (0.59x)</span><br/>
+                    <div style="margin-top:4px"><span class="tag tag-warn">ERBENGEMEINSCHAFT_NACHLASS: erbengemeinschaft</span> <span class="tag tag-warn">SANIERUNGSBEDUERFTIG_BASTLER: sanierungsbedürftig</span> <span class="tag tag-warn">GEG_ENERGIE_HEBEL: energieeffizienzklasse g, effizienzklasse g</span> <span class="tag tag-warn">AUFTEILER_BEZUGSFREI: unvermietet, bezugsfrei, teilungserklärung möglich, abgeschlossenheitsbescheinigung, ausbaureserve</span> </div>
+                </td>
+                <td>
+                    €890,000 &rarr; <strong>€710,000</strong><br/>
+                    <span class="neg">-20.2% (2 Preissenkungen)</span><br/>
+                    <span class="sub">Standzeit: 85 Tage · Score: 0/100</span>
+                </td>
+                <td>
+                    <strong>€1,690/m²</strong><br/>
+                    <span class="sub">Mikrolage: €2,850/m² (+40.7%)</span><br/>
+                    <span class="sub">BRW: €620/m²</span>
+                </td>
+                <td>
+                    Klasse <strong>G</strong><br/>
+                    Brutto: €319,200<br/>
+                    KfW-Förderung: -€32,500<br/>
+                    <strong>Netto: €286,700</strong>
+                </td>
+                <td>
+                    Exit: €1,149,120<br/>
+                    <strong>Spread: €99,170</strong><br/>
+                    <span class="pos">ROI: 9.4%</span>
+                </td>
+            </tr>
+            
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section">
+    <h2>Play B — Deterministischer §§ 656a–656d BGB (Halbteilungsgrundsatz) &amp; BGH Provisions-Prüfstand</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Inserat &amp; Modell</th>
+          <th>Anwendungsbereich (§ 656b BGB)</th>
+          <th>Courtage Käufer vs. Verkäufer</th>
+          <th>Gesetzesverstöße &amp; BGH-Präjudizien</th>
+          <th>Finanzielle Entlastung (€)</th>
+        </tr>
+      </thead>
+      <tbody>
+        
+            <tr>
+                <td>
+                    <strong>IS24-154892011</strong><br/>
+                    <span class="sub">EINFAMILIENHAUS</span><br/>
+                    <span class="sub">PRIVAT_DIREKT</span>
+                </td>
+                <td>
+                    <strong>JA (§ 656b BGB)</strong><br/>
+                    <span class="sub">Provisionsfreier Direktverkauf von Privat (§§ 656a–d BGB nicht einschlägig, da kein Maklervertrag).</span>
+                </td>
+                <td>
+                    Käufer: 0.00% (€0.00)<br/>
+                    Verkäufer eff.: 0.00% (€0.00)<br/>
+                    <span class="sub">Reservierungsgebühr: €0.00</span>
+                </td>
+                <td>
+                    <span class="tag tag-danger">PROVISIONSFREI_VON_PRIVAT</span>
+                    <span class='pos'>Keine Verstöße festgestellt</span>
+                    <span class="sub">BGH: —</span>
+                </td>
+                <td>
+                    Geschuldet: <strong>€0.00</strong><br/>
+                    Provisions-Ersparnis: <strong class="pos">€0.00</strong><br/>
+                    Reservierung zurück: <strong class="pos">€0.00</strong><br/>
+                    <strong>Gesamt-Entlastung: €0.00</strong>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>
+                    <strong>IS24-155104892</strong><br/>
+                    <span class="sub">EIGENTUMSWOHNUNG</span><br/>
+                    <span class="sub">DOPPELMAKLER_656C</span>
+                </td>
+                <td>
+                    <strong>JA (§ 656b BGB)</strong><br/>
+                    <span class="sub">Anwendungsbereich §§ 656a–656d BGB ERÖFFNET: Kaufvertrag über EIGENTUMSWOHNUNG durch Verbraucher (§ 656b BGB i.V.m. § 13 BGB).</span>
+                </td>
+                <td>
+                    Käufer: 3.57% (€17,850.00)<br/>
+                    Verkäufer eff.: 1.78% (€8,925.00)<br/>
+                    <span class="sub">Reservierungsgebühr: €3,500.00</span>
+                </td>
+                <td>
+                    <span class="tag tag-danger">GESAMTNICHTIG_656C_D_PLUS_RESERVIERUNG_NICHTIG</span>
+                    <ul style='margin:4px 0;padding-left:16px'><li>VERSTOSS_656C_ABS_1_S_2_BGB_GEHEIMER_ERLASS: Makler gewährt Verkäufer nachträglichen Erlass / Werbekostenerstattung / Kickback i.H.v. €8,925.00 (effektive Verkäuferprovision nur 1.78% statt 3.57%) -&gt; Umgehung des Halbteilungsgrundsatzes, Gesamtnichtigkeit nach § 656c Abs. 2 Satz 1 BGB (BGH I ZR 32/23)!</li><li>VERSTOSS_307_BGB_RESERVIERUNGSGEBUEHR: Unzulässige Reservierungsgebühr i.H.v. €3,500.00 verstößt gegen das gesetzliche Leitbild des erfolgsabhängigen Maklervertrags (§ 652 Abs. 1 BGB) -&gt; Unwirksamkeit nach § 307 Abs. 1 S. 1, Abs. 2 Nr. 1 BGB (BGH, Urt. v. 20.04.2023 – I ZR 113/22); Rückforderungsanspruch aus § 812 Abs. 1 Satz 1 Alt. 1 BGB!</li></ul>
+                    <span class="sub">BGH: BGH, Urt. v. 06.03.2024 – I ZR 32/23 (Gesamtnichtigkeit statt geltungserhaltender Reduktion), BGH, Urt. v. 20.04.2023 – I ZR 113/22 (Nichtigkeit von Reservierungsgebühren)</span>
+                </td>
+                <td>
+                    Geschuldet: <strong>€0.00</strong><br/>
+                    Provisions-Ersparnis: <strong class="pos">€17,850.00</strong><br/>
+                    Reservierung zurück: <strong class="pos">€3,500.00</strong><br/>
+                    <strong>Gesamt-Entlastung: €21,350.00</strong>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>
+                    <strong>IW-26984120</strong><br/>
+                    <span class="sub">EFH_MIT_EINLIEGERWOHNUNG</span><br/>
+                    <span class="sub">ABWAELZUNG_656D</span>
+                </td>
+                <td>
+                    <strong>JA (§ 656b BGB)</strong><br/>
+                    <span class="sub">Anwendungsbereich §§ 656a–656d BGB ERÖFFNET: Einfamilienhaus mit untergeordneter Einliegerwohnung gilt nach BGH, Urteil v. 06.07.2023 – I ZR 135/22 als Einfamilienhaus i.S.d. § 656a BGB; Käufer handelt als Verbraucher (§ 656b BGB i.V.m. § 13 BGB).</span>
+                </td>
+                <td>
+                    Käufer: 4.76% (€37,128.00)<br/>
+                    Verkäufer eff.: 1.19% (€9,282.00)<br/>
+                    <span class="sub">Reservierungsgebühr: €2,500.00</span>
+                </td>
+                <td>
+                    <span class="tag tag-danger">GESAMTNICHTIG_656C_D_PLUS_RESERVIERUNG_NICHTIG</span>
+                    <ul style='margin:4px 0;padding-left:16px'><li>VERSTOSS_656D_ABS_1_S_1_BGB_UEBERMAESSIGE_ABWAELZUNG: Einseitiger Verkäufer-Maklervertrag wälzt 4.76% (€37,128.00) auf den Käufer ab, während Verkäufer effektiv nur 1.19% (€9,282.00) trägt -&gt; Gesamtnichtigkeit der Abwälzung nach § 656d Abs. 2 i.V.m. § 656c Abs. 2 Satz 1 BGB (BGH I ZR 32/23; Käufer schuldet €0,00)!</li><li>FAELLIGKEITSSPERRE_656D_ABS_1_S_2_BGB: Anspruch gegen Käufer ist NICHT FÄLLIG, solange Verkäufer oder Makler keinen Bank-Zahlungsnachweis über die vollständige Zahlung des Verkäuferanteils vorlegt (§ 656d Abs. 1 Satz 2 BGB).</li><li>VERSTOSS_307_BGB_RESERVIERUNGSGEBUEHR: Unzulässige Reservierungsgebühr i.H.v. €2,500.00 verstößt gegen das gesetzliche Leitbild des erfolgsabhängigen Maklervertrags (§ 652 Abs. 1 BGB) -&gt; Unwirksamkeit nach § 307 Abs. 1 S. 1, Abs. 2 Nr. 1 BGB (BGH, Urt. v. 20.04.2023 – I ZR 113/22); Rückforderungsanspruch aus § 812 Abs. 1 Satz 1 Alt. 1 BGB!</li></ul>
+                    <span class="sub">BGH: BGH, Urt. v. 06.07.2023 – I ZR 135/22 (EFH mit Einliegerwohnung), BGH, Urt. v. 06.03.2024 – I ZR 32/23 (Gesamtnichtigkeit bei Verstoß gegen § 656d BGB), BGH, Urt. v. 20.04.2023 – I ZR 113/22 (Nichtigkeit von Reservierungsgebühren)</span>
+                </td>
+                <td>
+                    Geschuldet: <strong>€0.00</strong><br/>
+                    Provisions-Ersparnis: <strong class="pos">€37,128.00</strong><br/>
+                    Reservierung zurück: <strong class="pos">€2,500.00</strong><br/>
+                    <strong>Gesamt-Entlastung: €39,628.00</strong>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>
+                    <strong>KA-2894105521</strong><br/>
+                    <span class="sub">EINFAMILIENHAUS</span><br/>
+                    <span class="sub">DOPPELMAKLER_656C</span>
+                </td>
+                <td>
+                    <strong>JA (§ 656b BGB)</strong><br/>
+                    <span class="sub">Anwendungsbereich §§ 656a–656d BGB ERÖFFNET: Kaufvertrag über EINFAMILIENHAUS durch Verbraucher (§ 656b BGB i.V.m. § 13 BGB).</span>
+                </td>
+                <td>
+                    Käufer: 3.57% (€14,815.50)<br/>
+                    Verkäufer eff.: 3.57% (€14,815.50)<br/>
+                    <span class="sub">Reservierungsgebühr: €0.00</span>
+                </td>
+                <td>
+                    <span class="tag tag-danger">GESAMTNICHTIG_656C_D_BGB_0_EUR_PROVISION</span>
+                    <ul style='margin:4px 0;padding-left:16px'><li>VERSTOSS_656A_BGB_TEXTFORM: Maklervertrag über Wohnung/Einfamilienhaus wurde nicht in Textform (§ 126b BGB) geschlossen -&gt; Formnichtigkeit nach § 125 Satz 1 BGB.</li></ul>
+                    <span class="sub">BGH: —</span>
+                </td>
+                <td>
+                    Geschuldet: <strong>€0.00</strong><br/>
+                    Provisions-Ersparnis: <strong class="pos">€14,815.50</strong><br/>
+                    Reservierung zurück: <strong class="pos">€0.00</strong><br/>
+                    <strong>Gesamt-Entlastung: €14,815.50</strong>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>
+                    <strong>IS24-155390114</strong><br/>
+                    <span class="sub">EIGENTUMSWOHNUNG</span><br/>
+                    <span class="sub">ABWAELZUNG_656D</span>
+                </td>
+                <td>
+                    <strong>JA (§ 656b BGB)</strong><br/>
+                    <span class="sub">Anwendungsbereich §§ 656a–656d BGB ERÖFFNET: Kaufvertrag über EIGENTUMSWOHNUNG durch Verbraucher (§ 656b BGB i.V.m. § 13 BGB).</span>
+                </td>
+                <td>
+                    Käufer: 2.98% (€11,751.25)<br/>
+                    Verkäufer eff.: 2.98% (€11,751.25)<br/>
+                    <span class="sub">Reservierungsgebühr: €0.00</span>
+                </td>
+                <td>
+                    <span class="tag tag-danger">FAELLIGKEITSSPERRE_656D_ZAHLUNGSNACHWEIS_FEHLT</span>
+                    <ul style='margin:4px 0;padding-left:16px'><li>FAELLIGKEITSSPERRE_656D_ABS_1_S_2_BGB: Anspruch gegen Käufer ist NICHT FÄLLIG, solange Verkäufer oder Makler keinen Bank-Zahlungsnachweis über die vollständige Zahlung des Verkäuferanteils vorlegt (§ 656d Abs. 1 Satz 2 BGB).</li></ul>
+                    <span class="sub">BGH: —</span>
+                </td>
+                <td>
+                    Geschuldet: <strong>€11,751.25</strong><br/>
+                    Provisions-Ersparnis: <strong class="pos">€0.00</strong><br/>
+                    Reservierung zurück: <strong class="pos">€0.00</strong><br/>
+                    <strong>Gesamt-Entlastung: €0.00</strong>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>
+                    <strong>IW-27019488</strong><br/>
+                    <span class="sub">MEHRFAMILIENHAUS</span><br/>
+                    <span class="sub">DOPPELMAKLER_656C</span>
+                </td>
+                <td>
+                    <strong>NEIN (Ausnahme)</strong><br/>
+                    <span class="sub">KEIN Halbteilungsschutz nach §§ 656c/d BGB: Objektkategorie &#x27;MEHRFAMILIENHAUS&#x27; (oder gewerblicher Erwerber) fällt nicht unter § 656a / § 656b BGB — reine Außenprovision zulässig.</span>
+                </td>
+                <td>
+                    Käufer: 7.14% (€50,694.00)<br/>
+                    Verkäufer eff.: 0.00% (€0.00)<br/>
+                    <span class="sub">Reservierungsgebühr: €4,500.00</span>
+                </td>
+                <td>
+                    <span class="tag tag-danger">RESERVIERUNGSGEBUEHR_NICHTIG_BGH_113_22</span>
+                    <ul style='margin:4px 0;padding-left:16px'><li>VERSTOSS_307_BGB_RESERVIERUNGSGEBUEHR: Unzulässige Reservierungsgebühr i.H.v. €4,500.00 verstößt gegen das gesetzliche Leitbild des erfolgsabhängigen Maklervertrags (§ 652 Abs. 1 BGB) -&gt; Unwirksamkeit nach § 307 Abs. 1 S. 1, Abs. 2 Nr. 1 BGB (BGH, Urt. v. 20.04.2023 – I ZR 113/22); Rückforderungsanspruch aus § 812 Abs. 1 Satz 1 Alt. 1 BGB!</li></ul>
+                    <span class="sub">BGH: BGH, Urt. v. 20.04.2023 – I ZR 113/22 (Nichtigkeit von Reservierungsgebühren)</span>
+                </td>
+                <td>
+                    Geschuldet: <strong>€50,694.00</strong><br/>
+                    Provisions-Ersparnis: <strong class="pos">€0.00</strong><br/>
+                    Reservierung zurück: <strong class="pos">€4,500.00</strong><br/>
+                    <strong>Gesamt-Entlastung: €4,500.00</strong>
+                </td>
+            </tr>
+            
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section">
+    <h2>Live Apify Store Telemetry — DACH Real-Estate Scrapers (Stand 2026-10-17)</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Apify Actor Slug</th>
+          <th>Total Runs</th>
+          <th>Runs (30d)</th>
+          <th>MAU (30d) / Total Users</th>
+          <th>Pricing Model</th>
+          <th>Spezifische DACH-Fähigkeit</th>
+        </tr>
+      </thead>
+      <tbody>
+        
+            <tr>
+                <td><code>memo23/immobilienscout24-scraper</code><br/><span class="sub">ImmoScout24 (.de / .at / .ch)</span></td>
+                <td><strong>94,847</strong></td>
+                <td>27,172</td>
+                <td><strong>197</strong> / 774</td>
+                <td>PAY_PER_EVENT ($0.0018/item)</td>
+                <td class="sub">100+ fields incl. recorded price-cut archive, days-on-market (Standzeit), Makler direct phone &amp; postcode ROI.</td>
+            </tr>
+            
+            <tr>
+                <td><code>clearpath/immoscout24-api-pro</code><br/><span class="sub">ImmoScout24 (.de)</span></td>
+                <td><strong>1,201,603</strong></td>
+                <td>76,002</td>
+                <td><strong>44</strong> / 256</td>
+                <td>PAY_PER_EVENT ($0.0012/item)</td>
+                <td class="sub">1,000+ ImmoScout24 listings/min via mobile API with phone numbers, energy data (GEG), floor plans &amp; Telegram monitor.</td>
+            </tr>
+            
+            <tr>
+                <td><code>clearpath/immoscout24-api-lite</code><br/><span class="sub">ImmoScout24 (.de)</span></td>
+                <td><strong>764,148</strong></td>
+                <td>14,906</td>
+                <td><strong>12</strong> / 106</td>
+                <td>PAY_PER_EVENT ($0.0008/item)</td>
+                <td class="sub">High-frequency sub-minute delta monitor for newly published buy/rent listings.</td>
+            </tr>
+            
+            <tr>
+                <td><code>azzouzana/immobilienscout-immoscout-scraper</code><br/><span class="sub">ImmoScout24 (.de / .at / .ch)</span></td>
+                <td><strong>58,616</strong></td>
+                <td>2,105</td>
+                <td><strong>50</strong> / 479</td>
+                <td>PAY_PER_EVENT ($0.0010/item)</td>
+                <td class="sub">Low-cost DACH search URL scraper with sqm, rooms, seller contacts &amp; photos.</td>
+            </tr>
+            
+            <tr>
+                <td><code>clearpath/immoscout24-detail-listing-scraper</code><br/><span class="sub">ImmoScout24 (.de)</span></td>
+                <td><strong>27,103</strong></td>
+                <td>4,745</td>
+                <td><strong>16</strong> / 199</td>
+                <td>PAY_PER_EVENT ($0.0015/item)</td>
+                <td class="sub">Deep expose parser (300ms/req) extracting full free-text descriptions, Käuferprovision text, and energy certificates.</td>
+            </tr>
+            
+            <tr>
+                <td><code>clearpath/immobilien-export-pro</code><br/><span class="sub">Cross-Portal (ImmoScout24 + Kleinanzeigen + Immowelt)</span></td>
+                <td><strong>9,572</strong></td>
+                <td>1,828</td>
+                <td><strong>26</strong> / 150</td>
+                <td>PAY_PER_EVENT ($0.0200/item)</td>
+                <td class="sub">70,000+ German sale listings deduplicated across ImmoScout24, Kleinanzeigen &amp; Immowelt with full price history &amp; deletion tracking.</td>
+            </tr>
+            
+            <tr>
+                <td><code>igolaizola/immowelt-scraper</code><br/><span class="sub">Immowelt (.de)</span></td>
+                <td><strong>5,112</strong></td>
+                <td>1,438</td>
+                <td><strong>60</strong> / 128</td>
+                <td>PAY_PER_EVENT ($0.0010/item)</td>
+                <td class="sub">Highest-MAU Immowelt scraper with MCP support, energy class filtering, and detail enrichment.</td>
+            </tr>
+            
+            <tr>
+                <td><code>memo23/immowelt-scraper</code><br/><span class="sub">Immowelt (.de)</span></td>
+                <td><strong>19,677</strong></td>
+                <td>5,907</td>
+                <td><strong>37</strong> / 112</td>
+                <td>PAY_PER_EVENT ($0.0009/item)</td>
+                <td class="sub">Fast GraphQL Immowelt extraction with agent directory &amp; keyword search.</td>
+            </tr>
+            
+            <tr>
+                <td><code>real_spidery/immowelt-scraper</code><br/><span class="sub">Immowelt (.de)</span></td>
+                <td><strong>48,456</strong></td>
+                <td>705</td>
+                <td><strong>5</strong> / 166</td>
+                <td>PAY_PER_EVENT ($0.0024/item)</td>
+                <td class="sub">Legacy high-volume Immowelt crawler (48.4k runs).</td>
+            </tr>
+            
+            <tr>
+                <td><code>clearpath/kleinanzeigen-immobilien-api-pro</code><br/><span class="sub">Kleinanzeigen Immobilien (.de)</span></td>
+                <td><strong>200,998</strong></td>
+                <td>36,376</td>
+                <td><strong>23</strong> / 43</td>
+                <td>PAY_PER_EVENT ($0.0015/item)</td>
+                <td class="sub">200k+ runs; primary source for off-market &#x27;Von Privat&#x27; &amp; Erbengemeinschaft listings on Kleinanzeigen Immobilien.</td>
+            </tr>
+            
+            <tr>
+                <td><code>memo23/kleinanzeigen-search-scraper-ppe</code><br/><span class="sub">Kleinanzeigen (.de)</span></td>
+                <td><strong>27,177</strong></td>
+                <td>6,121</td>
+                <td><strong>118</strong> / 325</td>
+                <td>PAY_PER_EVENT ($0.0015/item)</td>
+                <td class="sub">118 MAU; rich seller metadata and private vs. commercial badge detection.</td>
+            </tr>
+            
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    const STUDIO_DATA = {"summary": {"mvp_id": "MVP-127", "title": "ImmoScout24 / Immowelt / Kleinanzeigen Off-Market Privatverkäufer, Erbengemeinschaft & Makler-Akquise Sniper + § 656c / § 656d BGB Halbteilungs-Provisions-Prüfer", "generated_at": "2026-10-17T19:41:56.645928+00:00", "apify_actors_tracked": 11, "apify_total_runs": 2457309, "apify_runs_30d": 177305, "apify_mau_30d": 588, "total_listings": 6, "stale_private_seller_hits": 2, "below_072_sniper_hits": 5, "total_projected_investor_spread_eur": 563072.0, "void_commission_contracts": 3, "faelligkeitssperre_656d_cases": 2, "void_reservation_fees_bgh_113_22": 3, "total_buyer_relief_eur": 80293.5}, "apify_registry": [{"actor_slug": "memo23/immobilienscout24-scraper", "actor_id": "ciTdHfgOkkwfEzTE9", "portal": "ImmoScout24 (.de / .at / .ch)", "title": "ImmoScout24 ImmobilienScout24 .de|.ch|.at + Price-Cut Archive", "total_runs": 94847, "runs_30d": 27172, "succeeded_30d": 26881, "total_users": 774, "mau_30d": 197, "rating": 5.0, "reviews": 10, "pricing_model": "PAY_PER_EVENT", "unit_price_usd_free": 0.00175, "unit_price_usd_gold": 0.00114, "special_events": {"monitoring_check_usd": 0.0005, "agent_direct_phone_usd": 0.005, "ai_market_analysis_usd": 0.15}, "key_capability": "100+ fields incl. recorded price-cut archive, days-on-market (Standzeit), Makler direct phone & postcode ROI."}, {"actor_slug": "clearpath/immoscout24-api-pro", "actor_id": "s609dyAJSrju54QSh", "portal": "ImmoScout24 (.de)", "title": "ImmoScout24 ImmobilienScout24 Scraper (API) Pro - 50+ Felder", "total_runs": 1201603, "runs_30d": 76002, "succeeded_30d": 63208, "total_users": 256, "mau_30d": 44, "rating": 0.0, "reviews": 0, "pricing_model": "PAY_PER_EVENT", "unit_price_usd_free": 0.00119, "unit_price_usd_gold": 0.0009999, "special_events": {"actor_start_usd": 0.002}, "key_capability": "1,000+ ImmoScout24 listings/min via mobile API with phone numbers, energy data (GEG), floor plans & Telegram monitor."}, {"actor_slug": "clearpath/immoscout24-api-lite", "actor_id": "mwBC2oe2vWbDfbeVb", "portal": "ImmoScout24 (.de)", "title": "ImmoScout24 ImmobilienScout24 Scraper (API) Lite - Monitor", "total_runs": 764148, "runs_30d": 14906, "succeeded_30d": 14901, "total_users": 106, "mau_30d": 12, "rating": 5.0, "reviews": 1, "pricing_model": "PAY_PER_EVENT", "unit_price_usd_free": 0.000799, "unit_price_usd_gold": 0.000799, "special_events": {"actor_start_usd": 0.002}, "key_capability": "High-frequency sub-minute delta monitor for newly published buy/rent listings."}, {"actor_slug": "azzouzana/immobilienscout-immoscout-scraper", "actor_id": "RMKw398cdpe4Xfxcm", "portal": "ImmoScout24 (.de / .at / .ch)", "title": "ImmobilienScout24 ImmoScout24 Scraper [From $0.7]", "total_runs": 58616, "runs_30d": 2105, "succeeded_30d": 2095, "total_users": 479, "mau_30d": 50, "rating": 5.0, "reviews": 7, "pricing_model": "PAY_PER_EVENT", "unit_price_usd_free": 0.001, "unit_price_usd_gold": 0.0007, "special_events": {"actor_start_usd": 0.006}, "key_capability": "Low-cost DACH search URL scraper with sqm, rooms, seller contacts & photos."}, {"actor_slug": "clearpath/immoscout24-detail-listing-scraper", "actor_id": "wdaV0qFwqQJ2H7ywd", "portal": "ImmoScout24 (.de)", "title": "ImmoScout24 Detail Scraper 300ms/req | ImmobilienScout24", "total_runs": 27103, "runs_30d": 4745, "succeeded_30d": 4745, "total_users": 199, "mau_30d": 16, "rating": 0.0, "reviews": 0, "pricing_model": "PAY_PER_EVENT", "unit_price_usd_free": 0.00149, "unit_price_usd_gold": 0.00119, "special_events": {"actor_start_usd": 0.005}, "key_capability": "Deep expose parser (300ms/req) extracting full free-text descriptions, Käuferprovision text, and energy certificates."}, {"actor_slug": "clearpath/immobilien-export-pro", "actor_id": "rfUFdb0huw88MIU1k", "portal": "Cross-Portal (ImmoScout24 + Kleinanzeigen + Immowelt)", "title": "Immobilien Export Pro - ImmoScout24, Kleinanzeigen, Immowelt", "total_runs": 9572, "runs_30d": 1828, "succeeded_30d": 1782, "total_users": 150, "mau_30d": 26, "rating": 0.0, "reviews": 0, "pricing_model": "PAY_PER_EVENT", "unit_price_usd_free": 0.01999, "unit_price_usd_gold": 0.01599, "special_events": {"actor_start_usd": 5e-05}, "key_capability": "70,000+ German sale listings deduplicated across ImmoScout24, Kleinanzeigen & Immowelt with full price history & deletion tracking."}, {"actor_slug": "igolaizola/immowelt-scraper", "actor_id": "Dn1wbny0nkNjz9CvB", "portal": "Immowelt (.de)", "title": "Immowelt Scraper - Real Estate Germany", "total_runs": 5112, "runs_30d": 1438, "succeeded_30d": 1421, "total_users": 128, "mau_30d": 60, "rating": 5.0, "reviews": 2, "pricing_model": "PAY_PER_EVENT", "unit_price_usd_free": 0.001, "unit_price_usd_gold": 0.0007, "special_events": {"fetch_detail_usd": 0.001}, "key_capability": "Highest-MAU Immowelt scraper with MCP support, energy class filtering, and detail enrichment."}, {"actor_slug": "memo23/immowelt-scraper", "actor_id": "vLNGFPuJQkuxtQ4jt", "portal": "Immowelt (.de)", "title": "Immowelt.de [$0.9] Agents & Search By Url or Keywords", "total_runs": 19677, "runs_30d": 5907, "succeeded_30d": 5833, "total_users": 112, "mau_30d": 37, "rating": 5.0, "reviews": 4, "pricing_model": "PAY_PER_EVENT", "unit_price_usd_free": 0.0009, "unit_price_usd_gold": 0.0009, "special_events": {"monitoring_check_usd": 0.0005, "actor_start_usd": 0.007}, "key_capability": "Fast GraphQL Immowelt extraction with agent directory & keyword search."}, {"actor_slug": "real_spidery/immowelt-scraper", "actor_id": "8tbhBbBhCAsf6pxEi", "portal": "Immowelt (.de)", "title": "Immowelt Scraper", "total_runs": 48456, "runs_30d": 705, "succeeded_30d": 705, "total_users": 166, "mau_30d": 5, "rating": 0.0, "reviews": 0, "pricing_model": "PAY_PER_EVENT", "unit_price_usd_free": 0.00245, "unit_price_usd_gold": 0.00245, "special_events": {}, "key_capability": "Legacy high-volume Immowelt crawler (48.4k runs)."}, {"actor_slug": "clearpath/kleinanzeigen-immobilien-api-pro", "actor_id": "Yu9fmARTOt79Ungbn", "portal": "Kleinanzeigen Immobilien (.de)", "title": "Kleinanzeigen Immobilien Scraper Pro - 1000/Min", "total_runs": 200998, "runs_30d": 36376, "succeeded_30d": 36309, "total_users": 43, "mau_30d": 23, "rating": 0.0, "reviews": 0, "pricing_model": "PAY_PER_EVENT", "unit_price_usd_free": 0.00149, "unit_price_usd_gold": 0.00149, "special_events": {"actor_start_usd": 0.002}, "key_capability": "200k+ runs; primary source for off-market 'Von Privat' & Erbengemeinschaft listings on Kleinanzeigen Immobilien."}, {"actor_slug": "memo23/kleinanzeigen-search-scraper-ppe", "actor_id": "yvlrXETXWacLHgwEz", "portal": "Kleinanzeigen (.de)", "title": "Kleinanzeigen.de | $1.5 | Scraper (Richest output)[PPE]", "total_runs": 27177, "runs_30d": 6121, "succeeded_30d": 5364, "total_users": 325, "mau_30d": 118, "rating": 5.0, "reviews": 2, "pricing_model": "PAY_PER_EVENT", "unit_price_usd_free": 0.0015, "unit_price_usd_gold": 0.0015, "special_events": {"actor_start_usd": 0.005}, "key_capability": "118 MAU; rich seller metadata and private vs. commercial badge detection."}], "items": [{"listing": {"listing_id": "IS24-154892011", "portal": "ImmoScout24", "source_actor": "memo23/immobilienscout24-scraper", "title": "PROVISIONSFREI VON PRIVAT: Freistehendes EFH aus Nachlass / Erbengemeinschaft – Bastlerhaus!", "description": "Verkauf von Privat ohne Makler aus Nachlass (Erbengemeinschaft, Erbschein liegt vor). Stark renovierungsbedürftig / sanierungsbedürftig, Ölheizung Bj. 1989, Energieeffizienzklasse H. Sofort bezugsfrei / unvermietet, großes Grundstück mit Ausbaureserve im DG.", "city": "München-Trudering", "postal_code": "81825", "federal_state": "BY", "property_category": "EINFAMILIENHAUS", "seller_type": "PRIVAT", "seller_name": "Erbengemeinschaft Weber / Mayer (Privat)", "living_space_sqm": 145.0, "plot_area_sqm": 640.0, "rooms": 5.5, "year_built": 1968, "energy_class": "H", "heating_type": "Ölheizung (Konstanttemperaturkessel 1989)", "initial_price_eur": 980000.0, "current_price_eur": 765000.0, "days_on_market": 78, "price_history": [{"date": "2026-08-01", "price_eur": 980000.0}, {"date": "2026-08-29", "price_eur": 895000.0}, {"date": "2026-09-22", "price_eur": 820000.0}, {"date": "2026-10-10", "price_eur": 765000.0}], "mikrolage_median_eur_per_sqm": 7600.0, "bodenrichtwert_eur_per_sqm": 1650.0, "buyer_is_consumer_13_bgb": true, "contract_model": "PRIVAT_DIREKT", "textform_656a_compliant": true, "advertised_buyer_commission_pct": 0.0, "agreed_seller_commission_pct": 0.0, "secret_seller_kickback_or_waiver_eur": 0.0, "seller_payment_proof_provided_656d": true, "reservation_fee_charged_eur": 0.0, "reservation_fee_in_agb_or_linked": false}, "sniper": {"listing_id": "IS24-154892011", "is_stale_private_seller_target": true, "private_seller_exhaustion_score": 100, "price_cut_count": 3, "cumulative_price_drop_eur": 215000.0, "cumulative_price_drop_pct": 21.94, "current_eur_per_sqm": 5275.86, "mikrolage_ratio": 0.6942, "mikrolage_spread_pct": 30.58, "is_below_market_072_sniper": true, "matched_distress_clusters": {"ERBENGEMEINSCHAFT_NACHLASS": ["erbengemeinschaft", "aus nachlass", "erbschein"], "SANIERUNGSBEDUERFTIG_BASTLER": ["renovierungsbedürftig", "sanierungsbedürftig", "bastlerhaus"], "GEG_ENERGIE_HEBEL": ["energieeffizienzklasse h", "effizienzklasse h", "ölheizung"], "AUFTEILER_BEZUGSFREI": ["unvermietet", "bezugsfrei", "ausbaureserve"]}, "geg_gross_capex_eur": 130500.0, "kfw_beg_subsidy_eur": 32500.0, "geg_net_capex_eur": 98000.0, "grunderwerbsteuer_eur": 26775.0, "notary_grundbuch_eur": 15300.0, "projected_post_reno_value_eur": 1057920.0, "projected_investor_net_spread_eur": 152845.0, "projected_investor_roi_pct": 16.89, "recommended_play_a_action": "DUAL_SNIPER_HIT: 1) Fix-&-Flip Direktankauf unter 0.72x Marktwert ODER 2) Makler-Alleinauftrag (§ 656c BGB)", "makler_akquise_pitch_de": "Sehr geehrte(r) Erbengemeinschaft Weber / Mayer (Privat), Ihr Inserat „PROVISIONSFREI VON PRIVAT: Freistehendes EFH aus Nachlass / Erbengemeinschaft – Bastlerhaus!“ (81825 München-Trudering) ist seit 78 Tagen online und wurde bereits 3-mal um insgesamt €215,000 (-21.9%) reduziert. Weitere öffentliche Preissenkungen verbrennen das Objekt am Markt. Wir führen für München-Trudering vorgemerkte, bonitätsgeprüfte Käufer (inkl. KfW-261/§ 71 GEG Sanierungsfinanzierung für Energieklasse H) und sichern Ihnen im § 656c BGB-konformen Alleinauftrag den Zielpreis ohne Besichtigungstourismus."}, "bgb": {"listing_id": "IS24-154892011", "statute_applicable_656b": true, "applicability_reason_de": "Provisionsfreier Direktverkauf von Privat (§§ 656a–d BGB nicht einschlägig, da kein Maklervertrag).", "contract_model": "PRIVAT_DIREKT", "nominal_buyer_commission_eur": 0.0, "effective_seller_commission_eur": 0.0, "effective_seller_commission_pct": 0.0, "violations_detected": [], "bgh_precedents_cited": [], "is_commission_contract_void_gesamtnichtigkeit": false, "is_due_blocked_656d_faelligkeitssperre": false, "is_reservation_fee_void_bgh_113_22": false, "legally_owed_buyer_commission_eur": 0.0, "buyer_commission_saved_eur": 0.0, "reservation_fee_reclaim_eur": 0.0, "total_buyer_financial_relief_eur": 0.0, "legal_verdict_badge": "PROVISIONSFREI_VON_PRIVAT", "rueckforderung_schreiben_de": "Kein Makler involviert — Direktankauf ohne Courtage."}}, {"listing": {"listing_id": "IS24-155104892", "portal": "ImmoScout24", "source_actor": "clearpath/immoscout24-api-pro", "title": "Altbau-Eigentumswohnung (bezugsfrei, sanierungsbedürftig) mit Balkon in Frankfurt-Bornheim", "description": "Unvermietete 4-Zimmer-Altbauwohnung, sanierungsbedürftig, Energieeffizienzklasse G. Käuferprovision 3,57% inkl. MwSt. Reservierungsgebühr €3.500 bei Reservierung.", "city": "Frankfurt am Main", "postal_code": "60385", "federal_state": "HE", "property_category": "EIGENTUMSWOHNUNG", "seller_type": "MAKLER", "seller_name": "RheinMain Premium Immobilien GmbH", "living_space_sqm": 108.0, "plot_area_sqm": 0.0, "rooms": 4.0, "year_built": 1912, "energy_class": "G", "heating_type": "Gasetagenheizung (1994)", "initial_price_eur": 540000.0, "current_price_eur": 500000.0, "days_on_market": 52, "price_history": [{"date": "2026-08-26", "price_eur": 540000.0}, {"date": "2026-09-30", "price_eur": 500000.0}], "mikrolage_median_eur_per_sqm": 6500.0, "bodenrichtwert_eur_per_sqm": 2400.0, "buyer_is_consumer_13_bgb": true, "contract_model": "DOPPELMAKLER_656C", "textform_656a_compliant": true, "advertised_buyer_commission_pct": 3.57, "agreed_seller_commission_pct": 3.57, "secret_seller_kickback_or_waiver_eur": 8925.0, "seller_payment_proof_provided_656d": false, "reservation_fee_charged_eur": 3500.0, "reservation_fee_in_agb_or_linked": true}, "sniper": {"listing_id": "IS24-155104892", "is_stale_private_seller_target": false, "private_seller_exhaustion_score": 0, "price_cut_count": 1, "cumulative_price_drop_eur": 40000.0, "cumulative_price_drop_pct": 7.41, "current_eur_per_sqm": 4629.63, "mikrolage_ratio": 0.7123, "mikrolage_spread_pct": 28.77, "is_below_market_072_sniper": true, "matched_distress_clusters": {"SANIERUNGSBEDUERFTIG_BASTLER": ["sanierungsbedürftig"], "GEG_ENERGIE_HEBEL": ["energieeffizienzklasse g", "effizienzklasse g"], "AUFTEILER_BEZUGSFREI": ["unvermietet", "bezugsfrei"]}, "geg_gross_capex_eur": 82080.0, "kfw_beg_subsidy_eur": 22982.4, "geg_net_capex_eur": 59097.6, "grunderwerbsteuer_eur": 30000.0, "notary_grundbuch_eur": 10000.0, "projected_post_reno_value_eur": 673920.0, "projected_investor_net_spread_eur": 74822.4, "projected_investor_roi_pct": 12.49, "recommended_play_a_action": "INVESTOR_ANKAUF_SNIPER: Off-Market/Erbengemeinschafts-Deal <= 0.72x Mikrolage + § 71 GEG Sanierungs-Hebel", "makler_akquise_pitch_de": "Ankaufs-Indikation an RheinMain Premium Immobilien GmbH: Objekt liegt bei €4,630/m² (+28.8% ggü. Mikrolage €6,500/m²). Nach Abzug von €59,098 Netto-GEG-CapEx (Energieklasse G) verbleibt eine Netto-Aufteiler-Marge von €74,822 (12.5% ROI)."}, "bgb": {"listing_id": "IS24-155104892", "statute_applicable_656b": true, "applicability_reason_de": "Anwendungsbereich §§ 656a–656d BGB ERÖFFNET: Kaufvertrag über EIGENTUMSWOHNUNG durch Verbraucher (§ 656b BGB i.V.m. § 13 BGB).", "contract_model": "DOPPELMAKLER_656C", "nominal_buyer_commission_eur": 17850.0, "effective_seller_commission_eur": 8925.0, "effective_seller_commission_pct": 1.785, "violations_detected": ["VERSTOSS_656C_ABS_1_S_2_BGB_GEHEIMER_ERLASS: Makler gewährt Verkäufer nachträglichen Erlass / Werbekostenerstattung / Kickback i.H.v. €8,925.00 (effektive Verkäuferprovision nur 1.78% statt 3.57%) -> Umgehung des Halbteilungsgrundsatzes, Gesamtnichtigkeit nach § 656c Abs. 2 Satz 1 BGB (BGH I ZR 32/23)!", "VERSTOSS_307_BGB_RESERVIERUNGSGEBUEHR: Unzulässige Reservierungsgebühr i.H.v. €3,500.00 verstößt gegen das gesetzliche Leitbild des erfolgsabhängigen Maklervertrags (§ 652 Abs. 1 BGB) -> Unwirksamkeit nach § 307 Abs. 1 S. 1, Abs. 2 Nr. 1 BGB (BGH, Urt. v. 20.04.2023 – I ZR 113/22); Rückforderungsanspruch aus § 812 Abs. 1 Satz 1 Alt. 1 BGB!"], "bgh_precedents_cited": ["BGH, Urt. v. 06.03.2024 – I ZR 32/23 (Gesamtnichtigkeit statt geltungserhaltender Reduktion)", "BGH, Urt. v. 20.04.2023 – I ZR 113/22 (Nichtigkeit von Reservierungsgebühren)"], "is_commission_contract_void_gesamtnichtigkeit": true, "is_due_blocked_656d_faelligkeitssperre": false, "is_reservation_fee_void_bgh_113_22": true, "legally_owed_buyer_commission_eur": 0.0, "buyer_commission_saved_eur": 17850.0, "reservation_fee_reclaim_eur": 3500.0, "total_buyer_financial_relief_eur": 21350.0, "legal_verdict_badge": "GESAMTNICHTIG_656C_D_PLUS_RESERVIERUNG_NICHTIG", "rueckforderung_schreiben_de": "An RheinMain Premium Immobilien GmbH — Zurückweisung / Rückforderung nach §§ 656c, 656d, 812 BGB (Objekt IS24-155104892 in 60385 Frankfurt am Main): Unter Verweis auf BGH, Urt. v. 06.03.2024 – I ZR 32/23 (Gesamtnichtigkeit statt geltungserhaltender Reduktion), BGH, Urt. v. 20.04.2023 – I ZR 113/22 (Nichtigkeit von Reservierungsgebühren) weisen wir die geltend gemachte Käuferprovision i.H.v. €17,850.00 wegen Gesamtnichtigkeit (§ 656c Abs. 2 Satz 1 / § 656d Abs. 2 BGB — keine geltungserhaltende Reduktion, BGH I ZR 32/23) vollumfänglich zurück (geschuldeter Betrag: €0,00; Ersparnis: €17,850.00). Zudem fordern wir die nach § 307 Abs. 1, Abs. 2 Nr. 1 BGB unwirksame Reservierungsgebühr i.H.v. €3,500.00 (BGH I ZR 113/22) gemäß § 812 Abs. 1 Satz 1 Alt. 1 BGB binnen 10 Tagen zurück."}}, {"listing": {"listing_id": "IW-26984120", "portal": "Immowelt", "source_actor": "igolaizola/immowelt-scraper", "title": "Großzügiges Einfamilienhaus mit Einliegerwohnung aus Scheidung – sofort frei!", "description": "Verkauf wegen Scheidung, unvermietet und sofort frei. Einfamilienhaus mit separater Einliegerwohnung im Souterrain. Renovierungsbedürftig, Energieeffizienzklasse F.", "city": "Stuttgart-Vaihingen", "postal_code": "70563", "federal_state": "BW", "property_category": "EFH_MIT_EINLIEGERWOHNUNG", "seller_type": "MAKLER", "seller_name": "Neckarblick Maklerkontor e.K.", "living_space_sqm": 175.0, "plot_area_sqm": 510.0, "rooms": 6.5, "year_built": 1979, "energy_class": "F", "heating_type": "Öl-Zentralheizung", "initial_price_eur": 840000.0, "current_price_eur": 780000.0, "days_on_market": 61, "price_history": [{"date": "2026-08-17", "price_eur": 840000.0}, {"date": "2026-09-25", "price_eur": 780000.0}], "mikrolage_median_eur_per_sqm": 6300.0, "bodenrichtwert_eur_per_sqm": 1450.0, "buyer_is_consumer_13_bgb": true, "contract_model": "ABWAELZUNG_656D", "textform_656a_compliant": true, "advertised_buyer_commission_pct": 4.76, "agreed_seller_commission_pct": 1.19, "secret_seller_kickback_or_waiver_eur": 0.0, "seller_payment_proof_provided_656d": false, "reservation_fee_charged_eur": 2500.0, "reservation_fee_in_agb_or_linked": true}, "sniper": {"listing_id": "IW-26984120", "is_stale_private_seller_target": false, "private_seller_exhaustion_score": 0, "price_cut_count": 1, "cumulative_price_drop_eur": 60000.0, "cumulative_price_drop_pct": 7.14, "current_eur_per_sqm": 4457.14, "mikrolage_ratio": 0.7075, "mikrolage_spread_pct": 29.25, "is_below_market_072_sniper": true, "matched_distress_clusters": {"ERBENGEMEINSCHAFT_NACHLASS": ["scheidung"], "SANIERUNGSBEDUERFTIG_BASTLER": ["renovierungsbedürftig"], "AUFTEILER_BEZUGSFREI": ["unvermietet", "sofort frei"]}, "geg_gross_capex_eur": 106750.0, "kfw_beg_subsidy_eur": 29890.0, "geg_net_capex_eur": 76860.0, "grunderwerbsteuer_eur": 39000.0, "notary_grundbuch_eur": 15600.0, "projected_post_reno_value_eur": 1058400.0, "projected_investor_net_spread_eur": 146940.0, "projected_investor_roi_pct": 16.12, "recommended_play_a_action": "INVESTOR_ANKAUF_SNIPER: Off-Market/Erbengemeinschafts-Deal <= 0.72x Mikrolage + § 71 GEG Sanierungs-Hebel", "makler_akquise_pitch_de": "Ankaufs-Indikation an Neckarblick Maklerkontor e.K.: Objekt liegt bei €4,457/m² (+29.2% ggü. Mikrolage €6,300/m²). Nach Abzug von €76,860 Netto-GEG-CapEx (Energieklasse F) verbleibt eine Netto-Aufteiler-Marge von €146,940 (16.1% ROI)."}, "bgb": {"listing_id": "IW-26984120", "statute_applicable_656b": true, "applicability_reason_de": "Anwendungsbereich §§ 656a–656d BGB ERÖFFNET: Einfamilienhaus mit untergeordneter Einliegerwohnung gilt nach BGH, Urteil v. 06.07.2023 – I ZR 135/22 als Einfamilienhaus i.S.d. § 656a BGB; Käufer handelt als Verbraucher (§ 656b BGB i.V.m. § 13 BGB).", "contract_model": "ABWAELZUNG_656D", "nominal_buyer_commission_eur": 37128.0, "effective_seller_commission_eur": 9282.0, "effective_seller_commission_pct": 1.19, "violations_detected": ["VERSTOSS_656D_ABS_1_S_1_BGB_UEBERMAESSIGE_ABWAELZUNG: Einseitiger Verkäufer-Maklervertrag wälzt 4.76% (€37,128.00) auf den Käufer ab, während Verkäufer effektiv nur 1.19% (€9,282.00) trägt -> Gesamtnichtigkeit der Abwälzung nach § 656d Abs. 2 i.V.m. § 656c Abs. 2 Satz 1 BGB (BGH I ZR 32/23; Käufer schuldet €0,00)!", "FAELLIGKEITSSPERRE_656D_ABS_1_S_2_BGB: Anspruch gegen Käufer ist NICHT FÄLLIG, solange Verkäufer oder Makler keinen Bank-Zahlungsnachweis über die vollständige Zahlung des Verkäuferanteils vorlegt (§ 656d Abs. 1 Satz 2 BGB).", "VERSTOSS_307_BGB_RESERVIERUNGSGEBUEHR: Unzulässige Reservierungsgebühr i.H.v. €2,500.00 verstößt gegen das gesetzliche Leitbild des erfolgsabhängigen Maklervertrags (§ 652 Abs. 1 BGB) -> Unwirksamkeit nach § 307 Abs. 1 S. 1, Abs. 2 Nr. 1 BGB (BGH, Urt. v. 20.04.2023 – I ZR 113/22); Rückforderungsanspruch aus § 812 Abs. 1 Satz 1 Alt. 1 BGB!"], "bgh_precedents_cited": ["BGH, Urt. v. 06.07.2023 – I ZR 135/22 (EFH mit Einliegerwohnung)", "BGH, Urt. v. 06.03.2024 – I ZR 32/23 (Gesamtnichtigkeit bei Verstoß gegen § 656d BGB)", "BGH, Urt. v. 20.04.2023 – I ZR 113/22 (Nichtigkeit von Reservierungsgebühren)"], "is_commission_contract_void_gesamtnichtigkeit": true, "is_due_blocked_656d_faelligkeitssperre": true, "is_reservation_fee_void_bgh_113_22": true, "legally_owed_buyer_commission_eur": 0.0, "buyer_commission_saved_eur": 37128.0, "reservation_fee_reclaim_eur": 2500.0, "total_buyer_financial_relief_eur": 39628.0, "legal_verdict_badge": "GESAMTNICHTIG_656C_D_PLUS_RESERVIERUNG_NICHTIG", "rueckforderung_schreiben_de": "An Neckarblick Maklerkontor e.K. — Zurückweisung / Rückforderung nach §§ 656c, 656d, 812 BGB (Objekt IW-26984120 in 70563 Stuttgart-Vaihingen): Unter Verweis auf BGH, Urt. v. 06.07.2023 – I ZR 135/22 (EFH mit Einliegerwohnung), BGH, Urt. v. 06.03.2024 – I ZR 32/23 (Gesamtnichtigkeit bei Verstoß gegen § 656d BGB), BGH, Urt. v. 20.04.2023 – I ZR 113/22 (Nichtigkeit von Reservierungsgebühren) weisen wir die geltend gemachte Käuferprovision i.H.v. €37,128.00 wegen Gesamtnichtigkeit (§ 656c Abs. 2 Satz 1 / § 656d Abs. 2 BGB — keine geltungserhaltende Reduktion, BGH I ZR 32/23) vollumfänglich zurück (geschuldeter Betrag: €0,00; Ersparnis: €37,128.00). Zudem fordern wir die nach § 307 Abs. 1, Abs. 2 Nr. 1 BGB unwirksame Reservierungsgebühr i.H.v. €2,500.00 (BGH I ZR 113/22) gemäß § 812 Abs. 1 Satz 1 Alt. 1 BGB binnen 10 Tagen zurück."}}, {"listing": {"listing_id": "KA-2894105521", "portal": "Kleinanzeigen", "source_actor": "clearpath/kleinanzeigen-immobilien-api-pro", "title": "Doppelhaushälfte von Privat – Nachlassverkauf, sanierungsbedürftig, Energieklasse G", "description": "Verkaufen aus Nachlass / Erbengemeinschaft unsere Doppelhaushälfte. Bastlerhaus / Handwerkerobjekt, bezugsfrei, Nachtspeicherheizung, Energieeffizienzklasse G. Bereits 2x im Preis gesenkt!", "city": "Köln-Dellbrück", "postal_code": "51069", "federal_state": "NW", "property_category": "EINFAMILIENHAUS", "seller_type": "PRIVAT", "seller_name": "Familie Schmitz (Erbengemeinschaft)", "living_space_sqm": 132.0, "plot_area_sqm": 380.0, "rooms": 5.0, "year_built": 1964, "energy_class": "G", "heating_type": "Nachtspeicherheizung", "initial_price_eur": 520000.0, "current_price_eur": 415000.0, "days_on_market": 64, "price_history": [{"date": "2026-08-14", "price_eur": 520000.0}, {"date": "2026-09-08", "price_eur": 469000.0}, {"date": "2026-10-02", "price_eur": 415000.0}], "mikrolage_median_eur_per_sqm": 4850.0, "bodenrichtwert_eur_per_sqm": 920.0, "buyer_is_consumer_13_bgb": true, "contract_model": "DOPPELMAKLER_656C", "textform_656a_compliant": false, "advertised_buyer_commission_pct": 3.57, "agreed_seller_commission_pct": 3.57, "secret_seller_kickback_or_waiver_eur": 0.0, "seller_payment_proof_provided_656d": false, "reservation_fee_charged_eur": 0.0, "reservation_fee_in_agb_or_linked": false}, "sniper": {"listing_id": "KA-2894105521", "is_stale_private_seller_target": true, "private_seller_exhaustion_score": 100, "price_cut_count": 2, "cumulative_price_drop_eur": 105000.0, "cumulative_price_drop_pct": 20.19, "current_eur_per_sqm": 3143.94, "mikrolage_ratio": 0.6482, "mikrolage_spread_pct": 35.18, "is_below_market_072_sniper": true, "matched_distress_clusters": {"ERBENGEMEINSCHAFT_NACHLASS": ["erbengemeinschaft", "aus nachlass", "nachlassverkauf"], "SANIERUNGSBEDUERFTIG_BASTLER": ["sanierungsbedürftig", "bastlerhaus", "handwerkerobjekt"], "GEG_ENERGIE_HEBEL": ["energieeffizienzklasse g", "effizienzklasse g", "nachtspeicher"], "AUFTEILER_BEZUGSFREI": ["bezugsfrei"]}, "geg_gross_capex_eur": 100320.0, "kfw_beg_subsidy_eur": 28089.6, "geg_net_capex_eur": 72230.4, "grunderwerbsteuer_eur": 26975.0, "notary_grundbuch_eur": 8300.0, "projected_post_reno_value_eur": 614592.0, "projected_investor_net_spread_eur": 92086.6, "projected_investor_roi_pct": 17.62, "recommended_play_a_action": "DUAL_SNIPER_HIT: 1) Fix-&-Flip Direktankauf unter 0.72x Marktwert ODER 2) Makler-Alleinauftrag (§ 656c BGB)", "makler_akquise_pitch_de": "Sehr geehrte(r) Familie Schmitz (Erbengemeinschaft), Ihr Inserat „Doppelhaushälfte von Privat – Nachlassverkauf, sanierungsbedürftig, Energieklasse G“ (51069 Köln-Dellbrück) ist seit 64 Tagen online und wurde bereits 2-mal um insgesamt €105,000 (-20.2%) reduziert. Weitere öffentliche Preissenkungen verbrennen das Objekt am Markt. Wir führen für Köln-Dellbrück vorgemerkte, bonitätsgeprüfte Käufer (inkl. KfW-261/§ 71 GEG Sanierungsfinanzierung für Energieklasse G) und sichern Ihnen im § 656c BGB-konformen Alleinauftrag den Zielpreis ohne Besichtigungstourismus."}, "bgb": {"listing_id": "KA-2894105521", "statute_applicable_656b": true, "applicability_reason_de": "Anwendungsbereich §§ 656a–656d BGB ERÖFFNET: Kaufvertrag über EINFAMILIENHAUS durch Verbraucher (§ 656b BGB i.V.m. § 13 BGB).", "contract_model": "DOPPELMAKLER_656C", "nominal_buyer_commission_eur": 14815.5, "effective_seller_commission_eur": 14815.5, "effective_seller_commission_pct": 3.57, "violations_detected": ["VERSTOSS_656A_BGB_TEXTFORM: Maklervertrag über Wohnung/Einfamilienhaus wurde nicht in Textform (§ 126b BGB) geschlossen -> Formnichtigkeit nach § 125 Satz 1 BGB."], "bgh_precedents_cited": [], "is_commission_contract_void_gesamtnichtigkeit": true, "is_due_blocked_656d_faelligkeitssperre": false, "is_reservation_fee_void_bgh_113_22": false, "legally_owed_buyer_commission_eur": 0.0, "buyer_commission_saved_eur": 14815.5, "reservation_fee_reclaim_eur": 0.0, "total_buyer_financial_relief_eur": 14815.5, "legal_verdict_badge": "GESAMTNICHTIG_656C_D_BGB_0_EUR_PROVISION", "rueckforderung_schreiben_de": "An Familie Schmitz (Erbengemeinschaft) — Zurückweisung / Rückforderung nach §§ 656c, 656d, 812 BGB (Objekt KA-2894105521 in 51069 Köln-Dellbrück): Unter Verweis auf §§ 656a–656d BGB weisen wir die geltend gemachte Käuferprovision i.H.v. €14,815.50 wegen Gesamtnichtigkeit (§ 656c Abs. 2 Satz 1 / § 656d Abs. 2 BGB — keine geltungserhaltende Reduktion, BGH I ZR 32/23) vollumfänglich zurück (geschuldeter Betrag: €0,00; Ersparnis: €14,815.50). "}}, {"listing": {"listing_id": "IS24-155390114", "portal": "ImmoScout24", "source_actor": "memo23/immobilienscout24-scraper", "title": "3-Zimmer-ETW in Berlin-Pankow – bezugsfrei, Ausbaureserve", "description": "Schöne 3-Zimmer-Eigentumswohnung, unvermietet / bezugsfrei, modernisierungsbedürftig, Energieeffizienzklasse E. Abwälzung 50% gemäß § 656d BGB (je 2,975% inkl. MwSt.).", "city": "Berlin-Pankow", "postal_code": "13187", "federal_state": "BE", "property_category": "EIGENTUMSWOHNUNG", "seller_type": "MAKLER", "seller_name": "Spreebogen Wohnwert GmbH", "living_space_sqm": 88.0, "plot_area_sqm": 0.0, "rooms": 3.0, "year_built": 1936, "energy_class": "E", "heating_type": "Fernwärme", "initial_price_eur": 410000.0, "current_price_eur": 395000.0, "days_on_market": 34, "price_history": [{"date": "2026-09-13", "price_eur": 410000.0}, {"date": "2026-10-05", "price_eur": 395000.0}], "mikrolage_median_eur_per_sqm": 5400.0, "bodenrichtwert_eur_per_sqm": 1800.0, "buyer_is_consumer_13_bgb": true, "contract_model": "ABWAELZUNG_656D", "textform_656a_compliant": true, "advertised_buyer_commission_pct": 2.975, "agreed_seller_commission_pct": 2.975, "secret_seller_kickback_or_waiver_eur": 0.0, "seller_payment_proof_provided_656d": false, "reservation_fee_charged_eur": 0.0, "reservation_fee_in_agb_or_linked": false}, "sniper": {"listing_id": "IS24-155390114", "is_stale_private_seller_target": false, "private_seller_exhaustion_score": 0, "price_cut_count": 1, "cumulative_price_drop_eur": 15000.0, "cumulative_price_drop_pct": 3.66, "current_eur_per_sqm": 4488.64, "mikrolage_ratio": 0.8312, "mikrolage_spread_pct": 16.88, "is_below_market_072_sniper": false, "matched_distress_clusters": {"SANIERUNGSBEDUERFTIG_BASTLER": ["modernisierungsbedürftig"], "AUFTEILER_BEZUGSFREI": ["unvermietet", "bezugsfrei", "ausbaureserve"]}, "geg_gross_capex_eur": 40480.0, "kfw_beg_subsidy_eur": 8096.0, "geg_net_capex_eur": 32384.0, "grunderwerbsteuer_eur": 23700.0, "notary_grundbuch_eur": 7900.0, "projected_post_reno_value_eur": 456192.0, "projected_investor_net_spread_eur": -2792.0, "projected_investor_roi_pct": -0.61, "recommended_play_a_action": "WATCHLIST_DELTA_MONITOR: Preisverlauf weiter via Apify überwachen", "makler_akquise_pitch_de": "Ankaufs-Indikation an Spreebogen Wohnwert GmbH: Objekt liegt bei €4,489/m² (+16.9% ggü. Mikrolage €5,400/m²). Nach Abzug von €32,384 Netto-GEG-CapEx (Energieklasse E) verbleibt eine Netto-Aufteiler-Marge von €-2,792 (-0.6% ROI)."}, "bgb": {"listing_id": "IS24-155390114", "statute_applicable_656b": true, "applicability_reason_de": "Anwendungsbereich §§ 656a–656d BGB ERÖFFNET: Kaufvertrag über EIGENTUMSWOHNUNG durch Verbraucher (§ 656b BGB i.V.m. § 13 BGB).", "contract_model": "ABWAELZUNG_656D", "nominal_buyer_commission_eur": 11751.25, "effective_seller_commission_eur": 11751.25, "effective_seller_commission_pct": 2.975, "violations_detected": ["FAELLIGKEITSSPERRE_656D_ABS_1_S_2_BGB: Anspruch gegen Käufer ist NICHT FÄLLIG, solange Verkäufer oder Makler keinen Bank-Zahlungsnachweis über die vollständige Zahlung des Verkäuferanteils vorlegt (§ 656d Abs. 1 Satz 2 BGB)."], "bgh_precedents_cited": [], "is_commission_contract_void_gesamtnichtigkeit": false, "is_due_blocked_656d_faelligkeitssperre": true, "is_reservation_fee_void_bgh_113_22": false, "legally_owed_buyer_commission_eur": 11751.25, "buyer_commission_saved_eur": 0.0, "reservation_fee_reclaim_eur": 0.0, "total_buyer_financial_relief_eur": 0.0, "legal_verdict_badge": "FAELLIGKEITSSPERRE_656D_ZAHLUNGSNACHWEIS_FEHLT", "rueckforderung_schreiben_de": "An Spreebogen Wohnwert GmbH — Zurückweisung / Rückforderung nach §§ 656c, 656d, 812 BGB (Objekt IS24-155390114 in 13187 Berlin-Pankow): Unter Verweis auf §§ 656a–656d BGB weisen wir die geltend gemachte Käuferprovision i.H.v. €11,751.25 mangels Vorlage eines Bank-Zahlungsnachweises über die Zahlung des Verkäuferanteils gemäß § 656d Abs. 1 Satz 2 BGB als derzeit nicht fällig zurück. "}}, {"listing": {"listing_id": "IW-27019488", "portal": "Immowelt", "source_actor": "memo23/immowelt-scraper", "title": "Aufteiler-Mehrfamilienhaus (6 WE) aus Erbengemeinschaft – Teilungserklärung möglich!", "description": "6-Familienhaus aus Erbengemeinschaft, 4 von 6 Einheiten unvermietet / bezugsfrei, Abgeschlossenheitsbescheinigung & Teilungserklärung möglich, Dachgeschoss-Ausbaureserve, sanierungsbedürftig, Energieeffizienzklasse G.", "city": "Leipzig-Plagwitz", "postal_code": "04229", "federal_state": "SN", "property_category": "MEHRFAMILIENHAUS", "seller_type": "MAKLER", "seller_name": "SachsenInvest Gewerbe & Zinshaus GmbH", "living_space_sqm": 420.0, "plot_area_sqm": 580.0, "rooms": 18.0, "year_built": 1908, "energy_class": "G", "heating_type": "Gas-Zentralheizung (1993)", "initial_price_eur": 890000.0, "current_price_eur": 710000.0, "days_on_market": 85, "price_history": [{"date": "2026-07-24", "price_eur": 890000.0}, {"date": "2026-08-30", "price_eur": 790000.0}, {"date": "2026-10-01", "price_eur": 710000.0}], "mikrolage_median_eur_per_sqm": 2850.0, "bodenrichtwert_eur_per_sqm": 620.0, "buyer_is_consumer_13_bgb": true, "contract_model": "DOPPELMAKLER_656C", "textform_656a_compliant": true, "advertised_buyer_commission_pct": 7.14, "agreed_seller_commission_pct": 0.0, "secret_seller_kickback_or_waiver_eur": 0.0, "seller_payment_proof_provided_656d": false, "reservation_fee_charged_eur": 4500.0, "reservation_fee_in_agb_or_linked": true}, "sniper": {"listing_id": "IW-27019488", "is_stale_private_seller_target": false, "private_seller_exhaustion_score": 0, "price_cut_count": 2, "cumulative_price_drop_eur": 180000.0, "cumulative_price_drop_pct": 20.22, "current_eur_per_sqm": 1690.48, "mikrolage_ratio": 0.5932, "mikrolage_spread_pct": 40.68, "is_below_market_072_sniper": true, "matched_distress_clusters": {"ERBENGEMEINSCHAFT_NACHLASS": ["erbengemeinschaft"], "SANIERUNGSBEDUERFTIG_BASTLER": ["sanierungsbedürftig"], "GEG_ENERGIE_HEBEL": ["energieeffizienzklasse g", "effizienzklasse g"], "AUFTEILER_BEZUGSFREI": ["unvermietet", "bezugsfrei", "teilungserklärung möglich", "abgeschlossenheitsbescheinigung", "ausbaureserve"]}, "geg_gross_capex_eur": 319200.0, "kfw_beg_subsidy_eur": 32500.0, "geg_net_capex_eur": 286700.0, "grunderwerbsteuer_eur": 39050.0, "notary_grundbuch_eur": 14200.0, "projected_post_reno_value_eur": 1149120.0, "projected_investor_net_spread_eur": 99170.0, "projected_investor_roi_pct": 9.45, "recommended_play_a_action": "INVESTOR_ANKAUF_SNIPER: Off-Market/Erbengemeinschafts-Deal <= 0.72x Mikrolage + § 71 GEG Sanierungs-Hebel", "makler_akquise_pitch_de": "Ankaufs-Indikation an SachsenInvest Gewerbe & Zinshaus GmbH: Objekt liegt bei €1,690/m² (+40.7% ggü. Mikrolage €2,850/m²). Nach Abzug von €286,700 Netto-GEG-CapEx (Energieklasse G) verbleibt eine Netto-Aufteiler-Marge von €99,170 (9.4% ROI)."}, "bgb": {"listing_id": "IW-27019488", "statute_applicable_656b": false, "applicability_reason_de": "KEIN Halbteilungsschutz nach §§ 656c/d BGB: Objektkategorie 'MEHRFAMILIENHAUS' (oder gewerblicher Erwerber) fällt nicht unter § 656a / § 656b BGB — reine Außenprovision zulässig.", "contract_model": "DOPPELMAKLER_656C", "nominal_buyer_commission_eur": 50694.0, "effective_seller_commission_eur": 0.0, "effective_seller_commission_pct": 0.0, "violations_detected": ["VERSTOSS_307_BGB_RESERVIERUNGSGEBUEHR: Unzulässige Reservierungsgebühr i.H.v. €4,500.00 verstößt gegen das gesetzliche Leitbild des erfolgsabhängigen Maklervertrags (§ 652 Abs. 1 BGB) -> Unwirksamkeit nach § 307 Abs. 1 S. 1, Abs. 2 Nr. 1 BGB (BGH, Urt. v. 20.04.2023 – I ZR 113/22); Rückforderungsanspruch aus § 812 Abs. 1 Satz 1 Alt. 1 BGB!"], "bgh_precedents_cited": ["BGH, Urt. v. 20.04.2023 – I ZR 113/22 (Nichtigkeit von Reservierungsgebühren)"], "is_commission_contract_void_gesamtnichtigkeit": false, "is_due_blocked_656d_faelligkeitssperre": false, "is_reservation_fee_void_bgh_113_22": true, "legally_owed_buyer_commission_eur": 50694.0, "buyer_commission_saved_eur": 0.0, "reservation_fee_reclaim_eur": 4500.0, "total_buyer_financial_relief_eur": 4500.0, "legal_verdict_badge": "RESERVIERUNGSGEBUEHR_NICHTIG_BGH_113_22", "rueckforderung_schreiben_de": "An SachsenInvest Gewerbe & Zinshaus GmbH — Zurückweisung / Rückforderung nach §§ 656c, 656d, 812 BGB (Objekt IW-27019488 in 04229 Leipzig-Plagwitz): Unter Verweis auf BGH, Urt. v. 20.04.2023 – I ZR 113/22 (Nichtigkeit von Reservierungsgebühren) weisen wir die geltend gemachte Käuferprovision i.H.v. €50,694.00 Zudem fordern wir die nach § 307 Abs. 1, Abs. 2 Nr. 1 BGB unwirksame Reservierungsgebühr i.H.v. €4,500.00 (BGH I ZR 113/22) gemäß § 812 Abs. 1 Satz 1 Alt. 1 BGB binnen 10 Tagen zurück."}}]};
+    function runSim() {
+      const price = parseFloat(document.getElementById('sim_price').value) || 0;
+      const cat = document.getElementById('sim_cat').value;
+      const model = document.getElementById('sim_model').value;
+      const buyerPct = parseFloat(document.getElementById('sim_buyer_pct').value) || 0;
+      const sellerPct = parseFloat(document.getElementById('sim_seller_pct').value) || 0;
+      const kickback = parseFloat(document.getElementById('sim_kickback').value) || 0;
+      const resFee = parseFloat(document.getElementById('sim_res_fee').value) || 0;
+      const flags = document.getElementById('sim_flags').value;
+
+      const nominalBuyerEur = price * (buyerPct / 100.0);
+      const nominalSellerEur = price * (sellerPct / 100.0);
+      const effSellerEur = Math.max(0, nominalSellerEur - kickback);
+      const effSellerPct = price > 0 ? (effSellerEur / price) * 100.0 : 0;
+
+      const protectedCat = (cat !== 'MEHRFAMILIENHAUS');
+      let voidContract = false;
+      let reasons = [];
+
+      if (protectedCat && flags === 'text_no') {
+        voidContract = true;
+        reasons.push('§ 656a BGB Formnichtigkeit (§ 125 S. 1 BGB: keine Textform)');
+      }
+      if (protectedCat) {
+        if (model === 'DOPPELMAKLER_656C') {
+          if (Math.abs(buyerPct - sellerPct) > 0.001) {
+            voidContract = true;
+            reasons.push('§ 656c Abs. 1 S. 1, Abs. 2 S. 1 BGB Disparität (BGH I ZR 32/23 Gesamtnichtigkeit)');
+          }
+          if (kickback > 0) {
+            voidContract = true;
+            reasons.push('§ 656c Abs. 1 S. 2, Abs. 2 S. 1 BGB Geheimer Verkäufer-Erlass/Kickback -> Gesamtnichtigkeit (BGH I ZR 32/23)');
+          }
+        } else {
+          if (buyerPct > effSellerPct + 0.001) {
+            voidContract = true;
+            reasons.push('§ 656d Abs. 1 S. 1, Abs. 2 BGB Übermäßige Abwälzung (>50%) -> Gesamtnichtigkeit (BGH I ZR 32/23)');
+          }
+          if (flags === 'text_ok_proof_no') {
+            reasons.push('§ 656d Abs. 1 S. 2 BGB Fälligkeitssperre: Zahlungsnachweis des Verkäufers fehlt!');
+          }
+        }
+      }
+      if (resFee > 0) {
+        reasons.push('BGH I ZR 113/22 (§ 307 BGB): Reservierungsgebühr (€' + resFee.toFixed(2) + ') zu 100% unwirksam -> Rückforderung nach § 812 BGB!');
+      }
+
+      const owedEur = voidContract ? 0 : nominalBuyerEur;
+      const savedEur = (nominalBuyerEur - owedEur) + resFee;
+
+      document.getElementById('sim_output').innerHTML =
+        '<strong>Ergebnis:</strong> Reguläre Käufercourtage: €' + nominalBuyerEur.toFixed(2) +
+        ' | Eff. Verkäufercourtage: €' + effSellerEur.toFixed(2) + ' (' + effSellerPct.toFixed(2) + '%)' +
+        '<br/><strong>Rechtsfolge:</strong> ' +
+        (voidContract ? '<span class="neg">GESAMTNICHTIGKEIT (§ 656c/d Abs. 2 BGB / BGH I ZR 32/23) — Käufer schuldet €0,00!</span>' : '<span class="pos">Provision dem Grunde nach wirksam (€' + owedEur.toFixed(2) + ')</span>') +
+        ' | <strong>Gesamt-Ersparnis inkl. Reservierungsgebühr: <span class="pos">€' + savedEur.toFixed(2) + '</span></strong>' +
+        '<br/><span class="sub">Prüfgründe: ' + (reasons.length ? reasons.join(' · ') : 'Keine Verstöße') + '</span>';
+    }
+    runSim();
+  </script>
+</body>
+</html>

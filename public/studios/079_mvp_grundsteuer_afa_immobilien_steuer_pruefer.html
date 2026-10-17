@@ -1,0 +1,1237 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DACH Grundsteuer-Bescheid-Prüfer (BFH II B 78/23) &amp; Immobilien-AfA Optimierer — MVP #79</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-canvas: #F8F6F1;
+      --bg-card: #FFFFFF;
+      --bg-subtle: #F1EDE4;
+      --bg-navy: #0F1E2E;
+      --ink-primary: #111827;
+      --ink-secondary: #374151;
+      --ink-muted: #4B5563;
+      --accent-navy: #16324F;
+      --accent-emerald: #047857;
+      --accent-emerald-bg: #ECFDF5;
+      --accent-amber: #B45309;
+      --accent-amber-bg: #FFFBEB;
+      --accent-crimson: #B91C1C;
+      --accent-crimson-bg: #FEF2F2;
+      --border-hairline: #D8D2C5;
+      --border-strong: #9CA3AF;
+      --shadow-card: 0 4px 20px rgba(15, 30, 46, 0.06);
+      --font-display: 'Fraunces', Georgia, serif;
+      --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-canvas);
+      color: var(--ink-primary);
+      font-family: var(--font-sans);
+      line-height: 1.55;
+      padding-bottom: 4rem;
+    }
+
+    .top-banner {
+      background: var(--bg-navy);
+      color: #F9FAFB;
+      border-bottom: 3px solid #D97706;
+      padding: 1.1rem 2rem;
+    }
+
+    .top-banner-inner {
+      max-width: 1420px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    .law-badge {
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      padding: 0.25rem 0.6rem;
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.12);
+      color: #FDE68A;
+      border: 1px solid rgba(253, 230, 138, 0.35);
+    }
+
+    .container {
+      max-width: 1420px;
+      margin: 0 auto;
+      padding: 1.75rem 2rem 0;
+    }
+
+    .hero-header {
+      margin-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border-hairline);
+      padding-bottom: 1.25rem;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 1.25rem;
+    }
+
+    .hero-title {
+      font-family: var(--font-display);
+      font-size: 2.05rem;
+      font-weight: 700;
+      color: var(--bg-navy);
+      line-height: 1.2;
+      max-width: 880px;
+    }
+
+    .hero-subtitle {
+      margin-top: 0.45rem;
+      color: var(--ink-secondary);
+      font-size: 0.96rem;
+      max-width: 860px;
+    }
+
+    .preset-bar {
+      background: var(--bg-card);
+      border: 1px solid var(--border-hairline);
+      border-radius: 10px;
+      padding: 1rem 1.25rem;
+      margin-bottom: 1.5rem;
+      box-shadow: var(--shadow-card);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.9rem;
+    }
+
+    .preset-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+    }
+
+    .preset-btn {
+      font-family: var(--font-sans);
+      font-size: 0.84rem;
+      font-weight: 600;
+      padding: 0.55rem 0.95rem;
+      border-radius: 6px;
+      border: 1px solid var(--border-strong);
+      background: var(--bg-subtle);
+      color: var(--ink-primary);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .preset-btn.active, .preset-btn:hover {
+      background: var(--accent-navy);
+      color: #FFFFFF;
+      border-color: var(--accent-navy);
+    }
+
+    .kpi-strip {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    @media (max-width: 1100px) {
+      .kpi-strip {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .kpi-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-hairline);
+      border-radius: 10px;
+      padding: 1.15rem 1.25rem;
+      box-shadow: var(--shadow-card);
+      border-top: 4px solid var(--accent-navy);
+    }
+
+    .kpi-card.emerald {
+      border-top-color: var(--accent-emerald);
+      background: linear-gradient(180deg, #ECFDF5 0%, #FFFFFF 55%);
+    }
+
+    .kpi-card.amber {
+      border-top-color: var(--accent-amber);
+    }
+
+    .kpi-card.crimson {
+      border-top-color: var(--accent-crimson);
+    }
+
+    .kpi-label {
+      font-size: 0.76rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--ink-muted);
+      margin-bottom: 0.35rem;
+    }
+
+    .kpi-value {
+      font-family: var(--font-mono);
+      font-size: 1.65rem;
+      font-weight: 700;
+      color: var(--ink-primary);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .kpi-card.emerald .kpi-value {
+      color: var(--accent-emerald);
+    }
+
+    .kpi-sub {
+      margin-top: 0.35rem;
+      font-size: 0.81rem;
+      color: var(--ink-secondary);
+    }
+
+    .main-grid {
+      display: grid;
+      grid-template-columns: 430px 1fr;
+      gap: 1.5rem;
+      align-items: start;
+    }
+
+    @media (max-width: 1120px) {
+      .main-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .panel {
+      background: var(--bg-card);
+      border: 1px solid var(--border-hairline);
+      border-radius: 10px;
+      padding: 1.35rem;
+      box-shadow: var(--shadow-card);
+      margin-bottom: 1.35rem;
+    }
+
+    .panel-title {
+      font-family: var(--font-display);
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--bg-navy);
+      padding-bottom: 0.65rem;
+      margin-bottom: 1rem;
+      border-bottom: 1px solid var(--border-hairline);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .form-section-title {
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--accent-navy);
+      margin: 1rem 0 0.55rem;
+      padding-top: 0.65rem;
+      border-top: 1px dashed var(--border-hairline);
+    }
+
+    .form-section-title:first-of-type {
+      margin-top: 0;
+      padding-top: 0;
+      border-top: none;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+      margin-bottom: 0.65rem;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+      margin-bottom: 0.65rem;
+    }
+
+    .form-group label {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--ink-secondary);
+    }
+
+    .form-group input, .form-group select {
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      padding: 0.48rem 0.6rem;
+      border-radius: 6px;
+      border: 1px solid var(--border-strong);
+      background: #FFFFFF;
+      color: var(--ink-primary);
+    }
+
+    .status-pill {
+      display: inline-block;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 0.25rem 0.65rem;
+      border-radius: 999px;
+    }
+
+    .status-pill.pass {
+      background: var(--accent-emerald-bg);
+      color: var(--accent-emerald);
+      border: 1px solid #6EE7B7;
+    }
+
+    .status-pill.warn {
+      background: var(--accent-amber-bg);
+      color: var(--accent-amber);
+      border: 1px solid #FCD34D;
+    }
+
+    .status-pill.alert {
+      background: var(--accent-crimson-bg);
+      color: var(--accent-crimson);
+      border: 1px solid #FCA5A5;
+    }
+
+    .gauge-box {
+      background: var(--bg-subtle);
+      border: 1px solid var(--border-hairline);
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .gauge-track {
+      position: relative;
+      height: 18px;
+      background: linear-gradient(90deg, #D1FAE5 0%, #FDE68A 50%, #FCA5A5 100%);
+      border-radius: 999px;
+      margin: 0.65rem 0;
+      border: 1px solid var(--border-strong);
+      overflow: hidden;
+    }
+
+    .gauge-threshold-line {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      background: var(--accent-crimson);
+      z-index: 2;
+    }
+
+    .gauge-marker {
+      position: absolute;
+      top: -3px;
+      width: 12px;
+      height: 22px;
+      background: var(--bg-navy);
+      border: 2px solid #FFFFFF;
+      border-radius: 4px;
+      transform: translateX(-50%);
+      z-index: 3;
+    }
+
+    table.audit-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+      margin-top: 0.5rem;
+    }
+
+    table.audit-table th, table.audit-table td {
+      padding: 0.55rem 0.65rem;
+      border-bottom: 1px solid var(--border-hairline);
+      text-align: left;
+    }
+
+    table.audit-table th {
+      background: var(--bg-subtle);
+      font-weight: 700;
+      color: var(--ink-secondary);
+      font-size: 0.76rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    table.audit-table td.num, table.audit-table th.num {
+      text-align: right;
+      font-family: var(--font-mono);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .findings-list {
+      list-style: none;
+      margin-top: 0.6rem;
+    }
+
+    .findings-list li {
+      padding: 0.45rem 0.65rem;
+      margin-bottom: 0.4rem;
+      background: var(--bg-subtle);
+      border-left: 3px solid var(--accent-navy);
+      border-radius: 0 6px 6px 0;
+      font-size: 0.84rem;
+    }
+
+    .template-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem;
+    }
+
+    @media (max-width: 980px) {
+      .template-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .template-textarea {
+      width: 100%;
+      height: 280px;
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      line-height: 1.45;
+      padding: 0.85rem;
+      border: 1px solid var(--border-strong);
+      border-radius: 8px;
+      background: #FCFBF9;
+      color: var(--ink-primary);
+      resize: vertical;
+    }
+
+    .copy-btn {
+      font-family: var(--font-sans);
+      font-size: 0.78rem;
+      font-weight: 600;
+      padding: 0.4rem 0.8rem;
+      border-radius: 6px;
+      border: 1px solid var(--accent-navy);
+      background: var(--accent-navy);
+      color: #FFFFFF;
+      cursor: pointer;
+    }
+
+    .copy-btn:hover {
+      opacity: 0.92;
+    }
+  </style>
+</head>
+<body>
+
+<!-- DACH CASHFLOW STUDIOS LAUNCH BAR -->
+<style>
+  #dcs-launch-bar {
+    position: sticky;
+    top: 0;
+    z-index: 99999;
+    background: linear-gradient(90deg, #0b1120 0%, #111827 50%, #0f172a 100%);
+    color: #f8fafc;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.35);
+    padding: 8px 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  }
+  #dcs-launch-bar .dcs-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+  }
+  #dcs-launch-bar .dcs-badge {
+    background: rgba(16, 185, 129, 0.18);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.03em;
+  }
+  #dcs-launch-bar a.dcs-nav {
+    color: #93c5fd;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 12.5px;
+  }
+  #dcs-launch-bar a.dcs-nav:hover {
+    text-decoration: underline;
+    color: #dbeafe;
+  }
+  #dcs-launch-bar .dcs-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  #dcs-launch-bar .dcs-btn {
+    padding: 5px 11px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s ease;
+  }
+  #dcs-launch-bar .dcs-btn-ghost {
+    background: rgba(255,255,255,0.08);
+    color: #e2e8f0;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  #dcs-launch-bar .dcs-btn-primary {
+    background: linear-gradient(135deg, #0ea5e9, #2563eb);
+    color: #ffffff;
+  }
+  #dcs-launch-bar .dcs-btn-emerald {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
+  }
+  @media print {
+    #dcs-launch-bar { display: none !important; }
+  }
+</style>
+<div id="dcs-launch-bar">
+  <div class="dcs-left">
+    <a href="/index.html" class="dcs-nav">← Alle 150 DACH Studios</a>
+    <span class="dcs-badge">MVP #079 VERIFIED</span>
+    <span style="color:#cbd5e1;font-size:12px;">DACH Tax, Corporate & Accounting Arbitrage</span>
+  </div>
+  <div class="dcs-actions">
+    <button onclick="window.print()" class="dcs-btn dcs-btn-ghost">🖨️ PDF / Dossier drucken</button>
+    <a href="#checkout-modal-49" target="_blank" rel="noopener" class="dcs-btn dcs-btn-primary">⚡ Musterschreiben & Voll-Dossier (€49)</a>
+    <a href="#checkout-modal-299" target="_blank" rel="noopener" class="dcs-btn dcs-btn-emerald">🛡️ B2B Umsetzung buchen (€299 / €1.490)</a>
+  </div>
+</div>
+
+
+  <header class="top-banner">
+    <div class="top-banner-inner">
+      <div style="font-weight: 700; font-size: 0.92rem; letter-spacing: 0.02em;">
+        DACH PROPERTY TAX &amp; RENTAL DEPRECIATION AUDIT ENGINE · MVP #79
+      </div>
+      <div class="badge-row">
+        <span class="law-badge">BFH II B 78/23 &amp; II B 79/23 (&gt;=40% Regel)</span>
+        <span class="law-badge">§ 220 Abs. 2 &amp; § 222 BewG</span>
+        <span class="law-badge">§§ 2, 4 WoFlV Flächen-Abzug</span>
+        <span class="law-badge">§ 7 Abs. 4 S. 2 EStG (BFH IX R 25/19)</span>
+        <span class="law-badge">§ 7 Abs. 5a (5% Degressiv) + § 7b EStG</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="hero-header">
+      <div>
+        <h1 class="hero-title">Grundsteuer-Bescheid-Prüfer &amp; Immobilien-AfA Optimierer</h1>
+        <p class="hero-subtitle">
+          Deterministische Prüfung von Grundsteuerwertbescheiden (11 Bundesmodell-Länder vs. 5 Ländermodelle, WoFlV-Flächenkorrektur
+          und BFH-Verkehrswertnachweis ab 40 % Überbewertung) kombiniert mit dem Vermieter-Steuer-Turbo (§ 7 Abs. 4 Satz 2 EStG
+          Restnutzungsdauer-Gutachten nach ImmoWertV Anlage 2 vs. 5 % Degressive Neubau-AfA).
+        </p>
+      </div>
+    </section>
+
+    <section class="preset-bar">
+      <div style="font-weight: 700; font-size: 0.88rem; color: var(--bg-navy);">
+        Referenz-Prüffälle laden (3 DACH-Eigentümer- &amp; Vermieter-Szenarien):
+      </div>
+      <div class="preset-buttons">
+        <button class="preset-btn active" id="btn-case-0" onclick="loadPresetCase(0)">
+          Fall 1: 1966er ZFH Rheinland-Pfalz (BFH +58,6% &amp; RND 4,17% AfA)
+        </button>
+        <button class="preset-btn" id="btn-case-1" onclick="loadPresetCase(1)">
+          Fall 2: 1972er MFH NRW (§ 222 BewG Fortschreibung &amp; 3,23% AfA)
+        </button>
+        <button class="preset-btn" id="btn-case-2" onclick="loadPresetCase(2)">
+          Fall 3: 2025er EH40-QNG Neubau Bayern (WoFlV + 10% Turbo-AfA)
+        </button>
+      </div>
+    </section>
+
+    <!-- KPI Strip -->
+    <section class="kpi-strip">
+      <div class="kpi-card crimson">
+        <div class="kpi-label">Grundsteuer-Überbewertung (BFH II B 78/23)</div>
+        <div class="kpi-value" id="kpi-overval-pct">+58.6%</div>
+        <div class="kpi-sub" id="kpi-overval-sub">
+          Bescheid 468,000 € vs. Verkehrswert 295,000 €
+        </div>
+      </div>
+
+      <div class="kpi-card amber">
+        <div class="kpi-label">Grundsteuer-Ersparnis (p.a. / 10 Jahre)</div>
+        <div class="kpi-value" id="kpi-gst-savings">311.05 € / J.</div>
+        <div class="kpi-sub" id="kpi-gst-sub">
+          10-Jahres-Entlastung: 3,110 € (55.0 m² WoFlV-Abzug)
+        </div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-label">Immobilien-AfA Hebel (Erstjahr)</div>
+        <div class="kpi-value" id="kpi-afa-tax-yr1">+4,417 € / J.</div>
+        <div class="kpi-sub" id="kpi-afa-sub">
+          AfA neu: 16,663 € vs. Status Quo 6,696 €
+        </div>
+      </div>
+
+      <div class="kpi-card emerald">
+        <div class="kpi-label">Kumulierter 10-Jahres-Steuervorteil (Gesamt)</div>
+        <div class="kpi-value" id="kpi-total-10yr">+47,276 €</div>
+        <div class="kpi-sub" id="kpi-total-sub">
+          Jahr-1 Cashflow-Plus: +4,727.57 € (Grundsteuer + Einkommensteuer)
+        </div>
+      </div>
+    </section>
+
+    <div class="main-grid">
+      <!-- LEFT COLUMN: INPUT PARAMETERS -->
+      <aside class="panel">
+        <div class="panel-title">
+          <span>Bescheid- &amp; Objekt-Parameter</span>
+          <span class="status-pill pass" id="state-model-badge">RP · BUNDESMODELL</span>
+        </div>
+
+        <div class="form-section-title">1. Standort &amp; Grundsteuerbescheid</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="inp-bundesland">Bundesland (16 Modelle)</label>
+            <select id="inp-bundesland" onchange="recomputeStudio()">
+              <option value="RP" selected>RP — Rheinland-Pfalz (Bundesmodell)</option>
+              <option value="NW">NW — Nordrhein-Westfalen (Bundesmodell)</option>
+              <option value="BE">BE — Berlin (Bundesmodell)</option>
+              <option value="BB">BB — Brandenburg (Bundesmodell)</option>
+              <option value="SH">SH — Schleswig-Holstein (Bundesmodell)</option>
+              <option value="SN">SN — Sachsen (Bundesmodell)</option>
+              <option value="BW">BW — Baden-Württemberg (Bodenwertmodell)</option>
+              <option value="BY">BY — Bayern (Flächenmodell)</option>
+              <option value="HH">HH — Hamburg (Wohnlagenmodell)</option>
+              <option value="HE">HE — Hessen (Flächen-Faktor)</option>
+              <option value="NI">NI — Niedersachsen (Flächen-Lage)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="inp-hebesatz">Hebesatz Kommune (%)</label>
+            <input type="number" id="inp-hebesatz" value="580" step="10" oninput="recomputeStudio()" />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="inp-gw-bescheid">Grundsteuerwert lt. Bescheid (€)</label>
+            <input type="number" id="inp-gw-bescheid" value="468000" step="1000" oninput="recomputeStudio()" />
+          </div>
+          <div class="form-group">
+            <label for="inp-mb-bescheid">Steuermessbetrag lt. Bescheid (€)</label>
+            <input type="number" id="inp-mb-bescheid" value="145.08" step="1" oninput="recomputeStudio()" />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="inp-fmv">Tatsächl. Verkehrswert (§ 220 II BewG €)</label>
+            <input type="number" id="inp-fmv" value="295000" step="5000" oninput="recomputeStudio()" />
+          </div>
+          <div class="form-group">
+            <label for="inp-plot-sqm">Grundstücksfläche (m²) / BRW (€/m²)</label>
+            <input type="number" id="inp-plot-sqm" value="780" step="10" oninput="recomputeStudio()" />
+          </div>
+        </div>
+
+        <div class="form-section-title">2. Wohnflächen-Prüfung (§§ 2, 4 WoFlV)</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="inp-declared-sqm">Erklärte Wohnfläche Bescheid (m²)</label>
+            <input type="number" id="inp-declared-sqm" value="212.0" step="1" oninput="recomputeStudio()" />
+          </div>
+          <div class="form-group">
+            <label for="inp-balcony-sqm">Balkon/Terrasse (m² zu 100% statt 25%)</label>
+            <input type="number" id="inp-balcony-sqm" value="24.0" step="1" oninput="recomputeStudio()" />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="inp-slope-1-2">Dachschrägen 1,00–2,00 m Höhe (m²)</label>
+            <input type="number" id="inp-slope-1-2" value="18.0" step="1" oninput="recomputeStudio()" />
+          </div>
+          <div class="form-group">
+            <label for="inp-basement-sqm">Hobbykeller / Zubehörräume <1m (m²)</label>
+            <input type="number" id="inp-basement-sqm" value="28.0" step="1" oninput="recomputeStudio()" />
+          </div>
+        </div>
+
+        <div class="form-section-title">3. Immobilien-AfA &amp; Restnutzungsdauer (§ 7 EStG)</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="inp-baujahr">Baujahr Gebäude</label>
+            <input type="number" id="inp-baujahr" value="1966" step="1" oninput="recomputeStudio()" />
+          </div>
+          <div class="form-group">
+            <label for="inp-kaufpreis">Gesamterwerbspreis inkl. NK (€)</label>
+            <input type="number" id="inp-kaufpreis" value="540000" step="10000" oninput="recomputeStudio()" />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="inp-geb-curr">Gebäudeanteil Status Quo (%)</label>
+            <input type="number" id="inp-geb-curr" value="62" step="1" oninput="recomputeStudio()" />
+          </div>
+          <div class="form-group">
+            <label for="inp-geb-opt">Gebäudeanteil Gutachten (%)</label>
+            <input type="number" id="inp-geb-opt" value="74" step="1" oninput="recomputeStudio()" />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="inp-mod-pts">Modernisierungspunkte (0–20 ImmoWertV)</label>
+            <input type="number" id="inp-mod-pts" value="3" min="0" max="20" step="1" oninput="recomputeStudio()" />
+          </div>
+          <div class="form-group">
+            <label for="inp-tax-rate">Grenzsteuersatz ESt (%)</label>
+            <input type="number" id="inp-tax-rate" value="42" min="14" max="45" step="1" oninput="recomputeStudio()" />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="inp-neubau-mode">AfA-Sonderregime (Neubau ab 10/2023)</label>
+            <select id="inp-neubau-mode" onchange="recomputeStudio()">
+              <option value="BESTAND" selected>Bestandsbau (§ 7 Abs. 4 S. 2 RND-Gutachten)</option>
+              <option value="DEG_5">Neubau 5% Degressive AfA (§ 7 Abs. 5a EStG)</option>
+              <option value="DEG_5_PLUS_7B">Neubau 5% Degressiv + 5% Sonder-AfA (§ 7b EH40/QNG)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="inp-gutachten-cost">Kosten RND-/Verkehrswert-Gutachten (€)</label>
+            <input type="number" id="inp-gutachten-cost" value="1190" step="50" oninput="recomputeStudio()" />
+          </div>
+        </div>
+      </aside>
+
+      <!-- RIGHT COLUMN: AUDIT RESULTS, TABLES & TEMPLATES -->
+      <div>
+        <!-- MODULE A: GRUNDSTEUER & WOFLV AUDIT -->
+        <section class="panel">
+          <div class="panel-title">
+            <span>Modul A: Grundsteuer-Bescheid &amp; BFH II B 78/23 Verkehrswert-Prüfstand</span>
+            <span class="status-pill alert" id="bfh-verdict-pill">BFH Escape Hatch aktiv (&gt;= 40% Überbewertung)</span>
+          </div>
+
+          <div class="gauge-box">
+            <div style="display:flex; justify-content:space-between; font-size:0.84rem; font-weight:600;">
+              <span id="gauge-title-left">Überbewertung Grundsteuerwert vs. Verkehrswert: +58.6%</span>
+              <span id="gauge-title-right" style="font-family:var(--font-mono);">Schwelle § 220 Abs. 2 BewG: +40,0%</span>
+            </div>
+            <div class="gauge-track">
+              <div class="gauge-threshold-line" style="left: 50%;" title="40% BFH-Erheblichkeitsschwelle"></div>
+              <div class="gauge-marker" id="gauge-marker" style="left: 73%;"></div>
+            </div>
+            <div style="font-size:0.81rem; color:var(--ink-secondary);" id="pathway-recommendation">
+              Verfahrensweg: Einspruch (§ 355 AO) + Antrag auf Aussetzung der Vollziehung (§ 361 AO) binnen 1 Monat
+            </div>
+          </div>
+
+          <table class="audit-table">
+            <thead>
+              <tr>
+                <th>Bewertungs-Szenario</th>
+                <th class="num">Wohnfläche (WoFlV)</th>
+                <th class="num">Grundsteuerwert</th>
+                <th class="num">Steuermessbetrag</th>
+                <th class="num">Grundsteuer / Jahr</th>
+                <th class="num">Ersparnis / Jahr</th>
+              </tr>
+            </thead>
+            <tbody id="gst-comparison-tbody">
+              <tr>
+                <td><strong>1. Bescheid Status Quo</strong></td>
+                <td class="num">212.0 m²</td>
+                <td class="num">468,000 €</td>
+                <td class="num">145.08 €</td>
+                <td class="num">841.46 €</td>
+                <td class="num">0,00 €</td>
+              </tr>
+              <tr>
+                <td><strong>2. Nach §§ 2, 4 WoFlV Flächen-Abzug</strong></td>
+                <td class="num">157.0 m²</td>
+                <td class="num">379,700 €</td>
+                <td class="num">117.71 €</td>
+                <td class="num">682.72 €</td>
+                <td class="num" style="color:var(--accent-emerald); font-weight:700;">-158.74 €</td>
+              </tr>
+              <tr style="background:var(--accent-emerald-bg);">
+                <td><strong>3. Optimal (BFH II B 78/23 / § 220 II BewG)</strong></td>
+                <td class="num">157.0 m²</td>
+                <td class="num">295,000 €</td>
+                <td class="num">91.45 €</td>
+                <td class="num"><strong>530.41 €</strong></td>
+                <td class="num" style="color:var(--accent-emerald); font-weight:700;">-311.05 €</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <ul class="findings-list" id="woflv-findings-list">
+            <li>§ 4 Nr. 4 WoFlV (Balkon/Terrasse): 24.0 m² wurden zu 100% statt regulär 25% angesetzt -> Abzug -18.00 m².</li><li>§ 4 Nr. 2 WoFlV (Dachschrägen 1,00–2,00 m lichte Höhe): 18.0 m² zählen nur zu 50% -> Abzug -9.00 m².</li><li>§ 4 Nr. 2 WoFlV (Dachschrägen/Kniestock < 1,00 m lichte Höhe): 6.0 m² zählen zu 0% -> Abzug -6.00 m².</li><li>§ 2 Abs. 3 WoFlV (Zubehörräume: Keller, Hobbyraum ohne Wohn-Baugenehmigung, Waschküche, Heizung): zählen zu 0% zur Wohnfläche -> Abzug -22.00 m².</li>
+          </ul>
+        </section>
+
+        <!-- MODULE B: IMMOBILIEN-AFA OPTIMIZER -->
+        <section class="panel">
+          <div class="panel-title">
+            <span>Modul B: Vermieter-AfA-Turbo (§ 7 Abs. 4 S. 2 RND vs. § 7 Abs. 5a / § 7b EStG)</span>
+            <span class="status-pill pass" id="afa-track-pill">RND 24 Jahre → 4.17% AfA</span>
+          </div>
+
+          <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:0.85rem; margin-bottom:1rem;">
+            <div style="background:var(--bg-subtle); padding:0.8rem; border-radius:8px; border:1px solid var(--border-hairline);">
+              <div style="font-size:0.75rem; font-weight:700; color:var(--ink-muted); text-transform:uppercase;">AfA-Basis Gebäude (Optimiert)</div>
+              <div style="font-family:var(--font-mono); font-size:1.2rem; font-weight:700; margin-top:0.2rem;" id="afa-card-base">
+                399,600 €
+              </div>
+              <div style="font-size:0.78rem; color:var(--ink-secondary);" id="afa-card-base-sub">
+                statt 334,800 € Status Quo
+              </div>
+            </div>
+
+            <div style="background:var(--bg-subtle); padding:0.8rem; border-radius:8px; border:1px solid var(--border-hairline);">
+              <div style="font-size:0.75rem; font-weight:700; color:var(--ink-muted); text-transform:uppercase;">Zusätzliche AfA p.a. (Jahr 1)</div>
+              <div style="font-family:var(--font-mono); font-size:1.2rem; font-weight:700; color:var(--accent-navy); margin-top:0.2rem;" id="afa-card-delta">
+                +9,967 € / J.
+              </div>
+              <div style="font-size:0.78rem; color:var(--ink-secondary);" id="afa-card-delta-sub">
+                16,663 € statt 6,696 €
+              </div>
+            </div>
+
+            <div style="background:var(--accent-emerald-bg); padding:0.8rem; border-radius:8px; border:1px solid #6EE7B7;">
+              <div style="font-size:0.75rem; font-weight:700; color:var(--accent-emerald); text-transform:uppercase;">Gutachten Break-Even</div>
+              <div style="font-family:var(--font-mono); font-size:1.2rem; font-weight:700; color:var(--accent-emerald); margin-top:0.2rem;" id="afa-card-payback">
+                3.2 Monate
+              </div>
+              <div style="font-size:0.78rem; color:var(--ink-secondary);" id="afa-card-payback-sub">
+                10-J. Steuer-Schild: +44,165 €
+              </div>
+            </div>
+          </div>
+
+          <table class="audit-table">
+            <thead>
+              <tr>
+                <th>Jahr</th>
+                <th class="num">Regel-AfA Status Quo</th>
+                <th class="num">Optimierte AfA (§ 7 EStG)</th>
+                <th class="num">Mehr-Abschreibung</th>
+                <th class="num">ESt-Erstattung (+Soli)</th>
+                <th class="num">Kumulierter Steuer-Schild</th>
+              </tr>
+            </thead>
+            <tbody id="afa-schedule-tbody">
+              <tr><td>Jahr 1 (2026)</td><td class='num'>6,696 €</td><td class='num'><strong>16,663 €</strong></td><td class='num'>+9,967 €</td><td class='num' style='color:var(--accent-emerald);font-weight:700;'>+4,417 €</td><td class='num'>4,417 €</td></tr><tr><td>Jahr 2 (2027)</td><td class='num'>6,696 €</td><td class='num'><strong>16,663 €</strong></td><td class='num'>+9,967 €</td><td class='num' style='color:var(--accent-emerald);font-weight:700;'>+4,417 €</td><td class='num'>8,833 €</td></tr><tr><td>Jahr 3 (2028)</td><td class='num'>6,696 €</td><td class='num'><strong>16,663 €</strong></td><td class='num'>+9,967 €</td><td class='num' style='color:var(--accent-emerald);font-weight:700;'>+4,417 €</td><td class='num'>13,250 €</td></tr><tr><td>Jahr 4 (2029)</td><td class='num'>6,696 €</td><td class='num'><strong>16,663 €</strong></td><td class='num'>+9,967 €</td><td class='num' style='color:var(--accent-emerald);font-weight:700;'>+4,417 €</td><td class='num'>17,666 €</td></tr><tr><td>Jahr 5 (2030)</td><td class='num'>6,696 €</td><td class='num'><strong>16,663 €</strong></td><td class='num'>+9,967 €</td><td class='num' style='color:var(--accent-emerald);font-weight:700;'>+4,417 €</td><td class='num'>22,083 €</td></tr>
+            </tbody>
+          </table>
+        </section>
+
+        <!-- MODULE C: READY-TO-SEND LEGAL TEMPLATES -->
+        <section class="panel">
+          <div class="panel-title">
+            <span>Modul C: Kopierfertige Finanzamt-Schriftsätze (§ 220 Abs. 2 / § 222 BewG &amp; Anlage V)</span>
+          </div>
+
+          <div class="template-grid">
+            <div>
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.45rem;">
+                <strong style="font-size:0.84rem;">1. Grundsteuer-Einspruch / § 222 BewG Wertfortschreibung</strong>
+                <button class="copy-btn" onclick="copyTemplate('txt-grundsteuer')">Schriftsatz kopieren</button>
+              </div>
+              <textarea class="template-textarea" id="txt-grundsteuer" readonly>An das zuständige Finanzamt (Rheinland-Pfalz / Kommune: Koblenz)
+Aktenzeichen / Steuernummer: 22/085/41920/001
+Objekt: 1966er Zweifamilienhaus in Hanglage & Hauptverkehrsstraße (Rheinland-Pfalz / Bundesmodell) (ZFH, Baujahr 1966)
+
+Betreff: EINSPRUCH gem. § 355 AO sowie ANTRAG AUF AUSSETZUNG DER VOLLZIEHUNG gem. § 361 AO
+Gegen den Grundsteuerwertbescheid / Grundsteuermessbescheid vom 2026-09-28
+
+Sehr geehrte Damen und Herren,
+
+hiermit beantrage ich die Herabsetzung des festgestellten Grundsteuerwerts sowie des daraus abgeleiteten
+Grundsteuermessbetrags für das oben genannte Grundstück (Bundesmodell (Ertragswert §§ 252–257 BewG)):
+
+1. Nachweis des niedrigeren gemeinen Werts (Verkehrswert) nach § 220 Abs. 2 BewG / BFH II B 78/23 & II B 79/23:
+   - Festgestellter typisierter Grundsteuerwert laut Bescheid: 468,000.00 EUR
+   - Tatsächlicher gemeiner Wert (Verkehrswert):               295,000.00 EUR
+   - Festgestellte Überbewertung:                              +58.6% (Verhältnis 1.59x)
+   - Gesetzliche Erheblichkeitsschwelle (§ 220 Abs. 2 BewG):   >=40%
+   - Objektkonkrete Wertminderungsgründe: Erheblicher Instandhaltungsstau (ungedämmte Fassade, Ölheizung Bj. 1994, Originalfenster), Starke Lärmbelästigung an Bundesstraße (>68 dB(A)), Steile Hanglage mit Stützmauer-Sanierungsbedarf.
+   Gemäß den Beschlüssen des Bundesfinanzhofs vom 27.05.2024 (Az. II B 78/23 und II B 79/23) sowie § 220 Abs. 2 BewG
+   ist bei einer Überbewertung von mindestens 40 % zwingend der nachgewiesene niedrigere gemeine Wert anzusetzen.
+
+2. Korrektur der Wohnflächenberechnung nach §§ 2, 4 Wohnflächenverordnung (WoFlV):
+   - Bislang im Bescheid zugrunde gelegte Fläche:              212.00 m²
+   - Korrekte Wohnfläche nach §§ 2, 4 WoFlV:                   157.00 m² (-55.00 m²)
+   * § 4 Nr. 4 WoFlV (Balkon/Terrasse): 24.0 m² wurden zu 100% statt regulär 25% angesetzt -> Abzug -18.00 m².
+   * § 4 Nr. 2 WoFlV (Dachschrägen 1,00–2,00 m lichte Höhe): 18.0 m² zählen nur zu 50% -> Abzug -9.00 m².
+   * § 4 Nr. 2 WoFlV (Dachschrägen/Kniestock < 1,00 m lichte Höhe): 6.0 m² zählen zu 0% -> Abzug -6.00 m².
+   * § 2 Abs. 3 WoFlV (Zubehörräume: Keller, Hobbyraum ohne Wohn-Baugenehmigung, Waschküche, Heizung): zählen zu 0% zur Wohnfläche -> Abzug -22.00 m².
+
+3. Antrag auf Neufeststellung:
+   Ich beantrage die Feststellung des Grundsteuerwerts auf 295,000.00 EUR
+   (Grundsteuermessbetrag neu: 91.45 EUR statt 145.08 EUR;
+   jährliche Grundsteuer-Entlastung bei 580% Hebesatz: 311.05 EUR/Jahr).
+
+Mit freundlichen Grüßen
+[Unterschrift Eigentümer/in]</textarea>
+            </div>
+
+            <div>
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.45rem;">
+                <strong style="font-size:0.84rem;">2. Anlage V Begleitschreiben (§ 7 Abs. 4 S. 2 / § 7 Abs. 5a EStG)</strong>
+                <button class="copy-btn" onclick="copyTemplate('txt-afa')">Schriftsatz kopieren</button>
+              </div>
+              <textarea class="template-textarea" id="txt-afa" readonly>An das Wohnsitz-Finanzamt — Anlage V zur Einkommensteuererklärung
+Steuerpflichtige/r — Vermietungsobjekt: 1966er Zweifamilienhaus in Hanglage & Hauptverkehrsstraße (Rheinland-Pfalz / Bundesmodell) (Koblenz)
+Baujahr: 1966 | Anschaffungsjahr: 2022
+
+Betreff: Geltendmachung der Gebäude-AfA nach § 7 Abs. 4 Satz 2 EStG (Restnutzungsdauer-Gutachten 24 J. = 4.17% AfA, BFH IX R 25/19)
+
+Sehr geehrte Damen und Herren,
+
+im Rahmen der Einkünfte aus Vermietung und Verpachtung (§ 21 EStG, Anlage V) mache ich für das
+oben bezeichnete Objekt folgende Absetzung für Abnutzung (AfA) geltend:
+
+1. Bemessungsgrundlage (Gebäudeanteil an den Gesamtanschaffungskosten):
+   - Gesamterwerbsaufwand inkl. Anschaffungsnebenkosten: 540,000.00 EUR
+   - Gebäudeanteil (74.0% nach gutachterlicher Kaufpreisaufteilung / BFH IX R 12/19): 399,600.00 EUR
+
+2. Nachweis der kürzeren tatsächlichen Restnutzungsdauer (§ 7 Abs. 4 Satz 2 EStG i.V.m. BFH IX R 25/19 & IX R 14/23):
+   - Gebäudealter im Veranlagungsjahr:                   60 Jahre (Modernisierungspunkte nach ImmoWertV Anlage 2: 3.0 Pkt.)
+   - Sachverständig ermittelte Restnutzungsdauer (RND):  24 Jahre (statt typisiert 50 Jahre)
+   - Resultierender AfA-Satz (§ 7 Abs. 4 Satz 2 EStG):   4.17% p.a. (statt 2.0% p.a.)
+   - Jährlicher AfA-Abzugsbetrag (Anlage V):             16,663.32 EUR/Jahr (+9,967.32 EUR/Jahr)
+   Gemäß Urteil des BFH vom 28.07.2021 (Az. IX R 25/19) sowie vom 23.01.2024 (Az. IX R 14/23) ist die modellgestützte
+   Ermittlung der Restnutzungsdauer nach Maßgabe der ImmoWertV als Nachweis nach § 7 Abs. 4 Satz 2 EStG anzuerkennen.
+
+Das entsprechende Sachverständigengutachten / die Berechnungsunterlagen liegen als Anlage bei.
+
+Mit freundlichen Grüßen
+[Unterschrift Steuerpflichtige/r]</textarea>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const PRESET_CASES = [{"case_input": {"case_id": "case_1_bundesmodell_bfh_rnd", "case_title": "1966er Zweifamilienhaus in Hanglage & Hauptverkehrsstraße (Rheinland-Pfalz / Bundesmodell)", "bundesland": "RP", "municipality": "Koblenz", "aktenzeichen": "22/085/41920/001", "property_type": "ZFH", "construction_year": 1966, "plot_area_sqm": 780.0, "bodenrichtwert_eur_sqm": 390.0, "municipal_avg_brw_eur_sqm": 340.0, "hebesatz_pct": 580.0, "bescheid_date_iso": "2026-09-28", "bescheid_grundsteuerwert_eur": 468000.0, "bescheid_steuermessbetrag_eur": 145.08, "declared_living_area_sqm": 212.0, "balcony_terrace_total_sqm": 24.0, "balcony_declared_weight_pct": 100.0, "balcony_woflv_weight_pct": 25.0, "sloped_ceiling_1m_to_2m_sqm": 18.0, "sloped_ceiling_declared_weight_pct": 100.0, "sloped_ceiling_under_1m_sqm": 6.0, "basement_hobby_utility_included_sqm": 22.0, "estimated_fair_market_value_eur": 295000.0, "value_depressants": ["Erheblicher Instandhaltungsstau (ungedämmte Fassade, Ölheizung Bj. 1994, Originalfenster)", "Starke Lärmbelästigung an Bundesstraße (>68 dB(A))", "Steile Hanglage mit Stützmauer-Sanierungsbedarf"], "appraisal_cost_grundsteuer_eur": 1390.0, "is_rented": true, "purchase_year": 2022, "total_purchase_price_inkl_nk_eur": 540000.0, "current_building_share_pct": 62.0, "optimized_building_share_pct": 74.0, "marginal_tax_rate_pct": 42.0, "include_soli": true, "modernization_points": 3.0, "certified_rnd_gutachten_cost_eur": 1190.0, "is_neubau_after_sep_2023": false, "qualifies_eh40_qng_sonder_afa": false, "construction_cost_per_sqm_eur": 0.0}, "woflv": {"declared_living_area_sqm": 212.0, "corrected_living_area_sqm": 157.0, "overdeclared_area_sqm": 55.0, "overdeclared_pct": 25.94, "deduction_balcony_sqm": 18.0, "deduction_slopes_1m_2m_sqm": 9.0, "deduction_slopes_under_1m_sqm": 6.0, "deduction_basement_utility_sqm": 22.0, "findings": ["§ 4 Nr. 4 WoFlV (Balkon/Terrasse): 24.0 m² wurden zu 100% statt regulär 25% angesetzt -> Abzug -18.00 m².", "§ 4 Nr. 2 WoFlV (Dachschrägen 1,00–2,00 m lichte Höhe): 18.0 m² zählen nur zu 50% -> Abzug -9.00 m².", "§ 4 Nr. 2 WoFlV (Dachschrägen/Kniestock < 1,00 m lichte Höhe): 6.0 m² zählen zu 0% -> Abzug -6.00 m².", "§ 2 Abs. 3 WoFlV (Zubehörräume: Keller, Hobbyraum ohne Wohn-Baugenehmigung, Waschküche, Heizung): zählen zu 0% zur Wohnfläche -> Abzug -22.00 m²."]}, "grundsteuer": {"bundesland": "RP", "state_name": "Rheinland-Pfalz", "model_code": "BUNDESMODELL", "model_label": "Bundesmodell (Ertragswert §§ 252–257 BewG)", "bescheid_grundsteuerwert_eur": 468000.0, "bescheid_messbetrag_eur": 145.08, "bescheid_annual_tax_eur": 841.46, "woflv_corrected_grundsteuerwert_eur": 379700.0, "woflv_corrected_messbetrag_eur": 117.71, "woflv_corrected_annual_tax_eur": 682.72, "woflv_annual_savings_eur": 158.74, "estimated_fair_market_value_eur": 295000.0, "overvaluation_ratio": 1.5864, "overvaluation_pct": 58.64, "bfh_threshold_pct": 40.0, "qualifies_bfh_escape_hatch": true, "bfh_corrected_grundsteuerwert_eur": 295000.0, "bfh_corrected_messbetrag_eur": 91.45, "bfh_corrected_annual_tax_eur": 530.41, "optimal_strategy_code": "BFH_II_B_78_23_VERKEHRSWERT_NACHWEIS", "optimal_strategy_label": "BFH II B 78/23 / § 220 Abs. 2 BewG Verkehrswert-Nachweis (Überbewertung +58.6% >= 40% Schwelle)", "optimal_grundsteuerwert_eur": 295000.0, "optimal_messbetrag_eur": 91.45, "optimal_annual_tax_eur": 530.41, "optimal_annual_savings_eur": 311.05, "optimal_10yr_savings_eur": 3110.5, "einspruch_deadline_open": true, "wertfortschreibung_15k_met": true, "procedural_pathway": "Einspruch (§ 355 AO) + Antrag auf Aussetzung der Vollziehung (§ 361 AO) binnen 1 Monat", "appraisal_payback_years": 4.47}, "afa": {"is_rented": true, "statutory_afa_rate_pct": 2.0, "statutory_useful_life_years": 50.0, "current_depreciable_building_eur": 334800.0, "optimized_depreciable_building_eur": 399600.0, "annual_afa_status_quo_eur": 6696.0, "building_age_years": 60, "modernization_points": 3.0, "immowertv_estimated_rnd_years": 24, "qualifies_shorter_rnd": true, "rnd_afa_rate_pct": 4.17, "annual_afa_rnd_optimized_eur": 16663.32, "qualifies_degressive_5pct": false, "qualifies_sonder_afa_7b": false, "year1_afa_neubau_turbo_eur": 0.0, "recommended_afa_track": "§ 7 Abs. 4 Satz 2 EStG (Restnutzungsdauer-Gutachten 24 J. = 4.17% AfA, BFH IX R 25/19)", "recommended_year1_afa_eur": 16663.32, "additional_year1_afa_deduction_eur": 9967.32, "effective_tax_rate_pct": 44.31, "annual_tax_savings_year1_eur": 4416.52, "cumulative_10yr_extra_afa_eur": 99673.2, "cumulative_10yr_tax_shield_eur": 44165.2, "gutachten_payback_months": 3.2, "ten_year_schedule": [{"year_index": 1, "calendar_year": 2026, "status_quo_afa_eur": 6696.0, "optimized_afa_eur": 16663.32, "extra_afa_deduction_eur": 9967.32, "income_tax_refund_eur": 4416.52, "cumulative_tax_shield_eur": 4416.52}, {"year_index": 2, "calendar_year": 2027, "status_quo_afa_eur": 6696.0, "optimized_afa_eur": 16663.32, "extra_afa_deduction_eur": 9967.32, "income_tax_refund_eur": 4416.52, "cumulative_tax_shield_eur": 8833.04}, {"year_index": 3, "calendar_year": 2028, "status_quo_afa_eur": 6696.0, "optimized_afa_eur": 16663.32, "extra_afa_deduction_eur": 9967.32, "income_tax_refund_eur": 4416.52, "cumulative_tax_shield_eur": 13249.56}, {"year_index": 4, "calendar_year": 2029, "status_quo_afa_eur": 6696.0, "optimized_afa_eur": 16663.32, "extra_afa_deduction_eur": 9967.32, "income_tax_refund_eur": 4416.52, "cumulative_tax_shield_eur": 17666.08}, {"year_index": 5, "calendar_year": 2030, "status_quo_afa_eur": 6696.0, "optimized_afa_eur": 16663.32, "extra_afa_deduction_eur": 9967.32, "income_tax_refund_eur": 4416.52, "cumulative_tax_shield_eur": 22082.6}, {"year_index": 6, "calendar_year": 2031, "status_quo_afa_eur": 6696.0, "optimized_afa_eur": 16663.32, "extra_afa_deduction_eur": 9967.32, "income_tax_refund_eur": 4416.52, "cumulative_tax_shield_eur": 26499.12}, {"year_index": 7, "calendar_year": 2032, "status_quo_afa_eur": 6696.0, "optimized_afa_eur": 16663.32, "extra_afa_deduction_eur": 9967.32, "income_tax_refund_eur": 4416.52, "cumulative_tax_shield_eur": 30915.64}, {"year_index": 8, "calendar_year": 2033, "status_quo_afa_eur": 6696.0, "optimized_afa_eur": 16663.32, "extra_afa_deduction_eur": 9967.32, "income_tax_refund_eur": 4416.52, "cumulative_tax_shield_eur": 35332.16}, {"year_index": 9, "calendar_year": 2034, "status_quo_afa_eur": 6696.0, "optimized_afa_eur": 16663.32, "extra_afa_deduction_eur": 9967.32, "income_tax_refund_eur": 4416.52, "cumulative_tax_shield_eur": 39748.68}, {"year_index": 10, "calendar_year": 2035, "status_quo_afa_eur": 6696.0, "optimized_afa_eur": 16663.32, "extra_afa_deduction_eur": 9967.32, "income_tax_refund_eur": 4416.52, "cumulative_tax_shield_eur": 44165.2}]}, "combined_year1_cashflow_gain_eur": 4727.57, "combined_10yr_cashflow_gain_eur": 47275.7, "einspruch_template_text": "An das zuständige Finanzamt (Rheinland-Pfalz / Kommune: Koblenz)\nAktenzeichen / Steuernummer: 22/085/41920/001\nObjekt: 1966er Zweifamilienhaus in Hanglage & Hauptverkehrsstraße (Rheinland-Pfalz / Bundesmodell) (ZFH, Baujahr 1966)\n\nBetreff: EINSPRUCH gem. § 355 AO sowie ANTRAG AUF AUSSETZUNG DER VOLLZIEHUNG gem. § 361 AO\nGegen den Grundsteuerwertbescheid / Grundsteuermessbescheid vom 2026-09-28\n\nSehr geehrte Damen und Herren,\n\nhiermit beantrage ich die Herabsetzung des festgestellten Grundsteuerwerts sowie des daraus abgeleiteten\nGrundsteuermessbetrags für das oben genannte Grundstück (Bundesmodell (Ertragswert §§ 252–257 BewG)):\n\n1. Nachweis des niedrigeren gemeinen Werts (Verkehrswert) nach § 220 Abs. 2 BewG / BFH II B 78/23 & II B 79/23:\n   - Festgestellter typisierter Grundsteuerwert laut Bescheid: 468,000.00 EUR\n   - Tatsächlicher gemeiner Wert (Verkehrswert):               295,000.00 EUR\n   - Festgestellte Überbewertung:                              +58.6% (Verhältnis 1.59x)\n   - Gesetzliche Erheblichkeitsschwelle (§ 220 Abs. 2 BewG):   >=40%\n   - Objektkonkrete Wertminderungsgründe: Erheblicher Instandhaltungsstau (ungedämmte Fassade, Ölheizung Bj. 1994, Originalfenster), Starke Lärmbelästigung an Bundesstraße (>68 dB(A)), Steile Hanglage mit Stützmauer-Sanierungsbedarf.\n   Gemäß den Beschlüssen des Bundesfinanzhofs vom 27.05.2024 (Az. II B 78/23 und II B 79/23) sowie § 220 Abs. 2 BewG\n   ist bei einer Überbewertung von mindestens 40 % zwingend der nachgewiesene niedrigere gemeine Wert anzusetzen.\n\n2. Korrektur der Wohnflächenberechnung nach §§ 2, 4 Wohnflächenverordnung (WoFlV):\n   - Bislang im Bescheid zugrunde gelegte Fläche:              212.00 m²\n   - Korrekte Wohnfläche nach §§ 2, 4 WoFlV:                   157.00 m² (-55.00 m²)\n   * § 4 Nr. 4 WoFlV (Balkon/Terrasse): 24.0 m² wurden zu 100% statt regulär 25% angesetzt -> Abzug -18.00 m².\n   * § 4 Nr. 2 WoFlV (Dachschrägen 1,00–2,00 m lichte Höhe): 18.0 m² zählen nur zu 50% -> Abzug -9.00 m².\n   * § 4 Nr. 2 WoFlV (Dachschrägen/Kniestock < 1,00 m lichte Höhe): 6.0 m² zählen zu 0% -> Abzug -6.00 m².\n   * § 2 Abs. 3 WoFlV (Zubehörräume: Keller, Hobbyraum ohne Wohn-Baugenehmigung, Waschküche, Heizung): zählen zu 0% zur Wohnfläche -> Abzug -22.00 m².\n\n3. Antrag auf Neufeststellung:\n   Ich beantrage die Feststellung des Grundsteuerwerts auf 295,000.00 EUR\n   (Grundsteuermessbetrag neu: 91.45 EUR statt 145.08 EUR;\n   jährliche Grundsteuer-Entlastung bei 580% Hebesatz: 311.05 EUR/Jahr).\n\nMit freundlichen Grüßen\n[Unterschrift Eigentümer/in]", "afa_finanzamt_template_text": "An das Wohnsitz-Finanzamt — Anlage V zur Einkommensteuererklärung\nSteuerpflichtige/r — Vermietungsobjekt: 1966er Zweifamilienhaus in Hanglage & Hauptverkehrsstraße (Rheinland-Pfalz / Bundesmodell) (Koblenz)\nBaujahr: 1966 | Anschaffungsjahr: 2022\n\nBetreff: Geltendmachung der Gebäude-AfA nach § 7 Abs. 4 Satz 2 EStG (Restnutzungsdauer-Gutachten 24 J. = 4.17% AfA, BFH IX R 25/19)\n\nSehr geehrte Damen und Herren,\n\nim Rahmen der Einkünfte aus Vermietung und Verpachtung (§ 21 EStG, Anlage V) mache ich für das\noben bezeichnete Objekt folgende Absetzung für Abnutzung (AfA) geltend:\n\n1. Bemessungsgrundlage (Gebäudeanteil an den Gesamtanschaffungskosten):\n   - Gesamterwerbsaufwand inkl. Anschaffungsnebenkosten: 540,000.00 EUR\n   - Gebäudeanteil (74.0% nach gutachterlicher Kaufpreisaufteilung / BFH IX R 12/19): 399,600.00 EUR\n\n2. Nachweis der kürzeren tatsächlichen Restnutzungsdauer (§ 7 Abs. 4 Satz 2 EStG i.V.m. BFH IX R 25/19 & IX R 14/23):\n   - Gebäudealter im Veranlagungsjahr:                   60 Jahre (Modernisierungspunkte nach ImmoWertV Anlage 2: 3.0 Pkt.)\n   - Sachverständig ermittelte Restnutzungsdauer (RND):  24 Jahre (statt typisiert 50 Jahre)\n   - Resultierender AfA-Satz (§ 7 Abs. 4 Satz 2 EStG):   4.17% p.a. (statt 2.0% p.a.)\n   - Jährlicher AfA-Abzugsbetrag (Anlage V):             16,663.32 EUR/Jahr (+9,967.32 EUR/Jahr)\n   Gemäß Urteil des BFH vom 28.07.2021 (Az. IX R 25/19) sowie vom 23.01.2024 (Az. IX R 14/23) ist die modellgestützte\n   Ermittlung der Restnutzungsdauer nach Maßgabe der ImmoWertV als Nachweis nach § 7 Abs. 4 Satz 2 EStG anzuerkennen.\n\nDas entsprechende Sachverständigengutachten / die Berechnungsunterlagen liegen als Anlage bei.\n\nMit freundlichen Grüßen\n[Unterschrift Steuerpflichtige/r]"}, {"case_input": {"case_id": "case_2_nrw_mfh_afa_turbo", "case_title": "1972er 6-Parteien-Mehrfamilienhaus im Ruhrgebiet (NRW / Bundesmodell + Restnutzungsdauer)", "bundesland": "NW", "municipality": "Essen", "aktenzeichen": "111/5821/3094/004", "property_type": "MFH", "construction_year": 1972, "plot_area_sqm": 640.0, "bodenrichtwert_eur_sqm": 450.0, "municipal_avg_brw_eur_sqm": 410.0, "hebesatz_pct": 655.0, "bescheid_date_iso": "2024-11-15", "bescheid_grundsteuerwert_eur": 895000.0, "bescheid_steuermessbetrag_eur": 277.45, "declared_living_area_sqm": 465.0, "balcony_terrace_total_sqm": 36.0, "balcony_declared_weight_pct": 50.0, "balcony_woflv_weight_pct": 25.0, "sloped_ceiling_1m_to_2m_sqm": 28.0, "sloped_ceiling_declared_weight_pct": 100.0, "sloped_ceiling_under_1m_sqm": 8.0, "basement_hobby_utility_included_sqm": 30.0, "estimated_fair_market_value_eur": 590000.0, "value_depressants": ["Energetischer Sanierungsstau (Energieeffizienzklasse G, ungedämmtes Flachdach)", "Hinterlandbebauung mit eingeschränkter Zufahrt (Baulast)"], "appraisal_cost_grundsteuer_eur": 1650.0, "is_rented": true, "purchase_year": 2021, "total_purchase_price_inkl_nk_eur": 920000.0, "current_building_share_pct": 68.0, "optimized_building_share_pct": 78.0, "marginal_tax_rate_pct": 42.0, "include_soli": true, "modernization_points": 4.0, "certified_rnd_gutachten_cost_eur": 1390.0, "is_neubau_after_sep_2023": false, "qualifies_eh40_qng_sonder_afa": false, "construction_cost_per_sqm_eur": 0.0}, "woflv": {"declared_living_area_sqm": 465.0, "corrected_living_area_sqm": 404.0, "overdeclared_area_sqm": 61.0, "overdeclared_pct": 13.12, "deduction_balcony_sqm": 9.0, "deduction_slopes_1m_2m_sqm": 14.0, "deduction_slopes_under_1m_sqm": 8.0, "deduction_basement_utility_sqm": 30.0, "findings": ["§ 4 Nr. 4 WoFlV (Balkon/Terrasse): 36.0 m² wurden zu 50% statt regulär 25% angesetzt -> Abzug -9.00 m².", "§ 4 Nr. 2 WoFlV (Dachschrägen 1,00–2,00 m lichte Höhe): 28.0 m² zählen nur zu 50% -> Abzug -14.00 m².", "§ 4 Nr. 2 WoFlV (Dachschrägen/Kniestock < 1,00 m lichte Höhe): 8.0 m² zählen zu 0% -> Abzug -8.00 m².", "§ 2 Abs. 3 WoFlV (Zubehörräume: Keller, Hobbyraum ohne Wohn-Baugenehmigung, Waschküche, Heizung): zählen zu 0% zur Wohnfläche -> Abzug -30.00 m²."]}, "grundsteuer": {"bundesland": "NW", "state_name": "Nordrhein-Westfalen", "model_code": "BUNDESMODELL", "model_label": "Bundesmodell (Ertragswert §§ 252–257 BewG)", "bescheid_grundsteuerwert_eur": 895000.0, "bescheid_messbetrag_eur": 277.45, "bescheid_annual_tax_eur": 1817.3, "woflv_corrected_grundsteuerwert_eur": 793400.0, "woflv_corrected_messbetrag_eur": 245.95, "woflv_corrected_annual_tax_eur": 1610.97, "woflv_annual_savings_eur": 206.33, "estimated_fair_market_value_eur": 590000.0, "overvaluation_ratio": 1.5169, "overvaluation_pct": 51.69, "bfh_threshold_pct": 40.0, "qualifies_bfh_escape_hatch": true, "bfh_corrected_grundsteuerwert_eur": 590000.0, "bfh_corrected_messbetrag_eur": 182.9, "bfh_corrected_annual_tax_eur": 1198.0, "optimal_strategy_code": "BFH_II_B_78_23_VERKEHRSWERT_NACHWEIS", "optimal_strategy_label": "BFH II B 78/23 / § 220 Abs. 2 BewG Verkehrswert-Nachweis (Überbewertung +51.7% >= 40% Schwelle)", "optimal_grundsteuerwert_eur": 590000.0, "optimal_messbetrag_eur": 182.9, "optimal_annual_tax_eur": 1198.0, "optimal_annual_savings_eur": 619.3, "optimal_10yr_savings_eur": 6193.0, "einspruch_deadline_open": false, "wertfortschreibung_15k_met": true, "procedural_pathway": "Antrag auf fehlerbeseitigende Wertfortschreibung (§ 222 Abs. 1 BewG — Wertabweichung 305,000 € >= 15.000 € Grenze) zum 01.01. des Folgejahres", "appraisal_payback_years": 2.66}, "afa": {"is_rented": true, "statutory_afa_rate_pct": 2.0, "statutory_useful_life_years": 50.0, "current_depreciable_building_eur": 625600.0, "optimized_depreciable_building_eur": 717600.0, "annual_afa_status_quo_eur": 12512.0, "building_age_years": 54, "modernization_points": 4.0, "immowertv_estimated_rnd_years": 31, "qualifies_shorter_rnd": true, "rnd_afa_rate_pct": 3.23, "annual_afa_rnd_optimized_eur": 23178.48, "qualifies_degressive_5pct": false, "qualifies_sonder_afa_7b": false, "year1_afa_neubau_turbo_eur": 0.0, "recommended_afa_track": "§ 7 Abs. 4 Satz 2 EStG (Restnutzungsdauer-Gutachten 31 J. = 3.23% AfA, BFH IX R 25/19)", "recommended_year1_afa_eur": 23178.48, "additional_year1_afa_deduction_eur": 10666.48, "effective_tax_rate_pct": 44.31, "annual_tax_savings_year1_eur": 4726.32, "cumulative_10yr_extra_afa_eur": 106664.8, "cumulative_10yr_tax_shield_eur": 47263.2, "gutachten_payback_months": 3.5, "ten_year_schedule": [{"year_index": 1, "calendar_year": 2026, "status_quo_afa_eur": 12512.0, "optimized_afa_eur": 23178.48, "extra_afa_deduction_eur": 10666.48, "income_tax_refund_eur": 4726.32, "cumulative_tax_shield_eur": 4726.32}, {"year_index": 2, "calendar_year": 2027, "status_quo_afa_eur": 12512.0, "optimized_afa_eur": 23178.48, "extra_afa_deduction_eur": 10666.48, "income_tax_refund_eur": 4726.32, "cumulative_tax_shield_eur": 9452.64}, {"year_index": 3, "calendar_year": 2028, "status_quo_afa_eur": 12512.0, "optimized_afa_eur": 23178.48, "extra_afa_deduction_eur": 10666.48, "income_tax_refund_eur": 4726.32, "cumulative_tax_shield_eur": 14178.96}, {"year_index": 4, "calendar_year": 2029, "status_quo_afa_eur": 12512.0, "optimized_afa_eur": 23178.48, "extra_afa_deduction_eur": 10666.48, "income_tax_refund_eur": 4726.32, "cumulative_tax_shield_eur": 18905.28}, {"year_index": 5, "calendar_year": 2030, "status_quo_afa_eur": 12512.0, "optimized_afa_eur": 23178.48, "extra_afa_deduction_eur": 10666.48, "income_tax_refund_eur": 4726.32, "cumulative_tax_shield_eur": 23631.6}, {"year_index": 6, "calendar_year": 2031, "status_quo_afa_eur": 12512.0, "optimized_afa_eur": 23178.48, "extra_afa_deduction_eur": 10666.48, "income_tax_refund_eur": 4726.32, "cumulative_tax_shield_eur": 28357.92}, {"year_index": 7, "calendar_year": 2032, "status_quo_afa_eur": 12512.0, "optimized_afa_eur": 23178.48, "extra_afa_deduction_eur": 10666.48, "income_tax_refund_eur": 4726.32, "cumulative_tax_shield_eur": 33084.24}, {"year_index": 8, "calendar_year": 2033, "status_quo_afa_eur": 12512.0, "optimized_afa_eur": 23178.48, "extra_afa_deduction_eur": 10666.48, "income_tax_refund_eur": 4726.32, "cumulative_tax_shield_eur": 37810.56}, {"year_index": 9, "calendar_year": 2034, "status_quo_afa_eur": 12512.0, "optimized_afa_eur": 23178.48, "extra_afa_deduction_eur": 10666.48, "income_tax_refund_eur": 4726.32, "cumulative_tax_shield_eur": 42536.88}, {"year_index": 10, "calendar_year": 2035, "status_quo_afa_eur": 12512.0, "optimized_afa_eur": 23178.48, "extra_afa_deduction_eur": 10666.48, "income_tax_refund_eur": 4726.32, "cumulative_tax_shield_eur": 47263.2}]}, "combined_year1_cashflow_gain_eur": 5345.62, "combined_10yr_cashflow_gain_eur": 53456.2, "einspruch_template_text": "An das zuständige Finanzamt (Nordrhein-Westfalen / Kommune: Essen)\nAktenzeichen / Steuernummer: 111/5821/3094/004\nObjekt: 1972er 6-Parteien-Mehrfamilienhaus im Ruhrgebiet (NRW / Bundesmodell + Restnutzungsdauer) (MFH, Baujahr 1972)\n\nBetreff: ANTRAG AUF FEHLERBESEITIGENDE WERTFORTSCHREIBUNG gem. § 222 Abs. 1 BewG i.V.m. § 220 Abs. 2 BewG\nGegen den Grundsteuerwertbescheid / Grundsteuermessbescheid vom 2024-11-15\n\nSehr geehrte Damen und Herren,\n\nhiermit beantrage ich die Herabsetzung des festgestellten Grundsteuerwerts sowie des daraus abgeleiteten\nGrundsteuermessbetrags für das oben genannte Grundstück (Bundesmodell (Ertragswert §§ 252–257 BewG)):\n\n1. Nachweis des niedrigeren gemeinen Werts (Verkehrswert) nach § 220 Abs. 2 BewG / BFH II B 78/23 & II B 79/23:\n   - Festgestellter typisierter Grundsteuerwert laut Bescheid: 895,000.00 EUR\n   - Tatsächlicher gemeiner Wert (Verkehrswert):               590,000.00 EUR\n   - Festgestellte Überbewertung:                              +51.7% (Verhältnis 1.52x)\n   - Gesetzliche Erheblichkeitsschwelle (§ 220 Abs. 2 BewG):   >=40%\n   - Objektkonkrete Wertminderungsgründe: Energetischer Sanierungsstau (Energieeffizienzklasse G, ungedämmtes Flachdach), Hinterlandbebauung mit eingeschränkter Zufahrt (Baulast).\n   Gemäß den Beschlüssen des Bundesfinanzhofs vom 27.05.2024 (Az. II B 78/23 und II B 79/23) sowie § 220 Abs. 2 BewG\n   ist bei einer Überbewertung von mindestens 40 % zwingend der nachgewiesene niedrigere gemeine Wert anzusetzen.\n\n2. Korrektur der Wohnflächenberechnung nach §§ 2, 4 Wohnflächenverordnung (WoFlV):\n   - Bislang im Bescheid zugrunde gelegte Fläche:              465.00 m²\n   - Korrekte Wohnfläche nach §§ 2, 4 WoFlV:                   404.00 m² (-61.00 m²)\n   * § 4 Nr. 4 WoFlV (Balkon/Terrasse): 36.0 m² wurden zu 50% statt regulär 25% angesetzt -> Abzug -9.00 m².\n   * § 4 Nr. 2 WoFlV (Dachschrägen 1,00–2,00 m lichte Höhe): 28.0 m² zählen nur zu 50% -> Abzug -14.00 m².\n   * § 4 Nr. 2 WoFlV (Dachschrägen/Kniestock < 1,00 m lichte Höhe): 8.0 m² zählen zu 0% -> Abzug -8.00 m².\n   * § 2 Abs. 3 WoFlV (Zubehörräume: Keller, Hobbyraum ohne Wohn-Baugenehmigung, Waschküche, Heizung): zählen zu 0% zur Wohnfläche -> Abzug -30.00 m².\n\n3. Antrag auf Neufeststellung:\n   Ich beantrage die Feststellung des Grundsteuerwerts auf 590,000.00 EUR\n   (Grundsteuermessbetrag neu: 182.90 EUR statt 277.45 EUR;\n   jährliche Grundsteuer-Entlastung bei 655% Hebesatz: 619.30 EUR/Jahr).\n\nMit freundlichen Grüßen\n[Unterschrift Eigentümer/in]", "afa_finanzamt_template_text": "An das Wohnsitz-Finanzamt — Anlage V zur Einkommensteuererklärung\nSteuerpflichtige/r — Vermietungsobjekt: 1972er 6-Parteien-Mehrfamilienhaus im Ruhrgebiet (NRW / Bundesmodell + Restnutzungsdauer) (Essen)\nBaujahr: 1972 | Anschaffungsjahr: 2021\n\nBetreff: Geltendmachung der Gebäude-AfA nach § 7 Abs. 4 Satz 2 EStG (Restnutzungsdauer-Gutachten 31 J. = 3.23% AfA, BFH IX R 25/19)\n\nSehr geehrte Damen und Herren,\n\nim Rahmen der Einkünfte aus Vermietung und Verpachtung (§ 21 EStG, Anlage V) mache ich für das\noben bezeichnete Objekt folgende Absetzung für Abnutzung (AfA) geltend:\n\n1. Bemessungsgrundlage (Gebäudeanteil an den Gesamtanschaffungskosten):\n   - Gesamterwerbsaufwand inkl. Anschaffungsnebenkosten: 920,000.00 EUR\n   - Gebäudeanteil (78.0% nach gutachterlicher Kaufpreisaufteilung / BFH IX R 12/19): 717,600.00 EUR\n\n2. Nachweis der kürzeren tatsächlichen Restnutzungsdauer (§ 7 Abs. 4 Satz 2 EStG i.V.m. BFH IX R 25/19 & IX R 14/23):\n   - Gebäudealter im Veranlagungsjahr:                   54 Jahre (Modernisierungspunkte nach ImmoWertV Anlage 2: 4.0 Pkt.)\n   - Sachverständig ermittelte Restnutzungsdauer (RND):  31 Jahre (statt typisiert 50 Jahre)\n   - Resultierender AfA-Satz (§ 7 Abs. 4 Satz 2 EStG):   3.23% p.a. (statt 2.0% p.a.)\n   - Jährlicher AfA-Abzugsbetrag (Anlage V):             23,178.48 EUR/Jahr (+10,666.48 EUR/Jahr)\n   Gemäß Urteil des BFH vom 28.07.2021 (Az. IX R 25/19) sowie vom 23.01.2024 (Az. IX R 14/23) ist die modellgestützte\n   Ermittlung der Restnutzungsdauer nach Maßgabe der ImmoWertV als Nachweis nach § 7 Abs. 4 Satz 2 EStG anzuerkennen.\n\nDas entsprechende Sachverständigengutachten / die Berechnungsunterlagen liegen als Anlage bei.\n\nMit freundlichen Grüßen\n[Unterschrift Steuerpflichtige/r]"}, {"case_input": {"case_id": "case_3_bayern_neubau_10pct_afa", "case_title": "2025er EH40-QNG Neubau-Doppelhaushälfte mit Dachstudio & Hobbykeller (Bayern Flächenmodell)", "bundesland": "BY", "municipality": "Augsburg", "aktenzeichen": "103/049/88211/009", "property_type": "EFH", "construction_year": 2025, "plot_area_sqm": 410.0, "bodenrichtwert_eur_sqm": 720.0, "municipal_avg_brw_eur_sqm": 680.0, "hebesatz_pct": 535.0, "bescheid_date_iso": "2026-10-02", "bescheid_grundsteuerwert_eur": 0.0, "bescheid_steuermessbetrag_eur": 86.9, "declared_living_area_sqm": 201.4, "balcony_terrace_total_sqm": 28.0, "balcony_declared_weight_pct": 100.0, "balcony_woflv_weight_pct": 25.0, "sloped_ceiling_1m_to_2m_sqm": 20.0, "sloped_ceiling_declared_weight_pct": 100.0, "sloped_ceiling_under_1m_sqm": 5.4, "basement_hobby_utility_included_sqm": 35.0, "estimated_fair_market_value_eur": 790000.0, "value_depressants": [], "appraisal_cost_grundsteuer_eur": 0.0, "is_rented": true, "purchase_year": 2025, "total_purchase_price_inkl_nk_eur": 780000.0, "current_building_share_pct": 65.0, "optimized_building_share_pct": 72.0, "marginal_tax_rate_pct": 42.0, "include_soli": true, "modernization_points": 20.0, "certified_rnd_gutachten_cost_eur": 0.0, "is_neubau_after_sep_2023": true, "qualifies_eh40_qng_sonder_afa": true, "construction_cost_per_sqm_eur": 4150.0}, "woflv": {"declared_living_area_sqm": 201.4, "corrected_living_area_sqm": 130.0, "overdeclared_area_sqm": 71.4, "overdeclared_pct": 35.45, "deduction_balcony_sqm": 21.0, "deduction_slopes_1m_2m_sqm": 10.0, "deduction_slopes_under_1m_sqm": 5.4, "deduction_basement_utility_sqm": 35.0, "findings": ["§ 4 Nr. 4 WoFlV (Balkon/Terrasse): 28.0 m² wurden zu 100% statt regulär 25% angesetzt -> Abzug -21.00 m².", "§ 4 Nr. 2 WoFlV (Dachschrägen 1,00–2,00 m lichte Höhe): 20.0 m² zählen nur zu 50% -> Abzug -10.00 m².", "§ 4 Nr. 2 WoFlV (Dachschrägen/Kniestock < 1,00 m lichte Höhe): 5.4 m² zählen zu 0% -> Abzug -5.40 m².", "§ 2 Abs. 3 WoFlV (Zubehörräume: Keller, Hobbyraum ohne Wohn-Baugenehmigung, Waschküche, Heizung): zählen zu 0% zur Wohnfläche -> Abzug -35.00 m²."]}, "grundsteuer": {"bundesland": "BY", "state_name": "Bayern", "model_code": "BY_FLAECHE", "model_label": "Wertunabhängiges Flächenmodell (Art. 1–4 BayGrStG)", "bescheid_grundsteuerwert_eur": 0.0, "bescheid_messbetrag_eur": 86.9, "bescheid_annual_tax_eur": 464.92, "woflv_corrected_grundsteuerwert_eur": 0.0, "woflv_corrected_messbetrag_eur": 61.91, "woflv_corrected_annual_tax_eur": 331.22, "woflv_annual_savings_eur": 133.7, "estimated_fair_market_value_eur": 790000.0, "overvaluation_ratio": 1.0, "overvaluation_pct": 0.0, "bfh_threshold_pct": null, "qualifies_bfh_escape_hatch": false, "bfh_corrected_grundsteuerwert_eur": 0.0, "bfh_corrected_messbetrag_eur": 86.9, "bfh_corrected_annual_tax_eur": 464.92, "optimal_strategy_code": "WOFLV_FLAECHENKORREKTUR", "optimal_strategy_label": "WoFlV-Wohnflächenkorrektur (-71.4 m² nach §§ 2, 4 WoFlV)", "optimal_grundsteuerwert_eur": 0.0, "optimal_messbetrag_eur": 61.91, "optimal_annual_tax_eur": 331.22, "optimal_annual_savings_eur": 133.7, "optimal_10yr_savings_eur": 1337.0, "einspruch_deadline_open": true, "wertfortschreibung_15k_met": true, "procedural_pathway": "Einspruch (§ 355 AO) + Antrag auf Aussetzung der Vollziehung (§ 361 AO) binnen 1 Monat", "appraisal_payback_years": null}, "afa": {"is_rented": true, "statutory_afa_rate_pct": 3.0, "statutory_useful_life_years": 33.33, "current_depreciable_building_eur": 507000.0, "optimized_depreciable_building_eur": 561600.0, "annual_afa_status_quo_eur": 15210.0, "building_age_years": 1, "modernization_points": 20.0, "immowertv_estimated_rnd_years": 80, "qualifies_shorter_rnd": false, "rnd_afa_rate_pct": 1.25, "annual_afa_rnd_optimized_eur": 15210.0, "qualifies_degressive_5pct": true, "qualifies_sonder_afa_7b": true, "year1_afa_neubau_turbo_eur": 54080.0, "recommended_afa_track": "§ 7 Abs. 5a EStG (5% Degressive AfA) + § 7b EStG (5% Sonder-AfA EH40/QNG)", "recommended_year1_afa_eur": 54080.0, "additional_year1_afa_deduction_eur": 38870.0, "effective_tax_rate_pct": 44.31, "annual_tax_savings_year1_eur": 17223.3, "cumulative_10yr_extra_afa_eur": 145907.71, "cumulative_10yr_tax_shield_eur": 64651.7, "gutachten_payback_months": null, "ten_year_schedule": [{"year_index": 1, "calendar_year": 2026, "status_quo_afa_eur": 15210.0, "optimized_afa_eur": 54080.0, "extra_afa_deduction_eur": 38870.0, "income_tax_refund_eur": 17223.3, "cumulative_tax_shield_eur": 17223.3}, {"year_index": 2, "calendar_year": 2027, "status_quo_afa_eur": 15210.0, "optimized_afa_eur": 51376.0, "extra_afa_deduction_eur": 36166.0, "income_tax_refund_eur": 16025.15, "cumulative_tax_shield_eur": 33248.45}, {"year_index": 3, "calendar_year": 2028, "status_quo_afa_eur": 15210.0, "optimized_afa_eur": 48807.2, "extra_afa_deduction_eur": 33597.2, "income_tax_refund_eur": 14886.92, "cumulative_tax_shield_eur": 48135.37}, {"year_index": 4, "calendar_year": 2029, "status_quo_afa_eur": 15210.0, "optimized_afa_eur": 46366.84, "extra_afa_deduction_eur": 31156.84, "income_tax_refund_eur": 13805.6, "cumulative_tax_shield_eur": 61940.97}, {"year_index": 5, "calendar_year": 2030, "status_quo_afa_eur": 15210.0, "optimized_afa_eur": 18048.5, "extra_afa_deduction_eur": 2838.5, "income_tax_refund_eur": 1257.74, "cumulative_tax_shield_eur": 63198.71}, {"year_index": 6, "calendar_year": 2031, "status_quo_afa_eur": 15210.0, "optimized_afa_eur": 17146.07, "extra_afa_deduction_eur": 1936.07, "income_tax_refund_eur": 857.87, "cumulative_tax_shield_eur": 64056.58}, {"year_index": 7, "calendar_year": 2032, "status_quo_afa_eur": 15210.0, "optimized_afa_eur": 16288.77, "extra_afa_deduction_eur": 1078.77, "income_tax_refund_eur": 478.0, "cumulative_tax_shield_eur": 64534.58}, {"year_index": 8, "calendar_year": 2033, "status_quo_afa_eur": 15210.0, "optimized_afa_eur": 15474.33, "extra_afa_deduction_eur": 264.33, "income_tax_refund_eur": 117.12, "cumulative_tax_shield_eur": 64651.7}, {"year_index": 9, "calendar_year": 2034, "status_quo_afa_eur": 15210.0, "optimized_afa_eur": 14700.61, "extra_afa_deduction_eur": 0.0, "income_tax_refund_eur": 0.0, "cumulative_tax_shield_eur": 64651.7}, {"year_index": 10, "calendar_year": 2035, "status_quo_afa_eur": 15210.0, "optimized_afa_eur": 13965.58, "extra_afa_deduction_eur": 0.0, "income_tax_refund_eur": 0.0, "cumulative_tax_shield_eur": 64651.7}]}, "combined_year1_cashflow_gain_eur": 17357.0, "combined_10yr_cashflow_gain_eur": 65988.7, "einspruch_template_text": "An das zuständige Finanzamt (Bayern / Kommune: Augsburg)\nAktenzeichen / Steuernummer: 103/049/88211/009\nObjekt: 2025er EH40-QNG Neubau-Doppelhaushälfte mit Dachstudio & Hobbykeller (Bayern Flächenmodell) (EFH, Baujahr 2025)\n\nBetreff: EINSPRUCH gem. § 355 AO sowie ANTRAG AUF AUSSETZUNG DER VOLLZIEHUNG gem. § 361 AO\nGegen den Grundsteuerwertbescheid / Grundsteuermessbescheid vom 2026-10-02\n\nSehr geehrte Damen und Herren,\n\nhiermit beantrage ich die Herabsetzung des festgestellten Grundsteuerwerts sowie des daraus abgeleiteten\nGrundsteuermessbetrags für das oben genannte Grundstück (Wertunabhängiges Flächenmodell (Art. 1–4 BayGrStG)):\n\n2. Korrektur der Wohnflächenberechnung nach §§ 2, 4 Wohnflächenverordnung (WoFlV):\n   - Bislang im Bescheid zugrunde gelegte Fläche:              201.40 m²\n   - Korrekte Wohnfläche nach §§ 2, 4 WoFlV:                   130.00 m² (-71.40 m²)\n   * § 4 Nr. 4 WoFlV (Balkon/Terrasse): 28.0 m² wurden zu 100% statt regulär 25% angesetzt -> Abzug -21.00 m².\n   * § 4 Nr. 2 WoFlV (Dachschrägen 1,00–2,00 m lichte Höhe): 20.0 m² zählen nur zu 50% -> Abzug -10.00 m².\n   * § 4 Nr. 2 WoFlV (Dachschrägen/Kniestock < 1,00 m lichte Höhe): 5.4 m² zählen zu 0% -> Abzug -5.40 m².\n   * § 2 Abs. 3 WoFlV (Zubehörräume: Keller, Hobbyraum ohne Wohn-Baugenehmigung, Waschküche, Heizung): zählen zu 0% zur Wohnfläche -> Abzug -35.00 m².\n\n3. Antrag auf Neufeststellung:\n   Ich beantrage die Feststellung des Grundsteuerwerts auf 0.00 EUR\n   (Grundsteuermessbetrag neu: 61.91 EUR statt 86.90 EUR;\n   jährliche Grundsteuer-Entlastung bei 535% Hebesatz: 133.70 EUR/Jahr).\n\nMit freundlichen Grüßen\n[Unterschrift Eigentümer/in]", "afa_finanzamt_template_text": "An das Wohnsitz-Finanzamt — Anlage V zur Einkommensteuererklärung\nSteuerpflichtige/r — Vermietungsobjekt: 2025er EH40-QNG Neubau-Doppelhaushälfte mit Dachstudio & Hobbykeller (Bayern Flächenmodell) (Augsburg)\nBaujahr: 2025 | Anschaffungsjahr: 2025\n\nBetreff: Geltendmachung der Gebäude-AfA nach § 7 Abs. 5a EStG (5% Degressive AfA) + § 7b EStG (5% Sonder-AfA EH40/QNG)\n\nSehr geehrte Damen und Herren,\n\nim Rahmen der Einkünfte aus Vermietung und Verpachtung (§ 21 EStG, Anlage V) mache ich für das\noben bezeichnete Objekt folgende Absetzung für Abnutzung (AfA) geltend:\n\n1. Bemessungsgrundlage (Gebäudeanteil an den Gesamtanschaffungskosten):\n   - Gesamterwerbsaufwand inkl. Anschaffungsnebenkosten: 780,000.00 EUR\n   - Gebäudeanteil (72.0% nach gutachterlicher Kaufpreisaufteilung / BFH IX R 12/19): 561,600.00 EUR\n\n2. Inanspruchnahme der 5 % degressiven Gebäude-AfA (§ 7 Abs. 5a EStG) / Sonder-AfA (§ 7b EStG):\n   - Degressive AfA 5,0 % (§ 7 Abs. 5a EStG, Wachstumschancengesetz): 28,080.00 EUR im Erstjahr\n   - Sonderabschreibung § 7b EStG (5,0 % p.a. für 4 Jahre, EH40/QNG): Ja\n   - Gesamter AfA-Abzug im Erstjahr:                                  54,080.00 EUR\n\nDas entsprechende Sachverständigengutachten / die Berechnungsunterlagen liegen als Anlage bei.\n\nMit freundlichen Grüßen\n[Unterschrift Steuerpflichtige/r]"}];
+    const STATE_MODELS = {"BE": {"name": "Berlin", "model": "BUNDESMODELL", "label": "Bundesmodell (Ertragswert §§ 252–257 BewG)", "messzahl_wohnen_promille": 0.31, "bfh_escape_threshold_pct": 40.0}, "BB": {"name": "Brandenburg", "model": "BUNDESMODELL", "label": "Bundesmodell (Ertragswert §§ 252–257 BewG)", "messzahl_wohnen_promille": 0.31, "bfh_escape_threshold_pct": 40.0}, "HB": {"name": "Bremen", "model": "BUNDESMODELL", "label": "Bundesmodell (Ertragswert §§ 252–257 BewG)", "messzahl_wohnen_promille": 0.31, "bfh_escape_threshold_pct": 40.0}, "MV": {"name": "Mecklenburg-Vorpommern", "model": "BUNDESMODELL", "label": "Bundesmodell (Ertragswert §§ 252–257 BewG)", "messzahl_wohnen_promille": 0.31, "bfh_escape_threshold_pct": 40.0}, "NW": {"name": "Nordrhein-Westfalen", "model": "BUNDESMODELL", "label": "Bundesmodell (Ertragswert §§ 252–257 BewG)", "messzahl_wohnen_promille": 0.31, "bfh_escape_threshold_pct": 40.0}, "RP": {"name": "Rheinland-Pfalz", "model": "BUNDESMODELL", "label": "Bundesmodell (Ertragswert §§ 252–257 BewG)", "messzahl_wohnen_promille": 0.31, "bfh_escape_threshold_pct": 40.0}, "SL": {"name": "Saarland", "model": "BUNDESMODELL", "label": "Bundesmodell (Ertragswert §§ 252–257 BewG)", "messzahl_wohnen_promille": 0.34, "bfh_escape_threshold_pct": 40.0}, "SN": {"name": "Sachsen", "model": "BUNDESMODELL", "label": "Bundesmodell (mit angepassten Messzahlen § 2 SächsGrStMG)", "messzahl_wohnen_promille": 0.36, "bfh_escape_threshold_pct": 40.0}, "ST": {"name": "Sachsen-Anhalt", "model": "BUNDESMODELL", "label": "Bundesmodell (Ertragswert §§ 252–257 BewG)", "messzahl_wohnen_promille": 0.31, "bfh_escape_threshold_pct": 40.0}, "SH": {"name": "Schleswig-Holstein", "model": "BUNDESMODELL", "label": "Bundesmodell (Ertragswert §§ 252–257 BewG)", "messzahl_wohnen_promille": 0.31, "bfh_escape_threshold_pct": 40.0}, "TH": {"name": "Thüringen", "model": "BUNDESMODELL", "label": "Bundesmodell (Ertragswert §§ 252–257 BewG)", "messzahl_wohnen_promille": 0.31, "bfh_escape_threshold_pct": 40.0}, "BW": {"name": "Baden-Württemberg", "model": "BW_BODENWERT", "label": "Modifiziertes Bodenwertmodell (§ 38 LGrStG BW)", "messzahl_wohnen_promille": 0.91, "bfh_escape_threshold_pct": 30.0}, "BY": {"name": "Bayern", "model": "BY_FLAECHE", "label": "Wertunabhängiges Flächenmodell (Art. 1–4 BayGrStG)", "messzahl_wohnen_promille": 0.0, "bfh_escape_threshold_pct": null}, "HH": {"name": "Hamburg", "model": "HH_WOHNLAGE", "label": "Wohnlagen-Flächenmodell (HmbGrStG)", "messzahl_wohnen_promille": 0.0, "bfh_escape_threshold_pct": null}, "HE": {"name": "Hessen", "model": "HE_FAKTOR", "label": "Flächen-Faktor-Verfahren (HGrStG)", "messzahl_wohnen_promille": 0.0, "bfh_escape_threshold_pct": null}, "NI": {"name": "Niedersachsen", "model": "NI_LAGE", "label": "Flächen-Lage-Modell (NGrStG)", "messzahl_wohnen_promille": 0.0, "bfh_escape_threshold_pct": null}};
+
+    function fmtEur(val, decimals = 0) {
+      return Number(val || 0).toLocaleString('de-DE', {
+        minimumFractionDigits: decimals,
+        maximumFractionDigits: decimals
+      }) + ' €';
+    }
+
+    function loadPresetCase(idx) {
+      const rep = PRESET_CASES[idx];
+      if (!rep) return;
+      document.querySelectorAll('.preset-btn').forEach((b, i) => {
+        b.classList.toggle('active', i === idx);
+      });
+
+      const inp = rep.case_input;
+      document.getElementById('inp-bundesland').value = inp.bundesland;
+      document.getElementById('inp-hebesatz').value = inp.hebesatz_pct;
+      document.getElementById('inp-gw-bescheid').value = inp.bescheid_grundsteuerwert_eur;
+      document.getElementById('inp-mb-bescheid').value = inp.bescheid_steuermessbetrag_eur;
+      document.getElementById('inp-fmv').value = inp.estimated_fair_market_value_eur;
+      document.getElementById('inp-plot-sqm').value = inp.plot_area_sqm;
+      document.getElementById('inp-declared-sqm').value = inp.declared_living_area_sqm;
+      document.getElementById('inp-balcony-sqm').value = inp.balcony_terrace_total_sqm;
+      document.getElementById('inp-slope-1-2').value = inp.sloped_ceiling_1m_to_2m_sqm;
+      document.getElementById('inp-basement-sqm').value = (inp.basement_hobby_utility_included_sqm + inp.sloped_ceiling_under_1m_sqm).toFixed(1);
+      document.getElementById('inp-baujahr').value = inp.construction_year;
+      document.getElementById('inp-kaufpreis').value = inp.total_purchase_price_inkl_nk_eur;
+      document.getElementById('inp-geb-curr').value = inp.current_building_share_pct;
+      document.getElementById('inp-geb-opt').value = inp.optimized_building_share_pct;
+      document.getElementById('inp-mod-pts').value = inp.modernization_points;
+      document.getElementById('inp-tax-rate').value = inp.marginal_tax_rate_pct;
+      document.getElementById('inp-gutachten-cost').value = inp.certified_rnd_gutachten_cost_eur || 1190;
+
+      if (inp.is_neubau_after_sep_2023 && inp.qualifies_eh40_qng_sonder_afa) {
+        document.getElementById('inp-neubau-mode').value = 'DEG_5_PLUS_7B';
+      } else if (inp.is_neubau_after_sep_2023) {
+        document.getElementById('inp-neubau-mode').value = 'DEG_5';
+      } else {
+        document.getElementById('inp-neubau-mode').value = 'BESTAND';
+      }
+
+      recomputeStudio();
+    }
+
+    function estimateRND(baujahr, modPts) {
+      const age = Math.max(1, 2026 - baujahr);
+      const pts = Math.max(0, Math.min(20, modPts));
+      const gnd = 80;
+      let ext = 0;
+      if (pts <= 4) ext = pts * 1.25;
+      else if (pts <= 8) ext = 5 + (pts - 4) * 2.25;
+      else if (pts <= 13) ext = 14 + (pts - 8) * 3.0;
+      else if (pts <= 17) ext = 29 + (pts - 13) * 3.25;
+      else ext = 42 + (pts - 17) * 4.0;
+      return Math.max(15, Math.min(gnd, Math.round(gnd - age + ext)));
+    }
+
+    function recomputeStudio() {
+      const bl = document.getElementById('inp-bundesland').value;
+      const stateMeta = STATE_MODELS[bl] || STATE_MODELS['NW'];
+      const hebesatz = parseFloat(document.getElementById('inp-hebesatz').value) || 500;
+      const gwBescheid = parseFloat(document.getElementById('inp-gw-bescheid').value) || 0;
+      const mbBescheid = parseFloat(document.getElementById('inp-mb-bescheid').value) || 0;
+      const fmv = Math.max(1, parseFloat(document.getElementById('inp-fmv').value) || 1);
+      const plotSqm = parseFloat(document.getElementById('inp-plot-sqm').value) || 500;
+
+      const declSqm = Math.max(15, parseFloat(document.getElementById('inp-declared-sqm').value) || 120);
+      const balSqm = Math.max(0, parseFloat(document.getElementById('inp-balcony-sqm').value) || 0);
+      const slopeSqm = Math.max(0, parseFloat(document.getElementById('inp-slope-1-2').value) || 0);
+      const baseSqm = Math.max(0, parseFloat(document.getElementById('inp-basement-sqm').value) || 0);
+
+      // WoFlV calculation
+      const dedBal = balSqm * 0.75;
+      const dedSlope = slopeSqm * 0.50;
+      const dedBase = baseSqm;
+      const totalOverSqm = dedBal + dedSlope + dedBase;
+      const corrSqm = Math.max(15, declSqm - totalOverSqm);
+      const areaRatio = corrSqm / declSqm;
+
+      const hebesatzFactor = hebesatz / 100.0;
+      const taxBescheid = mbBescheid * hebesatzFactor;
+
+      let woflvGw = gwBescheid;
+      let woflvMb = mbBescheid;
+      if (stateMeta.model === 'BUNDESMODELL') {
+        const landFloor = gwBescheid * 0.42;
+        const bldPart = Math.max(0, gwBescheid - landFloor);
+        woflvGw = Math.floor((landFloor + bldPart * areaRatio) / 100) * 100;
+        woflvMb = woflvGw * (stateMeta.messzahl_wohnen_promille / 1000.0);
+      } else if (stateMeta.model !== 'BW_BODENWERT') {
+        woflvMb = Math.max(5, mbBescheid - totalOverSqm * 0.35);
+      }
+      const woflvTax = woflvMb * hebesatzFactor;
+      const woflvSavings = Math.max(0, taxBescheid - woflvTax);
+
+      // BFH II B 78/23 check
+      const overvalRatio = gwBescheid > 0 ? (gwBescheid / fmv) : 1.0;
+      const overvalPct = (overvalRatio - 1.0) * 100.0;
+      const thresh = stateMeta.bfh_escape_threshold_pct;
+      const qualifiesBfh = (thresh !== null && overvalPct >= thresh);
+
+      let bfhGw = gwBescheid;
+      let bfhMb = mbBescheid;
+      let bfhTax = taxBescheid;
+      if (qualifiesBfh) {
+        bfhGw = Math.floor(fmv / 100) * 100;
+        bfhMb = bfhGw * (stateMeta.messzahl_wohnen_promille / 1000.0);
+        bfhTax = bfhMb * hebesatzFactor;
+      }
+
+      let optGw = woflvGw;
+      let optMb = woflvMb;
+      let optTax = woflvTax;
+      if (qualifiesBfh && bfhTax <= woflvTax) {
+        optGw = bfhGw;
+        optMb = bfhMb;
+        optTax = bfhTax;
+      }
+      const optGstSavings = Math.max(0, taxBescheid - optTax);
+      const optGst10Yr = optGstSavings * 10;
+
+      // AfA calculation
+      const baujahr = parseInt(document.getElementById('inp-baujahr').value) || 1970;
+      const kaufpreis = parseFloat(document.getElementById('inp-kaufpreis').value) || 500000;
+      const gebCurrPct = parseFloat(document.getElementById('inp-geb-curr').value) || 65;
+      const gebOptPct = Math.max(gebCurrPct, parseFloat(document.getElementById('inp-geb-opt').value) || 75);
+      const modPts = parseFloat(document.getElementById('inp-mod-pts').value) || 4;
+      const taxRate = (parseFloat(document.getElementById('inp-tax-rate').value) || 42) * 1.055;
+      const neubauMode = document.getElementById('inp-neubau-mode').value;
+      const gutachtenCost = parseFloat(document.getElementById('inp-gutachten-cost').value) || 1190;
+
+      const statRate = baujahr < 1925 ? 2.5 : (baujahr >= 2023 ? 3.0 : 2.0);
+      const currBase = kaufpreis * (gebCurrPct / 100.0);
+      const optBase = kaufpreis * (gebOptPct / 100.0);
+      const statAfa = currBase * (statRate / 100.0);
+
+      const rndYears = estimateRND(baujahr, modPts);
+      const rndRate = 100.0 / rndYears;
+
+      let yr1OptAfa = optBase * (statRate / 100.0);
+      let afaPillText = `Regel-AfA ${statRate.toFixed(1)}%`;
+      if (neubauMode === 'DEG_5_PLUS_7B') {
+        const sonderBase = Math.min(optBase, corrSqm * 4000);
+        yr1OptAfa = optBase * 0.05 + sonderBase * 0.05;
+        afaPillText = '10,0% Neubau-Turbo (5% Degressiv + 5% § 7b)';
+      } else if (neubauMode === 'DEG_5') {
+        yr1OptAfa = optBase * 0.05;
+        afaPillText = '5,0% Degressive AfA (§ 7 Abs. 5a EStG)';
+      } else if (rndRate > statRate) {
+        yr1OptAfa = optBase * (rndRate / 100.0);
+        afaPillText = `RND ${rndYears} Jahre → ${rndRate.toFixed(2)}% AfA`;
+      }
+
+      // Build 5-year preview & 10-year cumulative shield
+      let cumShield10 = 0;
+      let remBook = optBase;
+      const rowsHtml = [];
+      for (let y = 1; y <= 10; y++) {
+        let optY = yr1OptAfa;
+        if (neubauMode === 'DEG_5_PLUS_7B' || neubauMode === 'DEG_5') {
+          const degY = remBook * 0.05;
+          const sonderY = (neubauMode === 'DEG_5_PLUS_7B' && y <= 4) ? Math.min(optBase, corrSqm * 4000) * 0.05 : 0;
+          optY = degY + sonderY;
+          remBook = Math.max(0, remBook - optY);
+        }
+        const extraY = Math.max(0, optY - statAfa);
+        const refundY = extraY * (taxRate / 100.0);
+        cumShield10 += refundY;
+        if (y <= 5) {
+          rowsHtml.push(`
+            <tr>
+              <td>Jahr ${y} (${2025 + y})</td>
+              <td class="num">${fmtEur(statAfa, 0)}</td>
+              <td class="num"><strong>${fmtEur(optY, 0)}</strong></td>
+              <td class="num">+${fmtEur(extraY, 0)}</td>
+              <td class="num" style="color:var(--accent-emerald);font-weight:700;">+${fmtEur(refundY, 0)}</td>
+              <td class="num">${fmtEur(cumShield10, 0)}</td>
+            </tr>
+          `);
+        }
+      }
+
+      const yr1ExtraAfa = Math.max(0, yr1OptAfa - statAfa);
+      const yr1TaxRefund = yr1ExtraAfa * (taxRate / 100.0);
+      const total10Yr = optGst10Yr + cumShield10;
+      const totalYr1 = optGstSavings + yr1TaxRefund;
+
+      // Update DOM
+      document.getElementById('state-model-badge').textContent = `${bl} · ${stateMeta.model}`;
+      document.getElementById('kpi-overval-pct').textContent = gwBescheid > 0 ? `+${overvalPct.toFixed(1)}%` : 'Flächenmodell';
+      document.getElementById('kpi-overval-sub').textContent = gwBescheid > 0
+        ? `Bescheid ${fmtEur(gwBescheid)} vs. Verkehrswert ${fmtEur(fmv)}`
+        : `${stateMeta.label} (wertunabhängig)`;
+
+      document.getElementById('kpi-gst-savings').textContent = `${fmtEur(optGstSavings, 2)} / J.`;
+      document.getElementById('kpi-gst-sub').textContent = `10-Jahres-Entlastung: ${fmtEur(optGst10Yr, 0)} (-${totalOverSqm.toFixed(1)} m² WoFlV)`;
+
+      document.getElementById('kpi-afa-tax-yr1').textContent = `+${fmtEur(yr1TaxRefund, 0)} / J.`;
+      document.getElementById('kpi-afa-sub').textContent = `AfA neu: ${fmtEur(yr1OptAfa, 0)} vs. Status Quo ${fmtEur(statAfa, 0)}`;
+
+      document.getElementById('kpi-total-10yr').textContent = `+${fmtEur(total10Yr, 0)}`;
+      document.getElementById('kpi-total-sub').textContent = `Jahr-1 Cashflow-Plus: +${fmtEur(totalYr1, 2)} (Grundsteuer + ESt)`;
+
+      const pill = document.getElementById('bfh-verdict-pill');
+      if (qualifiesBfh) {
+        pill.className = 'status-pill alert';
+        pill.textContent = `BFH Escape Hatch aktiv (+${overvalPct.toFixed(1)}% >= ${thresh}% Schwelle)`;
+      } else if (woflvSavings > 0) {
+        pill.className = 'status-pill warn';
+        pill.textContent = `WoFlV-Flächenkorrektur aktiv (-${totalOverSqm.toFixed(1)} m²)`;
+      } else {
+        pill.className = 'status-pill pass';
+        pill.textContent = 'Innerhalb gesetzlicher Typisierung';
+      }
+
+      document.getElementById('gauge-title-left').textContent = gwBescheid > 0
+        ? `Überbewertung Grundsteuerwert vs. Verkehrswert: +${overvalPct.toFixed(1)}%`
+        : `${stateMeta.label}: Reine Wohnflächen-Prüfung (§§ 2, 4 WoFlV)`;
+      document.getElementById('gauge-title-right').textContent = thresh !== null
+        ? `Schwelle § 220 Abs. 2 BewG: +${thresh.toFixed(1)}%`
+        : 'Wertunabhängiges Landesmodell';
+
+      const markerPct = Math.max(4, Math.min(96, (overvalPct / 80.0) * 100.0));
+      document.getElementById('gauge-marker').style.left = `${markerPct}%`;
+
+      document.getElementById('gst-comparison-tbody').innerHTML = `
+        <tr>
+          <td><strong>1. Bescheid Status Quo</strong></td>
+          <td class="num">${declSqm.toFixed(1)} m²</td>
+          <td class="num">${fmtEur(gwBescheid, 0)}</td>
+          <td class="num">${fmtEur(mbBescheid, 2)}</td>
+          <td class="num">${fmtEur(taxBescheid, 2)}</td>
+          <td class="num">0,00 €</td>
+        </tr>
+        <tr>
+          <td><strong>2. Nach §§ 2, 4 WoFlV Flächen-Abzug</strong></td>
+          <td class="num">${corrSqm.toFixed(1)} m²</td>
+          <td class="num">${fmtEur(woflvGw, 0)}</td>
+          <td class="num">${fmtEur(woflvMb, 2)}</td>
+          <td class="num">${fmtEur(woflvTax, 2)}</td>
+          <td class="num" style="color:var(--accent-emerald); font-weight:700;">-${fmtEur(woflvSavings, 2)}</td>
+        </tr>
+        <tr style="background:var(--accent-emerald-bg);">
+          <td><strong>3. Optimal (BFH II B 78/23 + WoFlV)</strong></td>
+          <td class="num">${corrSqm.toFixed(1)} m²</td>
+          <td class="num">${fmtEur(optGw, 0)}</td>
+          <td class="num">${fmtEur(optMb, 2)}</td>
+          <td class="num"><strong>${fmtEur(optTax, 2)}</strong></td>
+          <td class="num" style="color:var(--accent-emerald); font-weight:700;">-${fmtEur(optGstSavings, 2)}</td>
+        </tr>
+      `;
+
+      document.getElementById('afa-track-pill').textContent = afaPillText;
+      document.getElementById('afa-card-base').textContent = fmtEur(optBase, 0);
+      document.getElementById('afa-card-base-sub').textContent = `statt ${fmtEur(currBase, 0)} Status Quo (${gebOptPct.toFixed(0)}% Gebäudeanteil)`;
+      document.getElementById('afa-card-delta').textContent = `+${fmtEur(yr1ExtraAfa, 0)} / J.`;
+      document.getElementById('afa-card-delta-sub').textContent = `${fmtEur(yr1OptAfa, 0)} statt ${fmtEur(statAfa, 0)}`;
+      const paybackMonths = yr1TaxRefund > 0 ? ((gutachtenCost / yr1TaxRefund) * 12).toFixed(1) : '0.0';
+      document.getElementById('afa-card-payback').textContent = `${paybackMonths} Monate`;
+      document.getElementById('afa-card-payback-sub').textContent = `10-J. Steuer-Schild: +${fmtEur(cumShield10, 0)}`;
+      document.getElementById('afa-schedule-tbody').innerHTML = rowsHtml.join('');
+    }
+
+    function copyTemplate(id) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.select();
+      navigator.clipboard.writeText(el.value);
+    }
+  </script>
+</body>
+</html>

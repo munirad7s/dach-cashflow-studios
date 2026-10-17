@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DACH § 7g EStG (50% IAB + 40% Sonder-AfA + 30% Degressive AfA) Steuer-Liquiditäts-Turbo Studio — MVP #156</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --panel: #131b33;
+      --panel-alt: #192342;
+      --border: #2a3968;
+      --text: #eef2ff;
+      --muted: #9fb0df;
+      --accent: #38bdf8;
+      --emerald: #10b981;
+      --amber: #f59e0b;
+      --danger: #ef4444;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, sans-serif;
+      background: radial-gradient(circle at top right, #172554 0%, var(--bg) 60%);
+      color: var(--text);
+      line-height: 1.5;
+      padding: 24px;
+    }
+    .container {
+      max-width: 1440px;
+      margin: 0 auto;
+    }
+    header {
+      background: linear-gradient(135deg, rgba(30,41,59,0.92), rgba(15,23,42,0.96));
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px 28px;
+      margin-bottom: 24px;
+      box-shadow: 0 16px 40px rgba(0,0,0,0.35);
+    }
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .badge {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(56, 189, 248, 0.15);
+      color: var(--accent);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+    }
+    .badge.emerald {
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--emerald);
+      border-color: rgba(16, 185, 129, 0.35);
+    }
+    .badge.amber {
+      background: rgba(245, 158, 11, 0.15);
+      color: var(--amber);
+      border-color: rgba(245, 158, 11, 0.35);
+    }
+    h1 {
+      margin: 0 0 8px 0;
+      font-size: 26px;
+      font-weight: 800;
+    }
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 15px;
+    }
+    .preset-bar {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    .preset-btn {
+      background: var(--panel);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 16px;
+      text-align: left;
+      cursor: pointer;
+      transition: all 0.18s ease;
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+    .preset-btn:hover, .preset-btn.active {
+      border-color: var(--accent);
+      background: var(--panel-alt);
+      box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.25);
+    }
+    .grid-main {
+      display: grid;
+      grid-template-columns: 410px 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+    @media (max-width: 1100px) {
+      .grid-main { grid-template-columns: 1fr; }
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px 22px;
+      margin-bottom: 20px;
+    }
+    .card h2 {
+      margin: 0 0 14px 0;
+      font-size: 17px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      padding-bottom: 10px;
+    }
+    .form-group {
+      margin-bottom: 14px;
+    }
+    .form-group label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+    .form-group input[type="range"] {
+      width: 100%;
+      accent-color: var(--accent);
+    }
+    .form-group select {
+      width: 100%;
+      padding: 9px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: #0d1428;
+      color: var(--text);
+      font-size: 14px;
+    }
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+    .kpi-box {
+      background: var(--panel-alt);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+    }
+    .kpi-label {
+      font-size: 12px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .kpi-val {
+      font-size: 25px;
+      font-weight: 800;
+      margin: 6px 0 4px 0;
+      color: var(--emerald);
+    }
+    .kpi-val.accent { color: var(--accent); }
+    .kpi-val.amber { color: var(--amber); }
+    .kpi-sub {
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .banner {
+      border-radius: 12px;
+      padding: 14px 18px;
+      margin-bottom: 18px;
+      border: 1px solid;
+      font-size: 13.5px;
+    }
+    .banner.pass {
+      background: rgba(16, 185, 129, 0.12);
+      border-color: rgba(16, 185, 129, 0.45);
+      color: #d1fae5;
+    }
+    .banner.warn {
+      background: rgba(245, 158, 11, 0.14);
+      border-color: rgba(245, 158, 11, 0.5);
+      color: #fef3c7;
+    }
+    .banner.danger {
+      background: rgba(239, 68, 68, 0.15);
+      border-color: rgba(239, 68, 68, 0.55);
+      color: #fee2e2;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    th, td {
+      padding: 10px 10px;
+      text-align: right;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    th:first-child, td:first-child,
+    th:nth-child(5), td:nth-child(5) {
+      text-align: left;
+    }
+    th {
+      color: var(--muted);
+      font-weight: 700;
+      background: rgba(15, 23, 42, 0.6);
+    }
+    tr.highlight-y0 {
+      background: rgba(16, 185, 129, 0.10);
+      font-weight: 600;
+    }
+    tr.highlight-y1 {
+      background: rgba(56, 189, 248, 0.10);
+      font-weight: 600;
+    }
+    .pill-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+    }
+    .mini-list {
+      margin: 8px 0 0 0;
+      padding-left: 18px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .mini-list li { margin-bottom: 5px; }
+  </style>
+</head>
+<body>
+
+<!-- DACH CASHFLOW STUDIOS LAUNCH BAR -->
+<style>
+  #dcs-launch-bar {
+    position: sticky;
+    top: 0;
+    z-index: 99999;
+    background: linear-gradient(90deg, #0b1120 0%, #111827 50%, #0f172a 100%);
+    color: #f8fafc;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.35);
+    padding: 8px 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  }
+  #dcs-launch-bar .dcs-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+  }
+  #dcs-launch-bar .dcs-badge {
+    background: rgba(16, 185, 129, 0.18);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.03em;
+  }
+  #dcs-launch-bar a.dcs-nav {
+    color: #93c5fd;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 12.5px;
+  }
+  #dcs-launch-bar a.dcs-nav:hover {
+    text-decoration: underline;
+    color: #dbeafe;
+  }
+  #dcs-launch-bar .dcs-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  #dcs-launch-bar .dcs-btn {
+    padding: 5px 11px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s ease;
+  }
+  #dcs-launch-bar .dcs-btn-ghost {
+    background: rgba(255,255,255,0.08);
+    color: #e2e8f0;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  #dcs-launch-bar .dcs-btn-primary {
+    background: linear-gradient(135deg, #0ea5e9, #2563eb);
+    color: #ffffff;
+  }
+  #dcs-launch-bar .dcs-btn-emerald {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
+  }
+  @media print {
+    #dcs-launch-bar { display: none !important; }
+  }
+</style>
+<div id="dcs-launch-bar">
+  <div class="dcs-left">
+    <a href="/index.html" class="dcs-nav">← Alle 150 DACH Studios</a>
+    <span class="dcs-badge">MVP #156 VERIFIED</span>
+    <span style="color:#cbd5e1;font-size:12px;">DACH Tax, Corporate & Accounting Arbitrage</span>
+  </div>
+  <div class="dcs-actions">
+    <button onclick="window.print()" class="dcs-btn dcs-btn-ghost">🖨️ PDF / Dossier drucken</button>
+    <a href="#checkout-modal-49" target="_blank" rel="noopener" class="dcs-btn dcs-btn-primary">⚡ Musterschreiben & Voll-Dossier (€49)</a>
+    <a href="#checkout-modal-299" target="_blank" rel="noopener" class="dcs-btn dcs-btn-emerald">🛡️ B2B Umsetzung buchen (€299 / €1.490)</a>
+  </div>
+</div>
+
+  <div class="container">
+    <header>
+      <div class="badge-row">
+        <span class="badge emerald">§ 7g Abs. 1 EStG · 50% IAB bis €200.000 vor Kauf</span>
+        <span class="badge">§ 7g Abs. 5 EStG · 40% Sonder-AfA (Wachstumschancengesetz)</span>
+        <span class="badge amber">§ 7 Abs. 2 EStG · 30% Degressive AfA (Investitionsbooster)</span>
+        <span class="badge">BFH VIII R 24/12 · VIII R 24/19 · III R 62/19 Pkw-90%-Wächter</span>
+      </div>
+      <h1>DACH § 7g EStG Investitionsabzugsbetrag (50% IAB) &amp; 40% Sonder-AfA Steuer-Liquiditäts-Turbo</h1>
+      <p class="subtitle">
+        Deterministischer Jahr-0 &amp; Jahr-1 Steuer-Liquiditäts-Simulator inkl. einheitlicher €200.000-Gewinngrenze (§ 7g Abs. 1 S. 2 Nr. 1b EStG),
+        legalem Zweitbetrieb-Bypass, 90%-Pkw-Fahrtenbuch-Wächter und § 7g Abs. 3 EStG / § 233a AO (1,8% p.a.) Rückgängigmachungs-Zinsrechner.
+      </p>
+    </header>
+
+    <div class="preset-bar" id="presetBar"></div>
+
+    <div class="grid-main">
+      <div>
+        <div class="card">
+          <h2>1. Investition &amp; AfA-Regime (§ 7g + § 7 Abs. 2 EStG)</h2>
+          <div class="form-group">
+            <label><span>Geplante Netto-Anschaffungskosten (AHK)</span><strong id="lblCost">€400.000</strong></label>
+            <input type="range" id="inpCost" min="10000" max="600000" step="5000" value="400000" />
+          </div>
+          <div class="form-group">
+            <label><span>Betriebsgewöhnliche Nutzungsdauer (AfA-Tabelle)</span><strong id="lblLife">8 Jahre</strong></label>
+            <input type="range" id="inpLife" min="3" max="20" step="1" value="8" />
+          </div>
+          <div class="form-group">
+            <label><span>Persönlicher Grenzsteuersatz / GmbH-Steuersatz</span><strong id="lblTax">44,31%</strong></label>
+            <select id="inpTax">
+              <option value="0.4431">44,31% — Freiberufler/Einzelunternehmer (42% ESt + Soli)</option>
+              <option value="0.47475">47,48% — Reichensteuer-Spitzensatz (45% ESt + Soli)</option>
+              <option value="0.38">38,00% — Gehobener Mittelstand / Tarifzone</option>
+              <option value="0.30">30,00% — Kapitalgesellschaft (GmbH / UG: KSt + Soli + GewSt)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label><span>Reguläres AfA-Wahlrecht in Jahr 1 (§ 7 Abs. 1 / Abs. 2 EStG)</span></label>
+            <select id="inpRegime">
+              <option value="booster_30pct">30% Degressive AfA (§ 7 Abs. 2 EStG Investitionsbooster 2025–2027, max. 3x linear)</option>
+              <option value="wachstum_20pct">20% Degressive AfA (§ 7 Abs. 2 EStG Wachstumschancengesetz 2024, max. 2x linear)</option>
+              <option value="linear_only">Lineare AfA (§ 7 Abs. 1 EStG, 1 / Nutzungsdauer)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>2. €200.000-Gewinngrenze &amp; Zweitbetrieb-Bypass</h2>
+          <div class="form-group">
+            <label><span>Vorab-Gewinn Hauptbetrieb (vor IAB, § 7g Abs. 1 S. 2 Nr. 1b)</span><strong id="lblProfit">€350.000</strong></label>
+            <input type="range" id="inpProfit" min="50000" max="600000" step="10000" value="350000" />
+          </div>
+          <div class="form-group">
+            <label><span>Zweitbetrieb-Strategie bei Gewinn &gt; €200.000 (BMF v. 15.06.2022)</span></label>
+            <select id="inpBypass">
+              <option value="true">AKTIV: Separater Zweit-Gewerbebetrieb (Gründungsjahr €0 Gewinn &lt;= €200k)</option>
+              <option value="false">INAKTIV: Investition direkt im Hauptbetrieb prüfen</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>3. Firmenwagen 90%-Nutzungs-Wächter (BFH)</h2>
+          <div class="form-group">
+            <label><span>Handelt es sich um einen betrieblichen Pkw / Firmenwagen?</span></label>
+            <select id="inpIsCar">
+              <option value="false">Nein — MedTech / PV-Anlage / CNC / IT-Server / Einrichtung</option>
+              <option value="true">Ja — Firmenwagen / Praxis-Pkw / Kanzlei-Fahrzeug</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label><span>Nachgewiesener betrieblicher Nutzungsanteil (Anschaffungs- + Folgejahr)</span><strong id="lblBizUse">100%</strong></label>
+            <input type="range" id="inpBizUse" min="50" max="100" step="1" value="100" />
+          </div>
+          <div class="form-group">
+            <label><span>Methode der Privatnutzungs-Versteuerung (§ 6 Abs. 1 Nr. 4 EStG)</span></label>
+            <select id="inpCarMethod">
+              <option value="Elektronisches Fahrtenbuch (>=90% betrieblich)">Elektronisches Fahrtenbuch / 100% Poolfahrzeug-Verbot</option>
+              <option value="Pauschale 1%-Regelung (§ 6 Abs. 1 Nr. 4 S. 2 EStG)">Pauschale 1%-Regelung (WARNUNG: BFH-Ausschluss für § 7g EStG!)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div id="profitBanner" class="banner pass"></div>
+        <div id="carBanner" class="banner pass"></div>
+
+        <div class="kpi-grid">
+          <div class="kpi-box">
+            <div class="kpi-label">Jahr 0: Sofort-IAB (50% ohne Kauf!)</div>
+            <div class="kpi-val" id="kpiIab">€200.000</div>
+            <div class="kpi-sub" id="kpiIabSub">Max. €200.000 pro Betrieb (§ 7g Abs. 1 EStG)</div>
+          </div>
+          <div class="kpi-box">
+            <div class="kpi-label">Jahr 0: Cash-Steuererstattung</div>
+            <div class="kpi-val" id="kpiY0Tax">€88.620</div>
+            <div class="kpi-sub" id="kpiY0Prepay">+ Vorauszahlungs-Senkung: €132.930 Gesamt-Liquidität</div>
+          </div>
+          <div class="kpi-box">
+            <div class="kpi-label">Jahr 1: 40% Sonder-AfA + Reg.-AfA</div>
+            <div class="kpi-val accent" id="kpiY1Ded">€140.000</div>
+            <div class="kpi-sub" id="kpiY1Sub">Wachstumschancengesetz +€17.724 Steuer-Plus ggü. 20% alt</div>
+          </div>
+          <div class="kpi-box">
+            <div class="kpi-label">Kumuliert Jahr 0 + Jahr 1 Abschreibung</div>
+            <div class="kpi-val amber" id="kpiCumPct">85,0%</div>
+            <div class="kpi-sub" id="kpiCumCash">€150.654 Steuer-Cashflow in 24 Monaten</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>
+            <span>Mehrjahres-AfA &amp; Steuer-Cashflow-Fahrplan (§ 7g Abs. 1, Abs. 2, Abs. 5 + § 7 Abs. 2/3 EStG)</span>
+            <span style="font-size:12px;color:var(--muted);">Automatischer Wechsel auf lineare Restwert-AfA (§ 7 Abs. 3 EStG)</span>
+          </h2>
+          <div style="overflow-x:auto;">
+            <table>
+              <thead>
+                <tr>
+                  <th>Jahr</th>
+                  <th>Buchwert Start</th>
+                  <th>50% IAB (J0)</th>
+                  <th>40% Sonder-AfA</th>
+                  <th>AfA-Methode</th>
+                  <th>Reguläre AfA</th>
+                  <th>Steuerabzug Ges.</th>
+                  <th>Steuer-Cashflow</th>
+                  <th>Kum. AfA %</th>
+                  <th>Restbuchwert</th>
+                </tr>
+              </thead>
+              <tbody id="scheduleBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="pill-row">
+          <div class="card">
+            <h2>Pillar 1 &amp; 2: Zweitbetrieb-Bypass &amp; 40% Sonder-AfA Hebel</h2>
+            <p style="font-size:13.5px;color:var(--muted);margin-top:0;" id="txtZweitbetrieb"></p>
+            <ul class="mini-list">
+              <li><strong>Einheitliche €200.000-Gewinngrenze (§ 7g Abs. 1 S. 2 Nr. 1b EStG):</strong> Gilt vor Abzug des IAB für Bilanzierer und EÜR-Rechner gleichermaßen — aber streng <em>betriebsbezogen</em> (BMF v. 15.06.2022).</li>
+              <li><strong>Steuerneutrale Herabsetzung in Jahr 1 (§ 7g Abs. 2 EStG):</strong> 50% Hinzurechnung + 50% sofortige Herabsetzung der Anschaffungskosten = €0 Steuerlast bei Kauf!</li>
+              <li><strong>40% Sonder-AfA (§ 7g Abs. 5 EStG n.F.):</strong> Verdoppelt von 20% auf 40% auf den verbleibenden 50%-Restwert — frei verteilbar auf Anschaffungsjahr + 4 Folgejahre.</li>
+            </ul>
+          </div>
+
+          <div class="card">
+            <h2>Pillar 3: § 7g Abs. 3 EStG Rückgängigmachung &amp; § 233a AO Zins-Check</h2>
+            <p style="font-size:13.5px;color:var(--muted);margin-top:0;">
+              Was passiert, wenn die geplante Investition innerhalb der 3-Jahres-Frist (§ 7g Abs. 3 EStG) <strong>nicht durchgeführt</strong> wird?
+            </p>
+            <ul class="mini-list" id="reversalList"></ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const PRESETS = [{"scenario_id": "doctor_it_zweitbetrieb_400k", "scenario_name": "1. Arzt / IT-Freiberufler (€350k Gewinn -> Zweitbetrieb-Bypass für €400k PV/MedTech)", "entity_type": "Freiberufler (§ 18 EStG) + neuer Zweit-Gewerbebetrieb (§ 15 EStG)", "asset_name": "Gewerbliche Aufdach-PV + Batteriespeicher / High-End MedTech-Gerätepark", "asset_net_cost_eur": 400000.0, "useful_life_years": 8, "marginal_tax_rate": 0.4431, "degressive_regime": "booster_30pct", "use_zweitbetrieb_bypass": true, "effective_iab_year0_eur": 200000.0, "year0_tax_refund_eur": 88620.0, "year0_double_prepayment_effect_eur": 132930.0, "year1_herabsetzung_7g_abs2_eur": 200000.0, "year1_remaining_basis_eur": 200000.0, "year1_sonder_afa_40pct_eur": 80000.0, "year1_regular_afa_eur": 60000.0, "year1_total_deduction_eur": 140000.0, "year1_tax_saving_eur": 62034.0, "combined_year0_year1_writeoff_eur": 340000.0, "combined_year0_year1_writeoff_pct": 85.0, "combined_year0_year1_tax_cash_eur": 150654.0, "sonder_afa_delta_vs_old_20pct_eur": 17724.0, "schedule": [{"year_index": 0, "label": "Jahr 0 (Vorab-IAB ohne Kauf!)", "opening_book_value": 400000.0, "iab_deduction_or_herabsetzung": 200000.0, "sonder_afa_40pct": 0.0, "regular_afa": 0.0, "afa_method_used": "§ 7g Abs. 1 EStG (50% außerbilanzielle IAB-Bildung)", "total_tax_deduction": 200000.0, "closing_book_value": 200000.0, "annual_tax_cash_benefit": 88620.0, "cumulative_writeoff_pct": 50.0, "cumulative_tax_cash_benefit": 88620.0}, {"year_index": 1, "label": "Jahr 1 (Anschaffung + Turbo-AfA)", "opening_book_value": 200000.0, "iab_deduction_or_herabsetzung": 0.0, "sonder_afa_40pct": 80000.0, "regular_afa": 60000.0, "afa_method_used": "40% Sonder-AfA (§ 7g Abs. 5) + 30% Degressive AfA (§ 7 Abs. 2)", "total_tax_deduction": 140000.0, "closing_book_value": 60000.0, "annual_tax_cash_benefit": 62034.0, "cumulative_writeoff_pct": 85.0, "cumulative_tax_cash_benefit": 150654.0}, {"year_index": 2, "label": "Jahr 2", "opening_book_value": 60000.0, "iab_deduction_or_herabsetzung": 0.0, "sonder_afa_40pct": 0.0, "regular_afa": 18000.0, "afa_method_used": "30% Degressive Restbuchwert-AfA (§ 7 Abs. 2 EStG)", "total_tax_deduction": 18000.0, "closing_book_value": 42000.0, "annual_tax_cash_benefit": 7975.8, "cumulative_writeoff_pct": 89.5, "cumulative_tax_cash_benefit": 158629.8}, {"year_index": 3, "label": "Jahr 3", "opening_book_value": 42000.0, "iab_deduction_or_herabsetzung": 0.0, "sonder_afa_40pct": 0.0, "regular_afa": 12600.0, "afa_method_used": "30% Degressive Restbuchwert-AfA (§ 7 Abs. 2 EStG)", "total_tax_deduction": 12600.0, "closing_book_value": 29400.0, "annual_tax_cash_benefit": 5583.06, "cumulative_writeoff_pct": 92.65, "cumulative_tax_cash_benefit": 164212.86}, {"year_index": 4, "label": "Jahr 4", "opening_book_value": 29400.0, "iab_deduction_or_herabsetzung": 0.0, "sonder_afa_40pct": 0.0, "regular_afa": 8820.0, "afa_method_used": "30% Degressive Restbuchwert-AfA (§ 7 Abs. 2 EStG)", "total_tax_deduction": 8820.0, "closing_book_value": 20580.0, "annual_tax_cash_benefit": 3908.14, "cumulative_writeoff_pct": 94.86, "cumulative_tax_cash_benefit": 168121.0}, {"year_index": 5, "label": "Jahr 5", "opening_book_value": 20580.0, "iab_deduction_or_herabsetzung": 0.0, "sonder_afa_40pct": 0.0, "regular_afa": 6174.0, "afa_method_used": "30% Degressive Restbuchwert-AfA (§ 7 Abs. 2 EStG)", "total_tax_deduction": 6174.0, "closing_book_value": 14406.0, "annual_tax_cash_benefit": 2735.7, "cumulative_writeoff_pct": 96.4, "cumulative_tax_cash_benefit": 170856.7}, {"year_index": 6, "label": "Jahr 6", "opening_book_value": 14406.0, "iab_deduction_or_herabsetzung": 0.0, "sonder_afa_40pct": 0.0, "regular_afa": 4802.0, "afa_method_used": "Optimierter Wechsel auf Lineare Restwert-AfA (§ 7 Abs. 3 / § 7a Abs. 9 EStG)", "total_tax_deduction": 4802.0, "closing_book_value": 9604.0, "annual_tax_cash_benefit": 2127.77, "cumulative_writeoff_pct": 97.6, "cumulative_tax_cash_benefit": 172984.47}, {"year_index": 7, "label": "Jahr 7", "opening_book_value": 9604.0, "iab_deduction_or_herabsetzung": 0.0, "sonder_afa_40pct": 0.0, "regular_afa": 4802.0, "afa_method_used": "Optimierter Wechsel auf Lineare Restwert-AfA (§ 7 Abs. 3 / § 7a Abs. 9 EStG)", "total_tax_deduction": 4802.0, "closing_book_value": 4802.0, "annual_tax_cash_benefit": 2127.77, "cumulative_writeoff_pct": 98.8, "cumulative_tax_cash_benefit": 175112.24}, {"year_index": 8, "label": "Jahr 8", "opening_book_value": 4802.0, "iab_deduction_or_herabsetzung": 0.0, "sonder_afa_40pct": 0.0, "regular_afa": 4802.0, "afa_method_used": "Optimierter Wechsel auf Lineare Restwert-AfA (§ 7 Abs. 3 / § 7a Abs. 9 EStG)", "total_tax_deduction": 4802.0, "closing_book_value": 0.0, "annual_tax_cash_benefit": 2127.77, "cumulative_writeoff_pct": 100.0, "cumulative_tax_cash_benefit": 177240.01}], "zweitbetrieb_analysis": {"primary_business_profit_eur": 350000.0, "exceeds_primary_profit_limit": true, "primary_allowed_iab_eur": 0.0, "zweitbetrieb_type": "Neu gegründeter Zweit-Gewerbebetrieb (PV-Stromverkauf / MedTech-Leasing, €0 Gewinn im Gründungsjahr <= €200k)", "zweitbetrieb_year0_profit_eur": 0.0, "zweitbetrieb_eligible_under_7g": true, "zweitbetrieb_unlocked_iab_eur": 200000.0, "year0_immediate_tax_refund_eur": 88620.0, "year0_vorauszahlung_reduction_next_year_eur": 44310.0, "year0_combined_liquidity_boost_eur": 132930.0, "legal_basis": "§ 7g Abs. 1 S. 2 Nr. 1 lit. b EStG i.V.m. BMF v. 15.06.2022 (Rz. 14–18): Die €200.000-Gewinngrenze gilt streng betriebsbezogen (pro selbständigem Betrieb / Gewerbebetrieb), nicht personenbezogen über alle Einkunftsarten!"}, "car_guard": {"is_company_car": false, "planned_business_use_pct": 100.0, "private_use_taxation_method": "N/A (Kein Pkw / reines Betriebsmittel)", "meets_90pct_threshold": true, "one_pct_rule_trap_triggered": false, "iab_and_sonder_afa_eligible": true, "disallowed_tax_shield_at_risk_eur": 0.0, "verdict_code": "PASS_EQUIPMENT", "verdict_headline": "Grünes Licht: Bewegliches Wirtschaftsgut erfüllt >=90% betriebliche Nutzung", "bfh_references": ["§ 7g Abs. 1 S. 1 & Abs. 6 Nr. 2 EStG (Verbleibens- und Nutzungsfrist im Anschaffungs- + Folgejahr)"], "remediation_steps": ["Anlagenverzeichnis / Inventarbuchung im Jahr der Anschaffung dokumentieren."]}, "reversal_simulation": {"iab_reversed_eur": 200000.0, "marginal_tax_rate": 0.4431, "retroactive_tax_arrears_eur": 88620.0, "grace_period_months": 15, "interest_bearing_months": 21, "interest_1_8_pct_eur": 2790.9, "interest_6_0_pct_old_eur": 9303.0, "interest_savings_bverfg_eur": 6512.1, "total_repayment_1_8_pct_eur": 91410.9, "net_effective_annual_financing_cost_pct": 1.05}}, {"scenario_id": "kmu_cnc_server_160k", "scenario_name": "2. Handwerk / KI-Agentur (€175k Gewinn <= €200k Grenze, €160k CNC-Maschine & GPU-Cluster)", "entity_type": "Einzelunternehmen / Freiberufler (§ 15 / § 18 EStG, Gewinn <= €200k)", "asset_name": "5-Achs CNC-Fertigungszentrum & lokale H100/B200 KI-Workstations", "asset_net_cost_eur": 160000.0, "useful_life_years": 5, "marginal_tax_rate": 0.4431, "degressive_regime": "booster_30pct", "use_zweitbetrieb_bypass": false, "effective_iab_year0_eur": 80000.0, "year0_tax_refund_eur": 35448.0, "year0_double_prepayment_effect_eur": 53172.0, "year1_herabsetzung_7g_abs2_eur": 80000.0, "year1_remaining_basis_eur": 80000.0, "year1_sonder_afa_40pct_eur": 32000.0, "year1_regular_afa_eur": 24000.0, "year1_total_deduction_eur": 56000.0, "year1_tax_saving_eur": 24813.6, "combined_year0_year1_writeoff_eur": 136000.0, "combined_year0_year1_writeoff_pct": 85.0, "combined_year0_year1_tax_cash_eur": 60261.6, "sonder_afa_delta_vs_old_20pct_eur": 7089.6, "schedule": [{"year_index": 0, "label": "Jahr 0 (Vorab-IAB ohne Kauf!)", "opening_book_value": 160000.0, "iab_deduction_or_herabsetzung": 80000.0, "sonder_afa_40pct": 0.0, "regular_afa": 0.0, "afa_method_used": "§ 7g Abs. 1 EStG (50% außerbilanzielle IAB-Bildung)", "total_tax_deduction": 80000.0, "closing_book_value": 80000.0, "annual_tax_cash_benefit": 35448.0, "cumulative_writeoff_pct": 50.0, "cumulative_tax_cash_benefit": 35448.0}, {"year_index": 1, "label": "Jahr 1 (Anschaffung + Turbo-AfA)", "opening_book_value": 80000.0, "iab_deduction_or_herabsetzung": 0.0, "sonder_afa_40pct": 32000.0, "regular_afa": 24000.0, "afa_method_used": "40% Sonder-AfA (§ 7g Abs. 5) + 30% Degressive AfA (§ 7 Abs. 2)", "total_tax_deduction": 56000.0, "closing_book_value": 24000.0, "annual_tax_cash_benefit": 24813.6, "cumulative_writeoff_pct": 85.0, "cumulative_tax_cash_benefit": 60261.6}, {"year_index": 2, "label": "Jahr 2", "opening_book_value": 24000.0, "iab_deduction_or_herabsetzung": 0.0, "sonder_afa_40pct": 0.0, "regular_afa": 7200.0, "afa_method_used": "30% Degressive Restbuchwert-AfA (§ 7 Abs. 2 EStG)", "total_tax_deduction": 7200.0, "closing_book_value": 16800.0, "annual_tax_cash_benefit": 3190.32, "cumulative_writeoff_pct": 89.5, "cumulative_tax_cash_benefit": 63451.92}, {"year_index": 3, "label": "Jahr 3", "opening_book_value": 16800.0, "iab_deduction_or_herabsetzung": 0.0, "sonder_afa_40pct": 0.0, "regular_afa": 5600.0, "afa_method_used": "Optimierter Wechsel auf Lineare Restwert-AfA (§ 7 Abs. 3 / § 7a Abs. 9 EStG)", "total_tax_deduction": 5600.0, "closing_book_value": 11200.0, "annual_tax_cash_benefit": 2481.36, "cumulative_writeoff_pct": 93.0, "cumulative_tax_cash_benefit": 65933.28}, {"year_index": 4, "label": "Jahr 4", "opening_book_value": 11200.0, "iab_deduction_or_herabsetzung": 0.0, "sonder_afa_40pct": 0.0, "regular_afa": 5600.0, "afa_method_used": "Optimierter Wechsel auf Lineare Restwert-AfA (§ 7 Abs. 3 / § 7a Abs. 9 EStG)", "total_tax_deduction": 5600.0, "closing_book_value": 5600.0, "annual_tax_cash_benefit": 2481.36, "cumulative_writeoff_pct": 96.5, "cumulative_tax_cash_benefit": 68414.64}, {"year_index": 5, "label": "Jahr 5", "opening_book_value": 5600.0, "iab_deduction_or_herabsetzung": 0.0, "sonder_afa_40pct": 0.0, "regular_afa": 5600.0, "afa_method_used": "Optimierter Wechsel auf Lineare Restwert-AfA (§ 7 Abs. 3 / § 7a Abs. 9 EStG)", "total_tax_deduction": 5600.0, "closing_book_value": 0.0, "annual_tax_cash_benefit": 2481.36, "cumulative_writeoff_pct": 100.0, "cumulative_tax_cash_benefit": 70896.0}], "zweitbetrieb_analysis": {"primary_business_profit_eur": 175000.0, "exceeds_primary_profit_limit": false, "primary_allowed_iab_eur": 80000.0, "zweitbetrieb_type": "Gewerbliche Photovoltaik / Equipment-Leasing (Zweitbetrieb)", "zweitbetrieb_year0_profit_eur": 0.0, "zweitbetrieb_eligible_under_7g": true, "zweitbetrieb_unlocked_iab_eur": 80000.0, "year0_immediate_tax_refund_eur": 35448.0, "year0_vorauszahlung_reduction_next_year_eur": 17724.0, "year0_combined_liquidity_boost_eur": 53172.0, "legal_basis": "§ 7g Abs. 1 S. 2 Nr. 1 lit. b EStG i.V.m. BMF v. 15.06.2022 (Rz. 14–18): Die €200.000-Gewinngrenze gilt streng betriebsbezogen (pro selbständigem Betrieb / Gewerbebetrieb), nicht personenbezogen über alle Einkunftsarten!"}, "car_guard": {"is_company_car": false, "planned_business_use_pct": 100.0, "private_use_taxation_method": "N/A (Kein Pkw / reines Betriebsmittel)", "meets_90pct_threshold": true, "one_pct_rule_trap_triggered": false, "iab_and_sonder_afa_eligible": true, "disallowed_tax_shield_at_risk_eur": 0.0, "verdict_code": "PASS_EQUIPMENT", "verdict_headline": "Grünes Licht: Bewegliches Wirtschaftsgut erfüllt >=90% betriebliche Nutzung", "bfh_references": ["§ 7g Abs. 1 S. 1 & Abs. 6 Nr. 2 EStG (Verbleibens- und Nutzungsfrist im Anschaffungs- + Folgejahr)"], "remediation_steps": ["Anlagenverzeichnis / Inventarbuchung im Jahr der Anschaffung dokumentieren."]}, "reversal_simulation": {"iab_reversed_eur": 80000.0, "marginal_tax_rate": 0.4431, "retroactive_tax_arrears_eur": 35448.0, "grace_period_months": 15, "interest_bearing_months": 21, "interest_1_8_pct_eur": 1115.1, "interest_6_0_pct_old_eur": 3717.0, "interest_savings_bverfg_eur": 2601.9, "total_repayment_1_8_pct_eur": 36563.1, "net_effective_annual_financing_cost_pct": 1.05}}, {"scenario_id": "gmbh_car_fahrtenbuch_110k", "scenario_name": "3. GmbH / Kanzlei-Pkw (€110k Netto-Listenpreis MIT digitalem Fahrtenbuch 92% betrieblich)", "entity_type": "Kapitalgesellschaft (GmbH / UG — ~30% KSt + Soli + GewSt)", "asset_name": "Elektrischer/Hybrid Kanzlei- & Außendienst-Pkw (6 Jahre AfA)", "asset_net_cost_eur": 110000.0, "useful_life_years": 6, "marginal_tax_rate": 0.3, "degressive_regime": "booster_30pct", "use_zweitbetrieb_bypass": false, "effective_iab_year0_eur": 55000.0, "year0_tax_refund_eur": 16500.0, "year0_double_prepayment_effect_eur": 24750.0, "year1_herabsetzung_7g_abs2_eur": 55000.0, "year1_remaining_basis_eur": 55000.0, "year1_sonder_afa_40pct_eur": 22000.0, "year1_regular_afa_eur": 16500.0, "year1_total_deduction_eur": 38500.0, "year1_tax_saving_eur": 11550.0, "combined_year0_year1_writeoff_eur": 93500.0, "combined_year0_year1_writeoff_pct": 85.0, "combined_year0_year1_tax_cash_eur": 28050.0, "sonder_afa_delta_vs_old_20pct_eur": 3300.0, "schedule": [{"year_index": 0, "label": "Jahr 0 (Vorab-IAB ohne Kauf!)", "opening_book_value": 110000.0, "iab_deduction_or_herabsetzung": 55000.0, "sonder_afa_40pct": 0.0, "regular_afa": 0.0, "afa_method_used": "§ 7g Abs. 1 EStG (50% außerbilanzielle IAB-Bildung)", "total_tax_deduction": 55000.0, "closing_book_value": 55000.0, "annual_tax_cash_benefit": 16500.0, "cumulative_writeoff_pct": 50.0, "cumulative_tax_cash_benefit": 16500.0}, {"year_index": 1, "label": "Jahr 1 (Anschaffung + Turbo-AfA)", "opening_book_value": 55000.0, "iab_deduction_or_herabsetzung": 0.0, "sonder_afa_40pct": 22000.0, "regular_afa": 16500.0, "afa_method_used": "40% Sonder-AfA (§ 7g Abs. 5) + 30% Degressive AfA (§ 7 Abs. 2)", "total_tax_deduction": 38500.0, "closing_book_value": 16500.0, "annual_tax_cash_benefit": 11550.0, "cumulative_writeoff_pct": 85.0, "cumulative_tax_cash_benefit": 28050.0}, {"year_index": 2, "label": "Jahr 2", "opening_book_value": 16500.0, "iab_deduction_or_herabsetzung": 0.0, "sonder_afa_40pct": 0.0, "regular_afa": 4950.0, "afa_method_used": "30% Degressive Restbuchwert-AfA (§ 7 Abs. 2 EStG)", "total_tax_deduction": 4950.0, "closing_book_value": 11550.0, "annual_tax_cash_benefit": 1485.0, "cumulative_writeoff_pct": 89.5, "cumulative_tax_cash_benefit": 29535.0}, {"year_index": 3, "label": "Jahr 3", "opening_book_value": 11550.0, "iab_deduction_or_herabsetzung": 0.0, "sonder_afa_40pct": 0.0, "regular_afa": 3465.0, "afa_method_used": "30% Degressive Restbuchwert-AfA (§ 7 Abs. 2 EStG)", "total_tax_deduction": 3465.0, "closing_book_value": 8085.0, "annual_tax_cash_benefit": 1039.5, "cumulative_writeoff_pct": 92.65, "cumulative_tax_cash_benefit": 30574.5}, {"year_index": 4, "label": "Jahr 4", "opening_book_value": 8085.0, "iab_deduction_or_herabsetzung": 0.0, "sonder_afa_40pct": 0.0, "regular_afa": 2695.0, "afa_method_used": "Optimierter Wechsel auf Lineare Restwert-AfA (§ 7 Abs. 3 / § 7a Abs. 9 EStG)", "total_tax_deduction": 2695.0, "closing_book_value": 5390.0, "annual_tax_cash_benefit": 808.5, "cumulative_writeoff_pct": 95.1, "cumulative_tax_cash_benefit": 31383.0}, {"year_index": 5, "label": "Jahr 5", "opening_book_value": 5390.0, "iab_deduction_or_herabsetzung": 0.0, "sonder_afa_40pct": 0.0, "regular_afa": 2695.0, "afa_method_used": "Optimierter Wechsel auf Lineare Restwert-AfA (§ 7 Abs. 3 / § 7a Abs. 9 EStG)", "total_tax_deduction": 2695.0, "closing_book_value": 2695.0, "annual_tax_cash_benefit": 808.5, "cumulative_writeoff_pct": 97.55, "cumulative_tax_cash_benefit": 32191.5}, {"year_index": 6, "label": "Jahr 6", "opening_book_value": 2695.0, "iab_deduction_or_herabsetzung": 0.0, "sonder_afa_40pct": 0.0, "regular_afa": 2695.0, "afa_method_used": "Optimierter Wechsel auf Lineare Restwert-AfA (§ 7 Abs. 3 / § 7a Abs. 9 EStG)", "total_tax_deduction": 2695.0, "closing_book_value": 0.0, "annual_tax_cash_benefit": 808.5, "cumulative_writeoff_pct": 100.0, "cumulative_tax_cash_benefit": 33000.0}], "zweitbetrieb_analysis": {"primary_business_profit_eur": 185000.0, "exceeds_primary_profit_limit": false, "primary_allowed_iab_eur": 55000.0, "zweitbetrieb_type": "Gewerbliche Photovoltaik / Equipment-Leasing (Zweitbetrieb)", "zweitbetrieb_year0_profit_eur": 0.0, "zweitbetrieb_eligible_under_7g": true, "zweitbetrieb_unlocked_iab_eur": 55000.0, "year0_immediate_tax_refund_eur": 16500.0, "year0_vorauszahlung_reduction_next_year_eur": 8250.0, "year0_combined_liquidity_boost_eur": 24750.0, "legal_basis": "§ 7g Abs. 1 S. 2 Nr. 1 lit. b EStG i.V.m. BMF v. 15.06.2022 (Rz. 14–18): Die €200.000-Gewinngrenze gilt streng betriebsbezogen (pro selbständigem Betrieb / Gewerbebetrieb), nicht personenbezogen über alle Einkunftsarten!"}, "car_guard": {"is_company_car": true, "planned_business_use_pct": 92.0, "private_use_taxation_method": "Elektronisches Fahrtenbuch (92% betrieblich nachgewiesen)", "meets_90pct_threshold": true, "one_pct_rule_trap_triggered": false, "iab_and_sonder_afa_eligible": true, "disallowed_tax_shield_at_risk_eur": 0.0, "verdict_code": "PASS_CAR_FAHRTENBUCH", "verdict_headline": "SICHER — 92.0% betriebliche Nutzung per Fahrtenbuch / Poolfahrzeug-Nachweis bestätigt!", "bfh_references": ["BFH VIII R 24/12 & GrS 1/14: Strenge 90%-Grenze ('nahezu ausschließliche betriebliche Nutzung', <10% Privatanteil).", "BFH III R 62/19 (15.07.2020) & BFH VIII R 24/19 (16.03.2022): 1%-Regelung (§ 6 Abs. 1 Nr. 4 S. 2 EStG) unterstellt typisierend ~20–25% Privatnutzung und schließt § 7g EStG zwingend aus!", "BFH VIII R 24/19 Durchbruch: Kein formaler Fahrtenbuch-Alleinzwang bei § 7g EStG, aber lückenloser Kilometer-/Terminkalender-Nachweis >=90% im Anschaffungsjahr + Folgejahr zwingend."], "remediation_steps": ["Sofortiger Wechsel von der 1%-Regelung auf ein manipulationssicheres elektronisches Fahrtenbuch (z. B. Vimcar/Pace) ab Tag 1 der Anschaffung.", "Mindestens 90,0% betriebliche Kilometer im gesamten Jahr der Anschaffung UND im kompletten Folgejahr (§ 7g Abs. 4 & Abs. 6 Nr. 2 EStG) einhalten (Hinweis: Fahrten Wohnung–Betriebsstätte zählen für § 7g EStG zur betrieblichen Nutzung!).", "Alternativ bei GmbH / Kanzlei: 100% betriebliches Poolfahrzeug mit arbeitsvertraglichem Privatnutzungsverbot und Schlüsselbuch."]}, "reversal_simulation": {"iab_reversed_eur": 55000.0, "marginal_tax_rate": 0.3, "retroactive_tax_arrears_eur": 16500.0, "grace_period_months": 15, "interest_bearing_months": 21, "interest_1_8_pct_eur": 519.75, "interest_6_0_pct_old_eur": 1732.5, "interest_savings_bverfg_eur": 1212.75, "total_repayment_1_8_pct_eur": 17019.75, "net_effective_annual_financing_cost_pct": 1.05}}, {"scenario_id": "car_1pct_trap_110k", "scenario_name": "4. WARN-FALL: Firmenwagen (€110k) mit pauschaler 1%-Regelung (BFH-Falle: €0 IAB & €0 Sonder-AfA!)", "entity_type": "Freiberufler / Einzelunternehmer (44,31% Grenzsteuersatz)", "asset_name": "Geschäfts-Pkw mit 1%-Regelung (§ 6 Abs. 1 Nr. 4 S. 2 EStG)", "asset_net_cost_eur": 110000.0, "useful_life_years": 6, "marginal_tax_rate": 0.4431, "degressive_regime": "booster_30pct", "use_zweitbetrieb_bypass": false, "effective_iab_year0_eur": 0.0, "year0_tax_refund_eur": 0.0, "year0_double_prepayment_effect_eur": 0.0, "year1_herabsetzung_7g_abs2_eur": 0.0, "year1_remaining_basis_eur": 110000.0, "year1_sonder_afa_40pct_eur": 0.0, "year1_regular_afa_eur": 33000.0, "year1_total_deduction_eur": 33000.0, "year1_tax_saving_eur": 14622.3, "combined_year0_year1_writeoff_eur": 33000.0, "combined_year0_year1_writeoff_pct": 30.0, "combined_year0_year1_tax_cash_eur": 14622.3, "sonder_afa_delta_vs_old_20pct_eur": 0.0, "schedule": [{"year_index": 0, "label": "Jahr 0 (Vorab-IAB ohne Kauf!)", "opening_book_value": 110000.0, "iab_deduction_or_herabsetzung": 0.0, "sonder_afa_40pct": 0.0, "regular_afa": 0.0, "afa_method_used": "§ 7g Abs. 1 EStG (50% außerbilanzielle IAB-Bildung)", "total_tax_deduction": 0.0, "closing_book_value": 110000.0, "annual_tax_cash_benefit": 0.0, "cumulative_writeoff_pct": 0.0, "cumulative_tax_cash_benefit": 0.0}, {"year_index": 1, "label": "Jahr 1 (Anschaffung + Turbo-AfA)", "opening_book_value": 110000.0, "iab_deduction_or_herabsetzung": 0.0, "sonder_afa_40pct": 0.0, "regular_afa": 33000.0, "afa_method_used": "40% Sonder-AfA (§ 7g Abs. 5) + 30% Degressive AfA (§ 7 Abs. 2)", "total_tax_deduction": 33000.0, "closing_book_value": 77000.0, "annual_tax_cash_benefit": 14622.3, "cumulative_writeoff_pct": 30.0, "cumulative_tax_cash_benefit": 14622.3}, {"year_index": 2, "label": "Jahr 2", "opening_book_value": 77000.0, "iab_deduction_or_herabsetzung": 0.0, "sonder_afa_40pct": 0.0, "regular_afa": 23100.0, "afa_method_used": "30% Degressive Restbuchwert-AfA (§ 7 Abs. 2 EStG)", "total_tax_deduction": 23100.0, "closing_book_value": 53900.0, "annual_tax_cash_benefit": 10235.61, "cumulative_writeoff_pct": 51.0, "cumulative_tax_cash_benefit": 24857.91}, {"year_index": 3, "label": "Jahr 3", "opening_book_value": 53900.0, "iab_deduction_or_herabsetzung": 0.0, "sonder_afa_40pct": 0.0, "regular_afa": 16170.0, "afa_method_used": "30% Degressive Restbuchwert-AfA (§ 7 Abs. 2 EStG)", "total_tax_deduction": 16170.0, "closing_book_value": 37730.0, "annual_tax_cash_benefit": 7164.93, "cumulative_writeoff_pct": 65.7, "cumulative_tax_cash_benefit": 32022.84}, {"year_index": 4, "label": "Jahr 4", "opening_book_value": 37730.0, "iab_deduction_or_herabsetzung": 0.0, "sonder_afa_40pct": 0.0, "regular_afa": 12576.67, "afa_method_used": "Optimierter Wechsel auf Lineare Restwert-AfA (§ 7 Abs. 3 / § 7a Abs. 9 EStG)", "total_tax_deduction": 12576.67, "closing_book_value": 25153.33, "annual_tax_cash_benefit": 5572.72, "cumulative_writeoff_pct": 77.13, "cumulative_tax_cash_benefit": 37595.56}, {"year_index": 5, "label": "Jahr 5", "opening_book_value": 25153.33, "iab_deduction_or_herabsetzung": 0.0, "sonder_afa_40pct": 0.0, "regular_afa": 12576.67, "afa_method_used": "Optimierter Wechsel auf Lineare Restwert-AfA (§ 7 Abs. 3 / § 7a Abs. 9 EStG)", "total_tax_deduction": 12576.67, "closing_book_value": 12576.66, "annual_tax_cash_benefit": 5572.72, "cumulative_writeoff_pct": 88.57, "cumulative_tax_cash_benefit": 43168.28}, {"year_index": 6, "label": "Jahr 6", "opening_book_value": 12576.66, "iab_deduction_or_herabsetzung": 0.0, "sonder_afa_40pct": 0.0, "regular_afa": 12576.66, "afa_method_used": "Optimierter Wechsel auf Lineare Restwert-AfA (§ 7 Abs. 3 / § 7a Abs. 9 EStG)", "total_tax_deduction": 12576.66, "closing_book_value": 0.0, "annual_tax_cash_benefit": 5572.72, "cumulative_writeoff_pct": 100.0, "cumulative_tax_cash_benefit": 48741.0}], "zweitbetrieb_analysis": {"primary_business_profit_eur": 165000.0, "exceeds_primary_profit_limit": false, "primary_allowed_iab_eur": 55000.0, "zweitbetrieb_type": "Gewerbliche Photovoltaik / Equipment-Leasing (Zweitbetrieb)", "zweitbetrieb_year0_profit_eur": 0.0, "zweitbetrieb_eligible_under_7g": true, "zweitbetrieb_unlocked_iab_eur": 55000.0, "year0_immediate_tax_refund_eur": 24370.5, "year0_vorauszahlung_reduction_next_year_eur": 12185.25, "year0_combined_liquidity_boost_eur": 36555.75, "legal_basis": "§ 7g Abs. 1 S. 2 Nr. 1 lit. b EStG i.V.m. BMF v. 15.06.2022 (Rz. 14–18): Die €200.000-Gewinngrenze gilt streng betriebsbezogen (pro selbständigem Betrieb / Gewerbebetrieb), nicht personenbezogen über alle Einkunftsarten!"}, "car_guard": {"is_company_car": true, "planned_business_use_pct": 80.0, "private_use_taxation_method": "Pauschale 1%-Regelung (§ 6 Abs. 1 Nr. 4 S. 2 EStG)", "meets_90pct_threshold": false, "one_pct_rule_trap_triggered": true, "iab_and_sonder_afa_eligible": false, "disallowed_tax_shield_at_risk_eur": 34118.7, "verdict_code": "TRAP_1PCT_RULE_FATAL", "verdict_headline": "STOPP — 1%-Regelungs-Falle! Anwendung der 1%-Regelung vernichtet 50% IAB & 40% Sonder-AfA rückwirkend!", "bfh_references": ["BFH VIII R 24/12 & GrS 1/14: Strenge 90%-Grenze ('nahezu ausschließliche betriebliche Nutzung', <10% Privatanteil).", "BFH III R 62/19 (15.07.2020) & BFH VIII R 24/19 (16.03.2022): 1%-Regelung (§ 6 Abs. 1 Nr. 4 S. 2 EStG) unterstellt typisierend ~20–25% Privatnutzung und schließt § 7g EStG zwingend aus!", "BFH VIII R 24/19 Durchbruch: Kein formaler Fahrtenbuch-Alleinzwang bei § 7g EStG, aber lückenloser Kilometer-/Terminkalender-Nachweis >=90% im Anschaffungsjahr + Folgejahr zwingend."], "remediation_steps": ["Sofortiger Wechsel von der 1%-Regelung auf ein manipulationssicheres elektronisches Fahrtenbuch (z. B. Vimcar/Pace) ab Tag 1 der Anschaffung.", "Mindestens 90,0% betriebliche Kilometer im gesamten Jahr der Anschaffung UND im kompletten Folgejahr (§ 7g Abs. 4 & Abs. 6 Nr. 2 EStG) einhalten (Hinweis: Fahrten Wohnung–Betriebsstätte zählen für § 7g EStG zur betrieblichen Nutzung!).", "Alternativ bei GmbH / Kanzlei: 100% betriebliches Poolfahrzeug mit arbeitsvertraglichem Privatnutzungsverbot und Schlüsselbuch."]}, "reversal_simulation": {"iab_reversed_eur": 55000.0, "marginal_tax_rate": 0.4431, "retroactive_tax_arrears_eur": 24370.5, "grace_period_months": 15, "interest_bearing_months": 21, "interest_1_8_pct_eur": 767.02, "interest_6_0_pct_old_eur": 2556.75, "interest_savings_bverfg_eur": 1789.73, "total_repayment_1_8_pct_eur": 25137.52, "net_effective_annual_financing_cost_pct": 1.05}}];
+
+    const fmtEur = (v) => new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(v);
+    const fmtPct = (v) => new Intl.NumberFormat('de-DE', { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(v) + '%';
+
+    const inpCost = document.getElementById('inpCost');
+    const inpLife = document.getElementById('inpLife');
+    const inpTax = document.getElementById('inpTax');
+    const inpRegime = document.getElementById('inpRegime');
+    const inpProfit = document.getElementById('inpProfit');
+    const inpBypass = document.getElementById('inpBypass');
+    const inpIsCar = document.getElementById('inpIsCar');
+    const inpBizUse = document.getElementById('inpBizUse');
+    const inpCarMethod = document.getElementById('inpCarMethod');
+
+    function computeDegRate(life, regime) {
+      const lin = 1.0 / Math.max(1, life);
+      if (regime === 'booster_30pct') return Math.min(3.0 * lin, 0.30);
+      if (regime === 'wachstum_20pct') return Math.min(2.0 * lin, 0.20);
+      return lin;
+    }
+
+    function recalculate() {
+      const cost = parseFloat(inpCost.value);
+      const life = parseInt(inpLife.value, 10);
+      const taxRate = parseFloat(inpTax.value);
+      const regime = inpRegime.value;
+      const profit = parseFloat(inpProfit.value);
+      const useBypass = inpBypass.value === 'true';
+      const isCar = inpIsCar.value === 'true';
+      const bizUse = parseFloat(inpBizUse.value);
+      const carMethod = inpCarMethod.value;
+
+      document.getElementById('lblCost').textContent = fmtEur(cost);
+      document.getElementById('lblLife').textContent = life + ' Jahre';
+      document.getElementById('lblTax').textContent = fmtPct(taxRate * 100);
+      document.getElementById('lblProfit').textContent = fmtEur(profit);
+      document.getElementById('lblBizUse').textContent = bizUse + '%';
+
+      const exceedsProfit = profit > 200000;
+      const rawIab = Math.min(cost * 0.50, 200000);
+      const profitEligible = (!exceedsProfit) || useBypass;
+
+      const onePctTrap = isCar && carMethod.toLowerCase().includes('1%');
+      const carEligible = (!isCar) ? (bizUse >= 90) : (bizUse >= 90 && !onePctTrap);
+
+      const effectiveIab = (profitEligible && carEligible) ? rawIab : 0;
+      const y0Tax = effectiveIab * taxRate;
+      const y0PrepayTotal = y0Tax * 1.5;
+
+      const remBasisY1 = cost - effectiveIab;
+      const sonderEligible = profitEligible && carEligible;
+      const sonderY1 = sonderEligible ? (remBasisY1 * 0.40) : 0;
+      const oldSonder20 = sonderEligible ? (remBasisY1 * 0.20) : 0;
+      const sonderDeltaTax = (sonderY1 - oldSonder20) * taxRate;
+
+      const degRate = computeDegRate(life, regime);
+      const linRate = 1.0 / life;
+      let regY1 = (regime !== 'linear_only' && degRate > linRate) ? (remBasisY1 * degRate) : (remBasisY1 * linRate);
+      if (sonderY1 + regY1 > remBasisY1) regY1 = Math.max(0, remBasisY1 - sonderY1);
+
+      const totalDedY1 = sonderY1 + regY1;
+      const y1Tax = totalDedY1 * taxRate;
+      const cumY0Y1Writeoff = effectiveIab + totalDedY1;
+      const cumY0Y1Pct = (cumY0Y1Writeoff / cost) * 100.0;
+      const cumY0Y1Cash = y0Tax + y1Tax;
+
+      const profitBanner = document.getElementById('profitBanner');
+      if (!exceedsProfit) {
+        profitBanner.className = 'banner pass';
+        profitBanner.innerHTML = `<strong>§ 7g Abs. 1 S. 2 Nr. 1b EStG Gewinngrenze eingehalten:</strong> Hauptbetriebs-Gewinn (${fmtEur(profit)}) liegt &le; €200.000. Voller 50% IAB (${fmtEur(rawIab)}) direkt im Hauptbetrieb abziehbar!`;
+      } else if (useBypass) {
+        profitBanner.className = 'banner warn';
+        profitBanner.innerHTML = `<strong>Zweitbetrieb-Bypass aktiv (BMF v. 15.06.2022 Rz. 14):</strong> Hauptbetrieb (${fmtEur(profit)}) überschreitet die €200.000-Klippe, aber die Investition über einen neu gegründeten <strong>Zweit-Gewerbebetrieb (€0 Gewinn im Gründungsjahr &le; €200.000)</strong> schaltet <strong>${fmtEur(rawIab)} IAB (${fmtEur(rawIab * taxRate)} Sofort-Steuererstattung)</strong> frei!`;
+      } else {
+        profitBanner.className = 'banner danger';
+        profitBanner.innerHTML = `<strong>GEWINNGRENZEN-SPERRE (&gt; €200.000):</strong> Hauptbetrieb (${fmtEur(profit)}) liegt über €200.000 ohne Zweitbetrieb-Auslagerung &rarr; <strong>€0 IAB und €0 Sonder-AfA!</strong> Aktivieren Sie links den Zweitbetrieb-Bypass.`;
+      }
+
+      const carBanner = document.getElementById('carBanner');
+      if (!isCar) {
+        carBanner.className = 'banner pass';
+        carBanner.innerHTML = `<strong>Kein Pkw-Risiko:</strong> Bewegliches Wirtschaftsgut des Anlagevermögens (${bizUse}% betrieblich) qualifiziert voll für 50% IAB + 40% Sonder-AfA + ${Math.round(degRate*100)}% AfA.`;
+      } else if (onePctTrap) {
+        carBanner.className = 'banner danger';
+        const lostShield = (rawIab + (cost - rawIab)*0.40) * taxRate;
+        carBanner.innerHTML = `<strong>BFH-FALLE (VIII R 24/19 &amp; III R 62/19): Pauschale 1%-Regelung vernichtet § 7g EStG!</strong> Die 1%-Regelung unterstellt ~20–25% Privatnutzung (&gt;10% Grenze). Sie verlieren <strong>${fmtEur(lostShield)}</strong> an Jahr-0/1-Steuervorteilen! Lösung: Elektronisches Fahrtenbuch (&ge;90%).`;
+      } else if (bizUse < 90) {
+        carBanner.className = 'banner danger';
+        carBanner.innerHTML = `<strong>UNTER 90%-SCHWELLE (§ 7g Abs. 6 Nr. 2 EStG / BFH VIII R 24/12):</strong> Bei nur ${bizUse}% betrieblicher Nutzung entfällt § 7g EStG rückwirkend komplett!`;
+      } else {
+        carBanner.className = 'banner pass';
+        carBanner.innerHTML = `<strong>Pkw-90%-Wächter bestanden (${bizUse}% per Fahrtenbuch):</strong> 50% IAB (${fmtEur(effectiveIab)}) + 40% Sonder-AfA (${fmtEur(sonderY1)}) + ${Math.round(degRate*100)}% AfA voll abzugsfähig!`;
+      }
+
+      document.getElementById('kpiIab').textContent = fmtEur(effectiveIab);
+      document.getElementById('kpiY0Tax').textContent = fmtEur(y0Tax);
+      document.getElementById('kpiY0Prepay').textContent = `Inkl. Vorauszahlungs-Hebel: ${fmtEur(y0PrepayTotal)} Liquidität`;
+      document.getElementById('kpiY1Ded').textContent = fmtEur(totalDedY1);
+      document.getElementById('kpiY1Sub').textContent = `40% Sonder-AfA bringt +${fmtEur(sonderDeltaTax)} mehr Steuer-Cash als 20% alt`;
+      document.getElementById('kpiCumPct').textContent = fmtPct(cumY0Y1Pct);
+      document.getElementById('kpiCumCash').textContent = `${fmtEur(cumY0Y1Cash)} Cash-Steuerersparnis in Jahr 0 + Jahr 1`;
+
+      const tbody = document.getElementById('scheduleBody');
+      tbody.innerHTML = '';
+
+      let cumDed = effectiveIab;
+      let cumCash = y0Tax;
+
+      const addRow = (yrLabel, openBv, iabVal, sonderVal, method, regVal, totalVal, cashVal, cumP, closeBv, cls) => {
+        const tr = document.createElement('tr');
+        if (cls) tr.className = cls;
+        tr.innerHTML = `
+          <td>${yrLabel}</td>
+          <td>${fmtEur(openBv)}</td>
+          <td>${fmtEur(iabVal)}</td>
+          <td>${fmtEur(sonderVal)}</td>
+          <td>${method}</td>
+          <td>${fmtEur(regVal)}</td>
+          <td><strong>${fmtEur(totalVal)}</strong></td>
+          <td style="color:var(--emerald);font-weight:700;">${fmtEur(cashVal)}</td>
+          <td>${fmtPct(cumP)}</td>
+          <td>${fmtEur(closeBv)}</td>
+        `;
+        tbody.appendChild(tr);
+      };
+
+      addRow(
+        'Jahr 0 (Vorab-IAB)',
+        cost,
+        effectiveIab,
+        0,
+        '§ 7g Abs. 1 EStG (50% IAB außerbilanz.)',
+        0,
+        effectiveIab,
+        y0Tax,
+        (effectiveIab / cost) * 100,
+        remBasisY1,
+        'highlight-y0'
+      );
+
+      cumDed += totalDedY1;
+      cumCash += y1Tax;
+      let curBv = Math.max(0, remBasisY1 - totalDedY1);
+
+      addRow(
+        'Jahr 1 (Kauf + Turbo)',
+        remBasisY1,
+        0,
+        sonderY1,
+        `40% Sonder-AfA + ${Math.round((regime === 'linear_only' ? linRate : degRate)*100)}% AfA`,
+        regY1,
+        totalDedY1,
+        y1Tax,
+        (cumDed / cost) * 100,
+        curBv,
+        'highlight-y1'
+      );
+
+      for (let yr = 2; yr <= life; yr++) {
+        const remYears = life - yr + 1;
+        if (curBv <= 0.5) {
+          addRow(`Jahr ${yr}`, 0, 0, 0, 'Vollständig abgeschrieben', 0, 0, 0, 100.0, 0, '');
+          continue;
+        }
+        const linRest = curBv / remYears;
+        const degRest = (regime !== 'linear_only') ? (curBv * degRate) : 0;
+        let reg = 0;
+        let mStr = '';
+        if (yr === life || linRest >= degRest) {
+          reg = (yr === life) ? curBv : linRest;
+          mStr = 'Wechsel auf Lineare Restwert-AfA (§ 7 Abs. 3)';
+        } else {
+          reg = degRest;
+          mStr = `${Math.round(degRate*100)}% Degressive Restwert-AfA`;
+        }
+        const nextBv = Math.max(0, curBv - reg);
+        const cash = reg * taxRate;
+        cumDed += reg;
+        cumCash += cash;
+        addRow(`Jahr ${yr}`, curBv, 0, 0, mStr, reg, reg, cash, Math.min(100, (cumDed / cost) * 100), nextBv, '');
+        curBv = nextBv;
+      }
+
+      document.getElementById('txtZweitbetrieb').innerHTML =
+        `Bei geplanten <strong>${fmtEur(cost)}</strong> Netto-Investition entsteht in Jahr 0 (ohne einen einzigen Euro Kaufpreis-Abfluss!) ein Steuer-Hebel von <strong>${fmtEur(y0Tax)}</strong>. In Jahr 1 werden auf den verbleibenden 50%-Buchwert (${fmtEur(remBasisY1)}) nochmals <strong>40% Sonder-AfA (${fmtEur(sonderY1)})</strong> plus <strong>${fmtEur(regY1)} reguläre AfA</strong> abgezogen — zusammen <strong>${fmtPct(cumY0Y1Pct)} Abschreibung in Jahr 0 + Jahr 1</strong>!`;
+
+      const revIab = effectiveIab > 0 ? effectiveIab : rawIab;
+      const revTax = revIab * taxRate;
+      const roundedTax = Math.floor(revTax / 50) * 50;
+      const interest18 = roundedTax * 0.0015 * 21;
+      const interest60 = roundedTax * 0.0050 * 21;
+      document.getElementById('reversalList').innerHTML = `
+        <li><strong>Rückgängigmachung nach 3 Jahren (§ 7g Abs. 3 EStG):</strong> Steuer-Rückzahlung exakt <strong>${fmtEur(revTax)}</strong> (der 3 Jahre lang zinsfrei genutzte Steuerkredit).</li>
+        <li><strong>Nachzahlungszinsen (§ 233a / § 238 Abs. 1a AO — 1,8% p.a. nach BVerfG-Reform):</strong> Nur <strong>${fmtEur(interest18)}</strong> für 21 Zinsmonate (nach 15 Monaten Karenzzeit) — statt früher <strong>${fmtEur(interest60)}</strong> bei 6,0% p.a. (Zinsersparnis: <strong>${fmtEur(interest60 - interest18)}</strong>!).</li>
+        <li><strong>Effektiver Nachsteuer-Finanzierungszins über 3 Jahre:</strong> Nur ca. <strong>1,05% p.a.</strong> — günstiger als jeder Bank- oder Kontokorrentkredit!</li>
+      `;
+    }
+
+    function loadPreset(index) {
+      const p = PRESETS[index];
+      document.querySelectorAll('.preset-btn').forEach((b, i) => b.classList.toggle('active', i === index));
+      inpCost.value = p.asset_net_cost_eur;
+      inpLife.value = p.useful_life_years;
+      inpTax.value = String(p.marginal_tax_rate);
+      inpRegime.value = p.degressive_regime;
+      inpProfit.value = p.zweitbetrieb_analysis.primary_business_profit_eur;
+      inpBypass.value = p.use_zweitbetrieb_bypass ? 'true' : 'false';
+      inpIsCar.value = p.car_guard.is_company_car ? 'true' : 'false';
+      inpBizUse.value = p.car_guard.planned_business_use_pct;
+      inpCarMethod.value = p.car_guard.is_company_car && p.car_guard.one_pct_rule_trap_triggered
+        ? 'Pauschale 1%-Regelung (§ 6 Abs. 1 Nr. 4 S. 2 EStG)'
+        : 'Elektronisches Fahrtenbuch (>=90% betrieblich)';
+      recalculate();
+    }
+
+    const presetBar = document.getElementById('presetBar');
+    PRESETS.forEach((p, idx) => {
+      const btn = document.createElement('button');
+      btn.className = 'preset-btn' + (idx === 0 ? ' active' : '');
+      btn.textContent = p.scenario_name;
+      btn.onclick = () => loadPreset(idx);
+      presetBar.appendChild(btn);
+    });
+
+    [inpCost, inpLife, inpTax, inpRegime, inpProfit, inpBypass, inpIsCar, inpBizUse, inpCarMethod].forEach(el => {
+      el.addEventListener('input', recalculate);
+      el.addEventListener('change', recalculate);
+    });
+
+    loadPreset(0);
+  </script>
+</body>
+</html>

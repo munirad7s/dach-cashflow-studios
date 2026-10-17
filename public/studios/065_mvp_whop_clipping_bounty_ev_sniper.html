@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>MVP #65 — Whop Content Rewards & Clipping Bounty EV/CPM Arbitrage Sniper</title>
+<style>
+    :root {
+        --bg: #0b0f17;
+        --panel: #131b2e;
+        --panel-alt: #19233c;
+        --text: #e6edf3;
+        --muted: #8b9bb4;
+        --accent: #38bdf8;
+        --green: #10b981;
+        --amber: #f59e0b;
+        --red: #ef4444;
+        --purple: #a855f7;
+        --border: #263454;
+    }
+    * { box-sizing: border-box; }
+    body {
+        margin: 0;
+        padding: 24px;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.5;
+    }
+    header {
+        border-bottom: 1px solid var(--border);
+        padding-bottom: 18px;
+        margin-bottom: 24px;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        flex-wrap: wrap;
+        gap: 16px;
+    }
+    h1 { margin: 0 0 6px 0; font-size: 1.55rem; color: #fff; }
+    h2 { font-size: 1.2rem; margin: 28px 0 12px 0; color: var(--accent); border-left: 4px solid var(--accent); padding-left: 10px; }
+    .subtitle { color: var(--muted); font-size: 0.92rem; max-width: 920px; }
+    .kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+        gap: 14px;
+        margin-bottom: 24px;
+    }
+    .kpi-card {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 16px;
+    }
+    .kpi-label { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); }
+    .kpi-val { font-size: 1.55rem; font-weight: 700; margin-top: 6px; color: #fff; }
+    .kpi-sub { font-size: 0.8rem; color: var(--muted); margin-top: 4px; }
+    .controls {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 14px 18px;
+        margin-bottom: 16px;
+        display: flex;
+        gap: 18px;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+    .controls label { font-size: 0.85rem; color: var(--muted); }
+    .controls select, .controls input {
+        background: var(--bg);
+        color: var(--text);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 6px 10px;
+        font-size: 0.85rem;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        overflow: hidden;
+        font-size: 0.88rem;
+    }
+    th, td {
+        padding: 12px 14px;
+        border-bottom: 1px solid var(--border);
+        text-align: left;
+        vertical-align: top;
+    }
+    th {
+        background: var(--panel-alt);
+        color: var(--muted);
+        font-weight: 600;
+        font-size: 0.78rem;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+    }
+    td.num, th.num { text-align: right; }
+    .camp-title { font-weight: 600; color: #fff; font-size: 0.94rem; }
+    .camp-sub { font-size: 0.8rem; color: var(--muted); margin-top: 3px; }
+    .sub-metric { font-size: 0.77rem; color: var(--muted); margin-top: 3px; }
+    .pill {
+        background: #1e293b;
+        padding: 2px 7px;
+        border-radius: 4px;
+        font-size: 0.74rem;
+        color: var(--accent);
+    }
+    .badge {
+        display: inline-block;
+        padding: 4px 8px;
+        border-radius: 6px;
+        font-size: 0.73rem;
+        font-weight: 700;
+        letter-spacing: 0.03em;
+    }
+    .badge-snipe { background: rgba(16, 185, 129, 0.18); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4); }
+    .badge-secondary { background: rgba(56, 189, 248, 0.16); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.4); }
+    .badge-trap { background: rgba(239, 68, 68, 0.18); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.45); }
+    .badge-ghost { background: rgba(168, 85, 247, 0.18); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.45); }
+    .badge-skip { background: rgba(148, 163, 184, 0.15); color: #94a3b8; border: 1px solid rgba(148, 163, 184, 0.3); }
+    .ev-main { color: #34d399; font-size: 0.95rem; }
+    .ev-hi { color: #cbd5e1; font-size: 0.8rem; }
+    .val-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+        gap: 14px;
+    }
+    .val-card {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 16px;
+        font-size: 0.85rem;
+    }
+    .pass-card { border-left: 4px solid var(--green); }
+    .fail-card { border-left: 4px solid var(--red); }
+    .val-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+    .val-badge { font-weight: 700; font-size: 0.76rem; }
+    .pass-card .val-badge { color: #34d399; }
+    .fail-card .val-badge { color: #f87171; }
+    .val-camp { color: var(--muted); font-size: 0.8rem; margin-bottom: 10px; }
+    .val-section ul { margin: 4px 0 10px 18px; padding: 0; color: #cbd5e1; }
+    .ffmpeg-card {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 16px;
+        margin-bottom: 12px;
+    }
+    .ffmpeg-header { display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 6px; }
+    .ffmpeg-meta { font-size: 0.8rem; color: var(--muted); margin-bottom: 8px; }
+    .code-box {
+        background: #070a10;
+        border: 1px solid #1e293b;
+        border-radius: 6px;
+        padding: 10px 12px;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        font-size: 0.78rem;
+        color: #38bdf8;
+        overflow-x: auto;
+        margin: 0;
+        white-space: pre-wrap;
+        word-break: break-all;
+    }
+    .teardown-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+        gap: 16px;
+    }
+    .teardown-card {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 18px;
+        font-size: 0.86rem;
+    }
+    .teardown-card h3 { margin-top: 0; color: #fff; font-size: 1.02rem; }
+    .teardown-card ul { margin: 6px 0 0 18px; padding: 0; color: #cbd5e1; }
+    .teardown-card li { margin-bottom: 6px; }
+</style>
+</head>
+<body>
+
+<!-- DACH CASHFLOW STUDIOS LAUNCH BAR -->
+<style>
+  #dcs-launch-bar {
+    position: sticky;
+    top: 0;
+    z-index: 99999;
+    background: linear-gradient(90deg, #0b1120 0%, #111827 50%, #0f172a 100%);
+    color: #f8fafc;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.35);
+    padding: 8px 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  }
+  #dcs-launch-bar .dcs-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+  }
+  #dcs-launch-bar .dcs-badge {
+    background: rgba(16, 185, 129, 0.18);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.03em;
+  }
+  #dcs-launch-bar a.dcs-nav {
+    color: #93c5fd;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 12.5px;
+  }
+  #dcs-launch-bar a.dcs-nav:hover {
+    text-decoration: underline;
+    color: #dbeafe;
+  }
+  #dcs-launch-bar .dcs-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  #dcs-launch-bar .dcs-btn {
+    padding: 5px 11px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s ease;
+  }
+  #dcs-launch-bar .dcs-btn-ghost {
+    background: rgba(255,255,255,0.08);
+    color: #e2e8f0;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  #dcs-launch-bar .dcs-btn-primary {
+    background: linear-gradient(135deg, #0ea5e9, #2563eb);
+    color: #ffffff;
+  }
+  #dcs-launch-bar .dcs-btn-emerald {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
+  }
+  @media print {
+    #dcs-launch-bar { display: none !important; }
+  }
+</style>
+<div id="dcs-launch-bar">
+  <div class="dcs-left">
+    <a href="/index.html" class="dcs-nav">← Alle 150 DACH Studios</a>
+    <span class="dcs-badge">MVP #065 VERIFIED</span>
+    <span style="color:#cbd5e1;font-size:12px;">DACH LegalTech, Labor Law & Consumer Claims</span>
+  </div>
+  <div class="dcs-actions">
+    <button onclick="window.print()" class="dcs-btn dcs-btn-ghost">🖨️ PDF / Dossier drucken</button>
+    <a href="#checkout-modal-49" target="_blank" rel="noopener" class="dcs-btn dcs-btn-primary">⚡ Musterschreiben & Voll-Dossier (€49)</a>
+    <a href="#checkout-modal-299" target="_blank" rel="noopener" class="dcs-btn dcs-btn-emerald">🛡️ B2B Umsetzung buchen (€299 / €1.490)</a>
+  </div>
+</div>
+
+<header>
+    <div>
+        <h1>MVP #65 — Whop Content Rewards & Clipping Bounty EV/CPM Arbitrage Sniper</h1>
+        <div class="subtitle">
+            Automated Escrow Pool Depletion Survival Predictor, Ledger Realization Auditor (Effective CPM vs. Headline CPM),
+            Brief Rule-Compliance Validator &amp; 9:16 FFmpeg Spec Generator. Grounded in Wave 24 Apify Intelligence
+            (<code>tactful_anvil/whop-content-rewards-scraper</code> + <code>lurkapi/whop-clipping-content-rewards-scraper</code>).
+        </div>
+    </div>
+    <div style="text-align:right;font-size:0.8rem;color:var(--muted);">
+        <div>Engine Build: <strong>MVP #65 v1.0</strong></div>
+        <div>Generated: 2026-10-17T16:31:16Z</div>
+    </div>
+</header>
+
+<section class="kpi-grid">
+    <div class="kpi-card">
+        <div class="kpi-label">Active Escrow Pool Tracked</div>
+        <div class="kpi-val">$249,980</div>
+        <div class="kpi-sub">Across 7 benchmark campaigns ($350,000 total funded)</div>
+    </div>
+    <div class="kpi-card">
+        <div class="kpi-label">Top Sniper Campaign EV (50k Views)</div>
+        <div class="kpi-val" style="color:#34d399;">$117.07</div>
+        <div class="kpi-sub">ApexQuant Prop-Trading Live Tape Breakdowns (93.5/100)</div>
+    </div>
+    <div class="kpi-card">
+        <div class="kpi-label">Traps Intercepted</div>
+        <div class="kpi-val" style="color:#f87171;">2 Campaigns</div>
+        <div class="kpi-sub">1 Depletion Trap (&lt;24h) · 1 Ghost Ledger Trap</div>
+    </div>
+    <div class="kpi-card">
+        <div class="kpi-label">Wave 24 Scraper Signal</div>
+        <div class="kpi-val">291 Users / 1,206 Runs</div>
+        <div class="kpi-sub">tactful_anvil (0.17% fail) vs. lurkapi (22.2% fail)</div>
+    </div>
+</section>
+
+<h2>1. Live Clipping Bounty Arbitrage Leaderboard (Ranked by Risk-Adjusted EV &amp; Survival)</h2>
+<div class="controls">
+    <label>Filter Recommendation:
+        <select id="recFilter" onchange="filterTable()">
+            <option value="ALL">All Campaigns (7)</option>
+            <option value="SNIPE_IMMEDIATELY">SNIPE IMMEDIATELY Only</option>
+            <option value="SECONDARY_QUEUE">SECONDARY QUEUE Only</option>
+            <option value="AVOID_DEPLETION_TRAP">Depletion Traps (&lt;24h)</option>
+            <option value="AVOID_GHOST_LEDGER">Ghost Ledger Traps</option>
+        </select>
+    </label>
+    <label>Min EV @ 50k Views ($):
+        <input type="number" id="minEvInput" value="0" min="0" step="10" oninput="filterTable()" />
+    </label>
+</div>
+
+<table id="bountyTable">
+    <thead>
+        <tr>
+            <th>Rank</th>
+            <th>Campaign &amp; Brand</th>
+            <th>Sniper Verdict</th>
+            <th class="num">Arbitrage Score</th>
+            <th class="num">Headline vs. Ledger CPM</th>
+            <th class="num">Escrow Left &amp; Burn Rate</th>
+            <th class="num">Pool Survival Runway</th>
+            <th class="num">Net EV / Clip (10k / 50k / 250k)</th>
+            <th class="num">Rule Friction &amp; Crowd</th>
+        </tr>
+    </thead>
+    <tbody>
+        
+            <tr data-recommendation="SNIPE_IMMEDIATELY" data-score="93.5" data-ev50k="117.07">
+                <td><strong>#1</strong></td>
+                <td>
+                    <div class="camp-title">ApexQuant Prop-Trading Live Tape Breakdowns</div>
+                    <div class="camp-sub">ApexQuant Markets · <span class="pill">Finance &amp; Business</span> · Best: <strong>INSTAGRAM</strong></div>
+                </td>
+                <td><span class="badge badge-snipe">SNIPE IMMEDIATELY</span></td>
+                <td class="num"><strong>93.5</strong>/100</td>
+                <td class="num">
+                    <div>Headline: <strong>$2.75</strong></div>
+                    <div class="sub-metric">Ledger Effective: $2.43 (88%)</div>
+                </td>
+                <td class="num">
+                    <div><strong>$21,600</strong> / $30,000</div>
+                    <div class="sub-metric">72.0% left · $120.9/hr burn (1.10x accel)</div>
+                </td>
+                <td class="num">
+                    <div><strong>178.7h (7.4d)</strong></div>
+                    <div class="sub-metric">Survival Prob: 98%</div>
+                </td>
+                <td class="num">
+                    <div class="ev-hi">10k: $23.41</div>
+                    <div class="ev-main"><strong>50k: $117.07</strong></div>
+                    <div class="sub-metric">250k: $585.35</div>
+                </td>
+                <td class="num">
+                    <div>26/100 (MODERATE_FRICTION)</div>
+                    <div class="sub-metric">96 creators · $87.50/creator</div>
+                </td>
+            </tr>
+            
+            <tr data-recommendation="SNIPE_IMMEDIATELY" data-score="93.2" data-ev50k="132.92">
+                <td><strong>#2</strong></td>
+                <td>
+                    <div class="camp-title">Cursor AI &amp; Micro-SaaS Founder Podcast Clipping</div>
+                    <div class="camp-sub">VibeCode Labs · <span class="pill">SaaS &amp; Tech</span> · Best: <strong>TIKTOK</strong></div>
+                </td>
+                <td><span class="badge badge-snipe">SNIPE IMMEDIATELY</span></td>
+                <td class="num"><strong>93.2</strong>/100</td>
+                <td class="num">
+                    <div>Headline: <strong>$3.20</strong></div>
+                    <div class="sub-metric">Ledger Effective: $2.82 (88%)</div>
+                </td>
+                <td class="num">
+                    <div><strong>$28,800</strong> / $45,000</div>
+                    <div class="sub-metric">64.0% left · $192.2/hr burn (1.14x accel)</div>
+                </td>
+                <td class="num">
+                    <div><strong>149.9h (6.2d)</strong></div>
+                    <div class="sub-metric">Survival Prob: 98%</div>
+                </td>
+                <td class="num">
+                    <div class="ev-hi">10k: $26.58</div>
+                    <div class="ev-main"><strong>50k: $132.92</strong></div>
+                    <div class="sub-metric">250k: $664.62</div>
+                </td>
+                <td class="num">
+                    <div>34/100 (MODERATE_FRICTION)</div>
+                    <div class="sub-metric">142 creators · $114.08/creator</div>
+                </td>
+            </tr>
+            
+            <tr data-recommendation="SNIPE_IMMEDIATELY" data-score="89.9" data-ev50k="102.44">
+                <td><strong>#3</strong></td>
+                <td>
+                    <div class="camp-title">NeuroStack Biohacking &amp; Deep-Work Podcast Clips</div>
+                    <div class="camp-sub">NeuroStack Health · <span class="pill">Health &amp; Fitness</span> · Best: <strong>TIKTOK</strong></div>
+                </td>
+                <td><span class="badge badge-snipe">SNIPE IMMEDIATELY</span></td>
+                <td class="num"><strong>89.9</strong>/100</td>
+                <td class="num">
+                    <div>Headline: <strong>$2.40</strong></div>
+                    <div class="sub-metric">Ledger Effective: $2.13 (89%)</div>
+                </td>
+                <td class="num">
+                    <div><strong>$20,200</strong> / $25,000</div>
+                    <div class="sub-metric">80.8% left · $107.8/hr burn (1.12x accel)</div>
+                </td>
+                <td class="num">
+                    <div><strong>187.4h (7.8d)</strong></div>
+                    <div class="sub-metric">Survival Prob: 98%</div>
+                </td>
+                <td class="num">
+                    <div class="ev-hi">10k: $20.49</div>
+                    <div class="ev-main"><strong>50k: $102.44</strong></div>
+                    <div class="sub-metric">250k: $512.19</div>
+                </td>
+                <td class="num">
+                    <div>26/100 (MODERATE_FRICTION)</div>
+                    <div class="sub-metric">64 creators · $75.00/creator</div>
+                </td>
+            </tr>
+            
+            <tr data-recommendation="SNIPE_IMMEDIATELY" data-score="78.6" data-ev50k="76.11">
+                <td><strong>#4</strong></td>
+                <td>
+                    <div class="camp-title">Call of Duty MW4 — DMZ Tactical Moments Clipping</div>
+                    <div class="camp-sub">Call of Duty Partner Hub · <span class="pill">Gaming</span> · Best: <strong>TIKTOK</strong></div>
+                </td>
+                <td><span class="badge badge-snipe">SNIPE IMMEDIATELY</span></td>
+                <td class="num"><strong>78.6</strong>/100</td>
+                <td class="num">
+                    <div>Headline: <strong>$1.80</strong></div>
+                    <div class="sub-metric">Ledger Effective: $1.58 (88%)</div>
+                </td>
+                <td class="num">
+                    <div><strong>$28,800</strong> / $40,000</div>
+                    <div class="sub-metric">72.0% left · $138.5/hr burn (1.11x accel)</div>
+                </td>
+                <td class="num">
+                    <div><strong>207.9h (8.7d)</strong></div>
+                    <div class="sub-metric">Survival Prob: 98%</div>
+                </td>
+                <td class="num">
+                    <div class="ev-hi">10k: $15.22</div>
+                    <div class="ev-main"><strong>50k: $76.11</strong></div>
+                    <div class="sub-metric">250k: $380.56</div>
+                </td>
+                <td class="num">
+                    <div>26/100 (MODERATE_FRICTION)</div>
+                    <div class="sub-metric">245 creators · $45.71/creator</div>
+                </td>
+            </tr>
+            
+            <tr data-recommendation="SKIP_LOW_EV" data-score="51.0" data-ev50k="20.93">
+                <td><strong>#5</strong></td>
+                <td>
+                    <div class="camp-title">Boxabl Official Casita Foldable Home Clipping</div>
+                    <div class="camp-sub">Clip Farm / Boxabl · <span class="pill">Entertainment</span> · Best: <strong>YOUTUBE</strong></div>
+                </td>
+                <td><span class="badge badge-skip">SKIP (LOW EV)</span></td>
+                <td class="num"><strong>51.0</strong>/100</td>
+                <td class="num">
+                    <div>Headline: <strong>$0.50</strong></div>
+                    <div class="sub-metric">Ledger Effective: $0.41 (82%)</div>
+                </td>
+                <td class="num">
+                    <div><strong>$70,800</strong> / $85,000</div>
+                    <div class="sub-metric">83.3% left · $32.9/hr burn (1.00x accel)</div>
+                </td>
+                <td class="num">
+                    <div><strong>STALLED (>90d)</strong></div>
+                    <div class="sub-metric">Survival Prob: 98%</div>
+                </td>
+                <td class="num">
+                    <div class="ev-hi">10k: $4.19</div>
+                    <div class="ev-main"><strong>50k: $20.93</strong></div>
+                    <div class="sub-metric">250k: $104.65</div>
+                </td>
+                <td class="num">
+                    <div>14/100 (LOW_FRICTION)</div>
+                    <div class="sub-metric">1871 creators · $7.59/creator</div>
+                </td>
+            </tr>
+            
+            <tr data-recommendation="AVOID_DEPLETION_TRAP" data-score="13.0" data-ev50k="8.31">
+                <td><strong>#6</strong></td>
+                <td>
+                    <div class="camp-title">Roobet Official High-Roller Stream Clipping Blitz</div>
+                    <div class="camp-sub">Creator Casino · <span class="pill">Entertainment</span> · Best: <strong>TIKTOK</strong></div>
+                </td>
+                <td><span class="badge badge-trap">DEPLETION TRAP (<24h)</span></td>
+                <td class="num"><strong>13.0</strong>/100</td>
+                <td class="num">
+                    <div>Headline: <strong>$4.50</strong></div>
+                    <div class="sub-metric">Ledger Effective: $3.60 (80%)</div>
+                </td>
+                <td class="num">
+                    <div><strong>$5,400</strong> / $50,000</div>
+                    <div class="sub-metric">10.8% left · $1,093.8/hr burn (0.68x accel)</div>
+                </td>
+                <td class="num">
+                    <div><strong>4.9h (0.2d)</strong></div>
+                    <div class="sub-metric">Survival Prob: 5%</div>
+                </td>
+                <td class="num">
+                    <div class="ev-hi">10k: $1.66</div>
+                    <div class="ev-main"><strong>50k: $8.31</strong></div>
+                    <div class="sub-metric">250k: $36.91</div>
+                </td>
+                <td class="num">
+                    <div>60/100 (HIGH_FRICTION)</div>
+                    <div class="sub-metric">920 creators · $48.48/creator</div>
+                </td>
+            </tr>
+            
+            <tr data-recommendation="AVOID_GHOST_LEDGER" data-score="4.7" data-ev50k="5.11">
+                <td><strong>#7</strong></td>
+                <td>
+                    <div class="camp-title">LuxeWatch Syndicate Viral Lifestyle Reels</div>
+                    <div class="camp-sub">ChronoVault Luxury · <span class="pill">Personal Brand</span> · Best: <strong>INSTAGRAM</strong></div>
+                </td>
+                <td><span class="badge badge-ghost">GHOST LEDGER TRAP</span></td>
+                <td class="num"><strong>4.7</strong>/100</td>
+                <td class="num">
+                    <div>Headline: <strong>$3.50</strong></div>
+                    <div class="sub-metric">Ledger Effective: $0.07 (2%)</div>
+                </td>
+                <td class="num">
+                    <div><strong>$74,380</strong> / $75,000</div>
+                    <div class="sub-metric">99.2% left · $1.9/hr burn (0.79x accel)</div>
+                </td>
+                <td class="num">
+                    <div><strong>STALLED (>90d)</strong></div>
+                    <div class="sub-metric">Survival Prob: 20%</div>
+                </td>
+                <td class="num">
+                    <div class="ev-hi">10k: $1.19</div>
+                    <div class="ev-main"><strong>50k: $5.11</strong></div>
+                    <div class="sub-metric">250k: $5.11</div>
+                </td>
+                <td class="num">
+                    <div>100/100 (HIGH_FRICTION)</div>
+                    <div class="sub-metric">610 creators · $1.02/creator</div>
+                </td>
+            </tr>
+            
+    </tbody>
+</table>
+
+<h2>2. Pre-Submission Brief Rule-Compliance Validator (Zero-Rejection Gate)</h2>
+<div class="val-grid">
+    
+            <div class="val-card pass-card">
+                <div class="val-header">
+                    <span><strong>CLIP-001-PASS</strong> · TIKTOK</span>
+                    <span class="val-badge">COMPLIANT (READY TO POST) (100/100)</span>
+                </div>
+                <div class="val-camp">Cursor AI &amp; Micro-SaaS Founder Podcast Clipping</div>
+                <div class="val-section"><strong>Checks / Violations:</strong><ul><li>All campaign brief checks passed (Duration, Geo Tier-1/DACH, Watermark Opacity, Tags, Standalone Reel).</li></ul></div>
+                <div class="val-section"><strong>Auto-Remediation Action:</strong><ul><li>Ready for immediate Whop URL submission.</li></ul></div>
+            </div>
+            
+            <div class="val-card fail-card">
+                <div class="val-header">
+                    <span><strong>CLIP-002-REJECT-TRAP</strong> · INSTAGRAM</span>
+                    <span class="val-badge">BLOCKED (7 VIOLATIONS) (0/100)</span>
+                </div>
+                <div class="val-camp">Cursor AI &amp; Micro-SaaS Founder Podcast Clipping</div>
+                <div class="val-section"><strong>Checks / Violations:</strong><ul><li>Duration 12.5s is below minimum required 18s</li><li>Account Tier-1/DACH audience share (28.0%) is below mandatory 40.0% threshold</li><li>Watermark opacity (0.50) is below minimum 0.75</li><li>Missing required hashtag &#x27;#vibecoding&#x27; in caption</li><li>Missing required hashtag &#x27;#aitools&#x27; in caption</li><li>Missing required brand mention &#x27;@vibecodelabs&#x27; in caption</li><li>Instagram Collab co-post detected (breaks Whop API view tracking)</li></ul></div>
+                <div class="val-section"><strong>Auto-Remediation Action:</strong><ul><li>Extend clip timeline or append B-roll outro to reach &gt;= 18s</li><li>Route clip to a US/UK/DACH-warmed SIM/proxy account with &gt;= 40% Tier-1 analytics</li><li>Increase FFmpeg colorchannelmixer alpha to 0.75</li><li>Append &#x27;#vibecoding&#x27; to post caption before publishing</li><li>Append &#x27;#aitools&#x27; to post caption before publishing</li><li>Include &#x27;@vibecodelabs&#x27; in post caption</li><li>Publish as a standalone Instagram Reel on a single account without Collab invite</li></ul></div>
+            </div>
+            
+            <div class="val-card pass-card">
+                <div class="val-header">
+                    <span><strong>CLIP-003-APEX-PASS</strong> · INSTAGRAM</span>
+                    <span class="val-badge">COMPLIANT (READY TO POST) (100/100)</span>
+                </div>
+                <div class="val-camp">ApexQuant Prop-Trading Live Tape Breakdowns</div>
+                <div class="val-section"><strong>Checks / Violations:</strong><ul><li>All campaign brief checks passed (Duration, Geo Tier-1/DACH, Watermark Opacity, Tags, Standalone Reel).</li></ul></div>
+                <div class="val-section"><strong>Auto-Remediation Action:</strong><ul><li>Ready for immediate Whop URL submission.</li></ul></div>
+            </div>
+            
+            <div class="val-card fail-card">
+                <div class="val-header">
+                    <span><strong>CLIP-004-LUXE-FAIL</strong> · INSTAGRAM</span>
+                    <span class="val-badge">BLOCKED (10 VIOLATIONS) (0/100)</span>
+                </div>
+                <div class="val-camp">LuxeWatch Syndicate Viral Lifestyle Reels</div>
+                <div class="val-section"><strong>Checks / Violations:</strong><ul><li>Duration 22.0s is below minimum required 35s</li><li>Account Tier-1/DACH audience share (48.0%) is below mandatory 65.0% threshold</li><li>Missing mandatory brand watermark overlay</li><li>Missing required hashtag &#x27;#chronovault&#x27; in caption</li><li>Missing required hashtag &#x27;#luxurywatches&#x27; in caption</li><li>Missing required hashtag &#x27;#swissmade&#x27; in caption</li><li>Missing required brand mention &#x27;@chronovault_official&#x27; in caption</li><li>Campaign requires tracking link in account bio, but bio_link_present=False</li><li>Source footage is not from the campaign&#x27;s approved Google Drive / content bank</li><li>Hook has not been pre-approved in campaign Discord/Whop hub</li></ul></div>
+                <div class="val-section"><strong>Auto-Remediation Action:</strong><ul><li>Extend clip timeline or append B-roll outro to reach &gt;= 35s</li><li>Route clip to a US/UK/DACH-warmed SIM/proxy account with &gt;= 65% Tier-1 analytics</li><li>Burn in &#x27;chronovault_crest.png&#x27; at opacity &gt;= 0.90</li><li>Append &#x27;#chronovault&#x27; to post caption before publishing</li><li>Append &#x27;#luxurywatches&#x27; to post caption before publishing</li><li>Append &#x27;#swissmade&#x27; to post caption before publishing</li><li>Include &#x27;@chronovault_official&#x27; in post caption</li><li>Add campaign Whop affiliate/tracking URL to profile bio before submitting URL</li><li>Re-cut using only official footage from the campaign BRIEF/FOOTAGE resource links</li><li>Submit hook text/timestamp for whitelist approval before posting</li></ul></div>
+            </div>
+            
+</div>
+
+<h2>3. Deterministic 9:16 FFmpeg Clip Render Specs (Top Sniper Campaigns)</h2>
+<div>
+    
+            <div class="ffmpeg-card">
+                <div class="ffmpeg-header">
+                    <strong>ApexQuant Prop-Trading Live Tape Breakdowns</strong>
+                    <span>1080x1920 (9:16 Vertical) · 60 FPS · 36s · -14.0 LUFS / -1.5 dBTP</span>
+                </div>
+                <div class="ffmpeg-meta">
+                    Watermark: <code>apexquant_badge.png</code> (alpha=0.8) |
+                    Required Caption Suffix: <code>@apexquant #daytrading</code>
+                </div>
+                <pre class="code-box">ffmpeg -y -ss 00:00:00 -t 36 -i &quot;source_b72e19d4_podcast_1080p.mp4&quot; -i &quot;apexquant_badge.png&quot; -filter_complex &quot;[0:v]scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,eq=contrast=1.03:saturation=1.04[base];[1:v]scale=260:-1,format=rgba,colorchannelmixer=aa=0.80[wm];[base][wm]overlay=W-w-48:88:format=auto[vout]&quot; -map &quot;[vout]&quot; -map 0:a:0 -af &quot;loudnorm=I=-14:TP=-1.5:LRA=11&quot; -c:v libx264 -preset fast -crf 20 -pix_fmt yuv420p -r 60 -c:a aac -b:a 192k -movflags +faststart -map_metadata -1 &quot;whop_ready_b72e19d4_36s_1080x1920.mp4&quot;</pre>
+            </div>
+            
+            <div class="ffmpeg-card">
+                <div class="ffmpeg-header">
+                    <strong>Cursor AI &amp; Micro-SaaS Founder Podcast Clipping</strong>
+                    <span>1080x1920 (9:16 Vertical) · 60 FPS · 36s · -14.0 LUFS / -1.5 dBTP</span>
+                </div>
+                <div class="ffmpeg-meta">
+                    Watermark: <code>vibecode_corner_wm.png</code> (alpha=0.8) |
+                    Required Caption Suffix: <code>@vibecodelabs #vibecoding #aitools</code>
+                </div>
+                <pre class="code-box">ffmpeg -y -ss 00:00:00 -t 36 -i &quot;source_a19f42c0_podcast_1080p.mp4&quot; -i &quot;vibecode_corner_wm.png&quot; -filter_complex &quot;[0:v]scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,eq=contrast=1.03:saturation=1.04[base];[1:v]scale=260:-1,format=rgba,colorchannelmixer=aa=0.80[wm];[base][wm]overlay=W-w-48:88:format=auto[vout]&quot; -map &quot;[vout]&quot; -map 0:a:0 -af &quot;loudnorm=I=-14:TP=-1.5:LRA=11&quot; -c:v libx264 -preset fast -crf 20 -pix_fmt yuv420p -r 60 -c:a aac -b:a 192k -movflags +faststart -map_metadata -1 &quot;whop_ready_a19f42c0_36s_1080x1920.mp4&quot;</pre>
+            </div>
+            
+            <div class="ffmpeg-card">
+                <div class="ffmpeg-header">
+                    <strong>NeuroStack Biohacking &amp; Deep-Work Podcast Clips</strong>
+                    <span>1080x1920 (9:16 Vertical) · 60 FPS · 36s · -14.0 LUFS / -1.5 dBTP</span>
+                </div>
+                <div class="ffmpeg-meta">
+                    Watermark: <code>neurostack_logo_wm.png</code> (alpha=0.8) |
+                    Required Caption Suffix: <code>@neurostack #biohacking</code>
+                </div>
+                <pre class="code-box">ffmpeg -y -ss 00:00:00 -t 36 -i &quot;source_f04b77e2_podcast_1080p.mp4&quot; -i &quot;neurostack_logo_wm.png&quot; -filter_complex &quot;[0:v]scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,eq=contrast=1.03:saturation=1.04[base];[1:v]scale=260:-1,format=rgba,colorchannelmixer=aa=0.80[wm];[base][wm]overlay=W-w-48:88:format=auto[vout]&quot; -map &quot;[vout]&quot; -map 0:a:0 -af &quot;loudnorm=I=-14:TP=-1.5:LRA=11&quot; -c:v libx264 -preset fast -crf 20 -pix_fmt yuv420p -r 60 -c:a aac -b:a 192k -movflags +faststart -map_metadata -1 &quot;whop_ready_f04b77e2_36s_1080x1920.mp4&quot;</pre>
+            </div>
+            
+</div>
+
+<h2>4. Wave 24 Apify Actor Teardown: Why tactful_anvil Wins &amp; Why lurkapi Fails 22.2% of Runs</h2>
+<div class="teardown-grid">
+    <div class="teardown-card">
+        <h3>Winner: <code>tactful_anvil/whop-content-rewards-scraper</code> (254 Users · 1,170 Runs/30d · 0.17% Fail Rate)</h3>
+        <div><strong>Build:</strong> 0.1.33 (2026-10-13) | <strong>Pricing:</strong> PAY_PER_EVENT: $0.01 Actor Start + $0.0015/result ($1.50/1k FREE/BRONZE, $1.05/1k GOLD+). Detail enrichment &amp; trend tracking included at $0 extra.</div>
+        <ul>
+            <li>HTTP-only direct JSON API board ingestion (~640 campaigns in ~8.6s, 0.0096 CU).</li><li>Single-run derived velocity: dailyBurnUsd, estimatedDaysLeft, payoutPerCreatorUsd.</li><li>Exposes true ledger verification fields free on every row since v0.1.23/0.1.27: approvedSubmissions, paidOutUsd, effectiveRewardPerThousandViews (paidOutUsd / totalViews * 1000).</li><li>Stateful KV store (`whop-cr-seen-campaigns`) powers `onlyNew` monitor mode and `trackTrends` (observedBurnUsdPerDay, burnAcceleration = observed/derived, trendSignal: accelerating/crowding/stalled).</li><li>Resilient retry loop added in v0.1.29/0.1.30 for contentrewards.com HTTP 502 outages.</li>
+        </ul>
+    </div>
+    <div class="teardown-card">
+        <h3>Broken Follower: <code>lurkapi/whop-clipping-content-rewards-scraper</code> (37 Wave-24 Users · 22.2% Fail Rate)</h3>
+        <div><strong>Build:</strong> 0.0.2 (2026-07-23 — ABANDONED BEFORE AUG/SEP 2026 SITE REDESIGNS) | <strong>Pricing:</strong> PAY_PER_EVENT (Nickel-and-Dime 4-Event Stack): $0.00005 Start + $0.00109/result + $0.0001 per active filter per row + $0.0001 per non-default sort per row + $0.0001 per detail row.</div>
+        <ul>
+            <li>Frozen on build 0.0.2 (July 23, 2026): On Aug 30, 2026, contentrewards.com removed `successRate` and `engagement` and switched `fundedAt` to relative strings (&#x27;3w&#x27;, &#x27;1mo&#x27;). Sorting by `successRate` breaks.</li><li>On Sep 11, 2026, contentrewards.com removed the Next.js pagination server action and changed `category` from a string to an `{id, name}` object, causing unpatched SSR scrapers to truncate or fail schema validation.</li><li>Sorting by `creators` or `successRate` or setting `maxCreators` forces sequential page loads across hundreds of URLs without retry backoff against contentrewards.com&#x27;s Sep 22-23 HTTP 502 rate-limit walls.</li>
+        </ul>
+    </div>
+</div>
+
+<script>
+function filterTable() {
+    const rec = document.getElementById('recFilter').value;
+    const minEv = parseFloat(document.getElementById('minEvInput').value || '0');
+    const rows = document.querySelectorAll('#bountyTable tbody tr');
+    rows.forEach(row => {
+        const rowRec = row.getAttribute('data-recommendation');
+        const rowEv = parseFloat(row.getAttribute('data-ev50k') || '0');
+        const matchRec = (rec === 'ALL') || (rowRec === rec);
+        const matchEv = rowEv >= minEv;
+        row.style.display = (matchRec && matchEv) ? '' : 'none';
+    });
+}
+</script>
+</body>
+</html>

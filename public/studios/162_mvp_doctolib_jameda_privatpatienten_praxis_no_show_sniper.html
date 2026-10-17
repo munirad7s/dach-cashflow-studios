@@ -1,0 +1,1339 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MVP #162 — DACH Doctolib / Jameda Privatpatienten-Sniper & § 615 BGB Praxis-Ausfallhonorar Studio</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --panel: #131b33;
+      --panel-alt: #182240;
+      --border: #283663;
+      --text: #eef2ff;
+      --muted: #9aa8d1;
+      --accent: #38bdf8;
+      --success: #34d399;
+      --warn: #fbbf24;
+      --danger: #f87171;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+    }
+    .container {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 28px 24px 64px;
+    }
+    header.hero {
+      background: linear-gradient(135deg, #131b33 0%, #1d284d 100%);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      margin-bottom: 24px;
+    }
+    .hero-eyebrow {
+      color: var(--accent);
+      font-weight: 700;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 8px;
+    }
+    h1 {
+      margin: 0 0 10px;
+      font-size: 1.85rem;
+      line-height: 1.25;
+    }
+    .hero-sub {
+      margin: 0;
+      color: var(--muted);
+      font-size: 1rem;
+      max-width: 1120px;
+    }
+    .summary-strip {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+    .summary-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+    }
+    .summary-card .s-label {
+      color: var(--muted);
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .summary-card .s-val {
+      font-size: 1.7rem;
+      font-weight: 800;
+      margin: 6px 0 4px;
+    }
+    .summary-card .s-sub {
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+    .text-danger { color: var(--danger); }
+    .text-success { color: var(--success); }
+    .text-accent { color: var(--accent); }
+    .text-warn { color: var(--warn); }
+
+    .sim-panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 24px;
+      margin-bottom: 28px;
+    }
+    .sim-panel h2 {
+      margin-top: 0;
+      font-size: 1.3rem;
+    }
+    .sim-controls {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    .sim-controls label {
+      display: block;
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+    .sim-controls select, .sim-controls input {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--panel-alt);
+      color: var(--text);
+      font-size: 0.95rem;
+    }
+    .sim-output-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 14px;
+      background: var(--panel-alt);
+      padding: 18px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+
+    .filter-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .filter-bar select {
+      padding: 9px 14px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      color: var(--text);
+    }
+
+    .practice-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 22px;
+      margin-bottom: 20px;
+    }
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 16px;
+      margin-bottom: 18px;
+    }
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.74rem;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+    }
+    .badge-tier { background: rgba(56, 189, 248, 0.15); color: var(--accent); border: 1px solid rgba(56, 189, 248, 0.35); }
+    .badge-danger { background: rgba(248, 113, 113, 0.15); color: var(--danger); border: 1px solid rgba(248, 113, 113, 0.35); }
+    .badge-warn { background: rgba(251, 191, 36, 0.15); color: var(--warn); border: 1px solid rgba(251, 191, 36, 0.35); }
+    .badge-success { background: rgba(52, 211, 153, 0.15); color: var(--success); border: 1px solid rgba(52, 211, 153, 0.35); }
+
+    .practice-title {
+      margin: 0 0 6px;
+      font-size: 1.25rem;
+    }
+    .practice-meta {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+    .kpi-pill-box {
+      background: var(--panel-alt);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 18px;
+      text-align: right;
+      min-width: 250px;
+    }
+    .kpi-pill-label {
+      display: block;
+      font-size: 0.76rem;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+    .kpi-pill-value {
+      display: block;
+      font-size: 1.65rem;
+      font-weight: 800;
+      color: var(--success);
+    }
+    .kpi-pill-sub {
+      display: block;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .two-col-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(460px, 1fr));
+      gap: 18px;
+    }
+    .play-box {
+      background: var(--panel-alt);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+    }
+    .play-box h4 {
+      margin: 0 0 12px;
+      font-size: 1.02rem;
+    }
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .metric-cell {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px;
+    }
+    .metric-cell .m-label {
+      display: block;
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+    .metric-cell .m-val {
+      display: block;
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+    .sub-heading {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--muted);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+    }
+    .review-quote {
+      margin: 6px 0;
+      padding: 8px 12px;
+      background: rgba(248, 113, 113, 0.08);
+      border-left: 3px solid var(--danger);
+      border-radius: 4px;
+      font-size: 0.85rem;
+      color: #ffd7d7;
+    }
+    .defect-list {
+      margin: 0;
+      padding-left: 18px;
+      font-size: 0.85rem;
+    }
+    .defect-item {
+      margin-bottom: 6px;
+      color: #fde68a;
+    }
+    .action-drawer {
+      margin-top: 16px;
+      border-top: 1px solid var(--border);
+      padding-top: 12px;
+    }
+    .action-drawer summary {
+      cursor: pointer;
+      color: var(--accent);
+      font-weight: 600;
+      font-size: 0.92rem;
+    }
+    .drawer-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(440px, 1fr));
+      gap: 16px;
+      margin-top: 12px;
+    }
+    .code-block {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px;
+      font-size: 0.82rem;
+      white-space: pre-wrap;
+      color: #dbeafe;
+      margin: 0;
+    }
+    table.actor-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+    }
+    table.actor-table th, table.actor-table td {
+      border: 1px solid var(--border);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    table.actor-table th {
+      background: var(--panel-alt);
+      color: var(--accent);
+    }
+  </style>
+</head>
+<body>
+
+<!-- DACH CASHFLOW STUDIOS LAUNCH BAR -->
+<style>
+  #dcs-launch-bar {
+    position: sticky;
+    top: 0;
+    z-index: 99999;
+    background: linear-gradient(90deg, #0b1120 0%, #111827 50%, #0f172a 100%);
+    color: #f8fafc;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.35);
+    padding: 8px 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  }
+  #dcs-launch-bar .dcs-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+  }
+  #dcs-launch-bar .dcs-badge {
+    background: rgba(16, 185, 129, 0.18);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.03em;
+  }
+  #dcs-launch-bar a.dcs-nav {
+    color: #93c5fd;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 12.5px;
+  }
+  #dcs-launch-bar a.dcs-nav:hover {
+    text-decoration: underline;
+    color: #dbeafe;
+  }
+  #dcs-launch-bar .dcs-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  #dcs-launch-bar .dcs-btn {
+    padding: 5px 11px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s ease;
+  }
+  #dcs-launch-bar .dcs-btn-ghost {
+    background: rgba(255,255,255,0.08);
+    color: #e2e8f0;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  #dcs-launch-bar .dcs-btn-primary {
+    background: linear-gradient(135deg, #0ea5e9, #2563eb);
+    color: #ffffff;
+  }
+  #dcs-launch-bar .dcs-btn-emerald {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
+  }
+  @media print {
+    #dcs-launch-bar { display: none !important; }
+  }
+</style>
+<div id="dcs-launch-bar">
+  <div class="dcs-left">
+    <a href="/index.html" class="dcs-nav">← Alle 150 DACH Studios</a>
+    <span class="dcs-badge">MVP #162 VERIFIED</span>
+    <span style="color:#cbd5e1;font-size:12px;">DACH LegalTech, Labor Law & Consumer Claims</span>
+  </div>
+  <div class="dcs-actions">
+    <button onclick="window.print()" class="dcs-btn dcs-btn-ghost">🖨️ PDF / Dossier drucken</button>
+    <a href="#checkout-modal-49" target="_blank" rel="noopener" class="dcs-btn dcs-btn-primary">⚡ Musterschreiben & Voll-Dossier (€49)</a>
+    <a href="#checkout-modal-299" target="_blank" rel="noopener" class="dcs-btn dcs-btn-emerald">🛡️ B2B Umsetzung buchen (€299 / €1.490)</a>
+  </div>
+</div>
+
+  <div class="container">
+    <header class="hero">
+      <div class="hero-eyebrow">MVP #162 · DACH MedTech &amp; Practice-Automation Sniper · Verified Apify Actor Stack</div>
+      <h1>Doctolib / Jameda / Google Maps Privatpatienten-Sniper &amp; § 615 BGB Praxis-Ausfallhonorar Studio</h1>
+      <p class="hero-sub">
+        Deterministische Lead- &amp; Umsatz-Rückgewinnungs-Engine für DACH-Facharzt- und Zahnarztpraxen
+        (Implantologie, Kieferorthopädie, Ästhetische Dermatologie, Augenlaser, Privat-Orthopädie, Plastische Chirurgie):
+        kombiniert <strong>Play A (PKV/Selbstzahler "Phone-Black-Hole" &amp; Wartezeit-Arbitrage)</strong> mit
+        <strong>Play B (BGH III ZR 78/21 / § 615 Satz 1 &amp; 2 BGB Ausfallhonorar-Prüfung &amp; 48h WhatsApp-Wartelisten-Backfill)</strong>.
+      </p>
+    </header>
+
+    <section class="summary-strip">
+      <div class="summary-card">
+        <div class="s-label">Analysierte DACH-Praxen</div>
+        <div class="s-val text-accent">6 Kliniken</div>
+        <div class="s-sub">107 verifizierte 1★–2★ Telefon-Beschwerden</div>
+      </div>
+      <div class="summary-card">
+        <div class="s-label">Play A: Brutto PKV-Telefon-Leakage</div>
+        <div class="s-val text-danger">€130,598<small>/M</small></div>
+        <div class="s-sub">Rückgewinnbar via 24/7 KI-Voice: <strong>+€88,807/M</strong></div>
+      </div>
+      <div class="summary-card">
+        <div class="s-label">Play B: Unkompensierte No-Shows</div>
+        <div class="s-val text-warn">€46,128<small>/M</small></div>
+        <div class="s-sub">48h Backfill + § 615 BGB Inkasso: <strong>+€39,563/M</strong></div>
+      </div>
+      <div class="summary-card">
+        <div class="s-label">Gesamt-Honorar-Potenzial (Play A+B)</div>
+        <div class="s-val text-success">+€128,370<small>/M</small></div>
+        <div class="s-sub">€1,540,436/Jahr über 6 Zielpraxen</div>
+      </div>
+    </section>
+
+    <section class="sim-panel">
+      <h2>🧮 Interaktiver Praxis-ROI &amp; § 615 BGB Ausfallhonorar-Rechner (Live-Simulation)</h2>
+      <div class="sim-controls">
+        <div>
+          <label for="sim-specialty">Fachgebiet (GOÄ / GOZ / Selbstzahler)</label>
+          <select id="sim-specialty" onchange="runSimulation()">
+            <option value="Zahn-Implantologie & All-on-4 (GOZ)">Zahn-Implantologie &amp; All-on-4 (€12.400 Ø LTV)</option>
+            <option value="Kieferorthopädie Aligner & Lingualtechnik (GOZ)">Kieferorthopädie Aligner (€5.800 Ø LTV)</option>
+            <option value="Ästhetische Dermatologie & Lasermedizin (GOÄ / IGeL)">Ästhetische Dermatologie &amp; Laser (€1.650 Ø LTV)</option>
+            <option value="Augenlaser Lasik / SMILE / ICL-Linsen (GOÄ)">Augenlaser Lasik / SMILE / ICL (€4.200 Ø LTV)</option>
+            <option value="Privat-Orthopädie PRT / Stoßwelle / ACP (GOÄ)">Privat-Orthopädie PRT / ACP (€1.450 Ø LTV)</option>
+            <option value="Plastische & Ästhetische Chirurgie (GOÄ / Selbstzahler)">Plastische &amp; Ästhetische Chirurgie (€7.900 Ø LTV)</option>
+          </select>
+        </div>
+        <div>
+          <label for="sim-missed-calls">Verpasste Selbstzahler-/PKV-Anrufe / Monat</label>
+          <input type="number" id="sim-missed-calls" value="24" min="1" max="200" oninput="runSimulation()" />
+        </div>
+        <div>
+          <label for="sim-practitioners">Anzahl Behandler (Ärzte / Zahnärzte)</label>
+          <input type="number" id="sim-practitioners" value="3" min="1" max="25" oninput="runSimulation()" />
+        </div>
+        <div>
+          <label for="sim-noshows">No-Shows (&lt;24–48h) pro Behandler / Monat</label>
+          <input type="number" id="sim-noshows" value="7" min="1" max="50" step="0.5" oninput="runSimulation()" />
+        </div>
+      </div>
+
+      <div class="sim-output-grid">
+        <div>
+          <div class="s-label">Play A: Entgangener PKV-Umsatz</div>
+          <div class="s-val text-danger" id="out-play-a-loss">€0/M</div>
+          <div class="s-sub" id="out-play-a-rec">KI-Voice Recovery: +€0/M</div>
+        </div>
+        <div>
+          <div class="s-label">Play B: § 615 S.2 BGB Netto-Ausfallhonorar</div>
+          <div class="s-val text-accent" id="out-slot-net">€0/Slot</div>
+          <div class="s-sub" id="out-slot-mat">Abzgl. ersparter Materialkosten</div>
+        </div>
+        <div>
+          <div class="s-label">Play B: 48h Backfill + Ausfallhonorar</div>
+          <div class="s-val text-success" id="out-play-b-rec">+€0/M</div>
+          <div class="s-sub" id="out-play-b-split">62% Warteliste + 38% § 615 BGB</div>
+        </div>
+        <div>
+          <div class="s-label">Gesamt-Honorar-Gewinn (Play A + B)</div>
+          <div class="s-val text-success" id="out-total-rec">+€0/M</div>
+          <div class="s-sub" id="out-roi-mult">Netto-ROI gegen €2.450 Retainer</div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="filter-bar">
+        <strong>🔍 Zielpraxen filtern:</strong>
+        <select id="filter-spec" onchange="filterCards()">
+          <option value="ALL">Alle High-LTV Fachgebiete (6)</option>
+          <option value="IMPLANTOLOGIE">Zahn-Implantologie &amp; All-on-4</option>
+          <option value="KFO_ALIGNER">Kieferorthopädie Aligner</option>
+          <option value="AESTHETIC_DERMA">Ästhetische Dermatologie &amp; Laser</option>
+          <option value="AUGENLASER">Augenlaser Lasik / ICL</option>
+          <option value="PRIVAT_ORTHO">Privat-Orthopädie</option>
+          <option value="PLASTISCHE_CHIRURGIE">Plastische Chirurgie</option>
+        </select>
+      </div>
+      <div id="cards-container">
+        
+        <article class="practice-card" data-specialty="IMPLANTOLOGIE" data-city="München">
+          <div class="card-header">
+            <div>
+              <div class="badge-row">
+                <span class="badge badge-tier">TIER 1 — ULTRA-HIGH-TICKET SNIPER TARGET</span>
+                <span class="badge badge-danger">TELEFON-ZWANG FÜR SELBSTZAHLER-BERATUNG</span>
+                <span class="badge badge-danger">§ 615 BGB: 1/3 SÄULEN (UNWIRKSAM (KEIN DURCHSETZBARES AUSFALLHONORAR))</span>
+              </div>
+              <h3 class="practice-title">Praxisklinik Bogenhausen für Implantologie & Oralchirurgie Dr. med. dent. von Berg</h3>
+              <p class="practice-meta">
+                📍 <strong>81675 München</strong> · 🩺 <strong>Zahn-Implantologie & All-on-4 (GOZ)</strong> (GOZ / Selbstzahler (2,3x–3,5x Satz)) ·
+                👥 4 Behandler · ⭐ Jameda 4.1 / Google 3.9 (184 Bewertungen)
+              </p>
+            </div>
+            <div class="kpi-pill-box">
+              <span class="kpi-pill-label">Monatlich Rückgewinnbares Honorar</span>
+              <span class="kpi-pill-value">€38,537<small>/Monat</small></span>
+              <span class="kpi-pill-sub">Agentur-Retainer €2,450/M → <strong>15.7x ROI</strong></span>
+            </div>
+          </div>
+
+          <div class="two-col-grid">
+            <div class="play-box play-a-box">
+              <h4>📞 Play A — PKV / Selbstzahler "Phone-Black-Hole" & Wartezeit-Arbitrage</h4>
+              <div class="metric-grid">
+                <div class="metric-cell">
+                  <span class="m-label">Ø Fallwert (LTV)</span>
+                  <span class="m-val">€12,400</span>
+                </div>
+                <div class="metric-cell">
+                  <span class="m-label">1★–2★ Telefon-Beschwerden</span>
+                  <span class="m-val text-danger">19 Reviews</span>
+                </div>
+                <div class="metric-cell">
+                  <span class="m-label">Entgangene High-Ticket Anrufe</span>
+                  <span class="m-val">22/Monat</span>
+                </div>
+                <div class="metric-cell">
+                  <span class="m-label">Wartezeit PKV vs. GKV</span>
+                  <span class="m-val">16d vs. 38d</span>
+                </div>
+                <div class="metric-cell">
+                  <span class="m-label">Brutto PKV-Umsatzverlust</span>
+                  <span class="m-val text-danger">€44,268/M</span>
+                </div>
+                <div class="metric-cell">
+                  <span class="m-label">KI-Voice + Fast-Track Recovery</span>
+                  <span class="m-val text-success">+€30,102/M</span>
+                </div>
+              </div>
+              <div class="quotes-box">
+                <div class="sub-heading">Verifizierte Jameda / Google Maps Patienten-Zitate (NLP-Hits: 3):</div>
+                <blockquote class="review-quote">“Fachlich top bei Implantaten, aber telefonisch absolut niemand erreichbar! 20 Mal angerufen, Bandansage legt nach 3 Minuten einfach auf.”</blockquote><blockquote class="review-quote">“Wollte als Privatpatient ein All-on-4 Erstgespräch vereinbaren – auf Doctolib steht 'Für Implantat-Beratung bitte telefonisch melden', aber es geht nie jemand ans Telefon.”</blockquote><blockquote class="review-quote">“Telefonische Erreichbarkeit Katastrophe. Dauerbesetzt von 8 bis 17 Uhr.”</blockquote>
+              </div>
+            </div>
+
+            <div class="play-box play-b-box">
+              <h4>⚖️ Play B — § 615 BGB (BGH III ZR 78/21) Ausfallhonorar & 48h Wartelisten-Backfill</h4>
+              <div class="metric-grid">
+                <div class="metric-cell">
+                  <span class="m-label">No-Show Slots (&lt;24–48h)</span>
+                  <span class="m-val text-danger">26.0 Slots/M</span>
+                </div>
+                <div class="metric-cell">
+                  <span class="m-label">Brutto Slot-Honorar</span>
+                  <span class="m-val">€380.00</span>
+                </div>
+                <div class="metric-cell">
+                  <span class="m-label">Abzug erspartes Material (§ 615 S.2)</span>
+                  <span class="m-val">-€68.40</span>
+                </div>
+                <div class="metric-cell">
+                  <span class="m-label">Durchsetzbares Ausfallhonorar</span>
+                  <span class="m-val text-accent">€311.60/Slot</span>
+                </div>
+                <div class="metric-cell">
+                  <span class="m-label">48h WhatsApp Backfill (62%)</span>
+                  <span class="m-val text-success">+€6,126/M</span>
+                </div>
+                <div class="metric-cell">
+                  <span class="m-label">§ 615 BGB Inkasso (Netto)</span>
+                  <span class="m-val text-success">+€2,309/M</span>
+                </div>
+              </div>
+              <div class="defects-box">
+                <div class="sub-heading">Juristische Schwachstellen-Analyse nach BGH III ZR 78/21:</div>
+                <ul class="defect-list"><li class="defect-item">⚠️ Pillar 2 AGB-Mangel: Pauschale Ausfallgebühr ohne Exkulpationsmöglichkeit bei unverschuldeter Verhinderung (§ 307 Abs. 1, § 280 Abs. 1 S. 2 BGB) ist unwirksam.</li><li class="defect-item">⚠️ Pillar 3 Abrechnungsmangel: Ersparte Material-/Laborkosten (18%) werden nicht nach § 615 Satz 2 BGB abgezogen.</li><li class="defect-item">⚠️ Pillar 3 Nachweismangel: Keine automatisierte 48h/24h SMS/WhatsApp-Wartelisten-Nachbesetzung (kein Nachweis über vergeblichen anderweitigen Erwerb nach § 615 Satz 2 BGB).</li></ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="action-drawer">
+            <details>
+              <summary>📩 Personalisiertes Praxisinhaber-Outreach-Skript &amp; BGH-konforme § 615 BGB Vereinbarung anzeigen</summary>
+              <div class="drawer-grid">
+                <div>
+                  <h5>1. Cold-Outreach / Video-Audit Skript (Praxisinhaber / MVZ-Leitung)</h5>
+                  <pre class="code-block" id="hook-0">Sehr geehrte Praxisleitung von Praxisklinik Bogenhausen für Implantologie & Oralchirurgie Dr. med. dent. von Berg, wir haben Ihre Doctolib-Verfügbarkeit in München sowie 184 Jameda-/Google-Bewertungen analysiert: 19 Patienten berichten explizit, dass telefonisch niemand erreichbar war ('Warteschleife / Bandansage'), während Selbstzahler-/PKV-Termine für Zahn-Implantologie & All-on-4 (GOZ) (Ø Fallwert €12,400) telefonisch angefragt werden müssen. Das kostet Ihre Praxis aktuell ca. €44,268/Monat an abwandernden Privatpatienten – plus €9,880/Monat durch kurzfristige Terminausfälle (26.0 No-Shows/Monat, aktueller § 615 BGB Status: UNWIRKSAM (KEIN DURCHSETZBARES AUSFALLHONORAR)). Mit unserem 24/7 KI-Telefonassistenten + BGH-konformen 48h-WhatsApp-Wartelisten-Backfill sichern wir Ihrer Praxis monatlich ca. €38,537 an zusätzlichem Honorar.</pre>
+                </div>
+                <div>
+                  <h5>2. BGH-konforme Bestellpraxis-Klausel (§ 615 S. 1 &amp; 2 BGB / § 280 BGB)</h5>
+                  <pre class="code-block" id="clause-0">VEREINBARUNG ÜBER EXKLUSIVE TERMINRESERVIERUNG (BESTELLPRAXIS GEM. § 615 BGB) — Praxisklinik Bogenhausen für Implantologie & Oralchirurgie Dr. med. dent. von Berg:
+1. Exklusive Zeitreservierung: Unsere Praxis wird als reine Bestellpraxis im Fachbereich Zahn-Implantologie & All-on-4 (GOZ) geführt. Der für Sie reservierte Behandlungstermin wird exklusiv für Sie freigehalten; eine parallele Vergabe findet nicht statt.
+2. Absagefrist & Nachbesetzung: Sollten Sie den Termin nicht wahrnehmen können, bitten wir um Mitteilung bis spätestens 24 Stunden vor Terminbeginn (per 1-Klick-Link in Ihrer SMS/WhatsApp-Erinnerung), damit wir den Platz über unsere automatisierte digitale Warteliste an einen anderen Patienten vergeben können.
+3. Ausfallhonorar (§ 615 S. 1 & 2 BGB / BGH III ZR 78/21): Bei nicht fristgerechter Absage oder Nichterscheinen berechnen wir das vereinbarte Honorar abzüglich ersparter Material-/Laborkosten (18% Abzug = netto €311.60), sofern der Termin trotz sofortiger automatisierter Wartelisten-Anfrage nicht anderweitig nachbesetzt werden konnte (§ 615 Satz 2 BGB). Dem Patienten bleibt der Nachweis vorbehalten, dass ihn an der verspäteten Absage kein Verschulden trifft (§ 280 Abs. 1 Satz 2 BGB) oder ein geringerer Ausfall entstanden ist.</pre>
+                </div>
+              </div>
+            </details>
+          </div>
+        </article>
+        
+        <article class="practice-card" data-specialty="KFO_ALIGNER" data-city="Frankfurt am Main">
+          <div class="card-header">
+            <div>
+              <div class="badge-row">
+                <span class="badge badge-tier">TIER 1 — ULTRA-HIGH-TICKET SNIPER TARGET</span>
+                <span class="badge badge-danger">TELEFON-ZWANG FÜR SELBSTZAHLER-BERATUNG</span>
+                <span class="badge badge-danger">§ 615 BGB: 1/3 SÄULEN (UNWIRKSAM (KEIN DURCHSETZBARES AUSFALLHONORAR))</span>
+              </div>
+              <h3 class="practice-title">KFO Westend — Fachzahnarztpraxis für Kieferorthopädie & Aligner Dr. Lindner & Kollegen</h3>
+              <p class="practice-meta">
+                📍 <strong>60323 Frankfurt am Main</strong> · 🩺 <strong>Kieferorthopädie Aligner & Lingualtechnik (GOZ)</strong> (GOZ / Selbstzahler (Invisalign / Spark)) ·
+                👥 3 Behandler · ⭐ Jameda 4.2 / Google 4.0 (142 Bewertungen)
+              </p>
+            </div>
+            <div class="kpi-pill-box">
+              <span class="kpi-pill-label">Monatlich Rückgewinnbares Honorar</span>
+              <span class="kpi-pill-value">€18,808<small>/Monat</small></span>
+              <span class="kpi-pill-sub">Agentur-Retainer €2,450/M → <strong>7.7x ROI</strong></span>
+            </div>
+          </div>
+
+          <div class="two-col-grid">
+            <div class="play-box play-a-box">
+              <h4>📞 Play A — PKV / Selbstzahler "Phone-Black-Hole" & Wartezeit-Arbitrage</h4>
+              <div class="metric-grid">
+                <div class="metric-cell">
+                  <span class="m-label">Ø Fallwert (LTV)</span>
+                  <span class="m-val">€5,800</span>
+                </div>
+                <div class="metric-cell">
+                  <span class="m-label">1★–2★ Telefon-Beschwerden</span>
+                  <span class="m-val text-danger">14 Reviews</span>
+                </div>
+                <div class="metric-cell">
+                  <span class="m-label">Entgangene High-Ticket Anrufe</span>
+                  <span class="m-val">18/Monat</span>
+                </div>
+                <div class="metric-cell">
+                  <span class="m-label">Wartezeit PKV vs. GKV</span>
+                  <span class="m-val">19d vs. 45d</span>
+                </div>
+                <div class="metric-cell">
+                  <span class="m-label">Brutto PKV-Umsatzverlust</span>
+                  <span class="m-val text-danger">€20,590/M</span>
+                </div>
+                <div class="metric-cell">
+                  <span class="m-label">KI-Voice + Fast-Track Recovery</span>
+                  <span class="m-val text-success">+€14,001/M</span>
+                </div>
+              </div>
+              <div class="quotes-box">
+                <div class="sub-heading">Verifizierte Jameda / Google Maps Patienten-Zitate (NLP-Hits: 2):</div>
+                <blockquote class="review-quote">“15 Mal angerufen wegen Invisalign-Beratungstermin, immer nur Warteschleife.”</blockquote><blockquote class="review-quote">“Rezeption völlig überlastet, telefonisch nicht erreichbar wenn man einen Termin verschieben oder neu buchen will.”</blockquote>
+              </div>
+            </div>
+
+            <div class="play-box play-b-box">
+              <h4>⚖️ Play B — § 615 BGB (BGH III ZR 78/21) Ausfallhonorar & 48h Wartelisten-Backfill</h4>
+              <div class="metric-grid">
+                <div class="metric-cell">
+                  <span class="m-label">No-Show Slots (&lt;24–48h)</span>
+                  <span class="m-val text-danger">24.0 Slots/M</span>
+                </div>
+                <div class="metric-cell">
+                  <span class="m-label">Brutto Slot-Honorar</span>
+                  <span class="m-val">€230.00</span>
+                </div>
+                <div class="metric-cell">
+                  <span class="m-label">Abzug erspartes Material (§ 615 S.2)</span>
+                  <span class="m-val">-€27.60</span>
+                </div>
+                <div class="metric-cell">
+                  <span class="m-label">Durchsetzbares Ausfallhonorar</span>
+                  <span class="m-val text-accent">€202.40/Slot</span>
+                </div>
+                <div class="metric-cell">
+                  <span class="m-label">48h WhatsApp Backfill (62%)</span>
+                  <span class="m-val text-success">+€3,422/M</span>
+                </div>
+                <div class="metric-cell">
+                  <span class="m-label">§ 615 BGB Inkasso (Netto)</span>
+                  <span class="m-val text-success">+€1,384/M</span>
+                </div>
+              </div>
+              <div class="defects-box">
+                <div class="sub-heading">Juristische Schwachstellen-Analyse nach BGH III ZR 78/21:</div>
+                <ul class="defect-list"><li class="defect-item">⚠️ Pillar 2 fehlt: Kein dokumentiertes Opt-In vor Terminbuchung (bloßer Empfangs-Aushang ist nach BGH III ZR 78/21 unwirksam).</li><li class="defect-item">⚠️ Pillar 2 AGB-Mangel: Pauschale Ausfallgebühr ohne Exkulpationsmöglichkeit bei unverschuldeter Verhinderung (§ 307 Abs. 1, § 280 Abs. 1 S. 2 BGB) ist unwirksam.</li><li class="defect-item">⚠️ Pillar 3 Abrechnungsmangel: Ersparte Material-/Laborkosten (12%) werden nicht nach § 615 Satz 2 BGB abgezogen.</li><li class="defect-item">⚠️ Pillar 3 Nachweismangel: Keine automatisierte 48h/24h SMS/WhatsApp-Wartelisten-Nachbesetzung (kein Nachweis über vergeblichen anderweitigen Erwerb nach § 615 Satz 2 BGB).</li></ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="action-drawer">
+            <details>
+              <summary>📩 Personalisiertes Praxisinhaber-Outreach-Skript &amp; BGH-konforme § 615 BGB Vereinbarung anzeigen</summary>
+              <div class="drawer-grid">
+                <div>
+                  <h5>1. Cold-Outreach / Video-Audit Skript (Praxisinhaber / MVZ-Leitung)</h5>
+                  <pre class="code-block" id="hook-1">Sehr geehrte Praxisleitung von KFO Westend — Fachzahnarztpraxis für Kieferorthopädie & Aligner Dr. Lindner & Kollegen, wir haben Ihre Doctolib-Verfügbarkeit in Frankfurt am Main sowie 142 Jameda-/Google-Bewertungen analysiert: 14 Patienten berichten explizit, dass telefonisch niemand erreichbar war ('Warteschleife / Bandansage'), während Selbstzahler-/PKV-Termine für Kieferorthopädie Aligner & Lingualtechnik (GOZ) (Ø Fallwert €5,800) telefonisch angefragt werden müssen. Das kostet Ihre Praxis aktuell ca. €20,590/Monat an abwandernden Privatpatienten – plus €5,520/Monat durch kurzfristige Terminausfälle (24.0 No-Shows/Monat, aktueller § 615 BGB Status: UNWIRKSAM (KEIN DURCHSETZBARES AUSFALLHONORAR)). Mit unserem 24/7 KI-Telefonassistenten + BGH-konformen 48h-WhatsApp-Wartelisten-Backfill sichern wir Ihrer Praxis monatlich ca. €18,808 an zusätzlichem Honorar.</pre>
+                </div>
+                <div>
+                  <h5>2. BGH-konforme Bestellpraxis-Klausel (§ 615 S. 1 &amp; 2 BGB / § 280 BGB)</h5>
+                  <pre class="code-block" id="clause-1">VEREINBARUNG ÜBER EXKLUSIVE TERMINRESERVIERUNG (BESTELLPRAXIS GEM. § 615 BGB) — KFO Westend — Fachzahnarztpraxis für Kieferorthopädie & Aligner Dr. Lindner & Kollegen:
+1. Exklusive Zeitreservierung: Unsere Praxis wird als reine Bestellpraxis im Fachbereich Kieferorthopädie Aligner & Lingualtechnik (GOZ) geführt. Der für Sie reservierte Behandlungstermin wird exklusiv für Sie freigehalten; eine parallele Vergabe findet nicht statt.
+2. Absagefrist & Nachbesetzung: Sollten Sie den Termin nicht wahrnehmen können, bitten wir um Mitteilung bis spätestens 24 Stunden vor Terminbeginn (per 1-Klick-Link in Ihrer SMS/WhatsApp-Erinnerung), damit wir den Platz über unsere automatisierte digitale Warteliste an einen anderen Patienten vergeben können.
+3. Ausfallhonorar (§ 615 S. 1 & 2 BGB / BGH III ZR 78/21): Bei nicht fristgerechter Absage oder Nichterscheinen berechnen wir das vereinbarte Honorar abzüglich ersparter Material-/Laborkosten (12% Abzug = netto €202.40), sofern der Termin trotz sofortiger automatisierter Wartelisten-Anfrage nicht anderweitig nachbesetzt werden konnte (§ 615 Satz 2 BGB). Dem Patienten bleibt der Nachweis vorbehalten, dass ihn an der verspäteten Absage kein Verschulden trifft (§ 280 Abs. 1 Satz 2 BGB) oder ein geringerer Ausfall entstanden ist.</pre>
+                </div>
+              </div>
+            </details>
+          </div>
+        </article>
+        
+        <article class="practice-card" data-specialty="AESTHETIC_DERMA" data-city="Düsseldorf">
+          <div class="card-header">
+            <div>
+              <div class="badge-row">
+                <span class="badge badge-tier">TIER 1 — ULTRA-HIGH-TICKET SNIPER TARGET</span>
+                <span class="badge badge-danger">TELEFON-ZWANG FÜR SELBSTZAHLER-BERATUNG</span>
+                <span class="badge badge-danger">§ 615 BGB: 2/3 SÄULEN (ANGREIFBAR (TEILKONFORM — § 615 S. 2 BGB LÜCKE))</span>
+              </div>
+              <h3 class="practice-title">Privatpraxis Königsallee Dermatologie, Laser & Ästhetik Dr. med. Katharina Vossen</h3>
+              <p class="practice-meta">
+                📍 <strong>40212 Düsseldorf</strong> · 🩺 <strong>Ästhetische Dermatologie & Lasermedizin (GOÄ / IGeL)</strong> (GOÄ / Selbstzahler (CO2-Laser, Ultherapy, Injectables)) ·
+                👥 3 Behandler · ⭐ Jameda 4.3 / Google 4.1 (219 Bewertungen)
+              </p>
+            </div>
+            <div class="kpi-pill-box">
+              <span class="kpi-pill-label">Monatlich Rückgewinnbares Honorar</span>
+              <span class="kpi-pill-value">€16,732<small>/Monat</small></span>
+              <span class="kpi-pill-sub">Agentur-Retainer €2,450/M → <strong>6.8x ROI</strong></span>
+            </div>
+          </div>
+
+          <div class="two-col-grid">
+            <div class="play-box play-a-box">
+              <h4>📞 Play A — PKV / Selbstzahler "Phone-Black-Hole" & Wartezeit-Arbitrage</h4>
+              <div class="metric-grid">
+                <div class="metric-cell">
+                  <span class="m-label">Ø Fallwert (LTV)</span>
+                  <span class="m-val">€1,650</span>
+                </div>
+                <div class="metric-cell">
+                  <span class="m-label">1★–2★ Telefon-Beschwerden</span>
+                  <span class="m-val text-danger">24 Reviews</span>
+                </div>
+                <div class="metric-cell">
+                  <span class="m-label">Entgangene High-Ticket Anrufe</span>
+                  <span class="m-val">34/Monat</span>
+                </div>
+                <div class="metric-cell">
+                  <span class="m-label">Wartezeit PKV vs. GKV</span>
+                  <span class="m-val">21d vs. 0d</span>
+                </div>
+                <div class="metric-cell">
+                  <span class="m-label">Brutto PKV-Umsatzverlust</span>
+                  <span class="m-val text-danger">€13,662/M</span>
+                </div>
+                <div class="metric-cell">
+                  <span class="m-label">KI-Voice + Fast-Track Recovery</span>
+                  <span class="m-val text-success">+€9,290/M</span>
+                </div>
+              </div>
+              <div class="quotes-box">
+                <div class="sub-heading">Verifizierte Jameda / Google Maps Patienten-Zitate (NLP-Hits: 1):</div>
+                <blockquote class="review-quote">“Ärztin brillant bei CO2-Laser und BBL, aber telefonische Erreichbarkeit unterirdisch. 30 Mal angerufen!”</blockquote><blockquote class="review-quote">“Für Laser-Behandlungen muss man laut Doctolib anrufen, aber es läuft nur der Anrufbeantworter.”</blockquote>
+              </div>
+            </div>
+
+            <div class="play-box play-b-box">
+              <h4>⚖️ Play B — § 615 BGB (BGH III ZR 78/21) Ausfallhonorar & 48h Wartelisten-Backfill</h4>
+              <div class="metric-grid">
+                <div class="metric-cell">
+                  <span class="m-label">No-Show Slots (&lt;24–48h)</span>
+                  <span class="m-val text-danger">28.5 Slots/M</span>
+                </div>
+                <div class="metric-cell">
+                  <span class="m-label">Brutto Slot-Honorar</span>
+                  <span class="m-val">€310.00</span>
+                </div>
+                <div class="metric-cell">
+                  <span class="m-label">Abzug erspartes Material (§ 615 S.2)</span>
+                  <span class="m-val">-€68.20</span>
+                </div>
+                <div class="metric-cell">
+                  <span class="m-label">Durchsetzbares Ausfallhonorar</span>
+                  <span class="m-val text-accent">€241.80/Slot</span>
+                </div>
+                <div class="metric-cell">
+                  <span class="m-label">48h WhatsApp Backfill (62%)</span>
+                  <span class="m-val text-success">+€5,478/M</span>
+                </div>
+                <div class="metric-cell">
+                  <span class="m-label">§ 615 BGB Inkasso (Netto)</span>
+                  <span class="m-val text-success">+€1,964/M</span>
+                </div>
+              </div>
+              <div class="defects-box">
+                <div class="sub-heading">Juristische Schwachstellen-Analyse nach BGH III ZR 78/21:</div>
+                <ul class="defect-list"><li class="defect-item">⚠️ Pillar 3 Abrechnungsmangel: Ersparte Material-/Laborkosten (22%) werden nicht nach § 615 Satz 2 BGB abgezogen.</li><li class="defect-item">⚠️ Pillar 3 Nachweismangel: Keine automatisierte 48h/24h SMS/WhatsApp-Wartelisten-Nachbesetzung (kein Nachweis über vergeblichen anderweitigen Erwerb nach § 615 Satz 2 BGB).</li></ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="action-drawer">
+            <details>
+              <summary>📩 Personalisiertes Praxisinhaber-Outreach-Skript &amp; BGH-konforme § 615 BGB Vereinbarung anzeigen</summary>
+              <div class="drawer-grid">
+                <div>
+                  <h5>1. Cold-Outreach / Video-Audit Skript (Praxisinhaber / MVZ-Leitung)</h5>
+                  <pre class="code-block" id="hook-2">Sehr geehrte Praxisleitung von Privatpraxis Königsallee Dermatologie, Laser & Ästhetik Dr. med. Katharina Vossen, wir haben Ihre Doctolib-Verfügbarkeit in Düsseldorf sowie 219 Jameda-/Google-Bewertungen analysiert: 24 Patienten berichten explizit, dass telefonisch niemand erreichbar war ('Warteschleife / Bandansage'), während Selbstzahler-/PKV-Termine für Ästhetische Dermatologie & Lasermedizin (GOÄ / IGeL) (Ø Fallwert €1,650) telefonisch angefragt werden müssen. Das kostet Ihre Praxis aktuell ca. €13,662/Monat an abwandernden Privatpatienten – plus €8,835/Monat durch kurzfristige Terminausfälle (28.5 No-Shows/Monat, aktueller § 615 BGB Status: ANGREIFBAR (TEILKONFORM — § 615 S. 2 BGB LÜCKE)). Mit unserem 24/7 KI-Telefonassistenten + BGH-konformen 48h-WhatsApp-Wartelisten-Backfill sichern wir Ihrer Praxis monatlich ca. €16,732 an zusätzlichem Honorar.</pre>
+                </div>
+                <div>
+                  <h5>2. BGH-konforme Bestellpraxis-Klausel (§ 615 S. 1 &amp; 2 BGB / § 280 BGB)</h5>
+                  <pre class="code-block" id="clause-2">VEREINBARUNG ÜBER EXKLUSIVE TERMINRESERVIERUNG (BESTELLPRAXIS GEM. § 615 BGB) — Privatpraxis Königsallee Dermatologie, Laser & Ästhetik Dr. med. Katharina Vossen:
+1. Exklusive Zeitreservierung: Unsere Praxis wird als reine Bestellpraxis im Fachbereich Ästhetische Dermatologie & Lasermedizin (GOÄ / IGeL) geführt. Der für Sie reservierte Behandlungstermin wird exklusiv für Sie freigehalten; eine parallele Vergabe findet nicht statt.
+2. Absagefrist & Nachbesetzung: Sollten Sie den Termin nicht wahrnehmen können, bitten wir um Mitteilung bis spätestens 48 Stunden vor Terminbeginn (per 1-Klick-Link in Ihrer SMS/WhatsApp-Erinnerung), damit wir den Platz über unsere automatisierte digitale Warteliste an einen anderen Patienten vergeben können.
+3. Ausfallhonorar (§ 615 S. 1 & 2 BGB / BGH III ZR 78/21): Bei nicht fristgerechter Absage oder Nichterscheinen berechnen wir das vereinbarte Honorar abzüglich ersparter Material-/Laborkosten (22% Abzug = netto €241.80), sofern der Termin trotz sofortiger automatisierter Wartelisten-Anfrage nicht anderweitig nachbesetzt werden konnte (§ 615 Satz 2 BGB). Dem Patienten bleibt der Nachweis vorbehalten, dass ihn an der verspäteten Absage kein Verschulden trifft (§ 280 Abs. 1 Satz 2 BGB) oder ein geringerer Ausfall entstanden ist.</pre>
+                </div>
+              </div>
+            </details>
+          </div>
+        </article>
+        
+        <article class="practice-card" data-specialty="AUGENLASER" data-city="Hamburg">
+          <div class="card-header">
+            <div>
+              <div class="badge-row">
+                <span class="badge badge-tier">TIER 1 — ULTRA-HIGH-TICKET SNIPER TARGET</span>
+                <span class="badge badge-danger">TELEFON-ZWANG FÜR SELBSTZAHLER-BERATUNG</span>
+                <span class="badge badge-danger">§ 615 BGB: 1/3 SÄULEN (UNWIRKSAM (KEIN DURCHSETZBARES AUSFALLHONORAR))</span>
+              </div>
+              <h3 class="practice-title">Hanseatisches Augenlaser- & ICL-Zentrum Rotherbaum MVZ GmbH</h3>
+              <p class="practice-meta">
+                📍 <strong>20148 Hamburg</strong> · 🩺 <strong>Augenlaser Lasik / SMILE / ICL-Linsen (GOÄ)</strong> (GOÄ / Selbstzahler (Femto-LASIK / ReLEx SMILE / ICL)) ·
+                👥 5 Behandler · ⭐ Jameda 4.0 / Google 3.8 (265 Bewertungen)
+              </p>
+            </div>
+            <div class="kpi-pill-box">
+              <span class="kpi-pill-label">Monatlich Rückgewinnbares Honorar</span>
+              <span class="kpi-pill-value">€27,568<small>/Monat</small></span>
+              <span class="kpi-pill-sub">Agentur-Retainer €2,450/M → <strong>11.3x ROI</strong></span>
+            </div>
+          </div>
+
+          <div class="two-col-grid">
+            <div class="play-box play-a-box">
+              <h4>📞 Play A — PKV / Selbstzahler "Phone-Black-Hole" & Wartezeit-Arbitrage</h4>
+              <div class="metric-grid">
+                <div class="metric-cell">
+                  <span class="m-label">Ø Fallwert (LTV)</span>
+                  <span class="m-val">€4,200</span>
+                </div>
+                <div class="metric-cell">
+                  <span class="m-label">1★–2★ Telefon-Beschwerden</span>
+                  <span class="m-val text-danger">27 Reviews</span>
+                </div>
+                <div class="metric-cell">
+                  <span class="m-label">Entgangene High-Ticket Anrufe</span>
+                  <span class="m-val">29/Monat</span>
+                </div>
+                <div class="metric-cell">
+                  <span class="m-label">Wartezeit PKV vs. GKV</span>
+                  <span class="m-val">14d vs. 0d</span>
+                </div>
+                <div class="metric-cell">
+                  <span class="m-label">Brutto PKV-Umsatzverlust</span>
+                  <span class="m-val text-danger">€25,452/M</span>
+                </div>
+                <div class="metric-cell">
+                  <span class="m-label">KI-Voice + Fast-Track Recovery</span>
+                  <span class="m-val text-success">+€17,307/M</span>
+                </div>
+              </div>
+              <div class="quotes-box">
+                <div class="sub-heading">Verifizierte Jameda / Google Maps Patienten-Zitate (NLP-Hits: 2):</div>
+                <blockquote class="review-quote">“Wollte ReLEx SMILE Voruntersuchung für 4.400€ buchen – telefonisch niemand erreichbar, habe dann bei EuroEyes gebucht.”</blockquote><blockquote class="review-quote">“Bandansage legt auf, kein Rückruf trotz hinterlassener Nachricht.”</blockquote>
+              </div>
+            </div>
+
+            <div class="play-box play-b-box">
+              <h4>⚖️ Play B — § 615 BGB (BGH III ZR 78/21) Ausfallhonorar & 48h Wartelisten-Backfill</h4>
+              <div class="metric-grid">
+                <div class="metric-cell">
+                  <span class="m-label">No-Show Slots (&lt;24–48h)</span>
+                  <span class="m-val text-danger">35.0 Slots/M</span>
+                </div>
+                <div class="metric-cell">
+                  <span class="m-label">Brutto Slot-Honorar</span>
+                  <span class="m-val">€340.00</span>
+                </div>
+                <div class="metric-cell">
+                  <span class="m-label">Abzug erspartes Material (§ 615 S.2)</span>
+                  <span class="m-val">-€51.00</span>
+                </div>
+                <div class="metric-cell">
+                  <span class="m-label">Durchsetzbares Ausfallhonorar</span>
+                  <span class="m-val text-accent">€289.00/Slot</span>
+                </div>
+                <div class="metric-cell">
+                  <span class="m-label">48h WhatsApp Backfill (62%)</span>
+                  <span class="m-val text-success">+€7,378/M</span>
+                </div>
+                <div class="metric-cell">
+                  <span class="m-label">§ 615 BGB Inkasso (Netto)</span>
+                  <span class="m-val text-success">+€2,883/M</span>
+                </div>
+              </div>
+              <div class="defects-box">
+                <div class="sub-heading">Juristische Schwachstellen-Analyse nach BGH III ZR 78/21:</div>
+                <ul class="defect-list"><li class="defect-item">⚠️ Pillar 2 AGB-Mangel: Pauschale Ausfallgebühr ohne Exkulpationsmöglichkeit bei unverschuldeter Verhinderung (§ 307 Abs. 1, § 280 Abs. 1 S. 2 BGB) ist unwirksam.</li><li class="defect-item">⚠️ Pillar 3 Abrechnungsmangel: Ersparte Material-/Laborkosten (15%) werden nicht nach § 615 Satz 2 BGB abgezogen.</li><li class="defect-item">⚠️ Pillar 3 Nachweismangel: Keine automatisierte 48h/24h SMS/WhatsApp-Wartelisten-Nachbesetzung (kein Nachweis über vergeblichen anderweitigen Erwerb nach § 615 Satz 2 BGB).</li></ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="action-drawer">
+            <details>
+              <summary>📩 Personalisiertes Praxisinhaber-Outreach-Skript &amp; BGH-konforme § 615 BGB Vereinbarung anzeigen</summary>
+              <div class="drawer-grid">
+                <div>
+                  <h5>1. Cold-Outreach / Video-Audit Skript (Praxisinhaber / MVZ-Leitung)</h5>
+                  <pre class="code-block" id="hook-3">Sehr geehrte Praxisleitung von Hanseatisches Augenlaser- & ICL-Zentrum Rotherbaum MVZ GmbH, wir haben Ihre Doctolib-Verfügbarkeit in Hamburg sowie 265 Jameda-/Google-Bewertungen analysiert: 27 Patienten berichten explizit, dass telefonisch niemand erreichbar war ('Warteschleife / Bandansage'), während Selbstzahler-/PKV-Termine für Augenlaser Lasik / SMILE / ICL-Linsen (GOÄ) (Ø Fallwert €4,200) telefonisch angefragt werden müssen. Das kostet Ihre Praxis aktuell ca. €25,452/Monat an abwandernden Privatpatienten – plus €11,900/Monat durch kurzfristige Terminausfälle (35.0 No-Shows/Monat, aktueller § 615 BGB Status: UNWIRKSAM (KEIN DURCHSETZBARES AUSFALLHONORAR)). Mit unserem 24/7 KI-Telefonassistenten + BGH-konformen 48h-WhatsApp-Wartelisten-Backfill sichern wir Ihrer Praxis monatlich ca. €27,568 an zusätzlichem Honorar.</pre>
+                </div>
+                <div>
+                  <h5>2. BGH-konforme Bestellpraxis-Klausel (§ 615 S. 1 &amp; 2 BGB / § 280 BGB)</h5>
+                  <pre class="code-block" id="clause-3">VEREINBARUNG ÜBER EXKLUSIVE TERMINRESERVIERUNG (BESTELLPRAXIS GEM. § 615 BGB) — Hanseatisches Augenlaser- & ICL-Zentrum Rotherbaum MVZ GmbH:
+1. Exklusive Zeitreservierung: Unsere Praxis wird als reine Bestellpraxis im Fachbereich Augenlaser Lasik / SMILE / ICL-Linsen (GOÄ) geführt. Der für Sie reservierte Behandlungstermin wird exklusiv für Sie freigehalten; eine parallele Vergabe findet nicht statt.
+2. Absagefrist & Nachbesetzung: Sollten Sie den Termin nicht wahrnehmen können, bitten wir um Mitteilung bis spätestens 48 Stunden vor Terminbeginn (per 1-Klick-Link in Ihrer SMS/WhatsApp-Erinnerung), damit wir den Platz über unsere automatisierte digitale Warteliste an einen anderen Patienten vergeben können.
+3. Ausfallhonorar (§ 615 S. 1 & 2 BGB / BGH III ZR 78/21): Bei nicht fristgerechter Absage oder Nichterscheinen berechnen wir das vereinbarte Honorar abzüglich ersparter Material-/Laborkosten (15% Abzug = netto €289.00), sofern der Termin trotz sofortiger automatisierter Wartelisten-Anfrage nicht anderweitig nachbesetzt werden konnte (§ 615 Satz 2 BGB). Dem Patienten bleibt der Nachweis vorbehalten, dass ihn an der verspäteten Absage kein Verschulden trifft (§ 280 Abs. 1 Satz 2 BGB) oder ein geringerer Ausfall entstanden ist.</pre>
+                </div>
+              </div>
+            </details>
+          </div>
+        </article>
+        
+        <article class="practice-card" data-specialty="PRIVAT_ORTHO" data-city="Berlin">
+          <div class="card-header">
+            <div>
+              <div class="badge-row">
+                <span class="badge badge-tier">TIER 2 — HIGH-MARGIN PKV & NO-SHOW TARGET</span>
+                <span class="badge badge-warn">ÜBERLASTETE REZEPTION / KEIN KI-VOICE-TRIAGE</span>
+                <span class="badge badge-danger">§ 615 BGB: 1/3 SÄULEN (UNWIRKSAM (KEIN DURCHSETZBARES AUSFALLHONORAR))</span>
+              </div>
+              <h3 class="practice-title">Privatpraxis Kurfürstendamm Orthopädie, Sportmedizin & Wirbelsäule Prof. Dr. K. Stephan</h3>
+              <p class="practice-meta">
+                📍 <strong>10719 Berlin</strong> · 🩺 <strong>Privat-Orthopädie PRT / Stoßwelle / ACP (GOÄ)</strong> (GOÄ / PKV & Selbstzahler (PRT, ACP-Eigenblut, Fokussierte ESWT)) ·
+                👥 3 Behandler · ⭐ Jameda 4.4 / Google 4.1 (158 Bewertungen)
+              </p>
+            </div>
+            <div class="kpi-pill-box">
+              <span class="kpi-pill-label">Monatlich Rückgewinnbares Honorar</span>
+              <span class="kpi-pill-value">€10,708<small>/Monat</small></span>
+              <span class="kpi-pill-sub">Agentur-Retainer €2,450/M → <strong>4.4x ROI</strong></span>
+            </div>
+          </div>
+
+          <div class="two-col-grid">
+            <div class="play-box play-a-box">
+              <h4>📞 Play A — PKV / Selbstzahler "Phone-Black-Hole" & Wartezeit-Arbitrage</h4>
+              <div class="metric-grid">
+                <div class="metric-cell">
+                  <span class="m-label">Ø Fallwert (LTV)</span>
+                  <span class="m-val">€1,450</span>
+                </div>
+                <div class="metric-cell">
+                  <span class="m-label">1★–2★ Telefon-Beschwerden</span>
+                  <span class="m-val text-danger">12 Reviews</span>
+                </div>
+                <div class="metric-cell">
+                  <span class="m-label">Entgangene High-Ticket Anrufe</span>
+                  <span class="m-val">32/Monat</span>
+                </div>
+                <div class="metric-cell">
+                  <span class="m-label">Wartezeit PKV vs. GKV</span>
+                  <span class="m-val">11d vs. 0d</span>
+                </div>
+                <div class="metric-cell">
+                  <span class="m-label">Brutto PKV-Umsatzverlust</span>
+                  <span class="m-val text-danger">€8,772/M</span>
+                </div>
+                <div class="metric-cell">
+                  <span class="m-label">KI-Voice + Fast-Track Recovery</span>
+                  <span class="m-val text-success">+€5,965/M</span>
+                </div>
+              </div>
+              <div class="quotes-box">
+                <div class="sub-heading">Verifizierte Jameda / Google Maps Patienten-Zitate (NLP-Hits: 2):</div>
+                <blockquote class="review-quote">“Akuter Bandscheibenvorfall (PKV), wollte PRT-Termin – geht keiner ans Telefon, nur Warteschleife.”</blockquote><blockquote class="review-quote">“Telefonische Erreichbarkeit gleich null, man muss persönlich vorbeigehen um einen Termin zu bekommen.”</blockquote>
+              </div>
+            </div>
+
+            <div class="play-box play-b-box">
+              <h4>⚖️ Play B — § 615 BGB (BGH III ZR 78/21) Ausfallhonorar & 48h Wartelisten-Backfill</h4>
+              <div class="metric-grid">
+                <div class="metric-cell">
+                  <span class="m-label">No-Show Slots (&lt;24–48h)</span>
+                  <span class="m-val text-danger">25.5 Slots/M</span>
+                </div>
+                <div class="metric-cell">
+                  <span class="m-label">Brutto Slot-Honorar</span>
+                  <span class="m-val">€215.00</span>
+                </div>
+                <div class="metric-cell">
+                  <span class="m-label">Abzug erspartes Material (§ 615 S.2)</span>
+                  <span class="m-val">-€30.10</span>
+                </div>
+                <div class="metric-cell">
+                  <span class="m-label">Durchsetzbares Ausfallhonorar</span>
+                  <span class="m-val text-accent">€184.90/Slot</span>
+                </div>
+                <div class="metric-cell">
+                  <span class="m-label">48h WhatsApp Backfill (62%)</span>
+                  <span class="m-val text-success">+€3,399/M</span>
+                </div>
+                <div class="metric-cell">
+                  <span class="m-label">§ 615 BGB Inkasso (Netto)</span>
+                  <span class="m-val text-success">+€1,344/M</span>
+                </div>
+              </div>
+              <div class="defects-box">
+                <div class="sub-heading">Juristische Schwachstellen-Analyse nach BGH III ZR 78/21:</div>
+                <ul class="defect-list"><li class="defect-item">⚠️ Pillar 2 fehlt: Kein dokumentiertes Opt-In vor Terminbuchung (bloßer Empfangs-Aushang ist nach BGH III ZR 78/21 unwirksam).</li><li class="defect-item">⚠️ Pillar 2 AGB-Mangel: Pauschale Ausfallgebühr ohne Exkulpationsmöglichkeit bei unverschuldeter Verhinderung (§ 307 Abs. 1, § 280 Abs. 1 S. 2 BGB) ist unwirksam.</li><li class="defect-item">⚠️ Pillar 3 Abrechnungsmangel: Ersparte Material-/Laborkosten (14%) werden nicht nach § 615 Satz 2 BGB abgezogen.</li><li class="defect-item">⚠️ Pillar 3 Nachweismangel: Keine automatisierte 48h/24h SMS/WhatsApp-Wartelisten-Nachbesetzung (kein Nachweis über vergeblichen anderweitigen Erwerb nach § 615 Satz 2 BGB).</li></ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="action-drawer">
+            <details>
+              <summary>📩 Personalisiertes Praxisinhaber-Outreach-Skript &amp; BGH-konforme § 615 BGB Vereinbarung anzeigen</summary>
+              <div class="drawer-grid">
+                <div>
+                  <h5>1. Cold-Outreach / Video-Audit Skript (Praxisinhaber / MVZ-Leitung)</h5>
+                  <pre class="code-block" id="hook-4">Sehr geehrte Praxisleitung von Privatpraxis Kurfürstendamm Orthopädie, Sportmedizin & Wirbelsäule Prof. Dr. K. Stephan, wir haben Ihre Doctolib-Verfügbarkeit in Berlin sowie 158 Jameda-/Google-Bewertungen analysiert: 12 Patienten berichten explizit, dass telefonisch niemand erreichbar war ('Warteschleife / Bandansage'), während Selbstzahler-/PKV-Termine für Privat-Orthopädie PRT / Stoßwelle / ACP (GOÄ) (Ø Fallwert €1,450) telefonisch angefragt werden müssen. Das kostet Ihre Praxis aktuell ca. €8,772/Monat an abwandernden Privatpatienten – plus €5,482/Monat durch kurzfristige Terminausfälle (25.5 No-Shows/Monat, aktueller § 615 BGB Status: UNWIRKSAM (KEIN DURCHSETZBARES AUSFALLHONORAR)). Mit unserem 24/7 KI-Telefonassistenten + BGH-konformen 48h-WhatsApp-Wartelisten-Backfill sichern wir Ihrer Praxis monatlich ca. €10,708 an zusätzlichem Honorar.</pre>
+                </div>
+                <div>
+                  <h5>2. BGH-konforme Bestellpraxis-Klausel (§ 615 S. 1 &amp; 2 BGB / § 280 BGB)</h5>
+                  <pre class="code-block" id="clause-4">VEREINBARUNG ÜBER EXKLUSIVE TERMINRESERVIERUNG (BESTELLPRAXIS GEM. § 615 BGB) — Privatpraxis Kurfürstendamm Orthopädie, Sportmedizin & Wirbelsäule Prof. Dr. K. Stephan:
+1. Exklusive Zeitreservierung: Unsere Praxis wird als reine Bestellpraxis im Fachbereich Privat-Orthopädie PRT / Stoßwelle / ACP (GOÄ) geführt. Der für Sie reservierte Behandlungstermin wird exklusiv für Sie freigehalten; eine parallele Vergabe findet nicht statt.
+2. Absagefrist & Nachbesetzung: Sollten Sie den Termin nicht wahrnehmen können, bitten wir um Mitteilung bis spätestens 24 Stunden vor Terminbeginn (per 1-Klick-Link in Ihrer SMS/WhatsApp-Erinnerung), damit wir den Platz über unsere automatisierte digitale Warteliste an einen anderen Patienten vergeben können.
+3. Ausfallhonorar (§ 615 S. 1 & 2 BGB / BGH III ZR 78/21): Bei nicht fristgerechter Absage oder Nichterscheinen berechnen wir das vereinbarte Honorar abzüglich ersparter Material-/Laborkosten (14% Abzug = netto €184.90), sofern der Termin trotz sofortiger automatisierter Wartelisten-Anfrage nicht anderweitig nachbesetzt werden konnte (§ 615 Satz 2 BGB). Dem Patienten bleibt der Nachweis vorbehalten, dass ihn an der verspäteten Absage kein Verschulden trifft (§ 280 Abs. 1 Satz 2 BGB) oder ein geringerer Ausfall entstanden ist.</pre>
+                </div>
+              </div>
+            </details>
+          </div>
+        </article>
+        
+        <article class="practice-card" data-specialty="PLASTISCHE_CHIRURGIE" data-city="Konstanz / Zürich-Grenze">
+          <div class="card-header">
+            <div>
+              <div class="badge-row">
+                <span class="badge badge-tier">TIER 1 — ULTRA-HIGH-TICKET SNIPER TARGET</span>
+                <span class="badge badge-danger">TELEFON-ZWANG FÜR SELBSTZAHLER-BERATUNG</span>
+                <span class="badge badge-danger">§ 615 BGB: 2/3 SÄULEN (ANGREIFBAR (TEILKONFORM — § 615 S. 2 BGB LÜCKE))</span>
+              </div>
+              <h3 class="practice-title">Aesthetic Clinic Zürichsee / Bodensee — Plastische & Ästhetische Chirurgie Dr. med. R. Tobler</h3>
+              <p class="practice-meta">
+                📍 <strong>78462 Konstanz / Zürich-Grenze</strong> · 🩺 <strong>Plastische & Ästhetische Chirurgie (GOÄ / Selbstzahler)</strong> (GOÄ / Selbstzahler (Rhinoplastik, Blepharoplastik, Mamma)) ·
+                👥 2 Behandler · ⭐ Jameda 4.5 / Google 4.2 (112 Bewertungen)
+              </p>
+            </div>
+            <div class="kpi-pill-box">
+              <span class="kpi-pill-label">Monatlich Rückgewinnbares Honorar</span>
+              <span class="kpi-pill-value">€16,017<small>/Monat</small></span>
+              <span class="kpi-pill-sub">Agentur-Retainer €1,950/M → <strong>8.2x ROI</strong></span>
+            </div>
+          </div>
+
+          <div class="two-col-grid">
+            <div class="play-box play-a-box">
+              <h4>📞 Play A — PKV / Selbstzahler "Phone-Black-Hole" & Wartezeit-Arbitrage</h4>
+              <div class="metric-grid">
+                <div class="metric-cell">
+                  <span class="m-label">Ø Fallwert (LTV)</span>
+                  <span class="m-val">€7,900</span>
+                </div>
+                <div class="metric-cell">
+                  <span class="m-label">1★–2★ Telefon-Beschwerden</span>
+                  <span class="m-val text-danger">11 Reviews</span>
+                </div>
+                <div class="metric-cell">
+                  <span class="m-label">Entgangene High-Ticket Anrufe</span>
+                  <span class="m-val">15/Monat</span>
+                </div>
+                <div class="metric-cell">
+                  <span class="m-label">Wartezeit PKV vs. GKV</span>
+                  <span class="m-val">18d vs. 0d</span>
+                </div>
+                <div class="metric-cell">
+                  <span class="m-label">Brutto PKV-Umsatzverlust</span>
+                  <span class="m-val text-danger">€17,854/M</span>
+                </div>
+                <div class="metric-cell">
+                  <span class="m-label">KI-Voice + Fast-Track Recovery</span>
+                  <span class="m-val text-success">+€12,141/M</span>
+                </div>
+              </div>
+              <div class="quotes-box">
+                <div class="sub-heading">Verifizierte Jameda / Google Maps Patienten-Zitate (NLP-Hits: 1):</div>
+                <blockquote class="review-quote">“Wollte OP-Beratungstermin für Rhinoplastik vereinbaren, telefonisch niemand erreichbar während der Sprechzeiten.”</blockquote><blockquote class="review-quote">“Rezeption ruft erst nach 4 Tagen zurück, hatte da schon in Zürich gebucht.”</blockquote>
+              </div>
+            </div>
+
+            <div class="play-box play-b-box">
+              <h4>⚖️ Play B — § 615 BGB (BGH III ZR 78/21) Ausfallhonorar & 48h Wartelisten-Backfill</h4>
+              <div class="metric-grid">
+                <div class="metric-cell">
+                  <span class="m-label">No-Show Slots (&lt;24–48h)</span>
+                  <span class="m-val text-danger">11.0 Slots/M</span>
+                </div>
+                <div class="metric-cell">
+                  <span class="m-label">Brutto Slot-Honorar</span>
+                  <span class="m-val">€410.00</span>
+                </div>
+                <div class="metric-cell">
+                  <span class="m-label">Abzug erspartes Material (§ 615 S.2)</span>
+                  <span class="m-val">-€65.60</span>
+                </div>
+                <div class="metric-cell">
+                  <span class="m-label">Durchsetzbares Ausfallhonorar</span>
+                  <span class="m-val text-accent">€344.40/Slot</span>
+                </div>
+                <div class="metric-cell">
+                  <span class="m-label">48h WhatsApp Backfill (62%)</span>
+                  <span class="m-val text-success">+€2,796/M</span>
+                </div>
+                <div class="metric-cell">
+                  <span class="m-label">§ 615 BGB Inkasso (Netto)</span>
+                  <span class="m-val text-success">+€1,080/M</span>
+                </div>
+              </div>
+              <div class="defects-box">
+                <div class="sub-heading">Juristische Schwachstellen-Analyse nach BGH III ZR 78/21:</div>
+                <ul class="defect-list"><li class="defect-item">⚠️ Pillar 3 Nachweismangel: Keine automatisierte 48h/24h SMS/WhatsApp-Wartelisten-Nachbesetzung (kein Nachweis über vergeblichen anderweitigen Erwerb nach § 615 Satz 2 BGB).</li></ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="action-drawer">
+            <details>
+              <summary>📩 Personalisiertes Praxisinhaber-Outreach-Skript &amp; BGH-konforme § 615 BGB Vereinbarung anzeigen</summary>
+              <div class="drawer-grid">
+                <div>
+                  <h5>1. Cold-Outreach / Video-Audit Skript (Praxisinhaber / MVZ-Leitung)</h5>
+                  <pre class="code-block" id="hook-5">Sehr geehrte Praxisleitung von Aesthetic Clinic Zürichsee / Bodensee — Plastische & Ästhetische Chirurgie Dr. med. R. Tobler, wir haben Ihre Doctolib-Verfügbarkeit in Konstanz / Zürich-Grenze sowie 112 Jameda-/Google-Bewertungen analysiert: 11 Patienten berichten explizit, dass telefonisch niemand erreichbar war ('Warteschleife / Bandansage'), während Selbstzahler-/PKV-Termine für Plastische & Ästhetische Chirurgie (GOÄ / Selbstzahler) (Ø Fallwert €7,900) telefonisch angefragt werden müssen. Das kostet Ihre Praxis aktuell ca. €17,854/Monat an abwandernden Privatpatienten – plus €4,510/Monat durch kurzfristige Terminausfälle (11.0 No-Shows/Monat, aktueller § 615 BGB Status: ANGREIFBAR (TEILKONFORM — § 615 S. 2 BGB LÜCKE)). Mit unserem 24/7 KI-Telefonassistenten + BGH-konformen 48h-WhatsApp-Wartelisten-Backfill sichern wir Ihrer Praxis monatlich ca. €16,017 an zusätzlichem Honorar.</pre>
+                </div>
+                <div>
+                  <h5>2. BGH-konforme Bestellpraxis-Klausel (§ 615 S. 1 &amp; 2 BGB / § 280 BGB)</h5>
+                  <pre class="code-block" id="clause-5">VEREINBARUNG ÜBER EXKLUSIVE TERMINRESERVIERUNG (BESTELLPRAXIS GEM. § 615 BGB) — Aesthetic Clinic Zürichsee / Bodensee — Plastische & Ästhetische Chirurgie Dr. med. R. Tobler:
+1. Exklusive Zeitreservierung: Unsere Praxis wird als reine Bestellpraxis im Fachbereich Plastische & Ästhetische Chirurgie (GOÄ / Selbstzahler) geführt. Der für Sie reservierte Behandlungstermin wird exklusiv für Sie freigehalten; eine parallele Vergabe findet nicht statt.
+2. Absagefrist & Nachbesetzung: Sollten Sie den Termin nicht wahrnehmen können, bitten wir um Mitteilung bis spätestens 48 Stunden vor Terminbeginn (per 1-Klick-Link in Ihrer SMS/WhatsApp-Erinnerung), damit wir den Platz über unsere automatisierte digitale Warteliste an einen anderen Patienten vergeben können.
+3. Ausfallhonorar (§ 615 S. 1 & 2 BGB / BGH III ZR 78/21): Bei nicht fristgerechter Absage oder Nichterscheinen berechnen wir das vereinbarte Honorar abzüglich ersparter Material-/Laborkosten (16% Abzug = netto €344.40), sofern der Termin trotz sofortiger automatisierter Wartelisten-Anfrage nicht anderweitig nachbesetzt werden konnte (§ 615 Satz 2 BGB). Dem Patienten bleibt der Nachweis vorbehalten, dass ihn an der verspäteten Absage kein Verschulden trifft (§ 280 Abs. 1 Satz 2 BGB) oder ein geringerer Ausfall entstanden ist.</pre>
+                </div>
+              </div>
+            </details>
+          </div>
+        </article>
+        
+      </div>
+    </section>
+
+    <section class="sim-panel" style="margin-top: 32px;">
+      <h2>🕷️ Live Apify Store Scraper-Stack (Verifiziert über <code>/v2/store</code> am 2026-10-17T21:52:03Z)</h2>
+      <table class="actor-table">
+        <thead>
+          <tr>
+            <th>Apify Actor Slug &amp; Titel</th>
+            <th>Live Runs &amp; MAUs</th>
+            <th>Pricing Model (PPE)</th>
+            <th>Extrahierte DACH Praxis-Signale</th>
+          </tr>
+        </thead>
+        <tbody>
+          
+            <tr>
+              <td><code>giovannibiancia/doctolib-scraper</code><br><small>Doctolib scraper (FR / DE / IT)</small></td>
+              <td><strong>734</strong> Runs<br><small>77 Users (10 in 90d)</small></td>
+              <td><span class="badge badge-tier">PAY_PER_EVENT</span><br><small>$0.03 / doctor-scraped + $0.001 / api-call ($2.00 min)</small></td>
+              <td>Doctolib.de / .fr / .it practitioner & clinic profiles, Specializations, contact phones, practice addresses, Multi-city & specialty pagination</td>
+            </tr>
+            
+            <tr>
+              <td><code>signalflow/doctolib-pro</code><br><small>Doctolib - Pro Data Scraper (Wait-Time & Demand Signals)</small></td>
+              <td><strong>359</strong> Runs<br><small>31 Users (5 in 90d)</small></td>
+              <td><span class="badge badge-tier">PAY_PER_EVENT</span><br><small>$0.04 / result + $0.08 / actor-start</small></td>
+              <td>15+ CRM data points across Germany, France, Italy, Built-in wait-time analysis & patient demand scoring, Territory mapping for MedTech & practice automation agencies</td>
+            </tr>
+            
+            <tr>
+              <td><code>scrapestorm/doctolib-scraper---pay-per-result-cheap</code><br><small>Doctolib Scraper - Pay per result Cheap (FR / DE / IT)</small></td>
+              <td><strong>316</strong> Runs<br><small>22 Users (3 in 90d)</small></td>
+              <td><span class="badge badge-tier">PAY_PER_EVENT</span><br><small>$0.00449–$0.00399 / result ($3.99–$4.49 / 1K)</small></td>
+              <td>Verified doctor profiles across DE/FR/IT, Appointment monitoring & practice lead generation</td>
+            </tr>
+            
+            <tr>
+              <td><code>rigelbytes/doctolib-scraper</code><br><small>Doctolib.de Scraper (Insurance Type & Availability)</small></td>
+              <td><strong>132</strong> Runs<br><small>6 Users (3 in 90d)</small></td>
+              <td><span class="badge badge-tier">PAY_PER_EVENT</span><br><small>$0.0015 / doctor scraped ($1.50 / 1K)</small></td>
+              <td>Native Doctolib.de filter by GKV vs. PKV / Selbstzahler insurance, Real-time appointment availability & languages spoken</td>
+            </tr>
+            
+            <tr>
+              <td><code>studio-amba/doctolib-de-scraper</code><br><small>Doctolib DE Scraper — Doctor & Clinic Directory Data</small></td>
+              <td><strong>119</strong> Runs<br><small>1 Users (1 in 90d)</small></td>
+              <td><span class="badge badge-tier">PAY_PER_EVENT</span><br><small>$0.002–$0.0012 / result + $0.005 / start</small></td>
+              <td>Statutory vs. private insurance acceptance flags, Online booking availability & published GOÄ/GOZ fees</td>
+            </tr>
+            
+            <tr>
+              <td><code>nice_dev/doctolib-practitioners-scraper</code><br><small>Doctolib Practitioners Scraper (Next-Slot & Visit Motives)</small></td>
+              <td><strong>21</strong> Runs<br><small>1 Users (1 in 90d)</small></td>
+              <td><span class="badge badge-tier">PAY_PER_EVENT</span><br><small>$0.00062 / profile + $0.00099 / next-available-appointment</small></td>
+              <td>Extracts visit motives (Besuchsgründe: Implantat, Aligner, Laser), Computes exact days-to-wait & open slots of the week</td>
+            </tr>
+            
+            <tr>
+              <td><code>thescrappa/jameda-search-scraper</code><br><small>Jameda Search Scraper (jameda.de Directory)</small></td>
+              <td><strong>1,642</strong> Runs<br><small>5 Users (3 in 90d)</small></td>
+              <td><span class="badge badge-tier">PAY_PER_EVENT</span><br><small>$0.0002 / doctor result ($0.20 / 1K)</small></td>
+              <td>High-speed German doctor shortlist by specialty and city, Ratings, review counts, and practice URLs on jameda.de</td>
+            </tr>
+            
+            <tr>
+              <td><code>giovannibiancia/jameda</code><br><small>Jameda Scraper (Detailed Doctor & Slot Data)</small></td>
+              <td><strong>925</strong> Runs<br><small>54 Users (3 in 90d)</small></td>
+              <td><span class="badge badge-tier">PAY_PER_EVENT</span><br><small>$0.05 / doctor-record + $0.001 / slot-address</small></td>
+              <td>Full Jameda.de practitioner records & calendar slot addresses</td>
+            </tr>
+            
+            <tr>
+              <td><code>muhammetakkurtt/jameda-reviews-scraper</code><br><small>Jameda Reviews Scraper (Patient Complaint Mining)</small></td>
+              <td><strong>723</strong> Runs<br><small>9 Users (1 in 90d)</small></td>
+              <td><span class="badge badge-tier">PAY_PER_EVENT</span><br><small>$0.002–$0.0005 / review ($0.50–$2.00 / 1K reviews)</small></td>
+              <td>Extracts full Jameda review text, 1-5★ score, date, and doctor reply, Ideal for NLP detection of 'telefonisch niemand erreichbar' complaints</td>
+            </tr>
+            
+            <tr>
+              <td><code>trev0n/doctoralia-scraper</code><br><small>Doctoralia & Jameda Network Scraper ($2 / 1K)</small></td>
+              <td><strong>711</strong> Runs<br><small>75 Users (51 in 90d)</small></td>
+              <td><span class="badge badge-tier">PAY_PER_EVENT</span><br><small>$0.002 / result ($2.00 / 1K)</small></td>
+              <td>Covers DocPlanner network including Jameda.de, Services with prices, license numbers, GPS, and every patient review</td>
+            </tr>
+            
+            <tr>
+              <td><code>samstorm/dentist-lead-scraper</code><br><small>Dentist & Orthodontist Lead Scraper — Dental Practice Contacts</small></td>
+              <td><strong>2,625</strong> Runs<br><small>335 Users (40 in 90d)</small></td>
+              <td><span class="badge badge-tier">PAY_PER_EVENT</span><br><small>$0.075–$0.06375 / enriched healthcare lead</small></td>
+              <td>Dentists, orthodontists, implantology clinics with verified emails & phones</td>
+            </tr>
+            
+        </tbody>
+      </table>
+    </section>
+  </div>
+
+  <script>
+    const BENCHMARKS = {"Zahn-Implantologie & All-on-4 (GOZ)": {"code": "IMPLANTOLOGIE", "billing_framework": "GOZ / Selbstzahler (2,3x–3,5x Satz)", "avg_case_ltv_eur": 12400.0, "ltv_range_label": "€8,000–€25,000", "consult_slot_value_eur": 240.0, "avg_treatment_slot_eur": 380.0, "saved_material_ratio": 0.18, "conversion_from_triage": 0.28, "high_value_motives": ["Implantat-Erstberatung", "3D-DVT Knochenanalyse", "All-on-4 Beratung"]}, "Kieferorthopädie Aligner & Lingualtechnik (GOZ)": {"code": "KFO_ALIGNER", "billing_framework": "GOZ / Selbstzahler (Invisalign / Spark)", "avg_case_ltv_eur": 5800.0, "ltv_range_label": "€4,500–€7,500", "consult_slot_value_eur": 165.0, "avg_treatment_slot_eur": 230.0, "saved_material_ratio": 0.12, "conversion_from_triage": 0.34, "high_value_motives": ["Aligner-Erstberatung (iTero 3D-Scan)", "Erwachsenen-KFO PKV", "Unsichtbare Zahnspange"]}, "Ästhetische Dermatologie & Lasermedizin (GOÄ / IGeL)": {"code": "AESTHETIC_DERMA", "billing_framework": "GOÄ / Selbstzahler (CO2-Laser, Ultherapy, Injectables)", "avg_case_ltv_eur": 1650.0, "ltv_range_label": "€600–€3,500", "consult_slot_value_eur": 145.0, "avg_treatment_slot_eur": 310.0, "saved_material_ratio": 0.22, "conversion_from_triage": 0.42, "high_value_motives": ["Ästhetik-/Laser-Sprechstunde", "Faltenbehandlung / Biostimulatoren", "Privatsprechstunde Haut"]}, "Augenlaser Lasik / SMILE / ICL-Linsen (GOÄ)": {"code": "AUGENLASER", "billing_framework": "GOÄ / Selbstzahler (Femto-LASIK / ReLEx SMILE / ICL)", "avg_case_ltv_eur": 4200.0, "ltv_range_label": "€3,000–€5,500", "consult_slot_value_eur": 190.0, "avg_treatment_slot_eur": 340.0, "saved_material_ratio": 0.15, "conversion_from_triage": 0.36, "high_value_motives": ["Eignungscheck Augenlasern", "ICL-Linsen Voruntersuchung", "Privatsprechstunde Refraktiv"]}, "Privat-Orthopädie PRT / Stoßwelle / ACP (GOÄ)": {"code": "PRIVAT_ORTHO", "billing_framework": "GOÄ / PKV & Selbstzahler (PRT, ACP-Eigenblut, Fokussierte ESWT)", "avg_case_ltv_eur": 1450.0, "ltv_range_label": "€800–€2,400", "consult_slot_value_eur": 155.0, "avg_treatment_slot_eur": 215.0, "saved_material_ratio": 0.14, "conversion_from_triage": 0.45, "high_value_motives": ["Privatsprechstunde Wirbelsäule/Gelenke", "ACP-Eigenbluttherapie", "Stoßwellentherapie ESWT"]}, "Plastische & Ästhetische Chirurgie (GOÄ / Selbstzahler)": {"code": "PLASTISCHE_CHIRURGIE", "billing_framework": "GOÄ / Selbstzahler (Rhinoplastik, Blepharoplastik, Mamma)", "avg_case_ltv_eur": 7900.0, "ltv_range_label": "€4,500–€14,000", "consult_slot_value_eur": 220.0, "avg_treatment_slot_eur": 410.0, "saved_material_ratio": 0.16, "conversion_from_triage": 0.26, "high_value_motives": ["Ästhetische Erstberatung Facharzt", "3D-Crisalix Simulation", "OP-Aufklärungsgespräch"]}};
+    const RECORDS = [{"practice_id": "DE-MUC-IMP-001", "practice_name": "Praxisklinik Bogenhausen für Implantologie & Oralchirurgie Dr. med. dent. von Berg", "city": "München", "postal_code": "81675", "specialty": "Zahn-Implantologie & All-on-4 (GOZ)", "practitioners_count": 4, "doctolib_url": "https://www.doctolib.de/zahnarztpraxis/muenchen/praxisklinik-bogenhausen-implantologie", "jameda_rating": 4.1, "google_rating": 3.9, "total_reviews": 184, "sample_review_quotes": ["Fachlich top bei Implantaten, aber telefonisch absolut niemand erreichbar! 20 Mal angerufen, Bandansage legt nach 3 Minuten einfach auf.", "Wollte als Privatpatient ein All-on-4 Erstgespräch vereinbaren – auf Doctolib steht 'Für Implantat-Beratung bitte telefonisch melden', aber es geht nie jemand ans Telefon.", "Telefonische Erreichbarkeit Katastrophe. Dauerbesetzt von 8 bis 17 Uhr."], "play_a": {"specialty_code": "IMPLANTOLOGIE", "billing_framework": "GOZ / Selbstzahler (2,3x–3,5x Satz)", "avg_case_ltv_eur": 12400.0, "phone_complaint_reviews": 19, "nlp_verified_phone_hits": 3, "high_ticket_motives_phone_only": true, "pkv_wait_days": 16, "gkv_wait_days": 38, "wait_time_arbitrage_spread_days": 22, "monthly_missed_high_ticket_calls": 22, "estimated_lost_cases_per_month": 3.57, "monthly_gross_pkv_leakage_eur": 44268.0, "recoverable_monthly_revenue_eur": 30102.24, "phone_black_hole_score": 100}, "play_b": {"bgh_case_reference": "BGH, Urt. v. 12.05.2022 – III ZR 78/21 (§ 615 S. 1 & 2 BGB / § 280 BGB)", "is_pure_bestellpraxis": true, "has_written_cancellation_agreement": true, "has_exculpation_clause_bgh": false, "deducts_saved_material_costs": false, "has_automated_waitlist_backfill": false, "pillars_passed": 1, "legal_enforceability_status": "UNWIRKSAM (KEIN DURCHSETZBARES AUSFALLHONORAR)", "legal_defects": ["Pillar 2 AGB-Mangel: Pauschale Ausfallgebühr ohne Exkulpationsmöglichkeit bei unverschuldeter Verhinderung (§ 307 Abs. 1, § 280 Abs. 1 S. 2 BGB) ist unwirksam.", "Pillar 3 Abrechnungsmangel: Ersparte Material-/Laborkosten (18%) werden nicht nach § 615 Satz 2 BGB abgezogen.", "Pillar 3 Nachweismangel: Keine automatisierte 48h/24h SMS/WhatsApp-Wartelisten-Nachbesetzung (kein Nachweis über vergeblichen anderweitigen Erwerb nach § 615 Satz 2 BGB)."], "total_monthly_no_show_slots": 26.0, "gross_missed_slot_value_eur": 380.0, "saved_material_deduction_eur": 68.4, "net_enforceable_ausfallhonorar_per_slot_eur": 311.6, "monthly_unrecovered_no_show_loss_eur": 9880.0, "monthly_waitlist_backfill_recovered_eur": 6125.6, "monthly_ausfallhonorar_collected_eur": 2308.96, "total_monthly_play_b_recovery_eur": 8434.56}, "combined_monthly_recoverable_eur": 38536.8, "recommended_agency_retainer_eur": 2450.0, "client_net_roi_multiple": 15.7, "sniper_priority_tier": "TIER 1 — ULTRA-HIGH-TICKET SNIPER TARGET", "outreach_hook_de": "Sehr geehrte Praxisleitung von Praxisklinik Bogenhausen für Implantologie & Oralchirurgie Dr. med. dent. von Berg, wir haben Ihre Doctolib-Verfügbarkeit in München sowie 184 Jameda-/Google-Bewertungen analysiert: 19 Patienten berichten explizit, dass telefonisch niemand erreichbar war ('Warteschleife / Bandansage'), während Selbstzahler-/PKV-Termine für Zahn-Implantologie & All-on-4 (GOZ) (Ø Fallwert €12,400) telefonisch angefragt werden müssen. Das kostet Ihre Praxis aktuell ca. €44,268/Monat an abwandernden Privatpatienten – plus €9,880/Monat durch kurzfristige Terminausfälle (26.0 No-Shows/Monat, aktueller § 615 BGB Status: UNWIRKSAM (KEIN DURCHSETZBARES AUSFALLHONORAR)). Mit unserem 24/7 KI-Telefonassistenten + BGH-konformen 48h-WhatsApp-Wartelisten-Backfill sichern wir Ihrer Praxis monatlich ca. €38,537 an zusätzlichem Honorar.", "bgh_compliant_clause_de": "VEREINBARUNG ÜBER EXKLUSIVE TERMINRESERVIERUNG (BESTELLPRAXIS GEM. § 615 BGB) — Praxisklinik Bogenhausen für Implantologie & Oralchirurgie Dr. med. dent. von Berg:\n1. Exklusive Zeitreservierung: Unsere Praxis wird als reine Bestellpraxis im Fachbereich Zahn-Implantologie & All-on-4 (GOZ) geführt. Der für Sie reservierte Behandlungstermin wird exklusiv für Sie freigehalten; eine parallele Vergabe findet nicht statt.\n2. Absagefrist & Nachbesetzung: Sollten Sie den Termin nicht wahrnehmen können, bitten wir um Mitteilung bis spätestens 24 Stunden vor Terminbeginn (per 1-Klick-Link in Ihrer SMS/WhatsApp-Erinnerung), damit wir den Platz über unsere automatisierte digitale Warteliste an einen anderen Patienten vergeben können.\n3. Ausfallhonorar (§ 615 S. 1 & 2 BGB / BGH III ZR 78/21): Bei nicht fristgerechter Absage oder Nichterscheinen berechnen wir das vereinbarte Honorar abzüglich ersparter Material-/Laborkosten (18% Abzug = netto €311.60), sofern der Termin trotz sofortiger automatisierter Wartelisten-Anfrage nicht anderweitig nachbesetzt werden konnte (§ 615 Satz 2 BGB). Dem Patienten bleibt der Nachweis vorbehalten, dass ihn an der verspäteten Absage kein Verschulden trifft (§ 280 Abs. 1 Satz 2 BGB) oder ein geringerer Ausfall entstanden ist."}, {"practice_id": "DE-FRA-KFO-002", "practice_name": "KFO Westend — Fachzahnarztpraxis für Kieferorthopädie & Aligner Dr. Lindner & Kollegen", "city": "Frankfurt am Main", "postal_code": "60323", "specialty": "Kieferorthopädie Aligner & Lingualtechnik (GOZ)", "practitioners_count": 3, "doctolib_url": "https://www.doctolib.de/kieferorthopaede/frankfurt/kfo-westend-aligner", "jameda_rating": 4.2, "google_rating": 4.0, "total_reviews": 142, "sample_review_quotes": ["15 Mal angerufen wegen Invisalign-Beratungstermin, immer nur Warteschleife.", "Rezeption völlig überlastet, telefonisch nicht erreichbar wenn man einen Termin verschieben oder neu buchen will."], "play_a": {"specialty_code": "KFO_ALIGNER", "billing_framework": "GOZ / Selbstzahler (Invisalign / Spark)", "avg_case_ltv_eur": 5800.0, "phone_complaint_reviews": 14, "nlp_verified_phone_hits": 2, "high_ticket_motives_phone_only": true, "pkv_wait_days": 19, "gkv_wait_days": 45, "wait_time_arbitrage_spread_days": 26, "monthly_missed_high_ticket_calls": 18, "estimated_lost_cases_per_month": 3.55, "monthly_gross_pkv_leakage_eur": 20590.0, "recoverable_monthly_revenue_eur": 14001.2, "phone_black_hole_score": 98}, "play_b": {"bgh_case_reference": "BGH, Urt. v. 12.05.2022 – III ZR 78/21 (§ 615 S. 1 & 2 BGB / § 280 BGB)", "is_pure_bestellpraxis": true, "has_written_cancellation_agreement": false, "has_exculpation_clause_bgh": false, "deducts_saved_material_costs": false, "has_automated_waitlist_backfill": false, "pillars_passed": 1, "legal_enforceability_status": "UNWIRKSAM (KEIN DURCHSETZBARES AUSFALLHONORAR)", "legal_defects": ["Pillar 2 fehlt: Kein dokumentiertes Opt-In vor Terminbuchung (bloßer Empfangs-Aushang ist nach BGH III ZR 78/21 unwirksam).", "Pillar 2 AGB-Mangel: Pauschale Ausfallgebühr ohne Exkulpationsmöglichkeit bei unverschuldeter Verhinderung (§ 307 Abs. 1, § 280 Abs. 1 S. 2 BGB) ist unwirksam.", "Pillar 3 Abrechnungsmangel: Ersparte Material-/Laborkosten (12%) werden nicht nach § 615 Satz 2 BGB abgezogen.", "Pillar 3 Nachweismangel: Keine automatisierte 48h/24h SMS/WhatsApp-Wartelisten-Nachbesetzung (kein Nachweis über vergeblichen anderweitigen Erwerb nach § 615 Satz 2 BGB)."], "total_monthly_no_show_slots": 24.0, "gross_missed_slot_value_eur": 230.0, "saved_material_deduction_eur": 27.6, "net_enforceable_ausfallhonorar_per_slot_eur": 202.4, "monthly_unrecovered_no_show_loss_eur": 5520.0, "monthly_waitlist_backfill_recovered_eur": 3422.4, "monthly_ausfallhonorar_collected_eur": 1384.42, "total_monthly_play_b_recovery_eur": 4806.82}, "combined_monthly_recoverable_eur": 18808.02, "recommended_agency_retainer_eur": 2450.0, "client_net_roi_multiple": 7.7, "sniper_priority_tier": "TIER 1 — ULTRA-HIGH-TICKET SNIPER TARGET", "outreach_hook_de": "Sehr geehrte Praxisleitung von KFO Westend — Fachzahnarztpraxis für Kieferorthopädie & Aligner Dr. Lindner & Kollegen, wir haben Ihre Doctolib-Verfügbarkeit in Frankfurt am Main sowie 142 Jameda-/Google-Bewertungen analysiert: 14 Patienten berichten explizit, dass telefonisch niemand erreichbar war ('Warteschleife / Bandansage'), während Selbstzahler-/PKV-Termine für Kieferorthopädie Aligner & Lingualtechnik (GOZ) (Ø Fallwert €5,800) telefonisch angefragt werden müssen. Das kostet Ihre Praxis aktuell ca. €20,590/Monat an abwandernden Privatpatienten – plus €5,520/Monat durch kurzfristige Terminausfälle (24.0 No-Shows/Monat, aktueller § 615 BGB Status: UNWIRKSAM (KEIN DURCHSETZBARES AUSFALLHONORAR)). Mit unserem 24/7 KI-Telefonassistenten + BGH-konformen 48h-WhatsApp-Wartelisten-Backfill sichern wir Ihrer Praxis monatlich ca. €18,808 an zusätzlichem Honorar.", "bgh_compliant_clause_de": "VEREINBARUNG ÜBER EXKLUSIVE TERMINRESERVIERUNG (BESTELLPRAXIS GEM. § 615 BGB) — KFO Westend — Fachzahnarztpraxis für Kieferorthopädie & Aligner Dr. Lindner & Kollegen:\n1. Exklusive Zeitreservierung: Unsere Praxis wird als reine Bestellpraxis im Fachbereich Kieferorthopädie Aligner & Lingualtechnik (GOZ) geführt. Der für Sie reservierte Behandlungstermin wird exklusiv für Sie freigehalten; eine parallele Vergabe findet nicht statt.\n2. Absagefrist & Nachbesetzung: Sollten Sie den Termin nicht wahrnehmen können, bitten wir um Mitteilung bis spätestens 24 Stunden vor Terminbeginn (per 1-Klick-Link in Ihrer SMS/WhatsApp-Erinnerung), damit wir den Platz über unsere automatisierte digitale Warteliste an einen anderen Patienten vergeben können.\n3. Ausfallhonorar (§ 615 S. 1 & 2 BGB / BGH III ZR 78/21): Bei nicht fristgerechter Absage oder Nichterscheinen berechnen wir das vereinbarte Honorar abzüglich ersparter Material-/Laborkosten (12% Abzug = netto €202.40), sofern der Termin trotz sofortiger automatisierter Wartelisten-Anfrage nicht anderweitig nachbesetzt werden konnte (§ 615 Satz 2 BGB). Dem Patienten bleibt der Nachweis vorbehalten, dass ihn an der verspäteten Absage kein Verschulden trifft (§ 280 Abs. 1 Satz 2 BGB) oder ein geringerer Ausfall entstanden ist."}, {"practice_id": "DE-DUS-DERM-003", "practice_name": "Privatpraxis Königsallee Dermatologie, Laser & Ästhetik Dr. med. Katharina Vossen", "city": "Düsseldorf", "postal_code": "40212", "specialty": "Ästhetische Dermatologie & Lasermedizin (GOÄ / IGeL)", "practitioners_count": 3, "doctolib_url": "https://www.doctolib.de/hautarzt/duesseldorf/privatpraxis-koenigsallee-dermatologie", "jameda_rating": 4.3, "google_rating": 4.1, "total_reviews": 219, "sample_review_quotes": ["Ärztin brillant bei CO2-Laser und BBL, aber telefonische Erreichbarkeit unterirdisch. 30 Mal angerufen!", "Für Laser-Behandlungen muss man laut Doctolib anrufen, aber es läuft nur der Anrufbeantworter."], "play_a": {"specialty_code": "AESTHETIC_DERMA", "billing_framework": "GOÄ / Selbstzahler (CO2-Laser, Ultherapy, Injectables)", "avg_case_ltv_eur": 1650.0, "phone_complaint_reviews": 24, "nlp_verified_phone_hits": 1, "high_ticket_motives_phone_only": true, "pkv_wait_days": 21, "gkv_wait_days": 0, "wait_time_arbitrage_spread_days": 21, "monthly_missed_high_ticket_calls": 34, "estimated_lost_cases_per_month": 8.28, "monthly_gross_pkv_leakage_eur": 13662.0, "recoverable_monthly_revenue_eur": 9290.16, "phone_black_hole_score": 100}, "play_b": {"bgh_case_reference": "BGH, Urt. v. 12.05.2022 – III ZR 78/21 (§ 615 S. 1 & 2 BGB / § 280 BGB)", "is_pure_bestellpraxis": true, "has_written_cancellation_agreement": true, "has_exculpation_clause_bgh": true, "deducts_saved_material_costs": false, "has_automated_waitlist_backfill": false, "pillars_passed": 2, "legal_enforceability_status": "ANGREIFBAR (TEILKONFORM — § 615 S. 2 BGB LÜCKE)", "legal_defects": ["Pillar 3 Abrechnungsmangel: Ersparte Material-/Laborkosten (22%) werden nicht nach § 615 Satz 2 BGB abgezogen.", "Pillar 3 Nachweismangel: Keine automatisierte 48h/24h SMS/WhatsApp-Wartelisten-Nachbesetzung (kein Nachweis über vergeblichen anderweitigen Erwerb nach § 615 Satz 2 BGB)."], "total_monthly_no_show_slots": 28.5, "gross_missed_slot_value_eur": 310.0, "saved_material_deduction_eur": 68.2, "net_enforceable_ausfallhonorar_per_slot_eur": 241.8, "monthly_unrecovered_no_show_loss_eur": 8835.0, "monthly_waitlist_backfill_recovered_eur": 5477.7, "monthly_ausfallhonorar_collected_eur": 1964.02, "total_monthly_play_b_recovery_eur": 7441.72}, "combined_monthly_recoverable_eur": 16731.88, "recommended_agency_retainer_eur": 2450.0, "client_net_roi_multiple": 6.8, "sniper_priority_tier": "TIER 1 — ULTRA-HIGH-TICKET SNIPER TARGET", "outreach_hook_de": "Sehr geehrte Praxisleitung von Privatpraxis Königsallee Dermatologie, Laser & Ästhetik Dr. med. Katharina Vossen, wir haben Ihre Doctolib-Verfügbarkeit in Düsseldorf sowie 219 Jameda-/Google-Bewertungen analysiert: 24 Patienten berichten explizit, dass telefonisch niemand erreichbar war ('Warteschleife / Bandansage'), während Selbstzahler-/PKV-Termine für Ästhetische Dermatologie & Lasermedizin (GOÄ / IGeL) (Ø Fallwert €1,650) telefonisch angefragt werden müssen. Das kostet Ihre Praxis aktuell ca. €13,662/Monat an abwandernden Privatpatienten – plus €8,835/Monat durch kurzfristige Terminausfälle (28.5 No-Shows/Monat, aktueller § 615 BGB Status: ANGREIFBAR (TEILKONFORM — § 615 S. 2 BGB LÜCKE)). Mit unserem 24/7 KI-Telefonassistenten + BGH-konformen 48h-WhatsApp-Wartelisten-Backfill sichern wir Ihrer Praxis monatlich ca. €16,732 an zusätzlichem Honorar.", "bgh_compliant_clause_de": "VEREINBARUNG ÜBER EXKLUSIVE TERMINRESERVIERUNG (BESTELLPRAXIS GEM. § 615 BGB) — Privatpraxis Königsallee Dermatologie, Laser & Ästhetik Dr. med. Katharina Vossen:\n1. Exklusive Zeitreservierung: Unsere Praxis wird als reine Bestellpraxis im Fachbereich Ästhetische Dermatologie & Lasermedizin (GOÄ / IGeL) geführt. Der für Sie reservierte Behandlungstermin wird exklusiv für Sie freigehalten; eine parallele Vergabe findet nicht statt.\n2. Absagefrist & Nachbesetzung: Sollten Sie den Termin nicht wahrnehmen können, bitten wir um Mitteilung bis spätestens 48 Stunden vor Terminbeginn (per 1-Klick-Link in Ihrer SMS/WhatsApp-Erinnerung), damit wir den Platz über unsere automatisierte digitale Warteliste an einen anderen Patienten vergeben können.\n3. Ausfallhonorar (§ 615 S. 1 & 2 BGB / BGH III ZR 78/21): Bei nicht fristgerechter Absage oder Nichterscheinen berechnen wir das vereinbarte Honorar abzüglich ersparter Material-/Laborkosten (22% Abzug = netto €241.80), sofern der Termin trotz sofortiger automatisierter Wartelisten-Anfrage nicht anderweitig nachbesetzt werden konnte (§ 615 Satz 2 BGB). Dem Patienten bleibt der Nachweis vorbehalten, dass ihn an der verspäteten Absage kein Verschulden trifft (§ 280 Abs. 1 Satz 2 BGB) oder ein geringerer Ausfall entstanden ist."}, {"practice_id": "DE-HAM-AUG-004", "practice_name": "Hanseatisches Augenlaser- & ICL-Zentrum Rotherbaum MVZ GmbH", "city": "Hamburg", "postal_code": "20148", "specialty": "Augenlaser Lasik / SMILE / ICL-Linsen (GOÄ)", "practitioners_count": 5, "doctolib_url": "https://www.doctolib.de/augenarzt/hamburg/hanseatisches-augenlaser-zentrum", "jameda_rating": 4.0, "google_rating": 3.8, "total_reviews": 265, "sample_review_quotes": ["Wollte ReLEx SMILE Voruntersuchung für 4.400€ buchen – telefonisch niemand erreichbar, habe dann bei EuroEyes gebucht.", "Bandansage legt auf, kein Rückruf trotz hinterlassener Nachricht."], "play_a": {"specialty_code": "AUGENLASER", "billing_framework": "GOÄ / Selbstzahler (Femto-LASIK / ReLEx SMILE / ICL)", "avg_case_ltv_eur": 4200.0, "phone_complaint_reviews": 27, "nlp_verified_phone_hits": 2, "high_ticket_motives_phone_only": true, "pkv_wait_days": 14, "gkv_wait_days": 0, "wait_time_arbitrage_spread_days": 14, "monthly_missed_high_ticket_calls": 29, "estimated_lost_cases_per_month": 6.06, "monthly_gross_pkv_leakage_eur": 25452.0, "recoverable_monthly_revenue_eur": 17307.36, "phone_black_hole_score": 100}, "play_b": {"bgh_case_reference": "BGH, Urt. v. 12.05.2022 – III ZR 78/21 (§ 615 S. 1 & 2 BGB / § 280 BGB)", "is_pure_bestellpraxis": true, "has_written_cancellation_agreement": true, "has_exculpation_clause_bgh": false, "deducts_saved_material_costs": false, "has_automated_waitlist_backfill": false, "pillars_passed": 1, "legal_enforceability_status": "UNWIRKSAM (KEIN DURCHSETZBARES AUSFALLHONORAR)", "legal_defects": ["Pillar 2 AGB-Mangel: Pauschale Ausfallgebühr ohne Exkulpationsmöglichkeit bei unverschuldeter Verhinderung (§ 307 Abs. 1, § 280 Abs. 1 S. 2 BGB) ist unwirksam.", "Pillar 3 Abrechnungsmangel: Ersparte Material-/Laborkosten (15%) werden nicht nach § 615 Satz 2 BGB abgezogen.", "Pillar 3 Nachweismangel: Keine automatisierte 48h/24h SMS/WhatsApp-Wartelisten-Nachbesetzung (kein Nachweis über vergeblichen anderweitigen Erwerb nach § 615 Satz 2 BGB)."], "total_monthly_no_show_slots": 35.0, "gross_missed_slot_value_eur": 340.0, "saved_material_deduction_eur": 51.0, "net_enforceable_ausfallhonorar_per_slot_eur": 289.0, "monthly_unrecovered_no_show_loss_eur": 11900.0, "monthly_waitlist_backfill_recovered_eur": 7378.0, "monthly_ausfallhonorar_collected_eur": 2882.78, "total_monthly_play_b_recovery_eur": 10260.78}, "combined_monthly_recoverable_eur": 27568.14, "recommended_agency_retainer_eur": 2450.0, "client_net_roi_multiple": 11.3, "sniper_priority_tier": "TIER 1 — ULTRA-HIGH-TICKET SNIPER TARGET", "outreach_hook_de": "Sehr geehrte Praxisleitung von Hanseatisches Augenlaser- & ICL-Zentrum Rotherbaum MVZ GmbH, wir haben Ihre Doctolib-Verfügbarkeit in Hamburg sowie 265 Jameda-/Google-Bewertungen analysiert: 27 Patienten berichten explizit, dass telefonisch niemand erreichbar war ('Warteschleife / Bandansage'), während Selbstzahler-/PKV-Termine für Augenlaser Lasik / SMILE / ICL-Linsen (GOÄ) (Ø Fallwert €4,200) telefonisch angefragt werden müssen. Das kostet Ihre Praxis aktuell ca. €25,452/Monat an abwandernden Privatpatienten – plus €11,900/Monat durch kurzfristige Terminausfälle (35.0 No-Shows/Monat, aktueller § 615 BGB Status: UNWIRKSAM (KEIN DURCHSETZBARES AUSFALLHONORAR)). Mit unserem 24/7 KI-Telefonassistenten + BGH-konformen 48h-WhatsApp-Wartelisten-Backfill sichern wir Ihrer Praxis monatlich ca. €27,568 an zusätzlichem Honorar.", "bgh_compliant_clause_de": "VEREINBARUNG ÜBER EXKLUSIVE TERMINRESERVIERUNG (BESTELLPRAXIS GEM. § 615 BGB) — Hanseatisches Augenlaser- & ICL-Zentrum Rotherbaum MVZ GmbH:\n1. Exklusive Zeitreservierung: Unsere Praxis wird als reine Bestellpraxis im Fachbereich Augenlaser Lasik / SMILE / ICL-Linsen (GOÄ) geführt. Der für Sie reservierte Behandlungstermin wird exklusiv für Sie freigehalten; eine parallele Vergabe findet nicht statt.\n2. Absagefrist & Nachbesetzung: Sollten Sie den Termin nicht wahrnehmen können, bitten wir um Mitteilung bis spätestens 48 Stunden vor Terminbeginn (per 1-Klick-Link in Ihrer SMS/WhatsApp-Erinnerung), damit wir den Platz über unsere automatisierte digitale Warteliste an einen anderen Patienten vergeben können.\n3. Ausfallhonorar (§ 615 S. 1 & 2 BGB / BGH III ZR 78/21): Bei nicht fristgerechter Absage oder Nichterscheinen berechnen wir das vereinbarte Honorar abzüglich ersparter Material-/Laborkosten (15% Abzug = netto €289.00), sofern der Termin trotz sofortiger automatisierter Wartelisten-Anfrage nicht anderweitig nachbesetzt werden konnte (§ 615 Satz 2 BGB). Dem Patienten bleibt der Nachweis vorbehalten, dass ihn an der verspäteten Absage kein Verschulden trifft (§ 280 Abs. 1 Satz 2 BGB) oder ein geringerer Ausfall entstanden ist."}, {"practice_id": "DE-BER-ORT-005", "practice_name": "Privatpraxis Kurfürstendamm Orthopädie, Sportmedizin & Wirbelsäule Prof. Dr. K. Stephan", "city": "Berlin", "postal_code": "10719", "specialty": "Privat-Orthopädie PRT / Stoßwelle / ACP (GOÄ)", "practitioners_count": 3, "doctolib_url": "https://www.doctolib.de/orthopaede/berlin/privatpraxis-kurfuerstendamm-orthopaedie", "jameda_rating": 4.4, "google_rating": 4.1, "total_reviews": 158, "sample_review_quotes": ["Akuter Bandscheibenvorfall (PKV), wollte PRT-Termin – geht keiner ans Telefon, nur Warteschleife.", "Telefonische Erreichbarkeit gleich null, man muss persönlich vorbeigehen um einen Termin zu bekommen."], "play_a": {"specialty_code": "PRIVAT_ORTHO", "billing_framework": "GOÄ / PKV & Selbstzahler (PRT, ACP-Eigenblut, Fokussierte ESWT)", "avg_case_ltv_eur": 1450.0, "phone_complaint_reviews": 12, "nlp_verified_phone_hits": 2, "high_ticket_motives_phone_only": false, "pkv_wait_days": 11, "gkv_wait_days": 0, "wait_time_arbitrage_spread_days": 11, "monthly_missed_high_ticket_calls": 32, "estimated_lost_cases_per_month": 6.05, "monthly_gross_pkv_leakage_eur": 8772.5, "recoverable_monthly_revenue_eur": 5965.3, "phone_black_hole_score": 64}, "play_b": {"bgh_case_reference": "BGH, Urt. v. 12.05.2022 – III ZR 78/21 (§ 615 S. 1 & 2 BGB / § 280 BGB)", "is_pure_bestellpraxis": true, "has_written_cancellation_agreement": false, "has_exculpation_clause_bgh": false, "deducts_saved_material_costs": false, "has_automated_waitlist_backfill": false, "pillars_passed": 1, "legal_enforceability_status": "UNWIRKSAM (KEIN DURCHSETZBARES AUSFALLHONORAR)", "legal_defects": ["Pillar 2 fehlt: Kein dokumentiertes Opt-In vor Terminbuchung (bloßer Empfangs-Aushang ist nach BGH III ZR 78/21 unwirksam).", "Pillar 2 AGB-Mangel: Pauschale Ausfallgebühr ohne Exkulpationsmöglichkeit bei unverschuldeter Verhinderung (§ 307 Abs. 1, § 280 Abs. 1 S. 2 BGB) ist unwirksam.", "Pillar 3 Abrechnungsmangel: Ersparte Material-/Laborkosten (14%) werden nicht nach § 615 Satz 2 BGB abgezogen.", "Pillar 3 Nachweismangel: Keine automatisierte 48h/24h SMS/WhatsApp-Wartelisten-Nachbesetzung (kein Nachweis über vergeblichen anderweitigen Erwerb nach § 615 Satz 2 BGB)."], "total_monthly_no_show_slots": 25.5, "gross_missed_slot_value_eur": 215.0, "saved_material_deduction_eur": 30.1, "net_enforceable_ausfallhonorar_per_slot_eur": 184.9, "monthly_unrecovered_no_show_loss_eur": 5482.5, "monthly_waitlist_backfill_recovered_eur": 3399.15, "monthly_ausfallhonorar_collected_eur": 1343.76, "total_monthly_play_b_recovery_eur": 4742.91}, "combined_monthly_recoverable_eur": 10708.21, "recommended_agency_retainer_eur": 2450.0, "client_net_roi_multiple": 4.4, "sniper_priority_tier": "TIER 2 — HIGH-MARGIN PKV & NO-SHOW TARGET", "outreach_hook_de": "Sehr geehrte Praxisleitung von Privatpraxis Kurfürstendamm Orthopädie, Sportmedizin & Wirbelsäule Prof. Dr. K. Stephan, wir haben Ihre Doctolib-Verfügbarkeit in Berlin sowie 158 Jameda-/Google-Bewertungen analysiert: 12 Patienten berichten explizit, dass telefonisch niemand erreichbar war ('Warteschleife / Bandansage'), während Selbstzahler-/PKV-Termine für Privat-Orthopädie PRT / Stoßwelle / ACP (GOÄ) (Ø Fallwert €1,450) telefonisch angefragt werden müssen. Das kostet Ihre Praxis aktuell ca. €8,772/Monat an abwandernden Privatpatienten – plus €5,482/Monat durch kurzfristige Terminausfälle (25.5 No-Shows/Monat, aktueller § 615 BGB Status: UNWIRKSAM (KEIN DURCHSETZBARES AUSFALLHONORAR)). Mit unserem 24/7 KI-Telefonassistenten + BGH-konformen 48h-WhatsApp-Wartelisten-Backfill sichern wir Ihrer Praxis monatlich ca. €10,708 an zusätzlichem Honorar.", "bgh_compliant_clause_de": "VEREINBARUNG ÜBER EXKLUSIVE TERMINRESERVIERUNG (BESTELLPRAXIS GEM. § 615 BGB) — Privatpraxis Kurfürstendamm Orthopädie, Sportmedizin & Wirbelsäule Prof. Dr. K. Stephan:\n1. Exklusive Zeitreservierung: Unsere Praxis wird als reine Bestellpraxis im Fachbereich Privat-Orthopädie PRT / Stoßwelle / ACP (GOÄ) geführt. Der für Sie reservierte Behandlungstermin wird exklusiv für Sie freigehalten; eine parallele Vergabe findet nicht statt.\n2. Absagefrist & Nachbesetzung: Sollten Sie den Termin nicht wahrnehmen können, bitten wir um Mitteilung bis spätestens 24 Stunden vor Terminbeginn (per 1-Klick-Link in Ihrer SMS/WhatsApp-Erinnerung), damit wir den Platz über unsere automatisierte digitale Warteliste an einen anderen Patienten vergeben können.\n3. Ausfallhonorar (§ 615 S. 1 & 2 BGB / BGH III ZR 78/21): Bei nicht fristgerechter Absage oder Nichterscheinen berechnen wir das vereinbarte Honorar abzüglich ersparter Material-/Laborkosten (14% Abzug = netto €184.90), sofern der Termin trotz sofortiger automatisierter Wartelisten-Anfrage nicht anderweitig nachbesetzt werden konnte (§ 615 Satz 2 BGB). Dem Patienten bleibt der Nachweis vorbehalten, dass ihn an der verspäteten Absage kein Verschulden trifft (§ 280 Abs. 1 Satz 2 BGB) oder ein geringerer Ausfall entstanden ist."}, {"practice_id": "CH-ZUR-PLA-006", "practice_name": "Aesthetic Clinic Zürichsee / Bodensee — Plastische & Ästhetische Chirurgie Dr. med. R. Tobler", "city": "Konstanz / Zürich-Grenze", "postal_code": "78462", "specialty": "Plastische & Ästhetische Chirurgie (GOÄ / Selbstzahler)", "practitioners_count": 2, "doctolib_url": "https://www.doctolib.de/plastische-chirurgie/konstanz/aesthetic-clinic-bodensee", "jameda_rating": 4.5, "google_rating": 4.2, "total_reviews": 112, "sample_review_quotes": ["Wollte OP-Beratungstermin für Rhinoplastik vereinbaren, telefonisch niemand erreichbar während der Sprechzeiten.", "Rezeption ruft erst nach 4 Tagen zurück, hatte da schon in Zürich gebucht."], "play_a": {"specialty_code": "PLASTISCHE_CHIRURGIE", "billing_framework": "GOÄ / Selbstzahler (Rhinoplastik, Blepharoplastik, Mamma)", "avg_case_ltv_eur": 7900.0, "phone_complaint_reviews": 11, "nlp_verified_phone_hits": 1, "high_ticket_motives_phone_only": true, "pkv_wait_days": 18, "gkv_wait_days": 0, "wait_time_arbitrage_spread_days": 18, "monthly_missed_high_ticket_calls": 15, "estimated_lost_cases_per_month": 2.26, "monthly_gross_pkv_leakage_eur": 17854.0, "recoverable_monthly_revenue_eur": 12140.72, "phone_black_hole_score": 92}, "play_b": {"bgh_case_reference": "BGH, Urt. v. 12.05.2022 – III ZR 78/21 (§ 615 S. 1 & 2 BGB / § 280 BGB)", "is_pure_bestellpraxis": true, "has_written_cancellation_agreement": true, "has_exculpation_clause_bgh": true, "deducts_saved_material_costs": true, "has_automated_waitlist_backfill": false, "pillars_passed": 2, "legal_enforceability_status": "ANGREIFBAR (TEILKONFORM — § 615 S. 2 BGB LÜCKE)", "legal_defects": ["Pillar 3 Nachweismangel: Keine automatisierte 48h/24h SMS/WhatsApp-Wartelisten-Nachbesetzung (kein Nachweis über vergeblichen anderweitigen Erwerb nach § 615 Satz 2 BGB)."], "total_monthly_no_show_slots": 11.0, "gross_missed_slot_value_eur": 410.0, "saved_material_deduction_eur": 65.6, "net_enforceable_ausfallhonorar_per_slot_eur": 344.4, "monthly_unrecovered_no_show_loss_eur": 4510.0, "monthly_waitlist_backfill_recovered_eur": 2796.2, "monthly_ausfallhonorar_collected_eur": 1079.69, "total_monthly_play_b_recovery_eur": 3875.89}, "combined_monthly_recoverable_eur": 16016.61, "recommended_agency_retainer_eur": 1950.0, "client_net_roi_multiple": 8.2, "sniper_priority_tier": "TIER 1 — ULTRA-HIGH-TICKET SNIPER TARGET", "outreach_hook_de": "Sehr geehrte Praxisleitung von Aesthetic Clinic Zürichsee / Bodensee — Plastische & Ästhetische Chirurgie Dr. med. R. Tobler, wir haben Ihre Doctolib-Verfügbarkeit in Konstanz / Zürich-Grenze sowie 112 Jameda-/Google-Bewertungen analysiert: 11 Patienten berichten explizit, dass telefonisch niemand erreichbar war ('Warteschleife / Bandansage'), während Selbstzahler-/PKV-Termine für Plastische & Ästhetische Chirurgie (GOÄ / Selbstzahler) (Ø Fallwert €7,900) telefonisch angefragt werden müssen. Das kostet Ihre Praxis aktuell ca. €17,854/Monat an abwandernden Privatpatienten – plus €4,510/Monat durch kurzfristige Terminausfälle (11.0 No-Shows/Monat, aktueller § 615 BGB Status: ANGREIFBAR (TEILKONFORM — § 615 S. 2 BGB LÜCKE)). Mit unserem 24/7 KI-Telefonassistenten + BGH-konformen 48h-WhatsApp-Wartelisten-Backfill sichern wir Ihrer Praxis monatlich ca. €16,017 an zusätzlichem Honorar.", "bgh_compliant_clause_de": "VEREINBARUNG ÜBER EXKLUSIVE TERMINRESERVIERUNG (BESTELLPRAXIS GEM. § 615 BGB) — Aesthetic Clinic Zürichsee / Bodensee — Plastische & Ästhetische Chirurgie Dr. med. R. Tobler:\n1. Exklusive Zeitreservierung: Unsere Praxis wird als reine Bestellpraxis im Fachbereich Plastische & Ästhetische Chirurgie (GOÄ / Selbstzahler) geführt. Der für Sie reservierte Behandlungstermin wird exklusiv für Sie freigehalten; eine parallele Vergabe findet nicht statt.\n2. Absagefrist & Nachbesetzung: Sollten Sie den Termin nicht wahrnehmen können, bitten wir um Mitteilung bis spätestens 48 Stunden vor Terminbeginn (per 1-Klick-Link in Ihrer SMS/WhatsApp-Erinnerung), damit wir den Platz über unsere automatisierte digitale Warteliste an einen anderen Patienten vergeben können.\n3. Ausfallhonorar (§ 615 S. 1 & 2 BGB / BGH III ZR 78/21): Bei nicht fristgerechter Absage oder Nichterscheinen berechnen wir das vereinbarte Honorar abzüglich ersparter Material-/Laborkosten (16% Abzug = netto €344.40), sofern der Termin trotz sofortiger automatisierter Wartelisten-Anfrage nicht anderweitig nachbesetzt werden konnte (§ 615 Satz 2 BGB). Dem Patienten bleibt der Nachweis vorbehalten, dass ihn an der verspäteten Absage kein Verschulden trifft (§ 280 Abs. 1 Satz 2 BGB) oder ein geringerer Ausfall entstanden ist."}];
+    const ACTORS = [{"actor_slug": "giovannibiancia/doctolib-scraper", "actor_id": "jtbjGcNPuomNQHQLm", "title": "Doctolib scraper (FR / DE / IT)", "total_runs": 734, "total_users": 77, "users_90d": 10, "pricing_model": "PAY_PER_EVENT", "price_summary": "$0.03 / doctor-scraped + $0.001 / api-call ($2.00 min)", "capabilities": ["Doctolib.de / .fr / .it practitioner & clinic profiles", "Specializations, contact phones, practice addresses", "Multi-city & specialty pagination"]}, {"actor_slug": "signalflow/doctolib-pro", "actor_id": "zUmdgGXbkbIONblpa", "title": "Doctolib - Pro Data Scraper (Wait-Time & Demand Signals)", "total_runs": 359, "total_users": 31, "users_90d": 5, "pricing_model": "PAY_PER_EVENT", "price_summary": "$0.04 / result + $0.08 / actor-start", "capabilities": ["15+ CRM data points across Germany, France, Italy", "Built-in wait-time analysis & patient demand scoring", "Territory mapping for MedTech & practice automation agencies"]}, {"actor_slug": "scrapestorm/doctolib-scraper---pay-per-result-cheap", "actor_id": "XOoO632Iox1O1WBdA", "title": "Doctolib Scraper - Pay per result Cheap (FR / DE / IT)", "total_runs": 316, "total_users": 22, "users_90d": 3, "pricing_model": "PAY_PER_EVENT", "price_summary": "$0.00449–$0.00399 / result ($3.99–$4.49 / 1K)", "capabilities": ["Verified doctor profiles across DE/FR/IT", "Appointment monitoring & practice lead generation"]}, {"actor_slug": "rigelbytes/doctolib-scraper", "actor_id": "cYsDz8feIRVdrouAc", "title": "Doctolib.de Scraper (Insurance Type & Availability)", "total_runs": 132, "total_users": 6, "users_90d": 3, "pricing_model": "PAY_PER_EVENT", "price_summary": "$0.0015 / doctor scraped ($1.50 / 1K)", "capabilities": ["Native Doctolib.de filter by GKV vs. PKV / Selbstzahler insurance", "Real-time appointment availability & languages spoken"]}, {"actor_slug": "studio-amba/doctolib-de-scraper", "actor_id": "NHhNSpK2AeQ90kQw1", "title": "Doctolib DE Scraper — Doctor & Clinic Directory Data", "total_runs": 119, "total_users": 1, "users_90d": 1, "pricing_model": "PAY_PER_EVENT", "price_summary": "$0.002–$0.0012 / result + $0.005 / start", "capabilities": ["Statutory vs. private insurance acceptance flags", "Online booking availability & published GOÄ/GOZ fees"]}, {"actor_slug": "nice_dev/doctolib-practitioners-scraper", "actor_id": "jdTZcTFOmHf4QvjZg", "title": "Doctolib Practitioners Scraper (Next-Slot & Visit Motives)", "total_runs": 21, "total_users": 1, "users_90d": 1, "pricing_model": "PAY_PER_EVENT", "price_summary": "$0.00062 / profile + $0.00099 / next-available-appointment", "capabilities": ["Extracts visit motives (Besuchsgründe: Implantat, Aligner, Laser)", "Computes exact days-to-wait & open slots of the week"]}, {"actor_slug": "thescrappa/jameda-search-scraper", "actor_id": "8SvzPgdsdg1yZK1t4", "title": "Jameda Search Scraper (jameda.de Directory)", "total_runs": 1642, "total_users": 5, "users_90d": 3, "pricing_model": "PAY_PER_EVENT", "price_summary": "$0.0002 / doctor result ($0.20 / 1K)", "capabilities": ["High-speed German doctor shortlist by specialty and city", "Ratings, review counts, and practice URLs on jameda.de"]}, {"actor_slug": "giovannibiancia/jameda", "actor_id": "xloZIun34FTqGym88", "title": "Jameda Scraper (Detailed Doctor & Slot Data)", "total_runs": 925, "total_users": 54, "users_90d": 3, "pricing_model": "PAY_PER_EVENT", "price_summary": "$0.05 / doctor-record + $0.001 / slot-address", "capabilities": ["Full Jameda.de practitioner records & calendar slot addresses"]}, {"actor_slug": "muhammetakkurtt/jameda-reviews-scraper", "actor_id": "h3FZ6y6t9FdGFVFnE", "title": "Jameda Reviews Scraper (Patient Complaint Mining)", "total_runs": 723, "total_users": 9, "users_90d": 1, "pricing_model": "PAY_PER_EVENT", "price_summary": "$0.002–$0.0005 / review ($0.50–$2.00 / 1K reviews)", "capabilities": ["Extracts full Jameda review text, 1-5★ score, date, and doctor reply", "Ideal for NLP detection of 'telefonisch niemand erreichbar' complaints"]}, {"actor_slug": "trev0n/doctoralia-scraper", "actor_id": "OTakw4KHb4GeSqEwe", "title": "Doctoralia & Jameda Network Scraper ($2 / 1K)", "total_runs": 711, "total_users": 75, "users_90d": 51, "pricing_model": "PAY_PER_EVENT", "price_summary": "$0.002 / result ($2.00 / 1K)", "capabilities": ["Covers DocPlanner network including Jameda.de", "Services with prices, license numbers, GPS, and every patient review"]}, {"actor_slug": "samstorm/dentist-lead-scraper", "actor_id": "QcKrZyRWEIqX2GI09", "title": "Dentist & Orthodontist Lead Scraper — Dental Practice Contacts", "total_runs": 2625, "total_users": 335, "users_90d": 40, "pricing_model": "PAY_PER_EVENT", "price_summary": "$0.075–$0.06375 / enriched healthcare lead", "capabilities": ["Dentists, orthodontists, implantology clinics with verified emails & phones"]}];
+
+    function formatEur(val) {
+      return "€" + Math.round(val).toLocaleString("de-DE");
+    }
+
+    function runSimulation() {
+      const specName = document.getElementById("sim-specialty").value;
+      const missedCalls = parseFloat(document.getElementById("sim-missed-calls").value || "0");
+      const docs = parseFloat(document.getElementById("sim-practitioners").value || "1");
+      const noShowsPerDoc = parseFloat(document.getElementById("sim-noshows").value || "0");
+
+      const b = BENCHMARKS[specName];
+      if (!b) return;
+
+      const lostCases = missedCalls * 0.58 * b.conversion_from_triage;
+      const grossLeakage = lostCases * b.avg_case_ltv_eur;
+      const playARec = grossLeakage * 0.68;
+
+      const savedMat = b.avg_treatment_slot_eur * b.saved_material_ratio;
+      const netAusfall = b.avg_treatment_slot_eur - savedMat;
+
+      const totalNoShows = docs * noShowsPerDoc;
+      const backfillRec = (totalNoShows * 0.62) * b.avg_treatment_slot_eur;
+      const ausfallRec = (totalNoShows * 0.38 * 0.75) * netAusfall;
+      const playBRec = backfillRec + ausfallRec;
+
+      const totalRec = playARec + playBRec;
+      const retainer = docs >= 3 ? 2450 : 1950;
+      const roi = (totalRec / retainer).toFixed(1);
+
+      document.getElementById("out-play-a-loss").textContent = formatEur(grossLeakage) + "/M";
+      document.getElementById("out-play-a-rec").textContent = "KI-Voice + Fast-Track Recovery: +" + formatEur(playARec) + "/M";
+      document.getElementById("out-slot-net").textContent = "€" + netAusfall.toFixed(2) + "/Slot";
+      document.getElementById("out-slot-mat").textContent = "Brutto €" + b.avg_treatment_slot_eur.toFixed(0) + " abzgl. " + Math.round(b.saved_material_ratio * 100) + "% Material (-€" + savedMat.toFixed(2) + ")";
+      document.getElementById("out-play-b-rec").textContent = "+" + formatEur(playBRec) + "/M";
+      document.getElementById("out-play-b-split").textContent = "Backfill +" + formatEur(backfillRec) + " · § 615 BGB +" + formatEur(ausfallRec);
+      document.getElementById("out-total-rec").textContent = "+" + formatEur(totalRec) + "/M";
+      document.getElementById("out-roi-mult").textContent = roi + "x Netto-ROI bei €" + retainer + "/M Agentur-Retainer";
+    }
+
+    function filterCards() {
+      const spec = document.getElementById("filter-spec").value;
+      const cards = document.querySelectorAll(".practice-card");
+      cards.forEach(c => {
+        const cSpec = c.getAttribute("data-specialty");
+        c.style.display = (spec === "ALL" || cSpec === spec) ? "block" : "none";
+      });
+    }
+
+    window.addEventListener("DOMContentLoaded", runSimulation);
+  </script>
+</body>
+</html>

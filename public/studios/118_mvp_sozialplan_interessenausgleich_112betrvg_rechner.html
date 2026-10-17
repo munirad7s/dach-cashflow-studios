@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MVP #118 — DACH §§ 111–112a BetrVG Sozialplan-, Rentenkappungs- & § 17 KSchG Studio</title>
+<style>
+  :root {
+    --bg: #0b0f19;
+    --panel: #111827;
+    --panel-alt: #1f2937;
+    --border: #374151;
+    --text: #f9fafb;
+    --muted: #9ca3af;
+    --accent: #38bdf8;
+    --success: #10b981;
+    --warning: #f59e0b;
+    --danger: #ef4444;
+    --purple: #a855f7;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+  }
+  header {
+    background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 20px 28px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  .title-block h1 {
+    margin: 0 0 6px 0;
+    font-size: 1.35rem;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .badge {
+    font-size: 0.75rem;
+    padding: 3px 9px;
+    border-radius: 999px;
+    background: rgba(56, 189, 248, 0.15);
+    color: var(--accent);
+    border: 1px solid rgba(56, 189, 248, 0.35);
+    font-weight: 600;
+  }
+  .title-block p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.88rem;
+  }
+  .container {
+    max-width: 1480px;
+    margin: 0 auto;
+    padding: 24px;
+    display: grid;
+    grid-template-columns: 390px 1fr;
+    gap: 24px;
+  }
+  @media (max-width: 1100px) {
+    .container { grid-template-columns: 1fr; }
+  }
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px 20px;
+    margin-bottom: 20px;
+  }
+  .card h2 {
+    margin: 0 0 14px 0;
+    font-size: 1.02rem;
+    color: var(--accent);
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .field {
+    margin-bottom: 12px;
+  }
+  .field label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.82rem;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+  .field label span.val {
+    color: var(--text);
+    font-weight: 600;
+  }
+  select, input[type="number"], input[type="range"] {
+    width: 100%;
+    padding: 8px 10px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--panel-alt);
+    color: var(--text);
+    font-size: 0.88rem;
+  }
+  input[type="range"] {
+    padding: 0;
+    cursor: pointer;
+  }
+  .checkbox-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.84rem;
+    margin: 10px 0;
+    cursor: pointer;
+  }
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+  .kpi {
+    background: var(--panel-alt);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+  }
+  .kpi .k-label {
+    font-size: 0.76rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .kpi .k-val {
+    font-size: 1.45rem;
+    font-weight: 700;
+    margin: 6px 0 4px 0;
+  }
+  .kpi .k-sub {
+    font-size: 0.78rem;
+    color: var(--muted);
+  }
+  .pill {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 0.76rem;
+    font-weight: 600;
+  }
+  .pill-danger { background: rgba(239, 68, 68, 0.18); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.4); }
+  .pill-success { background: rgba(16, 185, 129, 0.18); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.4); }
+  .pill-warning { background: rgba(245, 158, 11, 0.18); color: #fcd34d; border: 1px solid rgba(245, 158, 11, 0.4); }
+  .quorum-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+  @media (max-width: 900px) {
+    .quorum-grid { grid-template-columns: 1fr; }
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.84rem;
+  }
+  th, td {
+    padding: 10px 10px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  th {
+    color: var(--muted);
+    font-weight: 600;
+    background: rgba(31, 41, 55, 0.6);
+  }
+  td.num, th.num {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+  .callout {
+    padding: 12px 14px;
+    border-radius: 8px;
+    font-size: 0.83rem;
+    margin-top: 10px;
+    background: rgba(56, 189, 248, 0.08);
+    border-left: 3px solid var(--accent);
+  }
+  .callout-warn {
+    background: rgba(245, 158, 11, 0.09);
+    border-left: 3px solid var(--warning);
+  }
+</style>
+</head>
+<body>
+
+<!-- DACH CASHFLOW STUDIOS LAUNCH BAR -->
+<style>
+  #dcs-launch-bar {
+    position: sticky;
+    top: 0;
+    z-index: 99999;
+    background: linear-gradient(90deg, #0b1120 0%, #111827 50%, #0f172a 100%);
+    color: #f8fafc;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.35);
+    padding: 8px 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  }
+  #dcs-launch-bar .dcs-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+  }
+  #dcs-launch-bar .dcs-badge {
+    background: rgba(16, 185, 129, 0.18);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.03em;
+  }
+  #dcs-launch-bar a.dcs-nav {
+    color: #93c5fd;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 12.5px;
+  }
+  #dcs-launch-bar a.dcs-nav:hover {
+    text-decoration: underline;
+    color: #dbeafe;
+  }
+  #dcs-launch-bar .dcs-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  #dcs-launch-bar .dcs-btn {
+    padding: 5px 11px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s ease;
+  }
+  #dcs-launch-bar .dcs-btn-ghost {
+    background: rgba(255,255,255,0.08);
+    color: #e2e8f0;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  #dcs-launch-bar .dcs-btn-primary {
+    background: linear-gradient(135deg, #0ea5e9, #2563eb);
+    color: #ffffff;
+  }
+  #dcs-launch-bar .dcs-btn-emerald {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
+  }
+  @media print {
+    #dcs-launch-bar { display: none !important; }
+  }
+</style>
+<div id="dcs-launch-bar">
+  <div class="dcs-left">
+    <a href="/index.html" class="dcs-nav">← Alle 150 DACH Studios</a>
+    <span class="dcs-badge">MVP #118 VERIFIED</span>
+    <span style="color:#cbd5e1;font-size:12px;">DACH LegalTech, Labor Law & Consumer Claims</span>
+  </div>
+  <div class="dcs-actions">
+    <button onclick="window.print()" class="dcs-btn dcs-btn-ghost">🖨️ PDF / Dossier drucken</button>
+    <a href="#checkout-modal-49" target="_blank" rel="noopener" class="dcs-btn dcs-btn-primary">⚡ Musterschreiben & Voll-Dossier (€49)</a>
+    <a href="#checkout-modal-299" target="_blank" rel="noopener" class="dcs-btn dcs-btn-emerald">🛡️ B2B Umsetzung buchen (€299 / €1.490)</a>
+  </div>
+</div>
+
+<header>
+  <div class="title-block">
+    <h1>
+      <span>⚖️ DACH §§ 111–112a BetrVG Sozialplan-, Rentenkappungs- & § 17 KSchG Studio</span>
+      <span class="badge">MVP #118</span>
+    </h1>
+    <p>Deterministischer Schwellenwert-Prüfer (§ 112a BetrVG / § 17 KSchG), BAG 1 AZR 73/22 Rentennahe-Jahrgänge-Deckelung (§ 10 S. 3 Nr. 6 AGG) & §§ 110–111 SGB III Transfergesellschafts-Rechner</p>
+  </div>
+  <div>
+    <span class="pill pill-success">BAG 1 AZR 73/22 & EuGH "Junk" konform</span>
+  </div>
+</header>
+
+<div class="container">
+  <!-- LEFT CONTROLS -->
+  <div>
+    <div class="card">
+      <h2>1. Restrukturierungs-Szenario & Betriebsgröße</h2>
+      <div class="field">
+        <label>Mandats-Vorlage (Preset)</label>
+        <select id="presetSelect" onchange="loadPreset()"></select>
+      </div>
+      <div class="field">
+        <label>Regelmäßige Arbeitnehmer (§ 111 BetrVG) <span class="val" id="valTotalEmp">280</span></label>
+        <input type="range" id="inTotalEmp" min="15" max="1200" step="5" value="280" oninput="recalc()">
+      </div>
+      <div class="field">
+        <label>Geplanter Personalabbau gesamt <span class="val" id="valLayoffs">52</span></label>
+        <input type="range" id="inLayoffs" min="1" max="300" step="1" value="52" oninput="recalc()">
+      </div>
+      <div class="field">
+        <label>Davon Entlassungen / Aufhebungen in 30 Tagen (§ 17 KSchG) <span class="val" id="valLayoffs30d">52</span></label>
+        <input type="range" id="inLayoffs30d" min="1" max="300" step="1" value="52" oninput="recalc()">
+      </div>
+      <div class="field">
+        <label>Unternehmensalter in Jahren (§ 112a Abs. 2 BetrVG) <span class="val" id="valCompAge">34.0 J.</span></label>
+        <input type="range" id="inCompAge" min="0.5" max="40" step="0.5" value="34.0" oninput="recalc()">
+      </div>
+      <label class="checkbox-row">
+        <input type="checkbox" id="inPureLayoff" onchange="recalc()">
+        <span>Reiner Personalabbau ohne Strukturänderung (§ 112a Abs. 1 BetrVG)</span>
+      </label>
+    </div>
+
+    <div class="card">
+      <h2>2. Sozialplan-Formel & Rentennahe Kappung</h2>
+      <div class="field">
+        <label>Basis-Faktor (Dienstjahre × Brutto × Faktor) <span class="val" id="valBaseFactor">1.00</span></label>
+        <input type="range" id="inBaseFactor" min="0.20" max="1.80" step="0.05" value="1.00" oninput="recalc()">
+      </div>
+      <div class="field">
+        <label>Alters-Multiplikator &lt; 40 / 40–49 / 50+ Jahre <span class="val" id="valAgeMults">0.75 / 1.00 / 1.25</span></label>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;">
+          <input type="number" id="inAgeU40" step="0.05" value="0.75" oninput="recalc()">
+          <input type="number" id="inAge40" step="0.05" value="1.00" oninput="recalc()">
+          <input type="number" id="inAge50" step="0.05" value="1.25" oninput="recalc()">
+        </div>
+      </div>
+      <div class="field">
+        <label>Kinderzuschlag je unterhaltsber. Kind (€) <span class="val" id="valChild">3.500 €</span></label>
+        <input type="range" id="inChild" min="0" max="8000" step="500" value="3500" oninput="recalc()">
+      </div>
+      <div class="field">
+        <label>Schwerbehinderten-Zuschlag GdB &ge; 50 (€) <span class="val" id="valDisab">6.000 €</span></label>
+        <input type="range" id="inDisab" min="0" max="15000" step="500" value="6.000" oninput="recalc()">
+      </div>
+      <div class="field">
+        <label>Allgemeiner Höchstbetrag / Deckel je AN (€) <span class="val" id="valHardCap">180.000 €</span></label>
+        <input type="range" id="inHardCap" min="40000" max="350000" step="5000" value="180000" oninput="recalc()">
+      </div>
+      <label class="checkbox-row">
+        <input type="checkbox" id="inEnableAggCap" checked onchange="recalc()">
+        <span><strong>§ 10 S. 3 Nr. 6 AGG Rentennahe-Kappung aktivieren</strong> (Brückenmodell Netto-Lücke nach ALG I bis Frührente)</span>
+      </label>
+    </div>
+
+    <div class="card">
+      <h2>3. Transfergesellschaft (§§ 110–111 SGB III)</h2>
+      <div class="field">
+        <label>Verweildauer Transfergesellschaft (max. 12 Mon.) <span class="val" id="valTransMonths">9 Mon.</span></label>
+        <input type="range" id="inTransMonths" min="3" max="12" step="1" value="9" oninput="recalc()">
+      </div>
+      <div class="field">
+        <label>AG-Aufstockung auf Nettoentgelt (über 60%/67% T-KuG) <span class="val" id="valTransTopup">80 %</span></label>
+        <input type="range" id="inTransTopup" min="60" max="90" step="5" value="80" oninput="recalc()">
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT RESULTS -->
+  <div>
+    <div class="kpi-grid">
+      <div class="kpi">
+        <div class="k-label">Sozialplan Ungekürzt (Regelformel)</div>
+        <div class="k-val" id="kpiUncapped">0 €</div>
+        <div class="k-sub" id="kpiUncappedSub">Ohne Rentennahe-Deckelung</div>
+      </div>
+      <div class="kpi">
+        <div class="k-label">AGG-Optimierter Sozialplan</div>
+        <div class="k-val" style="color:var(--accent);" id="kpiCapped">0 €</div>
+        <div class="k-sub" id="kpiCappedSub">Ø 0 € pro betroffener Person</div>
+      </div>
+      <div class="kpi">
+        <div class="k-label">Ersparnis Rentennahe-Kappung</div>
+        <div class="k-val" style="color:var(--success);" id="kpiSavings">0 €</div>
+        <div class="k-sub" id="kpiSavingsPct">BAG 1 AZR 73/22 & § 10 S. 3 Nr. 6 AGG</div>
+      </div>
+      <div class="kpi">
+        <div class="k-label">Transfergesellschaft (§ 111 SGB III)</div>
+        <div class="k-val" style="color:var(--purple);" id="kpiTransfer">0 €</div>
+        <div class="k-sub" id="kpiTransferSub">BA-Zuschuss (T-KuG): 0 €</div>
+      </div>
+    </div>
+
+    <div class="quorum-grid">
+      <div class="card" style="margin-bottom:0;">
+        <h2>
+          <span>🏛️ § 112a BetrVG Erzwingbarkeits-Prüfung</span>
+          <span id="badge112a" class="pill pill-danger">Erzwingbar</span>
+        </h2>
+        <div id="text112aTier" style="font-size:0.84rem;color:var(--muted);margin-bottom:8px;"></div>
+        <div id="text112aReason" class="callout"></div>
+        <div style="margin-top:10px;font-size:0.82rem;color:var(--muted);" id="text112aSafe"></div>
+      </div>
+
+      <div class="card" style="margin-bottom:0;">
+        <h2>
+          <span>📋 § 17 KSchG Massenentlassungsanzeige</span>
+          <span id="badge17" class="pill pill-danger">Anzeigepflichtig</span>
+        </h2>
+        <div id="text17Tier" style="font-size:0.84rem;color:var(--muted);margin-bottom:8px;"></div>
+        <div id="text17Reason" class="callout callout-warn"></div>
+        <div style="margin-top:10px;font-size:0.82rem;color:var(--muted);" id="text17Safe"></div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:20px;">
+      <h2>
+        <span>📊 Kohorten-Matrix: Regelformel vs. Rentennahe-Kappung (§ 10 S. 3 Nr. 6 AGG) vs. Transfer-KuG</span>
+        <span style="font-size:0.78rem;color:var(--muted);font-weight:400;">Skaliert auf aktuellen Personalabbau</span>
+      </h2>
+      <div style="overflow-x:auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>Kohorte / Altersgruppe</th>
+              <th class="num">Köpfe</th>
+              <th class="num">Ø Alter / Dienstj.</th>
+              <th class="num">Ø Brutto</th>
+              <th class="num">Eff. Faktor</th>
+              <th class="num">Regelformel / Kopf</th>
+              <th class="num">AGG-Gedeckelt / Kopf</th>
+              <th class="num">Kohorte Gesamt (AGG)</th>
+              <th>Kappungs-Mechanik</th>
+            </tr>
+          </thead>
+          <tbody id="cohortTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>🔄 Strategischer Verhandlungs-Vergleich für Einigungsstelle & Interessenausgleich</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Verhandlungs-Option</th>
+            <th class="num">Arbeitgeber-Budget</th>
+            <th class="num">BA-Förderung (SGB III)</th>
+            <th>Rechtliche & Taktische Bewertung</th>
+          </tr>
+        </thead>
+        <tbody id="strategyTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+const PRESETS = [{"scenario_id": "automotive_tier1_werksschliessung", "company_name": "RheinMain Automotive Zulieferer GmbH (280 AN — Abbau 52 AN)", "industry": "Automotive / Maschinenbau (IG Metall Tarifnähe)", "total_regular_employees": 280, "planned_layoffs_total": 52, "layoffs_within_30_days": 52, "company_age_years": 34.0, "is_pure_layoff_112a": false, "parameters": {"base_factor": 1.0, "age_factor_under_40": 0.75, "age_factor_40_to_49": 1.0, "age_factor_50_plus": 1.25, "child_allowance_eur": 3500.0, "severe_disability_bonus_eur": 6000.0, "hard_cap_per_employee_eur": 180000.0, "transfer_duration_months": 9, "transfer_topup_net_pct": 0.8, "transfer_admin_monthly_eur": 380.0}, "betrvg_112a_audit": {"has_111_size": true, "tier_label": "Staffel 3 (250–499 AN): 15 % oder mind. 60 AN (§ 112a Abs. 1 Nr. 3 BetrVG)", "min_required_for_112a": 42, "planned_layoffs": 52, "layoff_pct": 18.57, "quorum_met_112a_1": true, "startup_exempt_112a_2": false, "interessenausgleich_required": true, "sozialplan_enforceable": true, "max_safe_layoffs_below_112a": 41, "legal_assessment": "Betriebsänderung mit Struktur-/Standortänderung (§ 111 S. 3 Nr. 2–5 BetrVG): § 112a Abs. 1 Privileg greift nicht, Sozialplan voll erzwingbar!"}, "kschg_17_audit": {"tier_label": "60–499 AN: 10 % (28 AN) oder > 25 (ab 26 AN) in 30 Tagen (§ 17 Abs. 1 S. 1 Nr. 2 KSchG)", "trigger_headcount_30d": 26, "layoffs_within_30_days": 52, "quorum_met": true, "entlassungssperre_days": 30, "consultation_17_2_required": true, "max_per_30d_wave_without_trigger": 25, "staggered_30d_waves_count": 3, "eugh_junk_warning": "ACHTUNG (EuGH 'Junk' & BAG): Maßgeblich ist der Zugang der Kündigungserklärung bzw. der Abschluss arbeitgeberseitig veranlasster Aufhebungsverträge (§ 17 Abs. 1 S. 2 KSchG) innerhalb von 30 Kalendertagen! Vor Erstattung der Anzeige nach Konsultation (§ 17 Abs. 2 KSchG) ausgesprochene Kündigungen sind nach § 134 BGB nichtig."}, "budget_summary": {"total_uncapped_sozialplan_eur": 6711160.0, "total_agg_capped_sozialplan_eur": 3878580.0, "agg_near_retirement_savings_eur": 2832580.0, "agg_near_retirement_savings_pct": 42.21, "avg_capped_severance_per_head_eur": 74588.08, "transfer_employer_total_eur": 1128279.0, "transfer_ba_kug_subsidy_total_eur": 1143033.0, "hybrid_transfer_plus_55pct_severance_eur": 3261498.0}, "cohorts": [{"cohort_id": "c1_junior_prod", "label": "Kohorte A: Jüngere Fachkräfte (< 40 J.)", "headcount": 14, "avg_age": 33.0, "avg_tenure_years": 6.5, "avg_gross_monthly_eur": 4400.0, "effective_factor": 0.75, "uncapped_per_person_eur": 24250.0, "agg_capped_per_person_eur": 24250.0, "savings_per_person_eur": 0.0, "cohort_uncapped_total_eur": 339500.0, "cohort_agg_capped_total_eur": 339500.0, "cohort_agg_savings_eur": 0.0, "cap_method": "Regelformel (ungedeckelt)", "near_retirement": false, "transfer_employer_per_person_eur": 17292.9, "transfer_ba_subsidy_per_person_eur": 18685.5, "cohort_transfer_employer_total_eur": 242100.6, "cohort_transfer_ba_total_eur": 261597.0}, {"cohort_id": "c2_mid_career", "label": "Kohorte B: Stammbelegschaft (40–49 J.)", "headcount": 16, "avg_age": 45.0, "avg_tenure_years": 15.0, "avg_gross_monthly_eur": 5400.0, "effective_factor": 1.0, "uncapped_per_person_eur": 86260.0, "agg_capped_per_person_eur": 86260.0, "savings_per_person_eur": 0.0, "cohort_uncapped_total_eur": 1380160.0, "cohort_agg_capped_total_eur": 1380160.0, "cohort_agg_savings_eur": 0.0, "cap_method": "Regelformel (ungedeckelt)", "near_retirement": false, "transfer_employer_per_person_eur": 20730.9, "transfer_ba_subsidy_per_person_eur": 22303.5, "cohort_transfer_employer_total_eur": 331694.4, "cohort_transfer_ba_total_eur": 356856.0}, {"cohort_id": "c3_senior_50_60", "label": "Kohorte C: Ältere Belegschaft (50–60 J., rentenfern)", "headcount": 10, "avg_age": 55.0, "avg_tenure_years": 24.0, "avg_gross_monthly_eur": 6100.0, "effective_factor": 1.25, "uncapped_per_person_eur": 185350.0, "agg_capped_per_person_eur": 180000.0, "savings_per_person_eur": 5350.0, "cohort_uncapped_total_eur": 1853500.0, "cohort_agg_capped_total_eur": 1800000.0, "cohort_agg_savings_eur": 53500.0, "cap_method": "Höchstbetrags-Deckel", "near_retirement": false, "transfer_employer_per_person_eur": 23055.6, "transfer_ba_subsidy_per_person_eur": 24414.0, "cohort_transfer_employer_total_eur": 230556.0, "cohort_transfer_ba_total_eur": 244140.0}, {"cohort_id": "c4_near_retirement_61_65", "label": "Kohorte D: Rentennahe Jahrgänge (61–64 J., 32 J. Dienstzeit)", "headcount": 12, "avg_age": 62.5, "avg_tenure_years": 32.0, "avg_gross_monthly_eur": 6500.0, "effective_factor": 1.25, "uncapped_per_person_eur": 261500.0, "agg_capped_per_person_eur": 29910.0, "savings_per_person_eur": 231590.0, "cohort_uncapped_total_eur": 3138000.0, "cohort_agg_capped_total_eur": 358920.0, "cohort_agg_savings_eur": 2779080.0, "cap_method": "Rentennahe Kappung (§ 10 S. 3 Nr. 6 AGG / BAG 1 AZR 73/22: 18 Mon. Netto-Lücke nach ALG I)", "near_retirement": true, "transfer_employer_per_person_eur": 26994.0, "transfer_ba_subsidy_per_person_eur": 23370.0, "cohort_transfer_employer_total_eur": 323928.0, "cohort_transfer_ba_total_eur": 280440.0}]}, {"scenario_id": "saas_scaleup_pure_layoff_112a", "company_name": "CloudScale Enterprise GmbH (180 AN — Reiner Personalabbau 28 AN)", "industry": "B2B Software / IT-Services", "total_regular_employees": 180, "planned_layoffs_total": 28, "layoffs_within_30_days": 28, "company_age_years": 7.5, "is_pure_layoff_112a": true, "parameters": {"base_factor": 0.65, "age_factor_under_40": 0.8, "age_factor_40_to_49": 1.0, "age_factor_50_plus": 1.15, "child_allowance_eur": 2500.0, "severe_disability_bonus_eur": 5000.0, "hard_cap_per_employee_eur": 110000.0, "transfer_duration_months": 6, "transfer_topup_net_pct": 0.75, "transfer_admin_monthly_eur": 350.0}, "betrvg_112a_audit": {"has_111_size": true, "tier_label": "Staffel 2 (60–249 AN): 20 % oder mind. 37 AN (§ 112a Abs. 1 Nr. 2 BetrVG)", "min_required_for_112a": 36, "planned_layoffs": 28, "layoff_pct": 15.56, "quorum_met_112a_1": false, "startup_exempt_112a_2": false, "interessenausgleich_required": true, "sozialplan_enforceable": false, "max_safe_layoffs_below_112a": 35, "legal_assessment": "Reiner Personalabbau unter § 112a Abs. 1 Schwelle (28 < 36 AN): Sozialplan nicht erzwingbar, nur freiwillig."}, "kschg_17_audit": {"tier_label": "60–499 AN: 10 % (18 AN) oder > 25 (ab 26 AN) in 30 Tagen (§ 17 Abs. 1 S. 1 Nr. 2 KSchG)", "trigger_headcount_30d": 18, "layoffs_within_30_days": 28, "quorum_met": true, "entlassungssperre_days": 30, "consultation_17_2_required": true, "max_per_30d_wave_without_trigger": 17, "staggered_30d_waves_count": 2, "eugh_junk_warning": "ACHTUNG (EuGH 'Junk' & BAG): Maßgeblich ist der Zugang der Kündigungserklärung bzw. der Abschluss arbeitgeberseitig veranlasster Aufhebungsverträge (§ 17 Abs. 1 S. 2 KSchG) innerhalb von 30 Kalendertagen! Vor Erstattung der Anzeige nach Konsultation (§ 17 Abs. 2 KSchG) ausgesprochene Kündigungen sind nach § 134 BGB nichtig."}, "budget_summary": {"total_uncapped_sozialplan_eur": 690874.4, "total_agg_capped_sozialplan_eur": 510642.4, "agg_near_retirement_savings_eur": 180232.0, "agg_near_retirement_savings_pct": 26.09, "avg_capped_severance_per_head_eur": 18237.23, "transfer_employer_total_eur": 451573.2, "transfer_ba_kug_subsidy_total_eur": 470496.0, "hybrid_transfer_plus_55pct_severance_eur": 732426.52}, "cohorts": [{"cohort_id": "s1_tech_sales", "label": "Kohorte A: Account Executives & Customer Success (< 40 J.)", "headcount": 18, "avg_age": 31.0, "avg_tenure_years": 3.2, "avg_gross_monthly_eur": 6200.0, "effective_factor": 0.52, "uncapped_per_person_eur": 11316.8, "agg_capped_per_person_eur": 11316.8, "savings_per_person_eur": 0.0, "cohort_uncapped_total_eur": 203702.4, "cohort_agg_capped_total_eur": 203702.4, "cohort_agg_savings_eur": 0.0, "cap_method": "Regelformel (ungedeckelt)", "near_retirement": false, "transfer_employer_per_person_eur": 15283.8, "transfer_ba_subsidy_per_person_eur": 15000.0, "cohort_transfer_employer_total_eur": 275108.4, "cohort_transfer_ba_total_eur": 270000.0}, {"cohort_id": "s2_eng_leads", "label": "Kohorte B: Senior Engineers & Staff (40–49 J.)", "headcount": 8, "avg_age": 43.0, "avg_tenure_years": 5.5, "avg_gross_monthly_eur": 8200.0, "effective_factor": 0.65, "uncapped_per_person_eur": 32315.0, "agg_capped_per_person_eur": 32315.0, "savings_per_person_eur": 0.0, "cohort_uncapped_total_eur": 258520.0, "cohort_agg_capped_total_eur": 258520.0, "cohort_agg_savings_eur": 0.0, "cap_method": "Regelformel (ungedeckelt)", "near_retirement": false, "transfer_employer_per_person_eur": 17884.8, "transfer_ba_subsidy_per_person_eur": 20997.0, "cohort_transfer_employer_total_eur": 143078.4, "cohort_transfer_ba_total_eur": 167976.0}, {"cohort_id": "s3_legacy_ops", "label": "Kohorte C: Rentennahe Administration (62 J., Übernahme-Altvertrag)", "headcount": 2, "avg_age": 62.0, "avg_tenure_years": 22.0, "avg_gross_monthly_eur": 6800.0, "effective_factor": 0.7475, "uncapped_per_person_eur": 114326.0, "agg_capped_per_person_eur": 24210.0, "savings_per_person_eur": 90116.0, "cohort_uncapped_total_eur": 228652.0, "cohort_agg_capped_total_eur": 48420.0, "cohort_agg_savings_eur": 180232.0, "cap_method": "Rentennahe Kappung (§ 10 S. 3 Nr. 6 AGG / BAG 1 AZR 73/22: 14 Mon. Netto-Lücke nach ALG I)", "near_retirement": true, "transfer_employer_per_person_eur": 16693.2, "transfer_ba_subsidy_per_person_eur": 16260.0, "cohort_transfer_employer_total_eur": 33386.4, "cohort_transfer_ba_total_eur": 32520.0}]}, {"scenario_id": "fintech_startup_112a_abs2_privilege", "company_name": "PayFlow AI Technologies GmbH (75 AN — 3,2 Jahre alt, Abbau 22 AN)", "industry": "FinTech / Venture-Backed Startup", "total_regular_employees": 75, "planned_layoffs_total": 22, "layoffs_within_30_days": 22, "company_age_years": 3.2, "is_pure_layoff_112a": true, "parameters": {"base_factor": 0.5, "age_factor_under_40": 0.8, "age_factor_40_to_49": 1.0, "age_factor_50_plus": 1.0, "child_allowance_eur": 2000.0, "severe_disability_bonus_eur": 4000.0, "hard_cap_per_employee_eur": 60000.0, "transfer_duration_months": 6, "transfer_topup_net_pct": 0.75, "transfer_admin_monthly_eur": 320.0}, "betrvg_112a_audit": {"has_111_size": true, "tier_label": "Staffel 2 (60–249 AN): 20 % oder mind. 37 AN (§ 112a Abs. 1 Nr. 2 BetrVG)", "min_required_for_112a": 15, "planned_layoffs": 22, "layoff_pct": 29.33, "quorum_met_112a_1": true, "startup_exempt_112a_2": true, "interessenausgleich_required": true, "sozialplan_enforceable": false, "max_safe_layoffs_below_112a": 14, "legal_assessment": "Neugründungsprivileg (§ 112a Abs. 2 BetrVG): Unternehmen < 4 Jahre alt — kein erzwingbarer Sozialplan (Interessenausgleich bleibt Pflicht!)."}, "kschg_17_audit": {"tier_label": "60–499 AN: 10 % (8 AN) oder > 25 (ab 26 AN) in 30 Tagen (§ 17 Abs. 1 S. 1 Nr. 2 KSchG)", "trigger_headcount_30d": 8, "layoffs_within_30_days": 22, "quorum_met": true, "entlassungssperre_days": 30, "consultation_17_2_required": true, "max_per_30d_wave_without_trigger": 7, "staggered_30d_waves_count": 4, "eugh_junk_warning": "ACHTUNG (EuGH 'Junk' & BAG): Maßgeblich ist der Zugang der Kündigungserklärung bzw. der Abschluss arbeitgeberseitig veranlasster Aufhebungsverträge (§ 17 Abs. 1 S. 2 KSchG) innerhalb von 30 Kalendertagen! Vor Erstattung der Anzeige nach Konsultation (§ 17 Abs. 2 KSchG) ausgesprochene Kündigungen sind nach § 134 BGB nichtig."}, "budget_summary": {"total_uncapped_sozialplan_eur": 147112.0, "total_agg_capped_sozialplan_eur": 147112.0, "agg_near_retirement_savings_eur": 0.0, "agg_near_retirement_savings_pct": 0.0, "avg_capped_severance_per_head_eur": 6686.91, "transfer_employer_total_eur": 308170.2, "transfer_ba_kug_subsidy_total_eur": 329475.0, "hybrid_transfer_plus_55pct_severance_eur": 389081.8}, "cohorts": [{"cohort_id": "f1_product_ops", "label": "Kohorte A: Product & Operations (< 40 J.)", "headcount": 17, "avg_age": 29.5, "avg_tenure_years": 2.1, "avg_gross_monthly_eur": 5400.0, "effective_factor": 0.4, "uncapped_per_person_eur": 4936.0, "agg_capped_per_person_eur": 4936.0, "savings_per_person_eur": 0.0, "cohort_uncapped_total_eur": 83912.0, "cohort_agg_capped_total_eur": 83912.0, "cohort_agg_savings_eur": 0.0, "cap_method": "Regelformel (ungedeckelt)", "near_retirement": false, "transfer_employer_per_person_eur": 13284.6, "transfer_ba_subsidy_per_person_eur": 13560.0, "cohort_transfer_employer_total_eur": 225838.2, "cohort_transfer_ba_total_eur": 230520.0}, {"cohort_id": "f2_senior_mgmt", "label": "Kohorte B: Team Leads (40–49 J.)", "headcount": 5, "avg_age": 42.0, "avg_tenure_years": 2.8, "avg_gross_monthly_eur": 7600.0, "effective_factor": 0.5, "uncapped_per_person_eur": 12640.0, "agg_capped_per_person_eur": 12640.0, "savings_per_person_eur": 0.0, "cohort_uncapped_total_eur": 63200.0, "cohort_agg_capped_total_eur": 63200.0, "cohort_agg_savings_eur": 0.0, "cap_method": "Regelformel (ungedeckelt)", "near_retirement": false, "transfer_employer_per_person_eur": 16466.4, "transfer_ba_subsidy_per_person_eur": 19791.0, "cohort_transfer_employer_total_eur": 82332.0, "cohort_transfer_ba_total_eur": 98955.0}]}];
+let currentPresetIdx = 0;
+
+function fmtEur(v) {
+  return new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(v);
+}
+
+function init() {
+  const sel = document.getElementById('presetSelect');
+  PRESETS.forEach((p, idx) => {
+    const opt = document.createElement('option');
+    opt.value = idx;
+    opt.textContent = p.company_name;
+    sel.appendChild(opt);
+  });
+  loadPreset();
+}
+
+function loadPreset() {
+  currentPresetIdx = parseInt(document.getElementById('presetSelect').value, 10) || 0;
+  const p = PRESETS[currentPresetIdx];
+  document.getElementById('inTotalEmp').value = p.total_regular_employees;
+  document.getElementById('inLayoffs').value = p.planned_layoffs_total;
+  document.getElementById('inLayoffs30d').value = p.layoffs_within_30_days;
+  document.getElementById('inCompAge').value = p.company_age_years;
+  document.getElementById('inPureLayoff').checked = p.is_pure_layoff_112a;
+
+  document.getElementById('inBaseFactor').value = p.parameters.base_factor;
+  document.getElementById('inAgeU40').value = p.parameters.age_factor_under_40;
+  document.getElementById('inAge40').value = p.parameters.age_factor_40_to_49;
+  document.getElementById('inAge50').value = p.parameters.age_factor_50_plus;
+  document.getElementById('inChild').value = p.parameters.child_allowance_eur;
+  document.getElementById('inDisab').value = p.parameters.severe_disability_bonus_eur;
+  document.getElementById('inHardCap').value = p.parameters.hard_cap_per_employee_eur;
+  document.getElementById('inTransMonths').value = p.parameters.transfer_duration_months;
+  document.getElementById('inTransTopup').value = Math.round(p.parameters.transfer_topup_net_pct * 100);
+  recalc();
+}
+
+function recalc() {
+  const p = PRESETS[currentPresetIdx];
+  const totalEmp = parseInt(document.getElementById('inTotalEmp').value, 10);
+  const layoffs = parseInt(document.getElementById('inLayoffs').value, 10);
+  const layoffs30d = parseInt(document.getElementById('inLayoffs30d').value, 10);
+  const compAge = parseFloat(document.getElementById('inCompAge').value);
+  const isPureLayoff = document.getElementById('inPureLayoff').checked;
+
+  const baseFactor = parseFloat(document.getElementById('inBaseFactor').value);
+  const ageU40 = parseFloat(document.getElementById('inAgeU40').value) || 0.75;
+  const age40 = parseFloat(document.getElementById('inAge40').value) || 1.0;
+  const age50 = parseFloat(document.getElementById('inAge50').value) || 1.25;
+  const childAllow = parseFloat(document.getElementById('inChild').value);
+  const disabBonus = parseFloat(document.getElementById('inDisab').value);
+  const hardCap = parseFloat(document.getElementById('inHardCap').value);
+  const enableAggCap = document.getElementById('inEnableAggCap').checked;
+  const transMonths = parseInt(document.getElementById('inTransMonths').value, 10);
+  const transTopup = parseInt(document.getElementById('inTransTopup').value, 10) / 100.0;
+
+  document.getElementById('valTotalEmp').textContent = totalEmp;
+  document.getElementById('valLayoffs').textContent = layoffs;
+  document.getElementById('valLayoffs30d').textContent = layoffs30d;
+  document.getElementById('valCompAge').textContent = compAge.toFixed(1) + ' J.';
+  document.getElementById('valBaseFactor').textContent = baseFactor.toFixed(2);
+  document.getElementById('valAgeMults').textContent = `${ageU40.toFixed(2)} / ${age40.toFixed(2)} / ${age50.toFixed(2)}`;
+  document.getElementById('valChild').textContent = fmtEur(childAllow);
+  document.getElementById('valDisab').textContent = fmtEur(disabBonus);
+  document.getElementById('valHardCap').textContent = fmtEur(hardCap);
+  document.getElementById('valTransMonths').textContent = transMonths + ' Mon.';
+  document.getElementById('valTransTopup').textContent = Math.round(transTopup * 100) + ' %';
+
+  let min112a = 0;
+  let tier112a = '';
+  if (totalEmp <= 20) {
+    min112a = 99999;
+    tier112a = 'Unter 21 AN (kein § 111 BetrVG)';
+  } else if (totalEmp < 60) {
+    min112a = Math.max(Math.ceil(totalEmp * 0.20), 6);
+    tier112a = `Staffel 1 (21–59 AN): mind. 20 % oder 6 AN -> Schwelle: ${min112a} AN`;
+  } else if (totalEmp < 250) {
+    min112a = Math.min(Math.ceil(totalEmp * 0.20), 37);
+    tier112a = `Staffel 2 (60–249 AN): 20 % oder mind. 37 AN -> Schwelle: ${min112a} AN`;
+  } else if (totalEmp < 500) {
+    min112a = Math.min(Math.ceil(totalEmp * 0.15), 60);
+    tier112a = `Staffel 3 (250–499 AN): 15 % oder mind. 60 AN -> Schwelle: ${min112a} AN`;
+  } else {
+    min112a = Math.max(Math.ceil(totalEmp * 0.10), 60);
+    tier112a = `Staffel 4 (>= 500 AN): 10 %, mind. 60 AN -> Schwelle: ${min112a} AN`;
+  }
+
+  const startupExempt = compAge < 4.0;
+  const met112a = totalEmp > 20 && layoffs >= min112a;
+  let enforceable = false;
+  let reason112a = '';
+  if (totalEmp <= 20) {
+    reason112a = 'Kein Betriebsrat-Quorum nach § 111 Satz 1 BetrVG (<= 20 Wahlberechtigte).';
+  } else if (startupExempt) {
+    reason112a = 'Neugründungsprivileg (§ 112a Abs. 2 BetrVG): Unternehmen ist jünger als 4 Jahre — KEIN erzwingbarer Sozialplan über die Einigungsstelle (Interessenausgleich bleibt jedoch Pflicht!).';
+  } else if (isPureLayoff) {
+    enforceable = met112a;
+    reason112a = enforceable
+      ? `Reiner Personalabbau erreicht § 112a Abs. 1 BetrVG Schwelle (${layoffs} >= ${min112a} AN): Sozialplan ist über die Einigungsstelle (§ 112 Abs. 4 BetrVG) ERZWINGBAR.`
+      : `Reiner Personalabbau UNTER § 112a Abs. 1 BetrVG Schwelle (${layoffs} < ${min112a} AN): Sozialplan ist NICHT erzwingbar!`;
+  } else {
+    enforceable = true;
+    reason112a = 'Betriebsänderung beinhaltet Struktur-/Standortänderung (§ 111 S. 3 Nr. 2–5 BetrVG): Schwellenwert-Privileg des § 112a Abs. 1 greift nicht — Sozialplan VOLL ERZWINGBAR.';
+  }
+
+  const b112 = document.getElementById('badge112a');
+  b112.textContent = enforceable ? 'Sozialplan Erzwingbar (§ 112 Abs. 4)' : 'Nicht Erzwingbar (§ 112a)';
+  b112.className = 'pill ' + (enforceable ? 'pill-danger' : 'pill-success');
+  document.getElementById('text112aTier').textContent = tier112a;
+  document.getElementById('text112aReason').textContent = reason112a;
+  document.getElementById('text112aSafe').textContent = totalEmp > 20
+    ? `Max. Abbau ohne § 112a Abs. 1 Auslösung (bei reinem Personalabbau): ${Math.max(0, min112a - 1)} Arbeitnehmer.`
+    : '';
+
+  let min17 = 0;
+  let tier17 = '';
+  if (totalEmp <= 20) {
+    min17 = 99999;
+    tier17 = 'Bis 20 AN: Keine Anzeigepflicht nach § 17 Abs. 1 KSchG';
+  } else if (totalEmp < 60) {
+    min17 = 6;
+    tier17 = '21–59 AN: > 5 Entlassungen (ab 6 AN) in 30 Kalendertagen (§ 17 Abs. 1 Nr. 1 KSchG)';
+  } else if (totalEmp < 500) {
+    min17 = Math.min(Math.ceil(totalEmp * 0.10), 26);
+    tier17 = `60–499 AN: 10 % oder > 25 AN -> Schwelle ab ${min17} Entlassungen in 30 Tagen (§ 17 Abs. 1 Nr. 2 KSchG)`;
+  } else {
+    min17 = 30;
+    tier17 = '>= 500 AN: mind. 30 Entlassungen in 30 Kalendertagen (§ 17 Abs. 1 Nr. 3 KSchG)';
+  }
+  const met17 = totalEmp > 20 && layoffs30d >= min17;
+  const b17 = document.getElementById('badge17');
+  b17.textContent = met17 ? '§ 17 KSchG Anzeige Pflicht!' : 'Unter 30-Tage-Schwelle';
+  b17.className = 'pill ' + (met17 ? 'pill-danger' : 'pill-success');
+  document.getElementById('text17Tier').textContent = tier17;
+  document.getElementById('text17Reason').textContent = met17
+    ? `Anzeigepflicht ausgelöst (${layoffs30d} >= ${min17} in 30 Tagen): Schriftliche Unterrichtung + Konsultation des Betriebsrats (§ 17 Abs. 2 KSchG) VOR Anzeige bei der Agentur für Arbeit zwingend! 30-Tage-Entlassungssperre (§ 18 KSchG).`
+    : `Keine Massenentlassungsanzeige erforderlich (${layoffs30d} < ${min17} Entlassungen/Aufhebungsverträge im 30-Tage-Fenster).`;
+  const waves = (totalEmp > 20 && min17 > 1) ? Math.ceil(layoffs / (min17 - 1)) : 1;
+  document.getElementById('text17Safe').textContent = totalEmp > 20
+    ? `Staffelungs-Option: Max. ${min17 - 1} Kündigungen/Aufhebungsverträge pro 31-Tage-Welle (${waves} Wellen für ${layoffs} AN).`
+    : '';
+
+  const baseTotalHeads = p.cohorts.reduce((acc, c) => acc + c.headcount, 0) || 1;
+  const scale = layoffs / baseTotalHeads;
+
+  let totalUncapped = 0;
+  let totalCapped = 0;
+  let totalTransEmp = 0;
+  let totalTransBA = 0;
+  const tbody = document.getElementById('cohortTableBody');
+  tbody.innerHTML = '';
+
+  p.cohorts.forEach(c => {
+    const heads = Math.max(0, Math.round(c.headcount * scale));
+    let ageMult = ageU40;
+    if (c.avg_age >= 50) ageMult = age50;
+    else if (c.avg_age >= 40) ageMult = age40;
+
+    const effFactor = baseFactor * ageMult;
+    const baseSev = c.avg_tenure_years * c.avg_gross_monthly_eur * effFactor;
+    const presetSocial = c.uncapped_per_person_eur - (c.avg_tenure_years * c.avg_gross_monthly_eur * c.effective_factor);
+    const socialRatio = (childAllow + disabBonus) / Math.max(1, p.parameters.child_allowance_eur + p.parameters.severe_disability_bonus_eur);
+    const socialAdd = Math.max(0, presetSocial * socialRatio);
+
+    const uncappedPP = baseSev + socialAdd;
+    let cappedPP = Math.min(uncappedPP, hardCap);
+    let capMethod = uncappedPP > hardCap ? 'Höchstbetrags-Deckel' : 'Regelformel';
+
+    if (enableAggCap && c.near_retirement) {
+      const origBridge = c.agg_capped_per_person_eur;
+      cappedPP = Math.min(uncappedPP, origBridge, hardCap);
+      capMethod = '§ 10 S. 3 Nr. 6 AGG Renten-Brücke';
+    }
+
+    const cohUncapped = uncappedPP * heads;
+    const cohCapped = cappedPP * heads;
+
+    const monthScale = transMonths / Math.max(1, p.parameters.transfer_duration_months);
+    const topupScale = transTopup / Math.max(0.6, p.parameters.transfer_topup_net_pct);
+    const cohTransEmp = c.transfer_employer_per_person_eur * monthScale * topupScale * heads;
+    const cohTransBA = c.transfer_ba_subsidy_per_person_eur * monthScale * heads;
+
+    totalUncapped += cohUncapped;
+    totalCapped += cohCapped;
+    totalTransEmp += cohTransEmp;
+    totalTransBA += cohTransBA;
+
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><strong>${c.label}</strong></td>
+      <td class="num">${heads}</td>
+      <td class="num">${c.avg_age.toFixed(1)} J. / ${c.avg_tenure_years.toFixed(1)} J.</td>
+      <td class="num">${fmtEur(c.avg_gross_monthly_eur)}</td>
+      <td class="num">${effFactor.toFixed(2)}x</td>
+      <td class="num" style="color:var(--muted);">${fmtEur(uncappedPP)}</td>
+      <td class="num" style="font-weight:600;color:var(--accent);">${fmtEur(cappedPP)}</td>
+      <td class="num" style="font-weight:700;">${fmtEur(cohCapped)}</td>
+      <td><span class="pill ${c.near_retirement && enableAggCap ? 'pill-success' : 'pill-warning'}">${capMethod}</span></td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  const savings = Math.max(0, totalUncapped - totalCapped);
+  const savingsPct = totalUncapped > 0 ? (savings / totalUncapped * 100.0) : 0;
+
+  document.getElementById('kpiUncapped').textContent = fmtEur(totalUncapped);
+  document.getElementById('kpiUncappedSub').textContent = `Ø ${fmtEur(totalUncapped / Math.max(1, layoffs))} pro Kopf (ungekürzt)`;
+  document.getElementById('kpiCapped').textContent = fmtEur(totalCapped);
+  document.getElementById('kpiCappedSub').textContent = `Ø ${fmtEur(totalCapped / Math.max(1, layoffs))} pro Kopf (AGG-konform)`;
+  document.getElementById('kpiSavings').textContent = fmtEur(savings);
+  document.getElementById('kpiSavingsPct').textContent = `-${savingsPct.toFixed(1)} % Budget-Reduktion durch Kappung`;
+  document.getElementById('kpiTransfer').textContent = fmtEur(totalTransEmp);
+  document.getElementById('kpiTransferSub').textContent = `BA Transfer-KuG Zuschuss: ${fmtEur(totalTransBA)}`;
+
+  const stratBody = document.getElementById('strategyTableBody');
+  const hybridCost = (totalCapped * 0.55) + totalTransEmp;
+  stratBody.innerHTML = `
+    <tr>
+      <td><strong>1. Ungekürzte Standard-Formel (Betriebsrats-Maximalforderung)</strong></td>
+      <td class="num" style="color:var(--danger);font-weight:700;">${fmtEur(totalUncapped)}</td>
+      <td class="num">0 €</td>
+      <td>Überproportionale Begünstigung rentennaher Jahrgänge (30+ Dienstjahre) zulasten jüngerer Familien.</td>
+    </tr>
+    <tr>
+      <td><strong>2. AGG-Gedeckelter Sozialplan (§ 10 S. 3 Nr. 6 AGG / BAG 1 AZR 73/22)</strong></td>
+      <td class="num" style="color:var(--accent);font-weight:700;">${fmtEur(totalCapped)}</td>
+      <td class="num">0 €</td>
+      <td>Rechtssichere Abschöpfung der Überkompensation bei Rentennahen (Netto-Lücke nach ALG I bis Frührente). Spart <strong>${fmtEur(savings)}</strong>.</td>
+    </tr>
+    <tr>
+      <td><strong>3. Reine Transfergesellschaft (${transMonths} Monate nach §§ 110–111 SGB III)</strong></td>
+      <td class="num" style="color:var(--purple);font-weight:700;">${fmtEur(totalTransEmp)}</td>
+      <td class="num" style="color:var(--success);font-weight:600;">${fmtEur(totalTransBA)}</td>
+      <td>Dreiseitige Wechselverträge vermeiden streitige Kündigungsschutzklagen; BA trägt 60 %/67 % Transfer-KuG.</td>
+    </tr>
+    <tr>
+      <td><strong>4. Kombiniertes Brücken- & Sprinter-Modell (Transfer + 55 % Abfindung)</strong></td>
+      <td class="num" style="font-weight:700;">${fmtEur(hybridCost)}</td>
+      <td class="num" style="color:var(--success);font-weight:600;">${fmtEur(totalTransBA)}</td>
+      <td>Hohe Abschlussquote bei Aufhebungsverträgen mit Sprinterprämie bei vorzeitigem Jobwechsel.</td>
+    </tr>
+  `;
+}
+
+window.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>

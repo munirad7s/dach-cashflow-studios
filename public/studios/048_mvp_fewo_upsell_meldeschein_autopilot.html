@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MVP #48 — DACH FeWo Pre-Arrival Upsell & § 29 BMG Meldeschein Autopilot</title>
+<style>
+    :root {
+        --bg: #0b1120;
+        --card: #111827;
+        --card-alt: #1e293b;
+        --text: #f8fafc;
+        --muted: #94a3b8;
+        --accent: #10b981;
+        --accent-blue: #3b82f6;
+        --warn: #f59e0b;
+        --danger: #ef4444;
+        --border: #334155;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.5;
+        padding: 24px;
+    }
+    .container { max-width: 1420px; margin: 0 auto; }
+    header {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: center;
+        padding-bottom: 20px;
+        border-bottom: 1px solid var(--border);
+        margin-bottom: 24px;
+        gap: 16px;
+    }
+    .badge {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+    .badge-green { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #059669; }
+    .badge-blue { background: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 1px solid #2563eb; }
+    .badge-amber { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid #d97706; }
+    .kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+        gap: 16px;
+        margin-bottom: 28px;
+    }
+    .kpi-card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 18px;
+    }
+    .kpi-label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+    .kpi-val { font-size: 26px; font-weight: 800; margin-top: 6px; color: #fff; }
+    .kpi-sub { font-size: 12px; color: #34d399; margin-top: 4px; }
+    .main-split {
+        display: grid;
+        grid-template-columns: 440px 1fr;
+        gap: 24px;
+        align-items: start;
+    }
+    @media (max-width: 1080px) {
+        .main-split { grid-template-columns: 1fr; }
+    }
+    .phone-frame {
+        background: #0f172a;
+        border: 3px solid #334155;
+        border-radius: 28px;
+        padding: 20px;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    }
+    .phone-header {
+        text-align: center;
+        padding-bottom: 14px;
+        border-bottom: 1px solid var(--border);
+        margin-bottom: 14px;
+    }
+    .step-box {
+        background: var(--card-alt);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 14px;
+        margin-bottom: 14px;
+    }
+    .step-title {
+        font-size: 13px;
+        font-weight: 700;
+        color: #60a5fa;
+        text-transform: uppercase;
+        margin-bottom: 8px;
+        display: flex;
+        justify-content: space-between;
+    }
+    .upsell-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        padding: 10px;
+        border-radius: 8px;
+        background: rgba(15, 23, 42, 0.7);
+        border: 1px solid var(--border);
+        margin-bottom: 8px;
+        gap: 10px;
+    }
+    .upsell-item.disabled {
+        opacity: 0.48;
+        border-style: dashed;
+    }
+    .pin-vault {
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.22), rgba(59, 130, 246, 0.18));
+        border: 2px solid #10b981;
+        border-radius: 14px;
+        padding: 16px;
+        text-align: center;
+    }
+    .pin-digits {
+        font-family: monospace;
+        font-size: 30px;
+        letter-spacing: 6px;
+        font-weight: 900;
+        color: #34d399;
+        margin: 8px 0;
+    }
+    .panel {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 22px;
+        margin-bottom: 24px;
+    }
+    .panel h2 {
+        font-size: 18px;
+        margin-bottom: 14px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13.5px;
+    }
+    th, td {
+        text-align: left;
+        padding: 10px 12px;
+        border-bottom: 1px solid var(--border);
+    }
+    th { color: var(--muted); font-weight: 600; font-size: 12px; text-transform: uppercase; }
+    select, button {
+        background: var(--card-alt);
+        color: #fff;
+        border: 1px solid #475569;
+        padding: 8px 14px;
+        border-radius: 8px;
+        font-size: 14px;
+        cursor: pointer;
+    }
+    button.primary {
+        background: #10b981;
+        color: #052e16;
+        border: none;
+        font-weight: 700;
+        width: 100%;
+        padding: 12px;
+        margin-top: 8px;
+    }
+</style>
+</head>
+<body>
+
+<!-- DACH CASHFLOW STUDIOS LAUNCH BAR -->
+<style>
+  #dcs-launch-bar {
+    position: sticky;
+    top: 0;
+    z-index: 99999;
+    background: linear-gradient(90deg, #0b1120 0%, #111827 50%, #0f172a 100%);
+    color: #f8fafc;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.35);
+    padding: 8px 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  }
+  #dcs-launch-bar .dcs-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+  }
+  #dcs-launch-bar .dcs-badge {
+    background: rgba(16, 185, 129, 0.18);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.03em;
+  }
+  #dcs-launch-bar a.dcs-nav {
+    color: #93c5fd;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 12.5px;
+  }
+  #dcs-launch-bar a.dcs-nav:hover {
+    text-decoration: underline;
+    color: #dbeafe;
+  }
+  #dcs-launch-bar .dcs-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  #dcs-launch-bar .dcs-btn {
+    padding: 5px 11px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s ease;
+  }
+  #dcs-launch-bar .dcs-btn-ghost {
+    background: rgba(255,255,255,0.08);
+    color: #e2e8f0;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  #dcs-launch-bar .dcs-btn-primary {
+    background: linear-gradient(135deg, #0ea5e9, #2563eb);
+    color: #ffffff;
+  }
+  #dcs-launch-bar .dcs-btn-emerald {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
+  }
+  @media print {
+    #dcs-launch-bar { display: none !important; }
+  }
+</style>
+<div id="dcs-launch-bar">
+  <div class="dcs-left">
+    <a href="/index.html" class="dcs-nav">← Alle 150 DACH Studios</a>
+    <span class="dcs-badge">MVP #048 VERIFIED</span>
+    <span style="color:#cbd5e1;font-size:12px;">B2B SaaS, Lead-Intent Sniper & AI/MCP Infrastructure</span>
+  </div>
+  <div class="dcs-actions">
+    <button onclick="window.print()" class="dcs-btn dcs-btn-ghost">🖨️ PDF / Dossier drucken</button>
+    <a href="#checkout-modal-49" target="_blank" rel="noopener" class="dcs-btn dcs-btn-primary">⚡ Musterschreiben & Voll-Dossier (€49)</a>
+    <a href="#checkout-modal-299" target="_blank" rel="noopener" class="dcs-btn dcs-btn-emerald">🛡️ B2B Umsetzung buchen (€299 / €1.490)</a>
+  </div>
+</div>
+
+<div class="container">
+    <header>
+        <div>
+            <span class="badge badge-green">MVP #48 · DACH PropTech / FinTech Wedge</span>
+            <span class="badge badge-blue">§§ 29–30 BMG + BEG IV 2025/2026</span>
+            <h1 style="margin-top:8px; font-size:26px;">FeWo Pre-Arrival Upsell & Digitaler Meldeschein Autopilot</h1>
+            <p style="color:var(--muted); font-size:14px;">
+                Teardown of <code>anonymous-startup-31</code> (~$24.8k/30d · 75% Margin) — Keybox-PIN gated behind 60s Kurbeitrag + 1-Tap Turnover-Aware Upsells
+            </p>
+        </div>
+        <div>
+            <label for="bookingSelect" style="font-size:12px; color:var(--muted); display:block; margin-bottom:4px;">Live DACH Buchungs-Szenario wählen:</label>
+            <select id="bookingSelect" onchange="renderSelectedBooking()"></select>
+        </div>
+    </header>
+
+    <div class="kpi-grid">
+        <div class="kpi-card">
+            <div class="kpi-label">Startup 30d MRR (1,180 FeWos)</div>
+            <div class="kpi-val">€23,290.03</div>
+            <div class="kpi-sub">~$25,386/30d · 75.5% Net Margin</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">Base SaaS vs. 7% Upsell Cut</div>
+            <div class="kpi-val">€14,160 + €9,130</div>
+            <div class="kpi-sub">€12/FeWo/Mo + 7% Stripe Connect Split</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">Keybox-Gated Link Open Rate</div>
+            <div class="kpi-val">98.5%</div>
+            <div class="kpi-sub">vs. 19% industry email open rate</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">1-Tap Upsell Attach Rate</div>
+            <div class="kpi-val">28.5%</div>
+            <div class="kpi-sub">Ø €63.50 Warenkorb pro Kauf</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">Host Net ROI pro FeWo</div>
+            <div class="kpi-val">8.4x</div>
+            <div class="kpi-sub">+€100.80/Mo Netto-Zusatzerlös vs €12 Gebühr</div>
+        </div>
+    </div>
+
+    <div class="main-split">
+        <div class="phone-frame">
+            <div class="phone-header">
+                <span class="badge badge-amber">Gast-Ansicht (WhatsApp Link 24h vor Anreise)</span>
+                <h3 id="mobPropName" style="margin-top:8px; font-size:18px;"></h3>
+                <p id="mobStayDates" style="font-size:12.5px; color:var(--muted);"></p>
+            </div>
+
+            <div class="step-box">
+                <div class="step-title">
+                    <span>1. Digitaler Meldeschein & Kurkarte</span>
+                    <span id="mobBmgBadge" class="badge badge-green"></span>
+                </div>
+                <div id="mobBmgDetails" style="font-size:12.5px; color:#cbd5e1;"></div>
+            </div>
+
+            <div class="step-box">
+                <div class="step-title">
+                    <span>2. 1-Tap Upgrade für Ihren Aufenthalt</span>
+                    <span style="font-size:11px; color:#34d399;">Kalender-synchronisiert</span>
+                </div>
+                <div id="mobUpsellList"></div>
+            </div>
+
+            <div class="step-box">
+                <div class="step-title">
+                    <span>3. Apple Pay / Stripe Checkout</span>
+                    <span id="mobTotalCharge" style="color:#34d399; font-weight:800;"></span>
+                </div>
+                <div id="mobSplitSummary" style="font-size:12px; color:var(--muted);"></div>
+                <button class="primary" onclick="recalculateInteractive()">Kurkarte & Upgrades bestätigen → Tür-PIN freischalten</button>
+            </div>
+
+            <div class="pin-vault" id="mobPinVault">
+                <div style="font-size:12px; text-transform:uppercase; color:#a7f3d0; font-weight:700;">Nuki Smart-Lock & Schlüsseltresor Freigabe</div>
+                <div class="pin-digits" id="mobPinDigits"></div>
+                <div id="mobPinWindow" style="font-size:12px; color:#cbd5e1;"></div>
+            </div>
+        </div>
+
+        <div>
+            <div class="panel">
+                <h2>
+                    <span>Kommunale Kurbeitrag- & §§ 29–30 BMG Abrechnung</span>
+                    <span id="hostRegionBadge" class="badge badge-blue"></span>
+                </h2>
+                <p id="hostStatutoryBasis" style="font-size:13px; color:var(--muted); margin-bottom:12px;"></p>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Gast</th>
+                            <th>Alter</th>
+                            <th>Tarifstufe</th>
+                            <th>Satz / Nacht</th>
+                            <th>Nächte</th>
+                            <th>Befreiung / Ermäßigung</th>
+                            <th>Summe</th>
+                        </tr>
+                    </thead>
+                    <tbody id="kurbeitragTableBody"></tbody>
+                </table>
+            </div>
+
+            <div class="panel">
+                <h2>
+                    <span>Stripe Connect Split (€12/Mo + 7% Application Fee)</span>
+                    <span class="badge badge-green">0% Provision auf durchlaufende Kurtaxe</span>
+                </h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Zahlungs-Komponente</th>
+                            <th>Betrag (EUR)</th>
+                            <th>Abrechnungs-Logik</th>
+                        </tr>
+                    </thead>
+                    <tbody id="financialSplitBody"></tbody>
+                </table>
+            </div>
+
+            <div class="panel">
+                <h2>
+                    <span>Wettbewerbs-Vergleich: Warum <code>anonymous-startup-31</code> im DACH-Markt gewinnt</span>
+                    <span class="badge badge-amber">450.000+ DACH Ferienwohnungen</span>
+                </h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Anbieter</th>
+                            <th>Fokus-Segment</th>
+                            <th>Fixpreis</th>
+                            <th>Upsell-Cut</th>
+                            <th>DACH BMG + Kurtaxe + Smart-Lock Gate</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        
+        <tr >
+            <td><strong>Enso Connect</strong></td>
+            <td>AI Guest Experience & Boarding Pass (Global STR)</td>
+            <td><code>Quote-only (~$15–$25/unit/mo, min portfolio floors)</code></td>
+            <td>0% on custom host upsells; 3%–6% on Enso Experiences marketplace</td>
+            <td>Weak (No native § 29 BMG / AVS / Feratel municipal Kurkarten sync)</td>
+        </tr>
+        
+        <tr >
+            <td><strong>Duve</strong></td>
+            <td>Modular Hotel & Enterprise Vacation Rental Guest App</td>
+            <td><code>$120–$150+/mo entry floor + modular add-ons</code></td>
+            <td>SaaS subscription model (heavy entry cost for 1–15 unit DACH hosts)</td>
+            <td>Generic ID scan; lacks German kommunale Satzung exemptions (GdB/Begleitperson)</td>
+        </tr>
+        
+        <tr >
+            <td><strong>Oaky</strong></td>
+            <td>Enterprise Hotel Pre-Arrival Upselling</td>
+            <td><code>€120–€300+/mo per hotel property</code></td>
+            <td>Performance/SaaS hybrid for large hotels; not built for Ferienwohnung keyboxes</td>
+            <td>None (Hotel PMS focus)</td>
+        </tr>
+        
+        <tr >
+            <td><strong>Chekin</strong></td>
+            <td>Legal Check-In & Police Reporting Automation</td>
+            <td><code>Tiered per-property/booking SaaS</code></td>
+            <td>0% cut (basic static upsell add-on, not turnover-calendar-aware)</td>
+            <td>Strong police/stat reporting, weak WhatsApp 1-tap Apple Pay conversion flow</td>
+        </tr>
+        
+        <tr >
+            <td><strong>Smoobu (Native Guest Guide)</strong></td>
+            <td>DACH Vacation Rental PMS & Channel Manager</td>
+            <td><code>€28–€35/mo base + €9.60–€12/extra unit</code></td>
+            <td>0% (requires external tools like bnbills/Chekin for automated Kurtaxe & smart locks)</td>
+            <td>Basic guest form; no automated municipal Kurbeitrag exemption logic</td>
+        </tr>
+        
+        <tr style="background: rgba(16, 185, 129, 0.14); border-left: 4px solid #10b981;">
+            <td><strong>anonymous-startup-31 (MVP #48 Blueprint)</strong></td>
+            <td>DACH Keybox-Gated BMG Meldeschein + WhatsApp 1-Tap Upsell Autopilot</td>
+            <td><code>€12.00 / property / month flat</code></td>
+            <td>7.0% Stripe Connect application fee on converted upsells (0% on Kurtaxe)</td>
+            <td>Full BEG IV 2025/2026 + § 29/30 BMG + Kommunale Kurtaxe & Smart-Lock PIN Gate</td>
+        </tr>
+        
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+const BOOKINGS = [{"booking_id": "BK-SYLT-2026-0814", "channel": "Booking.com", "property_id": "PROP-SYLT-01", "property_name": "Dünen-Lodge Kampen (Sylt)", "arrival_date": "2026-08-14", "departure_date": "2026-08-19", "accommodation_gross_eur": 1480.0, "bmg_compliance": {"valid": true, "errors": [], "warnings": ["Guest #1 (Markus Lindner): German citizen (BEG IV 2025 federal BMG exemption applied; data collected solely under municipal Kurbeitragssatzung § 11 KAG SH i.V.m. Kurabgabesatzung Sylt / Ostsee).", "Guest #2 (Julia Lindner): German citizen (BEG IV 2025 federal BMG exemption applied; data collected solely under municipal Kurbeitragssatzung § 11 KAG SH i.V.m. Kurabgabesatzung Sylt / Ostsee).", "Guest #3 (Lukas Lindner): German citizen (BEG IV 2025 federal BMG exemption applied; data collected solely under municipal Kurbeitragssatzung § 11 KAG SH i.V.m. Kurabgabesatzung Sylt / Ostsee)."], "statutory_regime": "DE_BEG_IV_EXEMPT_KOMMUNAL_KAG_ONLY", "requires_id_serial_verification": false, "total_registered_persons": 3, "nights": 5, "retention_until_date": "2027-08-19", "latest_dsgvo_purge_date": "2027-11-17"}, "kurbeitrag": {"region_code": "SYLT_OSTSEE", "region_name": "Sylt / Ostsee (Gemeinde Sylt & Ostseebäder)", "card_name": "Gästekarte Sylt / OstseeCard", "season": "Peak (Hauptsaison)", "nights": 5, "total_kurbeitrag_eur": 39.0, "statutory_basis": "§ 11 KAG SH i.V.m. Kurabgabesatzung Sylt / Ostsee", "guest_breakdown": [{"guest_name": "Markus Lindner", "age_at_arrival": 44, "tariff_bracket": "Adult", "effective_daily_eur": 3.9, "nights": 5, "line_total_eur": 19.5, "exemption_applied": "None (Full rate)"}, {"guest_name": "Julia Lindner", "age_at_arrival": 40, "tariff_bracket": "Adult", "effective_daily_eur": 3.9, "nights": 5, "line_total_eur": 19.5, "exemption_applied": "None (Full rate)"}, {"guest_name": "Lukas Lindner", "age_at_arrival": 11, "tariff_bracket": "Child (<18 yrs)", "effective_daily_eur": 0.0, "nights": 5, "line_total_eur": 0.0, "exemption_applied": "Age 11 exempt under Gästekarte Sylt / OstseeCard rules"}]}, "available_upsell_catalog": [{"offer_id": "EARLY_CHECKIN_1300", "title_de": "Garantierter Early Check-in ab 13:00 Uhr (statt 16:00 Uhr)", "subtitle_de": "Smart-Lock PIN wird automatisch 3 Stunden früher freigeschaltet", "category": "TIME_FLEX", "base_price_eur": 29.0, "dynamic_price_eur": 25.0, "available": true, "availability_reason": "Verfügbar: Keine Abreise am selben Vormittag — Reinigung bereits abgeschlossen.", "conversion_probability": 0.24, "fulfillment_trigger": "Nuki API: Update time-bound PIN validity start -> 13:00 CET + notify Housekeeping Slack/WhatsApp"}, {"offer_id": "LATE_CHECKOUT_1300", "title_de": "Entspannter Late Check-out bis 13:00 Uhr (statt 10:00 Uhr)", "subtitle_de": "Ausschlafen & gemütlich frühstücken am Abreisetag", "category": "TIME_FLEX", "base_price_eur": 35.0, "dynamic_price_eur": 35.0, "available": false, "availability_reason": "Gesperrt: Nächster Gast reist am 2026-08-19 an (Housekeeping-Slot 10:00–15:30 Uhr fixiert).", "conversion_probability": 0.0, "fulfillment_trigger": "Nuki API: Extend PIN validity end -> 13:00 CET + shift Smoobu/Turnover cleaning task to 13:15"}, {"offer_id": "SAUNA_FIREWOOD_BUNDLE", "title_de": "Kaminholz-Korb & Bio-Sauna Aufguss-Paket", "subtitle_de": "2 Kisten trockenes Birkenholz, Anzünder, 3 Alpenkräuter-Aufgüsse & 2 XXL-Saunatücher", "category": "AMENITY_BUNDLE", "base_price_eur": 24.0, "dynamic_price_eur": 24.0, "available": true, "availability_reason": "Sofort buchbar: Holzbox & Sauna-Steuerung im Objekt vorhanden.", "conversion_probability": 0.19, "fulfillment_trigger": "Reveal Smart-Padlock PIN (9104) for firewood storage + enable Shelly Pro Sauna relay"}, {"offer_id": "EBIKE_DAY_PASS", "title_de": "2x Premium E-Bikes (Bosch CX) für den Anreisetag", "subtitle_de": "Voll geladen in der Hausgarage inkl. Helme & Komoot-Tourenkarte", "category": "MOBILITY", "base_price_eur": 39.0, "dynamic_price_eur": 39.0, "available": true, "availability_reason": "Verfügbar: 2 E-Bikes im Objekt-Depot frei.", "conversion_probability": 0.14, "fulfillment_trigger": "Unlock Bluetooth/PIN bike lock #1 & #2 via API"}, {"offer_id": "REGIONAL_FRIDGE_BASKET", "title_de": "Gefüllter Kühlschrank bei Anreise (Regionaler Genusskorb)", "subtitle_de": "Bergkäse, Bauernbrot, Freiland-Eier, Butter, Bio-Marmelade, Apfelsaft & Prosecco", "category": "FNB", "base_price_eur": 34.0, "dynamic_price_eur": 34.0, "available": true, "availability_reason": "Verfügbar: Vorbestellung bis 18h vor Anreise aktiv.", "conversion_probability": 0.16, "fulfillment_trigger": "Dispatch automated order webhook to local Hofladen / Housekeeping runner"}, {"offer_id": "EV_WALLBOX_FLAT", "title_de": "11 kW E-Auto Wallbox-Freischaltung (Aufenthalts-Pauschale)", "subtitle_de": "Eigenen Stellplatz nutzen & während des Aufenthalts bequem 100% Ökostrom laden", "category": "MOBILITY", "base_price_eur": 22.0, "dynamic_price_eur": 22.0, "available": true, "availability_reason": "Verfügbar: 11 kW KEBA/Easee Wallbox am Stellplatz frei.", "conversion_probability": 0.12, "fulfillment_trigger": "OCPP API: Whitelist guest RFID / activate Wallbox relay for stay duration"}], "purchased_upsells": [{"offer_id": "EARLY_CHECKIN_1300", "title_de": "Garantierter Early Check-in ab 13:00 Uhr (statt 16:00 Uhr)", "subtitle_de": "Smart-Lock PIN wird automatisch 3 Stunden früher freigeschaltet", "category": "TIME_FLEX", "base_price_eur": 29.0, "dynamic_price_eur": 25.0, "available": true, "availability_reason": "Verfügbar: Keine Abreise am selben Vormittag — Reinigung bereits abgeschlossen.", "conversion_probability": 0.24, "fulfillment_trigger": "Nuki API: Update time-bound PIN validity start -> 13:00 CET + notify Housekeeping Slack/WhatsApp"}, {"offer_id": "SAUNA_FIREWOOD_BUNDLE", "title_de": "Kaminholz-Korb & Bio-Sauna Aufguss-Paket", "subtitle_de": "2 Kisten trockenes Birkenholz, Anzünder, 3 Alpenkräuter-Aufgüsse & 2 XXL-Saunatücher", "category": "AMENITY_BUNDLE", "base_price_eur": 24.0, "dynamic_price_eur": 24.0, "available": true, "availability_reason": "Sofort buchbar: Holzbox & Sauna-Steuerung im Objekt vorhanden.", "conversion_probability": 0.19, "fulfillment_trigger": "Reveal Smart-Padlock PIN (9104) for firewood storage + enable Shelly Pro Sauna relay"}, {"offer_id": "REGIONAL_FRIDGE_BASKET", "title_de": "Gefüllter Kühlschrank bei Anreise (Regionaler Genusskorb)", "subtitle_de": "Bergkäse, Bauernbrot, Freiland-Eier, Butter, Bio-Marmelade, Apfelsaft & Prosecco", "category": "FNB", "base_price_eur": 34.0, "dynamic_price_eur": 34.0, "available": true, "availability_reason": "Verfügbar: Vorbestellung bis 18h vor Anreise aktiv.", "conversion_probability": 0.16, "fulfillment_trigger": "Dispatch automated order webhook to local Hofladen / Housekeeping runner"}], "rejected_upsells": [], "financial_split": {"kurbeitrag_pass_through_eur": 39.0, "upsell_gross_eur": 83.0, "total_guest_prearrival_charge_eur": 122.0, "platform_7pct_application_fee_eur": 5.81, "stripe_processing_fee_eur": 2.08, "host_net_payout_incl_kurtaxe_eur": 114.11, "host_net_upsell_profit_eur": 75.11}, "smart_lock_gate": {"unlocked": true, "smart_lock_vendor": "Nuki Smart Lock 4.0 Pro", "nuki_timebound_pin": "101015", "keybox_emergency_pin": "4829#", "valid_from": "2026-08-14 13:00 Europe/Berlin", "valid_until": "2026-08-19 10:00 Europe/Berlin"}}, {"booking_id": "BK-ALLGAEU-2026-0904", "channel": "Airbnb", "property_id": "PROP-OBD-04", "property_name": "AlpenChalet Nebelhorn (Oberstdorf)", "arrival_date": "2026-09-04", "departure_date": "2026-09-08", "accommodation_gross_eur": 920.0, "bmg_compliance": {"valid": true, "errors": [], "warnings": [], "statutory_regime": "DE_BMG_29_30_FOREIGN_AND_KAG", "requires_id_serial_verification": true, "total_registered_persons": 2, "nights": 4, "retention_until_date": "2027-09-08", "latest_dsgvo_purge_date": "2027-12-07"}, "kurbeitrag": {"region_code": "OBERSTDORF_ALLGAEU", "region_name": "Oberstdorf / Allgäu (Markt Oberstdorf)", "card_name": "Allgäu-Walser-Pass", "season": "Peak (Hauptsaison)", "nights": 4, "total_kurbeitrag_eur": 22.8, "statutory_basis": "Art. 7 KAG Bayern i.V.m. Kurbeitragssatzung Markt Oberstdorf", "guest_breakdown": [{"guest_name": "Hendrik van der Berg", "age_at_arrival": 49, "tariff_bracket": "Adult", "effective_daily_eur": 1.9, "nights": 4, "line_total_eur": 7.6, "exemption_applied": "Schwerbehinderung GdB 80 (>= 80) 50% reduction"}, {"guest_name": "Sanne van der Berg", "age_at_arrival": 47, "tariff_bracket": "Adult", "effective_daily_eur": 3.8, "nights": 4, "line_total_eur": 15.2, "exemption_applied": "None (Full rate)"}]}, "available_upsell_catalog": [{"offer_id": "EARLY_CHECKIN_1300", "title_de": "Garantierter Early Check-in ab 13:00 Uhr (statt 16:00 Uhr)", "subtitle_de": "Smart-Lock PIN wird automatisch 3 Stunden früher freigeschaltet", "category": "TIME_FLEX", "base_price_eur": 29.0, "dynamic_price_eur": 29.0, "available": false, "availability_reason": "Gesperrt: Vorheriger Gast reist am 2026-09-04 um 10:00 Uhr ab (3.5h Reinigungsfenster benötigt).", "conversion_probability": 0.0, "fulfillment_trigger": "Nuki API: Update time-bound PIN validity start -> 13:00 CET + notify Housekeeping Slack/WhatsApp"}, {"offer_id": "LATE_CHECKOUT_1300", "title_de": "Entspannter Late Check-out bis 13:00 Uhr (statt 10:00 Uhr)", "subtitle_de": "Ausschlafen & gemütlich frühstücken am Abreisetag", "category": "TIME_FLEX", "base_price_eur": 35.0, "dynamic_price_eur": 35.0, "available": true, "availability_reason": "Verfügbar: Keine Neuankunft am Abreisetag — Reinigungsfenster flexibel.", "conversion_probability": 0.21, "fulfillment_trigger": "Nuki API: Extend PIN validity end -> 13:00 CET + shift Smoobu/Turnover cleaning task to 13:15"}, {"offer_id": "SAUNA_FIREWOOD_BUNDLE", "title_de": "Kaminholz-Korb & Bio-Sauna Aufguss-Paket", "subtitle_de": "2 Kisten trockenes Birkenholz, Anzünder, 3 Alpenkräuter-Aufgüsse & 2 XXL-Saunatücher", "category": "AMENITY_BUNDLE", "base_price_eur": 24.0, "dynamic_price_eur": 24.0, "available": true, "availability_reason": "Sofort buchbar: Holzbox & Sauna-Steuerung im Objekt vorhanden.", "conversion_probability": 0.19, "fulfillment_trigger": "Reveal Smart-Padlock PIN (9104) for firewood storage + enable Shelly Pro Sauna relay"}, {"offer_id": "EBIKE_DAY_PASS", "title_de": "2x Premium E-Bikes (Bosch CX) für den Anreisetag", "subtitle_de": "Voll geladen in der Hausgarage inkl. Helme & Komoot-Tourenkarte", "category": "MOBILITY", "base_price_eur": 39.0, "dynamic_price_eur": 39.0, "available": true, "availability_reason": "Verfügbar: 2 E-Bikes im Objekt-Depot frei.", "conversion_probability": 0.14, "fulfillment_trigger": "Unlock Bluetooth/PIN bike lock #1 & #2 via API"}, {"offer_id": "REGIONAL_FRIDGE_BASKET", "title_de": "Gefüllter Kühlschrank bei Anreise (Regionaler Genusskorb)", "subtitle_de": "Bergkäse, Bauernbrot, Freiland-Eier, Butter, Bio-Marmelade, Apfelsaft & Prosecco", "category": "FNB", "base_price_eur": 34.0, "dynamic_price_eur": 34.0, "available": true, "availability_reason": "Verfügbar: Vorbestellung bis 18h vor Anreise aktiv.", "conversion_probability": 0.16, "fulfillment_trigger": "Dispatch automated order webhook to local Hofladen / Housekeeping runner"}, {"offer_id": "EV_WALLBOX_FLAT", "title_de": "11 kW E-Auto Wallbox-Freischaltung (Aufenthalts-Pauschale)", "subtitle_de": "Eigenen Stellplatz nutzen & während des Aufenthalts bequem 100% Ökostrom laden", "category": "MOBILITY", "base_price_eur": 22.0, "dynamic_price_eur": 22.0, "available": true, "availability_reason": "Verfügbar: 11 kW KEBA/Easee Wallbox am Stellplatz frei.", "conversion_probability": 0.12, "fulfillment_trigger": "OCPP API: Whitelist guest RFID / activate Wallbox relay for stay duration"}], "purchased_upsells": [{"offer_id": "LATE_CHECKOUT_1300", "title_de": "Entspannter Late Check-out bis 13:00 Uhr (statt 10:00 Uhr)", "subtitle_de": "Ausschlafen & gemütlich frühstücken am Abreisetag", "category": "TIME_FLEX", "base_price_eur": 35.0, "dynamic_price_eur": 35.0, "available": true, "availability_reason": "Verfügbar: Keine Neuankunft am Abreisetag — Reinigungsfenster flexibel.", "conversion_probability": 0.21, "fulfillment_trigger": "Nuki API: Extend PIN validity end -> 13:00 CET + shift Smoobu/Turnover cleaning task to 13:15"}, {"offer_id": "EBIKE_DAY_PASS", "title_de": "2x Premium E-Bikes (Bosch CX) für den Anreisetag", "subtitle_de": "Voll geladen in der Hausgarage inkl. Helme & Komoot-Tourenkarte", "category": "MOBILITY", "base_price_eur": 39.0, "dynamic_price_eur": 39.0, "available": true, "availability_reason": "Verfügbar: 2 E-Bikes im Objekt-Depot frei.", "conversion_probability": 0.14, "fulfillment_trigger": "Unlock Bluetooth/PIN bike lock #1 & #2 via API"}, {"offer_id": "EV_WALLBOX_FLAT", "title_de": "11 kW E-Auto Wallbox-Freischaltung (Aufenthalts-Pauschale)", "subtitle_de": "Eigenen Stellplatz nutzen & während des Aufenthalts bequem 100% Ökostrom laden", "category": "MOBILITY", "base_price_eur": 22.0, "dynamic_price_eur": 22.0, "available": true, "availability_reason": "Verfügbar: 11 kW KEBA/Easee Wallbox am Stellplatz frei.", "conversion_probability": 0.12, "fulfillment_trigger": "OCPP API: Whitelist guest RFID / activate Wallbox relay for stay duration"}], "rejected_upsells": [{"offer_id": "EARLY_CHECKIN_1300", "title_de": "Garantierter Early Check-in ab 13:00 Uhr (statt 16:00 Uhr)", "reason": "Gesperrt: Vorheriger Gast reist am 2026-09-04 um 10:00 Uhr ab (3.5h Reinigungsfenster benötigt)."}], "financial_split": {"kurbeitrag_pass_through_eur": 22.8, "upsell_gross_eur": 96.0, "total_guest_prearrival_charge_eur": 118.8, "platform_7pct_application_fee_eur": 6.72, "stripe_processing_fee_eur": 2.03, "host_net_payout_incl_kurtaxe_eur": 110.05, "host_net_upsell_profit_eur": 87.25}, "smart_lock_gate": {"unlocked": true, "smart_lock_vendor": "Nuki Smart Lock 4.0 Pro", "nuki_timebound_pin": "101190", "keybox_emergency_pin": "4829#", "valid_from": "2026-09-04 16:00 Europe/Berlin", "valid_until": "2026-09-08 13:00 Europe/Berlin"}}, {"booking_id": "BK-TIROL-2026-1010", "channel": "Smoobu Direct", "property_id": "PROP-SOEL-02", "property_name": "Gletscherblick Penthouse (Sölden)", "arrival_date": "2026-10-10", "departure_date": "2026-10-15", "accommodation_gross_eur": 1150.0, "bmg_compliance": {"valid": true, "errors": [], "warnings": [], "statutory_regime": "AT_MELDEG_5_UND_TAAG", "requires_id_serial_verification": true, "total_registered_persons": 2, "nights": 5, "retention_until_date": "2027-10-15", "latest_dsgvo_purge_date": "2028-01-13"}, "kurbeitrag": {"region_code": "TIROL_SOELDEN", "region_name": "Sölden / Ötztal (Tirol, Österreich)", "card_name": "Ötztal Inside Guest Card", "season": "Peak (Hauptsaison)", "nights": 5, "total_kurbeitrag_eur": 40.0, "statutory_basis": "Tiroler Aufenthaltsabgabegesetz (TAAG) + Meldegesetz 1991 (§ 5 MeldeG)", "guest_breakdown": [{"guest_name": "Reto Schweizer", "age_at_arrival": 38, "tariff_bracket": "Adult", "effective_daily_eur": 4.0, "nights": 5, "line_total_eur": 20.0, "exemption_applied": "None (Full rate)"}, {"guest_name": "Miriam Schweizer", "age_at_arrival": 36, "tariff_bracket": "Adult", "effective_daily_eur": 4.0, "nights": 5, "line_total_eur": 20.0, "exemption_applied": "None (Full rate)"}]}, "available_upsell_catalog": [{"offer_id": "EARLY_CHECKIN_1300", "title_de": "Garantierter Early Check-in ab 13:00 Uhr (statt 16:00 Uhr)", "subtitle_de": "Smart-Lock PIN wird automatisch 3 Stunden früher freigeschaltet", "category": "TIME_FLEX", "base_price_eur": 29.0, "dynamic_price_eur": 25.0, "available": true, "availability_reason": "Verfügbar: Keine Abreise am selben Vormittag — Reinigung bereits abgeschlossen.", "conversion_probability": 0.24, "fulfillment_trigger": "Nuki API: Update time-bound PIN validity start -> 13:00 CET + notify Housekeeping Slack/WhatsApp"}, {"offer_id": "LATE_CHECKOUT_1300", "title_de": "Entspannter Late Check-out bis 13:00 Uhr (statt 10:00 Uhr)", "subtitle_de": "Ausschlafen & gemütlich frühstücken am Abreisetag", "category": "TIME_FLEX", "base_price_eur": 35.0, "dynamic_price_eur": 35.0, "available": true, "availability_reason": "Verfügbar: Keine Neuankunft am Abreisetag — Reinigungsfenster flexibel.", "conversion_probability": 0.21, "fulfillment_trigger": "Nuki API: Extend PIN validity end -> 13:00 CET + shift Smoobu/Turnover cleaning task to 13:15"}, {"offer_id": "SAUNA_FIREWOOD_BUNDLE", "title_de": "Kaminholz-Korb & Bio-Sauna Aufguss-Paket", "subtitle_de": "2 Kisten trockenes Birkenholz, Anzünder, 3 Alpenkräuter-Aufgüsse & 2 XXL-Saunatücher", "category": "AMENITY_BUNDLE", "base_price_eur": 24.0, "dynamic_price_eur": 24.0, "available": true, "availability_reason": "Sofort buchbar: Holzbox & Sauna-Steuerung im Objekt vorhanden.", "conversion_probability": 0.19, "fulfillment_trigger": "Reveal Smart-Padlock PIN (9104) for firewood storage + enable Shelly Pro Sauna relay"}, {"offer_id": "EBIKE_DAY_PASS", "title_de": "2x Premium E-Bikes (Bosch CX) für den Anreisetag", "subtitle_de": "Voll geladen in der Hausgarage inkl. Helme & Komoot-Tourenkarte", "category": "MOBILITY", "base_price_eur": 39.0, "dynamic_price_eur": 39.0, "available": false, "availability_reason": "Alle E-Bikes für diesen Zeitraum bereits reserviert.", "conversion_probability": 0.0, "fulfillment_trigger": "Unlock Bluetooth/PIN bike lock #1 & #2 via API"}, {"offer_id": "REGIONAL_FRIDGE_BASKET", "title_de": "Gefüllter Kühlschrank bei Anreise (Regionaler Genusskorb)", "subtitle_de": "Bergkäse, Bauernbrot, Freiland-Eier, Butter, Bio-Marmelade, Apfelsaft & Prosecco", "category": "FNB", "base_price_eur": 34.0, "dynamic_price_eur": 34.0, "available": true, "availability_reason": "Verfügbar: Vorbestellung bis 18h vor Anreise aktiv.", "conversion_probability": 0.16, "fulfillment_trigger": "Dispatch automated order webhook to local Hofladen / Housekeeping runner"}, {"offer_id": "EV_WALLBOX_FLAT", "title_de": "11 kW E-Auto Wallbox-Freischaltung (Aufenthalts-Pauschale)", "subtitle_de": "Eigenen Stellplatz nutzen & während des Aufenthalts bequem 100% Ökostrom laden", "category": "MOBILITY", "base_price_eur": 22.0, "dynamic_price_eur": 22.0, "available": true, "availability_reason": "Verfügbar: 11 kW KEBA/Easee Wallbox am Stellplatz frei.", "conversion_probability": 0.12, "fulfillment_trigger": "OCPP API: Whitelist guest RFID / activate Wallbox relay for stay duration"}], "purchased_upsells": [{"offer_id": "EARLY_CHECKIN_1300", "title_de": "Garantierter Early Check-in ab 13:00 Uhr (statt 16:00 Uhr)", "subtitle_de": "Smart-Lock PIN wird automatisch 3 Stunden früher freigeschaltet", "category": "TIME_FLEX", "base_price_eur": 29.0, "dynamic_price_eur": 25.0, "available": true, "availability_reason": "Verfügbar: Keine Abreise am selben Vormittag — Reinigung bereits abgeschlossen.", "conversion_probability": 0.24, "fulfillment_trigger": "Nuki API: Update time-bound PIN validity start -> 13:00 CET + notify Housekeeping Slack/WhatsApp"}, {"offer_id": "LATE_CHECKOUT_1300", "title_de": "Entspannter Late Check-out bis 13:00 Uhr (statt 10:00 Uhr)", "subtitle_de": "Ausschlafen & gemütlich frühstücken am Abreisetag", "category": "TIME_FLEX", "base_price_eur": 35.0, "dynamic_price_eur": 35.0, "available": true, "availability_reason": "Verfügbar: Keine Neuankunft am Abreisetag — Reinigungsfenster flexibel.", "conversion_probability": 0.21, "fulfillment_trigger": "Nuki API: Extend PIN validity end -> 13:00 CET + shift Smoobu/Turnover cleaning task to 13:15"}, {"offer_id": "SAUNA_FIREWOOD_BUNDLE", "title_de": "Kaminholz-Korb & Bio-Sauna Aufguss-Paket", "subtitle_de": "2 Kisten trockenes Birkenholz, Anzünder, 3 Alpenkräuter-Aufgüsse & 2 XXL-Saunatücher", "category": "AMENITY_BUNDLE", "base_price_eur": 24.0, "dynamic_price_eur": 24.0, "available": true, "availability_reason": "Sofort buchbar: Holzbox & Sauna-Steuerung im Objekt vorhanden.", "conversion_probability": 0.19, "fulfillment_trigger": "Reveal Smart-Padlock PIN (9104) for firewood storage + enable Shelly Pro Sauna relay"}], "rejected_upsells": [], "financial_split": {"kurbeitrag_pass_through_eur": 40.0, "upsell_gross_eur": 84.0, "total_guest_prearrival_charge_eur": 124.0, "platform_7pct_application_fee_eur": 5.88, "stripe_processing_fee_eur": 2.11, "host_net_payout_incl_kurtaxe_eur": 116.01, "host_net_upsell_profit_eur": 76.01}, "smart_lock_gate": {"unlocked": true, "smart_lock_vendor": "Nuki Smart Lock 4.0 Pro", "nuki_timebound_pin": "101066", "keybox_emergency_pin": "4829#", "valid_from": "2026-10-10 13:00 Europe/Berlin", "valid_until": "2026-10-15 13:00 Europe/Berlin"}}];
+let currentBookingIdx = 0;
+
+function init() {
+    const sel = document.getElementById('bookingSelect');
+    BOOKINGS.forEach((b, i) => {
+        const opt = document.createElement('option');
+        opt.value = i;
+        opt.textContent = `${b.booking_id} — ${b.property_name} (${b.channel})`;
+        sel.appendChild(opt);
+    });
+    renderSelectedBooking();
+}
+
+function renderSelectedBooking() {
+    currentBookingIdx = parseInt(document.getElementById('bookingSelect').value, 10) || 0;
+    const b = BOOKINGS[currentBookingIdx];
+    const selectedIds = new Set(b.purchased_upsells.map(u => u.offer_id));
+    renderBookingState(b, selectedIds);
+}
+
+function recalculateInteractive() {
+    const b = BOOKINGS[currentBookingIdx];
+    const checkboxes = document.querySelectorAll('.upsell-cb');
+    const selectedIds = new Set();
+    checkboxes.forEach(cb => {
+        if (cb.checked && !cb.disabled) {
+            selectedIds.add(cb.value);
+        }
+    });
+    renderBookingState(b, selectedIds);
+}
+
+function renderBookingState(b, selectedIds) {
+    document.getElementById('mobPropName').textContent = b.property_name;
+    document.getElementById('mobStayDates').textContent = `Anreise: ${b.arrival_date} · Abreise: ${b.departure_date} (${b.kurbeitrag.nights} Nächte · ${b.channel})`;
+
+    const bmg = b.bmg_compliance;
+    document.getElementById('mobBmgBadge').textContent = bmg.valid ? 'BMG & Kurkarte OK' : 'Fehlende Angaben';
+    document.getElementById('mobBmgDetails').innerHTML = `
+        <div><strong>Regime:</strong> <code>${bmg.statutory_regime}</code></div>
+        <div><strong>Erfasste Gäste:</strong> ${bmg.total_registered_persons} Personen · Aufbewahrung bis ${bmg.retention_until_date} (§ 30 Abs. 4 BMG)</div>
+    `;
+
+    const upsellContainer = document.getElementById('mobUpsellList');
+    upsellContainer.innerHTML = '';
+    let upsellGross = 0;
+    let hasEarly = false;
+    let hasLate = false;
+
+    b.available_upsell_catalog.forEach(u => {
+        const isChecked = u.available && selectedIds.has(u.offer_id);
+        if (isChecked) {
+            upsellGross += u.dynamic_price_eur;
+            if (u.offer_id === 'EARLY_CHECKIN_1300') hasEarly = true;
+            if (u.offer_id === 'LATE_CHECKOUT_1300') hasLate = true;
+        }
+        const item = document.createElement('div');
+        item.className = 'upsell-item' + (u.available ? '' : ' disabled');
+        item.innerHTML = `
+            <div style="flex:1;">
+                <label style="display:flex; align-items:center; gap:8px; font-weight:600; font-size:13px; cursor:pointer;">
+                    <input type="checkbox" class="upsell-cb" value="${u.offer_id}"
+                        ${isChecked ? 'checked' : ''}
+                        ${u.available ? '' : 'disabled'}
+                        onchange="recalculateInteractive()">
+                    ${u.title_de}
+                </label>
+                <div style="font-size:11.5px; color:var(--muted); margin-top:3px;">${u.subtitle_de}</div>
+                <div style="font-size:11px; color:${u.available ? '#34d399' : '#f87171'}; margin-top:3px;">${u.availability_reason}</div>
+            </div>
+            <div style="font-weight:800; color:#fff; font-size:14px; white-space:nowrap;">+€${u.dynamic_price_eur.toFixed(2)}</div>
+        `;
+        upsellContainer.appendChild(item);
+    });
+
+    const kurtaxe = b.kurbeitrag.total_kurbeitrag_eur;
+    const totalCharge = kurtaxe + upsellGross;
+    const appFee7Pct = +(upsellGross * 0.07).toFixed(2);
+    const stripeFee = totalCharge > 0 ? +(totalCharge * 0.015 + 0.25).toFixed(2) : 0;
+    const hostNetPayout = +(totalCharge - appFee7Pct - stripeFee).toFixed(2);
+    const hostNetUpsellProfit = +(hostNetPayout - kurtaxe).toFixed(2);
+
+    document.getElementById('mobTotalCharge').textContent = `€${totalCharge.toFixed(2)}`;
+    document.getElementById('mobSplitSummary').innerHTML = `
+        Kurbeitrag (${b.kurbeitrag.card_name}): €${kurtaxe.toFixed(2)} + Gewählte Upgrades: €${upsellGross.toFixed(2)}
+    `;
+
+    const gate = b.smart_lock_gate;
+    document.getElementById('mobPinDigits').textContent = gate.nuki_timebound_pin;
+    const checkinHour = hasEarly ? '13:00' : '16:00';
+    const checkoutHour = hasLate ? '13:00' : '10:00';
+    document.getElementById('mobPinWindow').innerHTML = `
+        <strong>${gate.smart_lock_vendor}</strong> aktiv von <code>${b.arrival_date} ${checkinHour}</code> bis <code>${b.departure_date} ${checkoutHour}</code><br>
+        Notfall-Schlüsseltresor: <code>${gate.keybox_emergency_pin}</code> · Digitale Gästekarte als Apple/Google Wallet Pass gesendet
+    `;
+
+    document.getElementById('hostRegionBadge').textContent = b.kurbeitrag.region_name;
+    document.getElementById('hostStatutoryBasis').textContent = `${b.kurbeitrag.statutory_basis} · Saison: ${b.kurbeitrag.season} · Gästekarte: ${b.kurbeitrag.card_name}`;
+
+    const kbBody = document.getElementById('kurbeitragTableBody');
+    kbBody.innerHTML = '';
+    b.kurbeitrag.guest_breakdown.forEach(g => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td><strong>${g.guest_name}</strong></td>
+            <td>${g.age_at_arrival} J.</td>
+            <td>${g.tariff_bracket}</td>
+            <td>€${g.effective_daily_eur.toFixed(2)}</td>
+            <td>${g.nights}</td>
+            <td><span class="badge ${g.effective_daily_eur === 0 ? 'badge-green' : 'badge-blue'}">${g.exemption_applied}</span></td>
+            <td><strong>€${g.line_total_eur.toFixed(2)}</strong></td>
+        `;
+        kbBody.appendChild(tr);
+    });
+
+    const splitBody = document.getElementById('financialSplitBody');
+    splitBody.innerHTML = `
+        <tr>
+            <td>Durchlaufender Kommunaler Kurbeitrag (${b.kurbeitrag.card_name})</td>
+            <td><strong>€${kurtaxe.toFixed(2)}</strong></td>
+            <td>0.0% Plattform-Cut (100% Weiterleitung an Vermieter/Kommune)</td>
+        </tr>
+        <tr>
+            <td>Pre-Arrival Upsell Warenkorb (Brutto)</td>
+            <td><strong>€${upsellGross.toFixed(2)}</strong></td>
+            <td>Durch Gast im 1-Tap Check-in Flow ausgewählt</td>
+        </tr>
+        <tr>
+            <td>Plattform Application Fee (7.0% auf Upsells)</td>
+            <td style="color:#34d399;"><strong>-€${appFee7Pct.toFixed(2)}</strong></td>
+            <td>Stripe Connect <code>application_fee_amount</code> für <code>anonymous-startup-31</code></td>
+        </tr>
+        <tr>
+            <td>Stripe Payment Processing (1.5% + €0.25 EU Cards/Apple Pay)</td>
+            <td style="color:var(--muted);">-€${stripeFee.toFixed(2)}</td>
+            <td>Direktabzug im Stripe Destination Charge</td>
+        </tr>
+        <tr style="background: rgba(16, 185, 129, 0.12);">
+            <td><strong>Netto-Auszahlung an Vermieter (inkl. Kurtaxe)</strong></td>
+            <td><strong>€${hostNetPayout.toFixed(2)}</strong></td>
+            <td>Davon <strong>+€${hostNetUpsellProfit.toFixed(2)} reiner Netto-Zusatzgewinn</strong> aus Upgrades bei dieser Buchung!</td>
+        </tr>
+    `;
+}
+
+init();
+</script>
+</body>
+</html>

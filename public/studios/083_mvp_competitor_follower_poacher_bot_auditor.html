@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8" />
+<title>MVP #83 — Competitor New-Follower Intent Poacher & Influencer Bot-Ring Fraud Cockpit</title>
+<style>
+    :root {
+        --bg: #0b0f19;
+        --panel: #131b2e;
+        --border: #23304d;
+        --text: #e2e8f0;
+        --muted: #94a3b8;
+        --accent: #38bdf8;
+        --green: #10b981;
+        --amber: #f59e0b;
+        --red: #ef4444;
+    }
+    * { box-sizing: border-box; }
+    body {
+        margin: 0;
+        padding: 24px;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+    }
+    .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 16px;
+        padding-bottom: 18px;
+        border-bottom: 1px solid var(--border);
+    }
+    h1 { margin: 0 0 6px 0; font-size: 22px; }
+    .kpi-strip {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+        gap: 14px;
+        margin: 20px 0;
+    }
+    .kpi {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 14px 16px;
+    }
+    .kpi-label { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; }
+    .kpi-value { font-size: 24px; font-weight: 700; margin-top: 6px; color: var(--accent); }
+    .section {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 18px;
+        margin-bottom: 22px;
+    }
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 13px; }
+    th, td { padding: 12px 10px; text-align: left; border-bottom: 1px solid var(--border); vertical-align: top; }
+    th { color: var(--muted); font-weight: 600; text-transform: uppercase; font-size: 11px; }
+    .handle { font-weight: 700; color: var(--accent); font-size: 14px; }
+    .sub { color: var(--muted); font-size: 12px; }
+    .role-tag { color: #e2e8f0; font-weight: 600; }
+    .badge { display: inline-block; padding: 4px 8px; border-radius: 6px; font-weight: 700; font-size: 12px; }
+    .pill { display: inline-block; padding: 2px 7px; border-radius: 999px; font-size: 11px; margin: 2px 2px 0 0; }
+    .pill-comp { background: #1e293b; border: 1px solid #334155; color: #38bdf8; }
+    .pill-alert { background: #ef444422; border: 1px solid #ef4444; color: #fca5a5; font-weight: 600; }
+    .pill-risk { background: #f59e0b22; border: 1px solid #f59e0b; color: #fcd34d; }
+    .script-box {
+        background: #0f172a;
+        border: 1px solid #1e293b;
+        border-radius: 6px;
+        padding: 8px 10px;
+        font-size: 12px;
+        line-height: 1.4;
+        max-width: 390px;
+    }
+    .audit-card {
+        background: #0f172a;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 16px;
+        margin-top: 14px;
+    }
+    .audit-header { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+    .audit-header h3 { margin: 0; font-size: 16px; }
+    .verdict-pill { padding: 5px 10px; border-radius: 6px; font-size: 12px; font-weight: 700; }
+    .metrics-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 12px;
+        margin-top: 12px;
+    }
+    .m-box { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; }
+    .m-label { font-size: 11px; color: var(--muted); text-transform: uppercase; }
+    .m-val { font-size: 18px; font-weight: 700; margin: 4px 0; }
+    .filter-bar { display: flex; gap: 10px; margin-bottom: 10px; align-items: center; }
+    select, input {
+        background: #0f172a;
+        color: var(--text);
+        border: 1px solid var(--border);
+        padding: 6px 10px;
+        border-radius: 6px;
+        font-size: 13px;
+    }
+</style>
+</head>
+<body>
+
+<!-- DACH CASHFLOW STUDIOS LAUNCH BAR -->
+<style>
+  #dcs-launch-bar {
+    position: sticky;
+    top: 0;
+    z-index: 99999;
+    background: linear-gradient(90deg, #0b1120 0%, #111827 50%, #0f172a 100%);
+    color: #f8fafc;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.35);
+    padding: 8px 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  }
+  #dcs-launch-bar .dcs-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+  }
+  #dcs-launch-bar .dcs-badge {
+    background: rgba(16, 185, 129, 0.18);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.03em;
+  }
+  #dcs-launch-bar a.dcs-nav {
+    color: #93c5fd;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 12.5px;
+  }
+  #dcs-launch-bar a.dcs-nav:hover {
+    text-decoration: underline;
+    color: #dbeafe;
+  }
+  #dcs-launch-bar .dcs-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  #dcs-launch-bar .dcs-btn {
+    padding: 5px 11px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s ease;
+  }
+  #dcs-launch-bar .dcs-btn-ghost {
+    background: rgba(255,255,255,0.08);
+    color: #e2e8f0;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  #dcs-launch-bar .dcs-btn-primary {
+    background: linear-gradient(135deg, #0ea5e9, #2563eb);
+    color: #ffffff;
+  }
+  #dcs-launch-bar .dcs-btn-emerald {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
+  }
+  @media print {
+    #dcs-launch-bar { display: none !important; }
+  }
+</style>
+<div id="dcs-launch-bar">
+  <div class="dcs-left">
+    <a href="/index.html" class="dcs-nav">← Alle 150 DACH Studios</a>
+    <span class="dcs-badge">MVP #083 VERIFIED</span>
+    <span style="color:#cbd5e1;font-size:12px;">B2B SaaS, Lead-Intent Sniper & AI/MCP Infrastructure</span>
+  </div>
+  <div class="dcs-actions">
+    <button onclick="window.print()" class="dcs-btn dcs-btn-ghost">🖨️ PDF / Dossier drucken</button>
+    <a href="#checkout-modal-49" target="_blank" rel="noopener" class="dcs-btn dcs-btn-primary">⚡ Musterschreiben & Voll-Dossier (€49)</a>
+    <a href="#checkout-modal-299" target="_blank" rel="noopener" class="dcs-btn dcs-btn-emerald">🛡️ B2B Umsetzung buchen (€299 / €1.490)</a>
+  </div>
+</div>
+
+    <div class="header">
+        <div>
+            <h1>🎯 MVP #83: 48h Competitor New-Follower Intent Poacher & Influencer Bot-Ring Fraud Cockpit</h1>
+            <div class="sub">
+                Replaces <code>bhansalisoft/instagram-follower-scraper-monthly</code> ($30.00/Unit #1 Catalog Price) +
+                <code>dead00/instagram-followers-following-scraper-no-cookies</code> (85.0% Fail Rate) +
+                <code>maximedupre/instagram-user-search-scraper</code> (27.5% Fail Rate, 942 Users)
+            </div>
+        </div>
+        <div class="badge" style="background:#10b98122;color:#10b981;border:1px solid #10b981;">
+            Delta-Cursor Short-Circuit Active (-92% Requests)
+        </div>
+    </div>
+
+    <div class="kpi-strip">
+        <div class="kpi">
+            <div class="kpi-label">Hot 48h Intersection Leads (&ge;2 Comps)</div>
+            <div class="kpi-value" style="color:var(--green);">4</div>
+            <div class="sub">Filtered 1 Bot/Burner Followers</div>
+        </div>
+        <div class="kpi">
+            <div class="kpi-label">Competitor Follow-Back Alerts</div>
+            <div class="kpi-value" style="color:var(--amber);">3</div>
+            <div class="sub">Active DM Negotiation Signals</div>
+        </div>
+        <div class="kpi">
+            <div class="kpi-label">Max Pod Collusion Detected</div>
+            <div class="kpi-value" style="color:var(--red);">95.6%</div>
+            <div class="sub">14 Creators Commenting &le;180s</div>
+        </div>
+        <div class="kpi">
+            <div class="kpi-label">Sponsorship Fraud Saved</div>
+            <div class="kpi-value" style="color:var(--green);">€2,913.74</div>
+            <div class="sub">Quoted €6,600 &rarr; Fair €3,686.26</div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2 style="margin-top:0;font-size:17px;">🔥 Play A: 48-Hour Multi-Competitor New-Follower Intersection Sniper (&Delta; Follower Diff)</h2>
+        <div class="filter-bar">
+            <label class="sub">Filter Tier:</label>
+            <select id="tierFilter" onchange="filterLeads()">
+                <option value="ALL">All Tiers</option>
+                <option value="TIER_1_HOT_INTERSECTION">TIER 1 — Hot 48h Intersection (&ge;2 Competitors)</option>
+                <option value="TIER_2_WARM_COMPARISON">TIER 2 — Warm Comparison</option>
+                <option value="TIER_3_MONITOR">TIER 3 — Single Follow Monitor</option>
+                <option value="DISQUALIFIED_BOT">Disqualified Bot Noise</option>
+            </select>
+        </div>
+        <table id="leadsTable">
+            <thead>
+                <tr>
+                    <th>Prospect & Commercial Bio Signal</th>
+                    <th>Overlap Buyer Intent Score</th>
+                    <th>48h Competitor Intersection (&Delta; Diff)</th>
+                    <th>Verified Contact</th>
+                    <th>Warm Timing Outreach Hook (DACH)</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+            <tr data-vertical="B2B RevOps &amp; DATEV Automation" data-tier="TIER_1_HOT_INTERSECTION">
+                <td>
+                    <div class="handle">@dr.markus.lehmann.muc</div>
+                    <div class="sub">Dr. Markus Lehmann | Geschäftsführer</div>
+                    <div class="sub">📍 München • <span class="role-tag">C-Level / Inhaber</span></div>
+                </td>
+                <td>
+                    <span class="badge" style="background:#10b98122;color:#10b981;border:1px solid #10b981;">
+                        100.0 / 100
+                    </span>
+                    <div class="sub" style="margin-top:4px;">ACTIVE 48H BUYING WINDOW (Poach Within 4 Hours)</div>
+                </td>
+                <td>
+                    <div><strong>3 Competitors</strong> in last 3.5h</div>
+                    <div style="margin-top:4px;"><span class='pill pill-comp'>@revops_dach_agency</span> <span class='pill pill-comp'>@hubspot_elite_muenchen</span> <span class='pill pill-comp'>@scale_crm_consulting</span></div>
+                    <div style="margin-top:4px;"><span class='pill pill-alert'>⚠️ Competitor Followed Back!</span></div>
+                </td>
+                <td>
+                    <div>📧 m.lehmann@lehmann-medtech.de</div>
+                    <div class="sub">🔗 https://lehmann-medtech.de</div>
+                </td>
+                <td>
+                    <div class="script-box">Hi Dr., starkes Setup bei euch in München! Da ihr euch gerade verschiedene B2B RevOps / DATEV-Automatisierungs-Lösungen im DACH-Raum anschaut: Wir haben eine Checkliste gebaut, woran 70 % der Agentur-Setups bei der Übergabe scheitern. Soll ich dir das PDF kurz hier droppen?</div>
+                </td>
+            </tr>
+            
+            <tr data-vertical="Aesthetic Dentistry &amp; Veneers" data-tier="TIER_1_HOT_INTERSECTION">
+                <td>
+                    <div class="handle">@florian_vantageretail</div>
+                    <div class="sub">Florian Brandt • Founder</div>
+                    <div class="sub">📍 Hamburg • <span class="role-tag">C-Level / Inhaber</span></div>
+                </td>
+                <td>
+                    <span class="badge" style="background:#10b98122;color:#10b981;border:1px solid #10b981;">
+                        100.0 / 100
+                    </span>
+                    <div class="sub" style="margin-top:4px;">ACTIVE 48H BUYING WINDOW (Poach Within 4 Hours)</div>
+                </td>
+                <td>
+                    <div><strong>3 Competitors</strong> in last 7.0h</div>
+                    <div style="margin-top:4px;"><span class='pill pill-comp'>@smile_atelier_muenchen</span> <span class='pill pill-comp'>@dental_boutique_zurich</span> <span class='pill pill-comp'>@veneers_institut_dach</span></div>
+                    <div style="margin-top:4px;"><span class='pill pill-alert'>⚠️ Competitor Followed Back!</span></div>
+                </td>
+                <td>
+                    <div>📧 florian@vantageretail.de</div>
+                    <div class="sub">🔗 https://vantageretail.de</div>
+                </td>
+                <td>
+                    <div class="script-box">Hi Florian, habe gesehen, dass du dich hier in Hamburg gerade intensiv mit modernem Smile-Design / Veneers beschäftigst. Viele vergleichen vorab 2–3 Praxen bezüglich Non-Prep-Keramik vs. klassischem Beschleifen — soll ich dir unseren 3-Punkte-Kosten- &amp; Haltbarkeits-Vergleich für Hamburg kurz per DM schicken?</div>
+                </td>
+            </tr>
+            
+            <tr data-vertical="High-Ticket B2B Recruiting" data-tier="TIER_1_HOT_INTERSECTION">
+                <td>
+                    <div class="handle">@sophia.keller.bau</div>
+                    <div class="sub">Sophia Keller | Inhaberin Keller Haustechnik</div>
+                    <div class="sub">📍 Zürich • <span class="role-tag">C-Level / Inhaber</span></div>
+                </td>
+                <td>
+                    <span class="badge" style="background:#10b98122;color:#10b981;border:1px solid #10b981;">
+                        95.0 / 100
+                    </span>
+                    <div class="sub" style="margin-top:4px;">ACTIVE 48H BUYING WINDOW (Poach Within 4 Hours)</div>
+                </td>
+                <td>
+                    <div><strong>2 Competitors</strong> in last 4.0h</div>
+                    <div style="margin-top:4px;"><span class='pill pill-comp'>@handwerk_recruiting_pro</span> <span class='pill pill-comp'>@fachkraefte_magnet_dach</span></div>
+                    <div style="margin-top:4px;"><span class='pill pill-alert'>⚠️ Competitor Followed Back!</span></div>
+                </td>
+                <td>
+                    <div>📧 s.keller@keller-haustechnik.ch</div>
+                    <div class="sub">🔗 https://keller-haustechnik.ch</div>
+                </td>
+                <td>
+                    <div class="script-box">Moin Sophia, starkes Wachstum bei euch in Zürich! Mir ist aufgefallen, dass ihr aktuell Social-Recruiting-Ansätze evaluiert. Wir haben letzte Woche für einen ähnlichen Betrieb 14 Fachkräfte-Bewerbungen unter 38 € CPL generiert — soll ich dir den Funnel-Blueprint kurz rüberschicken?</div>
+                </td>
+            </tr>
+            
+            <tr data-vertical="B2B RevOps &amp; DATEV Automation" data-tier="TIER_2_WARM_COMPARISON">
+                <td>
+                    <div class="handle">@kanzlei_richter_partner</div>
+                    <div class="sub">StB Christian Richter | Partner</div>
+                    <div class="sub">📍 Frankfurt • <span class="role-tag">Executive / Partner</span></div>
+                </td>
+                <td>
+                    <span class="badge" style="background:#f59e0b22;color:#f59e0b;border:1px solid #f59e0b;">
+                        80.0 / 100
+                    </span>
+                    <div class="sub" style="margin-top:4px;">Active Comparison Phase (7-Day Window)</div>
+                </td>
+                <td>
+                    <div><strong>2 Competitors</strong> in last 16.0h</div>
+                    <div style="margin-top:4px;"><span class='pill pill-comp'>@revops_dach_agency</span> <span class='pill pill-comp'>@datev_flow_architects</span></div>
+                    <div style="margin-top:4px;"></div>
+                </td>
+                <td>
+                    <div>📧 richter@kanzlei-richter-ffm.de</div>
+                    <div class="sub">🔗 https://kanzlei-richter-ffm.de</div>
+                </td>
+                <td>
+                    <div class="script-box">Hi StB, starkes Setup bei euch in Frankfurt! Da ihr euch gerade verschiedene B2B RevOps / DATEV-Automatisierungs-Lösungen im DACH-Raum anschaut: Wir haben eine Checkliste gebaut, woran 70 % der Agentur-Setups bei der Übergabe scheitern. Soll ich dir das PDF kurz hier droppen?</div>
+                </td>
+            </tr>
+            
+            <tr data-vertical="Aesthetic Dentistry &amp; Veneers" data-tier="TIER_3_MONITOR">
+                <td>
+                    <div class="handle">@lukas.weber.casual</div>
+                    <div class="sub">Lukas W.</div>
+                    <div class="sub">📍 München • <span class="role-tag">Unclassified</span></div>
+                </td>
+                <td>
+                    <span class="badge" style="background:#ef444422;color:#ef4444;border:1px solid #ef4444;">
+                        21.0 / 100
+                    </span>
+                    <div class="sub" style="margin-top:4px;">Single-Follow / Passive Research</div>
+                </td>
+                <td>
+                    <div><strong>1 Competitors</strong> in last 31.0h</div>
+                    <div style="margin-top:4px;"><span class='pill pill-comp'>@smile_atelier_muenchen</span></div>
+                    <div style="margin-top:4px;"></div>
+                </td>
+                <td>
+                    <div>📧 Via IG DM / Domain</div>
+                    <div class="sub">🔗 —</div>
+                </td>
+                <td>
+                    <div class="script-box">Hi Lukas, habe gesehen, dass du dich hier in München gerade intensiv mit modernem Smile-Design / Veneers beschäftigst. Viele vergleichen vorab 2–3 Praxen bezüglich Non-Prep-Keramik vs. klassischem Beschleifen — soll ich dir unseren 3-Punkte-Kosten- &amp; Haltbarkeits-Vergleich für München kurz per DM schicken?</div>
+                </td>
+            </tr>
+            
+            <tr data-vertical="B2B RevOps &amp; DATEV Automation" data-tier="DISQUALIFIED_BOT">
+                <td>
+                    <div class="handle">@crypto_promo_84920192</div>
+                    <div class="sub">Promo Bot 84920192</div>
+                    <div class="sub">📍 Turkey • <span class="role-tag">Unclassified</span></div>
+                </td>
+                <td>
+                    <span class="badge" style="background:#ef444422;color:#ef4444;border:1px solid #ef4444;">
+                        0.0 / 100
+                    </span>
+                    <div class="sub" style="margin-top:4px;">Filtered (Burner / Bot Noise)</div>
+                </td>
+                <td>
+                    <div><strong>2 Competitors</strong> in last 1.5h</div>
+                    <div style="margin-top:4px;"><span class='pill pill-comp'>@revops_dach_agency</span> <span class='pill pill-comp'>@hubspot_elite_muenchen</span></div>
+                    <div style="margin-top:4px;"></div>
+                </td>
+                <td>
+                    <div>📧 Via IG DM / Domain</div>
+                    <div class="sub">🔗 —</div>
+                </td>
+                <td>
+                    <div class="script-box">Hi Promo, starkes Setup bei euch in Turkey! Da ihr euch gerade verschiedene B2B RevOps / DATEV-Automatisierungs-Lösungen im DACH-Raum anschaut: Wir haben eine Checkliste gebaut, woran 70 % der Agentur-Setups bei der Übergabe scheitern. Soll ich dir das PDF kurz hier droppen?</div>
+                </td>
+            </tr>
+            
+            </tbody>
+        </table>
+    </div>
+
+    <div class="section">
+        <h2 style="margin-top:0;font-size:17px;">🕵️ Play B: Influencer Bot-Ring & &le;180s Engagement-Pod Fraud Forensics</h2>
+        
+            <div class="audit-card" style="border-left: 4px solid #ef4444;">
+                <div class="audit-header">
+                    <div>
+                        <h3>@maximilian_scale_lifestyle <span class="sub">(Maximilian V. • Business &amp; Mindset)</span></h3>
+                        <div class="sub">B2B Business / FinTech Sponsorship • Reported Followers: <strong>84,500</strong></div>
+                    </div>
+                    <div class="verdict-pill" style="background:#ef444422;color:#ef4444;border:1px solid #ef4444;">
+                        REJECT_OR_RENEGOTIATE_70PCT (Severe Bot/Pod Fraud)
+                    </div>
+                </div>
+                <div style="margin: 10px 0;"><span class='pill pill-risk'>BOUGHT_BATCH_ANOMALY (62.5% Bot Share)</span> <span class='pill pill-risk'>TIMESTAMP_SPIKE (62.5% Single-Window Surge)</span> <span class='pill pill-risk'>COMMENT_POD_RING (14 Creators &lt;=180s)</span> <span class='pill pill-risk'>FOLLOW_BACK_FARM (62.5% F/F &lt; 0.15)</span></div>
+                <div class="metrics-grid">
+                    <div class="m-box">
+                        <div class="m-label">Bot Follower Share</div>
+                        <div class="m-val">62.5%</div>
+                        <div class="sub">0-Post: 62.5% | F/F&lt;0.15: 62.5%</div>
+                    </div>
+                    <div class="m-box">
+                        <div class="m-label">Pod Collusion Index</div>
+                        <div class="m-val">95.6%</div>
+                        <div class="sub">&le;180s Comments: 93.3% (14 Clique Peers)</div>
+                    </div>
+                    <div class="m-box">
+                        <div class="m-label">True Organic Reach Discount</div>
+                        <div class="m-val" style="color:#ef4444;">-68.3%</div>
+                        <div class="sub">True DACH Audience: 31,192 (ER: 1.23%)</div>
+                    </div>
+                    <div class="m-box">
+                        <div class="m-label">Sponsorship Valuation Audit</div>
+                        <div class="m-val">€1,333.38 <span class="sub">vs €4,200</span></div>
+                        <div class="sub" style="color:#10b981;font-weight:600;">Fraud Savings: €2,866.62</div>
+                    </div>
+                </div>
+                <div class="sub" style="margin-top:8px;">
+                    <strong>Detected &le;180s Reciprocity Pod Clique:</strong> @coach_pod_ring_01, @coach_pod_ring_02, @coach_pod_ring_03, @coach_pod_ring_04, @coach_pod_ring_05, @coach_pod_ring_06, @coach_pod_ring_07, @coach_pod_ring_08 (+6 more)
+                </div>
+            </div>
+            
+            <div class="audit-card" style="border-left: 4px solid #10b981;">
+                <div class="audit-header">
+                    <div>
+                        <h3>@dr.helena.steuer.tech <span class="sub">(Dr. Helena Vogt | TaxTech &amp; CFO Insights)</span></h3>
+                        <div class="sub">B2B SaaS / DATEV / CFO Advisory • Reported Followers: <strong>29,400</strong></div>
+                    </div>
+                    <div class="verdict-pill" style="background:#10b98122;color:#10b981;border:1px solid #10b981;">
+                        APPROVED_ORGANIC_PARTNER (High Authenticity)
+                    </div>
+                </div>
+                <div style="margin: 10px 0;"><span class='pill pill-risk'>CLEAN_ORGANIC_GRAPH</span></div>
+                <div class="metrics-grid">
+                    <div class="m-box">
+                        <div class="m-label">Bot Follower Share</div>
+                        <div class="m-val">4.2%</div>
+                        <div class="sub">0-Post: 4.2% | F/F&lt;0.15: 0.0%</div>
+                    </div>
+                    <div class="m-box">
+                        <div class="m-label">Pod Collusion Index</div>
+                        <div class="m-val">0.0%</div>
+                        <div class="sub">&le;180s Comments: 0.0% (0 Clique Peers)</div>
+                    </div>
+                    <div class="m-box">
+                        <div class="m-label">True Organic Reach Discount</div>
+                        <div class="m-val" style="color:#10b981;">-2.0%</div>
+                        <div class="sub">True DACH Audience: 28,350 (ER: 3.40%)</div>
+                    </div>
+                    <div class="m-box">
+                        <div class="m-label">Sponsorship Valuation Audit</div>
+                        <div class="m-val">€2,352.88 <span class="sub">vs €2,400</span></div>
+                        <div class="sub" style="color:#10b981;font-weight:600;">Fraud Savings: €47.12</div>
+                    </div>
+                </div>
+                <div class="sub" style="margin-top:8px;">
+                    <strong>Detected &le;180s Reciprocity Pod Clique:</strong> None detected (0 recurring <=180s pod peers)
+                </div>
+            </div>
+            
+    </div>
+
+<script>
+function filterLeads() {
+    const tier = document.getElementById('tierFilter').value;
+    const rows = document.querySelectorAll('#leadsTable tbody tr');
+    rows.forEach(r => {
+        const rowTier = r.getAttribute('data-tier');
+        r.style.display = (tier === 'ALL' || rowTier === tier) ? '' : 'none';
+    });
+}
+</script>
+</body>
+</html>

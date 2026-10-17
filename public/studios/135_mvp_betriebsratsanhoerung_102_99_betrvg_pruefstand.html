@@ -1,0 +1,1050 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MILESTONE MVP #135 — §§ 99, 100, 102, 103 BetrVG Betriebsrats-Anhörungs- & Kündigungs-Formfehler-Studio</title>
+  <style>
+    :root {
+      --bg-primary: #0b1020;
+      --bg-card: #121a30;
+      --bg-card-alt: #17223d;
+      --border-subtle: #26365e;
+      --text-main: #eef3ff;
+      --text-muted: #9eb0d9;
+      --accent-blue: #38bdf8;
+      --accent-emerald: #10b981;
+      --accent-amber: #f59e0b;
+      --accent-rose: #f43f5e;
+      --accent-purple: #a855f7;
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-mono: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--font-sans);
+      background: radial-gradient(circle at top right, #172554 0%, var(--bg-primary) 55%);
+      color: var(--text-main);
+      line-height: 1.55;
+      padding: 24px;
+      min-height: 100vh;
+    }
+    .container {
+      max-width: 1460px;
+      margin: 0 auto;
+    }
+    header {
+      background: linear-gradient(135deg, rgba(18, 26, 48, 0.95), rgba(23, 34, 61, 0.92));
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+      padding: 24px 28px;
+      margin-bottom: 22px;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+    }
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .badge {
+      font-size: 0.76rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 4px 11px;
+      border-radius: 999px;
+      background: rgba(56, 189, 248, 0.14);
+      color: var(--accent-blue);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+    }
+    .badge.milestone {
+      background: rgba(168, 85, 247, 0.18);
+      color: #d8b4fe;
+      border-color: rgba(168, 85, 247, 0.45);
+    }
+    .badge.danger {
+      background: rgba(244, 63, 94, 0.16);
+      color: #fda4af;
+      border-color: rgba(244, 63, 94, 0.45);
+    }
+    h1 {
+      font-size: 1.72rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 8px;
+    }
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      max-width: 1180px;
+    }
+    .top-bar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-top: 18px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border-subtle);
+    }
+    .mode-switch {
+      display: inline-flex;
+      background: #090e1c;
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      padding: 4px;
+      gap: 6px;
+    }
+    .mode-btn {
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      padding: 9px 16px;
+      border-radius: 7px;
+      font-weight: 700;
+      font-size: 0.86rem;
+      cursor: pointer;
+      transition: all 0.18s ease;
+    }
+    .mode-btn.active.hr {
+      background: rgba(16, 185, 129, 0.2);
+      color: #6ee7b7;
+      border: 1px solid rgba(16, 185, 129, 0.45);
+    }
+    .mode-btn.active.br {
+      background: rgba(244, 63, 94, 0.22);
+      color: #fda4af;
+      border: 1px solid rgba(244, 63, 94, 0.45);
+    }
+    .preset-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .preset-btn {
+      background: var(--bg-card-alt);
+      color: var(--text-main);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 8px 13px;
+      font-size: 0.81rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.16s ease;
+    }
+    .preset-btn:hover, .preset-btn.active {
+      border-color: var(--accent-blue);
+      background: rgba(56, 189, 248, 0.15);
+    }
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(265px, 1fr));
+      gap: 16px;
+      margin-bottom: 22px;
+    }
+    .kpi-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 14px;
+      padding: 18px 20px;
+      position: relative;
+      overflow: hidden;
+    }
+    .kpi-label {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+    .kpi-value {
+      font-size: 1.55rem;
+      font-weight: 800;
+      font-family: var(--font-mono);
+      margin-bottom: 4px;
+    }
+    .kpi-sub {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+    .main-grid {
+      display: grid;
+      grid-template-columns: 440px 1fr;
+      gap: 20px;
+    }
+    @media (max-width: 1120px) {
+      .main-grid { grid-template-columns: 1fr; }
+    }
+    .panel {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 14px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    .panel-title {
+      font-size: 1.04rem;
+      font-weight: 700;
+      margin-bottom: 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border-subtle);
+      padding-bottom: 10px;
+    }
+    .form-group {
+      margin-bottom: 13px;
+    }
+    label {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 5px;
+    }
+    select, input[type="date"], input[type="time"], input[type="number"] {
+      width: 100%;
+      background: #0a1020;
+      border: 1px solid var(--border-subtle);
+      color: var(--text-main);
+      padding: 9px 11px;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      font-family: var(--font-sans);
+    }
+    .row-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .check-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .check-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 9px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-size: 0.82rem;
+      cursor: pointer;
+    }
+    .check-item input {
+      margin-top: 3px;
+      accent-color: var(--accent-blue);
+    }
+    .timeline-box {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin: 14px 0;
+    }
+    @media (max-width: 780px) {
+      .timeline-box { grid-template-columns: 1fr 1fr; }
+    }
+    .tl-step {
+      background: var(--bg-card-alt);
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      padding: 12px;
+    }
+    .tl-step.highlight-shift {
+      border-color: var(--accent-amber);
+      background: rgba(245, 158, 11, 0.11);
+    }
+    .tl-step.highlight-safe {
+      border-color: var(--accent-emerald);
+      background: rgba(16, 185, 129, 0.11);
+    }
+    .tl-step.highlight-danger {
+      border-color: var(--accent-rose);
+      background: rgba(244, 63, 94, 0.14);
+    }
+    .tl-tag {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      font-weight: 700;
+    }
+    .tl-date {
+      font-size: 1.05rem;
+      font-weight: 800;
+      font-family: var(--font-mono);
+      margin: 4px 0;
+    }
+    .tl-desc {
+      font-size: 0.77rem;
+      color: var(--text-muted);
+    }
+    .defect-card {
+      padding: 12px 14px;
+      border-radius: 10px;
+      margin-bottom: 10px;
+      border-left: 4px solid var(--accent-rose);
+      background: rgba(244, 63, 94, 0.1);
+    }
+    .defect-card.ok {
+      border-left-color: var(--accent-emerald);
+      background: rgba(16, 185, 129, 0.1);
+    }
+    .defect-title {
+      font-weight: 700;
+      font-size: 0.89rem;
+      margin-bottom: 3px;
+    }
+    .defect-norm {
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      color: var(--accent-blue);
+      margin-bottom: 4px;
+    }
+    .defect-detail {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+    .doc-output {
+      background: #080d1a;
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      padding: 14px;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      white-space: pre-wrap;
+      color: #dbeafe;
+      max-height: 360px;
+      overflow-y: auto;
+    }
+    .copy-btn {
+      background: rgba(56, 189, 248, 0.16);
+      color: var(--accent-blue);
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      padding: 5px 12px;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .pill-ok { color: #34d399; }
+    .pill-bad { color: #fb7185; }
+    .pill-warn { color: #fbbf24; }
+  </style>
+</head>
+<body>
+
+<!-- DACH CASHFLOW STUDIOS LAUNCH BAR -->
+<style>
+  #dcs-launch-bar {
+    position: sticky;
+    top: 0;
+    z-index: 99999;
+    background: linear-gradient(90deg, #0b1120 0%, #111827 50%, #0f172a 100%);
+    color: #f8fafc;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.35);
+    padding: 8px 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  }
+  #dcs-launch-bar .dcs-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+  }
+  #dcs-launch-bar .dcs-badge {
+    background: rgba(16, 185, 129, 0.18);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.03em;
+  }
+  #dcs-launch-bar a.dcs-nav {
+    color: #93c5fd;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 12.5px;
+  }
+  #dcs-launch-bar a.dcs-nav:hover {
+    text-decoration: underline;
+    color: #dbeafe;
+  }
+  #dcs-launch-bar .dcs-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  #dcs-launch-bar .dcs-btn {
+    padding: 5px 11px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s ease;
+  }
+  #dcs-launch-bar .dcs-btn-ghost {
+    background: rgba(255,255,255,0.08);
+    color: #e2e8f0;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  #dcs-launch-bar .dcs-btn-primary {
+    background: linear-gradient(135deg, #0ea5e9, #2563eb);
+    color: #ffffff;
+  }
+  #dcs-launch-bar .dcs-btn-emerald {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
+  }
+  @media print {
+    #dcs-launch-bar { display: none !important; }
+  }
+</style>
+<div id="dcs-launch-bar">
+  <div class="dcs-left">
+    <a href="/index.html" class="dcs-nav">← Alle 150 DACH Studios</a>
+    <span class="dcs-badge">MVP #135 VERIFIED</span>
+    <span style="color:#cbd5e1;font-size:12px;">DACH LegalTech, Labor Law & Consumer Claims</span>
+  </div>
+  <div class="dcs-actions">
+    <button onclick="window.print()" class="dcs-btn dcs-btn-ghost">🖨️ PDF / Dossier drucken</button>
+    <a href="#checkout-modal-49" target="_blank" rel="noopener" class="dcs-btn dcs-btn-primary">⚡ Musterschreiben & Voll-Dossier (€49)</a>
+    <a href="#checkout-modal-299" target="_blank" rel="noopener" class="dcs-btn dcs-btn-emerald">🛡️ B2B Umsetzung buchen (€299 / €1.490)</a>
+  </div>
+</div>
+
+<div class="container">
+  <header>
+    <div class="badge-row">
+      <span class="badge milestone">MILESTONE MVP #135</span>
+      <span class="badge">§§ 99, 100, 102, 103 BetrVG</span>
+      <span class="badge">§§ 187 Abs. 1, 188 Abs. 2, 193 BGB Fristen-Tresor</span>
+      <span class="badge danger">§ 102 Abs. 5 BetrVG Weiterbeschäftigungs-Hebel & § 178 Abs. 2 SGB IX SBV</span>
+    </div>
+    <h1>DACH Betriebsrats-Anhörungs-, Fristen- & Kündigungs-Formfehler-Prüfstand</h1>
+    <p class="subtitle">
+      Warum über <strong>40 % aller Arbeitgeberkündigungen</strong> in Betrieben mit Betriebsrat vor dem Arbeitsgericht scheitern oder im <strong>1,5–2,0-Faktor-Abfindungsvergleich</strong> enden:
+      Eine ohne ordnungsgemäße Anhörung ausgesprochene Kündigung ist nach <strong>§ 102 Abs. 1 Satz 3 BetrVG unheilbar unwirksam</strong> (<em>BAG 2 AZR 224/06, 2 AZR 577/12</em>).
+    </p>
+    <div class="top-bar">
+      <div class="mode-switch">
+        <button id="modeHrBtn" class="mode-btn active hr" onclick="setPerspective('HR')">
+          🛡️ HR / Arbeitgeber Compliance-Shield
+        </button>
+        <button id="modeBrBtn" class="mode-btn br" onclick="setPerspective('BR')">
+          ⚖️ Betriebsrat & Arbeitnehmer Abfindungs-Booster
+        </button>
+      </div>
+      <div class="preset-row" id="presetButtons"></div>
+    </div>
+  </header>
+
+  <section class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-label">Fristende (§§ 187, 188, 193 BGB)</div>
+      <div class="kpi-value" id="kpiDeadlineDate">—</div>
+      <div class="kpi-sub" id="kpiDeadlineSub">—</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Wirksamkeits-Status (§ 102 Abs. 1 S. 3 BetrVG)</div>
+      <div class="kpi-value" id="kpiValidityStatus">—</div>
+      <div class="kpi-sub" id="kpiValiditySub">—</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">§ 102 Abs. 5 BetrVG Weiterbeschäftigungs-Risiko</div>
+      <div class="kpi-value" id="kpiContinuedPay">—</div>
+      <div class="kpi-sub" id="kpiContinuedSub">—</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Abfindungs-Hebel (Vergleichskorridor)</div>
+      <div class="kpi-value" id="kpiSeverance">—</div>
+      <div class="kpi-sub" id="kpiSeveranceSub">—</div>
+    </div>
+  </section>
+
+  <div class="main-grid">
+    <div>
+      <div class="panel">
+        <div class="panel-title">
+          <span>1. Fristen- & Zugangs-Parameter (§§ 187–193 BGB)</span>
+        </div>
+        <div class="form-group">
+          <label for="measureType">Maßnahme nach BetrVG</label>
+          <select id="measureType" onchange="recalculateAll()">
+            <option value="ordentliche_kuendigung">§ 102 Abs. 2 S. 1 BetrVG — Ordentliche Kündigung (1-Wochen-Frist)</option>
+            <option value="ausserordentliche_kuendigung">§ 102 Abs. 2 S. 3 BetrVG — Außerordentliche fristlose Kündigung (3-Tages-Frist)</option>
+            <option value="einstellung_versetzung_99">§ 99 Abs. 3 BetrVG — Einstellung / Versetzung / Eingruppierung (1-Wochen-Zustimmungsfiktion)</option>
+            <option value="eilmassnahme_100">§ 100 Abs. 2 BetrVG — Vorläufige personelle Eilmaßnahme (3-Tages-Bestreitensfrist)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="dismissalGround">Kündigungsgrund-Kategorie (§ 1 KSchG)</label>
+          <select id="dismissalGround" onchange="recalculateAll()">
+            <option value="betriebsbedingt">Betriebsbedingte Kündigung (inkl. Sozialauswahl § 1 Abs. 3 KSchG)</option>
+            <option value="verhaltensbedingt">Verhaltensbedingte Kündigung (inkl. Abmahnungs-Historie)</option>
+            <option value="personenbedingt">Personen-/Krankheitsbedingte Kündigung (inkl. bEM § 167 Abs. 2 SGB IX)</option>
+          </select>
+        </div>
+        <div class="row-2">
+          <div class="form-group">
+            <label for="deliveryDate">Übergabe an BR-Vorsitz (§ 26 Abs. 2 BetrVG)</label>
+            <input type="date" id="deliveryDate" value="2026-10-17" onchange="recalculateAll()" />
+          </div>
+          <div class="form-group">
+            <label for="dispatchDate">Geplanter Kündigungsausspruch</label>
+            <input type="date" id="dispatchDate" value="2026-10-26" onchange="recalculateAll()" />
+          </div>
+        </div>
+        <div class="row-2">
+          <div class="form-group">
+            <label for="dispatchTime">Uhrzeit Unterschrift / Versand</label>
+            <input type="time" id="dispatchTime" value="16:00" onchange="recalculateAll()" />
+          </div>
+          <div class="form-group">
+            <label>&nbsp;</label>
+            <label class="check-item">
+              <input type="checkbox" id="outsideHours" checked onchange="recalculateAll()" />
+              <span>Einwurf nach BR-Dienstschluss / Wochenende</span>
+            </label>
+          </div>
+        </div>
+        <label class="check-item">
+          <input type="checkbox" id="finalStatementReceived" onchange="recalculateAll()" />
+          <span>Abschließende BR-Stellungnahme liegt bereits schriftlich vor (verkürzt Sperrfrist)</span>
+        </label>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">
+          <span>2. Subjektive Determinierung, Sozialdaten & SBV-Audit</span>
+        </div>
+        <div class="check-list">
+          <label class="check-item">
+            <input type="checkbox" id="chkSozialdaten" onchange="recalculateAll()" />
+            <span><strong>Sozialdaten vollständig:</strong> Alter, Eintrittsdatum, Familienstand & exakte Unterhaltspflichten (Kinder/Ehepartner) dokumentiert</span>
+          </label>
+          <label class="check-item">
+            <input type="checkbox" id="chkPeerGroup" onchange="recalculateAll()" />
+            <span><strong>Sozialauswahl-Vergleichsgruppe (§ 1 Abs. 3 KSchG):</strong> Alle horizontal vergleichbaren Arbeitnehmer + Punkteschema offengelegt</span>
+          </label>
+          <label class="check-item">
+            <input type="checkbox" id="chkAbmahnung" checked onchange="recalculateAll()" />
+            <span><strong>Abmahnungs-Historie vollständig:</strong> Datum, Sachverhalt & Gegendarstellungen bei verhaltensbedingter Kündigung beigefügt (BAG 2 AZR 424/19)</span>
+          </label>
+          <label class="check-item">
+            <input type="checkbox" id="chkWithheldExculpatory" onchange="recalculateAll()" />
+            <span><strong>⚠️ Entlastende Tatsachen verschwiegen:</strong> Bekannte Rechtfertigungs-/Entlastungsumstände im Anhörungsbogen weggelassen (BAG 2 AZR 577/12)</span>
+          </label>
+          <label class="check-item">
+            <input type="checkbox" id="chkSeverelyDisabled" onchange="recalculateAll()" />
+            <span><strong>Schwerbehinderung / Gleichstellung (GdB ≥ 50 oder ≥ 30 gleichgestellt):</strong> Löst zwingend § 178 Abs. 2 SGB IX (SBV) & § 168 SGB IX aus</span>
+          </label>
+          <label class="check-item">
+            <input type="checkbox" id="chkSbvHeard" onchange="recalculateAll()" />
+            <span><strong>Vorherige SBV-Beteiligung (§ 178 Abs. 2 S. 3 SGB IX):</strong> Schwerbehindertenvertretung vor Kündigungsausspruch ordnungsgemäß angehört</span>
+          </label>
+          <label class="check-item">
+            <input type="checkbox" id="chkProtected103" onchange="recalculateAll()" />
+            <span><strong>Sonderkündigungsschutz nach § 103 BetrVG:</strong> Betroffener ist BR-Mitglied, Wahlvorstand oder Wahlbewerber</span>
+          </label>
+          <label class="check-item">
+            <input type="checkbox" id="chkConsent103" onchange="recalculateAll()" />
+            <span><strong>Vorherige BR-Zustimmung / Arbeitsgerichtliche Ersetzung (§ 103 Abs. 2 BetrVG)</strong> liegt rechtskräftig vor</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">
+          <span>3. Gehalts- & Prozessdauer-Parameter (§ 102 Abs. 5 BetrVG)</span>
+        </div>
+        <div class="row-2">
+          <div class="form-group">
+            <label for="grossSalary">Bruttomonatsgehalt (€)</label>
+            <input type="number" id="grossSalary" value="7800" step="100" onchange="recalculateAll()" />
+          </div>
+          <div class="form-group">
+            <label for="tenureYears">Betriebszugehörigkeit (Jahre)</label>
+            <input type="number" id="tenureYears" value="9.5" step="0.5" onchange="recalculateAll()" />
+          </div>
+        </div>
+        <div class="row-2">
+          <div class="form-group">
+            <label for="noticeMonths">Kündigungsfrist (Monate)</label>
+            <input type="number" id="noticeMonths" value="4" min="0" max="12" onchange="recalculateAll()" />
+          </div>
+          <div class="form-group">
+            <label for="litigationMonths">Prozessdauer 1.+2. Instanz (Monate)</label>
+            <input type="number" id="litigationMonths" value="16" min="3" max="36" onchange="recalculateAll()" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="panel">
+        <div class="panel-title">
+          <span>Pillar 1 — §§ 187 Abs. 1, 188 Abs. 2, 193 BGB Fristen-Zeitleiste</span>
+          <span id="shiftBadge" class="badge"></span>
+        </div>
+        <div class="timeline-box" id="timelineSteps"></div>
+        <div id="deadlineVerdictBox" class="defect-card"></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">
+          <span>Pillar 2 — Formfehler- & Wirksamkeits-Audit (§ 102 BetrVG / § 178 Abs. 2 SGB IX / § 103 BetrVG)</span>
+          <span id="auditScoreBadge" class="badge"></span>
+        </div>
+        <div id="defectsList"></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">
+          <span>Pillar 3 & 4 — § 102 Abs. 3 Nr. 1–5 BetrVG Widerspruchs- & § 99 Abs. 2 Nr. 1–6 Veto-Baukasten</span>
+        </div>
+        <label style="margin-bottom:6px;">Ordentlicher Widerspruch nach § 102 Abs. 3 Nr. 1–5 BetrVG (aktiviert § 102 Abs. 5 Weiterbeschäftigungsanspruch!):</label>
+        <div class="check-list" id="grounds102List" style="margin-bottom:14px;"></div>
+
+        <label style="margin-bottom:6px;">Zustimmungsverweigerung bei Einstellung / Versetzung nach § 99 Abs. 2 Nr. 1–6 BetrVG:</label>
+        <div class="check-list" id="grounds99List"></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">
+          <span id="docGeneratorTitle">Pillar 5 — Schriftsatz- & Anhörungsbogen-Generator</span>
+          <button class="copy-btn" onclick="copyGeneratedDoc()">📋 Schriftsatz kopieren</button>
+        </div>
+        <div class="doc-output" id="generatedDocOutput"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const BENCHMARK_SCENARIOS = [{"id": "SCENARIO_1_WEEKEND_TRAP_2_AZR_224_06", "name": "Fall 1: Die § 193 BGB Wochenend- & Montag-16:00-Uhr-Falle (BAG 2 AZR 224/06)", "badge": "KRITISCHER FORMFEHLER", "description": "Anhörungsbogen am Samstag eingeworfen -> Zugang erst Montag -> 1-Wochen-Frist läuft bis kommenden Montag 24:00 Uhr. HR unterschreibt und versendet Kündigung am Montag um 16:00 Uhr + Unterhaltspflichten (2 Kinder) fehlen.", "inputs": {"measure_type": "ordentliche_kuendigung", "dismissal_ground": "betriebsbedingt", "delivery_date_iso": "2026-10-17", "delivered_outside_br_office_hours": true, "planned_dispatch_date_iso": "2026-10-26", "planned_dispatch_time": "16:00", "has_final_concluding_statement": false, "monthly_gross_salary_eur": 7800, "tenure_years": 9.5, "notice_period_months": 4, "litigation_duration_months": 16, "sozialdaten_complete": false, "withheld_exculpatory_facts": false, "abmahnung_dates_disclosed": true, "sozialauswahl_peer_group_disclosed": false, "is_severely_disabled_or_equal": false, "sbv_heard_prior_to_dismissal": false, "is_protected_103_betrvg_member": false, "br_consent_or_court_replacement_103": false, "has_valid_102_abs_3_objection": true, "selected_102_3_grounds": [1, 3], "selected_99_2_grounds": [1, 5]}, "deadline": {"measure_type": "ordentliche_kuendigung", "delivery_date_iso": "2026-10-17", "delivery_weekday_de": "Samstag", "delivered_after_business_hours_or_weekend": true, "effective_receipt_date_iso": "2026-10-19", "effective_receipt_weekday_de": "Montag", "event_day_187_abs_1_iso": "2026-10-19", "statutory_start_date_iso": "2026-10-20", "nominal_end_date_iso": "2026-10-26", "nominal_end_weekday_de": "Montag", "shift_applied_193_bgb": false, "shift_reasons": [], "final_deadline_date_iso": "2026-10-26", "final_deadline_weekday_de": "Montag", "final_deadline_timestamp": "2026-10-26T24:00:00", "earliest_safe_dispatch_date_iso": "2026-10-27", "earliest_safe_dispatch_weekday_de": "Dienstag", "planned_dispatch_datetime_iso": "2026-10-26T16:00:00", "has_final_concluding_statement": false, "premature_dispatch_violation": true, "legal_consequence_de": "UNHEILBAR UNWIRKSAM (§ 102 Abs. 1 Satz 3 BetrVG, BAG 2 AZR 224/06): Ausspruch/Absendung der Kündigung vor Ablauf der Anhörungsfrist am 2026-10-26 um 24:00 Uhr ohne vorherige abschließende Stellungnahme des Betriebsrats führt zur zwingenden Nichtigkeit!"}, "audit": {"completeness_score_pct": 57.1, "is_legally_valid_102": false, "fatal_defects": [{"code": "DEFECT_SOZIALDATEN_MISSING", "norm": "§ 102 Abs. 1 Satz 2 BetrVG i.V.m. § 1 Abs. 3 KSchG", "title": "Unvollständige Sozialdaten / Unterhaltspflichten", "detail": "Lebensalter, Eintrittsdatum, Familienstand oder Unterhaltspflichten (Kinder/Ehegatte) fehlen oder sind unzutreffend mitgeteilt. Der Betriebsrat kann die soziale Schutzbedürftigkeit nicht prüfen."}, {"code": "DEFECT_PEER_GROUP_MISSING", "norm": "§ 102 Abs. 1, Abs. 3 Nr. 1 BetrVG i.V.m. § 1 Abs. 3 KSchG", "title": "Fehlende Darlegung der Sozialauswahl-Vergleichsgruppe", "detail": "Bei betriebsbedingter Kündigung fehlen die Auswahlüberlegungen und Sozialdaten der horizontal vergleichbaren Arbeitnehmer."}, {"code": "DEFECT_PREMATURE_DISPATCH_102_ABS_2", "norm": "§ 102 Abs. 2 BetrVG i.V.m. §§ 187, 188, 193 BGB", "title": "Verfrühter Kündigungsausspruch vor Ablauf der Stellungnahmefrist", "detail": "Die Kündigung hat den Machtbereich des Arbeitgebers vor Ablauf der gesetzlichen Anhörungsfrist (24:00 Uhr des letzten Fristtages unter Einschluss von § 193 BGB) verlassen, ohne dass eine abschließende Stellungnahme des Betriebsrats vorlag."}], "warnings": [], "case_law_citations": ["§ 102 Abs. 1 Satz 3 BetrVG (Unwirksamkeit ohne ordnungsgemäße Anhörung)", "BAG 2 AZR 224/06 (Fristablauf 24:00 Uhr & § 193 BGB Wochenend-Verschiebung)", "BAG 2 AZR 577/12 & 2 AZR 424/19 (Subjektive Determinierung & Verbot irreführender/unvollständiger Darstellung)"]}, "simulation": {"monthly_gross_salary_eur": 7800.0, "tenure_years": 9.5, "notice_period_months": 4, "litigation_duration_months": 16, "has_valid_102_abs_3_objection": true, "has_fatal_102_hearing_defect": true, "continued_employment_102_abs_5_active": true, "continued_employment_months_after_notice": 12, "continued_employment_salary_exposure_eur": 112788.0, "annahmeverzugslohn_615_bgb_risk_eur": 112788.0, "standard_severance_factor": 0.5, "standard_severance_eur": 37050.0, "boosted_severance_factor": 1.85, "recommended_settlement_eur": 137085.0, "employer_total_worst_case_exposure_eur": 296969.0, "leverage_multiplier": 3.7}}, {"id": "SCENARIO_2_SUMMARY_3DAY_SBV_TRAP", "name": "Fall 2: Fristlose 3-Tage-Sperre über Sonntag (§ 193 BGB) & fehlende SBV-Anhörung (§ 178 Abs. 2 SGB IX)", "badge": "DOPPEL-NICHTIGKEIT", "description": "Anhörung zur außerordentlichen Kündigung am Donnerstag übergeben -> 3-Tages-Frist endet nominell Sonntag -> § 193 BGB verlängert auf Montag 24:00 Uhr! Zudem schwerbehindert (GdB 50) ohne vorherige SBV-Beteiligung und unterschlagene Entlastungszeugen (BAG 2 AZR 577/12).", "inputs": {"measure_type": "ausserordentliche_kuendigung", "dismissal_ground": "verhaltensbedingt", "delivery_date_iso": "2026-10-15", "delivered_outside_br_office_hours": false, "planned_dispatch_date_iso": "2026-10-19", "planned_dispatch_time": "14:30", "has_final_concluding_statement": false, "monthly_gross_salary_eur": 6400, "tenure_years": 12.0, "notice_period_months": 5, "litigation_duration_months": 15, "sozialdaten_complete": true, "withheld_exculpatory_facts": true, "abmahnung_dates_disclosed": false, "sozialauswahl_peer_group_disclosed": true, "is_severely_disabled_or_equal": true, "sbv_heard_prior_to_dismissal": false, "is_protected_103_betrvg_member": false, "br_consent_or_court_replacement_103": false, "has_valid_102_abs_3_objection": true, "selected_102_3_grounds": [3, 5], "selected_99_2_grounds": [1, 4]}, "deadline": {"measure_type": "ausserordentliche_kuendigung", "delivery_date_iso": "2026-10-15", "delivery_weekday_de": "Donnerstag", "delivered_after_business_hours_or_weekend": false, "effective_receipt_date_iso": "2026-10-15", "effective_receipt_weekday_de": "Donnerstag", "event_day_187_abs_1_iso": "2026-10-15", "statutory_start_date_iso": "2026-10-16", "nominal_end_date_iso": "2026-10-18", "nominal_end_weekday_de": "Sonntag", "shift_applied_193_bgb": true, "shift_reasons": ["2026-10-18 (Sonntag)"], "final_deadline_date_iso": "2026-10-19", "final_deadline_weekday_de": "Montag", "final_deadline_timestamp": "2026-10-19T24:00:00", "earliest_safe_dispatch_date_iso": "2026-10-20", "earliest_safe_dispatch_weekday_de": "Dienstag", "planned_dispatch_datetime_iso": "2026-10-19T14:30:00", "has_final_concluding_statement": false, "premature_dispatch_violation": true, "legal_consequence_de": "UNHEILBAR UNWIRKSAM (§ 102 Abs. 1 Satz 3 BetrVG, BAG 2 AZR 224/06): Ausspruch/Absendung der Kündigung vor Ablauf der Anhörungsfrist am 2026-10-19 um 24:00 Uhr ohne vorherige abschließende Stellungnahme des Betriebsrats führt zur zwingenden Nichtigkeit!"}, "audit": {"completeness_score_pct": 42.9, "is_legally_valid_102": false, "fatal_defects": [{"code": "DEFECT_EXCULPATORY_WITHHELD", "norm": "§ 102 Abs. 1 Satz 2 BetrVG (BAG 2 AZR 577/12)", "title": "Verletzung der subjektiven Determinierung durch Verschweigen entlastender Umstände", "detail": "Obwohl der Grundsatz der subjektiven Determinierung gilt, darf der Arbeitgeber dem Betriebsrat keine bekannten entlastenden Tatsachen unterschlagen, die den Sachverhalt verfälschen."}, {"code": "DEFECT_ABMAHNUNG_UNDISCLOSED", "norm": "§ 102 Abs. 1 Satz 2 BetrVG (BAG 2 AZR 424/19)", "title": "Fehlende Angabe einschlägiger Abmahnungen / Gegendarstellungen", "detail": "Bei verhaltensbedingter Kündigung müssen Datum, Gegenstand bisheriger Abmahnungen sowie zur Personalakte genommene Gegendarstellungen des Arbeitnehmers mitgeteilt werden."}, {"code": "DEFECT_SBV_178_SGB_IX_OMITTED", "norm": "§ 178 Abs. 2 Satz 1 & Satz 3 SGB IX", "title": "Unterlassene vorherige Anhörung der Schwerbehindertenvertretung (SBV)", "detail": "Die Kündigung eines schwerbehinderten oder gleichgestellten Menschen, die der Arbeitgeber ohne vorherige Beteiligung der SBV ausspricht, ist nach § 178 Abs. 2 Satz 3 SGB IX zwingend unwirksam!"}, {"code": "DEFECT_PREMATURE_DISPATCH_102_ABS_2", "norm": "§ 102 Abs. 2 BetrVG i.V.m. §§ 187, 188, 193 BGB", "title": "Verfrühter Kündigungsausspruch vor Ablauf der Stellungnahmefrist", "detail": "Die Kündigung hat den Machtbereich des Arbeitgebers vor Ablauf der gesetzlichen Anhörungsfrist (24:00 Uhr des letzten Fristtages unter Einschluss von § 193 BGB) verlassen, ohne dass eine abschließende Stellungnahme des Betriebsrats vorlag."}], "warnings": [], "case_law_citations": ["§ 102 Abs. 1 Satz 3 BetrVG (Unwirksamkeit ohne ordnungsgemäße Anhörung)", "BAG 2 AZR 224/06 (Fristablauf 24:00 Uhr & § 193 BGB Wochenend-Verschiebung)", "BAG 2 AZR 577/12 & 2 AZR 424/19 (Subjektive Determinierung & Verbot irreführender/unvollständiger Darstellung)", "§ 178 Abs. 2 Satz 3 SGB IX (Unwirksamkeit einer Kündigung ohne vorherige SBV-Beteiligung)"]}, "simulation": {"monthly_gross_salary_eur": 6400.0, "tenure_years": 12.0, "notice_period_months": 5, "litigation_duration_months": 15, "has_valid_102_abs_3_objection": true, "has_fatal_102_hearing_defect": true, "continued_employment_102_abs_5_active": true, "continued_employment_months_after_notice": 10, "continued_employment_salary_exposure_eur": 77120.0, "annahmeverzugslohn_615_bgb_risk_eur": 77120.0, "standard_severance_factor": 0.5, "standard_severance_eur": 38400.0, "boosted_severance_factor": 1.85, "recommended_settlement_eur": 142080.0, "employer_total_worst_case_exposure_eur": 267260.0, "leverage_multiplier": 3.7}}, {"id": "SCENARIO_3_HR_GOLD_STANDARD_SHIELD", "name": "Fall 3: HR-Gold-Standard Compliance Shield (Rechtssichere Anhörung & Fristwahrung)", "badge": "100% RECHTSSICHER", "description": "Vollständiger Anhörungsbogen am Mittwoch während BR-Bürozeiten übergeben, SBV vorab nach § 178 Abs. 2 SGB IX angehört, Integrationsamt-Zustimmung liegt vor, Kündigungsausspruch erst am Donnerstag nach Ablauf des Mittwochs (24:00 Uhr).", "inputs": {"measure_type": "ordentliche_kuendigung", "dismissal_ground": "betriebsbedingt", "delivery_date_iso": "2026-10-14", "delivered_outside_br_office_hours": false, "planned_dispatch_date_iso": "2026-10-22", "planned_dispatch_time": "09:30", "has_final_concluding_statement": false, "monthly_gross_salary_eur": 8500, "tenure_years": 6.0, "notice_period_months": 3, "litigation_duration_months": 12, "sozialdaten_complete": true, "withheld_exculpatory_facts": false, "abmahnung_dates_disclosed": true, "sozialauswahl_peer_group_disclosed": true, "is_severely_disabled_or_equal": true, "sbv_heard_prior_to_dismissal": true, "is_protected_103_betrvg_member": false, "br_consent_or_court_replacement_103": false, "has_valid_102_abs_3_objection": false, "selected_102_3_grounds": [], "selected_99_2_grounds": []}, "deadline": {"measure_type": "ordentliche_kuendigung", "delivery_date_iso": "2026-10-14", "delivery_weekday_de": "Mittwoch", "delivered_after_business_hours_or_weekend": false, "effective_receipt_date_iso": "2026-10-14", "effective_receipt_weekday_de": "Mittwoch", "event_day_187_abs_1_iso": "2026-10-14", "statutory_start_date_iso": "2026-10-15", "nominal_end_date_iso": "2026-10-21", "nominal_end_weekday_de": "Mittwoch", "shift_applied_193_bgb": false, "shift_reasons": [], "final_deadline_date_iso": "2026-10-21", "final_deadline_weekday_de": "Mittwoch", "final_deadline_timestamp": "2026-10-21T24:00:00", "earliest_safe_dispatch_date_iso": "2026-10-22", "earliest_safe_dispatch_weekday_de": "Donnerstag", "planned_dispatch_datetime_iso": "2026-10-22T09:30:00", "has_final_concluding_statement": false, "premature_dispatch_violation": false, "legal_consequence_de": "FRISTKONFORM: Anhörungsfrist endet am 2026-10-21 (Mittwoch) um 24:00 Uhr. Rechtssicherer Kündigungsausspruch ab 2026-10-22 (Donnerstag), 00:01 Uhr."}, "audit": {"completeness_score_pct": 100.0, "is_legally_valid_102": true, "fatal_defects": [], "warnings": [], "case_law_citations": ["§ 102 Abs. 1 Satz 3 BetrVG (Unwirksamkeit ohne ordnungsgemäße Anhörung)", "BAG 2 AZR 224/06 (Fristablauf 24:00 Uhr & § 193 BGB Wochenend-Verschiebung)", "BAG 2 AZR 577/12 & 2 AZR 424/19 (Subjektive Determinierung & Verbot irreführender/unvollständiger Darstellung)", "§ 178 Abs. 2 Satz 3 SGB IX (Unwirksamkeit einer Kündigung ohne vorherige SBV-Beteiligung)"]}, "simulation": {"monthly_gross_salary_eur": 8500.0, "tenure_years": 6.0, "notice_period_months": 3, "litigation_duration_months": 12, "has_valid_102_abs_3_objection": false, "has_fatal_102_hearing_defect": false, "continued_employment_102_abs_5_active": false, "continued_employment_months_after_notice": 9, "continued_employment_salary_exposure_eur": 0.0, "annahmeverzugslohn_615_bgb_risk_eur": 92182.5, "standard_severance_factor": 0.5, "standard_severance_eur": 25500.0, "boosted_severance_factor": 0.75, "recommended_settlement_eur": 38250.0, "employer_total_worst_case_exposure_eur": 170660.0, "leverage_multiplier": 1.5}}, {"id": "SCENARIO_4_99_100_103_BETRVG_SPECIAL", "name": "Fall 4: § 99/100 BetrVG Versetzungs-Veto & § 103 BetrVG Betriebsratsmitglied-Sperre", "badge": "§ 103 / § 99 VETO", "description": "Versuchte Kündigung/Versetzung eines BR-Mitglieds ohne Zustimmungsersetzung nach § 103 Abs. 2 BetrVG sowie unterbliebene interne Stellenausschreibung nach § 93 / § 99 Abs. 2 Nr. 5 BetrVG.", "inputs": {"measure_type": "einstellung_versetzung_99", "dismissal_ground": "verhaltensbedingt", "delivery_date_iso": "2026-10-15", "delivered_outside_br_office_hours": false, "planned_dispatch_date_iso": "2026-10-23", "planned_dispatch_time": "10:00", "has_final_concluding_statement": false, "monthly_gross_salary_eur": 9200, "tenure_years": 11.0, "notice_period_months": 5, "litigation_duration_months": 18, "sozialdaten_complete": true, "withheld_exculpatory_facts": false, "abmahnung_dates_disclosed": true, "sozialauswahl_peer_group_disclosed": true, "is_severely_disabled_or_equal": false, "sbv_heard_prior_to_dismissal": true, "is_protected_103_betrvg_member": true, "br_consent_or_court_replacement_103": false, "has_valid_102_abs_3_objection": true, "selected_102_3_grounds": [1, 2, 3], "selected_99_2_grounds": [1, 4, 5]}, "deadline": {"measure_type": "einstellung_versetzung_99", "delivery_date_iso": "2026-10-15", "delivery_weekday_de": "Donnerstag", "delivered_after_business_hours_or_weekend": false, "effective_receipt_date_iso": "2026-10-15", "effective_receipt_weekday_de": "Donnerstag", "event_day_187_abs_1_iso": "2026-10-15", "statutory_start_date_iso": "2026-10-16", "nominal_end_date_iso": "2026-10-22", "nominal_end_weekday_de": "Donnerstag", "shift_applied_193_bgb": false, "shift_reasons": [], "final_deadline_date_iso": "2026-10-22", "final_deadline_weekday_de": "Donnerstag", "final_deadline_timestamp": "2026-10-22T24:00:00", "earliest_safe_dispatch_date_iso": "2026-10-23", "earliest_safe_dispatch_weekday_de": "Freitag", "planned_dispatch_datetime_iso": "2026-10-23T10:00:00", "has_final_concluding_statement": false, "premature_dispatch_violation": false, "legal_consequence_de": "ZUSTIMMUNGSFIKTION (§ 99 Abs. 3 Satz 2 BetrVG): Verweigert der Betriebsrat seine Zustimmung nicht schriftlich/textförmlich und begründet bis 2026-10-22 um 24:00 Uhr, gilt die Zustimmung als erteilt."}, "audit": {"completeness_score_pct": 85.7, "is_legally_valid_102": false, "fatal_defects": [{"code": "DEFECT_103_BETRVG_NO_CONSENT", "norm": "§ 103 Abs. 1 & 2 BetrVG i.V.m. § 15 KSchG", "title": "Fehlende Zustimmung des Betriebsrats / Arbeitsgerichtliche Ersetzung nach § 103 BetrVG", "detail": "Bei Betriebsratsmitgliedern genügt keine bloße Anhörung nach § 102 BetrVG. Ordentliche Kündigung ist ausgeschlossen (§ 15 KSchG); außerordentliche Kündigung bedarf der vorherigen Zustimmung des Betriebsrats oder rechtskräftigen Ersetzung durch das Arbeitsgericht (§ 103 BetrVG)."}], "warnings": [], "case_law_citations": ["§ 102 Abs. 1 Satz 3 BetrVG (Unwirksamkeit ohne ordnungsgemäße Anhörung)", "BAG 2 AZR 224/06 (Fristablauf 24:00 Uhr & § 193 BGB Wochenend-Verschiebung)", "BAG 2 AZR 577/12 & 2 AZR 424/19 (Subjektive Determinierung & Verbot irreführender/unvollständiger Darstellung)", "§ 103 Abs. 1 & Abs. 2 BetrVG i.V.m. § 15 KSchG (Zustimmungserfordernis / gerichtliche Ersetzung)"]}, "simulation": {"monthly_gross_salary_eur": 9200.0, "tenure_years": 11.0, "notice_period_months": 5, "litigation_duration_months": 18, "has_valid_102_abs_3_objection": true, "has_fatal_102_hearing_defect": true, "continued_employment_102_abs_5_active": true, "continued_employment_months_after_notice": 13, "continued_employment_salary_exposure_eur": 144118.0, "annahmeverzugslohn_615_bgb_risk_eur": 144118.0, "standard_severance_factor": 0.5, "standard_severance_eur": 50600.0, "boosted_severance_factor": 1.85, "recommended_settlement_eur": 187220.0, "employer_total_worst_case_exposure_eur": 396268.0, "leverage_multiplier": 3.7}}];
+  const OBJECTION_102_3 = [{"nr": 1, "paragraph": "§ 102 Abs. 3 Nr. 1 BetrVG", "title": "Fehlerhafte oder unterlassene Sozialauswahl (§ 1 Abs. 3 KSchG)", "hr_check": "Vergleichsgruppe horizontal voll erfasst; Punkte-Matrix (Alter, Betriebszugehörigkeit, Unterhalt, Schwerbehinderung) dokumentiert.", "br_template": "Der Betriebsrat widerspricht gemäß § 102 Abs. 3 Nr. 1 BetrVG, da der Arbeitgeber bei der Auswahl soziale Gesichtspunkte nicht ausreichend berücksichtigt hat. Insbesondere sind die vergleichbaren Arbeitnehmer der Entgeltgruppe nicht vollständig einbezogen worden."}, {"nr": 2, "paragraph": "§ 102 Abs. 3 Nr. 2 BetrVG", "title": "Verstoß gegen Auswahlrichtlinien nach § 95 BetrVG", "hr_check": "Bestehende Betriebsvereinbarung nach § 95 BetrVG auf Punktwerte und Kappungsgrenzen geprüft.", "br_template": "Der Betriebsrat widerspricht gemäß § 102 Abs. 3 Nr. 2 BetrVG, da die beabsichtigte Kündigung gegen die geltende Auswahlrichtlinie nach § 95 BetrVG verstößt."}, {"nr": 3, "paragraph": "§ 102 Abs. 3 Nr. 3 BetrVG", "title": "Weiterbeschäftigung auf freiem Arbeitsplatz im Betrieb oder Unternehmen", "hr_check": "Unternehmensweite Stellenvakanzen (auch Konzernbezug falls vertraglicher Versetzungsvorbehalt) negativ geprüft.", "br_template": "Der Betriebsrat widerspricht gemäß § 102 Abs. 3 Nr. 3 BetrVG, da der zu kündigende Arbeitnehmer auf dem konkret freien Arbeitsplatz im Betrieb/Unternehmen weiterbeschäftigt werden kann."}, {"nr": 4, "paragraph": "§ 102 Abs. 3 Nr. 4 BetrVG", "title": "Weiterbeschäftigung nach zumutbarer Umschulung oder Fortbildung", "hr_check": "Umschulungsdauer (< 6 Monate) und Qualifikationsprofil auf verfügbare Stellen geprüft.", "br_template": "Der Betriebsrat widerspricht gemäß § 102 Abs. 3 Nr. 4 BetrVG, da eine Weiterbeschäftigung nach zumutbaren Umschulungs- oder Fortbildungsmaßnahmen möglich ist."}, {"nr": 5, "paragraph": "§ 102 Abs. 3 Nr. 5 BetrVG", "title": "Weiterbeschäftigung unter geänderten Vertragsbedingungen (Vorrang der Änderungskündigung)", "hr_check": "Vorrang der Änderungskündigung (§ 2 KSchG) vor Beendigungskündigung geprüft.", "br_template": "Der Betriebsrat widerspricht gemäß § 102 Abs. 3 Nr. 5 BetrVG, da eine Weiterbeschäftigung unter geänderten Vertragsbedingungen möglich ist und der Arbeitnehmer sein Einverständnis hiermit erklärt hat."}];
+  const VETO_99_2 = [{"nr": 1, "paragraph": "§ 99 Abs. 2 Nr. 1 BetrVG", "title": "Gesetzes-, Tarifvertrags- oder BV-Verstoß der Maßnahme", "detail": "Verstoß gegen Gesetz (z.B. AGG, ArbZG, TzBfG), Unfallverhütungsvorschrift, Tarifvertrag oder Betriebsvereinbarung."}, {"nr": 2, "paragraph": "§ 99 Abs. 2 Nr. 2 BetrVG", "title": "Verstoß gegen Auswahlrichtlinie (§ 95 BetrVG)", "detail": "Abweichung von vereinbarten personellen Auswahlkriterien bei Einstellung oder Versetzung."}, {"nr": 3, "paragraph": "§ 99 Abs. 2 Nr. 3 BetrVG", "title": "Besorgnis der Kündigung oder sonstiger Nachteile für Bestandsbeschäftigte", "detail": "Tatsachengestützte Besorgnis, dass im Betrieb Beschäftigte gekündigt werden oder sonstige Nachteile erleiden."}, {"nr": 4, "paragraph": "§ 99 Abs. 2 Nr. 4 BetrVG", "title": "Ungerechtfertigte Benachteiligung des betroffenen Arbeitnehmers", "detail": "Versetzung benachteiligt den betroffenen Arbeitnehmer ohne betriebliche oder persönliche Rechtfertigung."}, {"nr": 5, "paragraph": "§ 99 Abs. 2 Nr. 5 BetrVG", "title": "Unterbliebene interne Stellenausschreibung nach § 93 BetrVG", "detail": "Vom Betriebsrat verlangte innerbetriebliche Ausschreibung des Arbeitsplatzes ist vorab unterblieben."}, {"nr": 6, "paragraph": "§ 99 Abs. 2 Nr. 6 BetrVG", "title": "Störung des Betriebsfriedens durch gesetzwidriges/diskriminierendes Verhalten", "detail": "Tatsachengestützte Besorgnis, dass Bewerber/Beschäftigter den Betriebsfrieden durch gesetzwidriges Verhalten oder grobe Verletzung von § 75 Abs. 1 BetrVG stört."}];
+  const HOLIDAYS = {"2026-01-01": "Neujahr", "2026-04-03": "Karfreitag", "2026-04-06": "Ostermontag", "2026-05-01": "Tag der Arbeit", "2026-05-14": "Christi Himmelfahrt", "2026-05-25": "Pfingstmontag", "2026-10-03": "Tag der Deutschen Einheit", "2026-12-25": "1. Weihnachtstag", "2026-12-26": "2. Weihnachtstag", "2027-01-01": "Neujahr", "2027-03-26": "Karfreitag", "2027-03-29": "Ostermontag", "2027-05-01": "Tag der Arbeit", "2027-05-06": "Christi Himmelfahrt", "2027-05-17": "Pfingstmontag", "2027-10-03": "Tag der Deutschen Einheit", "2027-12-25": "1. Weihnachtstag", "2027-12-26": "2. Weihnachtstag"};
+  const WEEKDAYS_DE = ["Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag", "Sonntag"];
+
+  let currentPerspective = "HR";
+  let selected102Grounds = new Set([1, 3]);
+  let selected99Grounds = new Set([1, 5]);
+
+  function parseIsoDate(iso) {
+    const [y, m, d] = iso.split("-").map(Number);
+    return new Date(Date.UTC(y, m - 1, d));
+  }
+
+  function formatIsoDate(dt) {
+    return dt.toISOString().slice(0, 10);
+  }
+
+  function addDays(dt, days) {
+    const copy = new Date(dt.getTime());
+    copy.setUTCDate(copy.getUTCDate() + days);
+    return copy;
+  }
+
+  function getWeekdayDe(dt) {
+    const jsDay = dt.getUTCDay();
+    const idx = (jsDay + 6) % 7;
+    return WEEKDAYS_DE[idx];
+  }
+
+  function isWeekendOrHoliday(dt) {
+    const iso = formatIsoDate(dt);
+    if (HOLIDAYS[iso]) {
+      return `Gesetzlicher Feiertag (${HOLIDAYS[iso]})`;
+    }
+    const jsDay = dt.getUTCDay();
+    if (jsDay === 6) return "Samstag (Sonnabend)";
+    if (jsDay === 0) return "Sonntag";
+    return null;
+  }
+
+  function formatEur(val) {
+    return new Intl.NumberFormat("de-DE", { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(val);
+  }
+
+  function renderCheckboxes() {
+    const g102 = document.getElementById("grounds102List");
+    g102.innerHTML = OBJECTION_102_3.map(item => `
+      <label class="check-item">
+        <input type="checkbox" ${selected102Grounds.has(item.nr) ? "checked" : ""} onchange="toggle102Ground(${item.nr}, this.checked)" />
+        <span><strong>${item.paragraph} — ${item.title}:</strong> ${currentPerspective === "HR" ? item.hr_check : item.br_template}</span>
+      </label>
+    `).join("");
+
+    const g99 = document.getElementById("grounds99List");
+    g99.innerHTML = VETO_99_2.map(item => `
+      <label class="check-item">
+        <input type="checkbox" ${selected99Grounds.has(item.nr) ? "checked" : ""} onchange="toggle99Ground(${item.nr}, this.checked)" />
+        <span><strong>${item.paragraph} — ${item.title}:</strong> ${item.detail}</span>
+      </label>
+    `).join("");
+  }
+
+  function toggle102Ground(nr, checked) {
+    if (checked) selected102Grounds.add(nr);
+    else selected102Grounds.delete(nr);
+    recalculateAll();
+  }
+
+  function toggle99Ground(nr, checked) {
+    if (checked) selected99Grounds.add(nr);
+    else selected99Grounds.delete(nr);
+    recalculateAll();
+  }
+
+  function setPerspective(mode) {
+    currentPerspective = mode;
+    document.getElementById("modeHrBtn").classList.toggle("active", mode === "HR");
+    document.getElementById("modeBrBtn").classList.toggle("active", mode === "BR");
+    renderCheckboxes();
+    recalculateAll();
+  }
+
+  function loadScenario(idx) {
+    const sc = BENCHMARK_SCENARIOS[idx];
+    const inp = sc.inputs;
+    document.getElementById("measureType").value = inp.measure_type;
+    document.getElementById("dismissalGround").value = inp.dismissal_ground;
+    document.getElementById("deliveryDate").value = inp.delivery_date_iso;
+    document.getElementById("dispatchDate").value = inp.planned_dispatch_date_iso;
+    document.getElementById("dispatchTime").value = inp.planned_dispatch_time;
+    document.getElementById("outsideHours").checked = inp.delivered_outside_br_office_hours;
+    document.getElementById("finalStatementReceived").checked = inp.has_final_concluding_statement;
+    document.getElementById("grossSalary").value = inp.monthly_gross_salary_eur;
+    document.getElementById("tenureYears").value = inp.tenure_years;
+    document.getElementById("noticeMonths").value = inp.notice_period_months;
+    document.getElementById("litigationMonths").value = inp.litigation_duration_months;
+
+    document.getElementById("chkSozialdaten").checked = inp.sozialdaten_complete;
+    document.getElementById("chkPeerGroup").checked = inp.sozialauswahl_peer_group_disclosed;
+    document.getElementById("chkAbmahnung").checked = inp.abmahnung_dates_disclosed;
+    document.getElementById("chkWithheldExculpatory").checked = inp.withheld_exculpatory_facts;
+    document.getElementById("chkSeverelyDisabled").checked = inp.is_severely_disabled_or_equal;
+    document.getElementById("chkSbvHeard").checked = inp.sbv_heard_prior_to_dismissal;
+    document.getElementById("chkProtected103").checked = inp.is_protected_103_betrvg_member;
+    document.getElementById("chkConsent103").checked = inp.br_consent_or_court_replacement_103;
+
+    selected102Grounds = new Set(inp.selected_102_3_grounds || []);
+    selected99Grounds = new Set(inp.selected_99_2_grounds || []);
+
+    document.querySelectorAll(".preset-btn").forEach((b, i) => b.classList.toggle("active", i === idx));
+    renderCheckboxes();
+    recalculateAll();
+  }
+
+  function recalculateAll() {
+    const measureType = document.getElementById("measureType").value;
+    const dismissalGround = document.getElementById("dismissalGround").value;
+    const deliveryIso = document.getElementById("deliveryDate").value;
+    const dispatchIso = document.getElementById("dispatchDate").value;
+    const dispatchTime = document.getElementById("dispatchTime").value;
+    const outsideHours = document.getElementById("outsideHours").checked;
+    const finalStatement = document.getElementById("finalStatementReceived").checked;
+
+    const deliveryDt = parseIsoDate(deliveryIso);
+    let effectiveReceipt = new Date(deliveryDt.getTime());
+    if (outsideHours && !isWeekendOrHoliday(deliveryDt)) {
+      effectiveReceipt = addDays(deliveryDt, 1);
+    }
+    while (isWeekendOrHoliday(effectiveReceipt)) {
+      effectiveReceipt = addDays(effectiveReceipt, 1);
+    }
+
+    const statutoryStart = addDays(effectiveReceipt, 1);
+    const daysToAdd = (measureType === "ordentliche_kuendigung" || measureType === "einstellung_versetzung_99") ? 7 : 3;
+    const nominalEnd = addDays(effectiveReceipt, daysToAdd);
+
+    let finalEnd = new Date(nominalEnd.getTime());
+    const shiftReasons = [];
+    while (true) {
+      const r = isWeekendOrHoliday(finalEnd);
+      if (!r) break;
+      shiftReasons.push(`${formatIsoDate(finalEnd)} (${r})`);
+      finalEnd = addDays(finalEnd, 1);
+    }
+
+    const earliestSafe = addDays(finalEnd, 1);
+    const dispatchDt = parseIsoDate(dispatchIso);
+    const prematureViolation = (dispatchDt.getTime() <= finalEnd.getTime()) && !finalStatement;
+
+    const tlContainer = document.getElementById("timelineSteps");
+    tlContainer.innerHTML = `
+      <div class="tl-step">
+        <div class="tl-tag">1. Wirksamer Zugang (§ 187 I BGB)</div>
+        <div class="tl-date">${formatIsoDate(effectiveReceipt)}</div>
+        <div class="tl-desc">${getWeekdayDe(effectiveReceipt)} (Tag 0 — zählt nicht mit; Fristbeginn am ${formatIsoDate(statutoryStart)}, 00:00 Uhr)</div>
+      </div>
+      <div class="tl-step">
+        <div class="tl-tag">2. Nominelles Fristende (§ 188 BGB)</div>
+        <div class="tl-date">${formatIsoDate(nominalEnd)}</div>
+        <div class="tl-desc">${getWeekdayDe(nominalEnd)} (${daysToAdd === 7 ? "1-Wochen-Frist" : "3-Tages-Frist"})</div>
+      </div>
+      <div class="tl-step ${shiftReasons.length > 0 ? "highlight-shift" : ""}">
+        <div class="tl-tag">3. § 193 BGB Fristende (24:00 Uhr)</div>
+        <div class="tl-date">${formatIsoDate(finalEnd)}, 24:00</div>
+        <div class="tl-desc">${shiftReasons.length > 0 ? "Verschoben wg. " + shiftReasons.join(" → ") : "Kein Sa/So/Feiertag am Fristende"}</div>
+      </div>
+      <div class="tl-step ${prematureViolation ? "highlight-danger" : "highlight-safe"}">
+        <div class="tl-tag">4. Frühester Kündigungsausspruch</div>
+        <div class="tl-date">${formatIsoDate(earliestSafe)}, 00:01</div>
+        <div class="tl-desc">${prematureViolation ? "⚠️ GEPLANT AM " + dispatchIso + " (" + dispatchTime + ") = VERFRÜHT!" : "✅ Geplanter Versand am " + dispatchIso + " ist fristwahrend"}</div>
+      </div>
+    `;
+
+    const shiftBadge = document.getElementById("shiftBadge");
+    if (shiftReasons.length > 0) {
+      shiftBadge.textContent = "§ 193 BGB WOCHENEND-/FEIERTAGS-VERSCHIEBUNG AKTIV";
+      shiftBadge.className = "badge danger";
+    } else {
+      shiftBadge.textContent = "REGULÄRES FRISTENDE (§ 188 BGB)";
+      shiftBadge.className = "badge";
+    }
+
+    const verdictBox = document.getElementById("deadlineVerdictBox");
+    if (prematureViolation) {
+      verdictBox.className = "defect-card";
+      verdictBox.innerHTML = `
+        <div class="defect-title">🚨 VERFRÜHTER KÜNDIGUNGSAUSSPRUCH (§ 102 Abs. 1 Satz 3, Abs. 2 BetrVG, BAG 2 AZR 224/06)</div>
+        <div class="defect-detail">
+          Die Stellungnahmefrist des Betriebsrats läuft erst am <strong>${formatIsoDate(finalEnd)} (${getWeekdayDe(finalEnd)}) um 24:00 Uhr</strong> ab.
+          Ein Ausspruch oder Versand der Kündigung am <strong>${dispatchIso} um ${dispatchTime} Uhr</strong> ohne abschließende BR-Stellungnahme
+          macht die Kündigung <strong>unheilbar nichtig</strong>!
+        </div>
+      `;
+    } else {
+      verdictBox.className = "defect-card ok";
+      verdictBox.innerHTML = `
+        <div class="defect-title">✅ FRISTWAHRENDER ZEITPUNKT (§§ 187, 188, 193 BGB eingehalten)</div>
+        <div class="defect-detail">
+          Fristablauf am <strong>${formatIsoDate(finalEnd)} (${getWeekdayDe(finalEnd)}) um 24:00 Uhr</strong>.
+          Geplanter Ausspruch am <strong>${dispatchIso} (${dispatchTime} Uhr)</strong> liegt nach Fristablauf bzw. nach abschließender Stellungnahme.
+        </div>
+      `;
+    }
+
+    const defects = [];
+    if (prematureViolation) {
+      defects.push({
+        norm: "§ 102 Abs. 1 S. 3, Abs. 2 BetrVG i.V.m. §§ 187, 188, 193 BGB (BAG 2 AZR 224/06)",
+        title: "Verfrühter Kündigungsausspruch vor Ablauf der Stellungnahmefrist (24:00 Uhr)",
+        detail: "Die Kündigung verlässt den Machtbereich des Arbeitgebers vor Fristablauf ohne abschließende Stellungnahme des Betriebsrats."
+      });
+    }
+    if (!document.getElementById("chkSozialdaten").checked) {
+      defects.push({
+        norm: "§ 102 Abs. 1 S. 2 BetrVG i.V.m. § 1 Abs. 3 KSchG",
+        title: "Unvollständige Sozialdaten / Unterhaltspflichten",
+        detail: "Lebensalter, Betriebszugehörigkeit oder Unterhaltspflichten fehlen im Anhörungsbogen."
+      });
+    }
+    if (dismissalGround === "betriebsbedingt" && !document.getElementById("chkPeerGroup").checked) {
+      defects.push({
+        norm: "§ 102 Abs. 1, Abs. 3 Nr. 1 BetrVG i.V.m. § 1 Abs. 3 KSchG",
+        title: "Unvollständige Sozialauswahl-Vergleichsgruppe",
+        detail: "Die horizontal vergleichbaren Arbeitnehmer und das Auswahl-Punkteschema wurden dem Betriebsrat nicht transparent offengelegt."
+      });
+    }
+    if (dismissalGround === "verhaltensbedingt" && !document.getElementById("chkAbmahnung").checked) {
+      defects.push({
+        norm: "§ 102 Abs. 1 S. 2 BetrVG (BAG 2 AZR 424/19)",
+        title: "Fehlende Abmahnungsdaten / Gegendarstellungen",
+        detail: "Einschlägige Abmahnungsdaten oder Gegendarstellungen des Arbeitnehmers wurden im Anhörungsschreiben unterschlagen."
+      });
+    }
+    if (document.getElementById("chkWithheldExculpatory").checked) {
+      defects.push({
+        norm: "§ 102 Abs. 1 S. 2 BetrVG (BAG 2 AZR 577/12 — Subjektive Determinierung)",
+        title: "Bewusstes Verschweigen bekannter entlastender Tatsachen",
+        detail: "Dem Arbeitgeber bekannte Entlastungsumstände wurden verschwiegen, wodurch der Betriebsrat ein irreführendes Bild erhält."
+      });
+    }
+    if (document.getElementById("chkSeverelyDisabled").checked && !document.getElementById("chkSbvHeard").checked) {
+      defects.push({
+        norm: "§ 178 Abs. 2 Satz 1 & Satz 3 SGB IX",
+        title: "Fehlende vorherige Anhörung der Schwerbehindertenvertretung (SBV)",
+        detail: "Eine ohne vorherige Beteiligung der SBV ausgesprochene Kündigung eines schwerbehinderten/gleichgestellten Menschen ist kraft Gesetzes unwirksam!"
+      });
+    }
+    if (document.getElementById("chkProtected103").checked && !document.getElementById("chkConsent103").checked) {
+      defects.push({
+        norm: "§ 103 Abs. 1 & Abs. 2 BetrVG i.V.m. § 15 KSchG",
+        title: "Fehlende BR-Zustimmung bzw. arbeitsgerichtliche Zustimmungsersetzung (§ 103 BetrVG)",
+        detail: "Kündigung eines geschützten Mandatsträgers ohne vorherige Zustimmung des Betriebsrats oder rechtskräftige Ersetzung durch das Arbeitsgericht ist nichtig."
+      });
+    }
+
+    const defectsListEl = document.getElementById("defectsList");
+    if (defects.length === 0) {
+      defectsListEl.innerHTML = `
+        <div class="defect-card ok">
+          <div class="defect-title">🛡️ 0 Formfehler — Anhörung nach § 102 BetrVG & § 178 Abs. 2 SGB IX formell unangreifbar</div>
+          <div class="defect-detail">Alle Pflichtangaben der subjektiven Determinierung, Fristen nach §§ 187–193 BGB und Sonderbeteiligungen sind erfüllt.</div>
+        </div>
+      `;
+    } else {
+      defectsListEl.innerHTML = defects.map(d => `
+        <div class="defect-card">
+          <div class="defect-norm">${d.norm}</div>
+          <div class="defect-title">❌ ${d.title}</div>
+          <div class="defect-detail">${d.detail}</div>
+        </div>
+      `).join("");
+    }
+
+    const scorePct = Math.max(0, Math.round(((7 - defects.length) / 7) * 100));
+    const scoreBadge = document.getElementById("auditScoreBadge");
+    scoreBadge.textContent = `COMPLIANCE-SCORE: ${scorePct}% (${defects.length} MÄNGEL)`;
+    scoreBadge.className = defects.length === 0 ? "badge" : "badge danger";
+
+    const salary = parseFloat(document.getElementById("grossSalary").value) || 0;
+    const tenure = parseFloat(document.getElementById("tenureYears").value) || 0;
+    const noticeMonths = parseInt(document.getElementById("noticeMonths").value, 10) || 0;
+    const litigationMonths = parseInt(document.getElementById("litigationMonths").value, 10) || 12;
+
+    const hasObjection = selected102Grounds.size > 0;
+    const hasFatalDefect = defects.length > 0;
+    const monthsAfterNotice = Math.max(0, litigationMonths - noticeMonths);
+    const continuedPayRisk = hasObjection ? Math.round(salary * monthsAfterNotice * 1.205) : 0;
+
+    let factor = 0.5;
+    if (hasFatalDefect && hasObjection) factor = 1.85;
+    else if (hasFatalDefect) factor = 1.50;
+    else if (hasObjection) factor = 1.35;
+    else factor = 0.75;
+
+    const standardSev = Math.round(0.5 * salary * tenure);
+    const boostedSev = Math.round(factor * salary * tenure);
+
+    document.getElementById("kpiDeadlineDate").textContent = `${formatIsoDate(finalEnd)}, 24:00`;
+    document.getElementById("kpiDeadlineSub").textContent = `${getWeekdayDe(finalEnd)} | Frühester Versand: ${formatIsoDate(earliestSafe)}`;
+
+    const kpiVal = document.getElementById("kpiValidityStatus");
+    if (hasFatalDefect) {
+      kpiVal.textContent = "UNWIRKSAM (§ 102 I 3)";
+      kpiVal.className = "kpi-value pill-bad";
+      document.getElementById("kpiValiditySub").textContent = `${defects.length} unheilbare(r) Wirksamkeitsmangel`;
+    } else {
+      kpiVal.textContent = "FORMELL WIRKSAM";
+      kpiVal.className = "kpi-value pill-ok";
+      document.getElementById("kpiValiditySub").textContent = "Frist- & Vollständigkeitsprüfung bestanden";
+    }
+
+    const kpiCont = document.getElementById("kpiContinuedPay");
+    kpiCont.textContent = formatEur(continuedPayRisk);
+    kpiCont.className = hasObjection ? "kpi-value pill-warn" : "kpi-value pill-ok";
+    document.getElementById("kpiContinuedSub").textContent = hasObjection
+      ? `${monthsAfterNotice} Mon. Weiterbeschäftigung bei 100% Gehalt (§ 102 V BetrVG)`
+      : "Kein § 102 Abs. 3 Widerspruch ausgewählt";
+
+    document.getElementById("kpiSeverance").textContent = `${formatEur(boostedSev)} (${factor.toFixed(2)}x)`;
+    document.getElementById("kpiSeveranceSub").textContent = `Regelabfindung (0,5x): ${formatEur(standardSev)} | Hebel: ${(factor / 0.5).toFixed(1)}x`;
+
+    const docTitle = document.getElementById("docGeneratorTitle");
+    const docOut = document.getElementById("generatedDocOutput");
+    if (currentPerspective === "HR") {
+      docTitle.textContent = "Pillar 5 — Rechtssicherer HR-Anhörungsbogen & Fristen-Freigabeprotokoll (§ 102 BetrVG / § 178 Abs. 2 SGB IX)";
+      docOut.textContent = [
+        "ANHÖRUNG DES BETRIEBSRATS GEMÄSS § 102 BETRVG",
+        "======================================================================",
+        `1. Geplante Maßnahme       : ${measureType === "ordentliche_kuendigung" ? "Ordentliche Beendigungskündigung (§ 102 Abs. 2 S. 1 BetrVG)" : measureType === "ausserordentliche_kuendigung" ? "Außerordentliche fristlose Kündigung (§ 102 Abs. 2 S. 3 BetrVG)" : "Personelle Einzelmaßnahme (§§ 99/100 BetrVG)"}`,
+        `2. Kündigungsgrund-Typ     : ${dismissalGround.toUpperCase()}`,
+        `3. Sozialdaten             : Bruttomonatsgehalt ${formatEur(salary)}, Betriebszugehörigkeit ${tenure} Jahre, Kündigungsfrist ${noticeMonths} Monate`,
+        `   Status Sozialdaten      : ${document.getElementById("chkSozialdaten").checked ? "VOLLSTÄNDIG (inkl. Unterhaltspflichten)" : "FEHLERHAFT / UNVOLLSTÄNDIG - VOR ÜBERGABE ERGÄNZEN!"}`,
+        `4. SBV-Vorschaltung        : ${document.getElementById("chkSeverelyDisabled").checked ? (document.getElementById("chkSbvHeard").checked ? "§ 178 Abs. 2 SGB IX vorab durchgeführt" : "STOPP! § 178 Abs. 2 S. 3 SGB IX SBV-Anhörung fehlt!") : "Nicht einschlägig (keine Schwerbehinderung/Gleichstellung)"}`,
+        "",
+        "FRISTEN-TRESOR (§§ 187 Abs. 1, 188 Abs. 2, 193 BGB):",
+        `• Übergabe an BR           : ${deliveryIso} (${outsideHours ? "nach Dienstschluss/Wochenende" : "während BR-Bürozeiten"})`,
+        `• Wirksamer Zugang (Tag 0) : ${formatIsoDate(effectiveReceipt)} (${getWeekdayDe(effectiveReceipt)})`,
+        `• Gesetzlicher Fristbeginn : ${formatIsoDate(statutoryStart)}, 00:00 Uhr (§ 187 Abs. 1 BGB)`,
+        `• Gesetzliches Fristende   : ${formatIsoDate(finalEnd)} (${getWeekdayDe(finalEnd)}), 24:00 Uhr ${shiftReasons.length ? "[verlängert nach § 193 BGB]" : ""}`,
+        `• FRÜHESTER VERSANDTERMIN  : ${formatIsoDate(earliestSafe)} (${getWeekdayDe(earliestSafe)}), ab 00:01 Uhr`,
+        "",
+        defects.length === 0
+          ? "FREIGABE-STATUS: [GRÜN] Anhörung ist formell rechtssicher."
+          : `FREIGABE-STATUS: [ROT — SPERRE!] ${defects.length} unheilbare Wirksamkeitsmängel identifiziert:
+` + defects.map((d, i) => `   ${i+1}. ${d.title} (${d.norm})`).join("
+")
+      ].join("
+");
+    } else {
+      docTitle.textContent = "Pillar 5 — Betriebsrats-Widerspruch (§ 102 Abs. 3 BetrVG) & § 102 Abs. 5 Weiterbeschäftigungs-Schriftsatz";
+      const chosen102 = OBJECTION_102_3.filter(g => selected102Grounds.has(g.nr));
+      const chosen99 = VETO_99_2.filter(g => selected99Grounds.has(g.nr));
+      docOut.textContent = [
+        "ORDENTLICHER WIDERSPRUCH DES BETRIEBSRATS GEMÄSS § 102 ABS. 3 BETRVG",
+        "UND GELTENDMACHUNG DES WEITERBESCHÄFTIGUNGSANSPRUCHS NACH § 102 ABS. 5 BETRVG",
+        "======================================================================",
+        `Fristwahrung bis           : ${formatIsoDate(finalEnd)} (${getWeekdayDe(finalEnd)}), 24:00 Uhr (§§ 187, 188, 193 BGB)`,
+        "",
+        "I. FORMELLE UNWIRKSAMKEITSRÜGEN NACH § 102 ABS. 1 SATZ 3 BETRVG:",
+        defects.length > 0
+          ? defects.map((d, i) => `   ${i+1}. ${d.title} [${d.norm}]
+      -> ${d.detail}`).join("
+")
+          : "   (Keine offensichtlichen Frist-/Formfehler im Anhörungsbogen festgestellt — Fokus auf § 102 Abs. 3 Widerspruch)",
+        "",
+        "II. WIDERSPRUCHSGRÜNDE NACH § 102 ABS. 3 NR. 1–5 BETRVG:",
+        chosen102.length > 0
+          ? chosen102.map(g => `   • ${g.paragraph} (${g.title}):
+     "${g.br_template}"`).join("
+
+")
+          : "   (Bitte mindestens einen Widerspruchsgrund nach § 102 Abs. 3 Nr. 1–5 auswählen)",
+        "",
+        chosen99.length > 0
+          ? "III. ZUSTIMMUNGSVERWEIGERUNG NACH § 99 ABS. 2 BETRVG (BEI VERSETZUNG / EINSTELLUNG):
+" +
+            chosen99.map(g => `   • ${g.paragraph}: ${g.title} — ${g.detail}`).join("
+") + "
+"
+          : "",
+        "IV. WEITERBESCHÄFTIGUNGSVERLANGEN (§ 102 ABS. 5 SATZ 1 BETRVG) & ABFINDUNGS-HEBEL:",
+        `   Aufgrund des frist- und ordnungsgemäßen Betriebsratswiderspruchs verlangt der Arbeitnehmer`,
+        `   seine unveränderte Weiterbeschäftigung nach Ablauf der Kündigungsfrist (${noticeMonths} Mon.) für die`,
+        `   gesamte Dauer des Kündigungsschutzverfahrens (${monthsAfterNotice} weitere Monate = ${formatEur(continuedPayRisk)} Arbeitgeberkostenrisiko).`,
+        `   Empfohlener Vergleichskorridor: ${formatEur(boostedSev)} (Faktor ${factor.toFixed(2)} statt 0,50 Regelabfindung = ${formatEur(standardSev)}).`
+      ].join("
+");
+    }
+  }
+
+  function copyGeneratedDoc() {
+    const text = document.getElementById("generatedDocOutput").textContent;
+    navigator.clipboard.writeText(text);
+  }
+
+  function initStudio() {
+    const presetContainer = document.getElementById("presetButtons");
+    presetContainer.innerHTML = BENCHMARK_SCENARIOS.map((sc, i) => `
+      <button class="preset-btn ${i === 0 ? "active" : ""}" onclick="loadScenario(${i})">
+        ${sc.name.split(":")[0]}: ${sc.badge}
+      </button>
+    `).join("");
+    loadScenario(0);
+  }
+
+  window.addEventListener("DOMContentLoaded", initStudio);
+</script>
+</body>
+</html>

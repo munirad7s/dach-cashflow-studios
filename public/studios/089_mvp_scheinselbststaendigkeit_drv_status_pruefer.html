@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>DACH Scheinselbstständigkeits- & DRV-Clearingstellen-Prüfstand Studio (MVP #89)</title>
+<style>
+  :root {
+    --bg: #080c14;
+    --panel: #101726;
+    --panel-alt: #162035;
+    --border: #243252;
+    --text: #eef2ff;
+    --muted: #94a3b8;
+    --accent: #38bdf8;
+    --accent-2: #818cf8;
+    --danger: #f43f5e;
+    --warn: #f59e0b;
+    --ok: #10b981;
+    --mono: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
+    --sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: radial-gradient(circle at top right, #172554 0%, var(--bg) 55%);
+    color: var(--text);
+    font-family: var(--sans);
+    line-height: 1.5;
+  }
+  header {
+    border-bottom: 1px solid var(--border);
+    background: rgba(16, 23, 38, 0.92);
+    backdrop-filter: blur(10px);
+    padding: 18px 28px;
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+  }
+  .brand-title {
+    font-size: 1.2rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .badge {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    padding: 3px 8px;
+    border-radius: 6px;
+    background: rgba(56, 189, 248, 0.15);
+    color: var(--accent);
+    border: 1px solid rgba(56, 189, 248, 0.35);
+  }
+  .badge-danger {
+    background: rgba(244, 63, 94, 0.16);
+    color: #fda4af;
+    border-color: rgba(244, 63, 94, 0.45);
+  }
+  .badge-ok {
+    background: rgba(16, 185, 129, 0.16);
+    color: #6ee7b7;
+    border-color: rgba(16, 185, 129, 0.45);
+  }
+  .container {
+    max-width: 1480px;
+    margin: 0 auto;
+    padding: 24px 28px 60px;
+  }
+  .preset-bar {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+    gap: 12px;
+    margin-bottom: 22px;
+  }
+  .preset-btn {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 13px 16px;
+    border-radius: 10px;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .preset-btn:hover, .preset-btn.active {
+    border-color: var(--accent);
+    background: var(--panel-alt);
+    box-shadow: 0 0 0 1px var(--accent);
+  }
+  .preset-btn .p-name {
+    font-weight: 700;
+    font-size: 0.92rem;
+    margin-bottom: 4px;
+  }
+  .preset-btn .p-sub {
+    color: var(--muted);
+    font-size: 0.78rem;
+  }
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+  .kpi-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 18px;
+  }
+  .kpi-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+  .kpi-value {
+    font-family: var(--mono);
+    font-size: 1.55rem;
+    font-weight: 800;
+  }
+  .kpi-sub {
+    font-size: 0.8rem;
+    color: var(--muted);
+    margin-top: 6px;
+  }
+  .main-grid {
+    display: grid;
+    grid-template-columns: 1.15fr 0.85fr;
+    gap: 20px;
+  }
+  @media (max-width: 1120px) {
+    .main-grid { grid-template-columns: 1fr; }
+  }
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+  .card h2 {
+    margin: 0 0 14px 0;
+    font-size: 1.05rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+  }
+  .crit-row {
+    border: 1px solid var(--border);
+    background: rgba(22, 32, 53, 0.55);
+    border-radius: 8px;
+    padding: 11px 13px;
+    margin-bottom: 9px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 12px;
+    align-items: center;
+  }
+  .crit-title {
+    font-weight: 600;
+    font-size: 0.88rem;
+  }
+  .crit-meta {
+    font-size: 0.76rem;
+    color: var(--muted);
+    margin-top: 3px;
+  }
+  .sev-group {
+    display: flex;
+    gap: 5px;
+  }
+  .sev-btn {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    padding: 5px 8px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: #0b111e;
+    color: var(--muted);
+    cursor: pointer;
+  }
+  .sev-btn.active-0 { background: rgba(16, 185, 129, 0.22); color: #6ee7b7; border-color: #10b981; }
+  .sev-btn.active-05 { background: rgba(245, 158, 11, 0.22); color: #fcd34d; border-color: #f59e0b; }
+  .sev-btn.active-1 { background: rgba(244, 63, 94, 0.25); color: #fda4af; border-color: #f43f5e; }
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  label.f-label {
+    display: block;
+    font-size: 0.78rem;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+  input[type="number"], select {
+    width: 100%;
+    padding: 8px 10px;
+    border-radius: 7px;
+    border: 1px solid var(--border);
+    background: #0b111e;
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 0.88rem;
+  }
+  .toggle-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin: 12px 0;
+    font-size: 0.84rem;
+  }
+  .toggle-row label {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    cursor: pointer;
+  }
+  table.breakdown {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.84rem;
+    margin-top: 10px;
+  }
+  table.breakdown th, table.breakdown td {
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--border);
+    text-align: left;
+  }
+  table.breakdown td.num {
+    text-align: right;
+    font-family: var(--mono);
+  }
+  .clause-box {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+    margin-bottom: 12px;
+    background: #0b111e;
+  }
+  .diff-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 8px;
+  }
+  @media (max-width: 820px) {
+    .diff-grid { grid-template-columns: 1fr; }
+  }
+  .diff-bad {
+    background: rgba(244, 63, 94, 0.09);
+    border-left: 3px solid var(--danger);
+    padding: 10px;
+    border-radius: 6px;
+    font-size: 0.81rem;
+  }
+  .diff-good {
+    background: rgba(16, 185, 129, 0.09);
+    border-left: 3px solid var(--ok);
+    padding: 10px;
+    border-radius: 6px;
+    font-size: 0.81rem;
+  }
+  .strategy-pill {
+    background: rgba(56, 189, 248, 0.1);
+    border-left: 3px solid var(--accent);
+    padding: 9px 12px;
+    border-radius: 6px;
+    font-size: 0.82rem;
+    margin-bottom: 8px;
+  }
+</style>
+</head>
+<body>
+
+<!-- DACH CASHFLOW STUDIOS LAUNCH BAR -->
+<style>
+  #dcs-launch-bar {
+    position: sticky;
+    top: 0;
+    z-index: 99999;
+    background: linear-gradient(90deg, #0b1120 0%, #111827 50%, #0f172a 100%);
+    color: #f8fafc;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.35);
+    padding: 8px 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  }
+  #dcs-launch-bar .dcs-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+  }
+  #dcs-launch-bar .dcs-badge {
+    background: rgba(16, 185, 129, 0.18);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.03em;
+  }
+  #dcs-launch-bar a.dcs-nav {
+    color: #93c5fd;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 12.5px;
+  }
+  #dcs-launch-bar a.dcs-nav:hover {
+    text-decoration: underline;
+    color: #dbeafe;
+  }
+  #dcs-launch-bar .dcs-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  #dcs-launch-bar .dcs-btn {
+    padding: 5px 11px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s ease;
+  }
+  #dcs-launch-bar .dcs-btn-ghost {
+    background: rgba(255,255,255,0.08);
+    color: #e2e8f0;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  #dcs-launch-bar .dcs-btn-primary {
+    background: linear-gradient(135deg, #0ea5e9, #2563eb);
+    color: #ffffff;
+  }
+  #dcs-launch-bar .dcs-btn-emerald {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
+  }
+  @media print {
+    #dcs-launch-bar { display: none !important; }
+  }
+</style>
+<div id="dcs-launch-bar">
+  <div class="dcs-left">
+    <a href="/index.html" class="dcs-nav">← Alle 150 DACH Studios</a>
+    <span class="dcs-badge">MVP #089 VERIFIED</span>
+    <span style="color:#cbd5e1;font-size:12px;">DACH LegalTech, Labor Law & Consumer Claims</span>
+  </div>
+  <div class="dcs-actions">
+    <button onclick="window.print()" class="dcs-btn dcs-btn-ghost">🖨️ PDF / Dossier drucken</button>
+    <a href="#checkout-modal-49" target="_blank" rel="noopener" class="dcs-btn dcs-btn-primary">⚡ Musterschreiben & Voll-Dossier (€49)</a>
+    <a href="#checkout-modal-299" target="_blank" rel="noopener" class="dcs-btn dcs-btn-emerald">🛡️ B2B Umsetzung buchen (€299 / €1.490)</a>
+  </div>
+</div>
+
+<header>
+  <div class="brand-title">
+    <span>⚖️ DACH Scheinselbstständigkeits- & DRV-Clearingstellen-Prüfstand</span>
+    <span class="badge">§ 7 & § 7a SGB IV</span>
+    <span class="badge">BSG Herrenberg B 12 R 3/20 R</span>
+    <span class="badge">§ 2 S. 1 Nr. 9 SGB VI (5/6-Regel)</span>
+  </div>
+  <div>
+    <span class="badge">BBG 2025/2026: RV €8.050/M · KV €5.512,50/M · Minijob €556/M</span>
+  </div>
+</header>
+
+<div class="container">
+  <div class="preset-bar" id="presetBar"></div>
+
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-label">§ 7 Abs. 1 SGB IV DRV-Status-Score</div>
+      <div class="kpi-value" id="kpiDrvScore">0%</div>
+      <div class="kpi-sub" id="kpiDrvVerdict">—</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Auftraggeber-Haftung (§ 28e / § 24 SGB IV)</div>
+      <div class="kpi-value" id="kpiEmployerLiability">€0</div>
+      <div class="kpi-sub" id="kpiEmployerSub">—</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Freelancer 5/6-Regel (§ 2 Nr. 9 SGB VI)</div>
+      <div class="kpi-value" id="kpiFreelancerRv">€0 / Jahr</div>
+      <div class="kpi-sub" id="kpiFreelancerSub">—</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">BSG Herrenberg & § 127 SGB IV Schutz</div>
+      <div class="kpi-value" id="kpiHerrenberg">0 / 8</div>
+      <div class="kpi-sub" id="kpiSec127Sub">—</div>
+    </div>
+  </div>
+
+  <div class="main-grid">
+    <div>
+      <div class="card">
+        <h2>
+          <span>1. DRV-Clearingstellen-Scorecard (12 Kriterien nach § 7 Abs. 1 & § 7a SGB IV)</span>
+          <span class="badge" id="scorePointsBadge">0 / 102 Punkte</span>
+        </h2>
+        <div id="criteriaList"></div>
+      </div>
+
+      <div class="card">
+        <h2>
+          <span>4. Werkvertrags-Sanierer (§ 611 BGB Dienstvertrag ➔ § 631 / § 640 BGB Werkvertrag)</span>
+          <span class="badge badge-ok">5 Klausel-Transformationen</span>
+        </h2>
+        <div id="clauseList"></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="card">
+        <h2>
+          <span>2. Parameter & § 28e / § 14 Abs. 2 S. 2 SGB IV Nachzahlungs-Simulator</span>
+          <span class="badge badge-danger">Arbeitgeber-Risiko</span>
+        </h2>
+        <div class="form-row">
+          <div>
+            <label class="f-label">Netto-Honorar pro Monat (EUR)</label>
+            <input type="number" id="inpHonorarium" step="250" min="500" value="18400" />
+          </div>
+          <div>
+            <label class="f-label">Geprüfte Laufzeit (Monate, max. 48/360)</label>
+            <input type="number" id="inpMonths" step="1" min="1" max="120" value="30" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div>
+            <label class="f-label">Umsatzanteil Hauptauftraggeber (% für 5/6-Regel)</label>
+            <input type="number" id="inpSharePct" step="0.5" min="0" max="100" value="92" />
+          </div>
+          <div>
+            <label class="f-label">Monate seit Gründung (§ 6 Abs. 1a SGB VI)</label>
+            <input type="number" id="inpStartupMonths" step="1" min="0" max="240" value="42" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div>
+            <label class="f-label">Minijob-/Mitarbeiter-Lohnsumme (EUR/Monat)</label>
+            <input type="number" id="inpPayroll" step="50" min="0" value="0" />
+          </div>
+          <div>
+            <label class="f-label">SV-pflichtiger Mitarbeiter (&gt; €556/Monat)?</label>
+            <select id="inpHasEmp">
+              <option value="false">Nein (Solo-Selbstständig)</option>
+              <option value="true">Ja (Mind. 1 SV-Beschäftigter &gt; €556/M)</option>
+            </select>
+          </div>
+        </div>
+        <div class="toggle-row">
+          <label><input type="checkbox" id="chkVorsatz" checked /> Bedingter Vorsatz (§ 14 Abs. 2 S. 2 SGB IV Nettolohnfiktion + 12% p.a. § 24 SGB IV)</label>
+          <label><input type="checkbox" id="chkAgency" checked /> Dreiecksverhältnis / Agentur (§ 7a Abs. 2 SGB IV)</label>
+          <label><input type="checkbox" id="chkTeaching" /> Lehrtätigkeit (Herrenberg / § 127 SGB IV)</label>
+          <label><input type="checkbox" id="chkSec127Consent" /> § 127 SGB IV Zustimmung liegt vor</label>
+        </div>
+
+        <table class="breakdown">
+          <thead>
+            <tr><th>Position (Auftraggeber-Nachforderung)</th><th style="text-align:right">Betrag (EUR)</th></tr>
+          </thead>
+          <tbody id="clawbackTableBody"></tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <h2>
+          <span>3. Arbeitnehmerähnliche Selbstständige (§ 2 Satz 1 Nr. 9 SGB VI — 5/6-Regel)</span>
+          <span class="badge" id="sec2Badge">Prüfung</span>
+        </h2>
+        <div id="sec2Summary" style="font-size:0.86rem; margin-bottom:12px;"></div>
+        <div id="sec2Strategies"></div>
+      </div>
+
+      <div class="card">
+        <h2>
+          <span>§ 7a SGB IV Verfahrens- & Schutzschirm-Empfehlungen</span>
+          <span class="badge">DRV Formular V0027 / V0050</span>
+        </h2>
+        <div id="proceduralBox"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const CRITERIA = [{"id": "C01_AGILE_SCRUM_CEREMONIES", "code": "DRV-01", "category": "Eingliederung (§ 7 Abs. 1 S. 2 SGB IV)", "title": "Pflichtteilnahme an Daily Standups, Sprint-Plannings & internen Regelterminen", "legal_ref": "§ 7 Abs. 1 S. 2 SGB IV / BSG B 12 R 3/20 R", "weight_points": 12, "red_flag_desc": "Freelancer nimmt täglich verpflichtend am internen Scrum-Daily & Retrospektiven gemeinsam mit Festangestellten teil.", "safe_harbor_desc": "Asynchrone Meilenstein-Abstimmung über definierte Schnittstellen (B2B-Jour-Fixe nur zur Übergabe/Abnahme).", "herrenberg_critical": true}, {"id": "C02_INTERNAL_COMMS_EMAIL_SLACK", "code": "DRV-02", "category": "Eingliederung (§ 7 Abs. 1 S. 2 SGB IV)", "title": "Eigene @kunde.de E-Mail-Adresse, interner Slack/Teams-Account ohne '[Extern]'-Label & Organigramm-Listung", "legal_ref": "§ 7 Abs. 1 SGB IV / DRV V0027 Ziff. 4", "weight_points": 10, "red_flag_desc": "Auftreten nach außen/innen unter Kunden-Domain ohne Kenntlichmachung als externer Auftragnehmer; im Telefonverzeichnis gelistet.", "safe_harbor_desc": "Kommunikation über eigene Unternehmens-Domain (@eigenefirma.de) oder klar getrennten B2B-Guest-Channel mit '[Extern - Firma XY]'-Signatur.", "herrenberg_critical": true}, {"id": "C03_TICKET_PUSH_WITHOUT_ACCEPTANCE", "code": "DRV-03", "category": "Weisungsgebundenheit (§ 7 Abs. 1 S. 2 SGB IV)", "title": "Einseitige Einzelaufgaben-Zuweisung (Jira/Asana-Push) ohne Werk-Abnahmeprotokoll (§ 640 BGB)", "legal_ref": "§ 611a BGB vs. §§ 631, 640 BGB", "weight_points": 12, "red_flag_desc": "Kunden-Product-Owner weist laufend Einzeltickets direkt zu; Abrechnung rein nach abgeleisteten Stunden ohne Leistungsabnahme.", "safe_harbor_desc": "Abgeschlossene Leistungspakete (Statement of Work / Gewerk) mit förmlichem Abnahmeprotokoll (§ 640 BGB) und Nachbesserungspflicht.", "herrenberg_critical": true}, {"id": "C04_TIME_AND_LEAVE_APPROVAL", "code": "DRV-04", "category": "Weisungsgebundenheit (§ 7 Abs. 1 S. 2 SGB IV)", "title": "Feste Kernarbeitszeiten, Schichtpläne, Urlaubsgenehmigung oder Krankmeldung beim Teamleiter", "legal_ref": "§ 7 Abs. 1 S. 2 SGB IV / § 611a Abs. 1 S. 2 BGB", "weight_points": 10, "red_flag_desc": "Abwesenheiten müssen vom Abteilungsleiter genehmigt oder im internen HR-Tool (Personio/Workday) eingetragen werden.", "safe_harbor_desc": "Freie Zeiteinteilung; lediglich unverbindliche Information über Nichtverfügbarkeit zur Projektkoordination.", "herrenberg_critical": true}, {"id": "C05_CLIENT_HARDWARE_AND_PREMISES", "code": "DRV-05", "category": "Eingliederung & Betriebsmittel", "title": "Ausschließliche Nutzung von Kunden-Hardware / festen Büroplätzen ohne eigene Betriebsmittel", "legal_ref": "BSG B 12 R 11/18 R (Honorararzt) / B 12 R 3/20 R", "weight_points": 8, "red_flag_desc": "Arbeit ausschließlich auf gestelltem Kunden-Laptop ohne eigene Lizenzen/Infrastruktur oder an zugewiesenem Schreibtisch vor Ort.", "safe_harbor_desc": "Einsatz eigener Hardware, eigener Entwicklungsumgebung/Software-Lizenzen; VPN/VDI-Zugang ausschließlich aus nachgewiesenen IT-Sec/DSGVO-Gründen.", "herrenberg_critical": true}, {"id": "C06_PERSONAL_SERVICE_NO_SUBSTITUTION", "code": "DRV-06", "category": "Persönliche Abhängigkeit", "title": "Höchstpersönliche Leistungspflicht & Verbot von Subunternehmern / Vertretung (§ 613 BGB)", "legal_ref": "§ 613 BGB vs. § 631 BGB / DRV V0027", "weight_points": 8, "red_flag_desc": "Vertrag verpflichtet zur höchstpersönlichen Leistungserbringung; Einsatz eigener Mitarbeiter oder qualifizierter Vertreter ist untersagt.", "safe_harbor_desc": "Vertragliches Recht zur Leistungserbringung durch qualifizierte Erfüllungsgehilfen / Subunternehmer (§ 278 BGB) auf eigene Rechnung.", "herrenberg_critical": false}, {"id": "C07_NO_ENTREPRENEURIAL_WARRANTY_RISK", "code": "DRV-07", "category": "Unternehmerrisiko", "title": "Kein eigenes Unternehmerrisiko: Stundensatz-Garantie ohne Gewährleistung / Mängelhaftung (§ 634 BGB)", "legal_ref": "BSG B 12 R 11/18 R / §§ 633, 634 BGB", "weight_points": 10, "red_flag_desc": "Jede aufgewendete Stunde wird vergütet (auch Nacharbeit/Bugfixing); keine Berufshaftpflicht, kein Risiko unbezahlter Nachbesserung.", "safe_harbor_desc": "Vergütung knüpft an abgenommene Ergebnisse oder Meilensteine; Nachbesserung von Mängeln erfolgt auf eigenes Zeit-/Kostenrisiko; eigene Betriebshaftpflicht.", "herrenberg_critical": true}, {"id": "C08_SAME_WORK_AS_EMPLOYEES", "code": "DRV-08", "category": "Eingliederung (§ 7 Abs. 1 S. 2 SGB IV)", "title": "Identische Tätigkeit Seite an Seite mit festangestellten Arbeitnehmern (oder früheres Arbeitsverhältnis)", "legal_ref": "§ 7 Abs. 1 SGB IV / DRV Prüfpraxis", "weight_points": 8, "red_flag_desc": "Freelancer übernimmt 1:1 dieselben Linienaufgaben wie Festangestellte im selben Team oder war zuvor dort angestellt.", "safe_harbor_desc": "Klar abgegrenztes Spezialprojekt / Wissenstransfer außerhalb des regulären Tagesbetriebs mit eigenständigem Leistungsgegenstand.", "herrenberg_critical": true}, {"id": "C09_CURRICULUM_OR_METHOD_DICTATION", "code": "DRV-09", "category": "Herrenberg-Kriterium (Fachliche/Didaktische Vorgaben)", "title": "Vorgegebene Lehrpläne, Prüfungsordnungen, Unterrichtsräume oder strikte Prozessvorgaben (Herrenberg-Falle)", "legal_ref": "BSG B 12 R 3/20 R (Herrenberg) / § 127 SGB IV", "weight_points": 8, "red_flag_desc": "Bildungsträger/Auftraggeber gibt Curriculum, Unterrichtsmaterial, Zeitfenster, Räume und Teilnehmerlisten verbindlich vor.", "safe_harbor_desc": "Eigene methodische Gestaltung, eigene Schulungsunterlagen, kein Vertretungszwang innerhalb einer fremden Schulorganisation (oder § 127 SGB IV Schutz bis 2027).", "herrenberg_critical": true}, {"id": "C10_EXCLUSIVITY_AND_NON_COMPETE", "code": "DRV-10", "category": "Wirtschaftliche & Rechtliche Bindung", "title": "Wettbewerbsverbot oder Genehmigungspflicht für weitere Auftraggeber", "legal_ref": "§ 7 Abs. 1 SGB IV / § 7a SGB IV", "weight_points": 6, "red_flag_desc": "Vertrag untersagt parallele Aufträge für andere Kunden oder macht Nebentätigkeiten von der Zustimmung des Auftraggebers abhängig.", "safe_harbor_desc": "Ausdrückliche Freiheit, jederzeit für beliebige andere Auftraggeber (auch im selben Marktsegment unter Wahrung der Vertraulichkeit) tätig zu sein.", "herrenberg_critical": false}, {"id": "C11_NO_MARKET_PRESENCE_OR_STAFF", "code": "DRV-11", "category": "Unternehmerischer Außenauftritt", "title": "Kein eigener Marktauftritt (keine Website, kein eigenes Briefpapier, keine eigenen Mitarbeitenden)", "legal_ref": "DRV V0027 / § 2 S. 1 Nr. 9 SGB VI", "weight_points": 5, "red_flag_desc": "Keine eigene Unternehmenswebsite, keine Kundenakquise am Markt, keine eigenen sozialversicherungspflichtigen Beschäftigten.", "safe_harbor_desc": "Eigener Marktauftritt (Website, Portfolio, Rahmenverträge mit mehreren Kunden, eigenes Backoffice oder eigene Beschäftigte).", "herrenberg_critical": false}, {"id": "C12_EMPLOYEE_PERKS_AND_CONTINUOUS_DURATION", "code": "DRV-12", "category": "Soziale Typik & Dauerbindung", "title": "Überlange Projektdauer (> 18–24 Monate) im Dauerbetrieb oder Arbeitnehmer-Benefits (Urlaubsgeld/Hardware-Leasing)", "legal_ref": "§ 7 Abs. 1 SGB IV / FKS-Prüfraster", "weight_points": 5, "red_flag_desc": "Ununterbrochene Vollzeit-Beauftragung über Jahre ohne sachlichen Projektabschluss; Teilnahme an Mitarbeiterevents oder bezahlter Urlaub.", "safe_harbor_desc": "Befristete, sachlich definierte Einzelgewerke mit klarem Projektende und rein leistungsbezogener Vergütung.", "herrenberg_critical": false}];
+const CLAUSES = [{"rule_id": "SAN-01", "title": "Leistungsgegenstand & Abnahme (§ 611 BGB Dienst -> § 631 / § 640 BGB Werk/Erfolg)", "risk_category": "Weisungsgebundenheit & Fehlendes Unternehmerrisiko", "legal_basis": "§§ 631, 640 BGB vs. § 611a BGB", "toxic_clause_de": "„Der Auftragnehmer unterstützt das Entwicklerteam des Auftraggebers im Rahmen von 40 Stunden pro Woche nach näherer Weisung des Product Owners / Teamleiters. Die Abrechnung erfolgt monatlich nach genehmigten Stundenzetteln.“", "why_drv_flags_it": "Klassische Arbeitnehmer-Klausel: Schuldet nur Zeit/Bemühen unter laufendem Direktionsrecht des Teamleiters ohne Werk-Abnahme oder Mängelrisiko.", "sanitized_werkvertrag_clause_de": "„Der Auftragnehmer übernimmt die eigenverantwortliche Erstellung des in Anlage 1 (Leistungsschein / Statement of Work) abschließend spezifizierten Gewerks. Ein Weisungsrecht des Auftraggebers hinsichtlich Arbeitszeit, Arbeitsort und Art der Ausführung besteht nicht. Die Vergütung wird nach förmlicher Abnahme des Gewerks gemäß § 640 BGB (Abnahmeprotokoll) fällig.“", "operational_action": "Stundenzettel durch monatliche Werk-Teil-Abnahmeprotokolle (§ 640 BGB) ersetzen; Jira-Tickets nur als Spezifikations-Artefakte eines vorab beauftragten Gewerks führen."}, {"rule_id": "SAN-02", "title": "Agile Zusammenarbeit & Kommunikation (Entflechtung aus fremder Arbeitsorganisation)", "risk_category": "Betriebliche Eingliederung (BSG Herrenberg B 12 R 3/20 R)", "legal_basis": "§ 7 Abs. 1 S. 2 SGB IV / BSG B 12 R 3/20 R", "toxic_clause_de": "„Der Auftragnehmer nimmt täglich am 09:00 Uhr Daily Standup sowie den Sprint-Zeremonien teil und nutzt hierfür die ihm zugewiesene @auftraggeber.de E-Mail-Adresse sowie den internen Team-Chat.“", "why_drv_flags_it": "Nach der neueren BSG-Rechtsprechung begründet die Einbettung in agile Team-Routinen und interne Kommunikationskanäle eine „funktionell verfeinerte Weisungsgebundenheit“ durch organisatorische Eingliederung.", "sanitized_werkvertrag_clause_de": "„Die Abstimmung über Schnittstellen und Abnahmekriterien erfolgt zwischen den benannten Projektverantwortlichen in anlassbezogenen B2B-Koordinationsgesprächen. Der Auftragnehmer tritt im gesamten Schriftverkehr unter seiner eigenen Unternehmenskennzeichnung auf und ist nicht in interne Personal- oder Teamstrukturen des Auftraggebers eingebunden.“", "operational_action": "Eigene @auftragnehmer.de Adresse nutzen; in Slack/Teams als 'Single-Channel Guest' mit Suffix '[Extern - Firma]' führen; keine Pflichtteilnahme an internen Dailies."}, {"rule_id": "SAN-03", "title": "Vertretungsbefugnis & Erfüllungsgehilfen (§ 278 BGB statt § 613 BGB)", "risk_category": "Höchstpersönliche Leistungspflicht", "legal_basis": "§ 278 BGB vs. § 613 S. 1 BGB", "toxic_clause_de": "„Der Auftragnehmer hat die Leistung höchstpersönlich zu erbringen. Die Einschaltung Dritter oder eigener Mitarbeiter ist ausgeschlossen. Urlaub ist mindestens 14 Tage vorab mit der Abteilungsleitung abzustimmen.“", "why_drv_flags_it": "Höchstpersönliche Leistungspflicht kombiniert mit Urlaubsabstimmung ist ein Kernindiz für ein Arbeitsverhältnis (§ 611a BGB).", "sanitized_werkvertrag_clause_de": "„Der Auftragnehmer ist berechtigt, zur Leistungserbringung fachlich qualifizierte eigene Mitarbeitende oder Nachunternehmer als Erfüllungsgehilfen (§ 278 BGB) einzusetzen. Der Auftragnehmer teilt seine Einsatzzeiten vollkommen frei ein; eine Urlaubs- oder Abwesenheitsgenehmigung durch den Auftraggeber findet nicht statt.“", "operational_action": "Aus HR-Urlaubskalendern (Personio/Workday/Confluence-Teamkalender) streichen; Substitutionsrecht vertraglich verankern."}, {"rule_id": "SAN-04", "title": "Gewährleistung, Haftung & Betriebsmittel (Echtes Unternehmerrisiko)", "risk_category": "Fehlendes Unternehmerrisiko", "legal_basis": "§§ 633, 634 BGB / BSG B 12 R 11/18 R", "toxic_clause_de": "„Der Auftraggeber stellt dem Auftragnehmer sämtliche Arbeitsmittel (Laptop, Softwarelizenzen, Büroarbeitsplatz) unentgeltlich zur Verfügung. Nacharbeiten werden zum vereinbarten Stundensatz vergütet.“", "why_drv_flags_it": "Wer ohne eigene Betriebsmittel arbeitet und selbst für Fehlerbehebung nach Stunden bezahlt wird, trägt kein unternehmerisches Risiko.", "sanitized_werkvertrag_clause_de": "„Der Auftragnehmer setzt eigene Hard- und Software sowie eigene Betriebsmittel auf eigene Kosten ein. Für Mängel des Gewerks haftet der Auftragnehmer nach §§ 633 ff. BGB; erforderliche Nacherfüllungen erfolgen unentgeltlich auf eigenes Zeit- und Kostenrisiko. Der Auftragnehmer unterhält eine Berufshaftpflichtversicherung (Deckungssumme mind. 1,0 Mio. EUR).“", "operational_action": "Eigene Hardware nutzen (falls Kunden-VDI wegen ISO 27001 zwingend ist: Sicherheits-Addendum oder monatliche Nutzungsgebühr vereinbaren); Berufshaftpflicht-Police im Dossier hinterlegen."}, {"rule_id": "SAN-05", "title": "Honorardozenten & Bildungsträger (§ 127 SGB IV Schutzschirm & Didaktische Freiheit)", "risk_category": "Herrenberg-Urteil (BSG B 12 R 3/20 R)", "legal_basis": "§ 127 SGB IV (verlängert bis 31.12.2027) / § 2 S. 1 Nr. 1 SGB VI", "toxic_clause_de": "„Die Lehrkraft unterrichtet nach dem verbindlichen Lehrplan der Akademie in den zugewiesenen Unterrichtsräumen, führt Anwesenheitslisten und nimmt an den Lehrerkonferenzen teil.“", "why_drv_flags_it": "Exakt der Sachverhalt des BSG-Herrenberg-Urteils (B 12 R 3/20 R): Eingliederung in die Schulorganisation führt trotz pädagogischer Freiheit zur abhängigen Beschäftigung.", "sanitized_werkvertrag_clause_de": "„Der Dozent konzipiert und hält eigenverantwortliche Fachseminare mit eigenen Lehrmaterialien außerhalb einer schulischen Betriebsorganisation. Vorsorglich erklären beide Parteien gemäß § 127 Abs. 1 SGB IV übereinstimmend, dass sie von einer selbstständigen Tätigkeit ausgehen, und die Lehrkraft stimmt der Übergangsregelung nach § 127 SGB IV (Schutz vor Beitragsnachforderungen bis 31.12.2027) ausdrücklich zu.“", "operational_action": "Schriftliche Zustimmungserklärung der Lehrkraft nach § 127 Abs. 1 Nr. 2 SGB IV sofort unterzeichnen lassen und zur Personal-/Vertragsakte nehmen!"}];
+const CASES = [{"profile": {"case_id": "CASE_01_IT_SCRUM_EMBEDDED", "name": "Lukas M. — Embedded Senior Cloud/DevOps Contractor", "role_title": "Senior Kubernetes & Platform Engineer (IT-Freelancer)", "client_name": "FinTech ScaleUp GmbH (München)", "contract_type_label": "Dienstvertrag auf Stundenbasis (€115/h, 160h/Monat)", "monthly_net_honorarium_eur": 18400.0, "duration_months": 30, "single_client_revenue_share_pct": 92.0, "has_sv_employee_above_minijob": false, "combined_minijob_payroll_eur": 0.0, "months_since_business_start": 42, "is_teaching_activity": false, "has_sec127_consent": false, "agency_intermediary_involved": true, "vorsatz_alleged_by_fks": true, "active_red_flags": {"C01_AGILE_SCRUM_CEREMONIES": 1.0, "C02_INTERNAL_COMMS_EMAIL_SLACK": 1.0, "C03_TICKET_PUSH_WITHOUT_ACCEPTANCE": 1.0, "C04_TIME_AND_LEAVE_APPROVAL": 0.5, "C05_CLIENT_HARDWARE_AND_PREMISES": 1.0, "C06_PERSONAL_SERVICE_NO_SUBSTITUTION": 1.0, "C07_NO_ENTREPRENEURIAL_WARRANTY_RISK": 1.0, "C08_SAME_WORK_AS_EMPLOYEES": 1.0, "C09_CURRICULUM_OR_METHOD_DICTATION": 0.5, "C10_EXCLUSIVITY_AND_NON_COMPETE": 0.5, "C11_NO_MARKET_PRESENCE_OR_STAFF": 0.5, "C12_EMPLOYEE_PERKS_AND_CONTINUOUS_DURATION": 1.0}}, "drv_status": {"score_points": 87.5, "max_points": 102, "risk_pct": 85.8, "status_band": "CRITICAL_SCHEINSELBSTSTAENDIG", "drv_verdict_label": "AKUTE SCHEINSELBSTSTÄNDIGKEIT (§ 7 Abs. 1 SGB IV — Abhängige Beschäftigung)", "herrenberg_alert_triggered": true, "herrenberg_red_flag_count": 8, "sec7a_procedural_options": ["§ 7a Abs. 4a SGB IV: Prognoseentscheidung vor Auftragsbeginn beantragen (Formular V0027 + Leistungsschein).", "§ 7a Abs. 4b SGB IV: Gutachterliche Gruppenfeststellung für gleichartige Contractor-Verträge nutzen.", "§ 7a Abs. 2 S. 2–4 SGB IV (Dreiecksverhältnis): Zwischenschaltung einer Personalagentur schützt NICHT vor Durchgriff auf den Endkunden, wenn Eingliederung beim Endkunden erfolgt!"], "sec127_dozent_shield_status": "Nicht anwendbar (§ 127 SGB IV gilt ausschließlich für Lehrtätigkeiten).", "triggered_criteria": [{"id": "C01_AGILE_SCRUM_CEREMONIES", "code": "DRV-01", "category": "Eingliederung (§ 7 Abs. 1 S. 2 SGB IV)", "title": "Pflichtteilnahme an Daily Standups, Sprint-Plannings & internen Regelterminen", "legal_ref": "§ 7 Abs. 1 S. 2 SGB IV / BSG B 12 R 3/20 R", "weight_points": 12, "severity": 1.0, "weighted_points": 12.0, "herrenberg_critical": true, "red_flag_desc": "Freelancer nimmt täglich verpflichtend am internen Scrum-Daily & Retrospektiven gemeinsam mit Festangestellten teil.", "safe_harbor_desc": "Asynchrone Meilenstein-Abstimmung über definierte Schnittstellen (B2B-Jour-Fixe nur zur Übergabe/Abnahme)."}, {"id": "C02_INTERNAL_COMMS_EMAIL_SLACK", "code": "DRV-02", "category": "Eingliederung (§ 7 Abs. 1 S. 2 SGB IV)", "title": "Eigene @kunde.de E-Mail-Adresse, interner Slack/Teams-Account ohne '[Extern]'-Label & Organigramm-Listung", "legal_ref": "§ 7 Abs. 1 SGB IV / DRV V0027 Ziff. 4", "weight_points": 10, "severity": 1.0, "weighted_points": 10.0, "herrenberg_critical": true, "red_flag_desc": "Auftreten nach außen/innen unter Kunden-Domain ohne Kenntlichmachung als externer Auftragnehmer; im Telefonverzeichnis gelistet.", "safe_harbor_desc": "Kommunikation über eigene Unternehmens-Domain (@eigenefirma.de) oder klar getrennten B2B-Guest-Channel mit '[Extern - Firma XY]'-Signatur."}, {"id": "C03_TICKET_PUSH_WITHOUT_ACCEPTANCE", "code": "DRV-03", "category": "Weisungsgebundenheit (§ 7 Abs. 1 S. 2 SGB IV)", "title": "Einseitige Einzelaufgaben-Zuweisung (Jira/Asana-Push) ohne Werk-Abnahmeprotokoll (§ 640 BGB)", "legal_ref": "§ 611a BGB vs. §§ 631, 640 BGB", "weight_points": 12, "severity": 1.0, "weighted_points": 12.0, "herrenberg_critical": true, "red_flag_desc": "Kunden-Product-Owner weist laufend Einzeltickets direkt zu; Abrechnung rein nach abgeleisteten Stunden ohne Leistungsabnahme.", "safe_harbor_desc": "Abgeschlossene Leistungspakete (Statement of Work / Gewerk) mit förmlichem Abnahmeprotokoll (§ 640 BGB) und Nachbesserungspflicht."}, {"id": "C04_TIME_AND_LEAVE_APPROVAL", "code": "DRV-04", "category": "Weisungsgebundenheit (§ 7 Abs. 1 S. 2 SGB IV)", "title": "Feste Kernarbeitszeiten, Schichtpläne, Urlaubsgenehmigung oder Krankmeldung beim Teamleiter", "legal_ref": "§ 7 Abs. 1 S. 2 SGB IV / § 611a Abs. 1 S. 2 BGB", "weight_points": 10, "severity": 0.5, "weighted_points": 5.0, "herrenberg_critical": true, "red_flag_desc": "Abwesenheiten müssen vom Abteilungsleiter genehmigt oder im internen HR-Tool (Personio/Workday) eingetragen werden.", "safe_harbor_desc": "Freie Zeiteinteilung; lediglich unverbindliche Information über Nichtverfügbarkeit zur Projektkoordination."}, {"id": "C05_CLIENT_HARDWARE_AND_PREMISES", "code": "DRV-05", "category": "Eingliederung & Betriebsmittel", "title": "Ausschließliche Nutzung von Kunden-Hardware / festen Büroplätzen ohne eigene Betriebsmittel", "legal_ref": "BSG B 12 R 11/18 R (Honorararzt) / B 12 R 3/20 R", "weight_points": 8, "severity": 1.0, "weighted_points": 8.0, "herrenberg_critical": true, "red_flag_desc": "Arbeit ausschließlich auf gestelltem Kunden-Laptop ohne eigene Lizenzen/Infrastruktur oder an zugewiesenem Schreibtisch vor Ort.", "safe_harbor_desc": "Einsatz eigener Hardware, eigener Entwicklungsumgebung/Software-Lizenzen; VPN/VDI-Zugang ausschließlich aus nachgewiesenen IT-Sec/DSGVO-Gründen."}, {"id": "C06_PERSONAL_SERVICE_NO_SUBSTITUTION", "code": "DRV-06", "category": "Persönliche Abhängigkeit", "title": "Höchstpersönliche Leistungspflicht & Verbot von Subunternehmern / Vertretung (§ 613 BGB)", "legal_ref": "§ 613 BGB vs. § 631 BGB / DRV V0027", "weight_points": 8, "severity": 1.0, "weighted_points": 8.0, "herrenberg_critical": false, "red_flag_desc": "Vertrag verpflichtet zur höchstpersönlichen Leistungserbringung; Einsatz eigener Mitarbeiter oder qualifizierter Vertreter ist untersagt.", "safe_harbor_desc": "Vertragliches Recht zur Leistungserbringung durch qualifizierte Erfüllungsgehilfen / Subunternehmer (§ 278 BGB) auf eigene Rechnung."}, {"id": "C07_NO_ENTREPRENEURIAL_WARRANTY_RISK", "code": "DRV-07", "category": "Unternehmerrisiko", "title": "Kein eigenes Unternehmerrisiko: Stundensatz-Garantie ohne Gewährleistung / Mängelhaftung (§ 634 BGB)", "legal_ref": "BSG B 12 R 11/18 R / §§ 633, 634 BGB", "weight_points": 10, "severity": 1.0, "weighted_points": 10.0, "herrenberg_critical": true, "red_flag_desc": "Jede aufgewendete Stunde wird vergütet (auch Nacharbeit/Bugfixing); keine Berufshaftpflicht, kein Risiko unbezahlter Nachbesserung.", "safe_harbor_desc": "Vergütung knüpft an abgenommene Ergebnisse oder Meilensteine; Nachbesserung von Mängeln erfolgt auf eigenes Zeit-/Kostenrisiko; eigene Betriebshaftpflicht."}, {"id": "C08_SAME_WORK_AS_EMPLOYEES", "code": "DRV-08", "category": "Eingliederung (§ 7 Abs. 1 S. 2 SGB IV)", "title": "Identische Tätigkeit Seite an Seite mit festangestellten Arbeitnehmern (oder früheres Arbeitsverhältnis)", "legal_ref": "§ 7 Abs. 1 SGB IV / DRV Prüfpraxis", "weight_points": 8, "severity": 1.0, "weighted_points": 8.0, "herrenberg_critical": true, "red_flag_desc": "Freelancer übernimmt 1:1 dieselben Linienaufgaben wie Festangestellte im selben Team oder war zuvor dort angestellt.", "safe_harbor_desc": "Klar abgegrenztes Spezialprojekt / Wissenstransfer außerhalb des regulären Tagesbetriebs mit eigenständigem Leistungsgegenstand."}, {"id": "C09_CURRICULUM_OR_METHOD_DICTATION", "code": "DRV-09", "category": "Herrenberg-Kriterium (Fachliche/Didaktische Vorgaben)", "title": "Vorgegebene Lehrpläne, Prüfungsordnungen, Unterrichtsräume oder strikte Prozessvorgaben (Herrenberg-Falle)", "legal_ref": "BSG B 12 R 3/20 R (Herrenberg) / § 127 SGB IV", "weight_points": 8, "severity": 0.5, "weighted_points": 4.0, "herrenberg_critical": true, "red_flag_desc": "Bildungsträger/Auftraggeber gibt Curriculum, Unterrichtsmaterial, Zeitfenster, Räume und Teilnehmerlisten verbindlich vor.", "safe_harbor_desc": "Eigene methodische Gestaltung, eigene Schulungsunterlagen, kein Vertretungszwang innerhalb einer fremden Schulorganisation (oder § 127 SGB IV Schutz bis 2027)."}, {"id": "C10_EXCLUSIVITY_AND_NON_COMPETE", "code": "DRV-10", "category": "Wirtschaftliche & Rechtliche Bindung", "title": "Wettbewerbsverbot oder Genehmigungspflicht für weitere Auftraggeber", "legal_ref": "§ 7 Abs. 1 SGB IV / § 7a SGB IV", "weight_points": 6, "severity": 0.5, "weighted_points": 3.0, "herrenberg_critical": false, "red_flag_desc": "Vertrag untersagt parallele Aufträge für andere Kunden oder macht Nebentätigkeiten von der Zustimmung des Auftraggebers abhängig.", "safe_harbor_desc": "Ausdrückliche Freiheit, jederzeit für beliebige andere Auftraggeber (auch im selben Marktsegment unter Wahrung der Vertraulichkeit) tätig zu sein."}, {"id": "C11_NO_MARKET_PRESENCE_OR_STAFF", "code": "DRV-11", "category": "Unternehmerischer Außenauftritt", "title": "Kein eigener Marktauftritt (keine Website, kein eigenes Briefpapier, keine eigenen Mitarbeitenden)", "legal_ref": "DRV V0027 / § 2 S. 1 Nr. 9 SGB VI", "weight_points": 5, "severity": 0.5, "weighted_points": 2.5, "herrenberg_critical": false, "red_flag_desc": "Keine eigene Unternehmenswebsite, keine Kundenakquise am Markt, keine eigenen sozialversicherungspflichtigen Beschäftigten.", "safe_harbor_desc": "Eigener Marktauftritt (Website, Portfolio, Rahmenverträge mit mehreren Kunden, eigenes Backoffice oder eigene Beschäftigte)."}, {"id": "C12_EMPLOYEE_PERKS_AND_CONTINUOUS_DURATION", "code": "DRV-12", "category": "Soziale Typik & Dauerbindung", "title": "Überlange Projektdauer (> 18–24 Monate) im Dauerbetrieb oder Arbeitnehmer-Benefits (Urlaubsgeld/Hardware-Leasing)", "legal_ref": "§ 7 Abs. 1 SGB IV / FKS-Prüfraster", "weight_points": 5, "severity": 1.0, "weighted_points": 5.0, "herrenberg_critical": false, "red_flag_desc": "Ununterbrochene Vollzeit-Beauftragung über Jahre ohne sachlichen Projektabschluss; Teilnahme an Mitarbeiterevents oder bezahlter Urlaub.", "safe_harbor_desc": "Befristete, sachlich definierte Einzelgewerke mit klarem Projektende und rein leistungsbezogener Vergütung."}]}, "employer_clawback": {"duration_months_audited": 30, "monthly_net_honorarium_eur": 18400.0, "vorsatz_nettolohnfiktion_active": true, "fictional_gross_monthly_eur": 27878.79, "monthly_rv_av_eur": 1706.6, "monthly_kv_pv_eur": 1141.09, "monthly_total_sv_eur": 2847.69, "total_sv_arrears_eur": 85430.7, "saeumniszuschlag_sec24_eur": 13241.76, "vat_clawback_sec15_ustg_eur": 104880.0, "total_employer_damage_eur": 203552.46, "normal_no_vorsatz_total_eur": 196931.58, "vorsatz_worst_case_total_eur": 203552.46, "criminal_exposure_note": "AKUTES STRAFBARKEITSRISIKO nach § 266a StGB (Vorenthalten und Veruntreuen von Arbeitsentgelt) für Geschäftsführer + Nettolohnfiktion (§ 14 Abs. 2 S. 2 SGB IV) + 12% p.a. Säumniszuschläge (§ 24 Abs. 1 SGB IV)!"}, "sec2_nr9_sgb_vi": {"single_client_share_pct": 92.0, "exceeds_five_sixths_threshold": true, "employee_exemption_met": false, "startup_exemption_eligible": false, "startup_three_month_deadline_open": false, "rv_pflicht_active": true, "pension_assessment_base_monthly_eur": 8050.0, "monthly_rv_contribution_eur": 1497.3, "annual_rv_contribution_eur": 17967.6, "four_year_retroactive_rv_eur": 44919.0, "escape_strategies": ["MITARBEITER-HEBEL (§ 2 S. 1 Nr. 9a SGB VI): 1 sozialversicherungspflichtigen Mitarbeiter (z.B. Werkstudent/Midijob > €556/Monat, z.B. €600/Monat) oder zwei Minijobber mit zusammen > €556/Monat einstellen -> beendet die 18,6% RV-Pflicht (€1,497.30/Monat) sofort legal!", "UMSATZ-DIVERSIFIKATION (§ 2 S. 1 Nr. 9b SGB VI): Zweit-/Drittkunden-Umsatz auf > 16,67% des Jahresumsatzes ausbauen (Hauptkunden-Anteil < 83,33%). Achtung: Konzernverbundene Unternehmen (§ 18 AktG) zählen bei der DRV als EIN einziger Auftraggeber!"], "verdict_summary": "RENTENVERSICHERUNGSPFLICHTIG NACH § 2 SATZ 1 NR. 9 SGB VI: 92.0% Umsatz bei 1 Auftraggeber (>= 83,33%) ohne Mitarbeiter > €556/Monat -> Freelancer schuldet selbst 18,6% RV (€1,497.30/Monat bzw. €17,967.60/Jahr)!"}}, {"profile": {"case_id": "CASE_02_DOZENT_HERRENBERG", "name": "Dr. Elena V. — AI & Data Science Academy Dozentin", "role_title": "Honorardozentin & Curriculum Lead (Weiterbildungsakademie)", "client_name": "DACH TechBootcamp & Akademie GmbH (Berlin)", "contract_type_label": "Freier Dozenten-Honorarvertrag (€6,800/Monat)", "monthly_net_honorarium_eur": 6800.0, "duration_months": 24, "single_client_revenue_share_pct": 78.0, "has_sv_employee_above_minijob": false, "combined_minijob_payroll_eur": 0.0, "months_since_business_start": 36, "is_teaching_activity": true, "has_sec127_consent": false, "agency_intermediary_involved": false, "vorsatz_alleged_by_fks": false, "active_red_flags": {"C01_AGILE_SCRUM_CEREMONIES": 0.5, "C02_INTERNAL_COMMS_EMAIL_SLACK": 1.0, "C03_TICKET_PUSH_WITHOUT_ACCEPTANCE": 0.5, "C04_TIME_AND_LEAVE_APPROVAL": 1.0, "C05_CLIENT_HARDWARE_AND_PREMISES": 1.0, "C06_PERSONAL_SERVICE_NO_SUBSTITUTION": 1.0, "C07_NO_ENTREPRENEURIAL_WARRANTY_RISK": 1.0, "C08_SAME_WORK_AS_EMPLOYEES": 0.5, "C09_CURRICULUM_OR_METHOD_DICTATION": 1.0, "C10_EXCLUSIVITY_AND_NON_COMPETE": 0.0, "C11_NO_MARKET_PRESENCE_OR_STAFF": 0.5, "C12_EMPLOYEE_PERKS_AND_CONTINUOUS_DURATION": 0.5}}, "drv_status": {"score_points": 75.0, "max_points": 102, "risk_pct": 73.5, "status_band": "CRITICAL_SCHEINSELBSTSTAENDIG", "drv_verdict_label": "AKUTE SCHEINSELBSTSTÄNDIGKEIT (§ 7 Abs. 1 SGB IV — Abhängige Beschäftigung)", "herrenberg_alert_triggered": true, "herrenberg_red_flag_count": 8, "sec7a_procedural_options": ["§ 7a Abs. 4a SGB IV: Prognoseentscheidung vor Auftragsbeginn beantragen (Formular V0027 + Leistungsschein).", "§ 7a Abs. 4b SGB IV: Gutachterliche Gruppenfeststellung für gleichartige Contractor-Verträge nutzen."], "sec127_dozent_shield_status": "WARNUNG (§ 127 SGB IV Schutzschirm möglich, aber Zustimmungserklärung der Lehrkraft nach § 127 Abs. 1 Nr. 2 SGB IV fehlt noch!)", "triggered_criteria": [{"id": "C01_AGILE_SCRUM_CEREMONIES", "code": "DRV-01", "category": "Eingliederung (§ 7 Abs. 1 S. 2 SGB IV)", "title": "Pflichtteilnahme an Daily Standups, Sprint-Plannings & internen Regelterminen", "legal_ref": "§ 7 Abs. 1 S. 2 SGB IV / BSG B 12 R 3/20 R", "weight_points": 12, "severity": 0.5, "weighted_points": 6.0, "herrenberg_critical": true, "red_flag_desc": "Freelancer nimmt täglich verpflichtend am internen Scrum-Daily & Retrospektiven gemeinsam mit Festangestellten teil.", "safe_harbor_desc": "Asynchrone Meilenstein-Abstimmung über definierte Schnittstellen (B2B-Jour-Fixe nur zur Übergabe/Abnahme)."}, {"id": "C02_INTERNAL_COMMS_EMAIL_SLACK", "code": "DRV-02", "category": "Eingliederung (§ 7 Abs. 1 S. 2 SGB IV)", "title": "Eigene @kunde.de E-Mail-Adresse, interner Slack/Teams-Account ohne '[Extern]'-Label & Organigramm-Listung", "legal_ref": "§ 7 Abs. 1 SGB IV / DRV V0027 Ziff. 4", "weight_points": 10, "severity": 1.0, "weighted_points": 10.0, "herrenberg_critical": true, "red_flag_desc": "Auftreten nach außen/innen unter Kunden-Domain ohne Kenntlichmachung als externer Auftragnehmer; im Telefonverzeichnis gelistet.", "safe_harbor_desc": "Kommunikation über eigene Unternehmens-Domain (@eigenefirma.de) oder klar getrennten B2B-Guest-Channel mit '[Extern - Firma XY]'-Signatur."}, {"id": "C03_TICKET_PUSH_WITHOUT_ACCEPTANCE", "code": "DRV-03", "category": "Weisungsgebundenheit (§ 7 Abs. 1 S. 2 SGB IV)", "title": "Einseitige Einzelaufgaben-Zuweisung (Jira/Asana-Push) ohne Werk-Abnahmeprotokoll (§ 640 BGB)", "legal_ref": "§ 611a BGB vs. §§ 631, 640 BGB", "weight_points": 12, "severity": 0.5, "weighted_points": 6.0, "herrenberg_critical": true, "red_flag_desc": "Kunden-Product-Owner weist laufend Einzeltickets direkt zu; Abrechnung rein nach abgeleisteten Stunden ohne Leistungsabnahme.", "safe_harbor_desc": "Abgeschlossene Leistungspakete (Statement of Work / Gewerk) mit förmlichem Abnahmeprotokoll (§ 640 BGB) und Nachbesserungspflicht."}, {"id": "C04_TIME_AND_LEAVE_APPROVAL", "code": "DRV-04", "category": "Weisungsgebundenheit (§ 7 Abs. 1 S. 2 SGB IV)", "title": "Feste Kernarbeitszeiten, Schichtpläne, Urlaubsgenehmigung oder Krankmeldung beim Teamleiter", "legal_ref": "§ 7 Abs. 1 S. 2 SGB IV / § 611a Abs. 1 S. 2 BGB", "weight_points": 10, "severity": 1.0, "weighted_points": 10.0, "herrenberg_critical": true, "red_flag_desc": "Abwesenheiten müssen vom Abteilungsleiter genehmigt oder im internen HR-Tool (Personio/Workday) eingetragen werden.", "safe_harbor_desc": "Freie Zeiteinteilung; lediglich unverbindliche Information über Nichtverfügbarkeit zur Projektkoordination."}, {"id": "C05_CLIENT_HARDWARE_AND_PREMISES", "code": "DRV-05", "category": "Eingliederung & Betriebsmittel", "title": "Ausschließliche Nutzung von Kunden-Hardware / festen Büroplätzen ohne eigene Betriebsmittel", "legal_ref": "BSG B 12 R 11/18 R (Honorararzt) / B 12 R 3/20 R", "weight_points": 8, "severity": 1.0, "weighted_points": 8.0, "herrenberg_critical": true, "red_flag_desc": "Arbeit ausschließlich auf gestelltem Kunden-Laptop ohne eigene Lizenzen/Infrastruktur oder an zugewiesenem Schreibtisch vor Ort.", "safe_harbor_desc": "Einsatz eigener Hardware, eigener Entwicklungsumgebung/Software-Lizenzen; VPN/VDI-Zugang ausschließlich aus nachgewiesenen IT-Sec/DSGVO-Gründen."}, {"id": "C06_PERSONAL_SERVICE_NO_SUBSTITUTION", "code": "DRV-06", "category": "Persönliche Abhängigkeit", "title": "Höchstpersönliche Leistungspflicht & Verbot von Subunternehmern / Vertretung (§ 613 BGB)", "legal_ref": "§ 613 BGB vs. § 631 BGB / DRV V0027", "weight_points": 8, "severity": 1.0, "weighted_points": 8.0, "herrenberg_critical": false, "red_flag_desc": "Vertrag verpflichtet zur höchstpersönlichen Leistungserbringung; Einsatz eigener Mitarbeiter oder qualifizierter Vertreter ist untersagt.", "safe_harbor_desc": "Vertragliches Recht zur Leistungserbringung durch qualifizierte Erfüllungsgehilfen / Subunternehmer (§ 278 BGB) auf eigene Rechnung."}, {"id": "C07_NO_ENTREPRENEURIAL_WARRANTY_RISK", "code": "DRV-07", "category": "Unternehmerrisiko", "title": "Kein eigenes Unternehmerrisiko: Stundensatz-Garantie ohne Gewährleistung / Mängelhaftung (§ 634 BGB)", "legal_ref": "BSG B 12 R 11/18 R / §§ 633, 634 BGB", "weight_points": 10, "severity": 1.0, "weighted_points": 10.0, "herrenberg_critical": true, "red_flag_desc": "Jede aufgewendete Stunde wird vergütet (auch Nacharbeit/Bugfixing); keine Berufshaftpflicht, kein Risiko unbezahlter Nachbesserung.", "safe_harbor_desc": "Vergütung knüpft an abgenommene Ergebnisse oder Meilensteine; Nachbesserung von Mängeln erfolgt auf eigenes Zeit-/Kostenrisiko; eigene Betriebshaftpflicht."}, {"id": "C08_SAME_WORK_AS_EMPLOYEES", "code": "DRV-08", "category": "Eingliederung (§ 7 Abs. 1 S. 2 SGB IV)", "title": "Identische Tätigkeit Seite an Seite mit festangestellten Arbeitnehmern (oder früheres Arbeitsverhältnis)", "legal_ref": "§ 7 Abs. 1 SGB IV / DRV Prüfpraxis", "weight_points": 8, "severity": 0.5, "weighted_points": 4.0, "herrenberg_critical": true, "red_flag_desc": "Freelancer übernimmt 1:1 dieselben Linienaufgaben wie Festangestellte im selben Team oder war zuvor dort angestellt.", "safe_harbor_desc": "Klar abgegrenztes Spezialprojekt / Wissenstransfer außerhalb des regulären Tagesbetriebs mit eigenständigem Leistungsgegenstand."}, {"id": "C09_CURRICULUM_OR_METHOD_DICTATION", "code": "DRV-09", "category": "Herrenberg-Kriterium (Fachliche/Didaktische Vorgaben)", "title": "Vorgegebene Lehrpläne, Prüfungsordnungen, Unterrichtsräume oder strikte Prozessvorgaben (Herrenberg-Falle)", "legal_ref": "BSG B 12 R 3/20 R (Herrenberg) / § 127 SGB IV", "weight_points": 8, "severity": 1.0, "weighted_points": 8.0, "herrenberg_critical": true, "red_flag_desc": "Bildungsträger/Auftraggeber gibt Curriculum, Unterrichtsmaterial, Zeitfenster, Räume und Teilnehmerlisten verbindlich vor.", "safe_harbor_desc": "Eigene methodische Gestaltung, eigene Schulungsunterlagen, kein Vertretungszwang innerhalb einer fremden Schulorganisation (oder § 127 SGB IV Schutz bis 2027)."}, {"id": "C10_EXCLUSIVITY_AND_NON_COMPETE", "code": "DRV-10", "category": "Wirtschaftliche & Rechtliche Bindung", "title": "Wettbewerbsverbot oder Genehmigungspflicht für weitere Auftraggeber", "legal_ref": "§ 7 Abs. 1 SGB IV / § 7a SGB IV", "weight_points": 6, "severity": 0.0, "weighted_points": 0.0, "herrenberg_critical": false, "red_flag_desc": "Vertrag untersagt parallele Aufträge für andere Kunden oder macht Nebentätigkeiten von der Zustimmung des Auftraggebers abhängig.", "safe_harbor_desc": "Ausdrückliche Freiheit, jederzeit für beliebige andere Auftraggeber (auch im selben Marktsegment unter Wahrung der Vertraulichkeit) tätig zu sein."}, {"id": "C11_NO_MARKET_PRESENCE_OR_STAFF", "code": "DRV-11", "category": "Unternehmerischer Außenauftritt", "title": "Kein eigener Marktauftritt (keine Website, kein eigenes Briefpapier, keine eigenen Mitarbeitenden)", "legal_ref": "DRV V0027 / § 2 S. 1 Nr. 9 SGB VI", "weight_points": 5, "severity": 0.5, "weighted_points": 2.5, "herrenberg_critical": false, "red_flag_desc": "Keine eigene Unternehmenswebsite, keine Kundenakquise am Markt, keine eigenen sozialversicherungspflichtigen Beschäftigten.", "safe_harbor_desc": "Eigener Marktauftritt (Website, Portfolio, Rahmenverträge mit mehreren Kunden, eigenes Backoffice oder eigene Beschäftigte)."}, {"id": "C12_EMPLOYEE_PERKS_AND_CONTINUOUS_DURATION", "code": "DRV-12", "category": "Soziale Typik & Dauerbindung", "title": "Überlange Projektdauer (> 18–24 Monate) im Dauerbetrieb oder Arbeitnehmer-Benefits (Urlaubsgeld/Hardware-Leasing)", "legal_ref": "§ 7 Abs. 1 SGB IV / FKS-Prüfraster", "weight_points": 5, "severity": 0.5, "weighted_points": 2.5, "herrenberg_critical": false, "red_flag_desc": "Ununterbrochene Vollzeit-Beauftragung über Jahre ohne sachlichen Projektabschluss; Teilnahme an Mitarbeiterevents oder bezahlter Urlaub.", "safe_harbor_desc": "Befristete, sachlich definierte Einzelgewerke mit klarem Projektende und rein leistungsbezogener Vergütung."}]}, "employer_clawback": {"duration_months_audited": 24, "monthly_net_honorarium_eur": 6800.0, "vorsatz_nettolohnfiktion_active": false, "fictional_gross_monthly_eur": 6800.0, "monthly_rv_av_eur": 1441.6, "monthly_kv_pv_eur": 1141.09, "monthly_total_sv_eur": 2582.69, "total_sv_arrears_eur": 61984.56, "saeumniszuschlag_sec24_eur": 3874.03, "vat_clawback_sec15_ustg_eur": 31008.0, "total_employer_damage_eur": 96866.59, "normal_no_vorsatz_total_eur": 96866.59, "vorsatz_worst_case_total_eur": 107895.63, "criminal_exposure_note": "Regelverjährung 4 Kalenderjahre (§ 25 Abs. 1 S. 1 SGB IV). Arbeitgeber schuldet allein Gesamt-SV-Beitrag (§ 28e Abs. 1 SGB IV); Rückgriff beim Freelancer nach § 28g SGB IV auf 3 Monate gesperrt!"}, "sec2_nr9_sgb_vi": {"single_client_share_pct": 78.0, "exceeds_five_sixths_threshold": false, "employee_exemption_met": false, "startup_exemption_eligible": true, "startup_three_month_deadline_open": false, "rv_pflicht_active": false, "pension_assessment_base_monthly_eur": 6800.0, "monthly_rv_contribution_eur": 0.0, "annual_rv_contribution_eur": 0.0, "four_year_retroactive_rv_eur": 0.0, "escape_strategies": ["5/6-Grenze eingehalten: Hauptkunden-Umsatzanteil (78.0%) liegt unter 83,33%."], "verdict_summary": "KEINE RV-PFLICHT NACH § 2 SATZ 1 NR. 9 SGB VI (5/6-Regel unterschritten oder Mitarbeiter-Befreiung erfüllt)."}}, {"profile": {"case_id": "CASE_03_SOLO_ARCHITEKT_5_6_TRAP", "name": "Markus K. — Werkvertrags-Architekt in der 5/6-Rentenfalle", "role_title": "Freier SAP S/4HANA Migrations-Architekt (Werkvertrag)", "client_name": "Mittelstand Maschinenbau AG (Stuttgart)", "contract_type_label": "Werkvertrag nach § 631 BGB mit Abnahmeprotokoll (€14,500/Monat)", "monthly_net_honorarium_eur": 14500.0, "duration_months": 18, "single_client_revenue_share_pct": 88.5, "has_sv_employee_above_minijob": false, "combined_minijob_payroll_eur": 450.0, "months_since_business_start": 2, "is_teaching_activity": false, "has_sec127_consent": false, "agency_intermediary_involved": false, "vorsatz_alleged_by_fks": false, "active_red_flags": {"C01_AGILE_SCRUM_CEREMONIES": 0.0, "C02_INTERNAL_COMMS_EMAIL_SLACK": 0.0, "C03_TICKET_PUSH_WITHOUT_ACCEPTANCE": 0.0, "C04_TIME_AND_LEAVE_APPROVAL": 0.0, "C05_CLIENT_HARDWARE_AND_PREMISES": 0.5, "C06_PERSONAL_SERVICE_NO_SUBSTITUTION": 0.0, "C07_NO_ENTREPRENEURIAL_WARRANTY_RISK": 0.0, "C08_SAME_WORK_AS_EMPLOYEES": 0.0, "C09_CURRICULUM_OR_METHOD_DICTATION": 0.0, "C10_EXCLUSIVITY_AND_NON_COMPETE": 0.0, "C11_NO_MARKET_PRESENCE_OR_STAFF": 0.5, "C12_EMPLOYEE_PERKS_AND_CONTINUOUS_DURATION": 0.5}}, "drv_status": {"score_points": 9.0, "max_points": 102, "risk_pct": 8.8, "status_band": "COMPLIANT_INDEPENDENT", "drv_verdict_label": "ECHTE SELBSTSTÄNDIGKEIT (§ 7 Abs. 1 SGB IV — Werk-/Dienstvertrag tragfähig)", "herrenberg_alert_triggered": false, "herrenberg_red_flag_count": 1, "sec7a_procedural_options": ["§ 7a Abs. 4a SGB IV: Prognoseentscheidung vor Auftragsbeginn beantragen (Formular V0027 + Leistungsschein).", "§ 7a Abs. 4b SGB IV: Gutachterliche Gruppenfeststellung für gleichartige Contractor-Verträge nutzen."], "sec127_dozent_shield_status": "Nicht anwendbar (§ 127 SGB IV gilt ausschließlich für Lehrtätigkeiten).", "triggered_criteria": [{"id": "C01_AGILE_SCRUM_CEREMONIES", "code": "DRV-01", "category": "Eingliederung (§ 7 Abs. 1 S. 2 SGB IV)", "title": "Pflichtteilnahme an Daily Standups, Sprint-Plannings & internen Regelterminen", "legal_ref": "§ 7 Abs. 1 S. 2 SGB IV / BSG B 12 R 3/20 R", "weight_points": 12, "severity": 0.0, "weighted_points": 0.0, "herrenberg_critical": true, "red_flag_desc": "Freelancer nimmt täglich verpflichtend am internen Scrum-Daily & Retrospektiven gemeinsam mit Festangestellten teil.", "safe_harbor_desc": "Asynchrone Meilenstein-Abstimmung über definierte Schnittstellen (B2B-Jour-Fixe nur zur Übergabe/Abnahme)."}, {"id": "C02_INTERNAL_COMMS_EMAIL_SLACK", "code": "DRV-02", "category": "Eingliederung (§ 7 Abs. 1 S. 2 SGB IV)", "title": "Eigene @kunde.de E-Mail-Adresse, interner Slack/Teams-Account ohne '[Extern]'-Label & Organigramm-Listung", "legal_ref": "§ 7 Abs. 1 SGB IV / DRV V0027 Ziff. 4", "weight_points": 10, "severity": 0.0, "weighted_points": 0.0, "herrenberg_critical": true, "red_flag_desc": "Auftreten nach außen/innen unter Kunden-Domain ohne Kenntlichmachung als externer Auftragnehmer; im Telefonverzeichnis gelistet.", "safe_harbor_desc": "Kommunikation über eigene Unternehmens-Domain (@eigenefirma.de) oder klar getrennten B2B-Guest-Channel mit '[Extern - Firma XY]'-Signatur."}, {"id": "C03_TICKET_PUSH_WITHOUT_ACCEPTANCE", "code": "DRV-03", "category": "Weisungsgebundenheit (§ 7 Abs. 1 S. 2 SGB IV)", "title": "Einseitige Einzelaufgaben-Zuweisung (Jira/Asana-Push) ohne Werk-Abnahmeprotokoll (§ 640 BGB)", "legal_ref": "§ 611a BGB vs. §§ 631, 640 BGB", "weight_points": 12, "severity": 0.0, "weighted_points": 0.0, "herrenberg_critical": true, "red_flag_desc": "Kunden-Product-Owner weist laufend Einzeltickets direkt zu; Abrechnung rein nach abgeleisteten Stunden ohne Leistungsabnahme.", "safe_harbor_desc": "Abgeschlossene Leistungspakete (Statement of Work / Gewerk) mit förmlichem Abnahmeprotokoll (§ 640 BGB) und Nachbesserungspflicht."}, {"id": "C04_TIME_AND_LEAVE_APPROVAL", "code": "DRV-04", "category": "Weisungsgebundenheit (§ 7 Abs. 1 S. 2 SGB IV)", "title": "Feste Kernarbeitszeiten, Schichtpläne, Urlaubsgenehmigung oder Krankmeldung beim Teamleiter", "legal_ref": "§ 7 Abs. 1 S. 2 SGB IV / § 611a Abs. 1 S. 2 BGB", "weight_points": 10, "severity": 0.0, "weighted_points": 0.0, "herrenberg_critical": true, "red_flag_desc": "Abwesenheiten müssen vom Abteilungsleiter genehmigt oder im internen HR-Tool (Personio/Workday) eingetragen werden.", "safe_harbor_desc": "Freie Zeiteinteilung; lediglich unverbindliche Information über Nichtverfügbarkeit zur Projektkoordination."}, {"id": "C05_CLIENT_HARDWARE_AND_PREMISES", "code": "DRV-05", "category": "Eingliederung & Betriebsmittel", "title": "Ausschließliche Nutzung von Kunden-Hardware / festen Büroplätzen ohne eigene Betriebsmittel", "legal_ref": "BSG B 12 R 11/18 R (Honorararzt) / B 12 R 3/20 R", "weight_points": 8, "severity": 0.5, "weighted_points": 4.0, "herrenberg_critical": true, "red_flag_desc": "Arbeit ausschließlich auf gestelltem Kunden-Laptop ohne eigene Lizenzen/Infrastruktur oder an zugewiesenem Schreibtisch vor Ort.", "safe_harbor_desc": "Einsatz eigener Hardware, eigener Entwicklungsumgebung/Software-Lizenzen; VPN/VDI-Zugang ausschließlich aus nachgewiesenen IT-Sec/DSGVO-Gründen."}, {"id": "C06_PERSONAL_SERVICE_NO_SUBSTITUTION", "code": "DRV-06", "category": "Persönliche Abhängigkeit", "title": "Höchstpersönliche Leistungspflicht & Verbot von Subunternehmern / Vertretung (§ 613 BGB)", "legal_ref": "§ 613 BGB vs. § 631 BGB / DRV V0027", "weight_points": 8, "severity": 0.0, "weighted_points": 0.0, "herrenberg_critical": false, "red_flag_desc": "Vertrag verpflichtet zur höchstpersönlichen Leistungserbringung; Einsatz eigener Mitarbeiter oder qualifizierter Vertreter ist untersagt.", "safe_harbor_desc": "Vertragliches Recht zur Leistungserbringung durch qualifizierte Erfüllungsgehilfen / Subunternehmer (§ 278 BGB) auf eigene Rechnung."}, {"id": "C07_NO_ENTREPRENEURIAL_WARRANTY_RISK", "code": "DRV-07", "category": "Unternehmerrisiko", "title": "Kein eigenes Unternehmerrisiko: Stundensatz-Garantie ohne Gewährleistung / Mängelhaftung (§ 634 BGB)", "legal_ref": "BSG B 12 R 11/18 R / §§ 633, 634 BGB", "weight_points": 10, "severity": 0.0, "weighted_points": 0.0, "herrenberg_critical": true, "red_flag_desc": "Jede aufgewendete Stunde wird vergütet (auch Nacharbeit/Bugfixing); keine Berufshaftpflicht, kein Risiko unbezahlter Nachbesserung.", "safe_harbor_desc": "Vergütung knüpft an abgenommene Ergebnisse oder Meilensteine; Nachbesserung von Mängeln erfolgt auf eigenes Zeit-/Kostenrisiko; eigene Betriebshaftpflicht."}, {"id": "C08_SAME_WORK_AS_EMPLOYEES", "code": "DRV-08", "category": "Eingliederung (§ 7 Abs. 1 S. 2 SGB IV)", "title": "Identische Tätigkeit Seite an Seite mit festangestellten Arbeitnehmern (oder früheres Arbeitsverhältnis)", "legal_ref": "§ 7 Abs. 1 SGB IV / DRV Prüfpraxis", "weight_points": 8, "severity": 0.0, "weighted_points": 0.0, "herrenberg_critical": true, "red_flag_desc": "Freelancer übernimmt 1:1 dieselben Linienaufgaben wie Festangestellte im selben Team oder war zuvor dort angestellt.", "safe_harbor_desc": "Klar abgegrenztes Spezialprojekt / Wissenstransfer außerhalb des regulären Tagesbetriebs mit eigenständigem Leistungsgegenstand."}, {"id": "C09_CURRICULUM_OR_METHOD_DICTATION", "code": "DRV-09", "category": "Herrenberg-Kriterium (Fachliche/Didaktische Vorgaben)", "title": "Vorgegebene Lehrpläne, Prüfungsordnungen, Unterrichtsräume oder strikte Prozessvorgaben (Herrenberg-Falle)", "legal_ref": "BSG B 12 R 3/20 R (Herrenberg) / § 127 SGB IV", "weight_points": 8, "severity": 0.0, "weighted_points": 0.0, "herrenberg_critical": true, "red_flag_desc": "Bildungsträger/Auftraggeber gibt Curriculum, Unterrichtsmaterial, Zeitfenster, Räume und Teilnehmerlisten verbindlich vor.", "safe_harbor_desc": "Eigene methodische Gestaltung, eigene Schulungsunterlagen, kein Vertretungszwang innerhalb einer fremden Schulorganisation (oder § 127 SGB IV Schutz bis 2027)."}, {"id": "C10_EXCLUSIVITY_AND_NON_COMPETE", "code": "DRV-10", "category": "Wirtschaftliche & Rechtliche Bindung", "title": "Wettbewerbsverbot oder Genehmigungspflicht für weitere Auftraggeber", "legal_ref": "§ 7 Abs. 1 SGB IV / § 7a SGB IV", "weight_points": 6, "severity": 0.0, "weighted_points": 0.0, "herrenberg_critical": false, "red_flag_desc": "Vertrag untersagt parallele Aufträge für andere Kunden oder macht Nebentätigkeiten von der Zustimmung des Auftraggebers abhängig.", "safe_harbor_desc": "Ausdrückliche Freiheit, jederzeit für beliebige andere Auftraggeber (auch im selben Marktsegment unter Wahrung der Vertraulichkeit) tätig zu sein."}, {"id": "C11_NO_MARKET_PRESENCE_OR_STAFF", "code": "DRV-11", "category": "Unternehmerischer Außenauftritt", "title": "Kein eigener Marktauftritt (keine Website, kein eigenes Briefpapier, keine eigenen Mitarbeitenden)", "legal_ref": "DRV V0027 / § 2 S. 1 Nr. 9 SGB VI", "weight_points": 5, "severity": 0.5, "weighted_points": 2.5, "herrenberg_critical": false, "red_flag_desc": "Keine eigene Unternehmenswebsite, keine Kundenakquise am Markt, keine eigenen sozialversicherungspflichtigen Beschäftigten.", "safe_harbor_desc": "Eigener Marktauftritt (Website, Portfolio, Rahmenverträge mit mehreren Kunden, eigenes Backoffice oder eigene Beschäftigte)."}, {"id": "C12_EMPLOYEE_PERKS_AND_CONTINUOUS_DURATION", "code": "DRV-12", "category": "Soziale Typik & Dauerbindung", "title": "Überlange Projektdauer (> 18–24 Monate) im Dauerbetrieb oder Arbeitnehmer-Benefits (Urlaubsgeld/Hardware-Leasing)", "legal_ref": "§ 7 Abs. 1 SGB IV / FKS-Prüfraster", "weight_points": 5, "severity": 0.5, "weighted_points": 2.5, "herrenberg_critical": false, "red_flag_desc": "Ununterbrochene Vollzeit-Beauftragung über Jahre ohne sachlichen Projektabschluss; Teilnahme an Mitarbeiterevents oder bezahlter Urlaub.", "safe_harbor_desc": "Befristete, sachlich definierte Einzelgewerke mit klarem Projektende und rein leistungsbezogener Vergütung."}]}, "employer_clawback": {"duration_months_audited": 18, "monthly_net_honorarium_eur": 14500.0, "vorsatz_nettolohnfiktion_active": false, "fictional_gross_monthly_eur": 14500.0, "monthly_rv_av_eur": 1706.6, "monthly_kv_pv_eur": 1141.09, "monthly_total_sv_eur": 2847.69, "total_sv_arrears_eur": 51258.42, "saeumniszuschlag_sec24_eur": 2434.77, "vat_clawback_sec15_ustg_eur": 49590.0, "total_employer_damage_eur": 103283.19, "normal_no_vorsatz_total_eur": 103283.19, "vorsatz_worst_case_total_eur": 105717.97, "criminal_exposure_note": "Regelverjährung 4 Kalenderjahre (§ 25 Abs. 1 S. 1 SGB IV). Arbeitgeber schuldet allein Gesamt-SV-Beitrag (§ 28e Abs. 1 SGB IV); Rückgriff beim Freelancer nach § 28g SGB IV auf 3 Monate gesperrt!"}, "sec2_nr9_sgb_vi": {"single_client_share_pct": 88.5, "exceeds_five_sixths_threshold": true, "employee_exemption_met": false, "startup_exemption_eligible": true, "startup_three_month_deadline_open": true, "rv_pflicht_active": true, "pension_assessment_base_monthly_eur": 8050.0, "monthly_rv_contribution_eur": 1497.3, "annual_rv_contribution_eur": 17967.6, "four_year_retroactive_rv_eur": 26951.4, "escape_strategies": ["SOFORT-HEBEL (§ 6 Abs. 1a S. 1 Nr. 1 SGB VI): Existenzgründer-Befreiung (Formular V0050) noch innerhalb der 3-Monats-Frist einreichen -> spart €17,967.60/Jahr rückwirkend ab Tag 1 für volle 3 Jahre!", "MITARBEITER-HEBEL (§ 2 S. 1 Nr. 9a SGB VI): 1 sozialversicherungspflichtigen Mitarbeiter (z.B. Werkstudent/Midijob > €556/Monat, z.B. €600/Monat) oder zwei Minijobber mit zusammen > €556/Monat einstellen -> beendet die 18,6% RV-Pflicht (€1,497.30/Monat) sofort legal!", "UMSATZ-DIVERSIFIKATION (§ 2 S. 1 Nr. 9b SGB VI): Zweit-/Drittkunden-Umsatz auf > 16,67% des Jahresumsatzes ausbauen (Hauptkunden-Anteil < 83,33%). Achtung: Konzernverbundene Unternehmen (§ 18 AktG) zählen bei der DRV als EIN einziger Auftraggeber!"], "verdict_summary": "RENTENVERSICHERUNGSPFLICHTIG NACH § 2 SATZ 1 NR. 9 SGB VI: 88.5% Umsatz bei 1 Auftraggeber (>= 83,33%) ohne Mitarbeiter > €556/Monat -> Freelancer schuldet selbst 18,6% RV (€1,497.30/Monat bzw. €17,967.60/Jahr)!"}}, {"profile": {"case_id": "CASE_04_SAFE_BOUTIQUE_WERKVERTRAG", "name": "NovaForge Systems — Sanierter B2B-Werkvertrag mit Mitarbeiter", "role_title": "AI-Automations-Boutique (Werkvertrag + 1 Werkstudent €750/M)", "client_name": "Logistik Holding SE (Hamburg)", "contract_type_label": "Werkvertrag § 631 BGB + Abnahmeprotokoll § 640 BGB (€16,000/Monat)", "monthly_net_honorarium_eur": 16000.0, "duration_months": 12, "single_client_revenue_share_pct": 62.0, "has_sv_employee_above_minijob": true, "combined_minijob_payroll_eur": 750.0, "months_since_business_start": 28, "is_teaching_activity": false, "has_sec127_consent": false, "agency_intermediary_involved": false, "vorsatz_alleged_by_fks": false, "active_red_flags": {"C01_AGILE_SCRUM_CEREMONIES": 0.0, "C02_INTERNAL_COMMS_EMAIL_SLACK": 0.0, "C03_TICKET_PUSH_WITHOUT_ACCEPTANCE": 0.0, "C04_TIME_AND_LEAVE_APPROVAL": 0.0, "C05_CLIENT_HARDWARE_AND_PREMISES": 0.0, "C06_PERSONAL_SERVICE_NO_SUBSTITUTION": 0.0, "C07_NO_ENTREPRENEURIAL_WARRANTY_RISK": 0.0, "C08_SAME_WORK_AS_EMPLOYEES": 0.0, "C09_CURRICULUM_OR_METHOD_DICTATION": 0.0, "C10_EXCLUSIVITY_AND_NON_COMPETE": 0.0, "C11_NO_MARKET_PRESENCE_OR_STAFF": 0.0, "C12_EMPLOYEE_PERKS_AND_CONTINUOUS_DURATION": 0.0}}, "drv_status": {"score_points": 0.0, "max_points": 102, "risk_pct": 0.0, "status_band": "COMPLIANT_INDEPENDENT", "drv_verdict_label": "ECHTE SELBSTSTÄNDIGKEIT (§ 7 Abs. 1 SGB IV — Werk-/Dienstvertrag tragfähig)", "herrenberg_alert_triggered": false, "herrenberg_red_flag_count": 0, "sec7a_procedural_options": ["§ 7a Abs. 4a SGB IV: Prognoseentscheidung vor Auftragsbeginn beantragen (Formular V0027 + Leistungsschein).", "§ 7a Abs. 4b SGB IV: Gutachterliche Gruppenfeststellung für gleichartige Contractor-Verträge nutzen."], "sec127_dozent_shield_status": "Nicht anwendbar (§ 127 SGB IV gilt ausschließlich für Lehrtätigkeiten).", "triggered_criteria": [{"id": "C01_AGILE_SCRUM_CEREMONIES", "code": "DRV-01", "category": "Eingliederung (§ 7 Abs. 1 S. 2 SGB IV)", "title": "Pflichtteilnahme an Daily Standups, Sprint-Plannings & internen Regelterminen", "legal_ref": "§ 7 Abs. 1 S. 2 SGB IV / BSG B 12 R 3/20 R", "weight_points": 12, "severity": 0.0, "weighted_points": 0.0, "herrenberg_critical": true, "red_flag_desc": "Freelancer nimmt täglich verpflichtend am internen Scrum-Daily & Retrospektiven gemeinsam mit Festangestellten teil.", "safe_harbor_desc": "Asynchrone Meilenstein-Abstimmung über definierte Schnittstellen (B2B-Jour-Fixe nur zur Übergabe/Abnahme)."}, {"id": "C02_INTERNAL_COMMS_EMAIL_SLACK", "code": "DRV-02", "category": "Eingliederung (§ 7 Abs. 1 S. 2 SGB IV)", "title": "Eigene @kunde.de E-Mail-Adresse, interner Slack/Teams-Account ohne '[Extern]'-Label & Organigramm-Listung", "legal_ref": "§ 7 Abs. 1 SGB IV / DRV V0027 Ziff. 4", "weight_points": 10, "severity": 0.0, "weighted_points": 0.0, "herrenberg_critical": true, "red_flag_desc": "Auftreten nach außen/innen unter Kunden-Domain ohne Kenntlichmachung als externer Auftragnehmer; im Telefonverzeichnis gelistet.", "safe_harbor_desc": "Kommunikation über eigene Unternehmens-Domain (@eigenefirma.de) oder klar getrennten B2B-Guest-Channel mit '[Extern - Firma XY]'-Signatur."}, {"id": "C03_TICKET_PUSH_WITHOUT_ACCEPTANCE", "code": "DRV-03", "category": "Weisungsgebundenheit (§ 7 Abs. 1 S. 2 SGB IV)", "title": "Einseitige Einzelaufgaben-Zuweisung (Jira/Asana-Push) ohne Werk-Abnahmeprotokoll (§ 640 BGB)", "legal_ref": "§ 611a BGB vs. §§ 631, 640 BGB", "weight_points": 12, "severity": 0.0, "weighted_points": 0.0, "herrenberg_critical": true, "red_flag_desc": "Kunden-Product-Owner weist laufend Einzeltickets direkt zu; Abrechnung rein nach abgeleisteten Stunden ohne Leistungsabnahme.", "safe_harbor_desc": "Abgeschlossene Leistungspakete (Statement of Work / Gewerk) mit förmlichem Abnahmeprotokoll (§ 640 BGB) und Nachbesserungspflicht."}, {"id": "C04_TIME_AND_LEAVE_APPROVAL", "code": "DRV-04", "category": "Weisungsgebundenheit (§ 7 Abs. 1 S. 2 SGB IV)", "title": "Feste Kernarbeitszeiten, Schichtpläne, Urlaubsgenehmigung oder Krankmeldung beim Teamleiter", "legal_ref": "§ 7 Abs. 1 S. 2 SGB IV / § 611a Abs. 1 S. 2 BGB", "weight_points": 10, "severity": 0.0, "weighted_points": 0.0, "herrenberg_critical": true, "red_flag_desc": "Abwesenheiten müssen vom Abteilungsleiter genehmigt oder im internen HR-Tool (Personio/Workday) eingetragen werden.", "safe_harbor_desc": "Freie Zeiteinteilung; lediglich unverbindliche Information über Nichtverfügbarkeit zur Projektkoordination."}, {"id": "C05_CLIENT_HARDWARE_AND_PREMISES", "code": "DRV-05", "category": "Eingliederung & Betriebsmittel", "title": "Ausschließliche Nutzung von Kunden-Hardware / festen Büroplätzen ohne eigene Betriebsmittel", "legal_ref": "BSG B 12 R 11/18 R (Honorararzt) / B 12 R 3/20 R", "weight_points": 8, "severity": 0.0, "weighted_points": 0.0, "herrenberg_critical": true, "red_flag_desc": "Arbeit ausschließlich auf gestelltem Kunden-Laptop ohne eigene Lizenzen/Infrastruktur oder an zugewiesenem Schreibtisch vor Ort.", "safe_harbor_desc": "Einsatz eigener Hardware, eigener Entwicklungsumgebung/Software-Lizenzen; VPN/VDI-Zugang ausschließlich aus nachgewiesenen IT-Sec/DSGVO-Gründen."}, {"id": "C06_PERSONAL_SERVICE_NO_SUBSTITUTION", "code": "DRV-06", "category": "Persönliche Abhängigkeit", "title": "Höchstpersönliche Leistungspflicht & Verbot von Subunternehmern / Vertretung (§ 613 BGB)", "legal_ref": "§ 613 BGB vs. § 631 BGB / DRV V0027", "weight_points": 8, "severity": 0.0, "weighted_points": 0.0, "herrenberg_critical": false, "red_flag_desc": "Vertrag verpflichtet zur höchstpersönlichen Leistungserbringung; Einsatz eigener Mitarbeiter oder qualifizierter Vertreter ist untersagt.", "safe_harbor_desc": "Vertragliches Recht zur Leistungserbringung durch qualifizierte Erfüllungsgehilfen / Subunternehmer (§ 278 BGB) auf eigene Rechnung."}, {"id": "C07_NO_ENTREPRENEURIAL_WARRANTY_RISK", "code": "DRV-07", "category": "Unternehmerrisiko", "title": "Kein eigenes Unternehmerrisiko: Stundensatz-Garantie ohne Gewährleistung / Mängelhaftung (§ 634 BGB)", "legal_ref": "BSG B 12 R 11/18 R / §§ 633, 634 BGB", "weight_points": 10, "severity": 0.0, "weighted_points": 0.0, "herrenberg_critical": true, "red_flag_desc": "Jede aufgewendete Stunde wird vergütet (auch Nacharbeit/Bugfixing); keine Berufshaftpflicht, kein Risiko unbezahlter Nachbesserung.", "safe_harbor_desc": "Vergütung knüpft an abgenommene Ergebnisse oder Meilensteine; Nachbesserung von Mängeln erfolgt auf eigenes Zeit-/Kostenrisiko; eigene Betriebshaftpflicht."}, {"id": "C08_SAME_WORK_AS_EMPLOYEES", "code": "DRV-08", "category": "Eingliederung (§ 7 Abs. 1 S. 2 SGB IV)", "title": "Identische Tätigkeit Seite an Seite mit festangestellten Arbeitnehmern (oder früheres Arbeitsverhältnis)", "legal_ref": "§ 7 Abs. 1 SGB IV / DRV Prüfpraxis", "weight_points": 8, "severity": 0.0, "weighted_points": 0.0, "herrenberg_critical": true, "red_flag_desc": "Freelancer übernimmt 1:1 dieselben Linienaufgaben wie Festangestellte im selben Team oder war zuvor dort angestellt.", "safe_harbor_desc": "Klar abgegrenztes Spezialprojekt / Wissenstransfer außerhalb des regulären Tagesbetriebs mit eigenständigem Leistungsgegenstand."}, {"id": "C09_CURRICULUM_OR_METHOD_DICTATION", "code": "DRV-09", "category": "Herrenberg-Kriterium (Fachliche/Didaktische Vorgaben)", "title": "Vorgegebene Lehrpläne, Prüfungsordnungen, Unterrichtsräume oder strikte Prozessvorgaben (Herrenberg-Falle)", "legal_ref": "BSG B 12 R 3/20 R (Herrenberg) / § 127 SGB IV", "weight_points": 8, "severity": 0.0, "weighted_points": 0.0, "herrenberg_critical": true, "red_flag_desc": "Bildungsträger/Auftraggeber gibt Curriculum, Unterrichtsmaterial, Zeitfenster, Räume und Teilnehmerlisten verbindlich vor.", "safe_harbor_desc": "Eigene methodische Gestaltung, eigene Schulungsunterlagen, kein Vertretungszwang innerhalb einer fremden Schulorganisation (oder § 127 SGB IV Schutz bis 2027)."}, {"id": "C10_EXCLUSIVITY_AND_NON_COMPETE", "code": "DRV-10", "category": "Wirtschaftliche & Rechtliche Bindung", "title": "Wettbewerbsverbot oder Genehmigungspflicht für weitere Auftraggeber", "legal_ref": "§ 7 Abs. 1 SGB IV / § 7a SGB IV", "weight_points": 6, "severity": 0.0, "weighted_points": 0.0, "herrenberg_critical": false, "red_flag_desc": "Vertrag untersagt parallele Aufträge für andere Kunden oder macht Nebentätigkeiten von der Zustimmung des Auftraggebers abhängig.", "safe_harbor_desc": "Ausdrückliche Freiheit, jederzeit für beliebige andere Auftraggeber (auch im selben Marktsegment unter Wahrung der Vertraulichkeit) tätig zu sein."}, {"id": "C11_NO_MARKET_PRESENCE_OR_STAFF", "code": "DRV-11", "category": "Unternehmerischer Außenauftritt", "title": "Kein eigener Marktauftritt (keine Website, kein eigenes Briefpapier, keine eigenen Mitarbeitenden)", "legal_ref": "DRV V0027 / § 2 S. 1 Nr. 9 SGB VI", "weight_points": 5, "severity": 0.0, "weighted_points": 0.0, "herrenberg_critical": false, "red_flag_desc": "Keine eigene Unternehmenswebsite, keine Kundenakquise am Markt, keine eigenen sozialversicherungspflichtigen Beschäftigten.", "safe_harbor_desc": "Eigener Marktauftritt (Website, Portfolio, Rahmenverträge mit mehreren Kunden, eigenes Backoffice oder eigene Beschäftigte)."}, {"id": "C12_EMPLOYEE_PERKS_AND_CONTINUOUS_DURATION", "code": "DRV-12", "category": "Soziale Typik & Dauerbindung", "title": "Überlange Projektdauer (> 18–24 Monate) im Dauerbetrieb oder Arbeitnehmer-Benefits (Urlaubsgeld/Hardware-Leasing)", "legal_ref": "§ 7 Abs. 1 SGB IV / FKS-Prüfraster", "weight_points": 5, "severity": 0.0, "weighted_points": 0.0, "herrenberg_critical": false, "red_flag_desc": "Ununterbrochene Vollzeit-Beauftragung über Jahre ohne sachlichen Projektabschluss; Teilnahme an Mitarbeiterevents oder bezahlter Urlaub.", "safe_harbor_desc": "Befristete, sachlich definierte Einzelgewerke mit klarem Projektende und rein leistungsbezogener Vergütung."}]}, "employer_clawback": {"duration_months_audited": 12, "monthly_net_honorarium_eur": 16000.0, "vorsatz_nettolohnfiktion_active": false, "fictional_gross_monthly_eur": 16000.0, "monthly_rv_av_eur": 1706.6, "monthly_kv_pv_eur": 1141.09, "monthly_total_sv_eur": 2847.69, "total_sv_arrears_eur": 34172.28, "saeumniszuschlag_sec24_eur": 1110.6, "vat_clawback_sec15_ustg_eur": 36480.0, "total_employer_damage_eur": 71762.88, "normal_no_vorsatz_total_eur": 71762.88, "vorsatz_worst_case_total_eur": 72873.48, "criminal_exposure_note": "Regelverjährung 4 Kalenderjahre (§ 25 Abs. 1 S. 1 SGB IV). Arbeitgeber schuldet allein Gesamt-SV-Beitrag (§ 28e Abs. 1 SGB IV); Rückgriff beim Freelancer nach § 28g SGB IV auf 3 Monate gesperrt!"}, "sec2_nr9_sgb_vi": {"single_client_share_pct": 62.0, "exceeds_five_sixths_threshold": false, "employee_exemption_met": true, "startup_exemption_eligible": true, "startup_three_month_deadline_open": false, "rv_pflicht_active": false, "pension_assessment_base_monthly_eur": 8050.0, "monthly_rv_contribution_eur": 0.0, "annual_rv_contribution_eur": 0.0, "four_year_retroactive_rv_eur": 0.0, "escape_strategies": ["5/6-Grenze eingehalten: Hauptkunden-Umsatzanteil (62.0%) liegt unter 83,33%.", "Arbeitgeber-Befreiung aktiv (§ 2 S. 1 Nr. 9a SGB VI): Beschäftigung > €556/Monat schützt vor der Rentenversicherungspflicht als arbeitnehmerähnlicher Selbstständiger."], "verdict_summary": "KEINE RV-PFLICHT NACH § 2 SATZ 1 NR. 9 SGB VI (5/6-Regel unterschritten oder Mitarbeiter-Befreiung erfüllt)."}}];
+
+let currentFlags = {};
+let activeCaseIdx = 0;
+
+function fmtEur(v) {
+  return new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(v);
+}
+
+function loadCase(idx) {
+  activeCaseIdx = idx;
+  const c = CASES[idx].profile;
+  currentFlags = Object.assign({}, c.active_red_flags);
+  document.getElementById('inpHonorarium').value = c.monthly_net_honorarium_eur;
+  document.getElementById('inpMonths').value = c.duration_months;
+  document.getElementById('inpSharePct').value = c.single_client_revenue_share_pct;
+  document.getElementById('inpStartupMonths').value = c.months_since_business_start;
+  document.getElementById('inpPayroll').value = c.combined_minijob_payroll_eur;
+  document.getElementById('inpHasEmp').value = c.has_sv_employee_above_minijob ? 'true' : 'false';
+  document.getElementById('chkVorsatz').checked = c.vorsatz_alleged_by_fks;
+  document.getElementById('chkAgency').checked = c.agency_intermediary_involved;
+  document.getElementById('chkTeaching').checked = c.is_teaching_activity;
+  document.getElementById('chkSec127Consent').checked = c.has_sec127_consent;
+  renderPresets();
+  renderCriteria();
+  recalculate();
+}
+
+function renderPresets() {
+  const bar = document.getElementById('presetBar');
+  bar.innerHTML = CASES.map((item, i) => `
+    <button class="preset-btn ${i === activeCaseIdx ? 'active' : ''}" onclick="loadCase(${i})">
+      <div class="p-name">${item.profile.name}</div>
+      <div class="p-sub">${item.profile.role_title} · ${item.profile.client_name}</div>
+    </button>
+  `).join('');
+}
+
+function setFlag(id, val) {
+  currentFlags[id] = val;
+  renderCriteria();
+  recalculate();
+}
+
+function renderCriteria() {
+  const box = document.getElementById('criteriaList');
+  box.innerHTML = CRITERIA.map(c => {
+    const v = currentFlags[c.id] || 0;
+    return `
+      <div class="crit-row">
+        <div>
+          <div class="crit-title">[${c.code}] ${c.title} (${c.weight_points} Pkt.) ${c.herrenberg_critical ? '🔥' : ''}</div>
+          <div class="crit-meta">${c.legal_ref} — ${v >= 0.5 ? c.red_flag_desc : c.safe_harbor_desc}</div>
+        </div>
+        <div class="sev-group">
+          <button class="sev-btn ${v === 0 ? 'active-0' : ''}" onclick="setFlag('${c.id}', 0)">Sauber (0)</button>
+          <button class="sev-btn ${v === 0.5 ? 'active-05' : ''}" onclick="setFlag('${c.id}', 0.5)">Teilw. (0.5)</button>
+          <button class="sev-btn ${v === 1 ? 'active-1' : ''}" onclick="setFlag('${c.id}', 1)">Red Flag (1.0)</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function renderClauses() {
+  const box = document.getElementById('clauseList');
+  box.innerHTML = CLAUSES.map(r => `
+    <div class="clause-box">
+      <div style="font-weight:700; font-size:0.9rem;">[${r.rule_id}] ${r.title} <span class="badge">${r.legal_basis}</span></div>
+      <div style="font-size:0.78rem; color:var(--muted); margin-top:4px;">DRV-Prüfungsgrund: ${r.why_drv_flags_it}</div>
+      <div class="diff-grid">
+        <div class="diff-bad"><strong>❌ Toxische Dienstvertrags-Klausel:</strong><br/>${r.toxic_clause_de}</div>
+        <div class="diff-good"><strong>✅ Sanierte Werkvertrags-Klausel (§ 631 / § 640 BGB):</strong><br/>${r.sanitized_werkvertrag_clause_de}</div>
+      </div>
+      <div style="font-size:0.79rem; color:var(--accent); margin-top:8px;">🔧 Operational Fix: ${r.operational_action}</div>
+    </div>
+  `).join('');
+}
+
+function recalculate() {
+  const honorarium = parseFloat(document.getElementById('inpHonorarium').value) || 0;
+  const months = Math.max(1, parseInt(document.getElementById('inpMonths').value) || 1);
+  const sharePct = parseFloat(document.getElementById('inpSharePct').value) || 0;
+  const startupMonths = parseInt(document.getElementById('inpStartupMonths').value) || 0;
+  const payroll = parseFloat(document.getElementById('inpPayroll').value) || 0;
+  const hasEmp = document.getElementById('inpHasEmp').value === 'true';
+  const vorsatz = document.getElementById('chkVorsatz').checked;
+  const agency = document.getElementById('chkAgency').checked;
+  const teaching = document.getElementById('chkTeaching').checked;
+  const sec127 = document.getElementById('chkSec127Consent').checked;
+
+  let maxPts = 0, scorePts = 0, herrenbergCnt = 0;
+  CRITERIA.forEach(c => {
+    maxPts += c.weight_points;
+    const sev = currentFlags[c.id] || 0;
+    scorePts += c.weight_points * sev;
+    if (sev >= 0.5 && c.herrenberg_critical) herrenbergCnt++;
+  });
+  const riskPct = maxPts ? ((scorePts / maxPts) * 100).toFixed(1) : 0;
+  document.getElementById('scorePointsBadge').textContent = `${scorePts.toFixed(1)} / ${maxPts} Punkte`;
+
+  const kpiScore = document.getElementById('kpiDrvScore');
+  kpiScore.textContent = `${riskPct}%`;
+  const kpiVerdict = document.getElementById('kpiDrvVerdict');
+  if (riskPct >= 55 || (herrenbergCnt >= 5 && riskPct >= 45)) {
+    kpiScore.style.color = 'var(--danger)';
+    kpiVerdict.textContent = 'AKUTE SCHEINSELBSTSTÄNDIGKEIT (§ 7 Abs. 1 SGB IV)';
+  } else if (riskPct >= 28) {
+    kpiScore.style.color = 'var(--warn)';
+    kpiVerdict.textContent = 'GRAUZONE — § 7a SGB IV Statusprüfung kritisch';
+  } else {
+    kpiScore.style.color = 'var(--ok)';
+    kpiVerdict.textContent = 'ECHTE SELBSTSTÄNDIGKEIT (§ 631 BGB tragfähig)';
+  }
+
+  // Employer Clawback calculation
+  const fictionalGross = vorsatz ? (honorarium / (1 - 0.34)) : honorarium;
+  const rvAvBase = Math.min(fictionalGross, 8050);
+  const kvPvBase = Math.min(fictionalGross, 5512.5);
+  const monthlySv = rvAvBase * 0.212 + kvPvBase * 0.207;
+  const totalSvArrears = monthlySv * months;
+  const avgMonths = vorsatz ? ((months + 1) / 2.0) : ((months + 1) / 4.0);
+  const saeumnis = totalSvArrears * 0.01 * avgMonths;
+  const vatClawback = honorarium * 0.19 * months;
+  const totalDamage = totalSvArrears + saeumnis + vatClawback;
+
+  const kpiEmp = document.getElementById('kpiEmployerLiability');
+  kpiEmp.textContent = fmtEur(totalDamage);
+  kpiEmp.style.color = totalDamage > 50000 ? 'var(--danger)' : 'var(--warn)';
+  document.getElementById('kpiEmployerSub').textContent =
+    `${months} Mon. · SV: ${fmtEur(totalSvArrears)} + § 24 Zins: ${fmtEur(saeumnis)} + USt: ${fmtEur(vatClawback)}`;
+
+  document.getElementById('clawbackTableBody').innerHTML = `
+    <tr><td>Fiktives Bruttogehalt / Monat (${vorsatz ? '§ 14 Abs. 2 S. 2 SGB IV Nettolohnfiktion' : 'Regelbemessung'})</td><td class="num">${fmtEur(fictionalGross)}</td></tr>
+    <tr><td>Monatlicher Gesamt-SV-Beitrag (AG + AN ~41,9% bis BBG)</td><td class="num">${fmtEur(monthlySv)}</td></tr>
+    <tr><td>SV-Beitragsnachforderung (${months} Monate nach § 28e SGB IV)</td><td class="num">${fmtEur(totalSvArrears)}</td></tr>
+    <tr><td>Säumniszuschläge nach § 24 Abs. 1 SGB IV (1,0% / Monat = 12% p.a.)</td><td class="num">${fmtEur(saeumnis)}</td></tr>
+    <tr><td>Vorsteuer-Rückforderung Finanzamt (§ 15 UStG — 19% auf Scheinrechnungen)</td><td class="num">${fmtEur(vatClawback)}</td></tr>
+    <tr style="font-weight:800; color:var(--danger);"><td>GESAMTSCHADEN AUFTRAGGEBER-GMBH</td><td class="num">${fmtEur(totalDamage)}</td></tr>
+  `;
+
+  // § 2 Satz 1 Nr. 9 SGB VI (5/6 rule)
+  const exceeds56 = sharePct >= 83.33;
+  const empExempt = hasEmp || payroll > 556;
+  const rvActive = exceeds56 && !empExempt;
+  const rvBase = Math.min(honorarium, 8050);
+  const monthlyRv = rvActive ? (rvBase * 0.186) : 0;
+  const annualRv = monthlyRv * 12;
+
+  const kpiRv = document.getElementById('kpiFreelancerRv');
+  kpiRv.textContent = `${fmtEur(annualRv)} / J.`;
+  kpiRv.style.color = rvActive ? 'var(--danger)' : 'var(--ok)';
+  document.getElementById('kpiFreelancerSub').textContent = rvActive
+    ? `18,6% RV-Pflicht aktiv (${fmtEur(monthlyRv)}/Monat · 4J-Risiko ${fmtEur(monthlyRv * Math.min(months, 48))})`
+    : `Befreit (${empExempt ? 'Mitarbeiter > €556/M' : 'Umsatz < 83,33%'})`;
+
+  document.getElementById('sec2Badge').textContent = rvActive ? '18,6% RV-PFLICHT AKTIV' : 'KEINE RV-PFLICHT';
+  document.getElementById('sec2Badge').className = 'badge ' + (rvActive ? 'badge-danger' : 'badge-ok');
+
+  document.getElementById('sec2Summary').innerHTML = rvActive
+    ? `<strong style="color:var(--danger);">Achtung Solo-Selbstständigen-Falle (§ 2 Satz 1 Nr. 9 SGB VI):</strong> Selbst wenn die DRV Ihre echte Selbstständigkeit nach § 7 SGB IV bestätigt, schulden Sie persönlich <strong>18,6% gesetzliche Rentenversicherung (${fmtEur(monthlyRv)}/Monat)</strong>, weil Sie ${sharePct.toFixed(1)}% (&ge; 83,33%) Ihres Umsatzes mit einem Auftraggeber erzielen und keinen Mitarbeiter &gt; €556/Monat beschäftigen!`
+    : `<strong style="color:var(--ok);">§ 2 Satz 1 Nr. 9 SGB VI sauber:</strong> Entweder liegt Ihr Hauptkunden-Umsatzanteil (${sharePct.toFixed(1)}%) unter 83,33% oder Sie beschäftigen sozialversicherungspflichtige Mitarbeitende (&gt; €556/Monat).`;
+
+  const stratArr = [];
+  if (rvActive) {
+    if (startupMonths <= 3) {
+      stratArr.push(`🔥 <strong>3-Monats-Frist offen (§ 6 Abs. 1a S. 1 Nr. 1 SGB VI):</strong> Sofort Formular V0050 (Befreiung für Existenzgründer) bei der DRV einreichen -> spart 3 Jahre lang ${fmtEur(annualRv)}/Jahr rückwirkend ab Gründung!`);
+    } else if (startupMonths <= 36) {
+      stratArr.push(`⚡ <strong>Existenzgründer-Restlaufzeit (${36 - startupMonths} Monate):</strong> Antrag nach § 6 Abs. 1a SGB VI wirkt ab Antragseingang für die verbleibenden Gründerjahre.`);
+    }
+    stratArr.push(`🛡️ <strong>Mitarbeiter-Hebel (§ 2 S. 1 Nr. 9a SGB VI):</strong> Einen Werkstudenten/Midijobber mit &gt; €556/Monat (z.B. €600/Monat) oder zwei Minijobber mit zusammen &gt; €556/Monat einstellen -> beendet die ${fmtEur(monthlyRv)}/Monat RV-Pflicht sofort legal.`);
+    stratArr.push(`📊 <strong>5/6-Diversifikation:</strong> Zweitkunden-Umsatz auf &gt; 16,67% steigern (Vorsicht: Konzernunternehmen nach § 18 AktG gelten als EIN Auftraggeber!).`);
+  } else {
+    stratArr.push(`✅ Keine zusätzliche Maßnahme nach § 2 S. 1 Nr. 9 SGB VI erforderlich.`);
+  }
+  document.getElementById('sec2Strategies').innerHTML = stratArr.map(s => `<div class="strategy-pill">${s}</div>`).join('');
+
+  // Herrenberg & § 127 SGB IV
+  document.getElementById('kpiHerrenberg').textContent = `${herrenbergCnt} / 8 Flags`;
+  document.getElementById('kpiHerrenberg').style.color = herrenbergCnt >= 3 ? 'var(--danger)' : 'var(--ok)';
+  document.getElementById('kpiSec127Sub').textContent = teaching
+    ? (sec127 ? '§ 127 SGB IV Schutz bis 31.12.2027 aktiv' : 'WARNUNG: § 127 SGB IV Zustimmung fehlt!')
+    : 'Kein Lehrvertrag (§ 127 SGB IV n.a.)';
+
+  const procItems = [
+    `<strong>§ 7a Abs. 4a SGB IV (Prognoseentscheidung):</strong> Vor Projektstart verbindliche Statusklärung bei der DRV-Clearingstelle (Formular V0027) auf Basis des sanierten Werkvertrags einholen.`,
+    `<strong>§ 7a Abs. 4b SGB IV (Gruppenfeststellung):</strong> Bei mehreren Freelancern auf identischen Rahmen-Werkverträgen gutachterliche Gruppenfeststellung beantragen.`,
+  ];
+  if (agency) {
+    procItems.push(`<strong>⚠️ Dreiecksverhältnis (§ 7a Abs. 2 S. 2–4 SGB IV):</strong> Eine zwischengeschaltete Recruiting-Agentur schützt die Endkunden-GmbH NICHT, wenn der Contractor im Alltag in das Scrum-Team des Endkunden eingegliedert wird!`);
+  }
+  if (teaching) {
+    procItems.push(`<strong>🎓 Lehrtätigkeit (§ 127 SGB IV verlängert bis 31.12.2027):</strong> Schriftliche Feststellung des Selbstständigkeitswillens + ausdrückliche Zustimmung der Lehrkraft nach § 127 Abs. 1 Nr. 2 SGB IV einholen, um Beitragsnachforderungen bis Ende 2027 gesetzlich zu sperren.`);
+  }
+  document.getElementById('proceduralBox').innerHTML = procItems.map(p => `<div class="strategy-pill">${p}</div>`).join('');
+}
+
+['inpHonorarium','inpMonths','inpSharePct','inpStartupMonths','inpPayroll','inpHasEmp','chkVorsatz','chkAgency','chkTeaching','chkSec127Consent'].forEach(id => {
+  document.getElementById(id).addEventListener('input', recalculate);
+  document.getElementById(id).addEventListener('change', recalculate);
+});
+
+renderClauses();
+loadCase(0);
+</script>
+</body>
+</html>

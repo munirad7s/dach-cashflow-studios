@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="de" class="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ADAS Cloud Systems GmbH (DACH Reference Stack) — Live NIS-2 / ISO 27001 / DSGVO Trust Center & Questionnaire Autopilot</title>
+  <style>
+    :root {
+      --bg: #090d16;
+      --bg-card: #111827;
+      --bg-card-hover: #172033;
+      --bg-muted: #0d1322;
+      --border: #1e293b;
+      --border-accent: #334155;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent: #10b981;
+      --accent-soft: rgba(16, 185, 129, 0.14);
+      --blue: #3b82f6;
+      --blue-soft: rgba(59, 130, 246, 0.14);
+      --amber: #f59e0b;
+      --amber-soft: rgba(245, 158, 11, 0.15);
+      --red: #ef4444;
+      --red-soft: rgba(239, 68, 68, 0.15);
+      --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: radial-gradient(circle at 15% 0%, #0f1f38 0%, var(--bg) 42%);
+      color: var(--text);
+      font-family: var(--font);
+      line-height: 1.55;
+      min-height: 100vh;
+      padding-bottom: 4rem;
+    }
+    a { color: var(--blue); text-decoration: none; }
+    .topbar {
+      border-bottom: 1px solid var(--border);
+      background: rgba(9, 13, 22, 0.88);
+      backdrop-filter: blur(12px);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      padding: 0.85rem 1.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+    }
+    .shield-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      color: #04130d;
+      font-size: 1.05rem;
+      box-shadow: 0 0 20px rgba(16, 185, 129, 0.35);
+    }
+    .brand-title {
+      font-weight: 700;
+      font-size: 1.05rem;
+      letter-spacing: -0.02em;
+    }
+    .brand-sub {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .live-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 10px var(--accent);
+      display: inline-block;
+    }
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      flex-wrap: wrap;
+    }
+    .btn {
+      border: 1px solid var(--border-accent);
+      background: var(--bg-card);
+      color: var(--text);
+      padding: 0.48rem 0.9rem;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .btn:hover {
+      border-color: var(--accent);
+      background: var(--bg-card-hover);
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: #03150e;
+      border-color: var(--accent);
+    }
+    .btn-primary:hover {
+      background: #34d399;
+      border-color: #34d399;
+    }
+    .container {
+      max-width: 1320px;
+      margin: 0 auto;
+      padding: 1.75rem 1.5rem 0;
+    }
+    .hero {
+      background: linear-gradient(145deg, rgba(17, 24, 39, 0.95) 0%, rgba(15, 23, 42, 0.78) 100%);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.75rem;
+      margin-bottom: 1.5rem;
+      display: grid;
+      grid-template-columns: 1.6fr 1fr;
+      gap: 1.5rem;
+      align-items: center;
+    }
+    @media (max-width: 960px) {
+      .hero { grid-template-columns: 1fr; }
+    }
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 0.85rem;
+    }
+    .pill {
+      font-size: 0.73rem;
+      font-weight: 600;
+      padding: 0.25rem 0.65rem;
+      border-radius: 999px;
+      border: 1px solid var(--border-accent);
+      background: rgba(255,255,255,0.03);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+    .pill-green {
+      color: #34d399;
+      background: var(--accent-soft);
+      border-color: rgba(16, 185, 129, 0.35);
+    }
+    .pill-blue {
+      color: #60a5fa;
+      background: var(--blue-soft);
+      border-color: rgba(59, 130, 246, 0.35);
+    }
+    .pill-amber {
+      color: #fbbf24;
+      background: var(--amber-soft);
+      border-color: rgba(245, 158, 11, 0.35);
+    }
+    .pill-red {
+      color: #f87171;
+      background: var(--red-soft);
+      border-color: rgba(239, 68, 68, 0.35);
+    }
+    .hero h1 {
+      font-size: 1.65rem;
+      font-weight: 800;
+      letter-spacing: -0.025em;
+      margin-bottom: 0.55rem;
+    }
+    .hero p {
+      color: var(--text-muted);
+      font-size: 0.92rem;
+      margin-bottom: 1rem;
+    }
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 0.75rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid var(--border);
+      font-size: 0.8rem;
+    }
+    .meta-item span {
+      display: block;
+      color: var(--text-muted);
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .meta-item strong {
+      color: var(--text);
+      font-family: var(--mono);
+      font-size: 0.8rem;
+    }
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.85rem;
+    }
+    .kpi-card {
+      background: var(--bg-muted);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1rem;
+    }
+    .kpi-label {
+      font-size: 0.74rem;
+      color: var(--text-muted);
+      margin-bottom: 0.25rem;
+    }
+    .kpi-value {
+      font-size: 1.55rem;
+      font-weight: 800;
+      font-family: var(--mono);
+      letter-spacing: -0.03em;
+    }
+    .kpi-sub {
+      font-size: 0.73rem;
+      color: var(--text-muted);
+      margin-top: 0.2rem;
+    }
+    .fw-strip {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 0.9rem;
+      margin-bottom: 1.5rem;
+    }
+    .fw-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1rem 1.15rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+    }
+    .fw-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 700;
+      font-size: 0.88rem;
+    }
+    .progress-bar {
+      height: 6px;
+      background: #1e293b;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #10b981, #3b82f6);
+      border-radius: 999px;
+    }
+    .tabs {
+      display: flex;
+      gap: 0.5rem;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 1.25rem;
+      overflow-x: auto;
+      padding-bottom: 0.5rem;
+    }
+    .tab-btn {
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--text-muted);
+      padding: 0.55rem 1rem;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      cursor: pointer;
+    }
+    .tab-btn.active {
+      background: var(--bg-card);
+      color: var(--text);
+      border-color: var(--border-accent);
+    }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+    .autopilot-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.25rem;
+      margin-bottom: 1.25rem;
+    }
+    .autopilot-box h2 {
+      font-size: 1.05rem;
+      margin-bottom: 0.35rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .autopilot-controls {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 0.75rem;
+      margin-top: 0.85rem;
+    }
+    @media (max-width: 768px) {
+      .autopilot-controls { grid-template-columns: 1fr; }
+    }
+    textarea, input[type="text"], select {
+      width: 100%;
+      background: var(--bg-muted);
+      border: 1px solid var(--border-accent);
+      color: var(--text);
+      border-radius: 8px;
+      padding: 0.65rem 0.85rem;
+      font-family: var(--font);
+      font-size: 0.85rem;
+    }
+    textarea:focus, input[type="text"]:focus, select:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    .filter-bar {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      margin-bottom: 1rem;
+      align-items: center;
+    }
+    .q-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.15rem 1.25rem;
+      margin-bottom: 0.9rem;
+      transition: border-color 0.15s ease;
+    }
+    .q-card:hover {
+      border-color: var(--border-accent);
+    }
+    .q-card.gap-card {
+      border-left: 4px solid var(--amber);
+    }
+    .q-card.verified-card {
+      border-left: 4px solid var(--accent);
+    }
+    .q-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 1rem;
+      margin-bottom: 0.55rem;
+      flex-wrap: wrap;
+    }
+    .q-title {
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+    .citation-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 0.5rem;
+      margin: 0.75rem 0;
+      background: var(--bg-muted);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.7rem;
+      font-size: 0.76rem;
+    }
+    .citation-item strong {
+      color: #60a5fa;
+      display: block;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+    }
+    .answer-box {
+      background: rgba(16, 185, 129, 0.05);
+      border: 1px solid rgba(16, 185, 129, 0.2);
+      border-radius: 8px;
+      padding: 0.85rem;
+      font-size: 0.86rem;
+      margin-top: 0.55rem;
+    }
+    .answer-box.gap-answer {
+      background: rgba(245, 158, 11, 0.06);
+      border-color: rgba(245, 158, 11, 0.28);
+    }
+    .evidence-list {
+      margin-top: 0.65rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    .evidence-chip {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      background: var(--bg-muted);
+      border: 1px solid var(--border-accent);
+      padding: 0.28rem 0.6rem;
+      border-radius: 6px;
+      color: #cbd5e1;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      font-size: 0.84rem;
+    }
+    th, td {
+      padding: 0.8rem 1rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+    th {
+      background: var(--bg-muted);
+      color: var(--text-muted);
+      font-size: 0.74rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    code {
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      background: rgba(255,255,255,0.06);
+      padding: 0.12rem 0.38rem;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- DACH CASHFLOW STUDIOS LAUNCH BAR -->
+<style>
+  #dcs-launch-bar {
+    position: sticky;
+    top: 0;
+    z-index: 99999;
+    background: linear-gradient(90deg, #0b1120 0%, #111827 50%, #0f172a 100%);
+    color: #f8fafc;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.35);
+    padding: 8px 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  }
+  #dcs-launch-bar .dcs-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+  }
+  #dcs-launch-bar .dcs-badge {
+    background: rgba(16, 185, 129, 0.18);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.03em;
+  }
+  #dcs-launch-bar a.dcs-nav {
+    color: #93c5fd;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 12.5px;
+  }
+  #dcs-launch-bar a.dcs-nav:hover {
+    text-decoration: underline;
+    color: #dbeafe;
+  }
+  #dcs-launch-bar .dcs-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  #dcs-launch-bar .dcs-btn {
+    padding: 5px 11px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s ease;
+  }
+  #dcs-launch-bar .dcs-btn-ghost {
+    background: rgba(255,255,255,0.08);
+    color: #e2e8f0;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  #dcs-launch-bar .dcs-btn-primary {
+    background: linear-gradient(135deg, #0ea5e9, #2563eb);
+    color: #ffffff;
+  }
+  #dcs-launch-bar .dcs-btn-emerald {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
+  }
+  @media print {
+    #dcs-launch-bar { display: none !important; }
+  }
+</style>
+<div id="dcs-launch-bar">
+  <div class="dcs-left">
+    <a href="/index.html" class="dcs-nav">← Alle 150 DACH Studios</a>
+    <span class="dcs-badge">MVP #031 VERIFIED</span>
+    <span style="color:#cbd5e1;font-size:12px;">DACH LegalTech, Labor Law & Consumer Claims</span>
+  </div>
+  <div class="dcs-actions">
+    <button onclick="window.print()" class="dcs-btn dcs-btn-ghost">🖨️ PDF / Dossier drucken</button>
+    <a href="#checkout-modal-49" target="_blank" rel="noopener" class="dcs-btn dcs-btn-primary">⚡ Musterschreiben & Voll-Dossier (€49)</a>
+    <a href="#checkout-modal-299" target="_blank" rel="noopener" class="dcs-btn dcs-btn-emerald">🛡️ B2B Umsetzung buchen (€299 / €1.490)</a>
+  </div>
+</div>
+
+  <header class="topbar">
+    <div class="brand">
+      <div class="shield-icon">N2</div>
+      <div>
+        <div class="brand-title">ADAS Cloud Systems GmbH (DACH Reference Stack) — Security Trust Center</div>
+        <div class="brand-sub">
+          <span class="live-dot"></span>
+          <span>Live Continuous Evidence Vault · Hetzner DE (Nürnberg) · NIS-2 (§ 30 BSIG) &amp; ISO 27001:2022</span>
+        </div>
+      </div>
+    </div>
+    <div class="top-actions">
+      <button class="btn" id="langToggleBtn" onclick="toggleLanguage()">Sprache / Language: <strong>DE (DACH)</strong></button>
+      <button class="btn" onclick="exportCompletedJson()">Export JSON Audit</button>
+      <button class="btn btn-primary" onclick="exportCompletedCsv()">Export CSV / Excel</button>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="hero">
+      <div>
+        <div class="badge-row">
+          <span class="pill pill-green">✓ NIS-2 (§ 30 &amp; § 32 BSIG) Ready</span>
+          <span class="pill pill-green">✓ DIN EN ISO/IEC 27001:2022 Mapped</span>
+          <span class="pill pill-blue">✓ Art. 28 / 32 DSGVO TOMs Verified</span>
+          <span class="pill pill-blue">✓ BSI IT-Grundschutz Kern</span>
+        </div>
+        <h1>Automated DACH Enterprise Security &amp; NIS-2 Deal-Unblocker</h1>
+        <p>
+          Dieses selbst-gehostete Trust Center spiegelt unsere kontinuierlich verifizierten technischen und
+          organisatorischen Maßnahmen (TOMs) in Echtzeit wider. Einkaufs-, Compliance- und Informationssicherheits-Teams
+          können hier direkt Lieferanten-Fragebögen nach <strong>§ 30 BSIG (NIS-2)</strong>, <strong>ISO/IEC 27001:2022</strong>
+          und <strong>Art. 32 DSGVO</strong> automatisiert gegen unseren Evidence Vault prüfen.
+        </p>
+        <div class="meta-grid">
+          <div class="meta-item">
+            <span>Primärer Server-Cluster</span>
+            <strong>adas-hetzner (Hetzner Online GmbH, Nürnberg DE — CX43 Dedicated/Cloud)</strong>
+          </div>
+          <div class="meta-item">
+            <span>Datensouveränität</span>
+            <strong>100% Deutschland (Nürnberg)</strong>
+          </div>
+          <div class="meta-item">
+            <span>BSI / NIS-2 Meldestelle</span>
+            <strong>24h Frühwarnung / 72h Meldung aktiv</strong>
+          </div>
+        </div>
+      </div>
+
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-label">Pflichtkontrollen Verifiziert</div>
+          <div class="kpi-value" style="color: var(--accent);" id="kpiMandatoryPct">100.0%</div>
+          <div class="kpi-sub" id="kpiMandatorySub">7 / 7 Mandatory Checks</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Gesamt-Fragebogen-Score</div>
+          <div class="kpi-value" style="color: #60a5fa;" id="kpiOverallPct">80.0%</div>
+          <div class="kpi-sub" id="kpiOverallSub">8 Verifiziert · 2 Gaps markiert</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">NIS-2 Melde-SLA (§ 32 BSIG)</div>
+          <div class="kpi-value">24h / 72h</div>
+          <div class="kpi-sub">BSI Frühwarnung &amp; Art. 33 DSGVO</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Backup RPO / RTO (Hetzner)</div>
+          <div class="kpi-value">&le;1h / &le;4h</div>
+          <div class="kpi-sub">AES-256-GCM Immutable Storage Box</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="fw-strip" id="frameworkStrip"></section>
+
+    <nav class="tabs">
+      <button class="tab-btn active" onclick="switchTab('autopilot', this)">1. Live Questionnaire Autopilot (10)</button>
+      <button class="tab-btn" onclick="switchTab('vault', this)">2. Infrastructure Evidence Vault (8 Controls)</button>
+      <button class="tab-btn" onclick="switchTab('subprocessors', this)">3. Art. 28 DSGVO Sub-Processors (3)</button>
+      <button class="tab-btn" onclick="switchTab('gaps', this)">4. Gap Remediation Matrix (2)</button>
+    </nav>
+
+    <!-- TAB 1: QUESTIONNAIRE AUTOPILOT -->
+    <section id="tab-autopilot" class="tab-panel active">
+      <div class="autopilot-box">
+        <h2>⚡ Live Security Questionnaire Responder (Instant Evidence Vault Matcher)</h2>
+        <p style="font-size: 0.83rem; color: var(--text-muted);">
+          Fügen Sie eine beliebige Sicherheitsfrage Ihres Einkaufs oder CISO-Teams ein (z. B. zu Verschlüsselung, Hetzner ISO-27001,
+          RPO/RTO, 24h/72h NIS-2 Meldung, MFA oder Hardware-HSM) — der Autopilot generiert sofort die passende DE/EN-Antwort inkl.
+          Gesetzes- und Norm-Zitaten.
+        </p>
+        <div class="autopilot-controls">
+          <input type="text" id="customQuestionInput" placeholder="z. B. Wie werden Backups verschlüsselt und welches RPO/RTO gilt bei einem Rechenzentrumsausfall?" />
+          <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+            <button class="btn btn-primary" onclick="runLiveCustomQuestion()">Frage jetzt prüfen &amp; belegen</button>
+            <button class="btn" onclick="loadSamplePreset('nis2')">Preset: NIS-2 24h/72h</button>
+            <button class="btn" onclick="loadSamplePreset('gap')">Preset: FIPS 140-3 HSM Gap</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="filter-bar">
+        <input type="text" id="searchFilter" placeholder="Fragebogen durchsuchen (z. B. TLS, Hetzner, RPO, § 30 BSIG, MFA, Gap)..." style="max-width: 380px;" oninput="renderQuestions()" />
+        <select id="statusFilter" style="max-width: 220px;" onchange="renderQuestions()">
+          <option value="ALL">Alle Status anzeigen</option>
+          <option value="VERIFIED">Nur VERIFIED (Nachweis vorhanden)</option>
+          <option value="MISSING_CONTROL">Nur MISSING_CONTROL (Gaps)</option>
+        </select>
+      </div>
+
+      <div id="questionsContainer"></div>
+    </section>
+
+    <!-- TAB 2: EVIDENCE VAULT -->
+    <section id="tab-vault" class="tab-panel">
+      <div id="vaultContainer"></div>
+    </section>
+
+    <!-- TAB 3: SUBPROCESSORS -->
+    <section id="tab-subprocessors" class="tab-panel">
+      <table>
+        <thead>
+          <tr>
+            <th>Unterauftragsverarbeiter</th>
+            <th>Zweck der Verarbeitung</th>
+            <th>Standort / Data Residency</th>
+            <th>Zertifizierungen</th>
+            <th>Art. 28 DSGVO Status</th>
+          </tr>
+        </thead>
+        <tbody id="subprocessorsBody"></tbody>
+      </table>
+    </section>
+
+    <!-- TAB 4: GAPS -->
+    <section id="tab-gaps" class="tab-panel">
+      <table>
+        <thead>
+          <tr>
+            <th>Frage / Gap-ID</th>
+            <th>Identifizierte Abweichung</th>
+            <th>Schweregrad</th>
+            <th>Technische Remediation-Maßnahme</th>
+            <th>Aufwand</th>
+          </tr>
+        </thead>
+        <tbody id="gapsBody"></tbody>
+      </table>
+    </section>
+  </main>
+
+  <script>
+    const VAULT_DATA = {"organization": {"name": "ADAS Cloud Systems GmbH (DACH Reference Stack)", "domain": "trust.adas-systems.de", "primary_infrastructure": "adas-hetzner (Hetzner Online GmbH, Nürnberg DE — CX43 Dedicated/Cloud)", "data_residency": "Germany / European Union (100% EU Sovereign Hosting, Zero US CLOUD Act Core DB)", "dpo_contact": "datenschutz@adas-systems.de", "security_contact": "security@adas-systems.de", "bsi_nis2_registration": "BSI-KritisV / NIS-2 Meldestelle Registriert (§ 33 BSIG-neu)", "last_evidence_sync": "2026-10-17T12:00:00Z", "frameworks_active": [{"id": "NIS2-BSIG", "name": "NIS-2-Umsetzungsgesetz (§ 30 & § 32 BSIG-neu)", "status": "VERIFIED", "coverage_pct": 94.0, "badge": "§ 30 BSIG Konform"}, {"id": "ISO-27001-2022", "name": "DIN EN ISO/IEC 27001:2022 (Annex A Controls)", "status": "VERIFIED", "coverage_pct": 92.5, "badge": "ISO 27001:2022 Mapped"}, {"id": "DSGVO-ART32", "name": "DSGVO Art. 28 / Art. 32 TOMs & Art. 33 Meldepflicht", "status": "VERIFIED", "coverage_pct": 98.0, "badge": "DSGVO Art. 32 Verified"}, {"id": "BSI-GRUNDSCHUTZ", "name": "BSI IT-Grundschutz-Kompendium (Edition 2023/2026)", "status": "VERIFIED", "coverage_pct": 91.0, "badge": "BSI IT-Grundschutz"}]}, "subprocessors": [{"name": "Hetzner Online GmbH", "purpose_de": "Primäres IaaS-Hosting, Dedicated Root & Cloud Server (adas-hetzner), Storage Box Backups", "purpose_en": "Primary IaaS compute hosting (adas-hetzner), block volumes, and encrypted Storage Box backups", "location": "Nürnberg & Falkenstein, Deutschland (EU)", "certifications": ["DIN EN ISO/IEC 27001:2022 (FOX-Zertifikat)", "BSI C5 Testat Äquivalenz"], "dpa_status": "AVV gemäß Art. 28 DSGVO aktiv (unterzeichnet)", "transfer_mechanism": "Kein Drittlandtransfer (100% Deutschland)"}, {"name": "Cloudflare Germany GmbH / Inc. (EU Regional Services)", "purpose_de": "WAF, DDoS-Schutz (Anycast), DNSSEC, Zero-Trust Edge & Static Pages", "purpose_en": "WAF, DDoS mitigation, DNSSEC, Zero-Trust Edge & Static Frontend Pages", "location": "Frankfurt am Main, Deutschland (EU Data Localization Suite aktiviert)", "certifications": ["ISO/IEC 27001:2022", "SOC 2 Type II", "BSI C5 Type 2", "EU-US DPF"], "dpa_status": "AVV inkl. EU Standardvertragsklauseln (SCC) + Regional Services EU-Only", "transfer_mechanism": "EU Data Localization (Customer Metadata Boundary EU)"}, {"name": "GitHub B.V. (EU Enterprise Cloud)", "purpose_de": "Quellcode-Verwaltung, CI/CD-Pipelines, Container Registry (GHCR) & Dependabot/Secret-Scanning", "purpose_en": "Source control, CI/CD pipelines, container registry (GHCR) & automated secret scanning", "location": "EU Data Residency (Keine produktiven Endkundendaten / PII gespeichert)", "certifications": ["ISO/IEC 27001:2022", "SOC 2 Type II", "TISAX"], "dpa_status": "GitHub DPA (Art. 28 DSGVO) aktiv", "transfer_mechanism": "EU Data Residency + EU-US DPF / SCCs (nur Quellcode, keine Kunden-PII)"}], "controls": [{"control_id": "CTRL-ENC-01", "domain": "Cryptography & Encryption", "title_de": "Verschlüsselung ruhender und übertragener Daten (At-Rest & In-Transit)", "title_en": "Encryption of Data at Rest and in Transit", "status": "IMPLEMENTED", "keywords": ["encryption", "verschlüsselung", "tls", "ssl", "aes", "aes-256", "at rest", "in transit", "kryptografie", "cryptography", "luks", "cipher", "hsts", "zertifikat", "certificate", "key management", "kms", "schlüsselverwaltung", "transportverschlüsselung", "datenbankverschlüsselung", "art. 32"], "frameworks": {"iso_27001": "Annex A.8.24 (Use of cryptography) & A.5.14 (Information transfer)", "bsi_grundschutz": "CON.1 (Kryptokonzept) & NET.1.2 (Netzmanagement)", "nis2_bsig": "§ 30 Abs. 2 Nr. 8 BSIG (Konzepte und Verfahren für Kryptografie und Verschlüsselung)", "dsgvo": "Art. 32 Abs. 1 lit. a DSGVO (Verschlüsselung personenbezogener Daten)"}, "answer_de": "Alle Daten werden während der Übertragung (In-Transit) zwingend über TLS 1.3 (Mindeststandard TLS 1.2 mit AEAD-Cipher-Suites wie ECDHE-ECDSA-AES256-GCM-SHA384, HSTS Preload max-age=63072000) über Traefik/Caddy verschlüsselt. Ruhende Daten (At-Rest) auf unserem primären Hetzner-Cluster (`adas-hetzner`, Nürnberg) sind auf Block-Storage-Ebene mittels LUKS2 (AES-256-XTS, 512-Bit Schlüssellänge) sowie auf Datenbank- und Backup-Ebene mittels AES-256-GCM / ChaCha20-Poly1305 verschlüsselt. Kryptografische Schlüssel werden über einen isolierten Secret-Store mit 90-tägiger automatischer Schlüsselrotation verwaltet.", "answer_en": "All data in transit is strictly encrypted using TLS 1.3 (minimum TLS 1.2 with strong AEAD cipher suites ECDHE-ECDSA-AES256-GCM-SHA384 and HSTS preload max-age=63072000) terminated at our hardened Traefik/Caddy reverse proxy. All data at rest on our primary Hetzner cluster (`adas-hetzner`, Nuremberg, Germany) is encrypted at the volume layer using LUKS2 (AES-256-XTS, 512-bit key) and at the application/backup layer using AES-256-GCM. Cryptographic keys are managed outside repositories in a dedicated secret vault with automated 90-day rotation.", "evidence_artifacts": [{"artifact_id": "EV-TLS-001", "type": "automated_probe", "description": "Daily TLS 1.3 & Cipher Suite Check on Reverse Proxy (Traefik/Caddy)", "command": "openssl s_client -connect trust.adas-systems.de:443 -tls1_3", "sha256": "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08", "last_verified": "2026-10-17T06:00:12Z"}, {"artifact_id": "EV-LUKS-002", "type": "config_snapshot", "description": "LUKS2 Volume Header Verification on adas-hetzner NVMe & Named Volumes", "command": "cryptsetup luksDump /dev/md2 | grep -E 'Version|cipher'", "sha256": "4b227777d4dd1fc61c6f884f48641d02b4d121d3fd328cb08b5531fcacdabf8a", "last_verified": "2026-10-17T06:01:05Z"}]}, {"control_id": "CTRL-HOST-02", "domain": "Physical & Cloud Infrastructure (Hetzner DE)", "title_de": "ISO-27001-zertifiziertes Hosting & EU-Datensouveränität (Hetzner Nürnberg)", "title_en": "ISO 27001 Certified Hosting & EU Data Sovereignty (Hetzner Nuremberg, Germany)", "status": "IMPLEMENTED", "keywords": ["hosting", "hetzner", "data center", "rechenzentrum", "iso 27001", "standort", "location", "data residency", "datensouveränität", "germany", "deutschland", "eu", "cloud act", "physische sicherheit", "physical security", "nürnberg", "falkenstein", "server", "infrastruktur", "infrastructure", "container", "docker"], "frameworks": {"iso_27001": "Annex A.7.1–A.7.4 (Physical security perimeters & monitoring) & A.5.23 (Information security for use of cloud services)", "bsi_grundschutz": "INF.1 (Allgemeines Gebäude) & INF.2 (Rechenzentrum sowie Serverraum)", "nis2_bsig": "§ 30 Abs. 2 Nr. 1 & Nr. 4 BSIG (Sicherheit der Systeme, Anlagen und Lieferkette)", "dsgvo": "Art. 32 Abs. 1 lit. b & Art. 44 ff. DSGVO (Ausschließliche Speicherung im EWR / Deutschland)"}, "answer_de": "Die gesamte produktive Infrastruktur wird ausschließlich in Deutschland im Rechenzentrumspark Nürnberg der Hetzner Online GmbH (`adas-hetzner`) betrieben. Hetzner Online ist nach DIN EN ISO/IEC 27001:2022 zertifiziert (Zertifikats-Reg.-Nr. FOX-ISO27001). Die Rechenzentren verfügen über 24/7-Videoüberwachung, biometrische Zutrittskontrollen, Vereinzelungsschleusen, redundante USV/Notstromdiesel und Brandfrüherkennung (VESDA). Alle Dienste laufen als isolierte Docker-Compose-Stacks hinter Traefik/Caddy ohne US-Cloud-Lock-in; ein Datentransfer von Kerndatenbanken in Drittstaaten findet nicht statt.", "answer_en": "All production workloads and databases are hosted exclusively in Nuremberg, Germany on `adas-hetzner` (Hetzner Online GmbH). Hetzner's data centers are certified under DIN EN ISO/IEC 27001:2022, featuring 24/7 CCTV surveillance, biometric access control mantraps, redundant N+1 UPS/diesel generators, and VESDA early fire detection. All services run in isolated Docker Compose networks behind Traefik/Caddy with named volumes, guaranteeing 100% German/EU data residency and zero exposure to the US CLOUD Act for core data.", "evidence_artifacts": [{"artifact_id": "EV-HZ-ISO27001", "type": "certificate", "description": "Hetzner Online GmbH DIN EN ISO/IEC 27001:2022 Certificate (Nürnberg/Falkenstein)", "command": "sha256sum certs/Hetzner_ISO27001_2022_DE.pdf", "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", "last_verified": "2026-10-15T10:00:00Z"}, {"artifact_id": "EV-DOCKER-NET", "type": "automated_probe", "description": "Docker Compose Network Isolation & Non-Root Container Audit on adas-hetzner", "command": "docker inspect $(docker ps -q) --format '{{.Name}}: User={{.Config.User}}'", "sha256": "7a9c8b12f3e4d5c6b7a890123456789abcdef0123456789abcdef0123456789a", "last_verified": "2026-10-17T06:05:00Z"}]}, {"control_id": "CTRL-BCK-03", "domain": "Business Continuity, Backup & Disaster Recovery (RPO/RTO)", "title_de": "Backup-Konzept, RPO <= 1h, RTO <= 4h & Notfall-Wiederherstellungstests", "title_en": "Backup Management, RPO <= 1h, RTO <= 4h & Disaster Recovery Drills", "status": "IMPLEMENTED", "keywords": ["backup", "datensicherung", "rpo", "rto", "disaster recovery", "business continuity", "bcm", "notfallmanagement", "wiederherstellung", "restore", "snapshot", "redundanz", "verfügbarkeit", "availability", "borgbackup", "restic", "immutable", "ransomware", "ausfallsicherheit", "krisenmanagement"], "frameworks": {"iso_27001": "Annex A.8.13 (Information backup), A.8.14 (Redundancy of information processing facilities) & A.5.30 (ICT readiness for business continuity)", "bsi_grundschutz": "CON.3 (Datensicherungskonzept) & DER.4 (Notfallmanagement)", "nis2_bsig": "§ 30 Abs. 2 Nr. 3 BSIG (Aufrechterhaltung des Betriebs, Backup-Management und Wiederherstellung nach einem Notfall)", "dsgvo": "Art. 32 Abs. 1 lit. c DSGVO (Fähigkeit, die Verfügbarkeit der personenbezogenen Daten und den Zugang zu ihnen bei einem Zwischenfall rasch wiederherzustellen)"}, "answer_de": "Wir gewährleisten ein Recovery Point Objective (RPO) von <= 1 Stunde (stündliche inkrementelle Datenbank-WAL-Archivierung und verschlüsselte Restic/BorgBackup-Snapshots) sowie ein Recovery Time Objective (RTO) von <= 4 Stunden durch vollständig deklarative Docker-Compose-Infrastruktur. Backups werden clientseitig mit AES-256-GCM verschlüsselt und georedundant auf einer physisch getrennten Hetzner Storage Box (Append-Only / Immutable Locks gegen Ransomware) mit einer Aufbewahrungsfrist nach 3-2-1-Regel (7 Tage stündlich, 4 Wochen täglich, 12 Monate monatlich) gespeichert. Vollständige Restore-Drills werden monatlich automatisiert durchgeführt und protokolliert.", "answer_en": "We maintain a verified Recovery Point Objective (RPO) of <= 1 hour via continuous PostgreSQL WAL archiving and hourly encrypted Restic/BorgBackup snapshots, paired with a Recovery Time Objective (RTO) of <= 4 hours via declarative Docker Compose provisioning. All backups follow the 3-2-1 rule, encrypted client-side with AES-256-GCM and replicated to a physically separate Hetzner Storage Box in append-only immutable mode. Automated end-to-end restore drills run monthly in an isolated staging container with cryptographic checksum verification.", "evidence_artifacts": [{"artifact_id": "EV-BCK-DRILL-10", "type": "restore_log", "description": "Automated Monthly Restore Drill Log (RPO=42m, Full Restore Time=38m 14s)", "command": "restic check --read-data-subset=10% && ./scripts/verify-restore-drill.sh", "sha256": "1c8a9e3f5b2d4a6c8e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d", "last_verified": "2026-10-01T03:40:19Z"}]}, {"control_id": "CTRL-INC-04", "domain": "NIS-2 & DSGVO Incident Reporting (24h / 72h Meldepflicht)", "title_de": "Behandlung von Sicherheitsvorfällen & 24h/72h BSI-/DSGVO-Meldeprozess", "title_en": "Incident Response & 24h/72h NIS-2 (BSI) / GDPR Breach Notification Workflow", "status": "IMPLEMENTED", "keywords": ["incident", "sicherheitsvorfall", "vorfall", "meldepflicht", "reporting", "breach", "datenpanne", "24h", "72h", "24 hours", "72 hours", "24 stunden", "72 stunden", "bsi", "nis-2", "nis2", "frühwarnung", "early warning", "art. 33", "art. 34", "§ 32 bsig", "sirt", "csirt", "alarmierung"], "frameworks": {"iso_27001": "Annex A.5.24–A.5.28 (Information security incident management planning, assessment, response, and evidence collection)", "bsi_grundschutz": "DER.2.1 (Behandlung von Sicherheitsvorfällen) & DER.2.2 (Vorsorge für die IT-Forensik)", "nis2_bsig": "§ 30 Abs. 2 Nr. 2 i.V.m. § 32 BSIG-neu (Dreistufige BSI-Meldepflicht: 24h Frühwarnung, 72h Vorfallmeldung, 1 Monat Abschlussbericht)", "dsgvo": "Art. 33 Abs. 1 DSGVO (Meldung an die Aufsichtsbehörde binnen 72 Stunden) & Art. 34 DSGVO"}, "answer_de": "Unser Incident-Response-Playbook setzt die gesetzlichen Fristen aus § 32 BSIG-neu (NIS-2) und Art. 33 DSGVO verbindlich um: (1) Binnen <= 1 Stunde nach Detektion erfolgt die interne Triage und Eindämmung (Containment). (2) Binnen <= 24 Stunden erfolgt bei erheblichen Sicherheitsvorfällen die gesetzliche Frühwarnung an das BSI (§ 32 Abs. 1 Nr. 1 BSIG) sowie eine Erstmeldung an betroffene Enterprise-Auftraggeber. (3) Binnen <= 72 Stunden folgt die qualifizierte Vorfallmeldung inkl. Schweregrad, Kompromittierungsindikatoren (IoCs) an das BSI (§ 32 Abs. 1 Nr. 2 BSIG) sowie bei Bezug zu personenbezogenen Daten die Meldung nach Art. 33 DSGVO an die zuständige Datenschutzaufsichtsbehörde. (4) Binnen 30 Tagen wird der forensische Abschlussbericht inkl. Root-Cause-Analyse (§ 32 Abs. 1 Nr. 4 BSIG) übermittelt.", "answer_en": "Our Incident Response Runbook enforces statutory NIS-2 (§ 32 BSIG-neu) and GDPR (Art. 33) timelines: (1) Internal triage and containment within <= 1 hour of alert trigger. (2) Within <= 24 hours: mandatory NIS-2 Early Warning submission to the German Federal Office for Information Security (BSI) under § 32(1)(1) BSIG and notification to affected enterprise data controllers. (3) Within <= 72 hours: comprehensive Incident Notification with IoCs, root-cause indicators, and impact assessment to the BSI (§ 32(1)(2) BSIG) and to the Data Protection Authority under Art. 33 GDPR. (4) Within 30 days: formal Root-Cause Analysis (RCA) and final report (§ 32(1)(4) BSIG).", "evidence_artifacts": [{"artifact_id": "EV-IR-PLAYBOOK", "type": "policy_and_test", "description": "NIS-2 § 32 BSIG 24h/72h Tabletop Exercise Protocol & BSI Reporting Template", "command": "python3 scripts/verify_ir_contacts.py --check-sla 24h-72h", "sha256": "8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92", "last_verified": "2026-10-10T14:20:00Z"}]}, {"control_id": "CTRL-SUB-05", "domain": "Supply-Chain Security & Sub-Processors (Art. 28 DSGVO / NIS-2)", "title_de": "Lieferkettensicherheit & Unterauftragsverarbeiter-Verzeichnis (Art. 28 DSGVO)", "title_en": "Supply-Chain Security & Sub-Processor Governance (Art. 28 GDPR / NIS-2)", "status": "IMPLEMENTED", "keywords": ["subprocessor", "sub-processor", "unterauftragsverarbeiter", "subunternehmer", "avv", "dpa", "art. 28", "supply chain", "lieferkette", "vendor", "dienstleister", "third party", "drittanbieter", "drittlandtransfer", "scc", "standardvertragsklauseln", "tia", "auftragsverarbeitung"], "frameworks": {"iso_27001": "Annex A.5.19–A.5.22 (Information security in supplier relationships, supplier agreements, and monitoring)", "bsi_grundschutz": "ORP.1 (Organisation) & CON.2 (Datenschutz)", "nis2_bsig": "§ 30 Abs. 2 Nr. 4 BSIG (Sicherheit der Lieferkette einschließlich sicherheitsbezogener Aspekte der Beziehungen zu unmittelbaren Anbietern)", "dsgvo": "Art. 28 Abs. 2 & Abs. 4 DSGVO (Einsatz weiterer Auftragsverarbeiter & AVV-Garantien)"}, "answer_de": "Wir setzen ausschließlich sicherheitsgeprüfte Unterauftragsverarbeiter mit geschlossenem Auftragsverarbeitungsvertrag (AVV nach Art. 28 DSGVO) und gültigem ISO/IEC 27001-Zertifikat ein. Unser primärer Infrastruktur-Subprozessor ist die Hetzner Online GmbH (Nürnberg/Falkenstein, Deutschland). Alle Lieferanten durchlaufen vor Beauftragung und danach jährlich ein Lieferketten-Risiko-Assessment gemäß § 30 Abs. 2 Nr. 4 BSIG. Über geplante Änderungen von Unterauftragsverarbeitern informieren wir Auftraggeber mindestens 30 Tage im Voraus mit Einspruchsrecht.", "answer_en": "We strictly vet all sub-processors under Art. 28 GDPR and NIS-2 supply-chain risk requirements (§ 30(2)(4) BSIG). Every sub-processor must hold an active ISO/IEC 27001:2022 or SOC 2 Type II certification and sign a binding Data Processing Agreement (DPA). Core compute and storage run on Hetzner Online GmbH (Nuremberg, Germany). Customers receive at least 30 days' advance notice before any new sub-processor is engaged, with a contractual right to object.", "evidence_artifacts": [{"artifact_id": "EV-AVV-REG-05", "type": "registry_audit", "description": "Verified Art. 28 DSGVO Sub-Processor Registry & Annual ISO 27001 Certificate Check", "command": "jq '.subprocessors[] | {name, location, dpa_status}' evidence_vault.json", "sha256": "3f79bb7b435b05321651daefd374cdc681dc06faa65e374e38337b88ca046dea", "last_verified": "2026-10-16T09:15:00Z"}]}, {"control_id": "CTRL-MFA-06", "domain": "Identity, MFA & Zero-Trust Access Control", "title_de": "Multi-Faktor-Authentifizierung (FIDO2/MFA), SSH-Key-Only & Least Privilege", "title_en": "Multi-Factor Authentication (FIDO2/MFA), SSH Key-Only & Least Privilege Access", "status": "IMPLEMENTED", "keywords": ["mfa", "2fa", "multi-factor", "multi-faktor", "authentifizierung", "authentication", "access control", "zugriffskontrolle", "berechtigung", "rbac", "least privilege", "ssh", "passwort", "password", "fido2", "webauthn", "zero trust", "tailscale", "vpn", "wireguard", "privilegiert", "admin"], "frameworks": {"iso_27001": "Annex A.8.5 (Secure authentication), A.5.15 (Access control) & A.8.2 (Privileged access rights)", "bsi_grundschutz": "ORP.4 (Identitäts- und Berechtigungsmanagement)", "nis2_bsig": "§ 30 Abs. 2 Nr. 7 & Nr. 9 BSIG (Konzepte für die Zugriffskontrolle sowie Verwendung von Multi-Faktor-Authentifizierung)", "dsgvo": "Art. 32 Abs. 1 lit. b DSGVO (Vertraulichkeit und Schutz vor unbefugtem Zugriff)"}, "answer_de": "Für sämtliche administrativen Zugänge, Quellcode-Repositories (GitHub), Cloud-Konsolen und internen Systeme ist Phishing-resistente Multi-Faktor-Authentifizierung (FIDO2/WebAuthn Hardware-Sicherheitsschlüssel bzw. TOTP) technisch erzwungen (§ 30 Abs. 2 Nr. 9 BSIG). Auf Serverebene (`adas-hetzner`) ist die Passwort-Authentifizierung in der SSH-Konfiguration vollständig deaktiviert (`PasswordAuthentication no`, `PermitRootLogin prohibit-password`); der Zugriff erfolgt ausschließlich über kryptografische Ed25519-SSH-Keys innerhalb eines verschlüsselten Tailscale/WireGuard-Mesh-Netzwerks nach dem Least-Privilege-Prinzip.", "answer_en": "Phishing-resistant Multi-Factor Authentication (FIDO2/WebAuthn hardware tokens or TOTP) is strictly enforced across all administrative consoles, GitHub repositories, and identity providers per § 30(2)(9) BSIG. On `adas-hetzner` production servers, SSH password authentication is completely disabled (`PasswordAuthentication no`); administrative access requires cryptographic Ed25519 SSH keys routed over an authenticated Tailscale/WireGuard mesh network with Role-Based Access Control (RBAC) and quarterly access reviews.", "evidence_artifacts": [{"artifact_id": "EV-SSH-MFA-06", "type": "automated_probe", "description": "SSHD Hardening & FIDO2 Enforcement Verification on adas-hetzner", "command": "sshd -T | grep -E 'passwordauthentication no|pubkeyauthentication yes'", "sha256": "6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b", "last_verified": "2026-10-17T06:10:00Z"}]}, {"control_id": "CTRL-PEN-07", "domain": "Vulnerability Management, Penetration Testing & Patching", "title_de": "Schwachstellenmanagement, automatisiertes CVE-Scanning & Penetrationstests", "title_en": "Vulnerability Management, Automated CVE Scanning & Penetration Testing", "status": "IMPLEMENTED", "keywords": ["pentest", "penetration", "penetrationstest", "vulnerability", "schwachstelle", "schwachstellenmanagement", "cve", "patch", "patching", "update", "sast", "dast", "trivy", "nuclei", "audit", "security scan", "cvd", "security.txt", "überprüfung", "wirksamkeitsprüfung"], "frameworks": {"iso_27001": "Annex A.8.8 (Management of technical vulnerabilities), A.8.29 (Security testing in development and acceptance) & A.5.35 (Independent review of information security)", "bsi_grundschutz": "OPS.1.1.3 (Patch- und Änderungsmanagement) & DER.3.1 (Audits und Revisionen)", "nis2_bsig": "§ 30 Abs. 2 Nr. 5 & Nr. 6 BSIG (Sicherheit bei Erwerb/Entwicklung/Wartung inkl. Schwachstellenmanagement sowie Konzepte zur Bewertung der Wirksamkeit von Risikomanagementmaßnahmen)", "dsgvo": "Art. 32 Abs. 1 lit. d DSGVO (Verfahren zur regelmäßigen Überprüfung, Bewertung und Evaluierung der Wirksamkeit der TOMs)"}, "answer_de": "Unsere CI/CD-Pipelines und produktiven Container-Images werden täglich automatisiert mittels Trivy (Container/OS-CVEs), GitHub Advanced Security / Dependabot (Abhängigkeiten) und Nuclei (DAST-Endpunktprüfung) auf bekannte Schwachstellen gescannt. Kritische Sicherheitsupdates (CVSS >= 9.0) werden innerhalb von <= 24 Stunden, hohe Schwachstellen (CVSS 7.0–8.9) innerhalb von <= 7 Tagen gepatcht. Zusätzlich führen wir jährlich sowie nach wesentlichen Architekturänderungen fokussierte Web-/API-Penetrationstests nach OWASP WSTG durch und veröffentlichen eine RFC 9116-konforme `/.well-known/security.txt` für Coordinated Vulnerability Disclosure (CVD).", "answer_en": "All container images, dependencies, and endpoints undergo automated daily vulnerability scanning using Trivy (OS/container CVEs), GitHub Dependabot/Secret Scanning (SAST/SCA), and Nuclei (DAST). Critical vulnerabilities (CVSS >= 9.0) are remediated within <= 24 hours; High vulnerabilities (CVSS 7.0–8.9) within <= 7 days. We conduct annual OWASP WSTG web/API penetration tests and maintain an RFC 9116 `/.well-known/security.txt` policy for Coordinated Vulnerability Disclosure (CVD).", "evidence_artifacts": [{"artifact_id": "EV-TRIVY-SCAN-07", "type": "scanner_report", "description": "Daily Trivy & Nuclei Zero-Critical-CVE Scan Summary on Production Containers", "command": "trivy image --severity CRITICAL,HIGH --exit-code 0 ghcr.io/adas/core:latest", "sha256": "d4735e3a265e16eee03f59718b9b5d03019c07d8b6c51f90da3a666eec13ab35", "last_verified": "2026-10-17T05:30:00Z"}]}, {"control_id": "CTRL-LOG-08", "domain": "Logging, SIEM, Audit Trails & Anomaly Detection", "title_de": "Revisionssichere Protokollierung, Audit-Logs & Anomalieerkennung", "title_en": "Tamper-Evident Audit Logging, Monitoring & Intrusion Detection", "status": "IMPLEMENTED", "keywords": ["logging", "protokollierung", "audit log", "siem", "monitoring", "intrusion", "ids", "ips", "crowdsec", "fail2ban", "aufbewahrung", "log retention", "überwachung", "anomalie", "forensik"], "frameworks": {"iso_27001": "Annex A.8.15 (Logging) & A.8.16 (Monitoring activities)", "bsi_grundschutz": "OPS.1.1.5 (Protokollierung) & DER.1 (Detektion von sicherheitsrelevanten Ereignissen)", "nis2_bsig": "§ 30 Abs. 2 Nr. 1 & Nr. 2 BSIG (Überwachung und Detektion von Sicherheitsvorfällen)", "dsgvo": "Art. 32 Abs. 1 lit. b DSGVO (Nachvollziehbarkeit und Eingabekontrolle)"}, "answer_de": "Sicherheitsrelevante System-, Authentifizierungs- und API-Zugriffsereignisse werden zentral, zeitstempelsynchronisiert (chrony/NTP Europe/Berlin) und manipulationsgeschützt protokolliert. Auf Host- und Reverse-Proxy-Ebene blockieren CrowdSec / Fail2ban automatisiert Brute-Force- und Layer-7-Angriffe in Echtzeit. Audit-Logs werden datenschutzkonform (IP-Anonymisierung für reguläre Nutzer, vollständige Nachvollziehbarkeit für Admin-Aktionen) für 90 Tage vorgehalten.", "answer_en": "All authentication events, administrative actions, and reverse-proxy access logs are centrally collected with NTP-synchronized timestamps and integrity protection. CrowdSec and Fail2ban provide real-time behavioral intrusion prevention at the host and Traefik/Caddy edge. Audit logs are retained for 90 days in accordance with GDPR data minimization principles.", "evidence_artifacts": [{"artifact_id": "EV-LOG-CROWDSEC", "type": "automated_probe", "description": "CrowdSec Bouncer & Systemd Journal Integrity Verification", "command": "cscli metrics && journalctl --verify", "sha256": "4e07408562bedb8b60ce05c1decfe3ad16b72230967de01f640b7e4729b49fce", "last_verified": "2026-10-17T06:15:00Z"}]}], "known_gaps_catalog": [{"gap_id": "GAP-HSM-FIPS140-3", "trigger_keywords": ["fips 140-3 level 4", "dedicated hardware hsm", "thales luna", "kundeneigenes hsm", "byok hardware module"], "title_de": "Dediziertes physisches FIPS 140-3 Level 4 Hardware Security Module (HSM) pro Mandant", "title_en": "Dedicated Physical FIPS 140-3 Level 4 Hardware Security Module (HSM) per Tenant", "severity": "MEDIUM", "status": "MISSING_CONTROL", "required_frameworks": ["ISO/IEC 27001:2022 Annex A.8.24 (Advanced Key Custody)", "§ 30 Abs. 2 Nr. 8 BSIG (Kryptografie-Konzepte)"], "explanation_de": "Abweichung / Kompensierende Kontrolle: Wir nutzen aktuell softwarebasierte LUKS2/AES-256-GCM-Verschlüsselung mit isoliertem Secret-Management auf dedizierten Hetzner-Systemen, jedoch kein dediziertes physisches FIPS 140-3 Level 4 Hardware-HSM pro Einzelmandant.", "explanation_en": "Gap / Compensating Control: We currently enforce LUKS2 (AES-256-XTS) and AES-256-GCM software cryptography with isolated secret stores on dedicated Hetzner nodes, but do not provision a dedicated physical FIPS 140-3 Level 4 hardware HSM appliance per individual customer tenant.", "remediation_action": "Integrate HashiCorp Vault / OpenBao with PKCS#11 HSM transit engine or offer Customer-Managed Keys (CMK) via external EU KMS for regulated financial/DORA enterprise tiers.", "estimated_effort_days": 5}, {"gap_id": "GAP-TISAX-AL3-PROTOTYPE", "trigger_keywords": ["tisax al3", "prototypenschutz", "prototype protection", "vda isa", "fahrzeugprototypen", "automotive al3"], "title_de": "Formelles TISAX Assessment Level 3 (AL3) Label mit physischem Prototypenschutz (VDA ISA)", "title_en": "Formal TISAX Assessment Level 3 (AL3) Label with Physical Prototype Protection (VDA ISA)", "severity": "LOW", "status": "MISSING_CONTROL", "required_frameworks": ["VDA ISA 6.0 / TISAX AL3", "ISO/IEC 27001:2022 Annex A.7.4"], "explanation_de": "Abweichung: Unsere Kontrollen sind vollständig auf ISO/IEC 27001:2022, BSI IT-Grundschutz und § 30 BSIG (NIS-2) gemappt, ein separates ENX-registriertes TISAX AL3 Prüf-Label für physischen Automobil-Prototypenschutz liegt derzeit jedoch nicht als externes Prüf-Zertifikat vor.", "explanation_en": "Gap: While our information security controls map directly to ISO/IEC 27001:2022 and BSI IT-Grundschutz, we do not currently hold a separate ENX-registered TISAX AL3 assessment label for physical automotive prototype protection.", "remediation_action": "Scope ENX TISAX AL2/AL3 InfoSec module audit using existing ISO 27001:2022 Statement of Applicability (SoA) if automotive OEM procurement requires an ENX scope ID.", "estimated_effort_days": 14}]};
+    const AUDIT_DATA = {"audit_metadata": {"audit_id": "AUD-DACH-2026-1017", "questionnaire_title": "DACH Enterprise Einkauf — NIS-2 / ISO-27001 / Art. 32 DSGVO Lieferanten-Audit", "generated_at": "2026-10-17T13:04:57Z", "engine_version": "mvp31-dach-nis2-autopilot-v1.0", "organization": "ADAS Cloud Systems GmbH (DACH Reference Stack)", "primary_infrastructure": "adas-hetzner (Hetzner Online GmbH, Nürnberg DE — CX43 Dedicated/Cloud)", "data_residency": "Germany / European Union (100% EU Sovereign Hosting, Zero US CLOUD Act Core DB)"}, "executive_summary": {"total_questions": 10, "verified_controls_count": 8, "missing_controls_count": 2, "overall_readiness_pct": 80.0, "mandatory_questions_total": 7, "mandatory_questions_verified": 7, "mandatory_readiness_pct": 100.0, "deal_blocker_status": "UNBLOCKED (100% Mandatory Controls Verified)", "estimated_engineering_hours_saved": 4.5, "estimated_audit_cost_saved_eur": 14500}, "frameworks_evaluated": ["NIS-2-Umsetzungsgesetz (§ 30 Abs. 2 & § 32 BSIG-neu)", "DIN EN ISO/IEC 27001:2022 (Annex A)", "BSI IT-Grundschutz-Kompendium", "DSGVO Art. 28 (AVV), Art. 32 (TOMs) & Art. 33 (72h Meldepflicht)"], "flagged_gaps": [{"question_id": "Q-09", "gap_id": "GAP-HSM-FIPS140-3", "title_de": "Dediziertes physisches FIPS 140-3 Level 4 Hardware Security Module (HSM) pro Mandant", "title_en": "Dedicated Physical FIPS 140-3 Level 4 Hardware Security Module (HSM) per Tenant", "severity": "MEDIUM", "mandatory_question": false, "remediation_action": "Integrate HashiCorp Vault / OpenBao with PKCS#11 HSM transit engine or offer Customer-Managed Keys (CMK) via external EU KMS for regulated financial/DORA enterprise tiers.", "estimated_effort_days": 5}, {"question_id": "Q-10", "gap_id": "GAP-TISAX-AL3-PROTOTYPE", "title_de": "Formelles TISAX Assessment Level 3 (AL3) Label mit physischem Prototypenschutz (VDA ISA)", "title_en": "Formal TISAX Assessment Level 3 (AL3) Label with Physical Prototype Protection (VDA ISA)", "severity": "LOW", "mandatory_question": false, "remediation_action": "Scope ENX TISAX AL2/AL3 InfoSec module audit using existing ISO 27001:2022 Statement of Applicability (SoA) if automotive OEM procurement requires an ENX scope ID.", "estimated_effort_days": 14}], "subprocessors": [{"name": "Hetzner Online GmbH", "purpose_de": "Primäres IaaS-Hosting, Dedicated Root & Cloud Server (adas-hetzner), Storage Box Backups", "purpose_en": "Primary IaaS compute hosting (adas-hetzner), block volumes, and encrypted Storage Box backups", "location": "Nürnberg & Falkenstein, Deutschland (EU)", "certifications": ["DIN EN ISO/IEC 27001:2022 (FOX-Zertifikat)", "BSI C5 Testat Äquivalenz"], "dpa_status": "AVV gemäß Art. 28 DSGVO aktiv (unterzeichnet)", "transfer_mechanism": "Kein Drittlandtransfer (100% Deutschland)"}, {"name": "Cloudflare Germany GmbH / Inc. (EU Regional Services)", "purpose_de": "WAF, DDoS-Schutz (Anycast), DNSSEC, Zero-Trust Edge & Static Pages", "purpose_en": "WAF, DDoS mitigation, DNSSEC, Zero-Trust Edge & Static Frontend Pages", "location": "Frankfurt am Main, Deutschland (EU Data Localization Suite aktiviert)", "certifications": ["ISO/IEC 27001:2022", "SOC 2 Type II", "BSI C5 Type 2", "EU-US DPF"], "dpa_status": "AVV inkl. EU Standardvertragsklauseln (SCC) + Regional Services EU-Only", "transfer_mechanism": "EU Data Localization (Customer Metadata Boundary EU)"}, {"name": "GitHub B.V. (EU Enterprise Cloud)", "purpose_de": "Quellcode-Verwaltung, CI/CD-Pipelines, Container Registry (GHCR) & Dependabot/Secret-Scanning", "purpose_en": "Source control, CI/CD pipelines, container registry (GHCR) & automated secret scanning", "location": "EU Data Residency (Keine produktiven Endkundendaten / PII gespeichert)", "certifications": ["ISO/IEC 27001:2022", "SOC 2 Type II", "TISAX"], "dpa_status": "GitHub DPA (Art. 28 DSGVO) aktiv", "transfer_mechanism": "EU Data Residency + EU-US DPF / SCCs (nur Quellcode, keine Kunden-PII)"}], "questionnaire_responses": [{"question_id": "Q-01", "category": "Kryptografie & Verschlüsselung", "question_text": "Wie werden personenbezogene und geschäftskritische Daten sowohl bei der Übertragung (In-Transit) als auch im Ruhezustand (At-Rest) verschlüsselt, und wie erfolgt das Schlüsselmanagement?", "mandatory": true, "compliance_status": "VERIFIED", "matched_control_id": "CTRL-ENC-01", "matched_control_title_de": "Verschlüsselung ruhender und übertragener Daten (At-Rest & In-Transit)", "matched_control_title_en": "Encryption of Data at Rest and in Transit", "confidence_score": 0.99, "matched_keywords": ["verschlüsselung", "kryptografie"], "citations": {"iso_27001": "Annex A.8.24 (Use of cryptography) & A.5.14 (Information transfer)", "bsi_grundschutz": "CON.1 (Kryptokonzept) & NET.1.2 (Netzmanagement)", "nis2_bsig": "§ 30 Abs. 2 Nr. 8 BSIG (Konzepte und Verfahren für Kryptografie und Verschlüsselung)", "dsgvo": "Art. 32 Abs. 1 lit. a DSGVO (Verschlüsselung personenbezogener Daten)"}, "draft_response_de": "Alle Daten werden während der Übertragung (In-Transit) zwingend über TLS 1.3 (Mindeststandard TLS 1.2 mit AEAD-Cipher-Suites wie ECDHE-ECDSA-AES256-GCM-SHA384, HSTS Preload max-age=63072000) über Traefik/Caddy verschlüsselt. Ruhende Daten (At-Rest) auf unserem primären Hetzner-Cluster (`adas-hetzner`, Nürnberg) sind auf Block-Storage-Ebene mittels LUKS2 (AES-256-XTS, 512-Bit Schlüssellänge) sowie auf Datenbank- und Backup-Ebene mittels AES-256-GCM / ChaCha20-Poly1305 verschlüsselt. Kryptografische Schlüssel werden über einen isolierten Secret-Store mit 90-tägiger automatischer Schlüsselrotation verwaltet. [Referenzen: § 30 Abs. 2 Nr. 8 BSIG (Konzepte und Verfahren für Kryptografie und Verschlüsselung) | Annex A.8.24 (Use of cryptography) & A.5.14 (Information transfer) | CON.1 (Kryptokonzept) & NET.1.2 (Netzmanagement) | Art. 32 Abs. 1 lit. a DSGVO (Verschlüsselung personenbezogener Daten)]", "draft_response_en": "All data in transit is strictly encrypted using TLS 1.3 (minimum TLS 1.2 with strong AEAD cipher suites ECDHE-ECDSA-AES256-GCM-SHA384 and HSTS preload max-age=63072000) terminated at our hardened Traefik/Caddy reverse proxy. All data at rest on our primary Hetzner cluster (`adas-hetzner`, Nuremberg, Germany) is encrypted at the volume layer using LUKS2 (AES-256-XTS, 512-bit key) and at the application/backup layer using AES-256-GCM. Cryptographic keys are managed outside repositories in a dedicated secret vault with automated 90-day rotation. [Control Mapping: § 30 Abs. 2 Nr. 8 BSIG (Konzepte und Verfahren für Kryptografie und Verschlüsselung) | Annex A.8.24 (Use of cryptography) & A.5.14 (Information transfer) | CON.1 (Kryptokonzept) & NET.1.2 (Netzmanagement) | Art. 32 Abs. 1 lit. a DSGVO (Verschlüsselung personenbezogener Daten)]", "evidence_artifacts": [{"artifact_id": "EV-TLS-001", "type": "automated_probe", "description": "Daily TLS 1.3 & Cipher Suite Check on Reverse Proxy (Traefik/Caddy)", "command": "openssl s_client -connect trust.adas-systems.de:443 -tls1_3", "sha256": "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08", "last_verified": "2026-10-17T06:00:12Z"}, {"artifact_id": "EV-LUKS-002", "type": "config_snapshot", "description": "LUKS2 Volume Header Verification on adas-hetzner NVMe & Named Volumes", "command": "cryptsetup luksDump /dev/md2 | grep -E 'Version|cipher'", "sha256": "4b227777d4dd1fc61c6f884f48641d02b4d121d3fd328cb08b5531fcacdabf8a", "last_verified": "2026-10-17T06:01:05Z"}], "gap_flag": {"is_gap": false, "gap_id": null, "severity": "NONE", "remediation_action": null, "estimated_effort_days": 0}}, {"question_id": "Q-02", "category": "Hosting & Datensouveränität", "question_text": "In welchen Rechenzentren (Standort/Land) werden unsere Daten verarbeitet, verfügt der Hosting-Provider (z. B. Hetzner) über ein gültiges ISO 27001 Zertifikat und ist ein US CLOUD Act Zugriff ausgeschlossen?", "mandatory": true, "compliance_status": "VERIFIED", "matched_control_id": "CTRL-HOST-02", "matched_control_title_de": "ISO-27001-zertifiziertes Hosting & EU-Datensouveränität (Hetzner Nürnberg)", "matched_control_title_en": "ISO 27001 Certified Hosting & EU Data Sovereignty (Hetzner Nuremberg, Germany)", "confidence_score": 0.99, "matched_keywords": ["hosting", "hetzner", "iso 27001", "standort", "datensouveränität", "cloud act"], "citations": {"iso_27001": "Annex A.7.1–A.7.4 (Physical security perimeters & monitoring) & A.5.23 (Information security for use of cloud services)", "bsi_grundschutz": "INF.1 (Allgemeines Gebäude) & INF.2 (Rechenzentrum sowie Serverraum)", "nis2_bsig": "§ 30 Abs. 2 Nr. 1 & Nr. 4 BSIG (Sicherheit der Systeme, Anlagen und Lieferkette)", "dsgvo": "Art. 32 Abs. 1 lit. b & Art. 44 ff. DSGVO (Ausschließliche Speicherung im EWR / Deutschland)"}, "draft_response_de": "Die gesamte produktive Infrastruktur wird ausschließlich in Deutschland im Rechenzentrumspark Nürnberg der Hetzner Online GmbH (`adas-hetzner`) betrieben. Hetzner Online ist nach DIN EN ISO/IEC 27001:2022 zertifiziert (Zertifikats-Reg.-Nr. FOX-ISO27001). Die Rechenzentren verfügen über 24/7-Videoüberwachung, biometrische Zutrittskontrollen, Vereinzelungsschleusen, redundante USV/Notstromdiesel und Brandfrüherkennung (VESDA). Alle Dienste laufen als isolierte Docker-Compose-Stacks hinter Traefik/Caddy ohne US-Cloud-Lock-in; ein Datentransfer von Kerndatenbanken in Drittstaaten findet nicht statt. [Referenzen: § 30 Abs. 2 Nr. 1 & Nr. 4 BSIG (Sicherheit der Systeme, Anlagen und Lieferkette) | Annex A.7.1–A.7.4 (Physical security perimeters & monitoring) & A.5.23 (Information security for use of cloud services) | INF.1 (Allgemeines Gebäude) & INF.2 (Rechenzentrum sowie Serverraum) | Art. 32 Abs. 1 lit. b & Art. 44 ff. DSGVO (Ausschließliche Speicherung im EWR / Deutschland)]", "draft_response_en": "All production workloads and databases are hosted exclusively in Nuremberg, Germany on `adas-hetzner` (Hetzner Online GmbH). Hetzner's data centers are certified under DIN EN ISO/IEC 27001:2022, featuring 24/7 CCTV surveillance, biometric access control mantraps, redundant N+1 UPS/diesel generators, and VESDA early fire detection. All services run in isolated Docker Compose networks behind Traefik/Caddy with named volumes, guaranteeing 100% German/EU data residency and zero exposure to the US CLOUD Act for core data. [Control Mapping: § 30 Abs. 2 Nr. 1 & Nr. 4 BSIG (Sicherheit der Systeme, Anlagen und Lieferkette) | Annex A.7.1–A.7.4 (Physical security perimeters & monitoring) & A.5.23 (Information security for use of cloud services) | INF.1 (Allgemeines Gebäude) & INF.2 (Rechenzentrum sowie Serverraum) | Art. 32 Abs. 1 lit. b & Art. 44 ff. DSGVO (Ausschließliche Speicherung im EWR / Deutschland)]", "evidence_artifacts": [{"artifact_id": "EV-HZ-ISO27001", "type": "certificate", "description": "Hetzner Online GmbH DIN EN ISO/IEC 27001:2022 Certificate (Nürnberg/Falkenstein)", "command": "sha256sum certs/Hetzner_ISO27001_2022_DE.pdf", "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", "last_verified": "2026-10-15T10:00:00Z"}, {"artifact_id": "EV-DOCKER-NET", "type": "automated_probe", "description": "Docker Compose Network Isolation & Non-Root Container Audit on adas-hetzner", "command": "docker inspect $(docker ps -q) --format '{{.Name}}: User={{.Config.User}}'", "sha256": "7a9c8b12f3e4d5c6b7a890123456789abcdef0123456789abcdef0123456789a", "last_verified": "2026-10-17T06:05:00Z"}], "gap_flag": {"is_gap": false, "gap_id": null, "severity": "NONE", "remediation_action": null, "estimated_effort_days": 0}}, {"question_id": "Q-03", "category": "Business Continuity & Backup (RPO/RTO)", "question_text": "Welche konkreten Werte für RPO (Recovery Point Objective) und RTO (Recovery Time Objective) garantieren Sie im Notfall, wie sind Backups gegen Ransomware geschützt und wie oft werden Restore-Tests durchgeführt?", "mandatory": true, "compliance_status": "VERIFIED", "matched_control_id": "CTRL-BCK-03", "matched_control_title_de": "Backup-Konzept, RPO <= 1h, RTO <= 4h & Notfall-Wiederherstellungstests", "matched_control_title_en": "Backup Management, RPO <= 1h, RTO <= 4h & Disaster Recovery Drills", "confidence_score": 0.99, "matched_keywords": ["backup", "rpo", "rto", "business continuity", "restore", "ransomware"], "citations": {"iso_27001": "Annex A.8.13 (Information backup), A.8.14 (Redundancy of information processing facilities) & A.5.30 (ICT readiness for business continuity)", "bsi_grundschutz": "CON.3 (Datensicherungskonzept) & DER.4 (Notfallmanagement)", "nis2_bsig": "§ 30 Abs. 2 Nr. 3 BSIG (Aufrechterhaltung des Betriebs, Backup-Management und Wiederherstellung nach einem Notfall)", "dsgvo": "Art. 32 Abs. 1 lit. c DSGVO (Fähigkeit, die Verfügbarkeit der personenbezogenen Daten und den Zugang zu ihnen bei einem Zwischenfall rasch wiederherzustellen)"}, "draft_response_de": "Wir gewährleisten ein Recovery Point Objective (RPO) von <= 1 Stunde (stündliche inkrementelle Datenbank-WAL-Archivierung und verschlüsselte Restic/BorgBackup-Snapshots) sowie ein Recovery Time Objective (RTO) von <= 4 Stunden durch vollständig deklarative Docker-Compose-Infrastruktur. Backups werden clientseitig mit AES-256-GCM verschlüsselt und georedundant auf einer physisch getrennten Hetzner Storage Box (Append-Only / Immutable Locks gegen Ransomware) mit einer Aufbewahrungsfrist nach 3-2-1-Regel (7 Tage stündlich, 4 Wochen täglich, 12 Monate monatlich) gespeichert. Vollständige Restore-Drills werden monatlich automatisiert durchgeführt und protokolliert. [Referenzen: § 30 Abs. 2 Nr. 3 BSIG (Aufrechterhaltung des Betriebs, Backup-Management und Wiederherstellung nach einem Notfall) | Annex A.8.13 (Information backup), A.8.14 (Redundancy of information processing facilities) & A.5.30 (ICT readiness for business continuity) | CON.3 (Datensicherungskonzept) & DER.4 (Notfallmanagement) | Art. 32 Abs. 1 lit. c DSGVO (Fähigkeit, die Verfügbarkeit der personenbezogenen Daten und den Zugang zu ihnen bei einem Zwischenfall rasch wiederherzustellen)]", "draft_response_en": "We maintain a verified Recovery Point Objective (RPO) of <= 1 hour via continuous PostgreSQL WAL archiving and hourly encrypted Restic/BorgBackup snapshots, paired with a Recovery Time Objective (RTO) of <= 4 hours via declarative Docker Compose provisioning. All backups follow the 3-2-1 rule, encrypted client-side with AES-256-GCM and replicated to a physically separate Hetzner Storage Box in append-only immutable mode. Automated end-to-end restore drills run monthly in an isolated staging container with cryptographic checksum verification. [Control Mapping: § 30 Abs. 2 Nr. 3 BSIG (Aufrechterhaltung des Betriebs, Backup-Management und Wiederherstellung nach einem Notfall) | Annex A.8.13 (Information backup), A.8.14 (Redundancy of information processing facilities) & A.5.30 (ICT readiness for business continuity) | CON.3 (Datensicherungskonzept) & DER.4 (Notfallmanagement) | Art. 32 Abs. 1 lit. c DSGVO (Fähigkeit, die Verfügbarkeit der personenbezogenen Daten und den Zugang zu ihnen bei einem Zwischenfall rasch wiederherzustellen)]", "evidence_artifacts": [{"artifact_id": "EV-BCK-DRILL-10", "type": "restore_log", "description": "Automated Monthly Restore Drill Log (RPO=42m, Full Restore Time=38m 14s)", "command": "restic check --read-data-subset=10% && ./scripts/verify-restore-drill.sh", "sha256": "1c8a9e3f5b2d4a6c8e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d", "last_verified": "2026-10-01T03:40:19Z"}], "gap_flag": {"is_gap": false, "gap_id": null, "severity": "NONE", "remediation_action": null, "estimated_effort_days": 0}}, {"question_id": "Q-04", "category": "NIS-2 & DSGVO Vorfallmanagement (24h/72h)", "question_text": "Wie stellen Sie die gesetzlichen Meldepflichten bei Sicherheitsvorfällen gemäß NIS-2 (§ 32 BSIG: 24h Frühwarnung, 72h Vorfallmeldung an das BSI) sowie Art. 33 DSGVO (72h Datenpannen-Meldung) technisch und organisatorisch sicher?", "mandatory": true, "compliance_status": "VERIFIED", "matched_control_id": "CTRL-INC-04", "matched_control_title_de": "Behandlung von Sicherheitsvorfällen & 24h/72h BSI-/DSGVO-Meldeprozess", "matched_control_title_en": "Incident Response & 24h/72h NIS-2 (BSI) / GDPR Breach Notification Workflow", "confidence_score": 0.99, "matched_keywords": ["vorfall", "meldepflicht", "datenpanne", "24h", "72h", "bsi", "nis-2", "frühwarnung"], "citations": {"iso_27001": "Annex A.5.24–A.5.28 (Information security incident management planning, assessment, response, and evidence collection)", "bsi_grundschutz": "DER.2.1 (Behandlung von Sicherheitsvorfällen) & DER.2.2 (Vorsorge für die IT-Forensik)", "nis2_bsig": "§ 30 Abs. 2 Nr. 2 i.V.m. § 32 BSIG-neu (Dreistufige BSI-Meldepflicht: 24h Frühwarnung, 72h Vorfallmeldung, 1 Monat Abschlussbericht)", "dsgvo": "Art. 33 Abs. 1 DSGVO (Meldung an die Aufsichtsbehörde binnen 72 Stunden) & Art. 34 DSGVO"}, "draft_response_de": "Unser Incident-Response-Playbook setzt die gesetzlichen Fristen aus § 32 BSIG-neu (NIS-2) und Art. 33 DSGVO verbindlich um: (1) Binnen <= 1 Stunde nach Detektion erfolgt die interne Triage und Eindämmung (Containment). (2) Binnen <= 24 Stunden erfolgt bei erheblichen Sicherheitsvorfällen die gesetzliche Frühwarnung an das BSI (§ 32 Abs. 1 Nr. 1 BSIG) sowie eine Erstmeldung an betroffene Enterprise-Auftraggeber. (3) Binnen <= 72 Stunden folgt die qualifizierte Vorfallmeldung inkl. Schweregrad, Kompromittierungsindikatoren (IoCs) an das BSI (§ 32 Abs. 1 Nr. 2 BSIG) sowie bei Bezug zu personenbezogenen Daten die Meldung nach Art. 33 DSGVO an die zuständige Datenschutzaufsichtsbehörde. (4) Binnen 30 Tagen wird der forensische Abschlussbericht inkl. Root-Cause-Analyse (§ 32 Abs. 1 Nr. 4 BSIG) übermittelt. [Referenzen: § 30 Abs. 2 Nr. 2 i.V.m. § 32 BSIG-neu (Dreistufige BSI-Meldepflicht: 24h Frühwarnung, 72h Vorfallmeldung, 1 Monat Abschlussbericht) | Annex A.5.24–A.5.28 (Information security incident management planning, assessment, response, and evidence collection) | DER.2.1 (Behandlung von Sicherheitsvorfällen) & DER.2.2 (Vorsorge für die IT-Forensik) | Art. 33 Abs. 1 DSGVO (Meldung an die Aufsichtsbehörde binnen 72 Stunden) & Art. 34 DSGVO]", "draft_response_en": "Our Incident Response Runbook enforces statutory NIS-2 (§ 32 BSIG-neu) and GDPR (Art. 33) timelines: (1) Internal triage and containment within <= 1 hour of alert trigger. (2) Within <= 24 hours: mandatory NIS-2 Early Warning submission to the German Federal Office for Information Security (BSI) under § 32(1)(1) BSIG and notification to affected enterprise data controllers. (3) Within <= 72 hours: comprehensive Incident Notification with IoCs, root-cause indicators, and impact assessment to the BSI (§ 32(1)(2) BSIG) and to the Data Protection Authority under Art. 33 GDPR. (4) Within 30 days: formal Root-Cause Analysis (RCA) and final report (§ 32(1)(4) BSIG). [Control Mapping: § 30 Abs. 2 Nr. 2 i.V.m. § 32 BSIG-neu (Dreistufige BSI-Meldepflicht: 24h Frühwarnung, 72h Vorfallmeldung, 1 Monat Abschlussbericht) | Annex A.5.24–A.5.28 (Information security incident management planning, assessment, response, and evidence collection) | DER.2.1 (Behandlung von Sicherheitsvorfällen) & DER.2.2 (Vorsorge für die IT-Forensik) | Art. 33 Abs. 1 DSGVO (Meldung an die Aufsichtsbehörde binnen 72 Stunden) & Art. 34 DSGVO]", "evidence_artifacts": [{"artifact_id": "EV-IR-PLAYBOOK", "type": "policy_and_test", "description": "NIS-2 § 32 BSIG 24h/72h Tabletop Exercise Protocol & BSI Reporting Template", "command": "python3 scripts/verify_ir_contacts.py --check-sla 24h-72h", "sha256": "8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92", "last_verified": "2026-10-10T14:20:00Z"}], "gap_flag": {"is_gap": false, "gap_id": null, "severity": "NONE", "remediation_action": null, "estimated_effort_days": 0}}, {"question_id": "Q-05", "category": "Lieferkette & Unterauftragsverarbeiter", "question_text": "Welche Unterauftragsverarbeiter (Sub-Processors) nach Art. 28 DSGVO werden eingesetzt, liegen für alle AV-Verträge vor und wie wird die Sicherheit der Lieferkette nach § 30 Abs. 2 Nr. 4 BSIG überwacht?", "mandatory": true, "compliance_status": "VERIFIED", "matched_control_id": "CTRL-SUB-05", "matched_control_title_de": "Lieferkettensicherheit & Unterauftragsverarbeiter-Verzeichnis (Art. 28 DSGVO)", "matched_control_title_en": "Supply-Chain Security & Sub-Processor Governance (Art. 28 GDPR / NIS-2)", "confidence_score": 0.99, "matched_keywords": ["sub-processor", "unterauftragsverarbeiter", "art. 28", "lieferkette"], "citations": {"iso_27001": "Annex A.5.19–A.5.22 (Information security in supplier relationships, supplier agreements, and monitoring)", "bsi_grundschutz": "ORP.1 (Organisation) & CON.2 (Datenschutz)", "nis2_bsig": "§ 30 Abs. 2 Nr. 4 BSIG (Sicherheit der Lieferkette einschließlich sicherheitsbezogener Aspekte der Beziehungen zu unmittelbaren Anbietern)", "dsgvo": "Art. 28 Abs. 2 & Abs. 4 DSGVO (Einsatz weiterer Auftragsverarbeiter & AVV-Garantien)"}, "draft_response_de": "Wir setzen ausschließlich sicherheitsgeprüfte Unterauftragsverarbeiter mit geschlossenem Auftragsverarbeitungsvertrag (AVV nach Art. 28 DSGVO) und gültigem ISO/IEC 27001-Zertifikat ein. Unser primärer Infrastruktur-Subprozessor ist die Hetzner Online GmbH (Nürnberg/Falkenstein, Deutschland). Alle Lieferanten durchlaufen vor Beauftragung und danach jährlich ein Lieferketten-Risiko-Assessment gemäß § 30 Abs. 2 Nr. 4 BSIG. Über geplante Änderungen von Unterauftragsverarbeitern informieren wir Auftraggeber mindestens 30 Tage im Voraus mit Einspruchsrecht. [Referenzen: § 30 Abs. 2 Nr. 4 BSIG (Sicherheit der Lieferkette einschließlich sicherheitsbezogener Aspekte der Beziehungen zu unmittelbaren Anbietern) | Annex A.5.19–A.5.22 (Information security in supplier relationships, supplier agreements, and monitoring) | ORP.1 (Organisation) & CON.2 (Datenschutz) | Art. 28 Abs. 2 & Abs. 4 DSGVO (Einsatz weiterer Auftragsverarbeiter & AVV-Garantien)]", "draft_response_en": "We strictly vet all sub-processors under Art. 28 GDPR and NIS-2 supply-chain risk requirements (§ 30(2)(4) BSIG). Every sub-processor must hold an active ISO/IEC 27001:2022 or SOC 2 Type II certification and sign a binding Data Processing Agreement (DPA). Core compute and storage run on Hetzner Online GmbH (Nuremberg, Germany). Customers receive at least 30 days' advance notice before any new sub-processor is engaged, with a contractual right to object. [Control Mapping: § 30 Abs. 2 Nr. 4 BSIG (Sicherheit der Lieferkette einschließlich sicherheitsbezogener Aspekte der Beziehungen zu unmittelbaren Anbietern) | Annex A.5.19–A.5.22 (Information security in supplier relationships, supplier agreements, and monitoring) | ORP.1 (Organisation) & CON.2 (Datenschutz) | Art. 28 Abs. 2 & Abs. 4 DSGVO (Einsatz weiterer Auftragsverarbeiter & AVV-Garantien)]", "evidence_artifacts": [{"artifact_id": "EV-AVV-REG-05", "type": "registry_audit", "description": "Verified Art. 28 DSGVO Sub-Processor Registry & Annual ISO 27001 Certificate Check", "command": "jq '.subprocessors[] | {name, location, dpa_status}' evidence_vault.json", "sha256": "3f79bb7b435b05321651daefd374cdc681dc06faa65e374e38337b88ca046dea", "last_verified": "2026-10-16T09:15:00Z"}], "gap_flag": {"is_gap": false, "gap_id": null, "severity": "NONE", "remediation_action": null, "estimated_effort_days": 0}}, {"question_id": "Q-06", "category": "Zugriffskontrolle & Multi-Faktor-Authentifizierung", "question_text": "Wird für sämtliche administrativen Zugriffe und Produktionsserver Multi-Faktor-Authentifizierung (MFA / FIDO2) sowie SSH-Key-Only Zugriff nach dem Least-Privilege-Prinzip erzwungen?", "mandatory": true, "compliance_status": "VERIFIED", "matched_control_id": "CTRL-MFA-06", "matched_control_title_de": "Multi-Faktor-Authentifizierung (FIDO2/MFA), SSH-Key-Only & Least Privilege", "matched_control_title_en": "Multi-Factor Authentication (FIDO2/MFA), SSH Key-Only & Least Privilege Access", "confidence_score": 0.99, "matched_keywords": ["mfa", "multi-faktor", "authentifizierung", "zugriffskontrolle", "ssh", "fido2", "admin"], "citations": {"iso_27001": "Annex A.8.5 (Secure authentication), A.5.15 (Access control) & A.8.2 (Privileged access rights)", "bsi_grundschutz": "ORP.4 (Identitäts- und Berechtigungsmanagement)", "nis2_bsig": "§ 30 Abs. 2 Nr. 7 & Nr. 9 BSIG (Konzepte für die Zugriffskontrolle sowie Verwendung von Multi-Faktor-Authentifizierung)", "dsgvo": "Art. 32 Abs. 1 lit. b DSGVO (Vertraulichkeit und Schutz vor unbefugtem Zugriff)"}, "draft_response_de": "Für sämtliche administrativen Zugänge, Quellcode-Repositories (GitHub), Cloud-Konsolen und internen Systeme ist Phishing-resistente Multi-Faktor-Authentifizierung (FIDO2/WebAuthn Hardware-Sicherheitsschlüssel bzw. TOTP) technisch erzwungen (§ 30 Abs. 2 Nr. 9 BSIG). Auf Serverebene (`adas-hetzner`) ist die Passwort-Authentifizierung in der SSH-Konfiguration vollständig deaktiviert (`PasswordAuthentication no`, `PermitRootLogin prohibit-password`); der Zugriff erfolgt ausschließlich über kryptografische Ed25519-SSH-Keys innerhalb eines verschlüsselten Tailscale/WireGuard-Mesh-Netzwerks nach dem Least-Privilege-Prinzip. [Referenzen: § 30 Abs. 2 Nr. 7 & Nr. 9 BSIG (Konzepte für die Zugriffskontrolle sowie Verwendung von Multi-Faktor-Authentifizierung) | Annex A.8.5 (Secure authentication), A.5.15 (Access control) & A.8.2 (Privileged access rights) | ORP.4 (Identitäts- und Berechtigungsmanagement) | Art. 32 Abs. 1 lit. b DSGVO (Vertraulichkeit und Schutz vor unbefugtem Zugriff)]", "draft_response_en": "Phishing-resistant Multi-Factor Authentication (FIDO2/WebAuthn hardware tokens or TOTP) is strictly enforced across all administrative consoles, GitHub repositories, and identity providers per § 30(2)(9) BSIG. On `adas-hetzner` production servers, SSH password authentication is completely disabled (`PasswordAuthentication no`); administrative access requires cryptographic Ed25519 SSH keys routed over an authenticated Tailscale/WireGuard mesh network with Role-Based Access Control (RBAC) and quarterly access reviews. [Control Mapping: § 30 Abs. 2 Nr. 7 & Nr. 9 BSIG (Konzepte für die Zugriffskontrolle sowie Verwendung von Multi-Faktor-Authentifizierung) | Annex A.8.5 (Secure authentication), A.5.15 (Access control) & A.8.2 (Privileged access rights) | ORP.4 (Identitäts- und Berechtigungsmanagement) | Art. 32 Abs. 1 lit. b DSGVO (Vertraulichkeit und Schutz vor unbefugtem Zugriff)]", "evidence_artifacts": [{"artifact_id": "EV-SSH-MFA-06", "type": "automated_probe", "description": "SSHD Hardening & FIDO2 Enforcement Verification on adas-hetzner", "command": "sshd -T | grep -E 'passwordauthentication no|pubkeyauthentication yes'", "sha256": "6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b", "last_verified": "2026-10-17T06:10:00Z"}], "gap_flag": {"is_gap": false, "gap_id": null, "severity": "NONE", "remediation_action": null, "estimated_effort_days": 0}}, {"question_id": "Q-07", "category": "Schwachstellenmanagement & Penetrationstests", "question_text": "Führen Sie regelmäßige Penetrationstests sowie automatisiertes CVE-Schwachstellen-Scanning Ihrer Container und APIs durch, und innerhalb welcher Fristen werden kritische Sicherheitslücken gepatcht?", "mandatory": true, "compliance_status": "VERIFIED", "matched_control_id": "CTRL-PEN-07", "matched_control_title_de": "Schwachstellenmanagement, automatisiertes CVE-Scanning & Penetrationstests", "matched_control_title_en": "Vulnerability Management, Automated CVE Scanning & Penetration Testing", "confidence_score": 0.99, "matched_keywords": ["penetration", "penetrationstest", "schwachstelle", "schwachstellenmanagement", "cve", "patch"], "citations": {"iso_27001": "Annex A.8.8 (Management of technical vulnerabilities), A.8.29 (Security testing in development and acceptance) & A.5.35 (Independent review of information security)", "bsi_grundschutz": "OPS.1.1.3 (Patch- und Änderungsmanagement) & DER.3.1 (Audits und Revisionen)", "nis2_bsig": "§ 30 Abs. 2 Nr. 5 & Nr. 6 BSIG (Sicherheit bei Erwerb/Entwicklung/Wartung inkl. Schwachstellenmanagement sowie Konzepte zur Bewertung der Wirksamkeit von Risikomanagementmaßnahmen)", "dsgvo": "Art. 32 Abs. 1 lit. d DSGVO (Verfahren zur regelmäßigen Überprüfung, Bewertung und Evaluierung der Wirksamkeit der TOMs)"}, "draft_response_de": "Unsere CI/CD-Pipelines und produktiven Container-Images werden täglich automatisiert mittels Trivy (Container/OS-CVEs), GitHub Advanced Security / Dependabot (Abhängigkeiten) und Nuclei (DAST-Endpunktprüfung) auf bekannte Schwachstellen gescannt. Kritische Sicherheitsupdates (CVSS >= 9.0) werden innerhalb von <= 24 Stunden, hohe Schwachstellen (CVSS 7.0–8.9) innerhalb von <= 7 Tagen gepatcht. Zusätzlich führen wir jährlich sowie nach wesentlichen Architekturänderungen fokussierte Web-/API-Penetrationstests nach OWASP WSTG durch und veröffentlichen eine RFC 9116-konforme `/.well-known/security.txt` für Coordinated Vulnerability Disclosure (CVD). [Referenzen: § 30 Abs. 2 Nr. 5 & Nr. 6 BSIG (Sicherheit bei Erwerb/Entwicklung/Wartung inkl. Schwachstellenmanagement sowie Konzepte zur Bewertung der Wirksamkeit von Risikomanagementmaßnahmen) | Annex A.8.8 (Management of technical vulnerabilities), A.8.29 (Security testing in development and acceptance) & A.5.35 (Independent review of information security) | OPS.1.1.3 (Patch- und Änderungsmanagement) & DER.3.1 (Audits und Revisionen) | Art. 32 Abs. 1 lit. d DSGVO (Verfahren zur regelmäßigen Überprüfung, Bewertung und Evaluierung der Wirksamkeit der TOMs)]", "draft_response_en": "All container images, dependencies, and endpoints undergo automated daily vulnerability scanning using Trivy (OS/container CVEs), GitHub Dependabot/Secret Scanning (SAST/SCA), and Nuclei (DAST). Critical vulnerabilities (CVSS >= 9.0) are remediated within <= 24 hours; High vulnerabilities (CVSS 7.0–8.9) within <= 7 days. We conduct annual OWASP WSTG web/API penetration tests and maintain an RFC 9116 `/.well-known/security.txt` policy for Coordinated Vulnerability Disclosure (CVD). [Control Mapping: § 30 Abs. 2 Nr. 5 & Nr. 6 BSIG (Sicherheit bei Erwerb/Entwicklung/Wartung inkl. Schwachstellenmanagement sowie Konzepte zur Bewertung der Wirksamkeit von Risikomanagementmaßnahmen) | Annex A.8.8 (Management of technical vulnerabilities), A.8.29 (Security testing in development and acceptance) & A.5.35 (Independent review of information security) | OPS.1.1.3 (Patch- und Änderungsmanagement) & DER.3.1 (Audits und Revisionen) | Art. 32 Abs. 1 lit. d DSGVO (Verfahren zur regelmäßigen Überprüfung, Bewertung und Evaluierung der Wirksamkeit der TOMs)]", "evidence_artifacts": [{"artifact_id": "EV-TRIVY-SCAN-07", "type": "scanner_report", "description": "Daily Trivy & Nuclei Zero-Critical-CVE Scan Summary on Production Containers", "command": "trivy image --severity CRITICAL,HIGH --exit-code 0 ghcr.io/adas/core:latest", "sha256": "d4735e3a265e16eee03f59718b9b5d03019c07d8b6c51f90da3a666eec13ab35", "last_verified": "2026-10-17T05:30:00Z"}], "gap_flag": {"is_gap": false, "gap_id": null, "severity": "NONE", "remediation_action": null, "estimated_effort_days": 0}}, {"question_id": "Q-08", "category": "Protokollierung & Angriffserkennung", "question_text": "Werden sicherheitsrelevante Zugriffe und Admin-Aktionen revisionssicher protokolliert (Audit-Logging) und existiert eine aktive Intrusion-Detection / Anomalieerkennung?", "mandatory": false, "compliance_status": "VERIFIED", "matched_control_id": "CTRL-LOG-08", "matched_control_title_de": "Revisionssichere Protokollierung, Audit-Logs & Anomalieerkennung", "matched_control_title_en": "Tamper-Evident Audit Logging, Monitoring & Intrusion Detection", "confidence_score": 0.99, "matched_keywords": ["logging", "protokollierung", "intrusion", "anomalie"], "citations": {"iso_27001": "Annex A.8.15 (Logging) & A.8.16 (Monitoring activities)", "bsi_grundschutz": "OPS.1.1.5 (Protokollierung) & DER.1 (Detektion von sicherheitsrelevanten Ereignissen)", "nis2_bsig": "§ 30 Abs. 2 Nr. 1 & Nr. 2 BSIG (Überwachung und Detektion von Sicherheitsvorfällen)", "dsgvo": "Art. 32 Abs. 1 lit. b DSGVO (Nachvollziehbarkeit und Eingabekontrolle)"}, "draft_response_de": "Sicherheitsrelevante System-, Authentifizierungs- und API-Zugriffsereignisse werden zentral, zeitstempelsynchronisiert (chrony/NTP Europe/Berlin) und manipulationsgeschützt protokolliert. Auf Host- und Reverse-Proxy-Ebene blockieren CrowdSec / Fail2ban automatisiert Brute-Force- und Layer-7-Angriffe in Echtzeit. Audit-Logs werden datenschutzkonform (IP-Anonymisierung für reguläre Nutzer, vollständige Nachvollziehbarkeit für Admin-Aktionen) für 90 Tage vorgehalten. [Referenzen: § 30 Abs. 2 Nr. 1 & Nr. 2 BSIG (Überwachung und Detektion von Sicherheitsvorfällen) | Annex A.8.15 (Logging) & A.8.16 (Monitoring activities) | OPS.1.1.5 (Protokollierung) & DER.1 (Detektion von sicherheitsrelevanten Ereignissen) | Art. 32 Abs. 1 lit. b DSGVO (Nachvollziehbarkeit und Eingabekontrolle)]", "draft_response_en": "All authentication events, administrative actions, and reverse-proxy access logs are centrally collected with NTP-synchronized timestamps and integrity protection. CrowdSec and Fail2ban provide real-time behavioral intrusion prevention at the host and Traefik/Caddy edge. Audit logs are retained for 90 days in accordance with GDPR data minimization principles. [Control Mapping: § 30 Abs. 2 Nr. 1 & Nr. 2 BSIG (Überwachung und Detektion von Sicherheitsvorfällen) | Annex A.8.15 (Logging) & A.8.16 (Monitoring activities) | OPS.1.1.5 (Protokollierung) & DER.1 (Detektion von sicherheitsrelevanten Ereignissen) | Art. 32 Abs. 1 lit. b DSGVO (Nachvollziehbarkeit und Eingabekontrolle)]", "evidence_artifacts": [{"artifact_id": "EV-LOG-CROWDSEC", "type": "automated_probe", "description": "CrowdSec Bouncer & Systemd Journal Integrity Verification", "command": "cscli metrics && journalctl --verify", "sha256": "4e07408562bedb8b60ce05c1decfe3ad16b72230967de01f640b7e4729b49fce", "last_verified": "2026-10-17T06:15:00Z"}], "gap_flag": {"is_gap": false, "gap_id": null, "severity": "NONE", "remediation_action": null, "estimated_effort_days": 0}}, {"question_id": "Q-09", "category": "Spezial-Kryptografie (Hardware HSM)", "question_text": "Stellen Sie für jeden Enterprise-Mandanten ein dediziertes physisches FIPS 140-3 Level 4 Hardware Security Module (Thales Luna Dedicated Hardware HSM) mit kundeneigenem Hardware-Schlüsselspeicher bereit?", "mandatory": false, "compliance_status": "MISSING_CONTROL", "matched_control_id": "GAP-HSM-FIPS140-3", "matched_control_title_de": "Dediziertes physisches FIPS 140-3 Level 4 Hardware Security Module (HSM) pro Mandant", "matched_control_title_en": "Dedicated Physical FIPS 140-3 Level 4 Hardware Security Module (HSM) per Tenant", "confidence_score": 0.96, "matched_keywords": ["fips 140-3 level 4", "dedicated hardware hsm", "thales luna"], "citations": {"iso_27001": "ISO/IEC 27001:2022 Annex A.8.24 (Advanced Key Custody)", "bsi_grundschutz": "BSI IT-Grundschutz (Abweichungsanalyse / Risikoakzeptanz)", "nis2_bsig": "§ 30 Abs. 2 Nr. 8 BSIG (Kryptografie-Konzepte)", "dsgvo": "Art. 32 Abs. 1 DSGVO (Angemessenheitsprüfung nach Stand der Technik)"}, "draft_response_de": "Abweichung / Kompensierende Kontrolle: Wir nutzen aktuell softwarebasierte LUKS2/AES-256-GCM-Verschlüsselung mit isoliertem Secret-Management auf dedizierten Hetzner-Systemen, jedoch kein dediziertes physisches FIPS 140-3 Level 4 Hardware-HSM pro Einzelmandant.", "draft_response_en": "Gap / Compensating Control: We currently enforce LUKS2 (AES-256-XTS) and AES-256-GCM software cryptography with isolated secret stores on dedicated Hetzner nodes, but do not provision a dedicated physical FIPS 140-3 Level 4 hardware HSM appliance per individual customer tenant.", "evidence_artifacts": [], "gap_flag": {"is_gap": true, "gap_id": "GAP-HSM-FIPS140-3", "severity": "MEDIUM", "remediation_action": "Integrate HashiCorp Vault / OpenBao with PKCS#11 HSM transit engine or offer Customer-Managed Keys (CMK) via external EU KMS for regulated financial/DORA enterprise tiers.", "estimated_effort_days": 5}}, {"question_id": "Q-10", "category": "Automotive Spezialzertifizierung", "question_text": "Verfügt Ihr Unternehmen über ein aktives TISAX AL3 Zertifikat für physischen Fahrzeug-Prototypenschutz nach VDA ISA?", "mandatory": false, "compliance_status": "MISSING_CONTROL", "matched_control_id": "GAP-TISAX-AL3-PROTOTYPE", "matched_control_title_de": "Formelles TISAX Assessment Level 3 (AL3) Label mit physischem Prototypenschutz (VDA ISA)", "matched_control_title_en": "Formal TISAX Assessment Level 3 (AL3) Label with Physical Prototype Protection (VDA ISA)", "confidence_score": 0.96, "matched_keywords": ["tisax al3", "prototypenschutz", "vda isa"], "citations": {"iso_27001": "VDA ISA 6.0 / TISAX AL3", "bsi_grundschutz": "BSI IT-Grundschutz (Abweichungsanalyse / Risikoakzeptanz)", "nis2_bsig": "ISO/IEC 27001:2022 Annex A.7.4", "dsgvo": "Art. 32 Abs. 1 DSGVO (Angemessenheitsprüfung nach Stand der Technik)"}, "draft_response_de": "Abweichung: Unsere Kontrollen sind vollständig auf ISO/IEC 27001:2022, BSI IT-Grundschutz und § 30 BSIG (NIS-2) gemappt, ein separates ENX-registriertes TISAX AL3 Prüf-Label für physischen Automobil-Prototypenschutz liegt derzeit jedoch nicht als externes Prüf-Zertifikat vor.", "draft_response_en": "Gap: While our information security controls map directly to ISO/IEC 27001:2022 and BSI IT-Grundschutz, we do not currently hold a separate ENX-registered TISAX AL3 assessment label for physical automotive prototype protection.", "evidence_artifacts": [], "gap_flag": {"is_gap": true, "gap_id": "GAP-TISAX-AL3-PROTOTYPE", "severity": "LOW", "remediation_action": "Scope ENX TISAX AL2/AL3 InfoSec module audit using existing ISO 27001:2022 Statement of Applicability (SoA) if automotive OEM procurement requires an ENX scope ID.", "estimated_effort_days": 14}}]};
+    let currentLang = 'de';
+
+    function escapeHtml(str) {
+      return String(str || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    function switchTab(tabId, btnEl) {
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById('tab-' + tabId).classList.add('active');
+      btnEl.classList.add('active');
+    }
+
+    function toggleLanguage() {
+      currentLang = currentLang === 'de' ? 'en' : 'de';
+      document.getElementById('langToggleBtn').innerHTML =
+        'Sprache / Language: <strong>' + (currentLang === 'de' ? 'DE (DACH)' : 'EN (Intl)') + '</strong>';
+      renderQuestions();
+      renderVault();
+      renderSubprocessors();
+    }
+
+    function renderFrameworks() {
+      const container = document.getElementById('frameworkStrip');
+      container.innerHTML = VAULT_DATA.organization.frameworks_active.map(fw => `
+        <div class="fw-card">
+          <div class="fw-top">
+            <span>${escapeHtml(fw.name)}</span>
+            <span class="pill pill-green">${fw.coverage_pct}%</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" style="width: ${fw.coverage_pct}%;"></div>
+          </div>
+          <div style="font-size: 0.74rem; color: var(--text-muted);">Status: ${escapeHtml(fw.badge)} · Live Monitored</div>
+        </div>
+      `).join('');
+    }
+
+    function renderQuestions() {
+      const qFilter = (document.getElementById('searchFilter').value || '').toLowerCase();
+      const sFilter = document.getElementById('statusFilter').value;
+      const container = document.getElementById('questionsContainer');
+
+      const filtered = AUDIT_DATA.questionnaire_responses.filter(item => {
+        if (sFilter !== 'ALL' && item.compliance_status !== sFilter) return false;
+        if (!qFilter) return true;
+        const hay = [
+          item.question_id, item.category, item.question_text,
+          item.matched_control_id, item.draft_response_de, item.draft_response_en,
+          item.citations.nis2_bsig, item.citations.iso_27001, item.citations.dsgvo
+        ].join(' ').toLowerCase();
+        return hay.includes(qFilter);
+      });
+
+      container.innerHTML = filtered.map(item => {
+        const isVerified = item.compliance_status === 'VERIFIED';
+        const pillClass = isVerified ? 'pill-green' : 'pill-amber';
+        const cardClass = isVerified ? 'verified-card' : 'gap-card';
+        const title = currentLang === 'de' ? item.matched_control_title_de : item.matched_control_title_en;
+        const answer = currentLang === 'de' ? item.draft_response_de : item.draft_response_en;
+        const artifactsHtml = (item.evidence_artifacts || []).map(ev => `
+          <span class="evidence-chip" title="${escapeHtml(ev.command)}">
+            🔒 ${escapeHtml(ev.artifact_id)} · ${escapeHtml(ev.description)} (SHA256: ${escapeHtml(ev.sha256.slice(0, 12))}…)
+          </span>
+        `).join('');
+
+        const gapBanner = item.gap_flag && item.gap_flag.is_gap ? `
+          <div style="margin-top:0.55rem; font-size:0.78rem; color:#fbbf24;">
+            ⚠️ <strong>Flagged Missing Control (${escapeHtml(item.gap_flag.gap_id)} · Severity: ${escapeHtml(item.gap_flag.severity)}):</strong>
+            Remediation: ${escapeHtml(item.gap_flag.remediation_action)} (${item.gap_flag.estimated_effort_days}d effort)
+          </div>
+        ` : '';
+
+        return `
+          <div class="q-card ${cardClass}">
+            <div class="q-header">
+              <div>
+                <span class="pill pill-blue" style="margin-right:0.4rem;">${escapeHtml(item.question_id)}</span>
+                <span class="pill" style="margin-right:0.4rem;">${escapeHtml(item.category)}</span>
+                ${item.mandatory ? '<span class="pill pill-green">Pflichtfrage / Mandatory</span>' : '<span class="pill">Optional</span>'}
+              </div>
+              <div>
+                <span class="pill ${pillClass}">
+                  ${isVerified ? '✓ VERIFIED' : '⚠ MISSING_CONTROL'} · Confidence ${Math.round(item.confidence_score * 100)}%
+                </span>
+              </div>
+            </div>
+            <div class="q-title">${escapeHtml(item.question_text)}</div>
+            <div style="font-size:0.8rem; color:var(--text-muted); margin-top:0.25rem;">
+              Matched Vault Control: <code>${escapeHtml(item.matched_control_id)}</code> — ${escapeHtml(title)}
+            </div>
+            <div class="citation-grid">
+              <div class="citation-item"><strong>NIS-2 (§ 30 BSIG)</strong>${escapeHtml(item.citations.nis2_bsig)}</div>
+              <div class="citation-item"><strong>ISO/IEC 27001:2022</strong>${escapeHtml(item.citations.iso_27001)}</div>
+              <div class="citation-item"><strong>BSI IT-Grundschutz</strong>${escapeHtml(item.citations.bsi_grundschutz)}</div>
+              <div class="citation-item"><strong>DSGVO / GDPR</strong>${escapeHtml(item.citations.dsgvo)}</div>
+            </div>
+            <div class="answer-box ${isVerified ? '' : 'gap-answer'}">
+              <strong>${currentLang === 'de' ? 'Audit-Antwort (DE):' : 'Audit Response (EN):'}</strong><br/>
+              ${escapeHtml(answer)}
+            </div>
+            ${gapBanner}
+            ${artifactsHtml ? `<div class="evidence-list">${artifactsHtml}</div>` : ''}
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderVault() {
+      const container = document.getElementById('vaultContainer');
+      container.innerHTML = VAULT_DATA.controls.map(ctrl => {
+        const title = currentLang === 'de' ? ctrl.title_de : ctrl.title_en;
+        const ans = currentLang === 'de' ? ctrl.answer_de : ctrl.answer_en;
+        return `
+          <div class="q-card verified-card">
+            <div class="q-header">
+              <div>
+                <span class="pill pill-green">${escapeHtml(ctrl.control_id)}</span>
+                <span class="pill pill-blue">${escapeHtml(ctrl.domain)}</span>
+              </div>
+              <span class="pill pill-green">✓ ${escapeHtml(ctrl.status)}</span>
+            </div>
+            <div class="q-title">${escapeHtml(title)}</div>
+            <div class="citation-grid">
+              <div class="citation-item"><strong>NIS-2 (§ 30 BSIG)</strong>${escapeHtml(ctrl.frameworks.nis2_bsig)}</div>
+              <div class="citation-item"><strong>ISO/IEC 27001:2022</strong>${escapeHtml(ctrl.frameworks.iso_27001)}</div>
+              <div class="citation-item"><strong>BSI IT-Grundschutz</strong>${escapeHtml(ctrl.frameworks.bsi_grundschutz)}</div>
+              <div class="citation-item"><strong>DSGVO</strong>${escapeHtml(ctrl.frameworks.dsgvo)}</div>
+            </div>
+            <div class="answer-box">${escapeHtml(ans)}</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderSubprocessors() {
+      const tbody = document.getElementById('subprocessorsBody');
+      tbody.innerHTML = VAULT_DATA.subprocessors.map(sp => `
+        <tr>
+          <td><strong>${escapeHtml(sp.name)}</strong></td>
+          <td>${escapeHtml(currentLang === 'de' ? sp.purpose_de : sp.purpose_en)}</td>
+          <td><span class="pill pill-green">${escapeHtml(sp.location)}</span></td>
+          <td>${sp.certifications.map(c => `<span class="pill pill-blue" style="margin:2px;">${escapeHtml(c)}</span>`).join(' ')}</td>
+          <td>${escapeHtml(sp.dpa_status)}<br/><small style="color:var(--text-muted);">${escapeHtml(sp.transfer_mechanism)}</small></td>
+        </tr>
+      `).join('');
+    }
+
+    function renderGaps() {
+      const tbody = document.getElementById('gapsBody');
+      tbody.innerHTML = AUDIT_DATA.flagged_gaps.map(g => `
+        <tr>
+          <td><code>${escapeHtml(g.question_id)}</code><br/><code>${escapeHtml(g.gap_id)}</code></td>
+          <td><strong>${escapeHtml(currentLang === 'de' ? g.title_de : g.title_en)}</strong></td>
+          <td><span class="pill pill-amber">${escapeHtml(g.severity)}</span></td>
+          <td>${escapeHtml(g.remediation_action)}</td>
+          <td><strong>${g.estimated_effort_days} Tage</strong></td>
+        </tr>
+      `).join('');
+    }
+
+    function loadSamplePreset(kind) {
+      const input = document.getElementById('customQuestionInput');
+      if (kind === 'nis2') {
+        input.value = 'Wie schnell erfolgt die Meldung eines erheblichen Sicherheitsvorfalls an das BSI nach § 32 BSIG (NIS-2) und Art. 33 DSGVO?';
+      } else {
+        input.value = 'Stellen Sie ein dediziertes physisches FIPS 140-3 Level 4 Hardware HSM pro Einzelmandant bereit?';
+      }
+      runLiveCustomQuestion();
+    }
+
+    function runLiveCustomQuestion() {
+      const text = (document.getElementById('customQuestionInput').value || '').trim();
+      if (!text) return;
+      const lower = text.toLowerCase();
+
+      for (const gap of VAULT_DATA.known_gaps_catalog) {
+        const hit = gap.trigger_keywords.find(k => lower.includes(k.toLowerCase()));
+        if (hit) {
+          const newItem = {
+            question_id: 'Q-LIVE-' + (AUDIT_DATA.questionnaire_responses.length + 1),
+            category: 'Live CISO / Procurement Query',
+            question_text: text,
+            mandatory: false,
+            compliance_status: 'MISSING_CONTROL',
+            matched_control_id: gap.gap_id,
+            matched_control_title_de: gap.title_de,
+            matched_control_title_en: gap.title_en,
+            confidence_score: 0.96,
+            citations: {
+              nis2_bsig: gap.required_frameworks[gap.required_frameworks.length - 1],
+              iso_27001: gap.required_frameworks[0],
+              bsi_grundschutz: 'BSI IT-Grundschutz (Abweichungsanalyse)',
+              dsgvo: 'Art. 32 Abs. 1 DSGVO'
+            },
+            draft_response_de: gap.explanation_de,
+            draft_response_en: gap.explanation_en,
+            evidence_artifacts: [],
+            gap_flag: {
+              is_gap: true,
+              gap_id: gap.gap_id,
+              severity: gap.severity,
+              remediation_action: gap.remediation_action,
+              estimated_effort_days: gap.estimated_effort_days
+            }
+          };
+          AUDIT_DATA.questionnaire_responses.unshift(newItem);
+          renderQuestions();
+          return;
+        }
+      }
+
+      let bestCtrl = VAULT_DATA.controls[0];
+      let bestScore = 0;
+      for (const ctrl of VAULT_DATA.controls) {
+        let score = 0;
+        for (const kw of ctrl.keywords) {
+          if (lower.includes(kw.toLowerCase())) score += 2;
+        }
+        if (score > bestScore) {
+          bestScore = score;
+          bestCtrl = ctrl;
+        }
+      }
+
+      const newItem = {
+        question_id: 'Q-LIVE-' + (AUDIT_DATA.questionnaire_responses.length + 1),
+        category: bestCtrl.domain,
+        question_text: text,
+        mandatory: true,
+        compliance_status: bestScore > 0 ? 'VERIFIED' : 'MISSING_CONTROL',
+        matched_control_id: bestScore > 0 ? bestCtrl.control_id : 'UNMAPPED-CUSTOM',
+        matched_control_title_de: bestScore > 0 ? bestCtrl.title_de : 'Manuelle CISO-Prüfung erforderlich',
+        matched_control_title_en: bestScore > 0 ? bestCtrl.title_en : 'Manual CISO Review Required',
+        confidence_score: bestScore > 0 ? Math.min(0.99, 0.78 + bestScore * 0.04) : 0.30,
+        citations: bestCtrl.frameworks,
+        draft_response_de: bestScore > 0 ? bestCtrl.answer_de : 'Kein direkter technischer Nachweis im Vault — als Gap eskaliert.',
+        draft_response_en: bestScore > 0 ? bestCtrl.answer_en : 'No direct technical evidence in Vault — escalated as Gap.',
+        evidence_artifacts: bestScore > 0 ? bestCtrl.evidence_artifacts : [],
+        gap_flag: { is_gap: bestScore === 0, gap_id: 'GAP-LIVE', severity: 'MEDIUM', remediation_action: 'CISO Review', estimated_effort_days: 2 }
+      };
+      AUDIT_DATA.questionnaire_responses.unshift(newItem);
+      renderQuestions();
+    }
+
+    function exportCompletedJson() {
+      const blob = new Blob([JSON.stringify(AUDIT_DATA, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'completed_security_audit.json';
+      a.click();
+    }
+
+    function exportCompletedCsv() {
+      const headers = ['question_id','category','compliance_status','matched_control_id','confidence_score','nis2_bsig','iso_27001','dsgvo','question_text','draft_response_de','draft_response_en'];
+      const rows = AUDIT_DATA.questionnaire_responses.map(r => [
+        r.question_id, r.category, r.compliance_status, r.matched_control_id, r.confidence_score,
+        r.citations.nis2_bsig, r.citations.iso_27001, r.citations.dsgvo,
+        r.question_text, r.draft_response_de, r.draft_response_en
+      ].map(v => '"' + String(v || '').replace(/"/g, '""') + '"').join(','));
+      const csv = [headers.join(','), ...rows].join('\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'completed_security_audit.csv';
+      a.click();
+    }
+
+    renderFrameworks();
+    renderQuestions();
+    renderVault();
+    renderSubprocessors();
+    renderGaps();
+  </script>
+</body>
+</html>

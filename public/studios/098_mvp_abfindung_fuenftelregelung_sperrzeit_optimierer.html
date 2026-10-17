@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MVP #98 — DACH §§ 1a, 9, 10 KSchG / § 34 EStG Abfindungs-Fünftelregelungs- & ALG-I-Sperrzeit-Studio</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --card: #131b33;
+      --card-alt: #182342;
+      --border: #283660;
+      --text: #eef2ff;
+      --muted: #9fb0d9;
+      --accent: #38bdf8;
+      --emerald: #10b981;
+      --amber: #f59e0b;
+      --rose: #f43f5e;
+      --violet: #a855f7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: radial-gradient(circle at top right, #172554 0%, var(--bg) 55%);
+      color: var(--text);
+      line-height: 1.5;
+      padding: 24px;
+    }
+    .container { max-width: 1380px; margin: 0 auto; }
+    .header {
+      background: linear-gradient(135deg, rgba(30,41,59,0.92), rgba(15,23,42,0.96));
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px 28px;
+      margin-bottom: 22px;
+      box-shadow: 0 16px 40px rgba(0,0,0,0.35);
+    }
+    .badge-row { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 10px; }
+    .badge {
+      font-size: 12px;
+      font-weight: 700;
+      padding: 4px 11px;
+      border-radius: 999px;
+      background: rgba(56,189,248,0.15);
+      color: var(--accent);
+      border: 1px solid rgba(56,189,248,0.35);
+      letter-spacing: 0.03em;
+    }
+    .badge.emerald { background: rgba(16,185,129,0.15); color: var(--emerald); border-color: rgba(16,185,129,0.35); }
+    .badge.amber { background: rgba(245,158,11,0.15); color: var(--amber); border-color: rgba(245,158,11,0.35); }
+    .badge.rose { background: rgba(244,63,94,0.15); color: var(--rose); border-color: rgba(244,63,94,0.35); }
+    h1 { margin: 0 0 8px 0; font-size: 25px; font-weight: 800; letter-spacing: -0.02em; }
+    .subtitle { color: var(--muted); font-size: 14px; margin: 0; }
+    .grid-main { display: grid; grid-template-columns: 420px 1fr; gap: 22px; }
+    @media (max-width: 1100px) { .grid-main { grid-template-columns: 1fr; } }
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+    }
+    .panel h2 {
+      margin: 0 0 14px 0;
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--accent);
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 8px;
+    }
+    label { display: block; font-size: 12px; font-weight: 600; color: var(--muted); margin: 11px 0 4px 0; }
+    select, input[type="number"] {
+      width: 100%;
+      padding: 9px 11px;
+      background: #0d1428;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+    .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .check-row {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      margin-top: 10px;
+      padding: 8px 10px;
+      background: rgba(255,255,255,0.03);
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.06);
+      font-size: 12.5px;
+    }
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+    @media (max-width: 900px) { .kpi-grid { grid-template-columns: repeat(2, 1fr); } }
+    .kpi-card {
+      background: var(--card-alt);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 15px;
+    }
+    .kpi-card.highlight {
+      background: linear-gradient(135deg, rgba(16,185,129,0.18), rgba(15,23,42,0.95));
+      border-color: var(--emerald);
+    }
+    .kpi-card.danger {
+      background: linear-gradient(135deg, rgba(244,63,94,0.18), rgba(15,23,42,0.95));
+      border-color: var(--rose);
+    }
+    .kpi-label { font-size: 11.5px; color: var(--muted); font-weight: 600; text-transform: uppercase; }
+    .kpi-val { font-size: 23px; font-weight: 800; margin: 5px 0 3px 0; }
+    .kpi-sub { font-size: 11.5px; color: var(--muted); }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 8px; }
+    th, td { padding: 10px 11px; text-align: left; border-bottom: 1px solid var(--border); }
+    th { color: var(--muted); font-weight: 600; font-size: 11.5px; text-transform: uppercase; background: rgba(0,0,0,0.2); }
+    tr.optimal-row { background: rgba(16,185,129,0.12); font-weight: 700; }
+    .pill {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .pill.ok { background: rgba(16,185,129,0.2); color: var(--emerald); }
+    .pill.err { background: rgba(244,63,94,0.2); color: var(--rose); }
+    .pill.warn { background: rgba(245,158,11,0.2); color: var(--amber); }
+    .alert-box {
+      padding: 13px 15px;
+      border-radius: 10px;
+      margin-bottom: 12px;
+      font-size: 13px;
+      border: 1px solid;
+    }
+    .alert-box.red { background: rgba(244,63,94,0.12); border-color: rgba(244,63,94,0.45); color: #fecdd3; }
+    .alert-box.green { background: rgba(16,185,129,0.12); border-color: rgba(16,185,129,0.45); color: #a7f3d0; }
+    .alert-box.amber { background: rgba(245,158,11,0.12); border-color: rgba(245,158,11,0.45); color: #fde68a; }
+    .clause-box {
+      background: #090e1c;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 14px;
+      margin-bottom: 10px;
+      font-family: 'JetBrains Mono', Consolas, monospace;
+      font-size: 12px;
+      color: #cbd5e1;
+    }
+    .clause-title { font-family: 'Inter', sans-serif; font-weight: 700; color: var(--accent); margin-bottom: 4px; font-size: 12.5px; }
+  </style>
+</head>
+<body>
+
+<!-- DACH CASHFLOW STUDIOS LAUNCH BAR -->
+<style>
+  #dcs-launch-bar {
+    position: sticky;
+    top: 0;
+    z-index: 99999;
+    background: linear-gradient(90deg, #0b1120 0%, #111827 50%, #0f172a 100%);
+    color: #f8fafc;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.35);
+    padding: 8px 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  }
+  #dcs-launch-bar .dcs-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+  }
+  #dcs-launch-bar .dcs-badge {
+    background: rgba(16, 185, 129, 0.18);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.03em;
+  }
+  #dcs-launch-bar a.dcs-nav {
+    color: #93c5fd;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 12.5px;
+  }
+  #dcs-launch-bar a.dcs-nav:hover {
+    text-decoration: underline;
+    color: #dbeafe;
+  }
+  #dcs-launch-bar .dcs-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  #dcs-launch-bar .dcs-btn {
+    padding: 5px 11px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s ease;
+  }
+  #dcs-launch-bar .dcs-btn-ghost {
+    background: rgba(255,255,255,0.08);
+    color: #e2e8f0;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  #dcs-launch-bar .dcs-btn-primary {
+    background: linear-gradient(135deg, #0ea5e9, #2563eb);
+    color: #ffffff;
+  }
+  #dcs-launch-bar .dcs-btn-emerald {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
+  }
+  @media print {
+    #dcs-launch-bar { display: none !important; }
+  }
+</style>
+<div id="dcs-launch-bar">
+  <div class="dcs-left">
+    <a href="/index.html" class="dcs-nav">← Alle 150 DACH Studios</a>
+    <span class="dcs-badge">MVP #098 VERIFIED</span>
+    <span style="color:#cbd5e1;font-size:12px;">DACH Tax, Corporate & Accounting Arbitrage</span>
+  </div>
+  <div class="dcs-actions">
+    <button onclick="window.print()" class="dcs-btn dcs-btn-ghost">🖨️ PDF / Dossier drucken</button>
+    <a href="#checkout-modal-49" target="_blank" rel="noopener" class="dcs-btn dcs-btn-primary">⚡ Musterschreiben & Voll-Dossier (€49)</a>
+    <a href="#checkout-modal-299" target="_blank" rel="noopener" class="dcs-btn dcs-btn-emerald">🛡️ B2B Umsetzung buchen (€299 / €1.490)</a>
+  </div>
+</div>
+
+  <div class="container">
+    <div class="header">
+      <div class="badge-row">
+        <span class="badge">MVP #98 · STAND 2025/2026</span>
+        <span class="badge emerald">§ 34 Abs. 1 & 2 EStG Fünftelregelung (Anlage N ab 2025)</span>
+        <span class="badge amber">§ 11 EStG 02.-Januar-Zufluss-Arbitrage + § 32b ALG I</span>
+        <span class="badge">§ 3 Nr. 63 Satz 3 EStG bAV-Vervielfältigung (bis 40.560 € steuerfrei)</span>
+        <span class="badge rose">§§ 158, 159 SGB III Sperrzeit- & Ruhenszeit-Wächter</span>
+      </div>
+      <h1>DACH Abfindungs-Fünftelregelungs-Steueroptimierer & Aufhebungsvertrags-Prüfstand</h1>
+      <p class="subtitle">
+        Deterministische Simulation nach Wachstumschancengesetz (Wegfall Lohnsteuer-Fünftelregelung § 39b EStG seit 01.01.2025),
+        BA Fachlichen Weisungen zu § 159 SGB III (0,50 Safe-Harbor-Faktor & 25 % ALG-I-Anspruchsverlust nach § 148 Abs. 1 Nr. 4 SGB III)
+        sowie § 158 SGB III Ruhenszeit inkl. freiwilliger GKV-Falle.
+      </p>
+    </div>
+
+    <div class="grid-main">
+      <!-- LEFT CONTROLS -->
+      <div class="panel">
+        <h2>1. Fall-Konfigurator & Hebel-Steuerung</h2>
+        <label for="presetSelect">Referenz-Szenario laden:</label>
+        <select id="presetSelect"></select>
+
+        <div class="row-2">
+          <div>
+            <label for="grossSalaryInput">Jahresbruttogehalt (€):</label>
+            <input type="number" id="grossSalaryInput" step="1000" min="20000" max="500000" />
+          </div>
+          <div>
+            <label for="severanceInput">Brutto-Abfindung (€):</label>
+            <input type="number" id="severanceInput" step="2500" min="5000" max="1000000" />
+          </div>
+        </div>
+
+        <div class="row-2">
+          <div>
+            <label for="serviceYearsInput">Betriebszugehörigkeit (Jahre):</label>
+            <input type="number" id="serviceYearsInput" step="1" min="1" max="45" />
+          </div>
+          <div>
+            <label for="ageInput">Lebensalter bei Exit (Jahre):</label>
+            <input type="number" id="ageInput" step="1" min="22" max="66" />
+          </div>
+        </div>
+
+        <div class="row-2">
+          <div>
+            <label for="filingStatusInput">Steuertarif (§ 32a EStG):</label>
+            <select id="filingStatusInput">
+              <option value="single">Grundtarif (Einzelveranlagung)</option>
+              <option value="married_joint">Splittingtarif (Zusammenveranlagung)</option>
+            </select>
+          </div>
+          <div>
+            <label for="vehicleInput">Beendigungs-Instrument:</label>
+            <select id="vehicleInput">
+              <option value="aufhebungsvertrag">Aufhebungsvertrag (außergerichtlich)</option>
+              <option value="kuendigung_1a_kschg">Arbeitgeberkündigung § 1a KSchG</option>
+              <option value="gerichtlicher_vergleich">Gerichtlicher Vergleich (§ 278 ZPO)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="row-2">
+          <div>
+            <label for="noticeObservedInput">Gewahrte Kündigungsfrist (Mon.):</label>
+            <input type="number" id="noticeObservedInput" step="0.5" min="0" max="12" />
+          </div>
+          <div>
+            <label for="sprinterMonthsInput">Sprinter-/Turboklausel vorzeitig (Mon.):</label>
+            <input type="number" id="sprinterMonthsInput" step="0.5" min="0" max="12" />
+          </div>
+        </div>
+
+        <div class="row-2">
+          <div>
+            <label for="nextYearJobMonthsInput">Folgejahr: Monate im neuen Job:</label>
+            <input type="number" id="nextYearJobMonthsInput" step="1" min="0" max="12" />
+          </div>
+          <div>
+            <label for="nextYearAlgMonthsInput">Folgejahr: Monate ALG I (§ 32b):</label>
+            <input type="number" id="nextYearAlgMonthsInput" step="1" min="0" max="12" />
+          </div>
+        </div>
+
+        <div class="row-2">
+          <div>
+            <label for="bavAmountInput">§ 3 Nr. 63 S. 3 EStG bAV-Wandlung (€):</label>
+            <input type="number" id="bavAmountInput" step="1000" min="0" max="40560" />
+          </div>
+          <div>
+            <label for="drv187aInput">§ 187a SGB VI Renten-Ausgleich (€):</label>
+            <input type="number" id="drv187aInput" step="1000" min="0" max="60000" />
+          </div>
+        </div>
+
+        <label class="check-row">
+          <input type="checkbox" id="split5050Toggle" />
+          <span><strong>Tödliche 50/50-Ratenfalle</strong> simulieren (Auszahlung über 2 Kalenderjahre)</span>
+        </label>
+        <label class="check-row">
+          <input type="checkbox" id="childrenToggle" />
+          <span>Kindergeldberechtigtes Kind vorhanden (67 % statt 60 % ALG-I-Satz)</span>
+        </label>
+      </div>
+
+      <!-- RIGHT RESULTS -->
+      <div>
+        <div class="kpi-grid">
+          <div class="kpi-card highlight">
+            <div class="kpi-label">Steuer-Arbitrage (Optimal vs. Dez.)</div>
+            <div class="kpi-val" id="kpiTaxSaved">0 €</div>
+            <div class="kpi-sub" id="kpiTaxSavedSub">02.-Januar-Shift + § 3 Nr. 63 bAV + § 34 EStG</div>
+          </div>
+          <div class="kpi-card highlight">
+            <div class="kpi-label">Netto-Abfindung + bAV (Optimal)</div>
+            <div class="kpi-val" id="kpiOptimalNet">0 €</div>
+            <div class="kpi-sub" id="kpiEffTaxRate">Effektive Steuerquote: 0,0 %</div>
+          </div>
+          <div class="kpi-card" id="kpiSperrzeitCard">
+            <div class="kpi-label">§§ 158, 159 SGB III Sperr-/Ruhenszeit</div>
+            <div class="kpi-val" id="kpiSperrzeitPenalty">0 €</div>
+            <div class="kpi-sub" id="kpiSperrzeitSub">Prüfung nach BA Fachlichen Weisungen</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Anlage N Erstattung vom Finanzamt</div>
+            <div class="kpi-val" id="kpiAnlageNRefund">0 €</div>
+            <div class="kpi-sub">Wachstumschancengesetz-Rückerstattung</div>
+          </div>
+        </div>
+
+        <!-- COMPARISON TABLE -->
+        <div class="panel" style="margin-bottom: 18px;">
+          <h2>2. Vier-Stufen-Steuervergleich (§ 34 EStG Fünftelregelung, § 11 EStG Zufluss & § 3 Nr. 63 EStG)</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Auszahlungs- & Gestaltungsstrategie</th>
+                <th>Steuerfreie bAV (§ 3 Nr. 63)</th>
+                <th>Steuerlast auf Abfindung</th>
+                <th>Eff. Steuerquote</th>
+                <th>Lohnsteuer-Einbehalt AG (Payday)</th>
+                <th>Anlage-N-Erstattung Finanzamt</th>
+                <th>Gesamt-Netto (Cash + bAV)</th>
+              </tr>
+            </thead>
+            <tbody id="comparisonTableBody"></tbody>
+          </table>
+        </div>
+
+        <!-- SPERRZEIT & RUHENSZEIT AUDIT -->
+        <div class="panel" style="margin-bottom: 18px;">
+          <h2>3. §§ 158, 159 SGB III Sperrzeit-, Ruhenszeit- & Turboklausel-Prüfstand</h2>
+          <div id="sperrzeitAlerts"></div>
+        </div>
+
+        <!-- PROTECTIVE CONTRACT CLAUSES -->
+        <div class="panel">
+          <h2>4. Generator für Schutz-Klauseln (Aufhebungsvertrag / Vergleich) & Anlage-N-Leitfaden</h2>
+          <div id="clausesContainer"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const BENCHMARKS = [{"case": {"case_id": "case_1_automotive_engineer", "case_title": "Szenario 1: Automotive Senior-Ingenieur (95.000 € Gehalt, 90.000 € Abfindung, 12 Dienstjahre)", "persona_subtitle": "Dezember-Zuflussfalle vs. 02.-Januar-Shift + § 3 Nr. 63 Satz 3 EStG (40.560 € steuerfrei) + Turboklausel-Risiko", "tax_year_exit": 2026, "filing_status": "single", "church_tax_rate": 0.0, "has_children": false, "age_years": 43, "service_years": 12.0, "annual_gross_salary_eur": 95000.0, "spouse_taxable_income_eur": 0.0, "severance_gross_eur": 90000.0, "ancillary_second_year_payment_eur": 0.0, "split_across_two_years_50_50": false, "termination_vehicle": "aufhebungsvertrag", "employer_threatened_reason": "betriebsbedingt", "contractual_notice_months": 5, "agreed_notice_months_observed": 5.0, "sprinter_clause_triggered_months_early": 2.0, "seamless_new_job_on_exit": false, "next_year_employment_months": 3, "next_year_alg1_months": 6, "next_year_monthly_gross_new_job_eur": 8000.0, "apply_bav_vervielfaeltigung": true, "bav_requested_amount_eur": null, "apply_drv_187a_ausgleich": false, "drv_187a_payment_eur": 0.0}, "naive_december_no_fuenftel_or_unoptimized": {"scenario_label": "1. Unoptimiert / 50:50-Ratenfalle (Dez. 2026 ohne § 34 EStG)", "payout_year": 2026, "regular_zve_eur": 78059.0, "alg1_progression_income_eur": 0.0, "gross_severance_eur": 90000.0, "bav_tax_free_3nr63_eur": 0.0, "drv_187a_deduction_eur": 0.0, "taxable_severance_eur": 90000.0, "zusammenballung_fulfilled": false, "zusammenballung_reason_de": "KRITISCHER FEHLER: Raten-Auszahlung über 2 Kalenderjahre (50/50-Splittung) zerstört die Einmaligkeit des Zuflusses -> 100 % Verlust der Fünftelregelung nach § 34 EStG!", "fuenftelregelung_applied": false, "tax_without_severance_eur": 21803.58, "tax_with_severance_normal_tariff_eur": 62718.7, "tax_with_severance_fuenftel_eur": 62718.7, "fuenftel_pure_tax_saving_eur": 0.0, "incremental_tax_on_severance_eur": 40915.12, "effective_tax_rate_on_severance_pct": 45.46, "employer_payroll_withholding_eur": 40915.12, "employer_initial_net_payout_eur": 49084.88, "finanzamt_anlage_n_refund_eur": 0.0, "final_net_severance_inkl_bav_eur": 49084.88, "final_net_cash_plus_bav_value_eur": 49084.88}, "december_with_fuenftel": {"scenario_label": "2. Auszahlung Dezember 2026 (volles Jahresgehalt + § 34 EStG)", "payout_year": 2026, "regular_zve_eur": 78059.0, "alg1_progression_income_eur": 0.0, "gross_severance_eur": 90000.0, "bav_tax_free_3nr63_eur": 0.0, "drv_187a_deduction_eur": 0.0, "taxable_severance_eur": 90000.0, "zusammenballung_fulfilled": true, "zusammenballung_reason_de": "Zusammenballung der Einkünfte (§ 34 Abs. 1 EStG, BMF-Schreiben) erfüllt: Einmaliger Zufluss der Hauptleistung in einem Veranlagungszeitraum (Nebenleistungen <= 10 %; § 3 Nr. 63 EStG bAV-Umwandlung ist nach BMF unschädlich für die Fünftelregelung des Restbetrags).", "fuenftelregelung_applied": true, "tax_without_severance_eur": 21803.58, "tax_with_severance_normal_tariff_eur": 62718.7, "tax_with_severance_fuenftel_eur": 62718.7, "fuenftel_pure_tax_saving_eur": 0.0, "incremental_tax_on_severance_eur": 40915.12, "effective_tax_rate_on_severance_pct": 45.46, "employer_payroll_withholding_eur": 40915.12, "employer_initial_net_payout_eur": 49084.88, "finanzamt_anlage_n_refund_eur": 0.0, "final_net_severance_inkl_bav_eur": 49084.88, "final_net_cash_plus_bav_value_eur": 49084.88}, "january_shift_with_fuenftel_only": {"scenario_label": "3. Zufluss-Shift 02. Januar 2027 (§ 11 + § 34 EStG + § 32b ALG I)", "payout_year": 2027, "regular_zve_eur": 18774.0, "alg1_progression_income_eur": 17990.16, "gross_severance_eur": 90000.0, "bav_tax_free_3nr63_eur": 0.0, "drv_187a_deduction_eur": 0.0, "taxable_severance_eur": 90000.0, "zusammenballung_fulfilled": true, "zusammenballung_reason_de": "Zusammenballung der Einkünfte (§ 34 Abs. 1 EStG, BMF-Schreiben) erfüllt: Einmaliger Zufluss der Hauptleistung in einem Veranlagungszeitraum (Nebenleistungen <= 10 %; § 3 Nr. 63 EStG bAV-Umwandlung ist nach BMF unschädlich für die Fünftelregelung des Restbetrags).", "fuenftelregelung_applied": true, "tax_without_severance_eur": 3167.0, "tax_with_severance_normal_tariff_eur": 38006.7, "tax_with_severance_fuenftel_eur": 28492.0, "fuenftel_pure_tax_saving_eur": 9514.7, "incremental_tax_on_severance_eur": 25325.0, "effective_tax_rate_on_severance_pct": 28.14, "employer_payroll_withholding_eur": 40915.12, "employer_initial_net_payout_eur": 49084.88, "finanzamt_anlage_n_refund_eur": 15590.12, "final_net_severance_inkl_bav_eur": 64675.0, "final_net_cash_plus_bav_value_eur": 64675.0}, "optimal_january_plus_bav_drv_stack": {"scenario_label": "4. OPTIMAL-STACK: 02. Jan. 2027 + § 3 Nr. 63 bAV (40,560 €) + § 34 EStG", "payout_year": 2027, "regular_zve_eur": 18774.0, "alg1_progression_income_eur": 17990.16, "gross_severance_eur": 90000.0, "bav_tax_free_3nr63_eur": 40560.0, "drv_187a_deduction_eur": 0.0, "taxable_severance_eur": 49440.0, "zusammenballung_fulfilled": true, "zusammenballung_reason_de": "Zusammenballung der Einkünfte (§ 34 Abs. 1 EStG, BMF-Schreiben) erfüllt: Einmaliger Zufluss der Hauptleistung in einem Veranlagungszeitraum (Nebenleistungen <= 10 %; § 3 Nr. 63 EStG bAV-Umwandlung ist nach BMF unschädlich für die Fünftelregelung des Restbetrags).", "fuenftelregelung_applied": true, "tax_without_severance_eur": 3167.0, "tax_with_severance_normal_tariff_eur": 19838.0, "tax_with_severance_fuenftel_eur": 16177.0, "fuenftel_pure_tax_saving_eur": 3661.0, "incremental_tax_on_severance_eur": 13010.0, "effective_tax_rate_on_severance_pct": 14.46, "employer_payroll_withholding_eur": 22942.14, "employer_initial_net_payout_eur": 26497.86, "finanzamt_anlage_n_refund_eur": 9932.14, "final_net_severance_inkl_bav_eur": 76990.0, "final_net_cash_plus_bav_value_eur": 76990.0}, "sperrzeit_audit_current": {"statutory_notice_months_bgb622": 5, "required_notice_months": 5.0, "observed_effective_notice_months": 3.0, "notice_shortfall_months": 2.0, "severance_factor_months_per_year": 0.95, "corridor_status": "SHORTENED_NOTICE_VIOLATION", "sperrzeit_triggered": true, "sperrzeit_weeks": 12, "sperrzeit_permanent_entitlement_cut_months": 3.0, "sperrzeit_risk_level": "RED_SPERRZEIT_12_WEEKS", "sperrzeit_reasons_de": ["§ 158 SGB III Ruhenszeit (60 Tage / 2.0 Monate): Kündigungsfrist um 2.0 Monate verkürzt (Soll: 5 Mon., Ist: 3.0 Mon.).", "Sprinter-/Turboklausel-Falle: Vorzeitiger Exit (2.0 Monate früher) ohne direkten Anschlussjob löst Ruhenszeit + Sperrzeitprüfung + freiwillige GKV-Pflicht aus!", "§ 159 Abs. 1 Satz 2 Nr. 1 SGB III Sperrzeit (12 Wochen): Durch Verkürzung der ordentlichen Kündigungsfrist entfällt die Privilegierung des 'wichtigen Grundes' nach den Fachlichen Weisungen der BA!"], "ruhenszeit_triggered": true, "ruhenszeit_days": 60, "ruhenszeit_months_approx": 2.0, "gkv_out_of_pocket_months": 1.0, "gkv_out_of_pocket_cost_eur": 620.0, "alg1_monthly_net_benefit_eur": 2998.36, "alg1_total_entitlement_months_base": 12, "alg1_permanent_cash_loss_sperrzeit_eur": 8995.08, "alg1_delayed_cash_ruhenszeit_eur": 5996.72, "total_social_law_penalty_eur": 9615.08, "rescue_recommendations_de": ["Beendigungsdatum im Vertrag zwingend auf den regulären Ablauf der ordentlichen Kündigungsfrist (5 Monate nach § 622 Abs. 2 BGB / Arbeitsvertrag) setzen und für die Zwischenzeit bezahlte unwiderrufliche Freistellung unter Fortzahlung der Bezüge vereinbaren."]}, "sperrzeit_audit_rescued": {"statutory_notice_months_bgb622": 5, "required_notice_months": 5.0, "observed_effective_notice_months": 5.0, "notice_shortfall_months": 0.0, "severance_factor_months_per_year": 0.95, "corridor_status": "PROTECTED_1A_OR_COURT", "sperrzeit_triggered": false, "sperrzeit_weeks": 0, "sperrzeit_permanent_entitlement_cut_months": 0.0, "sperrzeit_risk_level": "GREEN_SAFE", "sperrzeit_reasons_de": ["Kein Sperrzeitrisiko (§ 159 SGB III): Beendigung erfolgt durch arbeitgeberseitige Kündigung nach § 1a KSchG bzw. arbeitsgerichtlichen Vergleich unter Wahrung der ordentlichen Kündigungsfrist."], "ruhenszeit_triggered": false, "ruhenszeit_days": 0, "ruhenszeit_months_approx": 0.0, "gkv_out_of_pocket_months": 0.0, "gkv_out_of_pocket_cost_eur": 0.0, "alg1_monthly_net_benefit_eur": 2998.36, "alg1_total_entitlement_months_base": 12, "alg1_permanent_cash_loss_sperrzeit_eur": 0.0, "alg1_delayed_cash_ruhenszeit_eur": 0.0, "total_social_law_penalty_eur": 0.0, "rescue_recommendations_de": ["Vertragsstruktur ist sozialversicherungsrechtlich nach §§ 158, 159 SGB III optimal abgesichert (0 Wochen Sperrzeit, 0 Tage Ruhenszeit, 100 % ALG-I-Anspruch erhalten)."]}, "tax_saved_by_january_shift_eur": 15590.12, "tax_saved_by_bav_and_drv_eur": 12315.0, "total_tax_arbitrage_vs_december_eur": 27905.12, "sperrzeit_penalty_avoided_eur": 9615.08, "combined_net_wealth_gain_eur": 37520.2, "contract_clauses_de": {"zufluss_januar_klausel": "§ 3 Fälligkeit und Zufluss der Abfindung (§ 11 Abs. 1 EStG i.V.m. § 34 EStG): Die Parteien sind sich einig, dass der verbleibende Brutto-Abfindungsbetrag in Höhe von 49,440.00 € erst im Kalenderjahr 2027 (Fälligkeit und Wertstellung frühestens am 02. Januar 2027, 00:00 Uhr) entsteht, fällig wird und dem Arbeitnehmer zufließt. Eine Auszahlung oder Vorauszahlung im Kalenderjahr 2026 ist ausgeschlossen, um die Zusammenballung der Einkünfte im Veranlagungszeitraum 2027 sicherzustellen.", "bav_vervielfaeltigung_klausel": "§ 4 Betriebliche Altersversorgung / Vervielfältigungsregel (§ 3 Nr. 63 Satz 3 EStG): Aus Anlass der Beendigung des Arbeitsverhältnisses wandelt der Arbeitgeber von der vereinbarten Abfindung einen Teilbetrag in Höhe von 40,560.00 € (4 % der BBG RV West × 10 Dienstjahre) steuerfrei nach § 3 Nr. 63 Satz 3 EStG unmittelbar als Einmalbeitrag in den bestehenden bzw. neu abgeschlossenen Direktversicherungsvertrag des Arbeitnehmers um.", "sperrzeit_schutz_klausel": "§ 1 Beendigung aus betrieblichen Gründen unter Wahrung der ordentlichen Kündigungsfrist (§§ 158, 159 SGB III / § 1a KSchG): Das Arbeitsverhältnis endet unter Einhaltung der ordentlichen arbeitgeberseitigen Kündigungsfrist von 5 Monaten zur Vermeidung einer anderenfalls unumgänglichen, mit Bestimmtheit in Aussicht gestellten betriebsbedingten Arbeitgeberkündigung zum selben Beendigungszeitpunkt. Bis zum Beendigungstermin wird der Arbeitnehmer unter Fortzahlung der vertraglichen Bezüge unwiderruflich freigestellt.", "sprinter_schutz_klausel": "§ 2 Sperrzeit-sichere Sprinter-/Turboklausel: Macht der Arbeitnehmer von seinem Recht zur vorzeitigen Beendigung Gebrauch, erfolgt dies ausschließlich zum Zwecke der nahtlosen Aufnahme eines neuen Arbeitsverhältnisses (Anschlussbeschäftigung), sodass kein Bezug von Arbeitslosengeld I während der ursprünglichen Kündigungsfrist beantragt wird.", "anlage_n_checkliste_2025_2026": "Wachstumschancengesetz-Hinweis (ab VZ 2025/2026): Da der Arbeitgeber die Fünftelregelung nicht mehr im Lohnsteuerabzug anwenden darf, wird die Brutto-Barabfindung (49,440.00 €) in Zeile 17/18 der Lohnsteuerbescheinigung ausgewiesen und in der Einkommensteuererklärung 2027 (Anlage N, 'Entschädigungen / Arbeitslohn für mehrere Jahre nach § 34 EStG') beantragt."}}, {"case": {"case_id": "case_2_banking_vp_54yo", "case_title": "Szenario 2: Banking/Chemie Direktor (54 J., 145.000 € Gehalt, 180.000 € Abfindung, Faktor 1,35)", "persona_subtitle": "Faktor > 0,50 Sperrzeit-Falle (15 Mon. ALG I -> 3,75 Mon. Verlust) + § 3 Nr. 63 bAV + § 187a SGB VI Renten-Ausgleich", "tax_year_exit": 2026, "filing_status": "married_joint", "church_tax_rate": 0.08, "has_children": true, "age_years": 54, "service_years": 11.0, "annual_gross_salary_eur": 145000.0, "spouse_taxable_income_eur": 18000.0, "severance_gross_eur": 180000.0, "ancillary_second_year_payment_eur": 0.0, "split_across_two_years_50_50": false, "termination_vehicle": "aufhebungsvertrag", "employer_threatened_reason": "betriebsbedingt", "contractual_notice_months": 6, "agreed_notice_months_observed": 6.0, "sprinter_clause_triggered_months_early": 0.0, "seamless_new_job_on_exit": false, "next_year_employment_months": 0, "next_year_alg1_months": 9, "next_year_monthly_gross_new_job_eur": 0.0, "apply_bav_vervielfaeltigung": true, "bav_requested_amount_eur": null, "apply_drv_187a_ausgleich": true, "drv_187a_payment_eur": 25000.0}, "naive_december_no_fuenftel_or_unoptimized": {"scenario_label": "1. Unoptimiert / 50:50-Ratenfalle (Dez. 2026 ohne § 34 EStG)", "payout_year": 2026, "regular_zve_eur": 145234.0, "alg1_progression_income_eur": 0.0, "gross_severance_eur": 180000.0, "bav_tax_free_3nr63_eur": 0.0, "drv_187a_deduction_eur": 0.0, "taxable_severance_eur": 180000.0, "zusammenballung_fulfilled": false, "zusammenballung_reason_de": "KRITISCHER FEHLER: Raten-Auszahlung über 2 Kalenderjahre (50/50-Splittung) zerstört die Einmaligkeit des Zuflusses -> 100 % Verlust der Fünftelregelung nach § 34 EStG!", "fuenftelregelung_applied": false, "tax_without_severance_eur": 41824.08, "tax_with_severance_normal_tariff_eur": 129760.01, "tax_with_severance_fuenftel_eur": 129760.01, "fuenftel_pure_tax_saving_eur": 0.0, "incremental_tax_on_severance_eur": 87935.93, "effective_tax_rate_on_severance_pct": 48.85, "employer_payroll_withholding_eur": 87935.93, "employer_initial_net_payout_eur": 92064.07, "finanzamt_anlage_n_refund_eur": 0.0, "final_net_severance_inkl_bav_eur": 92064.07, "final_net_cash_plus_bav_value_eur": 92064.07}, "december_with_fuenftel": {"scenario_label": "2. Auszahlung Dezember 2026 (volles Jahresgehalt + § 34 EStG)", "payout_year": 2026, "regular_zve_eur": 145234.0, "alg1_progression_income_eur": 0.0, "gross_severance_eur": 180000.0, "bav_tax_free_3nr63_eur": 0.0, "drv_187a_deduction_eur": 0.0, "taxable_severance_eur": 180000.0, "zusammenballung_fulfilled": true, "zusammenballung_reason_de": "Zusammenballung der Einkünfte (§ 34 Abs. 1 EStG, BMF-Schreiben) erfüllt: Einmaliger Zufluss der Hauptleistung in einem Veranlagungszeitraum (Nebenleistungen <= 10 %; § 3 Nr. 63 EStG bAV-Umwandlung ist nach BMF unschädlich für die Fünftelregelung des Restbetrags).", "fuenftelregelung_applied": true, "tax_without_severance_eur": 41824.08, "tax_with_severance_normal_tariff_eur": 129760.01, "tax_with_severance_fuenftel_eur": 129760.01, "fuenftel_pure_tax_saving_eur": 0.0, "incremental_tax_on_severance_eur": 87935.93, "effective_tax_rate_on_severance_pct": 48.85, "employer_payroll_withholding_eur": 87935.93, "employer_initial_net_payout_eur": 92064.07, "finanzamt_anlage_n_refund_eur": 0.0, "final_net_severance_inkl_bav_eur": 92064.07, "final_net_cash_plus_bav_value_eur": 92064.07}, "january_shift_with_fuenftel_only": {"scenario_label": "3. Zufluss-Shift 02. Januar 2027 (§ 11 + § 34 EStG + § 32b ALG I)", "payout_year": 2027, "regular_zve_eur": 18000.0, "alg1_progression_income_eur": 32163.48, "gross_severance_eur": 180000.0, "bav_tax_free_3nr63_eur": 0.0, "drv_187a_deduction_eur": 0.0, "taxable_severance_eur": 180000.0, "zusammenballung_fulfilled": true, "zusammenballung_reason_de": "Zusammenballung der Einkünfte (§ 34 Abs. 1 EStG, BMF-Schreiben) erfüllt: Einmaliger Zufluss der Hauptleistung in einem Veranlagungszeitraum (Nebenleistungen <= 10 %; § 3 Nr. 63 EStG bAV-Umwandlung ist nach BMF unschädlich für die Fünftelregelung des Restbetrags).", "fuenftelregelung_applied": true, "tax_without_severance_eur": 2225.88, "tax_with_severance_normal_tariff_eur": 71891.5, "tax_with_severance_fuenftel_eur": 46603.08, "fuenftel_pure_tax_saving_eur": 25288.42, "incremental_tax_on_severance_eur": 44377.2, "effective_tax_rate_on_severance_pct": 24.65, "employer_payroll_withholding_eur": 87373.25, "employer_initial_net_payout_eur": 92626.75, "finanzamt_anlage_n_refund_eur": 42996.05, "final_net_severance_inkl_bav_eur": 135622.8, "final_net_cash_plus_bav_value_eur": 135622.8}, "optimal_january_plus_bav_drv_stack": {"scenario_label": "4. OPTIMAL-STACK: 02. Jan. 2027 + § 3 Nr. 63 bAV (40,560 €) + § 34 EStG + § 187a DRV (25,000 €)", "payout_year": 2027, "regular_zve_eur": 0.0, "alg1_progression_income_eur": 32163.48, "gross_severance_eur": 180000.0, "bav_tax_free_3nr63_eur": 40560.0, "drv_187a_deduction_eur": 25000.0, "taxable_severance_eur": 132440.0, "zusammenballung_fulfilled": true, "zusammenballung_reason_de": "Zusammenballung der Einkünfte (§ 34 Abs. 1 EStG, BMF-Schreiben) erfüllt: Einmaliger Zufluss der Hauptleistung in einem Veranlagungszeitraum (Nebenleistungen <= 10 %; § 3 Nr. 63 EStG bAV-Umwandlung ist nach BMF unschädlich für die Fünftelregelung des Restbetrags).", "fuenftelregelung_applied": true, "tax_without_severance_eur": 0.0, "tax_with_severance_normal_tariff_eur": 40719.24, "tax_with_severance_fuenftel_eur": 19639.8, "fuenftel_pure_tax_saving_eur": 21079.44, "incremental_tax_on_severance_eur": 19639.8, "effective_tax_rate_on_severance_pct": 10.91, "employer_payroll_withholding_eur": 68037.39, "employer_initial_net_payout_eur": 71402.61, "finanzamt_anlage_n_refund_eur": 48397.59, "final_net_severance_inkl_bav_eur": 160360.2, "final_net_cash_plus_bav_value_eur": 160360.2}, "sperrzeit_audit_current": {"statutory_notice_months_bgb622": 4, "required_notice_months": 6.0, "observed_effective_notice_months": 6.0, "notice_shortfall_months": 0.0, "severance_factor_months_per_year": 1.35, "corridor_status": "EXCEEDS_0_50_NEEDS_PROOF_OR_COURT", "sperrzeit_triggered": true, "sperrzeit_weeks": 12, "sperrzeit_permanent_entitlement_cut_months": 3.75, "sperrzeit_risk_level": "RED_SPERRZEIT_12_WEEKS", "sperrzeit_reasons_de": ["§ 159 SGB III Faktor-Falle: Abfindungsfaktor (1.35 Monatsgehälter/Dienstjahr) überschreitet den Safe-Harbor-Grenzwert von 0.50 der BA Fachlichen Weisungen! Ohne arbeitsgerichtlichen Vergleich prüft die BA die Sozialauswahl/Rechtmäßigkeit und verhängt regelmäßig 12 Wochen Sperrzeit."], "ruhenszeit_triggered": false, "ruhenszeit_days": 0, "ruhenszeit_months_approx": 0.0, "gkv_out_of_pocket_months": 0.0, "gkv_out_of_pocket_cost_eur": 0.0, "alg1_monthly_net_benefit_eur": 3573.72, "alg1_total_entitlement_months_base": 15, "alg1_permanent_cash_loss_sperrzeit_eur": 13401.45, "alg1_delayed_cash_ruhenszeit_eur": 0.0, "total_social_law_penalty_eur": 13401.45, "rescue_recommendations_de": ["Bei hohem Abfindungsfaktor (1.35 > 0,50) KEINEN außergerichtlichen Aufhebungsvertrag unterschreiben! Stattdessen: Arbeitgeber kündigt ordentlich betriebsbedingt -> Kündigungsschutzklage (§ 4 KSchG) -> gerichtlicher Vergleich nach § 278 Abs. 6 ZPO (Sperrzeit-immun auch bei Faktor 1,0–2,0!)."]}, "sperrzeit_audit_rescued": {"statutory_notice_months_bgb622": 4, "required_notice_months": 6.0, "observed_effective_notice_months": 6.0, "notice_shortfall_months": 0.0, "severance_factor_months_per_year": 1.35, "corridor_status": "PROTECTED_1A_OR_COURT", "sperrzeit_triggered": false, "sperrzeit_weeks": 0, "sperrzeit_permanent_entitlement_cut_months": 0.0, "sperrzeit_risk_level": "GREEN_SAFE", "sperrzeit_reasons_de": ["Kein Sperrzeitrisiko (§ 159 SGB III): Beendigung erfolgt durch arbeitgeberseitige Kündigung nach § 1a KSchG bzw. arbeitsgerichtlichen Vergleich unter Wahrung der ordentlichen Kündigungsfrist."], "ruhenszeit_triggered": false, "ruhenszeit_days": 0, "ruhenszeit_months_approx": 0.0, "gkv_out_of_pocket_months": 0.0, "gkv_out_of_pocket_cost_eur": 0.0, "alg1_monthly_net_benefit_eur": 3573.72, "alg1_total_entitlement_months_base": 15, "alg1_permanent_cash_loss_sperrzeit_eur": 0.0, "alg1_delayed_cash_ruhenszeit_eur": 0.0, "total_social_law_penalty_eur": 0.0, "rescue_recommendations_de": ["Vertragsstruktur ist sozialversicherungsrechtlich nach §§ 158, 159 SGB III optimal abgesichert (0 Wochen Sperrzeit, 0 Tage Ruhenszeit, 100 % ALG-I-Anspruch erhalten)."]}, "tax_saved_by_january_shift_eur": 43558.73, "tax_saved_by_bav_and_drv_eur": 24737.4, "total_tax_arbitrage_vs_december_eur": 68296.13, "sperrzeit_penalty_avoided_eur": 13401.45, "combined_net_wealth_gain_eur": 81697.58, "contract_clauses_de": {"zufluss_januar_klausel": "§ 3 Fälligkeit und Zufluss der Abfindung (§ 11 Abs. 1 EStG i.V.m. § 34 EStG): Die Parteien sind sich einig, dass der verbleibende Brutto-Abfindungsbetrag in Höhe von 139,440.00 € erst im Kalenderjahr 2027 (Fälligkeit und Wertstellung frühestens am 02. Januar 2027, 00:00 Uhr) entsteht, fällig wird und dem Arbeitnehmer zufließt. Eine Auszahlung oder Vorauszahlung im Kalenderjahr 2026 ist ausgeschlossen, um die Zusammenballung der Einkünfte im Veranlagungszeitraum 2027 sicherzustellen.", "bav_vervielfaeltigung_klausel": "§ 4 Betriebliche Altersversorgung / Vervielfältigungsregel (§ 3 Nr. 63 Satz 3 EStG): Aus Anlass der Beendigung des Arbeitsverhältnisses wandelt der Arbeitgeber von der vereinbarten Abfindung einen Teilbetrag in Höhe von 40,560.00 € (4 % der BBG RV West × 10 Dienstjahre) steuerfrei nach § 3 Nr. 63 Satz 3 EStG unmittelbar als Einmalbeitrag in den bestehenden bzw. neu abgeschlossenen Direktversicherungsvertrag des Arbeitnehmers um.", "sperrzeit_schutz_klausel": "§ 1 Beendigung aus betrieblichen Gründen unter Wahrung der ordentlichen Kündigungsfrist (§§ 158, 159 SGB III / § 1a KSchG): Das Arbeitsverhältnis endet unter Einhaltung der ordentlichen arbeitgeberseitigen Kündigungsfrist von 6 Monaten zur Vermeidung einer anderenfalls unumgänglichen, mit Bestimmtheit in Aussicht gestellten betriebsbedingten Arbeitgeberkündigung zum selben Beendigungszeitpunkt. Bis zum Beendigungstermin wird der Arbeitnehmer unter Fortzahlung der vertraglichen Bezüge unwiderruflich freigestellt.", "sprinter_schutz_klausel": "§ 2 Sperrzeit-sichere Sprinter-/Turboklausel: Macht der Arbeitnehmer von seinem Recht zur vorzeitigen Beendigung Gebrauch, erfolgt dies ausschließlich zum Zwecke der nahtlosen Aufnahme eines neuen Arbeitsverhältnisses (Anschlussbeschäftigung), sodass kein Bezug von Arbeitslosengeld I während der ursprünglichen Kündigungsfrist beantragt wird.", "anlage_n_checkliste_2025_2026": "Wachstumschancengesetz-Hinweis (ab VZ 2025/2026): Da der Arbeitgeber die Fünftelregelung nicht mehr im Lohnsteuerabzug anwenden darf, wird die Brutto-Barabfindung (139,440.00 €) in Zeile 17/18 der Lohnsteuerbescheinigung ausgewiesen und in der Einkommensteuererklärung 2027 (Anlage N, 'Entschädigungen / Arbeitslohn für mehrere Jahre nach § 34 EStG') beantragt. Zusätzlich sind die 25,000.00 € Ausgleichszahlung nach § 187a SGB VI in der Anlage Vorsorgeaufwand als Beiträge zur gesetzlichen Rentenversicherung geltend zu machen."}}, {"case": {"case_id": "case_3_maschinenbau_1a_kschg", "case_title": "Szenario 3: Maschinenbau Teamleiter (§ 1a KSchG Regelabfindung 0,5 Faktor, 78.000 € Gehalt, 32.500 € Abfindung)", "persona_subtitle": "§ 1a KSchG Safe Harbor (0 Tage Sperrzeit) vs. tödliche 50/50-Ratenvereinbarung über 2 Kalenderjahre", "tax_year_exit": 2026, "filing_status": "single", "church_tax_rate": 0.09, "has_children": true, "age_years": 39, "service_years": 10.0, "annual_gross_salary_eur": 78000.0, "spouse_taxable_income_eur": 0.0, "severance_gross_eur": 32500.0, "ancillary_second_year_payment_eur": 0.0, "split_across_two_years_50_50": true, "termination_vehicle": "kuendigung_1a_kschg", "employer_threatened_reason": "betriebsbedingt", "contractual_notice_months": 4, "agreed_notice_months_observed": 4.0, "sprinter_clause_triggered_months_early": 0.0, "seamless_new_job_on_exit": false, "next_year_employment_months": 4, "next_year_alg1_months": 5, "next_year_monthly_gross_new_job_eur": 6500.0, "apply_bav_vervielfaeltigung": true, "bav_requested_amount_eur": 12500.0, "apply_drv_187a_ausgleich": false, "drv_187a_payment_eur": 0.0}, "naive_december_no_fuenftel_or_unoptimized": {"scenario_label": "1. Unoptimiert / 50:50-Ratenfalle (Dez. 2026 ohne § 34 EStG)", "payout_year": 2026, "regular_zve_eur": 63864.0, "alg1_progression_income_eur": 0.0, "gross_severance_eur": 32500.0, "bav_tax_free_3nr63_eur": 0.0, "drv_187a_deduction_eur": 0.0, "taxable_severance_eur": 32500.0, "zusammenballung_fulfilled": false, "zusammenballung_reason_de": "KRITISCHER FEHLER: Raten-Auszahlung über 2 Kalenderjahre (50/50-Splittung) zerstört die Einmaligkeit des Zuflusses -> 100 % Verlust der Fünftelregelung nach § 34 EStG!", "fuenftelregelung_applied": false, "tax_without_severance_eur": 17166.41, "tax_with_severance_normal_tariff_eur": 33046.78, "tax_with_severance_fuenftel_eur": 33046.78, "fuenftel_pure_tax_saving_eur": 0.0, "incremental_tax_on_severance_eur": 15880.37, "effective_tax_rate_on_severance_pct": 48.86, "employer_payroll_withholding_eur": 15880.37, "employer_initial_net_payout_eur": 16619.63, "finanzamt_anlage_n_refund_eur": 0.0, "final_net_severance_inkl_bav_eur": 16619.63, "final_net_cash_plus_bav_value_eur": 16619.63}, "december_with_fuenftel": {"scenario_label": "2. Auszahlung Dezember 2026 (volles Jahresgehalt + § 34 EStG)", "payout_year": 2026, "regular_zve_eur": 63864.0, "alg1_progression_income_eur": 0.0, "gross_severance_eur": 32500.0, "bav_tax_free_3nr63_eur": 0.0, "drv_187a_deduction_eur": 0.0, "taxable_severance_eur": 32500.0, "zusammenballung_fulfilled": true, "zusammenballung_reason_de": "Zusammenballung der Einkünfte (§ 34 Abs. 1 EStG, BMF-Schreiben) erfüllt: Einmaliger Zufluss der Hauptleistung in einem Veranlagungszeitraum (Nebenleistungen <= 10 %; § 3 Nr. 63 EStG bAV-Umwandlung ist nach BMF unschädlich für die Fünftelregelung des Restbetrags).", "fuenftelregelung_applied": true, "tax_without_severance_eur": 17166.41, "tax_with_severance_normal_tariff_eur": 33046.78, "tax_with_severance_fuenftel_eur": 31707.01, "fuenftel_pure_tax_saving_eur": 1339.77, "incremental_tax_on_severance_eur": 14540.6, "effective_tax_rate_on_severance_pct": 44.74, "employer_payroll_withholding_eur": 15880.37, "employer_initial_net_payout_eur": 16619.63, "finanzamt_anlage_n_refund_eur": 1339.77, "final_net_severance_inkl_bav_eur": 17959.4, "final_net_cash_plus_bav_value_eur": 17959.4}, "january_shift_with_fuenftel_only": {"scenario_label": "3. Zufluss-Shift 02. Januar 2027 (§ 11 + § 34 EStG + § 32b ALG I)", "payout_year": 2027, "regular_zve_eur": 20444.0, "alg1_progression_income_eur": 13745.1, "gross_severance_eur": 32500.0, "bav_tax_free_3nr63_eur": 0.0, "drv_187a_deduction_eur": 0.0, "taxable_severance_eur": 32500.0, "zusammenballung_fulfilled": true, "zusammenballung_reason_de": "Zusammenballung der Einkünfte (§ 34 Abs. 1 EStG, BMF-Schreiben) erfüllt: Einmaliger Zufluss der Hauptleistung in einem Veranlagungszeitraum (Nebenleistungen <= 10 %; § 3 Nr. 63 EStG bAV-Umwandlung ist nach BMF unschädlich für die Fünftelregelung des Restbetrags).", "fuenftelregelung_applied": true, "tax_without_severance_eur": 3537.05, "tax_with_severance_normal_tariff_eur": 14615.81, "tax_with_severance_fuenftel_eur": 12654.9, "fuenftel_pure_tax_saving_eur": 1960.91, "incremental_tax_on_severance_eur": 9117.85, "effective_tax_rate_on_severance_pct": 28.05, "employer_payroll_withholding_eur": 15880.37, "employer_initial_net_payout_eur": 16619.63, "finanzamt_anlage_n_refund_eur": 6762.52, "final_net_severance_inkl_bav_eur": 23382.15, "final_net_cash_plus_bav_value_eur": 23382.15}, "optimal_january_plus_bav_drv_stack": {"scenario_label": "4. OPTIMAL-STACK: 02. Jan. 2027 + § 3 Nr. 63 bAV (12,500 €) + § 34 EStG", "payout_year": 2027, "regular_zve_eur": 20444.0, "alg1_progression_income_eur": 13745.1, "gross_severance_eur": 32500.0, "bav_tax_free_3nr63_eur": 12500.0, "drv_187a_deduction_eur": 0.0, "taxable_severance_eur": 20000.0, "zusammenballung_fulfilled": true, "zusammenballung_reason_de": "Zusammenballung der Einkünfte (§ 34 Abs. 1 EStG, BMF-Schreiben) erfüllt: Einmaliger Zufluss der Hauptleistung in einem Veranlagungszeitraum (Nebenleistungen <= 10 %; § 3 Nr. 63 EStG bAV-Umwandlung ist nach BMF unschädlich für die Fünftelregelung des Restbetrags).", "fuenftelregelung_applied": true, "tax_without_severance_eur": 3537.05, "tax_with_severance_normal_tariff_eur": 9801.28, "tax_with_severance_fuenftel_eur": 9019.75, "fuenftel_pure_tax_saving_eur": 781.53, "incremental_tax_on_severance_eur": 5482.7, "effective_tax_rate_on_severance_pct": 16.87, "employer_payroll_withholding_eur": 9533.12, "employer_initial_net_payout_eur": 10466.88, "finanzamt_anlage_n_refund_eur": 4050.42, "final_net_severance_inkl_bav_eur": 27017.3, "final_net_cash_plus_bav_value_eur": 27017.3}, "sperrzeit_audit_current": {"statutory_notice_months_bgb622": 4, "required_notice_months": 4.0, "observed_effective_notice_months": 4.0, "notice_shortfall_months": 0.0, "severance_factor_months_per_year": 0.5, "corridor_status": "PROTECTED_1A_OR_COURT", "sperrzeit_triggered": false, "sperrzeit_weeks": 0, "sperrzeit_permanent_entitlement_cut_months": 0.0, "sperrzeit_risk_level": "GREEN_SAFE", "sperrzeit_reasons_de": ["Kein Sperrzeitrisiko (§ 159 SGB III): Beendigung erfolgt durch arbeitgeberseitige Kündigung nach § 1a KSchG bzw. arbeitsgerichtlichen Vergleich unter Wahrung der ordentlichen Kündigungsfrist."], "ruhenszeit_triggered": false, "ruhenszeit_days": 0, "ruhenszeit_months_approx": 0.0, "gkv_out_of_pocket_months": 0.0, "gkv_out_of_pocket_cost_eur": 0.0, "alg1_monthly_net_benefit_eur": 2749.02, "alg1_total_entitlement_months_base": 12, "alg1_permanent_cash_loss_sperrzeit_eur": 0.0, "alg1_delayed_cash_ruhenszeit_eur": 0.0, "total_social_law_penalty_eur": 0.0, "rescue_recommendations_de": ["Vertragsstruktur ist sozialversicherungsrechtlich nach §§ 158, 159 SGB III optimal abgesichert (0 Wochen Sperrzeit, 0 Tage Ruhenszeit, 100 % ALG-I-Anspruch erhalten)."]}, "sperrzeit_audit_rescued": {"statutory_notice_months_bgb622": 4, "required_notice_months": 4.0, "observed_effective_notice_months": 4.0, "notice_shortfall_months": 0.0, "severance_factor_months_per_year": 0.5, "corridor_status": "PROTECTED_1A_OR_COURT", "sperrzeit_triggered": false, "sperrzeit_weeks": 0, "sperrzeit_permanent_entitlement_cut_months": 0.0, "sperrzeit_risk_level": "GREEN_SAFE", "sperrzeit_reasons_de": ["Kein Sperrzeitrisiko (§ 159 SGB III): Beendigung erfolgt durch arbeitgeberseitige Kündigung nach § 1a KSchG bzw. arbeitsgerichtlichen Vergleich unter Wahrung der ordentlichen Kündigungsfrist."], "ruhenszeit_triggered": false, "ruhenszeit_days": 0, "ruhenszeit_months_approx": 0.0, "gkv_out_of_pocket_months": 0.0, "gkv_out_of_pocket_cost_eur": 0.0, "alg1_monthly_net_benefit_eur": 2749.02, "alg1_total_entitlement_months_base": 12, "alg1_permanent_cash_loss_sperrzeit_eur": 0.0, "alg1_delayed_cash_ruhenszeit_eur": 0.0, "total_social_law_penalty_eur": 0.0, "rescue_recommendations_de": ["Vertragsstruktur ist sozialversicherungsrechtlich nach §§ 158, 159 SGB III optimal abgesichert (0 Wochen Sperrzeit, 0 Tage Ruhenszeit, 100 % ALG-I-Anspruch erhalten)."]}, "tax_saved_by_january_shift_eur": 5422.75, "tax_saved_by_bav_and_drv_eur": 3635.15, "total_tax_arbitrage_vs_december_eur": 9057.9, "sperrzeit_penalty_avoided_eur": 0.0, "combined_net_wealth_gain_eur": 9057.9, "contract_clauses_de": {"zufluss_januar_klausel": "§ 3 Fälligkeit und Zufluss der Abfindung (§ 11 Abs. 1 EStG i.V.m. § 34 EStG): Die Parteien sind sich einig, dass der verbleibende Brutto-Abfindungsbetrag in Höhe von 20,000.00 € erst im Kalenderjahr 2027 (Fälligkeit und Wertstellung frühestens am 02. Januar 2027, 00:00 Uhr) entsteht, fällig wird und dem Arbeitnehmer zufließt. Eine Auszahlung oder Vorauszahlung im Kalenderjahr 2026 ist ausgeschlossen, um die Zusammenballung der Einkünfte im Veranlagungszeitraum 2027 sicherzustellen.", "bav_vervielfaeltigung_klausel": "§ 4 Betriebliche Altersversorgung / Vervielfältigungsregel (§ 3 Nr. 63 Satz 3 EStG): Aus Anlass der Beendigung des Arbeitsverhältnisses wandelt der Arbeitgeber von der vereinbarten Abfindung einen Teilbetrag in Höhe von 12,500.00 € (4 % der BBG RV West × 10 Dienstjahre) steuerfrei nach § 3 Nr. 63 Satz 3 EStG unmittelbar als Einmalbeitrag in den bestehenden bzw. neu abgeschlossenen Direktversicherungsvertrag des Arbeitnehmers um.", "sperrzeit_schutz_klausel": "§ 1 Beendigung aus betrieblichen Gründen unter Wahrung der ordentlichen Kündigungsfrist (§§ 158, 159 SGB III / § 1a KSchG): Das Arbeitsverhältnis endet unter Einhaltung der ordentlichen arbeitgeberseitigen Kündigungsfrist von 4 Monaten zur Vermeidung einer anderenfalls unumgänglichen, mit Bestimmtheit in Aussicht gestellten betriebsbedingten Arbeitgeberkündigung zum selben Beendigungszeitpunkt. Bis zum Beendigungstermin wird der Arbeitnehmer unter Fortzahlung der vertraglichen Bezüge unwiderruflich freigestellt.", "sprinter_schutz_klausel": "§ 2 Sperrzeit-sichere Sprinter-/Turboklausel: Macht der Arbeitnehmer von seinem Recht zur vorzeitigen Beendigung Gebrauch, erfolgt dies ausschließlich zum Zwecke der nahtlosen Aufnahme eines neuen Arbeitsverhältnisses (Anschlussbeschäftigung), sodass kein Bezug von Arbeitslosengeld I während der ursprünglichen Kündigungsfrist beantragt wird.", "anlage_n_checkliste_2025_2026": "Wachstumschancengesetz-Hinweis (ab VZ 2025/2026): Da der Arbeitgeber die Fünftelregelung nicht mehr im Lohnsteuerabzug anwenden darf, wird die Brutto-Barabfindung (20,000.00 €) in Zeile 17/18 der Lohnsteuerbescheinigung ausgewiesen und in der Einkommensteuererklärung 2027 (Anlage N, 'Entschädigungen / Arbeitslohn für mehrere Jahre nach § 34 EStG') beantragt."}}];
+
+    const fmtEur = (n) => new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(n);
+    const fmtPct = (n) => new Intl.NumberFormat('de-DE', { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(n) + ' %';
+
+    function estg32aBasic2026(zveSingle) {
+      const x = Math.floor(Math.max(0, zveSingle));
+      if (x <= 12348) return 0;
+      if (x <= 17799) {
+        const y = (x - 12348) / 10000;
+        return Math.floor((914.51 * y + 1400) * y);
+      }
+      if (x <= 69878) {
+        const z = (x - 17799) / 10000;
+        return Math.floor((173.10 * z + 2397) * z + 1034.87);
+      }
+      if (x <= 277825) return Math.floor(0.42 * x - 11135.63);
+      return Math.floor(0.45 * x - 19470.38);
+    }
+
+    function calcTaxWithProgression(zve, progIncome, filingStatus) {
+      const effZve = Math.max(0, zve);
+      if (effZve <= 0) return 0;
+      const split = filingStatus === 'married_joint' ? 2 : 1;
+      const combined = effZve + Math.max(0, progIncome);
+      const taxCombined = split * estg32aBasic2026(combined / split);
+      let tariff = 0;
+      if (progIncome > 0 && combined > 0) {
+        tariff = Math.floor(effZve * (taxCombined / combined));
+      } else {
+        tariff = split * estg32aBasic2026(effZve / split);
+      }
+      const freigrenze = split === 2 ? 40700 : 20350;
+      let soli = 0;
+      if (tariff > freigrenze) {
+        soli = Math.min(tariff * 0.055, (tariff - freigrenze) * 0.119);
+      }
+      return Math.round(tariff + soli);
+    }
+
+    function estimateZve(grossSalary) {
+      if (grossSalary <= 0) return 0;
+      const social = Math.min(Math.min(grossSalary, 101400) * 0.165, 16500);
+      return Math.max(0, grossSalary - social - 1230 - 36);
+    }
+
+    function statutoryNoticeBgb622(years) {
+      if (years >= 20) return 7;
+      if (years >= 15) return 6;
+      if (years >= 12) return 5;
+      if (years >= 10) return 4;
+      if (years >= 8) return 3;
+      if (years >= 5) return 2;
+      return 1;
+    }
+
+    const presetSelect = document.getElementById('presetSelect');
+    BENCHMARKS.forEach((b, idx) => {
+      const opt = document.createElement('option');
+      opt.value = idx;
+      opt.textContent = b.case.case_title;
+      presetSelect.appendChild(opt);
+    });
+
+    function loadPreset(idx) {
+      const c = BENCHMARKS[idx].case;
+      const optStack = BENCHMARKS[idx].optimal_january_plus_bav_drv_stack;
+      document.getElementById('grossSalaryInput').value = c.annual_gross_salary_eur;
+      document.getElementById('severanceInput').value = c.severance_gross_eur;
+      document.getElementById('serviceYearsInput').value = c.service_years;
+      document.getElementById('ageInput').value = c.age_years;
+      document.getElementById('filingStatusInput').value = c.filing_status;
+      document.getElementById('vehicleInput').value = c.termination_vehicle;
+      document.getElementById('noticeObservedInput').value = c.agreed_notice_months_observed;
+      document.getElementById('sprinterMonthsInput').value = c.sprinter_clause_triggered_months_early;
+      document.getElementById('nextYearJobMonthsInput').value = c.next_year_employment_months;
+      document.getElementById('nextYearAlgMonthsInput').value = c.next_year_alg1_months;
+      document.getElementById('bavAmountInput').value = optStack.bav_tax_free_3nr63_eur;
+      document.getElementById('drv187aInput').value = optStack.drv_187a_deduction_eur;
+      document.getElementById('split5050Toggle').checked = c.split_across_two_years_50_50;
+      document.getElementById('childrenToggle').checked = c.has_children;
+      recalcStudio();
+    }
+
+    function evalStage(label, regSalary, yearSalary, alg1Prog, grossSev, bavEur, drvEur, filingStatus, disableFuenftel) {
+      const bavUsed = Math.min(Math.max(0, bavEur), grossSev);
+      const taxableSevRaw = Math.max(0, grossSev - bavUsed);
+      const baseZveBeforeDrv = estimateZve(yearSalary);
+      const drvUsed = Math.min(Math.max(0, drvEur), baseZveBeforeDrv + taxableSevRaw);
+      const regZve = Math.max(0, baseZveBeforeDrv - drvUsed);
+      const excessDrv = Math.max(0, drvUsed - baseZveBeforeDrv);
+      const effTaxableSev = Math.max(0, taxableSevRaw - excessDrv);
+
+      const taxWithout = calcTaxWithProgression(regZve, alg1Prog, filingStatus);
+      const taxNormal = calcTaxWithProgression(regZve + effTaxableSev, alg1Prog, filingStatus);
+      const taxOneFifth = calcTaxWithProgression(regZve + effTaxableSev / 5, alg1Prog, filingStatus);
+      const taxFuenftel = Math.min(taxNormal, taxWithout + 5 * (taxOneFifth - taxWithout));
+      const finalTotalTax = disableFuenftel ? taxNormal : taxFuenftel;
+      const incTax = Math.max(0, finalTotalTax - taxWithout);
+      const effRate = grossSev > 0 ? (incTax / grossSev) * 100 : 0;
+
+      const empZve = estimateZve(Math.max(yearSalary, regSalary * 0.5));
+      const empWithhold = Math.max(
+        incTax,
+        calcTaxWithProgression(empZve + taxableSevRaw, 0, filingStatus) - calcTaxWithProgression(empZve, 0, filingStatus)
+      );
+      const anlageNRefund = Math.max(0, empWithhold - incTax);
+      const netTotal = grossSev - incTax;
+
+      return { label, bavUsed, incTax, effRate, empWithhold, anlageNRefund, netTotal };
+    }
+
+    function recalcStudio() {
+      const grossSalary = parseFloat(document.getElementById('grossSalaryInput').value) || 0;
+      const grossSev = parseFloat(document.getElementById('severanceInput').value) || 0;
+      const serviceYears = parseFloat(document.getElementById('serviceYearsInput').value) || 1;
+      const age = parseInt(document.getElementById('ageInput').value, 10) || 40;
+      const filingStatus = document.getElementById('filingStatusInput').value;
+      const vehicle = document.getElementById('vehicleInput').value;
+      const noticeObs = parseFloat(document.getElementById('noticeObservedInput').value) || 0;
+      const sprinterEarly = parseFloat(document.getElementById('sprinterMonthsInput').value) || 0;
+      const nextJobMonths = parseFloat(document.getElementById('nextYearJobMonthsInput').value) || 0;
+      const nextAlgMonths = parseFloat(document.getElementById('nextYearAlgMonthsInput').value) || 0;
+      const maxBavAllowed = 4056 * Math.min(10, Math.floor(serviceYears));
+      const bavInput = Math.min(maxBavAllowed, parseFloat(document.getElementById('bavAmountInput').value) || 0);
+      const drvInput = age >= 50 ? (parseFloat(document.getElementById('drv187aInput').value) || 0) : 0;
+      const split5050 = document.getElementById('split5050Toggle').checked;
+      const hasChildren = document.getElementById('childrenToggle').checked;
+
+      const cappedSalary = Math.min(grossSalary, 101400);
+      const alg1Monthly = Math.round((cappedSalary / 365) * 0.64 * (hasChildren ? 0.67 : 0.60) * 30);
+      const alg1BaseMonths = age >= 58 ? 24 : (age >= 55 ? 18 : (age >= 50 ? 15 : 12));
+      const nextYearAlgTotal = alg1Monthly * nextAlgMonths;
+      const nextYearSalary = (grossSalary / 12) * nextJobMonths;
+
+      const s1 = evalStage('1. Unoptimiert / 50:50-Ratenfalle (ohne § 34 EStG)', grossSalary, grossSalary, 0, grossSev, 0, 0, filingStatus, true);
+      const s2 = evalStage('2. Auszahlung Dezember 2026 (volles Gehalt + § 34 EStG)', grossSalary, grossSalary, 0, grossSev, 0, 0, filingStatus, split5050);
+      const s3 = evalStage('3. Zufluss-Shift 02. Januar 2027 (§ 11 + § 34 EStG + § 32b ALG I)', grossSalary, nextYearSalary, nextYearAlgTotal, grossSev, 0, 0, filingStatus, split5050);
+      const s4 = evalStage('4. OPTIMAL-STACK (02. Jan. 2027 + § 3 Nr. 63 bAV + § 34 EStG + § 187a DRV)', grossSalary, nextYearSalary, nextYearAlgTotal, grossSev, bavInput, drvInput, filingStatus, split5050);
+
+      const rows = [s1, s2, s3, s4];
+      const tbody = document.getElementById('comparisonTableBody');
+      tbody.innerHTML = rows.map((r, i) => `
+        <tr class="${i === 3 ? 'optimal-row' : ''}">
+          <td>${r.label}</td>
+          <td>${fmtEur(r.bavUsed)}</td>
+          <td>${fmtEur(r.incTax)}</td>
+          <td><span class="pill ${r.effRate < 18 ? 'ok' : (r.effRate < 30 ? 'warn' : 'err')}">${fmtPct(r.effRate)}</span></td>
+          <td>${fmtEur(r.empWithhold)}</td>
+          <td>+${fmtEur(r.anlageNRefund)}</td>
+          <td>${fmtEur(r.netTotal)}</td>
+        </tr>
+      `).join('');
+
+      const taxSavedVsDec = Math.max(0, s2.incTax - s4.incTax);
+      document.getElementById('kpiTaxSaved').textContent = '+' + fmtEur(taxSavedVsDec);
+      document.getElementById('kpiTaxSavedSub').textContent = `Steuer sinkt von ${fmtEur(s2.incTax)} auf ${fmtEur(s4.incTax)}`;
+      document.getElementById('kpiOptimalNet').textContent = fmtEur(s4.netTotal);
+      document.getElementById('kpiEffTaxRate').textContent = `Effektive Steuerquote: ${fmtPct(s4.effRate)} (statt ${fmtPct(s2.effRate)})`;
+      document.getElementById('kpiAnlageNRefund').textContent = '+' + fmtEur(s4.anlageNRefund);
+
+      const reqNotice = Math.max(statutoryNoticeBgb622(serviceYears), noticeObs);
+      const effNotice = Math.max(0, noticeObs - sprinterEarly);
+      const shortfall = Math.max(0, reqNotice - effNotice);
+      const sevFactor = (grossSev / (grossSalary / 12)) / Math.max(0.5, serviceYears);
+
+      const alerts = [];
+      let sperrzeitLoss = 0;
+      let gkvLoss = 0;
+
+      if (split5050) {
+        alerts.push(`<div class="alert-box red"><strong>KRITISCHE STEUERFALLE (Zusammenballung der Einkünfte zerstört!):</strong> Durch die Aufteilung der Abfindung auf 2 Kalenderjahre entfällt die Tarifbegünstigung nach § 34 Abs. 1 EStG vollständig!</div>`);
+      }
+
+      if (shortfall > 0.01) {
+        const gkvMonths = Math.max(0, shortfall - 1);
+        gkvLoss = Math.round(gkvMonths * 620);
+        sperrzeitLoss = Math.round((alg1BaseMonths * 0.25) * alg1Monthly);
+        alerts.push(`<div class="alert-box red"><strong>§ 158 SGB III Ruhenszeit & § 159 SGB III Sperrzeit (Verkürzte Kündigungsfrist / Turboklausel um ${shortfall.toFixed(1)} Mon.):</strong> Das Arbeitslosengeld ruht für ${Math.round(shortfall * 30)} Tage, mindert sich dauerhaft um 25 % (${(alg1BaseMonths * 0.25).toFixed(1)} Monate = <strong>${fmtEur(sperrzeitLoss)} Nettoverlust</strong>) und kostet <strong>${fmtEur(gkvLoss)} freiwillige GKV-Beiträge</strong>!</div>`);
+      } else if (vehicle === 'aufhebungsvertrag' && sevFactor > 0.50) {
+        sperrzeitLoss = Math.round((alg1BaseMonths * 0.25) * alg1Monthly);
+        alerts.push(`<div class="alert-box amber"><strong>§ 159 SGB III Faktor-Warnung (Faktor ${sevFactor.toFixed(2)} > 0,50 Safe Harbor):</strong> Bei einem außergerichtlichen Aufhebungsvertrag über 0,50 Monatsgehältern pro Dienstjahr entfällt die vereinfachte BA-Prüfung (Risiko: 12 Wochen Sperrzeit = <strong>${fmtEur(sperrzeitLoss)} ALG-I-Verlust</strong>). Lösung: Arbeitgeberkündigung + gerichtlicher Vergleich (§ 278 Abs. 6 ZPO)!</div>`);
+      } else {
+        alerts.push(`<div class="alert-box green"><strong>§§ 158, 159 SGB III GRÜNES LICHT (0 Tage Sperrzeit / 0 Tage Ruhenszeit):</strong> Ordentliche Kündigungsfrist (${reqNotice} Mon.) eingehalten und Faktor (${sevFactor.toFixed(2)}) bzw. Beendigungsweg (${vehicle}) nach BA Fachlichen Weisungen sperrzeitfrei! Voller ALG-I-Anspruch (${alg1BaseMonths} Monate à ${fmtEur(alg1Monthly)}/Monat) gesichert.</div>`);
+      }
+
+      const totalPenalty = sperrzeitLoss + gkvLoss;
+      const spCard = document.getElementById('kpiSperrzeitCard');
+      spCard.className = 'kpi-card ' + (totalPenalty > 0 ? 'danger' : 'highlight');
+      document.getElementById('kpiSperrzeitPenalty').textContent = totalPenalty > 0 ? ('-' + fmtEur(totalPenalty) + ' Risiko') : '0 € Verlust (Sicher)';
+      document.getElementById('kpiSperrzeitSub').textContent = `Faktor: ${sevFactor.toFixed(2)} Mon./J. · ALG I: ${fmtEur(alg1Monthly)}/Mon.`;
+      document.getElementById('sperrzeitAlerts').innerHTML = alerts.join('');
+
+      const cashSev = Math.max(0, grossSev - bavInput);
+      document.getElementById('clausesContainer').innerHTML = `
+        <div class="clause-box">
+          <div class="clause-title">1. Zufluss-Klausel für den 02. Januar 2027 (§ 11 Abs. 1 EStG i.V.m. § 34 EStG)</div>
+          Die Parteien vereinbaren, dass der Brutto-Barabfindungsbetrag in Höhe von ${fmtEur(cashSev)} erst im Kalenderjahr 2027 (Fälligkeit und Wertstellung frühestens am 02. Januar 2027) entsteht, fällig wird und zufließt.
+        </div>
+        <div class="clause-box">
+          <div class="clause-title">2. Steuerfreie bAV-Vervielfältigungsklausel (§ 3 Nr. 63 Satz 3 EStG — max. ${fmtEur(maxBavAllowed)})</div>
+          Aus Anlass der Beendigung des Arbeitsverhältnisses wandelt der Arbeitgeber einen Teilbetrag der Abfindung in Höhe von ${fmtEur(bavInput)} steuerfrei nach § 3 Nr. 63 Satz 3 EStG direkt in die Direktversicherung um.
+        </div>
+        <div class="clause-box">
+          <div class="clause-title">3. Sperrzeit-Schutzklausel (§§ 158, 159 SGB III / § 1a KSchG)</div>
+          Das Arbeitsverhältnis endet unter Einhaltung der ordentlichen arbeitgeberseitigen Kündigungsfrist (${reqNotice} Monate) zur Vermeidung einer mit Bestimmtheit in Aussicht gestellten betriebsbedingten Arbeitgeberkündigung zum selben Termin.
+        </div>
+      `;
+    }
+
+    presetSelect.addEventListener('change', (e) => loadPreset(parseInt(e.target.value, 10)));
+    [
+      'grossSalaryInput', 'severanceInput', 'serviceYearsInput', 'ageInput',
+      'filingStatusInput', 'vehicleInput', 'noticeObservedInput', 'sprinterMonthsInput',
+      'nextYearJobMonthsInput', 'nextYearAlgMonthsInput', 'bavAmountInput', 'drv187aInput',
+      'split5050Toggle', 'childrenToggle'
+    ].forEach(id => {
+      document.getElementById(id).addEventListener('input', recalcStudio);
+      document.getElementById(id).addEventListener('change', recalcStudio);
+    });
+
+    loadPreset(0);
+  </script>
+</body>
+</html>

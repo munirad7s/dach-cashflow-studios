@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MILESTONE MVP #140 — DACH § 11 PAngV (EuGH C-330/23), § 312k BGB & § 13 UWG Studio</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --panel: #131b33;
+      --panel-alt: #192342;
+      --text: #eef2ff;
+      --muted: #94a3b8;
+      --accent: #38bdf8;
+      --gold: #f59e0b;
+      --ok: #10b981;
+      --danger: #ef4444;
+      --border: #26345e;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: radial-gradient(circle at top right, #1e293b 0%, var(--bg) 65%);
+      color: var(--text);
+      line-height: 1.5;
+    }
+    header {
+      padding: 28px 32px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(19, 27, 51, 0.92);
+    }
+    .badge-row { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 10px; }
+    .badge {
+      padding: 4px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      background: rgba(245, 158, 11, 0.16);
+      color: var(--gold);
+      border: 1px solid rgba(245, 158, 11, 0.45);
+    }
+    h1 { margin: 0 0 8px 0; font-size: 24px; color: #fff; }
+    .subtitle { margin: 0; color: var(--muted); font-size: 14px; max-width: 980px; }
+    main { max-width: 1360px; margin: 0 auto; padding: 24px 32px 64px; }
+    .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(560px, 1fr)); gap: 20px; margin-bottom: 24px; }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.28);
+    }
+    .card h2 { margin-top: 0; font-size: 18px; color: var(--accent); display: flex; justify-content: space-between; align-items: center; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+    label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 4px; font-weight: 600; }
+    input, select {
+      width: 100%;
+      padding: 9px 11px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--panel-alt);
+      color: var(--text);
+      font-size: 13px;
+    }
+    button.primary {
+      background: linear-gradient(135deg, #0284c7, #2563eb);
+      color: #fff;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-weight: 700;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 6px;
+    }
+    .result-box {
+      margin-top: 14px;
+      padding: 14px;
+      border-radius: 10px;
+      background: rgba(15, 23, 42, 0.75);
+      border-left: 4px solid var(--accent);
+      font-size: 13px;
+    }
+    .status-ok { color: var(--ok); font-weight: 700; }
+    .status-bad { color: var(--danger); font-weight: 700; }
+    pre {
+      background: #070b16;
+      padding: 12px;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-size: 12px;
+      color: #cbd5e1;
+      border: 1px solid #1e293b;
+      white-space: pre-wrap;
+    }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 10px; }
+    th, td { text-align: left; padding: 10px; border-bottom: 1px solid var(--border); }
+    th { color: var(--muted); font-size: 11px; text-transform: uppercase; }
+  </style>
+</head>
+<body>
+
+<!-- DACH CASHFLOW STUDIOS LAUNCH BAR -->
+<style>
+  #dcs-launch-bar {
+    position: sticky;
+    top: 0;
+    z-index: 99999;
+    background: linear-gradient(90deg, #0b1120 0%, #111827 50%, #0f172a 100%);
+    color: #f8fafc;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.35);
+    padding: 8px 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  }
+  #dcs-launch-bar .dcs-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+  }
+  #dcs-launch-bar .dcs-badge {
+    background: rgba(16, 185, 129, 0.18);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.03em;
+  }
+  #dcs-launch-bar a.dcs-nav {
+    color: #93c5fd;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 12.5px;
+  }
+  #dcs-launch-bar a.dcs-nav:hover {
+    text-decoration: underline;
+    color: #dbeafe;
+  }
+  #dcs-launch-bar .dcs-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  #dcs-launch-bar .dcs-btn {
+    padding: 5px 11px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s ease;
+  }
+  #dcs-launch-bar .dcs-btn-ghost {
+    background: rgba(255,255,255,0.08);
+    color: #e2e8f0;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  #dcs-launch-bar .dcs-btn-primary {
+    background: linear-gradient(135deg, #0ea5e9, #2563eb);
+    color: #ffffff;
+  }
+  #dcs-launch-bar .dcs-btn-emerald {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
+  }
+  @media print {
+    #dcs-launch-bar { display: none !important; }
+  }
+</style>
+<div id="dcs-launch-bar">
+  <div class="dcs-left">
+    <a href="/index.html" class="dcs-nav">← Alle 150 DACH Studios</a>
+    <span class="dcs-badge">MVP #140 VERIFIED</span>
+    <span style="color:#cbd5e1;font-size:12px;">DACH LegalTech, Labor Law & Consumer Claims</span>
+  </div>
+  <div class="dcs-actions">
+    <button onclick="window.print()" class="dcs-btn dcs-btn-ghost">🖨️ PDF / Dossier drucken</button>
+    <a href="#checkout-modal-49" target="_blank" rel="noopener" class="dcs-btn dcs-btn-primary">⚡ Musterschreiben & Voll-Dossier (€49)</a>
+    <a href="#checkout-modal-299" target="_blank" rel="noopener" class="dcs-btn dcs-btn-emerald">🛡️ B2B Umsetzung buchen (€299 / €1.490)</a>
+  </div>
+</div>
+
+  <header>
+    <div class="badge-row">
+      <span class="badge">MILESTONE MVP #140</span>
+      <span class="badge">EuGH C-330/23 (Aldi Süd) & BGH I ZR 183/23</span>
+      <span class="badge">§ 312k Abs. 6 BGB Sofort-Kündigung</span>
+      <span class="badge">§ 5b Abs. 3 UWG & §§ 8c, 13 Abs. 5 UWG Gegenanspruch</span>
+    </div>
+    <h1>DACH E-Commerce & SaaS Rechts-Prüfstand (§ 11 PAngV · § 312k BGB · § 13 UWG)</h1>
+    <p class="subtitle">
+      Deterministischer Validator gegen Preisschaukelei-Abmahnungen nach EuGH C-330/23, Kündigungsbutton-Fallen mit sofortigem
+      Laufzeitverlust (§ 312k Abs. 6 BGB), fehlende Bewertungs-Verifikation (§ 5b Abs. 3 UWG) und rechtsmissbräuchliche
+      Mitbewerber-Abmahnungen (§§ 8c, 13 Abs. 2/4/5 UWG).
+    </p>
+  </header>
+
+  <main>
+    <div class="grid-2">
+      <!-- Pillar 1: § 11 PAngV / EuGH C-330/23 Calculator -->
+      <section class="card">
+        <h2>1. § 11 PAngV & EuGH C-330/23 Streichpreis- & Rabatt-Prüfer</h2>
+        <div class="form-row">
+          <div>
+            <label>Aktueller Aktionspreis (€)</label>
+            <input type="number" id="p_current" value="19.99" step="0.01" />
+          </div>
+          <div>
+            <label>Niedrigster Preis der letzten 30 Tage (€)</label>
+            <input type="number" id="p_low30" value="19.99" step="0.01" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div>
+            <label>Unmittelbar vorheriger Preis (€)</label>
+            <input type="number" id="p_last" value="29.99" step="0.01" />
+          </div>
+          <div>
+            <label>Beworbener Rabatt im Banner (%)</label>
+            <input type="number" id="p_adv_pct" value="33" step="1" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div>
+            <label>Beworbener Streich-/Referenzpreis (€)</label>
+            <input type="number" id="p_adv_ref" value="29.99" step="0.01" />
+          </div>
+          <div>
+            <label>Ausnahme nach § 11 Abs. 2 / Abs. 4 PAngV</label>
+            <select id="p_exc">
+              <option value="NONE">Keine Ausnahme (Standard § 11 Abs. 1 PAngV)</option>
+              <option value="STEP_ABS2">Schrittweise Reduzierung ohne Unterbrechung (§ 11 Abs. 2)</option>
+              <option value="PERISHABLE_ABS4">Schnell verderbliche Ware (§ 11 Abs. 4)</option>
+              <option value="UVP_ONLY">Reiner UVP-Vergleich ohne Eigenrabatt</option>
+            </select>
+          </div>
+        </div>
+        <button class="primary" onclick="runPangvCheck()">EuGH C-330/23 & § 11 PAngV Konformität berechnen</button>
+        <div id="pangv_output" class="result-box"></div>
+      </section>
+
+      <!-- Pillar 2: § 312k BGB Cancellation Button & Abs. 6 Generator -->
+      <section class="card">
+        <h2>2. § 312k BGB Kündigungsbutton-Prüfer & Abs. 6 Sofort-Ausstieg</h2>
+        <div class="form-row">
+          <div>
+            <label>Anbieter / Plattform Name</label>
+            <input type="text" id="k_provider" value="FitCoach24 Premium App" />
+          </div>
+          <div>
+            <label>Login vor Kündigungsformular erzwungen?</label>
+            <select id="k_login">
+              <option value="yes">Ja — Passwort-Login vor Formular (Verstoß!)</option>
+              <option value="no">Nein — Direkt ohne Login erreichbar (Konform)</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div>
+            <label>Beschriftung Stufe 1 Button</label>
+            <input type="text" id="k_step1" value="Mein Abo verwalten" />
+          </div>
+          <div>
+            <label>Beschriftung Stufe 2 Button</label>
+            <input type="text" id="k_step2" value="Jetzt kündigen" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div>
+            <label>Monatlicher Beitrag (€)</label>
+            <input type="number" id="k_fee" value="79.00" step="1" />
+          </div>
+          <div>
+            <label>Restlaufzeit Knebelvertrag (Monate)</label>
+            <input type="number" id="k_months" value="14" step="1" />
+          </div>
+        </div>
+        <button class="primary" onclick="run312kCheck()">§ 312k BGB Audit & Fristloses Kündigungsschreiben erzeugen</button>
+        <div id="k312_output" class="result-box"></div>
+      </section>
+    </div>
+
+    <div class="grid-2">
+      <!-- Pillar 4: §§ 8c, 13 Abs. 2/4/5 UWG Counter-Claim Calculator -->
+      <section class="card">
+        <h2>3. §§ 8c, 13 Abs. 2, 4 & 5 UWG Abmahn-Abwehr & Gegenanspruch-Rechner</h2>
+        <div class="form-row">
+          <div>
+            <label>Abmahner-Typ</label>
+            <select id="a_type">
+              <option value="COMPETITOR">Mitbewerber (§ 8 Abs. 3 Nr. 1 UWG)</option>
+              <option value="QUALIFIED_ASSOCIATION">Qualifizierter Wirtschafts-/Verbraucherschutzverband</option>
+            </select>
+          </div>
+          <div>
+            <label>Gerügter Verstoß</label>
+            <select id="a_cat">
+              <option value="IMPRESSUM_LABELING_OPV">Online-Informations-/Kennzeichnungspflicht (§ 13 Abs. 4 Nr. 1)</option>
+              <option value="PRIVACY_DSGVO_SMALL">DSGVO / Datenschutz (&lt; 250 MA, § 13 Abs. 4 Nr. 2)</option>
+              <option value="PRICE_PANGV_11">Streichpreis / Irreführung</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div>
+            <label>Geforderter Streitwert (€)</label>
+            <input type="number" id="a_sw" value="30000" step="1000" />
+          </div>
+          <div>
+            <label>Geforderte Abmahnkosten (€)</label>
+            <input type="number" id="a_fee" value="1262.95" step="10" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div>
+            <label>Formfehler nach § 13 Abs. 2 Nr. 1–5 UWG?</label>
+            <select id="a_defect">
+              <option value="yes">Ja (z.B. Hinweis auf § 13 Abs. 4 Gebührenausschluss fehlt)</option>
+              <option value="no">Nein (Alle 5 Pflichtangaben vorhanden)</option>
+            </select>
+          </div>
+          <div>
+            <label>Mitarbeiterzahl Abgemahnter</label>
+            <input type="number" id="a_emp" value="12" step="1" />
+          </div>
+        </div>
+        <button class="primary" onclick="runAbmahnCheck()">Gegenanspruch nach § 13 Abs. 5 UWG berechnen</button>
+        <div id="abmahn_output" class="result-box"></div>
+      </section>
+
+      <!-- Preloaded Audit Benchmarks -->
+      <section class="card">
+        <h2>4. Vorab-Auditierte Referenzfälle (Manifest-Daten)</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Szenario / Fall</th>
+              <th>Rechtsnorm</th>
+              <th>Status</th>
+              <th>Finanz-Hebel</th>
+            </tr>
+          </thead>
+          <tbody id="benchmark_tbody"></tbody>
+        </table>
+        <pre id="raw_manifest_preview"></pre>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    const MANIFEST_DATA = {
+  "summary": {
+    "mvp_number": 140,
+    "title": "DACH § 11 PAngV (EuGH C-330/23), § 312k BGB & § 13 UWG Abmahn-Abwehr Studio",
+    "generated_at_utc": "2026-10-17T20:06:43.469360+00:00",
+    "total_price_audits": 3,
+    "total_button_audits": 2,
+    "total_review_audits": 1,
+    "total_abmahn_audits": 1,
+    "pillars_verified": [
+      "§ 11 Abs. 1-4 PAngV & EuGH C-330/23 (Aldi Süd) + BGH I ZR 183/23",
+      "§ 312k Abs. 1-6 BGB Kündigungsbutton & Fristlose Sofort-Kündigung (Abs. 6)",
+      "§ 5b Abs. 3 UWG Bewertungs-Transparenz (BGH I ZR 146/23) & §§ 4, 7 PAngV Grundpreis/Pfand",
+      "§§ 8c, 13 Abs. 2, 4, 5 & 13a UWG Abmahnmissbrauchs-Abwehr & Gegenanspruch"
+    ]
+  },
+  "price_audits": [
+    {
+      "sku": "SHP-COFFEE-01",
+      "product_name": "Bio Barista Espressobohnen 1kg (Aldi-Süd-Falle: Preisschaukelei vor Black Week)",
+      "mandatory_30d_lowest_price_eur": 19.99,
+      "effective_statutory_reference_price_eur": 19.99,
+      "true_statutory_discount_pct": 0.0,
+      "advertised_discount_pct": 33.0,
+      "advertised_reference_price_eur": 29.99,
+      "eugh_c330_23_compliant": false,
+      "pangv_11_compliant": false,
+      "violation_codes": [
+        "PANGV_11_WRONG_REFERENCE_PRICE: Statt des gesetzlichen 30-Tage-Niedrigstpreises (19.99 €) wurde 29.99 € als Streich-/Referenzpreis herangezogen.",
+        "EUGH_C330_23_FAKE_PERCENT_BANNER: Beworbener Rabatt (-33%) wurde gegen den höheren letzten Preis (29.99 €) oder UVP berechnet statt gegen den 30-Tage-Tiefstpreis (19.99 € -> realer Rabatt: 0.0%).",
+        "EUGH_C330_23_PRICE_HIKE_DISGUISED_AS_DEAL: Aktueller Aktionspreis (19.99 €) liegt auf oder über dem 30-Tage-Niedrigstpreis (19.99 €). Werbung mit 'Preis-Highlight' oder Streichpreis ist unzulässige Preisschaukelei."
+      ],
+      "statutory_basis": [
+        "§ 11 Abs. 1 PAngV",
+        "Art. 6a RL 98/6/EG",
+        "EuGH C-330/23 (Aldi Süd, Urt. v. 26.09.2024)",
+        "BGH I ZR 183/23"
+      ],
+      "corrected_banner_text_de": "Jetzt 19.99 € (Dauerpreis — keine Rabatt-/Streichpreiswerbung zulässig, da 30-Tage-Tiefstpreis bereits 19.99 € betrug; alternativ reiner UVP-Vergleich: UVP 32.90 €)",
+      "abmahn_risk_eur": 2850.0,
+      "explanation_de": "AKUTE ABMAHNGEFAHR (§ 11 Abs. 1 PAngV i.V.m. § 3a, § 5a UWG): Nach EuGH C-330/23 (Aldi Süd) muss jede prozentuale Rabattangabe und jedes Preis-Highlight zwingend auf dem 30-Tage-Niedrigstpreis basieren."
+    },
+    {
+      "sku": "SAAS-PRO-ANNUAL",
+      "product_name": "AI Workflow Cloud Pro Plan (Echter Rabatt unter 30-Tage-Tiefstpreis)",
+      "mandatory_30d_lowest_price_eur": 199.0,
+      "effective_statutory_reference_price_eur": 199.0,
+      "true_statutory_discount_pct": 25.1,
+      "advertised_discount_pct": 25.0,
+      "advertised_reference_price_eur": 199.0,
+      "eugh_c330_23_compliant": true,
+      "pangv_11_compliant": true,
+      "violation_codes": [],
+      "statutory_basis": [
+        "§ 11 Abs. 1 PAngV",
+        "Art. 6a RL 98/6/EG",
+        "EuGH C-330/23 (Aldi Süd, Urt. v. 26.09.2024)",
+        "BGH I ZR 183/23"
+      ],
+      "corrected_banner_text_de": "Jetzt 149.00 € (-25%) | Niedrigster Gesamtpreis der letzten 30 Tage vor der Preisermäßigung: 199.00 €",
+      "abmahn_risk_eur": 0.0,
+      "explanation_de": "Konform nach § 11 PAngV & EuGH C-330/23."
+    },
+    {
+      "sku": "FASH-JACKET-STEP",
+      "product_name": "Outdoor Winterparka (§ 11 Abs. 2 PAngV Schrittweise Reduzierung 200 -> 160 -> 120 €)",
+      "mandatory_30d_lowest_price_eur": 160.0,
+      "effective_statutory_reference_price_eur": 200.0,
+      "true_statutory_discount_pct": 40.0,
+      "advertised_discount_pct": 40.0,
+      "advertised_reference_price_eur": 200.0,
+      "eugh_c330_23_compliant": true,
+      "pangv_11_compliant": true,
+      "violation_codes": [],
+      "statutory_basis": [
+        "§ 11 Abs. 1 PAngV",
+        "Art. 6a RL 98/6/EG",
+        "EuGH C-330/23 (Aldi Süd, Urt. v. 26.09.2024)",
+        "BGH I ZR 183/23",
+        "§ 11 Abs. 2 PAngV (Schrittweise, ohne Unterbrechung ansteigende Preisermäßigung)"
+      ],
+      "corrected_banner_text_de": "Jetzt 120.00 € (-40%) | Niedrigster Gesamtpreis der letzten 30 Tage vor der Preisermäßigung: 200.00 €",
+      "abmahn_risk_eur": 0.0,
+      "explanation_de": "Konform nach § 11 PAngV & EuGH C-330/23."
+    }
+  ],
+  "button_audits": [
+    {
+      "provider_name": "FitCoach24 Premium App & Studio Abo",
+      "applicable_312k": true,
+      "compliant_312k": false,
+      "instant_termination_right_abs6_triggered": true,
+      "violation_reasons": [
+        "ILLEGAL_LOGIN_WALL_312K_ABS2: Vorgeschalteter Passwort-/Konto-Login vor Erreichen des Kündigungsformulars verstößt gegen das Gebot der unmittelbaren und leichten Zugänglichkeit (OLG Köln / LG Köln / LG München I).",
+        "INVALID_STEP1_WORDING_312K_ABS2: Beschriftung 'Mein Konto / Abo verwalten' verletzt die Pflicht zur unmissverständlichen Formulierung ('Verträge hier kündigen').",
+        "INVALID_STEP2_WORDING_312K_ABS2_S3: Bestätigungsschaltfläche 'Änderung absenden' muss mit 'jetzt kündigen' oder entsprechend eindeutiger Formulierung beschriftet sein.",
+        "EXCESSIVE_FORM_FRICTION_312K_ABS2_S2: Pflichtangabe von Kündigungsgründen oder unnötigen Hürden auf der Bestätigungsseite ist unzulässig.",
+        "MISSING_DURABLE_CONFIRMATION_312K_ABS4: Keine sofortige elektronische Eingangsbestätigung auf dauerhaftem Datenträger (E-Mail/PDF mit Datum & Uhrzeit) vorgesehen.",
+        "MISSING_DATE_FIELD_312K_ABS2_S2: Bestätigungsseite erlaubt keine Angabe des Zeitpunkts, zu dem die Kündigung wirksam werden soll."
+      ],
+      "consumer_saved_lockin_eur": 1106.0,
+      "provider_churn_and_abmahn_exposure_eur": 31150.0,
+      "compliant_step1_html_snippet": "<a href=\"/kuendigen-ohne-login\" class=\"pangv-312k-btn-step1\" aria-label=\"Verträge hier kündigen (§ 312k Abs. 2 BGB)\">Verträge hier kündigen</a>",
+      "compliant_step2_html_snippet": "<form action=\"/api/v1/terminate-312k\" method=\"POST\" class=\"pangv-312k-form\">\n  <label>Kündigungsart: <select name=\"type\"><option value=\"ordentlich\">Ordentlich</option><option value=\"ausserordentlich\">Außerordentlich</option></select></label>\n  <label>Name & E-Mail / Vertragsnummer zur Identifizierung: <input type=\"text\" name=\"ident\" required /></label>\n  <label>Gewünschter Beendigungszeitpunkt: <input type=\"date\" name=\"effective_date\" /></label>\n  <button type=\"submit\" class=\"pangv-312k-btn-step2\">Jetzt kündigen</button>\n</form>",
+      "consumer_instant_exit_letter_de": "An: FitCoach24 Premium App & Studio Abo\nBetreff: Fristlose Sofort-Kündigung meines Vertrages gemäß § 312k Abs. 6 BGB\n\nSehr geehrte Damen und Herren,\n\nhiermit kündige ich meinen bestehenden Vertrag / mein Abonnement (FITNESS_COACHING) unter ausdrücklicher Berufung auf § 312k Abs. 6 BGB fristlos mit sofortiger Wirkung.\n\nBegründung: Auf Ihrer Website werden die gesetzlich zwingenden Kündigungsschaltflächen und die Bestätigungsseite nicht entsprechend den Vorgaben des § 312k Abs. 1 und Abs. 2 BGB (ohne vorgeschalteten Login-Zwang und mit den Pflichtbeschriftungen 'Verträge hier kündigen' -> 'jetzt kündigen') zur Verfügung gestellt (Festgestellte Mängel: ILLEGAL_LOGIN_WALL_312K_ABS2, INVALID_STEP1_WORDING_312K_ABS2, INVALID_STEP2_WORDING_312K_ABS2_S3, EXCESSIVE_FORM_FRICTION_312K_ABS2_S2, MISSING_DURABLE_CONFIRMATION_312K_ABS4, MISSING_DATE_FIELD_312K_ABS2_S2).\nNach § 312k Abs. 6 BGB kann ein Verbraucher den Vertrag in diesem Fall jederzeit und ohne Einhaltung einer Kündigungsfrist beenden. Ein Einzug weiterer Entgelte (Ersparnis: 1106.00 € für 14 Restmonate) erfolgt ohne Rechtsgrund; bestehende SEPA-Lastschriftmandate widerrufe ich mit sofortiger Wirkung.\n\nBitte bestätigen Sie mir den Eingang und die sofortige Vertragsbeendigung unverzüglich auf einem dauerhaften Datenträger gemäß § 312k Abs. 4 BGB.\n\nMit freundlichen Grüßen"
+    },
+    {
+      "provider_name": "CloudInvoice DACH SaaS GmbH",
+      "applicable_312k": true,
+      "compliant_312k": true,
+      "instant_termination_right_abs6_triggered": false,
+      "violation_reasons": [],
+      "consumer_saved_lockin_eur": 0.0,
+      "provider_churn_and_abmahn_exposure_eur": 0.0,
+      "compliant_step1_html_snippet": "<a href=\"/kuendigen-ohne-login\" class=\"pangv-312k-btn-step1\" aria-label=\"Verträge hier kündigen (§ 312k Abs. 2 BGB)\">Verträge hier kündigen</a>",
+      "compliant_step2_html_snippet": "<form action=\"/api/v1/terminate-312k\" method=\"POST\" class=\"pangv-312k-form\">\n  <label>Kündigungsart: <select name=\"type\"><option value=\"ordentlich\">Ordentlich</option><option value=\"ausserordentlich\">Außerordentlich</option></select></label>\n  <label>Name & E-Mail / Vertragsnummer zur Identifizierung: <input type=\"text\" name=\"ident\" required /></label>\n  <label>Gewünschter Beendigungszeitpunkt: <input type=\"date\" name=\"effective_date\" /></label>\n  <button type=\"submit\" class=\"pangv-312k-btn-step2\">Jetzt kündigen</button>\n</form>",
+      "consumer_instant_exit_letter_de": "An: CloudInvoice DACH SaaS GmbH\nBetreff: Fristlose Sofort-Kündigung meines Vertrages gemäß § 312k Abs. 6 BGB\n\nSehr geehrte Damen und Herren,\n\nhiermit kündige ich meinen bestehenden Vertrag / mein Abonnement (SAAS_B2C) unter ausdrücklicher Berufung auf § 312k Abs. 6 BGB fristlos mit sofortiger Wirkung.\n\nBegründung: Auf Ihrer Website werden die gesetzlich zwingenden Kündigungsschaltflächen und die Bestätigungsseite nicht entsprechend den Vorgaben des § 312k Abs. 1 und Abs. 2 BGB (ohne vorgeschalteten Login-Zwang und mit den Pflichtbeschriftungen 'Verträge hier kündigen' -> 'jetzt kündigen') zur Verfügung gestellt (Festgestellte Mängel: keine).\nNach § 312k Abs. 6 BGB kann ein Verbraucher den Vertrag in diesem Fall jederzeit und ohne Einhaltung einer Kündigungsfrist beenden. Ein Einzug weiterer Entgelte (Ersparnis: 0.00 € für 11 Restmonate) erfolgt ohne Rechtsgrund; bestehende SEPA-Lastschriftmandate widerrufe ich mit sofortiger Wirkung.\n\nBitte bestätigen Sie mir den Eingang und die sofortige Vertragsbeendigung unverzüglich auf einem dauerhaften Datenträger gemäß § 312k Abs. 4 BGB.\n\nMit freundlichen Grüßen"
+    }
+  ],
+  "review_audits": [
+    {
+      "shop_name": "EnergyDrink-Direct24 Shop (Shopify)",
+      "compliant_5b_uwg": false,
+      "compliant_pangv_unit_price": false,
+      "violations": [
+        "UWG_5B_ABS3_MISSING_IF: Keine Angabe direkt bei den Bewertungen, OB eine Echtheitsprüfung stattfindet (§ 5b Abs. 3 UWG).",
+        "UWG_5B_ABS3_MISSING_HOW: Keine Erläuterung, WIE (durch welche technischen Prozesse/Kaufabgleich) sichergestellt wird, dass Bewertungen von echten Käufern stammen (BGH I ZR 146/23).",
+        "UWG_5A_BLACKLIST_NR23B_FAKE_VERIFICATION: Behauptung verifizierter Bewertungen ohne angemessene und verhältnismäßige Prüfung der Kaufhistorie (Anhang zu § 3 Abs. 3 UWG Nr. 23b).",
+        "PANGV_7_PFAND_MIXED_IN_PRICE: Pfandbetrag wurde unzulässig in den Gesamtpreis oder Grundpreis eingerechnet statt separat ausgewiesen ('zzgl. 0,25 € Pfand', § 7 PAngV / BGH I ZR 135/23)."
+      ],
+      "remediation_snippet_de": "/* Pflicht-Transparenzhinweis nach § 5b Abs. 3 UWG & §§ 4, 7 PAngV für EnergyDrink-Direct24 Shop (Shopify) */\n• Bewertungs-Transparenz (§ 5b Abs. 3 UWG): Alle mit 'Verifizierter Kauf' gekennzeichneten Bewertungen stammen ausschließlich von Kunden, die den Artikel nachweislich über unser Shopsystem bestellt haben (automatisierter Bestellnummern-Abgleich via E-Mail-Token nach Versand).\n• Preis- & Pfandangabe (§§ 4, 7 PAngV): Gesamtpreis inkl. MwSt., Grundpreis: X,XX € / 1 l, zzgl. 0,25 € Pfand."
+    }
+  ],
+  "abmahn_audits": [
+    {
+      "case_id": "ABM-2026-8841",
+      "claimant_name": "Schein-Mitbewerber Trading UG (Serienabmahner)",
+      "formal_defects_13_abs2": [
+        "§ 13 Abs. 2 Nr. 2 UWG: Voraussetzungen der Anspruchsberechtigung nach § 8 Abs. 3 UWG nicht dargelegt.",
+        "§ 13 Abs. 2 Nr. 5 UWG: Pflichthinweis fehlt, dass der Anspruch auf Aufwendungsersatz nach § 13 Abs. 4 UWG ausgeschlossen ist!"
+      ],
+      "abuse_indicators_8c_abs2": [
+        "§ 8c Abs. 2 Nr. 1/2 UWG: Keine nennenswerte eigene Geschäftstätigkeit des Abmahnenden (Gebührenerzielungsinteresse).",
+        "§ 8c Abs. 2 Nr. 2 UWG: Anzahl der Abmahnungen steht außer Verhältnis zur eigenen Wirtschaftstätigkeit.",
+        "§ 8c Abs. 2 Nr. 3/4 UWG: Unangemessen hoher Gegenstandswert oder überhöhte Vertragsstrafe gefordert."
+      ],
+      "fee_excluded_under_13_abs4": true,
+      "penalty_capped_at_1000_eur_under_13a_abs2": true,
+      "claimant_fee_enforceable_eur": 0.0,
+      "counter_claim_13_abs5_eur": 1261.5,
+      "net_financial_swing_saved_eur": 2524.45,
+      "recommended_strategy_de": "VOLLABWEHR + UNBESCHRÄNKTER GEGENANSPRUCH NACH § 8c Abs. 3 UWG (1261.50 €): Abmahnung ist rechtsmissbräuchlich (§ 8c Abs. 1, 2 UWG). Unterlassungserklärung komplett verweigern und eigene Anwaltskosten in voller Höhe zurückfordern.",
+      "defense_letter_template_de": "An: Schein-Mitbewerber Trading UG (Serienabmahner)\nBetreff: Zurückweisung Ihrer Abmahnung (ABM-2026-8841) & Geltendmachung unseres Gegenanspruchs nach § 8c Abs. 3 UWG\n\nSehr geehrte Damen und Herren,\n\nnamens und im Auftrag unserer Mandantschaft weisen wir Ihren Anspruch auf Aufwendungsersatz in Höhe von 1262.95 € vollumfänglich zurück.\n1. Formelle / Materielle Unwirksamkeit: § 13 Abs. 2 Nr. 2 UWG: Voraussetzungen der Anspruchsberechtigung nach § 8 Abs. 3 UWG nicht dargelegt., § 13 Abs. 2 Nr. 5 UWG: Pflichthinweis fehlt, dass der Anspruch auf Aufwendungsersatz nach § 13 Abs. 4 UWG ausgeschlossen ist!, § 8c Abs. 2 Nr. 1/2 UWG: Keine nennenswerte eigene Geschäftstätigkeit des Abmahnenden (Gebührenerzielungsinteresse)., § 8c Abs. 2 Nr. 2 UWG: Anzahl der Abmahnungen steht außer Verhältnis zur eigenen Wirtschaftstätigkeit., § 8c Abs. 2 Nr. 3/4 UWG: Unangemessen hoher Gegenstandswert oder überhöhte Vertragsstrafe gefordert..\n2. Kein Kostenersatz nach § 13 Abs. 3 / Abs. 4 UWG: Ihr Gebührenanspruch beträgt 0,00 €.\n3. Gegenanspruch (§ 13 Abs. 5 / § 8c Abs. 3 UWG): Wir fordern Sie auf, die unserer Mandantschaft für die notwendige Rechtsverteidigung entstandenen Aufwendungen in Höhe von 1261.50 € (netto) binnen 14 Tagen zu erstatten.\n\nMit freundlichen Grüßen"
+    }
+  ]
+};
+
+    function runPangvCheck() {
+      const cur = parseFloat(document.getElementById('p_current').value) || 0;
+      const low30 = parseFloat(document.getElementById('p_low30').value) || 0;
+      const last = parseFloat(document.getElementById('p_last').value) || 0;
+      const advPct = parseFloat(document.getElementById('p_adv_pct').value) || 0;
+      const advRef = parseFloat(document.getElementById('p_adv_ref').value) || 0;
+      const exc = document.getElementById('p_exc').value;
+
+      const effRef = (exc === 'PERISHABLE_ABS4') ? last : low30;
+      const truePct = (effRef > 0 && cur < effRef) ? (((effRef - cur) / effRef) * 100) : 0;
+      const refOk = (exc === 'UVP_ONLY') || Math.abs(advRef - effRef) <= 0.01;
+      const pctOk = (exc === 'UVP_ONLY') || (advPct <= truePct + 0.2 && cur < effRef);
+      const ok = refOk && pctOk;
+
+      const box = document.getElementById('pangv_output');
+      box.innerHTML = `
+        <div>Status: <span class="${ok ? 'status-ok' : 'status-bad'}">${ok ? 'KONFORM (§ 11 PAngV & EuGH C-330/23)' : 'VERSTOSS GEGEN EuGH C-330/23 (ALDI SÜD) & § 11 PAngV!'}</span></div>
+        <div>Gesetzlicher Referenzpreis: <strong>${effRef.toFixed(2)} €</strong> | Realer Rabatt: <strong>${truePct.toFixed(1)}%</strong> (Beworben: -${advPct}%)</div>
+        <div style="margin-top:8px;"><strong>Pflicht-Bannertext:</strong><br/><code>Jetzt ${cur.toFixed(2)} € ${truePct > 0 ? '(-' + Math.floor(truePct) + '%)' : '(Dauerpreis ohne Rabatt-Claim)'} — Niedrigster Gesamtpreis der letzten 30 Tage: ${effRef.toFixed(2)} €</code></div>
+      `;
+    }
+
+    function run312kCheck() {
+      const prov = document.getElementById('k_provider').value;
+      const login = document.getElementById('k_login').value === 'yes';
+      const s1 = document.getElementById('k_step1').value.trim().toLowerCase();
+      const s2 = document.getElementById('k_step2').value.trim().toLowerCase();
+      const fee = parseFloat(document.getElementById('k_fee').value) || 0;
+      const months = parseInt(document.getElementById('k_months').value) || 0;
+
+      const s1Ok = ['verträge hier kündigen', 'vertrag hier kündigen', 'abonnement hier kündigen'].includes(s1);
+      const s2Ok = ['jetzt kündigen', 'vertrag jetzt kündigen'].includes(s2);
+      const compliant = !login && s1Ok && s2Ok;
+      const saved = compliant ? 0 : (fee * months);
+
+      const box = document.getElementById('k312_output');
+      box.innerHTML = `
+        <div>Status: <span class="${compliant ? 'status-ok' : 'status-bad'}">${compliant ? '§ 312k BGB KONFORM' : 'SOFORT-KÜNDIGUNGSRECHT NACH § 312k Abs. 6 BGB AUSGELÖST!'}</span></div>
+        <div>Verbraucher-Ersparnis (Fristloser Ausstieg): <strong>${saved.toFixed(2)} €</strong> (${months} Monate à ${fee.toFixed(2)} €)</div>
+        <pre style="margin-top:8px;">Hiermit kündige ich meinen Vertrag bei ${prov} gemäß § 312k Abs. 6 BGB fristlos mit sofortiger Wirkung, da Ihre Kündigungsschaltfläche gegen § 312k Abs. 2 BGB verstößt (${login ? 'unzulässiger Login-Zwang' : 'fehlerhafte Button-Beschriftung'}).</pre>
+      `;
+    }
+
+    function runAbmahnCheck() {
+      const type = document.getElementById('a_type').value;
+      const cat = document.getElementById('a_cat').value;
+      const sw = parseFloat(document.getElementById('a_sw').value) || 0;
+      const fee = parseFloat(document.getElementById('a_fee').value) || 0;
+      const defect = document.getElementById('a_defect').value === 'yes';
+      const emp = parseInt(document.getElementById('a_emp').value) || 0;
+
+      const abs4Excluded = (type === 'COMPETITOR') && (cat === 'IMPRESSUM_LABELING_OPV' || (cat === 'PRIVACY_DSGVO_SMALL' && emp < 250));
+      const zeroFee = abs4Excluded || defect;
+      const counterClaim = zeroFee ? Math.min(fee, 1262.95) : 0;
+      const swing = (zeroFee ? fee : 0) + counterClaim;
+
+      const box = document.getElementById('abmahn_output');
+      box.innerHTML = `
+        <div>Zahlungspflicht an Abmahner: <span class="${zeroFee ? 'status-ok' : 'status-bad'}">${zeroFee ? '0,00 € (Ausgeschlossen nach § 13 Abs. 3/4 UWG)' : fee.toFixed(2) + ' €'}</span></div>
+        <div>Eigener Gegenanspruch nach § 13 Abs. 5 UWG: <strong>+${counterClaim.toFixed(2)} €</strong> | Netto-Finanzvorteil: <strong>${swing.toFixed(2)} €</strong></div>
+      `;
+    }
+
+    function initBenchmarks() {
+      const tbody = document.getElementById('benchmark_tbody');
+      const rows = [];
+      MANIFEST_DATA.price_audits.forEach(p => {
+        rows.push(`<tr><td>${p.sku}</td><td>§ 11 PAngV / C-330/23</td><td class="${p.eugh_c330_23_compliant ? 'status-ok' : 'status-bad'}">${p.eugh_c330_23_compliant ? 'OK' : 'VERSTOSS'}</td><td>${p.abmahn_risk_eur.toFixed(2)} € Risiko</td></tr>`);
+      });
+      MANIFEST_DATA.button_audits.forEach(b => {
+        rows.push(`<tr><td>${b.provider_name}</td><td>§ 312k Abs. 6 BGB</td><td class="${b.compliant_312k ? 'status-ok' : 'status-bad'}">${b.compliant_312k ? 'OK' : 'FRISTLOS KÜNDBAR'}</td><td>${b.consumer_saved_lockin_eur.toFixed(2)} € Ersparnis</td></tr>`);
+      });
+      MANIFEST_DATA.abmahn_audits.forEach(a => {
+        rows.push(`<tr><td>${a.case_id}</td><td>§ 13 Abs. 4/5 UWG</td><td class="status-ok">GEGENANSPRUCH</td><td>+${a.net_financial_swing_saved_eur.toFixed(2)} € Swing</td></tr>`);
+      });
+      tbody.innerHTML = rows.join('');
+      document.getElementById('raw_manifest_preview').textContent = JSON.stringify(MANIFEST_DATA.summary, null, 2);
+      runPangvCheck();
+      run312kCheck();
+      runAbmahnCheck();
+    }
+
+    window.addEventListener('DOMContentLoaded', initBenchmarks);
+  </script>
+</body>
+</html>

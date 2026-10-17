@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>MVP #84 — DACH Kurzarbeitergeld (Kug 107/108) & BA-Abschlussprüfungs-Schutzschild</title>
+<style>
+  :root {
+    --bg: #f8fafc;
+    --card: #ffffff;
+    --border: #e2eebd;
+    --text: #0f172a;
+    --muted: #64748b;
+    --primary: #0f172a;
+    --accent: #0284c7;
+    --ok-bg: #dcfce7; --ok-txt: #166534;
+    --warn-bg: #fef3c7; --warn-txt: #92400e;
+    --crit-bg: #fee2e2; --crit-txt: #991b1b;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 24px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg); color: var(--text); line-height: 1.45;
+  }
+  .container { max-width: 1380px; margin: 0 auto; }
+  header {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    color: #fff; padding: 22px 26px; border-radius: 12px; margin-bottom: 20px;
+    display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;
+  }
+  header h1 { margin: 0 0 6px 0; font-size: 21px; letter-spacing: -0.01em; }
+  header p { margin: 0; color: #cbd5e1; font-size: 13px; }
+  .meta-pill {
+    background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+    padding: 8px 14px; border-radius: 8px; font-size: 12px; color: #f8fafc;
+  }
+  .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 14px; margin-bottom: 20px; }
+  .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(460px, 1fr)); gap: 16px; margin-bottom: 20px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .card {
+    background: var(--card); border: 1px solid #e2e8f0;
+    border-radius: 10px; padding: 16px 18px; box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+  }
+  .kpi-label { font-size: 12px; color: var(--muted); text-transform: uppercase; font-weight: 600; }
+  .kpi-val { font-size: 24px; font-weight: 800; margin: 6px 0 4px 0; }
+  .kpi-sub { font-size: 12px; color: var(--muted); }
+  .badge {
+    display: inline-block; padding: 3px 8px; border-radius: 999px;
+    font-size: 11px; font-weight: 700; letter-spacing: 0.02em;
+  }
+  .badge-ok { background: var(--ok-bg); color: var(--ok-txt); }
+  .badge-warn { background: var(--warn-bg); color: var(--warn-txt); }
+  .badge-crit { background: var(--crit-bg); color: var(--crit-txt); }
+  .badge-muted { background: #f1f5f9; color: #475569; }
+  .rebalance-box {
+    background: #fffbeb; border-left: 4px solid #d97706;
+    padding: 10px 12px; border-radius: 6px; font-size: 12.5px;
+  }
+  table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  th, td { padding: 10px 10px; border-bottom: 1px solid #e2e8f0; text-align: left; vertical-align: top; }
+  th { background: #f1f5f9; font-weight: 700; color: #334155; font-size: 11.5px; text-transform: uppercase; }
+  .muted { color: var(--muted); font-size: 11.5px; }
+  .section-title { font-size: 16px; font-weight: 700; margin: 22px 0 10px 0; display: flex; align-items: center; gap: 8px; }
+  .sim-panel {
+    background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 10px;
+    padding: 16px 18px; margin-bottom: 20px;
+  }
+  .sim-controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-top: 10px; }
+  .sim-controls label { display: block; font-size: 11.5px; font-weight: 600; color: #0369a1; margin-bottom: 4px; }
+  .sim-controls input, .sim-controls select {
+    width: 100%; padding: 7px 9px; border: 1px solid #93c5fd; border-radius: 6px; font-size: 13px;
+  }
+  code { background: #f1f5f9; padding: 2px 5px; border-radius: 4px; font-size: 11.5px; }
+</style>
+</head>
+<body>
+
+<!-- DACH CASHFLOW STUDIOS LAUNCH BAR -->
+<style>
+  #dcs-launch-bar {
+    position: sticky;
+    top: 0;
+    z-index: 99999;
+    background: linear-gradient(90deg, #0b1120 0%, #111827 50%, #0f172a 100%);
+    color: #f8fafc;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.35);
+    padding: 8px 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  }
+  #dcs-launch-bar .dcs-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+  }
+  #dcs-launch-bar .dcs-badge {
+    background: rgba(16, 185, 129, 0.18);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.03em;
+  }
+  #dcs-launch-bar a.dcs-nav {
+    color: #93c5fd;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 12.5px;
+  }
+  #dcs-launch-bar a.dcs-nav:hover {
+    text-decoration: underline;
+    color: #dbeafe;
+  }
+  #dcs-launch-bar .dcs-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  #dcs-launch-bar .dcs-btn {
+    padding: 5px 11px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s ease;
+  }
+  #dcs-launch-bar .dcs-btn-ghost {
+    background: rgba(255,255,255,0.08);
+    color: #e2e8f0;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  #dcs-launch-bar .dcs-btn-primary {
+    background: linear-gradient(135deg, #0ea5e9, #2563eb);
+    color: #ffffff;
+  }
+  #dcs-launch-bar .dcs-btn-emerald {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
+  }
+  @media print {
+    #dcs-launch-bar { display: none !important; }
+  }
+</style>
+<div id="dcs-launch-bar">
+  <div class="dcs-left">
+    <a href="/index.html" class="dcs-nav">← Alle 150 DACH Studios</a>
+    <span class="dcs-badge">MVP #084 VERIFIED</span>
+    <span style="color:#cbd5e1;font-size:12px;">DACH LegalTech, Labor Law & Consumer Claims</span>
+  </div>
+  <div class="dcs-actions">
+    <button onclick="window.print()" class="dcs-btn dcs-btn-ghost">🖨️ PDF / Dossier drucken</button>
+    <a href="#checkout-modal-49" target="_blank" rel="noopener" class="dcs-btn dcs-btn-primary">⚡ Musterschreiben & Voll-Dossier (€49)</a>
+    <a href="#checkout-modal-299" target="_blank" rel="noopener" class="dcs-btn dcs-btn-emerald">🛡️ B2B Umsetzung buchen (€299 / €1.490)</a>
+  </div>
+</div>
+
+<div class="container">
+  <header>
+    <div>
+      <h1>DACH Kurzarbeitergeld (Kug §§ 95–109 SGB III) & BA-Abschlussprüfungs-Schutzschild</h1>
+      <p>Kug 107 Leistungsantrag · Kug 108 Abrechnungsliste · § 325 Abs. 3 SGB III 3-Monats-Ausschlussfrist · § 96 Abs. 1 Nr. 4 SGB III 1/3-Quorum-Rebalancer</p>
+    </div>
+    <div class="meta-pill">
+      <strong>Präzisionswerk Süd GmbH</strong> (Nürnberg (Agenturbezirk 735))<br/>
+      Stamm-Nr.: <code>KUG-84920-NBG</code> · Abrechnungsmonat: <strong>2026-07 (Juli 2026)</strong> · Stichtag: <code>2026-10-17</code>
+    </div>
+  </header>
+
+  <div class="grid-4">
+    <div class="card">
+      <div class="kpi-label">Kug 107 Erstattungsanspruch (bereinigt)</div>
+      <div class="kpi-val" style="color:#0284c7;">4,224.16 €</div>
+      <div class="kpi-sub">Vor Prüfung (Lohnbüro-Rohwert): 5,803.97 €</div>
+    </div>
+    <div class="card">
+      <div class="kpi-label">Abgewehrte BA-Rückforderung (§ 50 SGB X)</div>
+      <div class="kpi-val" style="color:#dc2626;">1,579.81 €</div>
+      <div class="kpi-sub">+ 201.95 € Umbuchung an Krankenkasse (§ 47b SGB V)</div>
+    </div>
+    <div class="card">
+      <div class="kpi-label">Quorum-Rettungspotenzial (§ 96 SGB III)</div>
+      <div class="kpi-val" style="color:#d97706;">1,745.27 €</div>
+      <div class="kpi-sub">Abteilung Montage bei 28.57% (&lt; 33.33% Mindesterfordernis)</div>
+    </div>
+    <div class="card">
+      <div class="kpi-label">AG-Sozialversicherung auf 80% Fiktiventgelt</div>
+      <div class="kpi-val" style="color:#0f172a;">3,494.25 €</div>
+      <div class="kpi-sub">39.30% (KV/PV/RV ohne AV) auf 8,891.20 € Fiktiventgelt</div>
+    </div>
+  </div>
+
+  <div class="sim-panel">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;">
+      <strong style="color:#0c4a6e;font-size:14.5px;">Interaktiver § 106 / § 153 SGB III Kug- & 80%-Fiktiventgelt-Rechner (BBG 2026: 8.050,00 €)</strong>
+      <span class="badge badge-ok">20% SV-Pauschale + BMF-Lohnsteuer + 39.30% AG-SV</span>
+    </div>
+    <div class="sim-controls">
+      <div>
+        <label>Reguläres Soll-Brutto (€/Monat)</label>
+        <input type="number" id="simSoll" value="4480" min="500" max="15000" step="50" oninput="recalcSim()"/>
+      </div>
+      <div>
+        <label>Darin enthaltene Einmalzahlung (€)</label>
+        <input type="number" id="simEinmal" value="600" min="0" max="5000" step="50" oninput="recalcSim()"/>
+      </div>
+      <div>
+        <label>Tatsächliches Ist-Brutto (€/Monat)</label>
+        <input type="number" id="simIst" value="2240" min="0" max="15000" step="50" oninput="recalcSim()"/>
+      </div>
+      <div>
+        <label>Lohnsteuerklasse & Leistungssatz</label>
+        <select id="simStkl" onchange="recalcSim()">
+          <option value="3_67">StKl III — 67% (mit Kind ≥ 0.5)</option>
+          <option value="1_60">StKl I — 60% (ohne Kind)</option>
+          <option value="4_67">StKl IV — 67% (mit Kind ≥ 0.5)</option>
+          <option value="2_67">StKl II — 67% (Alleinerziehend)</option>
+          <option value="5_60">StKl V — 60% (ohne Kind)</option>
+        </select>
+      </div>
+    </div>
+    <div id="simOutput" style="margin-top:12px;font-size:13px;background:#fff;padding:10px 14px;border-radius:8px;border:1px solid #bae6fd;"></div>
+  </div>
+
+  <div class="section-title">1. § 96 Abs. 1 Satz 1 Nr. 4 SGB III — 1/3-Mindesterfordernis (&gt;10% Entgeltausfall) & Schicht-Rebalancer</div>
+  <div class="grid-2">
+    
+        <div class="card">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                <h3 style="margin:0;font-size:15px;">Betriebsabteilung: Montage & Prüffeld</h3>
+                <span class="badge badge-crit">SPERRGEFAHR § 96 Abs. 1 Nr. 4 (28.57% < 33.33%)</span>
+            </div>
+            <div class="grid-3" style="margin-top:8px;">
+                <div><span class="muted">Beschäftigte gesamt:</span><br/><strong>7</strong></div>
+                <div><span class="muted">&gt;10% Entgeltausfall (Ist / Soll 1/3):</span><br/><strong>2 / mind. 3</strong></div>
+                <div><span class="muted">Abteilungs-Kug im Feuer:</span><br/><strong>1,745.27 €</strong></div>
+            </div>
+            <div style="margin-top:10px;"><div class="rebalance-box">
+                    <strong>Sofort-Schichtkorrektur vor Monatsende (EMP-203 — Marco Rossi):</strong><br/>
+                    Aktueller Entgeltausfall: <code>8.75%</code> (unter 10%-Schwelle) →
+                    Ziel: <code>10.94%</code> durch <strong>+3.5 Ausfallstunden</strong>
+                    (-80.50 € Ist-Brutto, +26.88 € Kug).<br/>
+                    <span class="muted">Arbeitszeit von Marco Rossi vor Monatsende um +3.5 Std. reduzieren (bzw. 3.5 Fertigungsstunden auf voll ausgelastete Kollegen verlagern). Entgeltausfall steigt von 8.75% auf 10.94% (>10%-Schwelle nach § 96 Abs. 1 S. 1 Nr. 4 SGB III) und rettet 1,772.15 EUR Gesamt-Kug der Betriebsabteilung!</span>
+                </div></div>
+        </div>
+        
+        <div class="card">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                <h3 style="margin:0;font-size:15px;">Betriebsabteilung: Zerspanung & CNC-Fertigung</h3>
+                <span class="badge badge-ok">QUORUM ERFÜLLT (55.56% ≥ 33.33%)</span>
+            </div>
+            <div class="grid-3" style="margin-top:8px;">
+                <div><span class="muted">Beschäftigte gesamt:</span><br/><strong>9</strong></div>
+                <div><span class="muted">&gt;10% Entgeltausfall (Ist / Soll 1/3):</span><br/><strong>5 / mind. 3</strong></div>
+                <div><span class="muted">Abteilungs-Kug im Feuer:</span><br/><strong>2,478.89 €</strong></div>
+            </div>
+            
+        </div>
+        
+  </div>
+
+  <div class="section-title">2. § 325 Abs. 3 SGB III — Harte 3-Monats-Ausschlussfrist-Überwachung (inkl. § 26 Abs. 3 SGB X Werktags-Rollover)</div>
+  <div class="card" style="margin-bottom:20px;">
+    <table>
+      <thead>
+        <tr>
+          <th>Abrechnungsmonat</th>
+          <th>Gesetzliche Ausschlussfrist</th>
+          <th>Restlaufzeit</th>
+          <th>Volumen Kug 107</th>
+          <th>Frist-Status</th>
+          <th>Rechtsfolgen-Hinweis (§ 325 Abs. 3 SGB III / § 27 Abs. 5 SGB X)</th>
+        </tr>
+      </thead>
+      <tbody>
+        
+        <tr>
+            <td><strong>Juni 2026</strong></td>
+            <td><code>2026-09-30</code></td>
+            <td><strong>-17 Tage</strong></td>
+            <td>18,420.00 €</td>
+            <td><span class="badge badge-crit">FRISTVERFALL (§ 325 Abs. 3)</span></td>
+            <td style="font-size:12px;">AUSSCHLUSSFRIST ABGELAUFEN (§ 325 Abs. 3 SGB III): Fristende war 30.09.2026 (urspr. 30.09.2026). Keine Wiedereinsetzung in den vorigen Stand möglich (§ 27 Abs. 5 SGB X)! 100% Verfall von 18,420.00 EUR.</td>
+        </tr>
+        
+        <tr>
+            <td><strong>Juli 2026</strong></td>
+            <td><code>2026-11-02</code></td>
+            <td><strong>16 Tage</strong></td>
+            <td>4,224.16 €</td>
+            <td><span class="badge badge-warn">AKUT (16 TAGE REST)</span></td>
+            <td style="font-size:12px;">AKUTE AUSSCHLUSSFRIST-WARNUNG (§ 325 Abs. 3 SGB III): Nur noch 16 Kalendertage bis zum Eingang von Kug 107 + Kug 108 bei der Agentur für Arbeit am 02.11.2026 (inkl. § 26 Abs. 3 SGB X Wochenend-Verschiebung vom 31.10.2026)! Bei 1 Tag Verspätung verfallen 4,224.16 EUR ersatzlos.</td>
+        </tr>
+        
+        <tr>
+            <td><strong>August 2026</strong></td>
+            <td><code>2026-11-30</code></td>
+            <td><strong>44 Tage</strong></td>
+            <td>16,890.00 €</td>
+            <td><span class="badge badge-ok">FRISTWAHREND (44 TAGE)</span></td>
+            <td style="font-size:12px;">Fristgerecht im Korridor (§ 325 Abs. 3 SGB III): Noch 44 Tage bis Fristende 30.11.2026.</td>
+        </tr>
+        
+        <tr>
+            <td><strong>September 2026</strong></td>
+            <td><code>2026-12-31</code></td>
+            <td><strong>75 Tage</strong></td>
+            <td>15,240.00 €</td>
+            <td><span class="badge badge-ok">FRISTWAHREND (75 TAGE)</span></td>
+            <td style="font-size:12px;">Fristgerecht im Korridor (§ 325 Abs. 3 SGB III): Noch 75 Tage bis Fristende 31.12.2026.</td>
+        </tr>
+        
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section-title">3. BA-Abschlussprüfungs-Schutzschild — Erkannte Rückforderungsfallen (§ 45 / § 50 SGB X)</div>
+  <div class="card" style="margin-bottom:20px;">
+    <table>
+      <thead>
+        <tr>
+          <th>Prüfcode</th>
+          <th>Personal-Nr. / Norm</th>
+          <th>Feststellung der Vorab-Prüfung</th>
+          <th>Rückforderungs-Risiko</th>
+          <th>Verbindliche Korrekturanweisung</th>
+        </tr>
+      </thead>
+      <tbody>
+        
+        <tr>
+            <td><span class="badge badge-crit">CRITICAL</span><br/><code>BA-ERR-01-SOLL-ENTGELT</code></td>
+            <td><strong>EMP-101</strong><br/><span class="muted">§ 106 Abs. 1 Satz 4 SGB III</span></td>
+            <td><strong>Einmalzahlung / Mehrarbeitsvergütung im Soll-Entgelt enthalten</strong><br/><span style="font-size:12px;">Im gemeldeten Soll-Entgelt (6,240.00 EUR) sind 1,200.00 EUR Einmalzahlung (Urlaubs-/Weihnachtsgeld) und 240.00 EUR Überstundenvergütung enthalten. Nach § 106 Abs. 1 S. 4 SGB III sind einmalig gezahltes Arbeitsentgelt und Mehrarbeit zwingend aus dem Soll-Entgelt herauszurechnen.</span></td>
+            <td style="color:#dc2626;font-weight:700;">551.43 €</td>
+            <td style="font-size:12px;color:#0f766e;"><strong>Korrektur vor BA-Einreichung:</strong><br/>Soll-Entgelt in Spalte 5 Kug 108 um 1,440.00 EUR auf 4,800.00 EUR bereinigen.</td>
+        </tr>
+        
+        <tr>
+            <td><span class="badge badge-crit">CRITICAL</span><br/><code>BA-ERR-02-FEIERTAG</code></td>
+            <td><strong>EMP-101</strong><br/><span class="muted">§ 2 Abs. 2 EntgFG i.V.m. § 96 Abs. 1 SGB III</span></td>
+            <td><strong>Gesetzliche Feiertagsstunden (8.0 Std.) als Kug abgerechnet</strong><br/><span style="font-size:12px;">Für 8.0 Ausfallstunden an gesetzlichen Feiertagen wurde Kug beantragt. Nach § 2 Abs. 2 EntgFG gilt Arbeitsausfall infolge Kurzarbeit an Feiertagen als feiertagsbedingt; der Arbeitgeber schuldet Entgeltfortzahlung (240.00 EUR Brutto = Ist-Entgelt), die BA erstattet hierfür 0,00 EUR Kug!</span></td>
+            <td style="color:#dc2626;font-weight:700;">656.22 €</td>
+            <td style="font-size:12px;color:#0f766e;"><strong>Korrektur vor BA-Einreichung:</strong><br/>8.0 Stunden aus Kug-Ausfallstunden streichen und 240.00 EUR dem Ist-Entgelt (Spalte 6 Kug 108) zuschlagen.</td>
+        </tr>
+        
+        <tr>
+            <td><span class="badge badge-warn">HIGH</span><br/><code>BA-ERR-03-KRANK-VOR-KUG</code></td>
+            <td><strong>EMP-102</strong><br/><span class="muted">§ 47b SGB V vs. § 4 Abs. 3 EntgFG</span></td>
+            <td><strong>Arbeitsunfähigkeit vor Kug-Beginn (24.0 Std.) über BA statt Krankenkasse abgerechnet</strong><br/><span style="font-size:12px;">Erkrankung begann vor dem betrieblichen Kurzarbeitszeitraum (24.0 Ausfallstunden). Hier besteht kein Anspruch auf BA-Kurzarbeitergeld, sondern Anspruch auf 'Krankengeld in Höhe des Kug' nach § 47b SGB V gegen die zuständige Krankenkasse (201.95 EUR).</span></td>
+            <td style="color:#dc2626;font-weight:700;">201.95 €</td>
+            <td style="font-size:12px;color:#0f766e;"><strong>Korrektur vor BA-Einreichung:</strong><br/>Aus Kug 108 (BA-Abrechnungsliste) herausnehmen und separaten Erstattungsantrag nach § 47b SGB V an die Krankenkasse stellen (201.95 EUR).</td>
+        </tr>
+        
+        <tr>
+            <td><span class="badge badge-crit">CRITICAL</span><br/><code>BA-ERR-01-SOLL-ENTGELT</code></td>
+            <td><strong>EMP-103</strong><br/><span class="muted">§ 106 Abs. 1 Satz 4 SGB III</span></td>
+            <td><strong>Einmalzahlung / Mehrarbeitsvergütung im Soll-Entgelt enthalten</strong><br/><span style="font-size:12px;">Im gemeldeten Soll-Entgelt (4,960.00 EUR) sind 800.00 EUR Einmalzahlung (Urlaubs-/Weihnachtsgeld) und 0.00 EUR Überstundenvergütung enthalten. Nach § 106 Abs. 1 S. 4 SGB III sind einmalig gezahltes Arbeitsentgelt und Mehrarbeit zwingend aus dem Soll-Entgelt herauszurechnen.</span></td>
+            <td style="color:#dc2626;font-weight:700;">278.06 €</td>
+            <td style="font-size:12px;color:#0f766e;"><strong>Korrektur vor BA-Einreichung:</strong><br/>Soll-Entgelt in Spalte 5 Kug 108 um 800.00 EUR auf 4,160.00 EUR bereinigen.</td>
+        </tr>
+        
+        <tr>
+            <td><span class="badge badge-crit">CRITICAL</span><br/><code>BA-ERR-02-FEIERTAG</code></td>
+            <td><strong>EMP-103</strong><br/><span class="muted">§ 2 Abs. 2 EntgFG i.V.m. § 96 Abs. 1 SGB III</span></td>
+            <td><strong>Gesetzliche Feiertagsstunden (8.0 Std.) als Kug abgerechnet</strong><br/><span style="font-size:12px;">Für 8.0 Ausfallstunden an gesetzlichen Feiertagen wurde Kug beantragt. Nach § 2 Abs. 2 EntgFG gilt Arbeitsausfall infolge Kurzarbeit an Feiertagen als feiertagsbedingt; der Arbeitgeber schuldet Entgeltfortzahlung (208.00 EUR Brutto = Ist-Entgelt), die BA erstattet hierfür 0,00 EUR Kug!</span></td>
+            <td style="color:#dc2626;font-weight:700;">357.76 €</td>
+            <td style="font-size:12px;color:#0f766e;"><strong>Korrektur vor BA-Einreichung:</strong><br/>8.0 Stunden aus Kug-Ausfallstunden streichen und 208.00 EUR dem Ist-Entgelt (Spalte 6 Kug 108) zuschlagen.</td>
+        </tr>
+        
+        <tr>
+            <td><span class="badge badge-muted">MEDIUM</span><br/><code>BA-ERR-04-URLAUB-UNVERMEIDBARKEIT</code></td>
+            <td><strong>EMP-103</strong><br/><span class="muted">§ 96 Abs. 4 Satz 2 Nr. 2 SGB III</span></td>
+            <td><strong>Unverplanter Resturlaub (8 Tage) gefährdet Unvermeidbarkeit</strong><br/><span style="font-size:12px;">Ayse Yilmaz verfügt über 8 Tage noch nicht im Urlaubsplan verplanten Erholungsurlaub. In der BA-Abschlussprüfung verlangt die Agentur den Nachweis vorrangiger Urlaubseinbringung zur Vermeidung des Arbeitsausfalls (§ 96 Abs. 4 S. 2 Nr. 2 SGB III).</span></td>
+            <td style="color:#dc2626;font-weight:700;">0.00 €</td>
+            <td style="font-size:12px;color:#0f766e;"><strong>Korrektur vor BA-Einreichung:</strong><br/>Vor Monatsende verbindliche Urlaubsliste / schriftliche Urlaubsfestlegung (oder dokumentierte entgegenstehende Urlaubswünsche der Arbeitnehmer) zur Prüfungsakte nehmen.</td>
+        </tr>
+        
+        <tr>
+            <td><span class="badge badge-crit">CRITICAL</span><br/><code>BA-ERR-05-PERSONELL</code></td>
+            <td><strong>EMP-109</strong><br/><span class="muted">§ 98 Abs. 1 Nr. 1 i.V.m. § 27 Abs. 2 SGB III</span></td>
+            <td><strong>Nicht versicherungspflichtige Beschäftigung (Minijob / Azubi) in Kug 108</strong><br/><span style="font-size:12px;">Lukas Weber (Minijob) (Lagerhilfe (Geringfügig beschäftigt)) unterliegt nicht der Arbeitslosenversicherungspflicht. Für geringfügig Beschäftigte (Minijob) und Auszubildende besteht kein Kug-Anspruch.</span></td>
+            <td style="color:#dc2626;font-weight:700;">129.60 €</td>
+            <td style="font-size:12px;color:#0f766e;"><strong>Korrektur vor BA-Einreichung:</strong><br/>Komplett aus Abrechnungsliste Kug 108 streichen; Minijobber zählen zudem nur im Nenner beim 1/3-Quorum.</td>
+        </tr>
+        
+        <tr>
+            <td><span class="badge badge-crit">CRITICAL</span><br/><code>BA-ERR-01-SOLL-ENTGELT</code></td>
+            <td><strong>EMP-201</strong><br/><span class="muted">§ 106 Abs. 1 Satz 4 SGB III</span></td>
+            <td><strong>Einmalzahlung / Mehrarbeitsvergütung im Soll-Entgelt enthalten</strong><br/><span style="font-size:12px;">Im gemeldeten Soll-Entgelt (5,080.00 EUR) sind 600.00 EUR Einmalzahlung (Urlaubs-/Weihnachtsgeld) und 0.00 EUR Überstundenvergütung enthalten. Nach § 106 Abs. 1 S. 4 SGB III sind einmalig gezahltes Arbeitsentgelt und Mehrarbeit zwingend aus dem Soll-Entgelt herauszurechnen.</span></td>
+            <td style="color:#dc2626;font-weight:700;">234.28 €</td>
+            <td style="font-size:12px;color:#0f766e;"><strong>Korrektur vor BA-Einreichung:</strong><br/>Soll-Entgelt in Spalte 5 Kug 108 um 600.00 EUR auf 4,480.00 EUR bereinigen.</td>
+        </tr>
+        
+        <tr>
+            <td><span class="badge badge-muted">MEDIUM</span><br/><code>BA-ERR-04-URLAUB-UNVERMEIDBARKEIT</code></td>
+            <td><strong>EMP-202</strong><br/><span class="muted">§ 96 Abs. 4 Satz 2 Nr. 2 SGB III</span></td>
+            <td><strong>Unverplanter Resturlaub (6 Tage) gefährdet Unvermeidbarkeit</strong><br/><span style="font-size:12px;">Sabine Neumann verfügt über 6 Tage noch nicht im Urlaubsplan verplanten Erholungsurlaub. In der BA-Abschlussprüfung verlangt die Agentur den Nachweis vorrangiger Urlaubseinbringung zur Vermeidung des Arbeitsausfalls (§ 96 Abs. 4 S. 2 Nr. 2 SGB III).</span></td>
+            <td style="color:#dc2626;font-weight:700;">0.00 €</td>
+            <td style="font-size:12px;color:#0f766e;"><strong>Korrektur vor BA-Einreichung:</strong><br/>Vor Monatsende verbindliche Urlaubsliste / schriftliche Urlaubsfestlegung (oder dokumentierte entgegenstehende Urlaubswünsche der Arbeitnehmer) zur Prüfungsakte nehmen.</td>
+        </tr>
+        
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section-title">4. Bereinigte BA-Abrechnungsliste Kug 108 (§ 106 SGB III Nettoentgeltdifferenz & 80% Fiktiventgelt)</div>
+  <div class="card">
+    <table>
+      <thead>
+        <tr>
+          <th>Mitarbeiter / Abt.</th>
+          <th>StKl / Satz</th>
+          <th>Soll-Brutto (Roh → Bereinigt)</th>
+          <th>Ist-Brutto / Kug-Std.</th>
+          <th>&gt;10% Quorum</th>
+          <th>Pauschaliertes Netto (§ 153)</th>
+          <th>Kug-Auszahlung (Roh → Korrekt)</th>
+          <th>Abgewehrtes Clawback</th>
+          <th>80% Fiktiventgelt & AG-SV</th>
+        </tr>
+      </thead>
+      <tbody>
+        
+        <tr>
+            <td><code>EMP-101</code><br/><strong>Markus Brenner</strong><br/><span class="muted">Zerspanung & CNC-Fertigung</span></td>
+            <td>StKl 3<br/><span class="muted">67% Satz</span></td>
+            <td><span class="muted" style="text-decoration:line-through;">6,240.00 €</span><br/><strong>4,800.00 €</strong></td>
+            <td><strong>3,120.00 €</strong><br/><span class="muted">Ausfall: 56.0 Std.</span></td>
+            <td><span class="badge badge-ok">35.0% (&gt;10%)</span></td>
+            <td>Soll: 3,433.39 €<br/>Ist: 2,423.89 €<br/><strong>Diff: 1,009.50 €</strong></td>
+            <td><span class="muted">1,332.59 €</span> →<br/><strong style="color:#0284c7;">676.37 €</strong></td>
+            <td style="color:#dc2626;font-weight:700;">656.22 €</td>
+            <td>80%-Basis: 1,344.00 €<br/><strong>AG-SV: 528.19 €</strong></td>
+        </tr>
+        
+        <tr>
+            <td><code>EMP-102</code><br/><strong>Stefan Kowalski</strong><br/><span class="muted">Zerspanung & CNC-Fertigung</span></td>
+            <td>StKl 1<br/><span class="muted">60% Satz</span></td>
+            <td><span class="muted" style="text-decoration:line-through;">3,840.00 €</span><br/><strong>3,840.00 €</strong></td>
+            <td><strong>2,688.00 €</strong><br/><span class="muted">Ausfall: 48.0 Std.</span></td>
+            <td><span class="badge badge-ok">30.0% (&gt;10%)</span></td>
+            <td>Soll: 2,539.97 €<br/>Ist: 1,897.02 €<br/><strong>Diff: 642.95 €</strong></td>
+            <td><span class="muted">587.72 €</span> →<br/><strong style="color:#0284c7;">385.77 €</strong></td>
+            <td style="color:#dc2626;font-weight:700;">201.95 €</td>
+            <td>80%-Basis: 921.60 €<br/><strong>AG-SV: 362.19 €</strong></td>
+        </tr>
+        
+        <tr>
+            <td><code>EMP-103</code><br/><strong>Ayse Yilmaz</strong><br/><span class="muted">Zerspanung & CNC-Fertigung</span></td>
+            <td>StKl 4<br/><span class="muted">67% Satz</span></td>
+            <td><span class="muted" style="text-decoration:line-through;">4,960.00 €</span><br/><strong>4,160.00 €</strong></td>
+            <td><strong>2,912.00 €</strong><br/><span class="muted">Ausfall: 48.0 Std.</span></td>
+            <td><span class="badge badge-ok">30.0% (&gt;10%)</span></td>
+            <td>Soll: 2,711.41 €<br/>Ist: 2,025.19 €<br/><strong>Diff: 686.22 €</strong></td>
+            <td><span class="muted">817.53 €</span> →<br/><strong style="color:#0284c7;">459.77 €</strong></td>
+            <td style="color:#dc2626;font-weight:700;">357.76 €</td>
+            <td>80%-Basis: 998.40 €<br/><strong>AG-SV: 392.37 €</strong></td>
+        </tr>
+        
+        <tr>
+            <td><code>EMP-104</code><br/><strong>Tobias Hartmann</strong><br/><span class="muted">Zerspanung & CNC-Fertigung</span></td>
+            <td>StKl 1<br/><span class="muted">60% Satz</span></td>
+            <td><span class="muted" style="text-decoration:line-through;">3,680.00 €</span><br/><strong>3,680.00 €</strong></td>
+            <td><strong>2,576.00 €</strong><br/><span class="muted">Ausfall: 48.0 Std.</span></td>
+            <td><span class="badge badge-ok">30.0% (&gt;10%)</span></td>
+            <td>Soll: 2,453.08 €<br/>Ist: 1,832.36 €<br/><strong>Diff: 620.72 €</strong></td>
+            <td><span class="muted">372.43 €</span> →<br/><strong style="color:#0284c7;">372.43 €</strong></td>
+            <td style="color:#16a34a;">0.00 €</td>
+            <td>80%-Basis: 883.20 €<br/><strong>AG-SV: 347.10 €</strong></td>
+        </tr>
+        
+        <tr>
+            <td><code>EMP-105</code><br/><strong>Jürgen Lindner</strong><br/><span class="muted">Zerspanung & CNC-Fertigung</span></td>
+            <td>StKl 3<br/><span class="muted">67% Satz</span></td>
+            <td><span class="muted" style="text-decoration:line-through;">8,600.00 €</span><br/><strong>8,050.00 €</strong></td>
+            <td><strong>6,450.00 €</strong><br/><span class="muted">Ausfall: 40.0 Std.</span></td>
+            <td><span class="badge badge-ok">25.0% (&gt;10%)</span></td>
+            <td>Soll: 5,246.28 €<br/>Ist: 4,373.82 €<br/><strong>Diff: 872.46 €</strong></td>
+            <td><span class="muted">584.55 €</span> →<br/><strong style="color:#0284c7;">584.55 €</strong></td>
+            <td style="color:#16a34a;">0.00 €</td>
+            <td>80%-Basis: 1,280.00 €<br/><strong>AG-SV: 503.04 €</strong></td>
+        </tr>
+        
+        <tr>
+            <td><code>EMP-106</code><br/><strong>Elena Petrova</strong><br/><span class="muted">Zerspanung & CNC-Fertigung</span></td>
+            <td>StKl 5<br/><span class="muted">67% Satz</span></td>
+            <td><span class="muted" style="text-decoration:line-through;">3,520.00 €</span><br/><strong>3,520.00 €</strong></td>
+            <td><strong>3,520.00 €</strong><br/><span class="muted">Ausfall: 0.0 Std.</span></td>
+            <td><span class="badge badge-muted">0.0% (≤10%)</span></td>
+            <td>Soll: 2,071.24 €<br/>Ist: 2,071.24 €<br/><strong>Diff: 0.00 €</strong></td>
+            <td><span class="muted">0.00 €</span> →<br/><strong style="color:#0284c7;">0.00 €</strong></td>
+            <td style="color:#16a34a;">0.00 €</td>
+            <td>80%-Basis: 0.00 €<br/><strong>AG-SV: 0.00 €</strong></td>
+        </tr>
+        
+        <tr>
+            <td><code>EMP-107</code><br/><strong>Christian Vogel</strong><br/><span class="muted">Zerspanung & CNC-Fertigung</span></td>
+            <td>StKl 1<br/><span class="muted">60% Satz</span></td>
+            <td><span class="muted" style="text-decoration:line-through;">4,000.00 €</span><br/><strong>4,000.00 €</strong></td>
+            <td><strong>4,000.00 €</strong><br/><span class="muted">Ausfall: 0.0 Std.</span></td>
+            <td><span class="badge badge-muted">0.0% (≤10%)</span></td>
+            <td>Soll: 2,626.08 €<br/>Ist: 2,626.08 €<br/><strong>Diff: 0.00 €</strong></td>
+            <td><span class="muted">0.00 €</span> →<br/><strong style="color:#0284c7;">0.00 €</strong></td>
+            <td style="color:#16a34a;">0.00 €</td>
+            <td>80%-Basis: 0.00 €<br/><strong>AG-SV: 0.00 €</strong></td>
+        </tr>
+        
+        <tr>
+            <td><code>EMP-108</code><br/><strong>Daniela Schuster</strong><br/><span class="muted">Zerspanung & CNC-Fertigung</span></td>
+            <td>StKl 2<br/><span class="muted">67% Satz</span></td>
+            <td><span class="muted" style="text-decoration:line-through;">3,920.00 €</span><br/><strong>3,920.00 €</strong></td>
+            <td><strong>3,920.00 €</strong><br/><span class="muted">Ausfall: 0.0 Std.</span></td>
+            <td><span class="badge badge-muted">0.0% (≤10%)</span></td>
+            <td>Soll: 2,691.68 €<br/>Ist: 2,691.68 €<br/><strong>Diff: 0.00 €</strong></td>
+            <td><span class="muted">0.00 €</span> →<br/><strong style="color:#0284c7;">0.00 €</strong></td>
+            <td style="color:#16a34a;">0.00 €</td>
+            <td>80%-Basis: 0.00 €<br/><strong>AG-SV: 0.00 €</strong></td>
+        </tr>
+        
+        <tr>
+            <td><code>EMP-109</code><br/><strong>Lukas Weber (Minijob)</strong><br/><span class="muted">Zerspanung & CNC-Fertigung</span></td>
+            <td>StKl 1<br/><span class="muted">60% Satz</span></td>
+            <td><span class="muted" style="text-decoration:line-through;">540.00 €</span><br/><strong>0.00 €</strong></td>
+            <td><strong>270.00 €</strong><br/><span class="muted">Ausfall: 0.0 Std.</span></td>
+            <td><span class="badge badge-muted">0.0% (≤10%)</span></td>
+            <td>Soll: 0.00 €<br/>Ist: 0.00 €<br/><strong>Diff: 0.00 €</strong></td>
+            <td><span class="muted">129.60 €</span> →<br/><strong style="color:#0284c7;">0.00 €</strong></td>
+            <td style="color:#dc2626;font-weight:700;">129.60 €</td>
+            <td>80%-Basis: 0.00 €<br/><strong>AG-SV: 0.00 €</strong></td>
+        </tr>
+        
+        <tr>
+            <td><code>EMP-201</code><br/><strong>Andreas Köhler</strong><br/><span class="muted">Montage & Prüffeld</span></td>
+            <td>StKl 3<br/><span class="muted">67% Satz</span></td>
+            <td><span class="muted" style="text-decoration:line-through;">5,080.00 €</span><br/><strong>4,480.00 €</strong></td>
+            <td><strong>2,240.00 €</strong><br/><span class="muted">Ausfall: 80.0 Std.</span></td>
+            <td><span class="badge badge-ok">50.0% (&gt;10%)</span></td>
+            <td>Soll: 3,246.22 €<br/>Ist: 1,792.00 €<br/><strong>Diff: 1,454.22 €</strong></td>
+            <td><span class="muted">1,208.61 €</span> →<br/><strong style="color:#0284c7;">974.33 €</strong></td>
+            <td style="color:#dc2626;font-weight:700;">234.28 €</td>
+            <td>80%-Basis: 1,792.00 €<br/><strong>AG-SV: 704.26 €</strong></td>
+        </tr>
+        
+        <tr>
+            <td><code>EMP-202</code><br/><strong>Sabine Neumann</strong><br/><span class="muted">Montage & Prüffeld</span></td>
+            <td>StKl 4<br/><span class="muted">67% Satz</span></td>
+            <td><span class="muted" style="text-decoration:line-through;">4,000.00 €</span><br/><strong>4,000.00 €</strong></td>
+            <td><strong>2,400.00 €</strong><br/><span class="muted">Ausfall: 64.0 Std.</span></td>
+            <td><span class="badge badge-ok">40.0% (&gt;10%)</span></td>
+            <td>Soll: 2,626.08 €<br/>Ist: 1,729.99 €<br/><strong>Diff: 896.09 €</strong></td>
+            <td><span class="muted">600.38 €</span> →<br/><strong style="color:#0284c7;">600.38 €</strong></td>
+            <td style="color:#16a34a;">0.00 €</td>
+            <td>80%-Basis: 1,280.00 €<br/><strong>AG-SV: 503.04 €</strong></td>
+        </tr>
+        
+        <tr>
+            <td><code>EMP-203</code><br/><strong>Marco Rossi</strong><br/><span class="muted">Montage & Prüffeld</span></td>
+            <td>StKl 1<br/><span class="muted">60% Satz</span></td>
+            <td><span class="muted" style="text-decoration:line-through;">3,680.00 €</span><br/><strong>3,680.00 €</strong></td>
+            <td><strong>3,358.00 €</strong><br/><span class="muted">Ausfall: 14.0 Std.</span></td>
+            <td><span class="badge badge-muted">8.8% (≤10%)</span></td>
+            <td>Soll: 2,453.08 €<br/>Ist: 2,275.86 €<br/><strong>Diff: 177.22 €</strong></td>
+            <td><span class="muted">106.33 €</span> →<br/><strong style="color:#0284c7;">106.33 €</strong></td>
+            <td style="color:#16a34a;">0.00 €</td>
+            <td>80%-Basis: 257.60 €<br/><strong>AG-SV: 101.24 €</strong></td>
+        </tr>
+        
+        <tr>
+            <td><code>EMP-204</code><br/><strong>Tanja Richter</strong><br/><span class="muted">Montage & Prüffeld</span></td>
+            <td>StKl 2<br/><span class="muted">67% Satz</span></td>
+            <td><span class="muted" style="text-decoration:line-through;">3,360.00 €</span><br/><strong>3,360.00 €</strong></td>
+            <td><strong>3,192.00 €</strong><br/><span class="muted">Ausfall: 8.0 Std.</span></td>
+            <td><span class="badge badge-muted">5.0% (≤10%)</span></td>
+            <td>Soll: 2,378.30 €<br/>Ist: 2,282.43 €<br/><strong>Diff: 95.87 €</strong></td>
+            <td><span class="muted">64.23 €</span> →<br/><strong style="color:#0284c7;">64.23 €</strong></td>
+            <td style="color:#16a34a;">0.00 €</td>
+            <td>80%-Basis: 134.40 €<br/><strong>AG-SV: 52.82 €</strong></td>
+        </tr>
+        
+        <tr>
+            <td><code>EMP-205</code><br/><strong>Florian Baumann</strong><br/><span class="muted">Montage & Prüffeld</span></td>
+            <td>StKl 1<br/><span class="muted">60% Satz</span></td>
+            <td><span class="muted" style="text-decoration:line-through;">5,120.00 €</span><br/><strong>5,120.00 €</strong></td>
+            <td><strong>5,120.00 €</strong><br/><span class="muted">Ausfall: 0.0 Std.</span></td>
+            <td><span class="badge badge-muted">0.0% (≤10%)</span></td>
+            <td>Soll: 3,207.09 €<br/>Ist: 3,207.09 €<br/><strong>Diff: 0.00 €</strong></td>
+            <td><span class="muted">0.00 €</span> →<br/><strong style="color:#0284c7;">0.00 €</strong></td>
+            <td style="color:#16a34a;">0.00 €</td>
+            <td>80%-Basis: 0.00 €<br/><strong>AG-SV: 0.00 €</strong></td>
+        </tr>
+        
+        <tr>
+            <td><code>EMP-206</code><br/><strong>Katrin Wolf</strong><br/><span class="muted">Montage & Prüffeld</span></td>
+            <td>StKl 4<br/><span class="muted">60% Satz</span></td>
+            <td><span class="muted" style="text-decoration:line-through;">3,520.00 €</span><br/><strong>3,520.00 €</strong></td>
+            <td><strong>3,520.00 €</strong><br/><span class="muted">Ausfall: 0.0 Std.</span></td>
+            <td><span class="badge badge-muted">0.0% (≤10%)</span></td>
+            <td>Soll: 2,365.41 €<br/>Ist: 2,365.41 €<br/><strong>Diff: 0.00 €</strong></td>
+            <td><span class="muted">0.00 €</span> →<br/><strong style="color:#0284c7;">0.00 €</strong></td>
+            <td style="color:#16a34a;">0.00 €</td>
+            <td>80%-Basis: 0.00 €<br/><strong>AG-SV: 0.00 €</strong></td>
+        </tr>
+        
+        <tr>
+            <td><code>EMP-207</code><br/><strong>Moritz Hahn</strong><br/><span class="muted">Montage & Prüffeld</span></td>
+            <td>StKl 1<br/><span class="muted">60% Satz</span></td>
+            <td><span class="muted" style="text-decoration:line-through;">3,600.00 €</span><br/><strong>3,600.00 €</strong></td>
+            <td><strong>3,600.00 €</strong><br/><span class="muted">Ausfall: 0.0 Std.</span></td>
+            <td><span class="badge badge-muted">0.0% (≤10%)</span></td>
+            <td>Soll: 2,409.34 €<br/>Ist: 2,409.34 €<br/><strong>Diff: 0.00 €</strong></td>
+            <td><span class="muted">0.00 €</span> →<br/><strong style="color:#0284c7;">0.00 €</strong></td>
+            <td style="color:#16a34a;">0.00 €</td>
+            <td>80%-Basis: 0.00 €<br/><strong>AG-SV: 0.00 €</strong></td>
+        </tr>
+        
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+const MANIFEST = {"mvp_id": "MVP-84", "title": "DACH Kurzarbeitergeld (Kug §§ 95–109 SGB III) & BA-Abschlussprüfungs-Schutzschild Engine", "company": {"name": "Präzisionswerk Süd GmbH", "location": "Nürnberg (Agenturbezirk 735)", "kug_stammnummer": "KUG-84920-NBG", "betriebsnummer": "84192045", "payroll_period": "2026-07 (Juli 2026)", "evaluation_date": "2026-10-17"}, "statutory_constants_2026": {"bbg_rv_av_monthly_eur": 8050.0, "sv_pauschale_rate_pct": 20.0, "leistungssatz_1_mit_kind_pct": 67.0, "leistungssatz_2_ohne_kind_pct": 60.0, "fiktiventgelt_factor_pct": 80.0, "combined_sv_rate_on_fiktiventgelt_pct": 39.3, "quorum_min_share_pct": 33.33, "quorum_min_loss_pct": 10.0}, "kpis": {"total_employees_audited": 16, "naive_lohnbuero_kug_claim_eur": 5803.97, "verified_ba_kug_107_claim_eur": 4224.16, "direct_ba_clawback_prevented_eur": 1579.81, "quorum_rescue_value_eur": 1745.27, "deadline_325_protected_grant_eur": 4224.16, "total_fiktiventgelt_80_eur": 8891.2, "employer_sv_burden_on_kug_eur": 3494.25, "krankenkasse_47b_reclaim_eur": 201.95, "feiertag_entgfg_employer_cost_eur": 448.0, "total_audit_findings_count": 9}, "deadline_guardian_325_sgb_iii": [{"payroll_year": 2026, "payroll_month": 6, "payroll_month_label": "Juni 2026", "statutory_cutoff_date": "2026-09-30", "evaluation_date": "2026-10-17", "days_remaining": -17, "status_level": "EXPIRED_FORFEITED", "forfeiture_risk_eur": 18420.0, "legal_notice": "AUSSCHLUSSFRIST ABGELAUFEN (§ 325 Abs. 3 SGB III): Fristende war 30.09.2026 (urspr. 30.09.2026). Keine Wiedereinsetzung in den vorigen Stand möglich (§ 27 Abs. 5 SGB X)! 100% Verfall von 18,420.00 EUR."}, {"payroll_year": 2026, "payroll_month": 7, "payroll_month_label": "Juli 2026", "statutory_cutoff_date": "2026-11-02", "evaluation_date": "2026-10-17", "days_remaining": 16, "status_level": "URGENT_WARNING", "forfeiture_risk_eur": 4224.16, "legal_notice": "AKUTE AUSSCHLUSSFRIST-WARNUNG (§ 325 Abs. 3 SGB III): Nur noch 16 Kalendertage bis zum Eingang von Kug 107 + Kug 108 bei der Agentur für Arbeit am 02.11.2026 (inkl. § 26 Abs. 3 SGB X Wochenend-Verschiebung vom 31.10.2026)! Bei 1 Tag Verspätung verfallen 4,224.16 EUR ersatzlos."}, {"payroll_year": 2026, "payroll_month": 8, "payroll_month_label": "August 2026", "statutory_cutoff_date": "2026-11-30", "evaluation_date": "2026-10-17", "days_remaining": 44, "status_level": "SAFE", "forfeiture_risk_eur": 16890.0, "legal_notice": "Fristgerecht im Korridor (§ 325 Abs. 3 SGB III): Noch 44 Tage bis Fristende 30.11.2026."}, {"payroll_year": 2026, "payroll_month": 9, "payroll_month_label": "September 2026", "statutory_cutoff_date": "2026-12-31", "evaluation_date": "2026-10-17", "days_remaining": 75, "status_level": "SAFE", "forfeiture_risk_eur": 15240.0, "legal_notice": "Fristgerecht im Korridor (§ 325 Abs. 3 SGB III): Noch 75 Tage bis Fristende 31.12.2026."}], "quorum_guardian_96_sgb_iii": [{"department": "Montage & Prüffeld", "total_headcount": 7, "eligible_headcount_over_10pct": 2, "required_headcount_1_3": 3, "current_quorum_pct": 28.57, "quorum_met": false, "at_risk_monthly_grant_eur": 1745.27, "rebalance_actions": [{"emp_id": "EMP-203", "name": "Marco Rossi", "current_loss_pct": 8.75, "target_loss_pct": 10.94, "additional_kug_hours_needed": 3.5, "additional_gross_reduction_eur": 80.5, "estimated_additional_kug_payout_eur": 26.88, "explanation": "Arbeitszeit von Marco Rossi vor Monatsende um +3.5 Std. reduzieren (bzw. 3.5 Fertigungsstunden auf voll ausgelastete Kollegen verlagern). Entgeltausfall steigt von 8.75% auf 10.94% (>10%-Schwelle nach § 96 Abs. 1 S. 1 Nr. 4 SGB III) und rettet 1,772.15 EUR Gesamt-Kug der Betriebsabteilung!"}]}, {"department": "Zerspanung & CNC-Fertigung", "total_headcount": 9, "eligible_headcount_over_10pct": 5, "required_headcount_1_3": 3, "current_quorum_pct": 55.56, "quorum_met": true, "at_risk_monthly_grant_eur": 2478.89, "rebalance_actions": []}], "kug_108_abrechnungsliste": [{"emp_id": "EMP-101", "name": "Markus Brenner", "department": "Zerspanung & CNC-Fertigung", "steuerklasse": 3, "leistungssatz_pct": 67.0, "raw_reported_soll_eur": 6240.0, "corrected_soll_eur": 4800.0, "Uncapped_clean_soll_eur": 4800.0, "ist_entgelt_eur": 3120.0, "brutto_differenz_eur": 1680.0, "loss_ratio_pct": 35.0, "counts_toward_quorum": true, "pauschaliertes_netto_soll_eur": 3433.39, "pauschaliertes_netto_ist_eur": 2423.89, "netto_entgelt_differenz_eur": 1009.5, "kug_auszahlungsbetrag_eur": 676.37, "naive_claimed_kug_eur": 1332.59, "clawback_delta_eur": 656.22, "fiktiventgelt_80_eur": 1344.0, "employer_sv_on_kug_eur": 528.19, "feiertag_employer_cost_eur": 240.0, "kk_47b_reimbursement_eur": 0.0, "valid_kug_hours": 56.0, "hourly_rate_eur": 30.0, "findings": [{"code": "BA-ERR-01-SOLL-ENTGELT", "severity": "CRITICAL", "legal_ref": "§ 106 Abs. 1 Satz 4 SGB III", "emp_id": "EMP-101", "title": "Einmalzahlung / Mehrarbeitsvergütung im Soll-Entgelt enthalten", "description": "Im gemeldeten Soll-Entgelt (6,240.00 EUR) sind 1,200.00 EUR Einmalzahlung (Urlaubs-/Weihnachtsgeld) und 240.00 EUR Überstundenvergütung enthalten. Nach § 106 Abs. 1 S. 4 SGB III sind einmalig gezahltes Arbeitsentgelt und Mehrarbeit zwingend aus dem Soll-Entgelt herauszurechnen.", "clawback_exposure_eur": 551.43, "remediation": "Soll-Entgelt in Spalte 5 Kug 108 um 1,440.00 EUR auf 4,800.00 EUR bereinigen."}, {"code": "BA-ERR-02-FEIERTAG", "severity": "CRITICAL", "legal_ref": "§ 2 Abs. 2 EntgFG i.V.m. § 96 Abs. 1 SGB III", "emp_id": "EMP-101", "title": "Gesetzliche Feiertagsstunden (8.0 Std.) als Kug abgerechnet", "description": "Für 8.0 Ausfallstunden an gesetzlichen Feiertagen wurde Kug beantragt. Nach § 2 Abs. 2 EntgFG gilt Arbeitsausfall infolge Kurzarbeit an Feiertagen als feiertagsbedingt; der Arbeitgeber schuldet Entgeltfortzahlung (240.00 EUR Brutto = Ist-Entgelt), die BA erstattet hierfür 0,00 EUR Kug!", "clawback_exposure_eur": 656.22, "remediation": "8.0 Stunden aus Kug-Ausfallstunden streichen und 240.00 EUR dem Ist-Entgelt (Spalte 6 Kug 108) zuschlagen."}]}, {"emp_id": "EMP-102", "name": "Stefan Kowalski", "department": "Zerspanung & CNC-Fertigung", "steuerklasse": 1, "leistungssatz_pct": 60.0, "raw_reported_soll_eur": 3840.0, "corrected_soll_eur": 3840.0, "Uncapped_clean_soll_eur": 3840.0, "ist_entgelt_eur": 2688.0, "brutto_differenz_eur": 1152.0, "loss_ratio_pct": 30.0, "counts_toward_quorum": true, "pauschaliertes_netto_soll_eur": 2539.97, "pauschaliertes_netto_ist_eur": 1897.02, "netto_entgelt_differenz_eur": 642.95, "kug_auszahlungsbetrag_eur": 385.77, "naive_claimed_kug_eur": 587.72, "clawback_delta_eur": 201.95, "fiktiventgelt_80_eur": 921.6, "employer_sv_on_kug_eur": 362.19, "feiertag_employer_cost_eur": 0.0, "kk_47b_reimbursement_eur": 201.95, "valid_kug_hours": 48.0, "hourly_rate_eur": 24.0, "findings": [{"code": "BA-ERR-03-KRANK-VOR-KUG", "severity": "HIGH", "legal_ref": "§ 47b SGB V vs. § 4 Abs. 3 EntgFG", "emp_id": "EMP-102", "title": "Arbeitsunfähigkeit vor Kug-Beginn (24.0 Std.) über BA statt Krankenkasse abgerechnet", "description": "Erkrankung begann vor dem betrieblichen Kurzarbeitszeitraum (24.0 Ausfallstunden). Hier besteht kein Anspruch auf BA-Kurzarbeitergeld, sondern Anspruch auf 'Krankengeld in Höhe des Kug' nach § 47b SGB V gegen die zuständige Krankenkasse (201.95 EUR).", "clawback_exposure_eur": 201.95, "remediation": "Aus Kug 108 (BA-Abrechnungsliste) herausnehmen und separaten Erstattungsantrag nach § 47b SGB V an die Krankenkasse stellen (201.95 EUR)."}]}, {"emp_id": "EMP-103", "name": "Ayse Yilmaz", "department": "Zerspanung & CNC-Fertigung", "steuerklasse": 4, "leistungssatz_pct": 67.0, "raw_reported_soll_eur": 4960.0, "corrected_soll_eur": 4160.0, "Uncapped_clean_soll_eur": 4160.0, "ist_entgelt_eur": 2912.0, "brutto_differenz_eur": 1248.0, "loss_ratio_pct": 30.0, "counts_toward_quorum": true, "pauschaliertes_netto_soll_eur": 2711.41, "pauschaliertes_netto_ist_eur": 2025.19, "netto_entgelt_differenz_eur": 686.22, "kug_auszahlungsbetrag_eur": 459.77, "naive_claimed_kug_eur": 817.53, "clawback_delta_eur": 357.76, "fiktiventgelt_80_eur": 998.4, "employer_sv_on_kug_eur": 392.37, "feiertag_employer_cost_eur": 208.0, "kk_47b_reimbursement_eur": 0.0, "valid_kug_hours": 48.0, "hourly_rate_eur": 26.0, "findings": [{"code": "BA-ERR-01-SOLL-ENTGELT", "severity": "CRITICAL", "legal_ref": "§ 106 Abs. 1 Satz 4 SGB III", "emp_id": "EMP-103", "title": "Einmalzahlung / Mehrarbeitsvergütung im Soll-Entgelt enthalten", "description": "Im gemeldeten Soll-Entgelt (4,960.00 EUR) sind 800.00 EUR Einmalzahlung (Urlaubs-/Weihnachtsgeld) und 0.00 EUR Überstundenvergütung enthalten. Nach § 106 Abs. 1 S. 4 SGB III sind einmalig gezahltes Arbeitsentgelt und Mehrarbeit zwingend aus dem Soll-Entgelt herauszurechnen.", "clawback_exposure_eur": 278.06, "remediation": "Soll-Entgelt in Spalte 5 Kug 108 um 800.00 EUR auf 4,160.00 EUR bereinigen."}, {"code": "BA-ERR-02-FEIERTAG", "severity": "CRITICAL", "legal_ref": "§ 2 Abs. 2 EntgFG i.V.m. § 96 Abs. 1 SGB III", "emp_id": "EMP-103", "title": "Gesetzliche Feiertagsstunden (8.0 Std.) als Kug abgerechnet", "description": "Für 8.0 Ausfallstunden an gesetzlichen Feiertagen wurde Kug beantragt. Nach § 2 Abs. 2 EntgFG gilt Arbeitsausfall infolge Kurzarbeit an Feiertagen als feiertagsbedingt; der Arbeitgeber schuldet Entgeltfortzahlung (208.00 EUR Brutto = Ist-Entgelt), die BA erstattet hierfür 0,00 EUR Kug!", "clawback_exposure_eur": 357.76, "remediation": "8.0 Stunden aus Kug-Ausfallstunden streichen und 208.00 EUR dem Ist-Entgelt (Spalte 6 Kug 108) zuschlagen."}, {"code": "BA-ERR-04-URLAUB-UNVERMEIDBARKEIT", "severity": "MEDIUM", "legal_ref": "§ 96 Abs. 4 Satz 2 Nr. 2 SGB III", "emp_id": "EMP-103", "title": "Unverplanter Resturlaub (8 Tage) gefährdet Unvermeidbarkeit", "description": "Ayse Yilmaz verfügt über 8 Tage noch nicht im Urlaubsplan verplanten Erholungsurlaub. In der BA-Abschlussprüfung verlangt die Agentur den Nachweis vorrangiger Urlaubseinbringung zur Vermeidung des Arbeitsausfalls (§ 96 Abs. 4 S. 2 Nr. 2 SGB III).", "clawback_exposure_eur": 0.0, "remediation": "Vor Monatsende verbindliche Urlaubsliste / schriftliche Urlaubsfestlegung (oder dokumentierte entgegenstehende Urlaubswünsche der Arbeitnehmer) zur Prüfungsakte nehmen."}]}, {"emp_id": "EMP-104", "name": "Tobias Hartmann", "department": "Zerspanung & CNC-Fertigung", "steuerklasse": 1, "leistungssatz_pct": 60.0, "raw_reported_soll_eur": 3680.0, "corrected_soll_eur": 3680.0, "Uncapped_clean_soll_eur": 3680.0, "ist_entgelt_eur": 2576.0, "brutto_differenz_eur": 1104.0, "loss_ratio_pct": 30.0, "counts_toward_quorum": true, "pauschaliertes_netto_soll_eur": 2453.08, "pauschaliertes_netto_ist_eur": 1832.36, "netto_entgelt_differenz_eur": 620.72, "kug_auszahlungsbetrag_eur": 372.43, "naive_claimed_kug_eur": 372.43, "clawback_delta_eur": 0.0, "fiktiventgelt_80_eur": 883.2, "employer_sv_on_kug_eur": 347.1, "feiertag_employer_cost_eur": 0.0, "kk_47b_reimbursement_eur": 0.0, "valid_kug_hours": 48.0, "hourly_rate_eur": 23.0, "findings": []}, {"emp_id": "EMP-105", "name": "Jürgen Lindner", "department": "Zerspanung & CNC-Fertigung", "steuerklasse": 3, "leistungssatz_pct": 67.0, "raw_reported_soll_eur": 8600.0, "corrected_soll_eur": 8050.0, "Uncapped_clean_soll_eur": 8600.0, "ist_entgelt_eur": 6450.0, "brutto_differenz_eur": 1600.0, "loss_ratio_pct": 25.0, "counts_toward_quorum": true, "pauschaliertes_netto_soll_eur": 5246.28, "pauschaliertes_netto_ist_eur": 4373.82, "netto_entgelt_differenz_eur": 872.46, "kug_auszahlungsbetrag_eur": 584.55, "naive_claimed_kug_eur": 584.55, "clawback_delta_eur": 0.0, "fiktiventgelt_80_eur": 1280.0, "employer_sv_on_kug_eur": 503.04, "feiertag_employer_cost_eur": 0.0, "kk_47b_reimbursement_eur": 0.0, "valid_kug_hours": 40.0, "hourly_rate_eur": 53.75, "findings": []}, {"emp_id": "EMP-106", "name": "Elena Petrova", "department": "Zerspanung & CNC-Fertigung", "steuerklasse": 5, "leistungssatz_pct": 67.0, "raw_reported_soll_eur": 3520.0, "corrected_soll_eur": 3520.0, "Uncapped_clean_soll_eur": 3520.0, "ist_entgelt_eur": 3520.0, "brutto_differenz_eur": 0.0, "loss_ratio_pct": 0.0, "counts_toward_quorum": false, "pauschaliertes_netto_soll_eur": 2071.24, "pauschaliertes_netto_ist_eur": 2071.24, "netto_entgelt_differenz_eur": 0.0, "kug_auszahlungsbetrag_eur": 0.0, "naive_claimed_kug_eur": 0.0, "clawback_delta_eur": 0.0, "fiktiventgelt_80_eur": 0.0, "employer_sv_on_kug_eur": 0.0, "feiertag_employer_cost_eur": 0.0, "kk_47b_reimbursement_eur": 0.0, "valid_kug_hours": 0.0, "hourly_rate_eur": 22.0, "findings": []}, {"emp_id": "EMP-107", "name": "Christian Vogel", "department": "Zerspanung & CNC-Fertigung", "steuerklasse": 1, "leistungssatz_pct": 60.0, "raw_reported_soll_eur": 4000.0, "corrected_soll_eur": 4000.0, "Uncapped_clean_soll_eur": 4000.0, "ist_entgelt_eur": 4000.0, "brutto_differenz_eur": 0.0, "loss_ratio_pct": 0.0, "counts_toward_quorum": false, "pauschaliertes_netto_soll_eur": 2626.08, "pauschaliertes_netto_ist_eur": 2626.08, "netto_entgelt_differenz_eur": 0.0, "kug_auszahlungsbetrag_eur": 0.0, "naive_claimed_kug_eur": 0.0, "clawback_delta_eur": 0.0, "fiktiventgelt_80_eur": 0.0, "employer_sv_on_kug_eur": 0.0, "feiertag_employer_cost_eur": 0.0, "kk_47b_reimbursement_eur": 0.0, "valid_kug_hours": 0.0, "hourly_rate_eur": 25.0, "findings": []}, {"emp_id": "EMP-108", "name": "Daniela Schuster", "department": "Zerspanung & CNC-Fertigung", "steuerklasse": 2, "leistungssatz_pct": 67.0, "raw_reported_soll_eur": 3920.0, "corrected_soll_eur": 3920.0, "Uncapped_clean_soll_eur": 3920.0, "ist_entgelt_eur": 3920.0, "brutto_differenz_eur": 0.0, "loss_ratio_pct": 0.0, "counts_toward_quorum": false, "pauschaliertes_netto_soll_eur": 2691.68, "pauschaliertes_netto_ist_eur": 2691.68, "netto_entgelt_differenz_eur": 0.0, "kug_auszahlungsbetrag_eur": 0.0, "naive_claimed_kug_eur": 0.0, "clawback_delta_eur": 0.0, "fiktiventgelt_80_eur": 0.0, "employer_sv_on_kug_eur": 0.0, "feiertag_employer_cost_eur": 0.0, "kk_47b_reimbursement_eur": 0.0, "valid_kug_hours": 0.0, "hourly_rate_eur": 24.5, "findings": []}, {"emp_id": "EMP-109", "name": "Lukas Weber (Minijob)", "department": "Zerspanung & CNC-Fertigung", "steuerklasse": 1, "leistungssatz_pct": 60.0, "raw_reported_soll_eur": 540.0, "corrected_soll_eur": 0.0, "Uncapped_clean_soll_eur": 0.0, "ist_entgelt_eur": 270.0, "brutto_differenz_eur": 0.0, "loss_ratio_pct": 0.0, "counts_toward_quorum": false, "pauschaliertes_netto_soll_eur": 0.0, "pauschaliertes_netto_ist_eur": 0.0, "netto_entgelt_differenz_eur": 0.0, "kug_auszahlungsbetrag_eur": 0.0, "naive_claimed_kug_eur": 129.6, "clawback_delta_eur": 129.6, "fiktiventgelt_80_eur": 0.0, "employer_sv_on_kug_eur": 0.0, "feiertag_employer_cost_eur": 0.0, "kk_47b_reimbursement_eur": 0.0, "valid_kug_hours": 0.0, "hourly_rate_eur": 13.5, "findings": [{"code": "BA-ERR-05-PERSONELL", "severity": "CRITICAL", "legal_ref": "§ 98 Abs. 1 Nr. 1 i.V.m. § 27 Abs. 2 SGB III", "emp_id": "EMP-109", "title": "Nicht versicherungspflichtige Beschäftigung (Minijob / Azubi) in Kug 108", "description": "Lukas Weber (Minijob) (Lagerhilfe (Geringfügig beschäftigt)) unterliegt nicht der Arbeitslosenversicherungspflicht. Für geringfügig Beschäftigte (Minijob) und Auszubildende besteht kein Kug-Anspruch.", "clawback_exposure_eur": 129.6, "remediation": "Komplett aus Abrechnungsliste Kug 108 streichen; Minijobber zählen zudem nur im Nenner beim 1/3-Quorum."}]}, {"emp_id": "EMP-201", "name": "Andreas Köhler", "department": "Montage & Prüffeld", "steuerklasse": 3, "leistungssatz_pct": 67.0, "raw_reported_soll_eur": 5080.0, "corrected_soll_eur": 4480.0, "Uncapped_clean_soll_eur": 4480.0, "ist_entgelt_eur": 2240.0, "brutto_differenz_eur": 2240.0, "loss_ratio_pct": 50.0, "counts_toward_quorum": true, "pauschaliertes_netto_soll_eur": 3246.22, "pauschaliertes_netto_ist_eur": 1792.0, "netto_entgelt_differenz_eur": 1454.22, "kug_auszahlungsbetrag_eur": 974.33, "naive_claimed_kug_eur": 1208.61, "clawback_delta_eur": 234.28, "fiktiventgelt_80_eur": 1792.0, "employer_sv_on_kug_eur": 704.26, "feiertag_employer_cost_eur": 0.0, "kk_47b_reimbursement_eur": 0.0, "valid_kug_hours": 80.0, "hourly_rate_eur": 28.0, "findings": [{"code": "BA-ERR-01-SOLL-ENTGELT", "severity": "CRITICAL", "legal_ref": "§ 106 Abs. 1 Satz 4 SGB III", "emp_id": "EMP-201", "title": "Einmalzahlung / Mehrarbeitsvergütung im Soll-Entgelt enthalten", "description": "Im gemeldeten Soll-Entgelt (5,080.00 EUR) sind 600.00 EUR Einmalzahlung (Urlaubs-/Weihnachtsgeld) und 0.00 EUR Überstundenvergütung enthalten. Nach § 106 Abs. 1 S. 4 SGB III sind einmalig gezahltes Arbeitsentgelt und Mehrarbeit zwingend aus dem Soll-Entgelt herauszurechnen.", "clawback_exposure_eur": 234.28, "remediation": "Soll-Entgelt in Spalte 5 Kug 108 um 600.00 EUR auf 4,480.00 EUR bereinigen."}]}, {"emp_id": "EMP-202", "name": "Sabine Neumann", "department": "Montage & Prüffeld", "steuerklasse": 4, "leistungssatz_pct": 67.0, "raw_reported_soll_eur": 4000.0, "corrected_soll_eur": 4000.0, "Uncapped_clean_soll_eur": 4000.0, "ist_entgelt_eur": 2400.0, "brutto_differenz_eur": 1600.0, "loss_ratio_pct": 40.0, "counts_toward_quorum": true, "pauschaliertes_netto_soll_eur": 2626.08, "pauschaliertes_netto_ist_eur": 1729.99, "netto_entgelt_differenz_eur": 896.09, "kug_auszahlungsbetrag_eur": 600.38, "naive_claimed_kug_eur": 600.38, "clawback_delta_eur": 0.0, "fiktiventgelt_80_eur": 1280.0, "employer_sv_on_kug_eur": 503.04, "feiertag_employer_cost_eur": 0.0, "kk_47b_reimbursement_eur": 0.0, "valid_kug_hours": 64.0, "hourly_rate_eur": 25.0, "findings": [{"code": "BA-ERR-04-URLAUB-UNVERMEIDBARKEIT", "severity": "MEDIUM", "legal_ref": "§ 96 Abs. 4 Satz 2 Nr. 2 SGB III", "emp_id": "EMP-202", "title": "Unverplanter Resturlaub (6 Tage) gefährdet Unvermeidbarkeit", "description": "Sabine Neumann verfügt über 6 Tage noch nicht im Urlaubsplan verplanten Erholungsurlaub. In der BA-Abschlussprüfung verlangt die Agentur den Nachweis vorrangiger Urlaubseinbringung zur Vermeidung des Arbeitsausfalls (§ 96 Abs. 4 S. 2 Nr. 2 SGB III).", "clawback_exposure_eur": 0.0, "remediation": "Vor Monatsende verbindliche Urlaubsliste / schriftliche Urlaubsfestlegung (oder dokumentierte entgegenstehende Urlaubswünsche der Arbeitnehmer) zur Prüfungsakte nehmen."}]}, {"emp_id": "EMP-203", "name": "Marco Rossi", "department": "Montage & Prüffeld", "steuerklasse": 1, "leistungssatz_pct": 60.0, "raw_reported_soll_eur": 3680.0, "corrected_soll_eur": 3680.0, "Uncapped_clean_soll_eur": 3680.0, "ist_entgelt_eur": 3358.0, "brutto_differenz_eur": 322.0, "loss_ratio_pct": 8.75, "counts_toward_quorum": false, "pauschaliertes_netto_soll_eur": 2453.08, "pauschaliertes_netto_ist_eur": 2275.86, "netto_entgelt_differenz_eur": 177.22, "kug_auszahlungsbetrag_eur": 106.33, "naive_claimed_kug_eur": 106.33, "clawback_delta_eur": 0.0, "fiktiventgelt_80_eur": 257.6, "employer_sv_on_kug_eur": 101.24, "feiertag_employer_cost_eur": 0.0, "kk_47b_reimbursement_eur": 0.0, "valid_kug_hours": 14.0, "hourly_rate_eur": 23.0, "findings": []}, {"emp_id": "EMP-204", "name": "Tanja Richter", "department": "Montage & Prüffeld", "steuerklasse": 2, "leistungssatz_pct": 67.0, "raw_reported_soll_eur": 3360.0, "corrected_soll_eur": 3360.0, "Uncapped_clean_soll_eur": 3360.0, "ist_entgelt_eur": 3192.0, "brutto_differenz_eur": 168.0, "loss_ratio_pct": 5.0, "counts_toward_quorum": false, "pauschaliertes_netto_soll_eur": 2378.3, "pauschaliertes_netto_ist_eur": 2282.43, "netto_entgelt_differenz_eur": 95.87, "kug_auszahlungsbetrag_eur": 64.23, "naive_claimed_kug_eur": 64.23, "clawback_delta_eur": 0.0, "fiktiventgelt_80_eur": 134.4, "employer_sv_on_kug_eur": 52.82, "feiertag_employer_cost_eur": 0.0, "kk_47b_reimbursement_eur": 0.0, "valid_kug_hours": 8.0, "hourly_rate_eur": 21.0, "findings": []}, {"emp_id": "EMP-205", "name": "Florian Baumann", "department": "Montage & Prüffeld", "steuerklasse": 1, "leistungssatz_pct": 60.0, "raw_reported_soll_eur": 5120.0, "corrected_soll_eur": 5120.0, "Uncapped_clean_soll_eur": 5120.0, "ist_entgelt_eur": 5120.0, "brutto_differenz_eur": 0.0, "loss_ratio_pct": 0.0, "counts_toward_quorum": false, "pauschaliertes_netto_soll_eur": 3207.09, "pauschaliertes_netto_ist_eur": 3207.09, "netto_entgelt_differenz_eur": 0.0, "kug_auszahlungsbetrag_eur": 0.0, "naive_claimed_kug_eur": 0.0, "clawback_delta_eur": 0.0, "fiktiventgelt_80_eur": 0.0, "employer_sv_on_kug_eur": 0.0, "feiertag_employer_cost_eur": 0.0, "kk_47b_reimbursement_eur": 0.0, "valid_kug_hours": 0.0, "hourly_rate_eur": 32.0, "findings": []}, {"emp_id": "EMP-206", "name": "Katrin Wolf", "department": "Montage & Prüffeld", "steuerklasse": 4, "leistungssatz_pct": 60.0, "raw_reported_soll_eur": 3520.0, "corrected_soll_eur": 3520.0, "Uncapped_clean_soll_eur": 3520.0, "ist_entgelt_eur": 3520.0, "brutto_differenz_eur": 0.0, "loss_ratio_pct": 0.0, "counts_toward_quorum": false, "pauschaliertes_netto_soll_eur": 2365.41, "pauschaliertes_netto_ist_eur": 2365.41, "netto_entgelt_differenz_eur": 0.0, "kug_auszahlungsbetrag_eur": 0.0, "naive_claimed_kug_eur": 0.0, "clawback_delta_eur": 0.0, "fiktiventgelt_80_eur": 0.0, "employer_sv_on_kug_eur": 0.0, "feiertag_employer_cost_eur": 0.0, "kk_47b_reimbursement_eur": 0.0, "valid_kug_hours": 0.0, "hourly_rate_eur": 22.0, "findings": []}, {"emp_id": "EMP-207", "name": "Moritz Hahn", "department": "Montage & Prüffeld", "steuerklasse": 1, "leistungssatz_pct": 60.0, "raw_reported_soll_eur": 3600.0, "corrected_soll_eur": 3600.0, "Uncapped_clean_soll_eur": 3600.0, "ist_entgelt_eur": 3600.0, "brutto_differenz_eur": 0.0, "loss_ratio_pct": 0.0, "counts_toward_quorum": false, "pauschaliertes_netto_soll_eur": 2409.34, "pauschaliertes_netto_ist_eur": 2409.34, "netto_entgelt_differenz_eur": 0.0, "kug_auszahlungsbetrag_eur": 0.0, "naive_claimed_kug_eur": 0.0, "clawback_delta_eur": 0.0, "fiktiventgelt_80_eur": 0.0, "employer_sv_on_kug_eur": 0.0, "feiertag_employer_cost_eur": 0.0, "kk_47b_reimbursement_eur": 0.0, "valid_kug_hours": 0.0, "hourly_rate_eur": 22.5, "findings": []}], "ba_audit_findings": [{"code": "BA-ERR-01-SOLL-ENTGELT", "severity": "CRITICAL", "legal_ref": "§ 106 Abs. 1 Satz 4 SGB III", "emp_id": "EMP-101", "title": "Einmalzahlung / Mehrarbeitsvergütung im Soll-Entgelt enthalten", "description": "Im gemeldeten Soll-Entgelt (6,240.00 EUR) sind 1,200.00 EUR Einmalzahlung (Urlaubs-/Weihnachtsgeld) und 240.00 EUR Überstundenvergütung enthalten. Nach § 106 Abs. 1 S. 4 SGB III sind einmalig gezahltes Arbeitsentgelt und Mehrarbeit zwingend aus dem Soll-Entgelt herauszurechnen.", "clawback_exposure_eur": 551.43, "remediation": "Soll-Entgelt in Spalte 5 Kug 108 um 1,440.00 EUR auf 4,800.00 EUR bereinigen."}, {"code": "BA-ERR-02-FEIERTAG", "severity": "CRITICAL", "legal_ref": "§ 2 Abs. 2 EntgFG i.V.m. § 96 Abs. 1 SGB III", "emp_id": "EMP-101", "title": "Gesetzliche Feiertagsstunden (8.0 Std.) als Kug abgerechnet", "description": "Für 8.0 Ausfallstunden an gesetzlichen Feiertagen wurde Kug beantragt. Nach § 2 Abs. 2 EntgFG gilt Arbeitsausfall infolge Kurzarbeit an Feiertagen als feiertagsbedingt; der Arbeitgeber schuldet Entgeltfortzahlung (240.00 EUR Brutto = Ist-Entgelt), die BA erstattet hierfür 0,00 EUR Kug!", "clawback_exposure_eur": 656.22, "remediation": "8.0 Stunden aus Kug-Ausfallstunden streichen und 240.00 EUR dem Ist-Entgelt (Spalte 6 Kug 108) zuschlagen."}, {"code": "BA-ERR-03-KRANK-VOR-KUG", "severity": "HIGH", "legal_ref": "§ 47b SGB V vs. § 4 Abs. 3 EntgFG", "emp_id": "EMP-102", "title": "Arbeitsunfähigkeit vor Kug-Beginn (24.0 Std.) über BA statt Krankenkasse abgerechnet", "description": "Erkrankung begann vor dem betrieblichen Kurzarbeitszeitraum (24.0 Ausfallstunden). Hier besteht kein Anspruch auf BA-Kurzarbeitergeld, sondern Anspruch auf 'Krankengeld in Höhe des Kug' nach § 47b SGB V gegen die zuständige Krankenkasse (201.95 EUR).", "clawback_exposure_eur": 201.95, "remediation": "Aus Kug 108 (BA-Abrechnungsliste) herausnehmen und separaten Erstattungsantrag nach § 47b SGB V an die Krankenkasse stellen (201.95 EUR)."}, {"code": "BA-ERR-01-SOLL-ENTGELT", "severity": "CRITICAL", "legal_ref": "§ 106 Abs. 1 Satz 4 SGB III", "emp_id": "EMP-103", "title": "Einmalzahlung / Mehrarbeitsvergütung im Soll-Entgelt enthalten", "description": "Im gemeldeten Soll-Entgelt (4,960.00 EUR) sind 800.00 EUR Einmalzahlung (Urlaubs-/Weihnachtsgeld) und 0.00 EUR Überstundenvergütung enthalten. Nach § 106 Abs. 1 S. 4 SGB III sind einmalig gezahltes Arbeitsentgelt und Mehrarbeit zwingend aus dem Soll-Entgelt herauszurechnen.", "clawback_exposure_eur": 278.06, "remediation": "Soll-Entgelt in Spalte 5 Kug 108 um 800.00 EUR auf 4,160.00 EUR bereinigen."}, {"code": "BA-ERR-02-FEIERTAG", "severity": "CRITICAL", "legal_ref": "§ 2 Abs. 2 EntgFG i.V.m. § 96 Abs. 1 SGB III", "emp_id": "EMP-103", "title": "Gesetzliche Feiertagsstunden (8.0 Std.) als Kug abgerechnet", "description": "Für 8.0 Ausfallstunden an gesetzlichen Feiertagen wurde Kug beantragt. Nach § 2 Abs. 2 EntgFG gilt Arbeitsausfall infolge Kurzarbeit an Feiertagen als feiertagsbedingt; der Arbeitgeber schuldet Entgeltfortzahlung (208.00 EUR Brutto = Ist-Entgelt), die BA erstattet hierfür 0,00 EUR Kug!", "clawback_exposure_eur": 357.76, "remediation": "8.0 Stunden aus Kug-Ausfallstunden streichen und 208.00 EUR dem Ist-Entgelt (Spalte 6 Kug 108) zuschlagen."}, {"code": "BA-ERR-04-URLAUB-UNVERMEIDBARKEIT", "severity": "MEDIUM", "legal_ref": "§ 96 Abs. 4 Satz 2 Nr. 2 SGB III", "emp_id": "EMP-103", "title": "Unverplanter Resturlaub (8 Tage) gefährdet Unvermeidbarkeit", "description": "Ayse Yilmaz verfügt über 8 Tage noch nicht im Urlaubsplan verplanten Erholungsurlaub. In der BA-Abschlussprüfung verlangt die Agentur den Nachweis vorrangiger Urlaubseinbringung zur Vermeidung des Arbeitsausfalls (§ 96 Abs. 4 S. 2 Nr. 2 SGB III).", "clawback_exposure_eur": 0.0, "remediation": "Vor Monatsende verbindliche Urlaubsliste / schriftliche Urlaubsfestlegung (oder dokumentierte entgegenstehende Urlaubswünsche der Arbeitnehmer) zur Prüfungsakte nehmen."}, {"code": "BA-ERR-05-PERSONELL", "severity": "CRITICAL", "legal_ref": "§ 98 Abs. 1 Nr. 1 i.V.m. § 27 Abs. 2 SGB III", "emp_id": "EMP-109", "title": "Nicht versicherungspflichtige Beschäftigung (Minijob / Azubi) in Kug 108", "description": "Lukas Weber (Minijob) (Lagerhilfe (Geringfügig beschäftigt)) unterliegt nicht der Arbeitslosenversicherungspflicht. Für geringfügig Beschäftigte (Minijob) und Auszubildende besteht kein Kug-Anspruch.", "clawback_exposure_eur": 129.6, "remediation": "Komplett aus Abrechnungsliste Kug 108 streichen; Minijobber zählen zudem nur im Nenner beim 1/3-Quorum."}, {"code": "BA-ERR-01-SOLL-ENTGELT", "severity": "CRITICAL", "legal_ref": "§ 106 Abs. 1 Satz 4 SGB III", "emp_id": "EMP-201", "title": "Einmalzahlung / Mehrarbeitsvergütung im Soll-Entgelt enthalten", "description": "Im gemeldeten Soll-Entgelt (5,080.00 EUR) sind 600.00 EUR Einmalzahlung (Urlaubs-/Weihnachtsgeld) und 0.00 EUR Überstundenvergütung enthalten. Nach § 106 Abs. 1 S. 4 SGB III sind einmalig gezahltes Arbeitsentgelt und Mehrarbeit zwingend aus dem Soll-Entgelt herauszurechnen.", "clawback_exposure_eur": 234.28, "remediation": "Soll-Entgelt in Spalte 5 Kug 108 um 600.00 EUR auf 4,480.00 EUR bereinigen."}, {"code": "BA-ERR-04-URLAUB-UNVERMEIDBARKEIT", "severity": "MEDIUM", "legal_ref": "§ 96 Abs. 4 Satz 2 Nr. 2 SGB III", "emp_id": "EMP-202", "title": "Unverplanter Resturlaub (6 Tage) gefährdet Unvermeidbarkeit", "description": "Sabine Neumann verfügt über 6 Tage noch nicht im Urlaubsplan verplanten Erholungsurlaub. In der BA-Abschlussprüfung verlangt die Agentur den Nachweis vorrangiger Urlaubseinbringung zur Vermeidung des Arbeitsausfalls (§ 96 Abs. 4 S. 2 Nr. 2 SGB III).", "clawback_exposure_eur": 0.0, "remediation": "Vor Monatsende verbindliche Urlaubsliste / schriftliche Urlaubsfestlegung (oder dokumentierte entgegenstehende Urlaubswünsche der Arbeitnehmer) zur Prüfungsakte nehmen."}]};
+function pauschNettoJS(brutto, stkl) {
+  if (brutto <= 0) return 0;
+  const capped = Math.min(brutto, 8050.0);
+  const sv = capped * 0.20;
+  const ann = capped * 12.0;
+  let tax = 0;
+  if (stkl === 3) {
+    const zveHalf = Math.max(0, (ann - 24696 - 1230 - 72 - ann*0.165) / 2.0);
+    tax = zveHalf > 0 ? 2.0 * (zveHalf * 0.19) : 0;
+  } else if (stkl === 5) {
+    tax = Math.max(0, (ann - 1230 - ann*0.165) * 0.24);
+  } else {
+    const zve = Math.max(0, ann - 12348 - 1230 - 36 - ann*0.165);
+    tax = zve * 0.21;
+  }
+  return Math.max(0, capped - sv - (tax / 12.0));
+}
+function recalcSim() {
+  const rawSoll = parseFloat(document.getElementById('simSoll').value) || 0;
+  const einmal = parseFloat(document.getElementById('simEinmal').value) || 0;
+  const ist = parseFloat(document.getElementById('simIst').value) || 0;
+  const parts = document.getElementById('simStkl').value.split('_');
+  const stkl = parseInt(parts[0], 10);
+  const satz = parseInt(parts[1], 10) / 100.0;
+
+  const cleanSoll = Math.min(8050, Math.max(0, rawSoll - einmal));
+  const lossPct = cleanSoll > 0 ? ((cleanSoll - ist) / cleanSoll) * 100.0 : 0;
+  const nettoSoll = pauschNettoJS(cleanSoll, stkl);
+  const nettoIst = pauschNettoJS(ist, stkl);
+  const kug = Math.max(0, nettoSoll - nettoIst) * satz;
+  const fiktiv80 = Math.max(0, cleanSoll - ist) * 0.80;
+  const agSv = fiktiv80 * 0.3930;
+
+  document.getElementById('simOutput').innerHTML =
+    `<strong>Bereinigtes Soll-Entgelt (§ 106 Abs. 1 S. 4 SGB III):</strong> ${cleanSoll.toFixed(2)} € (Einmalzahlung ${einmal.toFixed(2)} € eliminiert) · ` +
+    `<strong>Entgeltausfall:</strong> ${lossPct.toFixed(2)}% (${lossPct > 10 ? '<span style="color:#166534;font-weight:700;">zählt für 1/3-Quorum</span>' : '<span style="color:#dc2626;font-weight:700;">unter 10%-Schwelle!</span>'}) · ` +
+    `<strong>Kug-Erstattung:</strong> <span style="color:#0284c7;font-weight:700;">${kug.toFixed(2)} €</span> · ` +
+    `<strong>80% Fiktiventgelt:</strong> ${fiktiv80.toFixed(2)} € → <strong>AG-SV-Last (39.30%):</strong> ${agSv.toFixed(2)} €`;
+}
+recalcSim();
+</script>
+</body>
+</html>

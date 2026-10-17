@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MVP #42 — Zoll-Auktion & Justiz-Auktion vs. eBay SoldComps Arbitrage Sniper</title>
+    <style>
+        :root {
+            --bg: #0b101b;
+            --panel: #131c2e;
+            --panel-alt: #182338;
+            --border: #263552;
+            --text: #e6edf7;
+            --muted: #8ea0be;
+            --accent: #38bdf8;
+            --green: #22c55e;
+            --amber: #f59e0b;
+            --red: #ef4444;
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.45;
+        }
+        .container { max-width: 1520px; margin: 0 auto; padding: 24px; }
+        header {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            padding-bottom: 18px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 20px;
+        }
+        h1 { margin: 0; font-size: 1.45rem; letter-spacing: -0.02em; }
+        .subtitle { color: var(--muted); font-size: 0.9rem; margin-top: 4px; }
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+            gap: 14px;
+            margin-bottom: 22px;
+        }
+        .kpi-card {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px 16px;
+        }
+        .kpi-label { color: var(--muted); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.04em; }
+        .kpi-val { font-size: 1.45rem; font-weight: 700; margin-top: 4px; color: var(--text); }
+        .kpi-sub { color: var(--muted); font-size: 0.78rem; margin-top: 2px; }
+        .layout { display: grid; grid-template-columns: 2.15fr 1fr; gap: 18px; align-items: start; }
+        @media (max-width: 1150px) { .layout { grid-template-columns: 1fr; } }
+        .panel {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 16px;
+        }
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 14px;
+            align-items: center;
+        }
+        select, input[type="text"], input[type="number"] {
+            background: var(--panel-alt);
+            color: var(--text);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 7px 10px;
+            font-size: 0.85rem;
+        }
+        table { width: 100%; border-collapse: collapse; font-size: 0.84rem; }
+        th {
+            text-align: left;
+            padding: 10px 8px;
+            border-bottom: 1px solid var(--border);
+            color: var(--muted);
+            font-weight: 600;
+            font-size: 0.76rem;
+            text-transform: uppercase;
+        }
+        th.num, td.num { text-align: right; }
+        td { padding: 11px 8px; border-bottom: 1px solid rgba(38,53,82,0.55); vertical-align: top; }
+        tr.lot-row { cursor: pointer; transition: background 0.12s; }
+        tr.lot-row:hover, tr.lot-row.active { background: rgba(56, 189, 248, 0.09); }
+        .lot-id { font-weight: 700; color: var(--accent); font-family: monospace; }
+        .lot-title { color: var(--text); font-weight: 600; text-decoration: none; display: inline-block; margin-bottom: 3px; }
+        .lot-title:hover { color: var(--accent); text-decoration: underline; }
+        .lot-sub, .lot-loc, .rem-time, .sub-num { color: var(--muted); font-size: 0.76rem; margin-top: 2px; }
+        .portal-pill {
+            display: inline-block;
+            font-size: 0.7rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 600;
+            margin-top: 3px;
+        }
+        .portal-pill.zoll { background: rgba(56, 189, 248, 0.16); color: #7dd3fc; border: 1px solid rgba(56,189,248,0.35); }
+        .portal-pill.justiz { background: rgba(168, 85, 247, 0.16); color: #d8b4fe; border: 1px solid rgba(168,85,247,0.35); }
+        .portal-pill.insolvenz { background: rgba(245, 158, 11, 0.16); color: #fcd34d; border: 1px solid rgba(245,158,11,0.35); }
+        .gutachten-pill { background: rgba(34, 197, 94, 0.15); color: #86efac; padding: 1px 5px; border-radius: 4px; }
+        .gutachten-none { color: var(--muted); }
+        .cond-tag { color: #e2e8f0; font-weight: 600; }
+        .cur-bid, .comp-p50, .sniper-max, .profit-val { font-weight: 700; font-size: 0.92rem; }
+        .sniper-max { color: #38bdf8; }
+        .pos { color: var(--green); }
+        .neg { color: var(--red); }
+        .status-badge {
+            display: inline-block;
+            margin-top: 4px;
+            padding: 2px 7px;
+            border-radius: 999px;
+            font-size: 0.7rem;
+            font-weight: 700;
+        }
+        .badge-hot { background: rgba(34, 197, 94, 0.18); color: #4ade80; border: 1px solid rgba(34,197,94,0.4); }
+        .badge-watch { background: rgba(245, 158, 11, 0.18); color: #fbbf24; border: 1px solid rgba(245,158,11,0.4); }
+        .badge-skip { background: rgba(239, 68, 68, 0.18); color: #f87171; border: 1px solid rgba(239,68,68,0.4); }
+        .calc-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px dashed var(--border); font-size: 0.84rem; }
+        .calc-row.total { font-weight: 700; font-size: 0.94rem; border-top: 1px solid var(--border); border-bottom: none; padding-top: 10px; }
+    </style>
+</head>
+<body>
+
+<!-- DACH CASHFLOW STUDIOS LAUNCH BAR -->
+<style>
+  #dcs-launch-bar {
+    position: sticky;
+    top: 0;
+    z-index: 99999;
+    background: linear-gradient(90deg, #0b1120 0%, #111827 50%, #0f172a 100%);
+    color: #f8fafc;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.35);
+    padding: 8px 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  }
+  #dcs-launch-bar .dcs-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+  }
+  #dcs-launch-bar .dcs-badge {
+    background: rgba(16, 185, 129, 0.18);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.03em;
+  }
+  #dcs-launch-bar a.dcs-nav {
+    color: #93c5fd;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 12.5px;
+  }
+  #dcs-launch-bar a.dcs-nav:hover {
+    text-decoration: underline;
+    color: #dbeafe;
+  }
+  #dcs-launch-bar .dcs-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  #dcs-launch-bar .dcs-btn {
+    padding: 5px 11px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s ease;
+  }
+  #dcs-launch-bar .dcs-btn-ghost {
+    background: rgba(255,255,255,0.08);
+    color: #e2e8f0;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  #dcs-launch-bar .dcs-btn-primary {
+    background: linear-gradient(135deg, #0ea5e9, #2563eb);
+    color: #ffffff;
+  }
+  #dcs-launch-bar .dcs-btn-emerald {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
+  }
+  @media print {
+    #dcs-launch-bar { display: none !important; }
+  }
+</style>
+<div id="dcs-launch-bar">
+  <div class="dcs-left">
+    <a href="/index.html" class="dcs-nav">← Alle 150 DACH Studios</a>
+    <span class="dcs-badge">MVP #042 VERIFIED</span>
+    <span style="color:#cbd5e1;font-size:12px;">DACH Tax, Corporate & Accounting Arbitrage</span>
+  </div>
+  <div class="dcs-actions">
+    <button onclick="window.print()" class="dcs-btn dcs-btn-ghost">🖨️ PDF / Dossier drucken</button>
+    <a href="#checkout-modal-49" target="_blank" rel="noopener" class="dcs-btn dcs-btn-primary">⚡ Musterschreiben & Voll-Dossier (€49)</a>
+    <a href="#checkout-modal-299" target="_blank" rel="noopener" class="dcs-btn dcs-btn-emerald">🛡️ B2B Umsetzung buchen (€299 / €1.490)</a>
+  </div>
+</div>
+
+<div class="container">
+    <header>
+        <div>
+            <h1>🎯 Zoll-Auktion & Justiz-Auktion vs. eBay.de SoldComps Arbitrage Sniper (MVP #42)</h1>
+            <div class="subtitle">
+                Echtzeit-DACH-Behörden- & Insolvenz-Versteigerungen · 0% Aufgeld vs. 18% Industrie-Aufgeld · § 25a UStG Differenzbesteuerungs-Rechner
+            </div>
+        </div>
+        <div class="subtitle">Stand: 2026-10-17 15:38:12 · Lots analysiert: 12</div>
+    </header>
+
+    <div class="kpi-grid">
+        <div class="kpi-card">
+            <div class="kpi-label">Sniper Hot Deals (&ge; 25% ROI)</div>
+            <div class="kpi-val pos">6 / 12 Lots</div>
+            <div class="kpi-sub">Sofort bietbare Behörden- & Justiz-Lots</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">Kumulierter Netto-Gewinn (Hot)</div>
+            <div class="kpi-val pos">+2,864.83 €</div>
+            <div class="kpi-sub">Nach eBay-Provision, Logistik &amp; § 25a UStG</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">Ø Netto-ROI (Sniper Hot)</div>
+            <div class="kpi-val pos">65.3%</div>
+            <div class="kpi-sub">Ø Abschlag ggü. eBay P50: 63.9%</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">Aufgeld-Ersparnis (Zoll/Justiz)</div>
+            <div class="kpi-val" style="color:var(--accent)">0,0% Aufgeld</div>
+            <div class="kpi-sub">vs. 21,42% Effektiv-Aufschlag bei Industrieauktionen</div>
+        </div>
+    </div>
+
+    <div class="layout">
+        <div class="panel">
+            <div class="controls">
+                <label>Portal:
+                    <select id="filterPortal" onchange="applyFilters()">
+                        <option value="ALL">Alle Portale (12)</option>
+                        <option value="zoll-auktion.de">Zoll-Auktion.de (0% Aufgeld)</option>
+                        <option value="justiz-auktion.de">Justiz-Auktion.de (0% Aufgeld)</option>
+                        <option value="insolvenz-industrieauktion">Insolvenz-Industrieauktion (+18% Aufgeld)</option>
+                    </select>
+                </label>
+                <label>Sniper-Filter:
+                    <select id="filterStatus" onchange="applyFilters()">
+                        <option value="ALL">Alle Signale</option>
+                        <option value="SNIPER_HOT">Nur SNIPER HOT (&ge; 25% Netto-ROI)</option>
+                        <option value="WATCHLIST">Watchlist</option>
+                        <option value="OVERBID_SKIP">Overbid / Skip</option>
+                    </select>
+                </label>
+                <input type="text" id="searchQuery" placeholder="Modell, Behörde, Ort suchen..." oninput="applyFilters()" style="flex:1; min-width:180px;" />
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Lot / Portal</th>
+                        <th>Auktionsgegenstand &amp; Behörde</th>
+                        <th class="num">Mindestgebot</th>
+                        <th class="num">eBay.de Sold P50</th>
+                        <th class="num">Steuer &amp; Gebühren</th>
+                        <th class="num">Max Sniper Bid</th>
+                        <th class="num">Netto-Profit &amp; ROI</th>
+                    </tr>
+                </thead>
+                <tbody id="lotsTableBody">
+                    
+        <tr class="lot-row" data-portal="zoll-auktion.de" data-status="SNIPER_HOT" data-lot-id="ZA-984315" onclick="selectLot('ZA-984315')">
+            <td>
+                <div class="lot-id">ZA-984315</div>
+                <span class="portal-pill zoll">Zoll-Auktion (0% Aufgeld)</span>
+                <div class="rem-time">⏱ noch 5 Std. 0 Min. (0 Gebote)</div>
+            </td>
+            <td>
+                <a href="https://www.zoll-auktion.de/auktion/produkt/8_Luftreiniger_Helios_AirPal_2200_H/984315" target="_blank" class="lot-title" onclick="event.stopPropagation()">8 Luftreiniger Helios AirPal 2200 H</a>
+                <div class="lot-sub">
+                    <strong>Menge: 8x</strong> · Zustand: <span class="cond-tag">Gebraucht mit Gutachten</span> · <span class="gutachten-pill" title="Offizielles Gutachten vorhanden">Gutachten: 1,600 €</span>
+                </div>
+                <div class="lot-loc">📍 84347 Pfarrkirchen (Bayern) · Selbstabholung (145 km einfach)</div>
+            </td>
+            <td class="num">
+                <div class="cur-bid">13.00 €</div>
+                <div class="sub-num">Aktuell: 13.00 €</div>
+                <div class="sub-num">Inkl. Aufgeld: 13.00 €</div>
+            </td>
+            <td class="num">
+                <div class="comp-p50">1,760.00 €</div>
+                <div class="sub-num">Spanne: 1,320–2,360 €</div>
+                <div class="sub-num">Idealo Neu: 23,120 €</div>
+            </td>
+            <td class="num">
+                <div class="tax-tag">§ 25a</div>
+                <div class="sub-num">USt-Zahllast: 278.93 €</div>
+                <div class="sub-num">eBay + Logistik: 334.12 €</div>
+            </td>
+            <td class="num">
+                <div class="sniper-max">891 €</div>
+                <div class="sub-num pos">Puffer: +878 € (+98.5%)</div>
+            </td>
+            <td class="num">
+                <div class="profit-val pos">+1,089.95 €</div>
+                <div class="roi-val pos">+162.7% Netto-ROI</div>
+                <span class="status-badge badge-hot">SNIPER HOT (>=25% ROI)</span>
+            </td>
+        </tr>
+        
+        <tr class="lot-row" data-portal="justiz-auktion.de" data-status="SNIPER_HOT" data-lot-id="JA-213930" onclick="selectLot('JA-213930')">
+            <td>
+                <div class="lot-id">JA-213930</div>
+                <span class="portal-pill justiz">Justiz-Auktion (0% Aufgeld)</span>
+                <div class="rem-time">⏱ 1 T, 5 Std, 29 Min (2 Gebote)</div>
+            </td>
+            <td>
+                <a href="https://www.justiz-auktion.de/Saumlulenbohrmaschine-213930" target="_blank" class="lot-title" onclick="event.stopPropagation()">Säulenbohrmaschine (Werkstattauflösung)</a>
+                <div class="lot-sub">
+                    <strong>Menge: 1x</strong> · Zustand: <span class="cond-tag">Gebraucht mit Gutachten</span> · <span class="gutachten-pill" title="Offizielles Gutachten vorhanden">Gutachten: 450 €</span>
+                </div>
+                <div class="lot-loc">📍 52525 Heinsberg (Nordrhein-Westfalen) · Selbstabholung (85 km einfach)</div>
+            </td>
+            <td class="num">
+                <div class="cur-bid">60.00 €</div>
+                <div class="sub-num">Aktuell: 55.00 €</div>
+                <div class="sub-num">Inkl. Aufgeld: 60.00 €</div>
+            </td>
+            <td class="num">
+                <div class="comp-p50">440.00 €</div>
+                <div class="sub-num">Spanne: 340–540 €</div>
+                <div class="sub-num">Idealo Neu: 1,150 €</div>
+            </td>
+            <td class="num">
+                <div class="tax-tag">§ 25a</div>
+                <div class="sub-num">USt-Zahllast: 60.67 €</div>
+                <div class="sub-num">eBay + Logistik: 116.64 €</div>
+            </td>
+            <td class="num">
+                <div class="sniper-max">182 €</div>
+                <div class="sub-num pos">Puffer: +122 € (+67.0%)</div>
+            </td>
+            <td class="num">
+                <div class="profit-val pos">+190.69 €</div>
+                <div class="roi-val pos">+76.5% Netto-ROI</div>
+                <span class="status-badge badge-hot">SNIPER HOT (>=25% ROI)</span>
+            </td>
+        </tr>
+        
+        <tr class="lot-row" data-portal="zoll-auktion.de" data-status="SNIPER_HOT" data-lot-id="ZA-984712" onclick="selectLot('ZA-984712')">
+            <td>
+                <div class="lot-id">ZA-984712</div>
+                <span class="portal-pill zoll">Zoll-Auktion (0% Aufgeld)</span>
+                <div class="rem-time">⏱ noch 3 Std. 15 Min. (14 Gebote)</div>
+            </td>
+            <td>
+                <a href="https://www.zoll-auktion.de/auktion/kategorie/Notebooks/1107" target="_blank" class="lot-title" onclick="event.stopPropagation()">1 Apple MacBook Pro 16&quot; M3 Max (36 GB / 1 TB SSD) in OVP, Pfandsache</a>
+                <div class="lot-sub">
+                    <strong>Menge: 1x</strong> · Zustand: <span class="cond-tag">Neu / OVP</span> · <span class="gutachten-pill" title="Offizielles Gutachten vorhanden">Gutachten: 2,900 €</span>
+                </div>
+                <div class="lot-loc">📍 60486 Frankfurt am Main (Hessen) · DHL/Paket-Versand (14.99 €)</div>
+            </td>
+            <td class="num">
+                <div class="cur-bid">1,730.00 €</div>
+                <div class="sub-num">Aktuell: 1,680.00 €</div>
+                <div class="sub-num">Inkl. Aufgeld: 1,730.00 €</div>
+            </td>
+            <td class="num">
+                <div class="comp-p50">3,068.80 €</div>
+                <div class="sub-num">Spanne: 2,822–3,304 €</div>
+                <div class="sub-num">Idealo Neu: 3,649 €</div>
+            </td>
+            <td class="num">
+                <div class="tax-tag">§ 25a</div>
+                <div class="sub-num">USt-Zahllast: 213.76 €</div>
+                <div class="sub-num">eBay + Logistik: 240.30 €</div>
+            </td>
+            <td class="num">
+                <div class="sniper-max">2,046 €</div>
+                <div class="sub-num pos">Puffer: +316 € (+15.4%)</div>
+            </td>
+            <td class="num">
+                <div class="profit-val pos">+879.74 €</div>
+                <div class="roi-val pos">+40.2% Netto-ROI</div>
+                <span class="status-badge badge-hot">SNIPER HOT (>=25% ROI)</span>
+            </td>
+        </tr>
+        
+        <tr class="lot-row" data-portal="justiz-auktion.de" data-status="SNIPER_HOT" data-lot-id="JA-214088" onclick="selectLot('JA-214088')">
+            <td>
+                <div class="lot-id">JA-214088</div>
+                <span class="portal-pill justiz">Justiz-Auktion (0% Aufgeld)</span>
+                <div class="rem-time">⏱ noch 2 Std. 40 Min. (9 Gebote)</div>
+            </td>
+            <td>
+                <a href="https://www.justiz-auktion.de/kategorien" target="_blank" class="lot-title" onclick="event.stopPropagation()">Hilti TE 60-ATC/AVR Kombihammer im Systemkoffer, funktionsgeprüft</a>
+                <div class="lot-sub">
+                    <strong>Menge: 1x</strong> · Zustand: <span class="cond-tag">Gebraucht mit Gutachten</span> · <span class="gutachten-pill" title="Offizielles Gutachten vorhanden">Gutachten: 850 €</span>
+                </div>
+                <div class="lot-loc">📍 90429 Nürnberg (Bayern) · DHL/Paket-Versand (11.90 €)</div>
+            </td>
+            <td class="num">
+                <div class="cur-bid">415.00 €</div>
+                <div class="sub-num">Aktuell: 410.00 €</div>
+                <div class="sub-num">Inkl. Aufgeld: 415.00 €</div>
+            </td>
+            <td class="num">
+                <div class="comp-p50">810.00 €</div>
+                <div class="sub-num">Spanne: 690–935 €</div>
+                <div class="sub-num">Idealo Neu: 1,980 €</div>
+            </td>
+            <td class="num">
+                <div class="tax-tag">§ 25a</div>
+                <div class="sub-num">USt-Zahllast: 63.07 €</div>
+                <div class="sub-num">eBay + Logistik: 108.84 €</div>
+            </td>
+            <td class="num">
+                <div class="sniper-max">463 €</div>
+                <div class="sub-num pos">Puffer: +48 € (+10.4%)</div>
+            </td>
+            <td class="num">
+                <div class="profit-val pos">+202.84 €</div>
+                <div class="roi-val pos">+33.4% Netto-ROI</div>
+                <span class="status-badge badge-hot">SNIPER HOT (>=25% ROI)</span>
+            </td>
+        </tr>
+        
+        <tr class="lot-row" data-portal="justiz-auktion.de" data-status="SNIPER_HOT" data-lot-id="JA-213929" onclick="selectLot('JA-213929')">
+            <td>
+                <div class="lot-id">JA-213929</div>
+                <span class="portal-pill justiz">Justiz-Auktion (0% Aufgeld)</span>
+                <div class="rem-time">⏱ 1 T, 5 Std, 29 Min (12 Gebote)</div>
+            </td>
+            <td>
+                <a href="https://www.justiz-auktion.de/Reifenmontiergeraumlt-213929" target="_blank" class="lot-title" onclick="event.stopPropagation()">Reifenmontiergerät (Kfz-Werkstattpfändung)</a>
+                <div class="lot-sub">
+                    <strong>Menge: 1x</strong> · Zustand: <span class="cond-tag">Gebraucht mit Gutachten</span> · <span class="gutachten-pill" title="Offizielles Gutachten vorhanden">Gutachten: 800 €</span>
+                </div>
+                <div class="lot-loc">📍 52525 Heinsberg (Nordrhein-Westfalen) · Selbstabholung (85 km einfach)</div>
+            </td>
+            <td class="num">
+                <div class="cur-bid">315.00 €</div>
+                <div class="sub-num">Aktuell: 310.00 €</div>
+                <div class="sub-num">Inkl. Aufgeld: 315.00 €</div>
+            </td>
+            <td class="num">
+                <div class="comp-p50">780.00 €</div>
+                <div class="sub-num">Spanne: 640–920 €</div>
+                <div class="sub-num">Idealo Neu: 1,690 €</div>
+            </td>
+            <td class="num">
+                <div class="tax-tag">§ 25a</div>
+                <div class="sub-num">USt-Zahllast: 74.24 €</div>
+                <div class="sub-num">eBay + Logistik: 145.54 €</div>
+            </td>
+            <td class="num">
+                <div class="sniper-max">397 €</div>
+                <div class="sub-num pos">Puffer: +82 € (+20.7%)</div>
+            </td>
+            <td class="num">
+                <div class="profit-val pos">+225.72 €</div>
+                <div class="roi-val pos">+40.7% Netto-ROI</div>
+                <span class="status-badge badge-hot">SNIPER HOT (>=25% ROI)</span>
+            </td>
+        </tr>
+        
+        <tr class="lot-row" data-portal="zoll-auktion.de" data-status="SNIPER_HOT" data-lot-id="ZA-982501" onclick="selectLot('ZA-982501')">
+            <td>
+                <div class="lot-id">ZA-982501</div>
+                <span class="portal-pill zoll">Zoll-Auktion (0% Aufgeld)</span>
+                <div class="rem-time">⏱ 1 Tag 17 Std. 0 Min. (8 Gebote)</div>
+            </td>
+            <td>
+                <a href="https://www.zoll-auktion.de/auktion/produkt/1_Revopoint_INSPIRE_2_3DScanner_f%C3%BCr_3DDrucker_Scannen_im_Freien_in_OVP/982501" target="_blank" class="lot-title" onclick="event.stopPropagation()">1 &quot;Revopoint INSPIRE 2&quot; 3D-Scanner für 3D-Drucker, Scannen im Freien in OVP</a>
+                <div class="lot-sub">
+                    <strong>Menge: 1x</strong> · Zustand: <span class="cond-tag">Neu / OVP</span> · <span class="gutachten-none">Kein Gutachten</span>
+                </div>
+                <div class="lot-loc">📍 33104 Paderborn (Nordrhein-Westfalen) · DHL/Paket-Versand (8.00 €)</div>
+            </td>
+            <td class="num">
+                <div class="cur-bid">540.00 €</div>
+                <div class="sub-num">Aktuell: 520.00 €</div>
+                <div class="sub-num">Inkl. Aufgeld: 540.00 €</div>
+            </td>
+            <td class="num">
+                <div class="comp-p50">991.20 €</div>
+                <div class="sub-num">Spanne: 885–1,075 €</div>
+                <div class="sub-num">Idealo Neu: 1,149 €</div>
+            </td>
+            <td class="num">
+                <div class="tax-tag">§ 25a</div>
+                <div class="sub-num">USt-Zahllast: 72.04 €</div>
+                <div class="sub-num">eBay + Logistik: 98.27 €</div>
+            </td>
+            <td class="num">
+                <div class="sniper-max">632 €</div>
+                <div class="sub-num pos">Puffer: +92 € (+14.6%)</div>
+            </td>
+            <td class="num">
+                <div class="profit-val pos">+275.89 €</div>
+                <div class="roi-val pos">+38.6% Netto-ROI</div>
+                <span class="status-badge badge-hot">SNIPER HOT (>=25% ROI)</span>
+            </td>
+        </tr>
+        
+        <tr class="lot-row" data-portal="insolvenz-industrieauktion" data-status="WATCHLIST" data-lot-id="INS-77419" onclick="selectLot('INS-77419')">
+            <td>
+                <div class="lot-id">INS-77419</div>
+                <span class="portal-pill insolvenz">Insolvenz (+18% Aufgeld)</span>
+                <div class="rem-time">⏱ noch 4 Std. 10 Min. (6 Gebote)</div>
+            </td>
+            <td>
+                <a href="https://www.netbid.com/" target="_blank" class="lot-title" onclick="event.stopPropagation()">2 Festool Tauchsäge TS 55 FEBQ-Plus im Systainer inkl. Führungsschiene (Insolvenz Schreinerei)</a>
+                <div class="lot-sub">
+                    <strong>Menge: 2x</strong> · Zustand: <span class="cond-tag">Gebraucht mit Gutachten</span> · <span class="gutachten-pill" title="Offizielles Gutachten vorhanden">Gutachten: 900 €</span>
+                </div>
+                <div class="lot-loc">📍 90762 Fürth (Bayern) · Selbstabholung (18 km einfach)</div>
+            </td>
+            <td class="num">
+                <div class="cur-bid">430.00 €</div>
+                <div class="sub-num">Aktuell: 420.00 €</div>
+                <div class="sub-num">Inkl. Aufgeld: 603.81 €</div>
+            </td>
+            <td class="num">
+                <div class="comp-p50">970.00 €</div>
+                <div class="sub-num">Spanne: 860–1,050 €</div>
+                <div class="sub-num">Idealo Neu: 1,230 €</div>
+            </td>
+            <td class="num">
+                <div class="tax-tag">19% Regelbesteuerung</div>
+                <div class="sub-num">USt-Zahllast: 30.58 €</div>
+                <div class="sub-num">eBay + Logistik: 150.38 €</div>
+            </td>
+            <td class="num">
+                <div class="sniper-max">402 €</div>
+                <div class="sub-num neg">Puffer: -28 € (-7.0%)</div>
+            </td>
+            <td class="num">
+                <div class="profit-val pos">+160.98 €</div>
+                <div class="roi-val pos">+19.9% Netto-ROI</div>
+                <span class="status-badge badge-watch">WATCHLIST (12-24% ROI)</span>
+            </td>
+        </tr>
+        
+        <tr class="lot-row" data-portal="zoll-auktion.de" data-status="OVERBID_SKIP" data-lot-id="ZA-981019" onclick="selectLot('ZA-981019')">
+            <td>
+                <div class="lot-id">ZA-981019</div>
+                <span class="portal-pill zoll">Zoll-Auktion (0% Aufgeld)</span>
+                <div class="rem-time">⏱ noch 1 Std. 30 Min. (0 Gebote)</div>
+            </td>
+            <td>
+                <a href="https://www.zoll-auktion.de/auktion/produkt/2_Olympus_TG_6_TFT_Monitor_3_0_gebraucht/981019" target="_blank" class="lot-title" onclick="event.stopPropagation()">2 Olympus TG 6 TFT Monitor 3,0&quot; gebraucht</a>
+                <div class="lot-sub">
+                    <strong>Menge: 2x</strong> · Zustand: <span class="cond-tag">Gebraucht mit Gutachten</span> · <span class="gutachten-pill" title="Offizielles Gutachten vorhanden">Gutachten: 850 €</span>
+                </div>
+                <div class="lot-loc">📍 94469 Deggendorf (Bayern) · DHL/Paket-Versand (7.50 €)</div>
+            </td>
+            <td class="num">
+                <div class="cur-bid">700.00 €</div>
+                <div class="sub-num">Aktuell: 700.00 €</div>
+                <div class="sub-num">Inkl. Aufgeld: 700.00 €</div>
+            </td>
+            <td class="num">
+                <div class="comp-p50">870.00 €</div>
+                <div class="sub-num">Spanne: 770–950 €</div>
+                <div class="sub-num">Idealo Neu: 1,098 €</div>
+            </td>
+            <td class="num">
+                <div class="tax-tag">§ 25a</div>
+                <div class="sub-num">USt-Zahllast: 27.14 €</div>
+                <div class="sub-num">eBay + Logistik: 115.73 €</div>
+            </td>
+            <td class="num">
+                <div class="sniper-max">499 €</div>
+                <div class="sub-num neg">Puffer: -201 € (-40.3%)</div>
+            </td>
+            <td class="num">
+                <div class="profit-val pos">+5.38 €</div>
+                <div class="roi-val pos">+0.6% Netto-ROI</div>
+                <span class="status-badge badge-skip">OVERBID / SKIP</span>
+            </td>
+        </tr>
+        
+        <tr class="lot-row" data-portal="zoll-auktion.de" data-status="OVERBID_SKIP" data-lot-id="ZA-983952" onclick="selectLot('ZA-983952')">
+            <td>
+                <div class="lot-id">ZA-983952</div>
+                <span class="portal-pill zoll">Zoll-Auktion (0% Aufgeld)</span>
+                <div class="rem-time">⏱ noch 4 Std. 30 Min. (0 Gebote)</div>
+            </td>
+            <td>
+                <a href="https://www.zoll-auktion.de/auktion/produkt/20_NetApp_111_HDD_Caddy_3_5_Zoll_Rahmen_PN_11100734_C2/983952" target="_blank" class="lot-title" onclick="event.stopPropagation()">20 NetApp 111 – HDD Caddy 3,5 Zoll Rahmen, P/N: 111-00734 + C2</a>
+                <div class="lot-sub">
+                    <strong>Menge: 20x</strong> · Zustand: <span class="cond-tag">Gebraucht mit Gutachten</span> · <span class="gutachten-pill" title="Offizielles Gutachten vorhanden">Gutachten: 280 €</span>
+                </div>
+                <div class="lot-loc">📍 71034 Böblingen (Baden-Württemberg) · DHL/Paket-Versand (9.90 €)</div>
+            </td>
+            <td class="num">
+                <div class="cur-bid">90.00 €</div>
+                <div class="sub-num">Aktuell: 90.00 €</div>
+                <div class="sub-num">Inkl. Aufgeld: 90.00 €</div>
+            </td>
+            <td class="num">
+                <div class="comp-p50">298.00 €</div>
+                <div class="sub-num">Spanne: 230–370 €</div>
+                <div class="sub-num">Idealo Neu: 580 €</div>
+            </td>
+            <td class="num">
+                <div class="tax-tag">§ 25a</div>
+                <div class="sub-num">USt-Zahllast: 33.21 €</div>
+                <div class="sub-num">eBay + Logistik: 199.48 €</div>
+            </td>
+            <td class="num">
+                <div class="sniper-max">0 €</div>
+                <div class="sub-num neg">Puffer: -90 € (-100.0%)</div>
+            </td>
+            <td class="num">
+                <div class="profit-val neg">-36.69 €</div>
+                <div class="roi-val neg">-11.0% Netto-ROI</div>
+                <span class="status-badge badge-skip">OVERBID / SKIP</span>
+            </td>
+        </tr>
+        
+        <tr class="lot-row" data-portal="zoll-auktion.de" data-status="OVERBID_SKIP" data-lot-id="ZA-981417" onclick="selectLot('ZA-981417')">
+            <td>
+                <div class="lot-id">ZA-981417</div>
+                <span class="portal-pill zoll">Zoll-Auktion (0% Aufgeld)</span>
+                <div class="rem-time">⏱ noch 6 Std. 43 Min. (28 Gebote)</div>
+            </td>
+            <td>
+                <a href="https://www.zoll-auktion.de/auktion/produkt/1_Bosch_BSKA8_Stromerzeuger_mit_Defekt/981417" target="_blank" class="lot-title" onclick="event.stopPropagation()">1 Bosch BSKA8 Stromerzeuger mit Defekt</a>
+                <div class="lot-sub">
+                    <strong>Menge: 1x</strong> · Zustand: <span class="cond-tag">Defekt / Bastler</span> · <span class="gutachten-none">Kein Gutachten</span>
+                </div>
+                <div class="lot-loc">📍 78655 Dunningen (Baden-Württemberg) · Selbstabholung (125 km einfach)</div>
+            </td>
+            <td class="num">
+                <div class="cur-bid">337.00 €</div>
+                <div class="sub-num">Aktuell: 332.00 €</div>
+                <div class="sub-num">Inkl. Aufgeld: 337.00 €</div>
+            </td>
+            <td class="num">
+                <div class="comp-p50">648.00 €</div>
+                <div class="sub-num">Spanne: 470–806 €</div>
+                <div class="sub-num">Idealo Neu: 4,850 €</div>
+            </td>
+            <td class="num">
+                <div class="tax-tag">§ 25a</div>
+                <div class="sub-num">USt-Zahllast: 49.66 €</div>
+                <div class="sub-num">eBay + Logistik: 167.92 €</div>
+            </td>
+            <td class="num">
+                <div class="sniper-max">232 €</div>
+                <div class="sub-num neg">Puffer: -105 € (-45.3%)</div>
+            </td>
+            <td class="num">
+                <div class="profit-val pos">+41.58 €</div>
+                <div class="roi-val pos">+6.9% Netto-ROI</div>
+                <span class="status-badge badge-skip">OVERBID / SKIP</span>
+            </td>
+        </tr>
+        
+        <tr class="lot-row" data-portal="zoll-auktion.de" data-status="OVERBID_SKIP" data-lot-id="ZA-983900" onclick="selectLot('ZA-983900')">
+            <td>
+                <div class="lot-id">ZA-983900</div>
+                <span class="portal-pill zoll">Zoll-Auktion (0% Aufgeld)</span>
+                <div class="rem-time">⏱ 6 Tage 4 Std. 31 Min. (31 Gebote)</div>
+            </td>
+            <td>
+                <a href="https://www.zoll-auktion.de/auktion/produkt/1_Herrenarmbanduhr_von_ZENITH_Model_DEFY_Skyline/983900" target="_blank" class="lot-title" onclick="event.stopPropagation()">1 Herrenarmbanduhr von ZENITH, Model DEFY Skyline</a>
+                <div class="lot-sub">
+                    <strong>Menge: 1x</strong> · Zustand: <span class="cond-tag">Gebraucht mit Gutachten</span> · <span class="gutachten-pill" title="Offizielles Gutachten vorhanden">Gutachten: 6,200 €</span>
+                </div>
+                <div class="lot-loc">📍 80335 München (Bayern) · Selbstabholung (160 km einfach)</div>
+            </td>
+            <td class="num">
+                <div class="cur-bid">5,730.00 €</div>
+                <div class="sub-num">Aktuell: 5,630.00 €</div>
+                <div class="sub-num">Inkl. Aufgeld: 5,730.00 €</div>
+            </td>
+            <td class="num">
+                <div class="comp-p50">5,950.00 €</div>
+                <div class="sub-num">Spanne: 5,400–6,450 €</div>
+                <div class="sub-num">Idealo Neu: 8,900 €</div>
+            </td>
+            <td class="num">
+                <div class="tax-tag">§ 25a</div>
+                <div class="sub-num">USt-Zahllast: 35.13 €</div>
+                <div class="sub-num">eBay + Logistik: 440.34 €</div>
+            </td>
+            <td class="num">
+                <div class="sniper-max">3,833 €</div>
+                <div class="sub-num neg">Puffer: -1,897 € (-49.5%)</div>
+            </td>
+            <td class="num">
+                <div class="profit-val neg">-404.22 €</div>
+                <div class="roi-val neg">-6.4% Netto-ROI</div>
+                <span class="status-badge badge-skip">OVERBID / SKIP</span>
+            </td>
+        </tr>
+        
+        <tr class="lot-row" data-portal="justiz-auktion.de" data-status="OVERBID_SKIP" data-lot-id="JA-211062" onclick="selectLot('JA-211062')">
+            <td>
+                <div class="lot-id">JA-211062</div>
+                <span class="portal-pill justiz">Justiz-Auktion (0% Aufgeld)</span>
+                <div class="rem-time">⏱ 1 T, 3 Std, 29 Min (10 Gebote)</div>
+            </td>
+            <td>
+                <a href="https://www.justiz-auktion.de/Gruumlnebergcomma-BGBKommentarcomma-84period-Auflage-2025comma-gebraucht-211062" target="_blank" class="lot-title" onclick="event.stopPropagation()">Grüneberg, BGB-Kommentar, 84. Auflage 2025, gebraucht</a>
+                <div class="lot-sub">
+                    <strong>Menge: 1x</strong> · Zustand: <span class="cond-tag">Gebraucht / Ungeprüft</span> · <span class="gutachten-none">Kein Gutachten</span>
+                </div>
+                <div class="lot-loc">📍 80335 München (Bayern) · DHL/Paket-Versand (6.99 €)</div>
+            </td>
+            <td class="num">
+                <div class="cur-bid">70.00 €</div>
+                <div class="sub-num">Aktuell: 65.00 €</div>
+                <div class="sub-num">Inkl. Aufgeld: 70.00 €</div>
+            </td>
+            <td class="num">
+                <div class="comp-p50">84.48 €</div>
+                <div class="sub-num">Spanne: 74–92 €</div>
+                <div class="sub-num">Idealo Neu: 125 €</div>
+            </td>
+            <td class="num">
+                <div class="tax-tag">§ 25a</div>
+                <div class="sub-num">USt-Zahllast: 2.31 €</div>
+                <div class="sub-num">eBay + Logistik: 24.12 €</div>
+            </td>
+            <td class="num">
+                <div class="sniper-max">21 €</div>
+                <div class="sub-num neg">Puffer: -49 € (-233.3%)</div>
+            </td>
+            <td class="num">
+                <div class="profit-val neg">-23.95 €</div>
+                <div class="roi-val neg">-22.1% Netto-ROI</div>
+                <span class="status-badge badge-skip">OVERBID / SKIP</span>
+            </td>
+        </tr>
+        
+                </tbody>
+            </table>
+        </div>
+
+        <div class="panel" id="simulatorPanel">
+            <h3 style="margin-top:0; font-size:1.05rem;">🧮 Live § 25a UStG &amp; Bietagent-Simulator</h3>
+            <p class="subtitle" id="simLotTitle" style="margin-bottom:12px;">Klicke links auf ein Lot, um dein individuelles Gebot zu simulieren.</p>
+            <div style="margin-bottom:12px;">
+                <label style="font-size:0.82rem; color:var(--muted);">Dein geplantes Gebot (Hammerpreis in €):</label>
+                <input type="number" id="simBidInput" step="5" value="540" oninput="recalcSimulator()" style="width:100%; margin-top:4px; font-size:1rem; font-weight:700;" />
+            </div>
+            <div id="simBreakdown"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+const LOTS = [{"lot_id": "ZA-984315", "portal": "zoll-auktion.de", "title": "8 Luftreiniger Helios AirPal 2200 H", "url": "https://www.zoll-auktion.de/auktion/produkt/8_Luftreiniger_Helios_AirPal_2200_H/984315", "seller_authority": "Stadtverwaltung Pfarrkirchen (Schulbestand)", "location_plz_city": "84347 Pfarrkirchen", "bundesland": "Bayern", "lot_quantity": 8, "normalized_condition": "Gebraucht mit Gutachten", "condition_multiplier": 1.0, "has_official_gutachten": true, "gutachten_schuetzwert_eur": 1600.0, "current_bid_eur": 13.0, "next_min_bid_eur": 13.0, "bid_count": 0, "remaining_time_str": "noch 5 Std. 0 Min.", "remaining_minutes": 300, "canonical_model": "Helios AirPal 2200 H Profi-HEPA-14 Luftreiniger", "unit_idealo_neupreis_eur": 2890.0, "total_idealo_neupreis_eur": 23120.0, "ebay_sold_p25_lot_eur": 1320.0, "ebay_sold_p50_lot_eur": 1760.0, "ebay_sold_p75_lot_eur": 2360.0, "expected_resale_gross_eur": 1760.0, "avg_days_to_sell_ebay": 14, "monthly_sold_volume_de": 19, "buyer_premium_pct": 0.0, "buyer_premium_eur": 0.0, "vat_on_acquisition_eur": 0.0, "total_acquisition_gross_eur": 13.0, "logistics_mode": "Selbstabholung (145 km einfach)", "logistics_cost_eur": 121.8, "refurb_testing_buffer_eur": 44.0, "ebay_selling_fee_eur": 152.4, "outbound_shipping_eur": 59.92, "tax_regime": "§ 25a UStG Differenzbesteuerung", "vat_payable_to_finanzamt_eur": 278.93, "total_all_in_cost_eur": 670.05, "expected_net_profit_eur": 1089.95, "expected_net_roi_pct": 162.67, "discount_vs_ebay_p50_pct": 99.3, "max_safe_sniper_bid_eur": 891.0, "sniper_headroom_eur": 878.0, "sniper_headroom_pct": 98.5, "sniper_status": "SNIPER_HOT", "sniper_score": 99.4}, {"lot_id": "JA-213930", "portal": "justiz-auktion.de", "title": "Säulenbohrmaschine (Werkstattauflösung)", "url": "https://www.justiz-auktion.de/Saumlulenbohrmaschine-213930", "seller_authority": "Oberkgerichtsvollzieher beim Amtsgericht Heinsberg", "location_plz_city": "52525 Heinsberg", "bundesland": "Nordrhein-Westfalen", "lot_quantity": 1, "normalized_condition": "Gebraucht mit Gutachten", "condition_multiplier": 1.0, "has_official_gutachten": true, "gutachten_schuetzwert_eur": 450.0, "current_bid_eur": 55.0, "next_min_bid_eur": 60.0, "bid_count": 2, "remaining_time_str": "1 T, 5 Std, 29 Min", "remaining_minutes": 1769, "canonical_model": "Industrie-Säulenbohrmaschine 400V (Optimum / Flott Klasse)", "unit_idealo_neupreis_eur": 1150.0, "total_idealo_neupreis_eur": 1150.0, "ebay_sold_p25_lot_eur": 340.0, "ebay_sold_p50_lot_eur": 440.0, "ebay_sold_p75_lot_eur": 540.0, "expected_resale_gross_eur": 440.0, "avg_days_to_sell_ebay": 7, "monthly_sold_volume_de": 33, "buyer_premium_pct": 0.0, "buyer_premium_eur": 0.0, "vat_on_acquisition_eur": 0.0, "total_acquisition_gross_eur": 60.0, "logistics_mode": "Selbstabholung (85 km einfach)", "logistics_cost_eur": 71.4, "refurb_testing_buffer_eur": 12.0, "ebay_selling_fee_eur": 37.75, "outbound_shipping_eur": 7.49, "tax_regime": "§ 25a UStG Differenzbesteuerung", "vat_payable_to_finanzamt_eur": 60.67, "total_all_in_cost_eur": 249.31, "expected_net_profit_eur": 190.69, "expected_net_roi_pct": 76.49, "discount_vs_ebay_p50_pct": 86.4, "max_safe_sniper_bid_eur": 182.0, "sniper_headroom_eur": 122.0, "sniper_headroom_pct": 67.0, "sniper_status": "SNIPER_HOT", "sniper_score": 72.6}, {"lot_id": "ZA-984712", "portal": "zoll-auktion.de", "title": "1 Apple MacBook Pro 16\" M3 Max (36 GB / 1 TB SSD) in OVP, Pfandsache", "url": "https://www.zoll-auktion.de/auktion/kategorie/Notebooks/1107", "seller_authority": "Finanzamt Frankfurt am Main - Vollstreckungsstelle", "location_plz_city": "60486 Frankfurt am Main", "bundesland": "Hessen", "lot_quantity": 1, "normalized_condition": "Neu / OVP", "condition_multiplier": 1.12, "has_official_gutachten": true, "gutachten_schuetzwert_eur": 2900.0, "current_bid_eur": 1680.0, "next_min_bid_eur": 1730.0, "bid_count": 14, "remaining_time_str": "noch 3 Std. 15 Min.", "remaining_minutes": 195, "canonical_model": "Apple MacBook Pro 16\" M3 Max (36GB RAM / 1TB SSD, 2024)", "unit_idealo_neupreis_eur": 3649.0, "total_idealo_neupreis_eur": 3649.0, "ebay_sold_p25_lot_eur": 2822.4, "ebay_sold_p50_lot_eur": 3068.8, "ebay_sold_p75_lot_eur": 3304.0, "expected_resale_gross_eur": 3068.8, "avg_days_to_sell_ebay": 3, "monthly_sold_volume_de": 95, "buyer_premium_pct": 0.0, "buyer_premium_eur": 0.0, "vat_on_acquisition_eur": 0.0, "total_acquisition_gross_eur": 1730.0, "logistics_mode": "DHL/Paket-Versand (14.99 €)", "logistics_cost_eur": 14.99, "refurb_testing_buffer_eur": 5.0, "ebay_selling_fee_eur": 217.82, "outbound_shipping_eur": 7.49, "tax_regime": "§ 25a UStG Differenzbesteuerung", "vat_payable_to_finanzamt_eur": 213.76, "total_all_in_cost_eur": 2189.06, "expected_net_profit_eur": 879.74, "expected_net_roi_pct": 40.19, "discount_vs_ebay_p50_pct": 43.6, "max_safe_sniper_bid_eur": 2046.0, "sniper_headroom_eur": 316.0, "sniper_headroom_pct": 15.4, "sniper_status": "SNIPER_HOT", "sniper_score": 69.9}, {"lot_id": "JA-214088", "portal": "justiz-auktion.de", "title": "Hilti TE 60-ATC/AVR Kombihammer im Systemkoffer, funktionsgeprüft", "url": "https://www.justiz-auktion.de/kategorien", "seller_authority": "Gerichtsvollzieher beim Amtsgericht Nürnberg", "location_plz_city": "90429 Nürnberg", "bundesland": "Bayern", "lot_quantity": 1, "normalized_condition": "Gebraucht mit Gutachten", "condition_multiplier": 1.0, "has_official_gutachten": true, "gutachten_schuetzwert_eur": 850.0, "current_bid_eur": 410.0, "next_min_bid_eur": 415.0, "bid_count": 9, "remaining_time_str": "noch 2 Std. 40 Min.", "remaining_minutes": 160, "canonical_model": "Hilti TE 60-ATC/AVR Kombihammer im Koffer inkl. Meißel", "unit_idealo_neupreis_eur": 1980.0, "total_idealo_neupreis_eur": 1980.0, "ebay_sold_p25_lot_eur": 690.0, "ebay_sold_p50_lot_eur": 810.0, "ebay_sold_p75_lot_eur": 935.0, "expected_resale_gross_eur": 810.0, "avg_days_to_sell_ebay": 5, "monthly_sold_volume_de": 52, "buyer_premium_pct": 0.0, "buyer_premium_eur": 0.0, "vat_on_acquisition_eur": 0.0, "total_acquisition_gross_eur": 415.0, "logistics_mode": "DHL/Paket-Versand (11.90 €)", "logistics_cost_eur": 11.9, "refurb_testing_buffer_eur": 20.25, "ebay_selling_fee_eur": 89.45, "outbound_shipping_eur": 7.49, "tax_regime": "§ 25a UStG Differenzbesteuerung", "vat_payable_to_finanzamt_eur": 63.07, "total_all_in_cost_eur": 607.16, "expected_net_profit_eur": 202.84, "expected_net_roi_pct": 33.41, "discount_vs_ebay_p50_pct": 48.8, "max_safe_sniper_bid_eur": 463.0, "sniper_headroom_eur": 48.0, "sniper_headroom_pct": 10.4, "sniper_status": "SNIPER_HOT", "sniper_score": 58.7}, {"lot_id": "JA-213929", "portal": "justiz-auktion.de", "title": "Reifenmontiergerät (Kfz-Werkstattpfändung)", "url": "https://www.justiz-auktion.de/Reifenmontiergeraumlt-213929", "seller_authority": "Oberkgerichtsvollzieher beim Amtsgericht Heinsberg", "location_plz_city": "52525 Heinsberg", "bundesland": "Nordrhein-Westfalen", "lot_quantity": 1, "normalized_condition": "Gebraucht mit Gutachten", "condition_multiplier": 1.0, "has_official_gutachten": true, "gutachten_schuetzwert_eur": 800.0, "current_bid_eur": 310.0, "next_min_bid_eur": 315.0, "bid_count": 12, "remaining_time_str": "1 T, 5 Std, 29 Min", "remaining_minutes": 1769, "canonical_model": "Gewerbliches Reifenmontiergerät 230V/400V inkl. Hilfsmontagearm", "unit_idealo_neupreis_eur": 1690.0, "total_idealo_neupreis_eur": 1690.0, "ebay_sold_p25_lot_eur": 640.0, "ebay_sold_p50_lot_eur": 780.0, "ebay_sold_p75_lot_eur": 920.0, "expected_resale_gross_eur": 780.0, "avg_days_to_sell_ebay": 8, "monthly_sold_volume_de": 29, "buyer_premium_pct": 0.0, "buyer_premium_eur": 0.0, "vat_on_acquisition_eur": 0.0, "total_acquisition_gross_eur": 315.0, "logistics_mode": "Selbstabholung (85 km einfach)", "logistics_cost_eur": 71.4, "refurb_testing_buffer_eur": 19.5, "ebay_selling_fee_eur": 66.65, "outbound_shipping_eur": 7.49, "tax_regime": "§ 25a UStG Differenzbesteuerung", "vat_payable_to_finanzamt_eur": 74.24, "total_all_in_cost_eur": 554.28, "expected_net_profit_eur": 225.72, "expected_net_roi_pct": 40.72, "discount_vs_ebay_p50_pct": 59.6, "max_safe_sniper_bid_eur": 397.0, "sniper_headroom_eur": 82.0, "sniper_headroom_pct": 20.7, "sniper_status": "SNIPER_HOT", "sniper_score": 46.2}, {"lot_id": "ZA-982501", "portal": "zoll-auktion.de", "title": "1 \"Revopoint INSPIRE 2\" 3D-Scanner für 3D-Drucker, Scannen im Freien in OVP", "url": "https://www.zoll-auktion.de/auktion/produkt/1_Revopoint_INSPIRE_2_3DScanner_f%C3%BCr_3DDrucker_Scannen_im_Freien_in_OVP/982501", "seller_authority": "Verwertungsstelle des Hauptzollamts Bielefeld (Charge 93-26-16)", "location_plz_city": "33104 Paderborn", "bundesland": "Nordrhein-Westfalen", "lot_quantity": 1, "normalized_condition": "Neu / OVP", "condition_multiplier": 1.12, "has_official_gutachten": false, "gutachten_schuetzwert_eur": null, "current_bid_eur": 520.0, "next_min_bid_eur": 540.0, "bid_count": 8, "remaining_time_str": "1 Tag 17 Std. 0 Min.", "remaining_minutes": 2460, "canonical_model": "Revopoint INSPIRE 2 3D-Scanner (Standard Edition)", "unit_idealo_neupreis_eur": 1149.0, "total_idealo_neupreis_eur": 1149.0, "ebay_sold_p25_lot_eur": 884.8, "ebay_sold_p50_lot_eur": 991.2, "ebay_sold_p75_lot_eur": 1075.2, "expected_resale_gross_eur": 991.2, "avg_days_to_sell_ebay": 6, "monthly_sold_volume_de": 34, "buyer_premium_pct": 0.0, "buyer_premium_eur": 0.0, "vat_on_acquisition_eur": 0.0, "total_acquisition_gross_eur": 540.0, "logistics_mode": "DHL/Paket-Versand (8.00 €)", "logistics_cost_eur": 8.0, "refurb_testing_buffer_eur": 5.0, "ebay_selling_fee_eur": 82.78, "outbound_shipping_eur": 7.49, "tax_regime": "§ 25a UStG Differenzbesteuerung", "vat_payable_to_finanzamt_eur": 72.04, "total_all_in_cost_eur": 715.31, "expected_net_profit_eur": 275.89, "expected_net_roi_pct": 38.57, "discount_vs_ebay_p50_pct": 45.5, "max_safe_sniper_bid_eur": 632.0, "sniper_headroom_eur": 92.0, "sniper_headroom_pct": 14.6, "sniper_status": "SNIPER_HOT", "sniper_score": 45.4}, {"lot_id": "INS-77419", "portal": "insolvenz-industrieauktion", "title": "2 Festool Tauchsäge TS 55 FEBQ-Plus im Systainer inkl. Führungsschiene (Insolvenz Schreinerei)", "url": "https://www.netbid.com/", "seller_authority": "Insolvenzverwalter via Industrie-Auktionshaus (18% Aufgeld + 19% USt.)", "location_plz_city": "90762 Fürth", "bundesland": "Bayern", "lot_quantity": 2, "normalized_condition": "Gebraucht mit Gutachten", "condition_multiplier": 1.0, "has_official_gutachten": true, "gutachten_schuetzwert_eur": 900.0, "current_bid_eur": 420.0, "next_min_bid_eur": 430.0, "bid_count": 6, "remaining_time_str": "noch 4 Std. 10 Min.", "remaining_minutes": 250, "canonical_model": "Festool Tauchsäge TS 55 FEBQ-Plus-FS im Systainer + Führungsschiene", "unit_idealo_neupreis_eur": 615.0, "total_idealo_neupreis_eur": 1230.0, "ebay_sold_p25_lot_eur": 860.0, "ebay_sold_p50_lot_eur": 970.0, "ebay_sold_p75_lot_eur": 1050.0, "expected_resale_gross_eur": 970.0, "avg_days_to_sell_ebay": 3, "monthly_sold_volume_de": 88, "buyer_premium_pct": 18.0, "buyer_premium_eur": 77.4, "vat_on_acquisition_eur": 96.41, "total_acquisition_gross_eur": 603.81, "logistics_mode": "Selbstabholung (18 km einfach)", "logistics_cost_eur": 28.0, "refurb_testing_buffer_eur": 24.25, "ebay_selling_fee_eur": 107.4, "outbound_shipping_eur": 14.98, "tax_regime": "19% Regelbesteuerung (Vorsteuerabzug)", "vat_payable_to_finanzamt_eur": 30.58, "total_all_in_cost_eur": 809.02, "expected_net_profit_eur": 160.98, "expected_net_roi_pct": 19.9, "discount_vs_ebay_p50_pct": 55.7, "max_safe_sniper_bid_eur": 402.0, "sniper_headroom_eur": -28.0, "sniper_headroom_pct": -7.0, "sniper_status": "WATCHLIST", "sniper_score": 47.0}, {"lot_id": "ZA-981019", "portal": "zoll-auktion.de", "title": "2 Olympus TG 6 TFT Monitor 3,0\" gebraucht", "url": "https://www.zoll-auktion.de/auktion/produkt/2_Olympus_TG_6_TFT_Monitor_3_0_gebraucht/981019", "seller_authority": "Hauptzollamt Landshut / Dienststelle Deggendorf", "location_plz_city": "94469 Deggendorf", "bundesland": "Bayern", "lot_quantity": 2, "normalized_condition": "Gebraucht mit Gutachten", "condition_multiplier": 1.0, "has_official_gutachten": true, "gutachten_schuetzwert_eur": 850.0, "current_bid_eur": 700.0, "next_min_bid_eur": 700.0, "bid_count": 0, "remaining_time_str": "noch 1 Std. 30 Min.", "remaining_minutes": 90, "canonical_model": "Olympus Tough TG-6 Digitalkamera (Unterwasser/Outdoor)", "unit_idealo_neupreis_eur": 549.0, "total_idealo_neupreis_eur": 1098.0, "ebay_sold_p25_lot_eur": 770.0, "ebay_sold_p50_lot_eur": 870.0, "ebay_sold_p75_lot_eur": 950.0, "expected_resale_gross_eur": 870.0, "avg_days_to_sell_ebay": 4, "monthly_sold_volume_de": 68, "buyer_premium_pct": 0.0, "buyer_premium_eur": 0.0, "vat_on_acquisition_eur": 0.0, "total_acquisition_gross_eur": 700.0, "logistics_mode": "DHL/Paket-Versand (7.50 €)", "logistics_cost_eur": 7.5, "refurb_testing_buffer_eur": 21.75, "ebay_selling_fee_eur": 93.25, "outbound_shipping_eur": 14.98, "tax_regime": "§ 25a UStG Differenzbesteuerung", "vat_payable_to_finanzamt_eur": 27.14, "total_all_in_cost_eur": 864.62, "expected_net_profit_eur": 5.38, "expected_net_roi_pct": 0.62, "discount_vs_ebay_p50_pct": 19.5, "max_safe_sniper_bid_eur": 499.0, "sniper_headroom_eur": -201.0, "sniper_headroom_pct": -40.3, "sniper_status": "OVERBID_SKIP", "sniper_score": 37.8}, {"lot_id": "ZA-983952", "portal": "zoll-auktion.de", "title": "20 NetApp 111 – HDD Caddy 3,5 Zoll Rahmen, P/N: 111-00734 + C2", "url": "https://www.zoll-auktion.de/auktion/produkt/20_NetApp_111_HDD_Caddy_3_5_Zoll_Rahmen_PN_11100734_C2/983952", "seller_authority": "Landratsamt Böblingen - IT-Verwertung", "location_plz_city": "71034 Böblingen", "bundesland": "Baden-Württemberg", "lot_quantity": 20, "normalized_condition": "Gebraucht mit Gutachten", "condition_multiplier": 1.0, "has_official_gutachten": true, "gutachten_schuetzwert_eur": 280.0, "current_bid_eur": 90.0, "next_min_bid_eur": 90.0, "bid_count": 0, "remaining_time_str": "noch 4 Std. 30 Min.", "remaining_minutes": 270, "canonical_model": "NetApp 3.5\" SAS/SATA HDD Caddy Tray (P/N 111-00734)", "unit_idealo_neupreis_eur": 29.0, "total_idealo_neupreis_eur": 580.0, "ebay_sold_p25_lot_eur": 230.0, "ebay_sold_p50_lot_eur": 298.0, "ebay_sold_p75_lot_eur": 370.0, "expected_resale_gross_eur": 298.0, "avg_days_to_sell_ebay": 9, "monthly_sold_volume_de": 140, "buyer_premium_pct": 0.0, "buyer_premium_eur": 0.0, "vat_on_acquisition_eur": 0.0, "total_acquisition_gross_eur": 90.0, "logistics_mode": "DHL/Paket-Versand (9.90 €)", "logistics_cost_eur": 9.9, "refurb_testing_buffer_eur": 12.0, "ebay_selling_fee_eur": 39.78, "outbound_shipping_eur": 149.8, "tax_regime": "§ 25a UStG Differenzbesteuerung", "vat_payable_to_finanzamt_eur": 33.21, "total_all_in_cost_eur": 334.69, "expected_net_profit_eur": -36.69, "expected_net_roi_pct": -10.96, "discount_vs_ebay_p50_pct": 69.8, "max_safe_sniper_bid_eur": 0.0, "sniper_headroom_eur": -90.0, "sniper_headroom_pct": -100.0, "sniper_status": "OVERBID_SKIP", "sniper_score": 33.1}, {"lot_id": "ZA-981417", "portal": "zoll-auktion.de", "title": "1 Bosch BSKA8 Stromerzeuger mit Defekt", "url": "https://www.zoll-auktion.de/auktion/produkt/1_Bosch_BSKA8_Stromerzeuger_mit_Defekt/981417", "seller_authority": "Gemeindeverwaltung Dunningen (Feuerwehr)", "location_plz_city": "78655 Dunningen", "bundesland": "Baden-Württemberg", "lot_quantity": 1, "normalized_condition": "Defekt / Bastler", "condition_multiplier": 0.48, "has_official_gutachten": false, "gutachten_schuetzwert_eur": 650.0, "current_bid_eur": 332.0, "next_min_bid_eur": 337.0, "bid_count": 28, "remaining_time_str": "noch 6 Std. 43 Min.", "remaining_minutes": 403, "canonical_model": "Bosch / Eisemann BSKA 8 Feuerwehr-Stromerzeuger 8 kVA DIN 14685", "unit_idealo_neupreis_eur": 4850.0, "total_idealo_neupreis_eur": 4850.0, "ebay_sold_p25_lot_eur": 470.4, "ebay_sold_p50_lot_eur": 648.0, "ebay_sold_p75_lot_eur": 806.4, "expected_resale_gross_eur": 648.0, "avg_days_to_sell_ebay": 11, "monthly_sold_volume_de": 15, "buyer_premium_pct": 0.0, "buyer_premium_eur": 0.0, "vat_on_acquisition_eur": 0.0, "total_acquisition_gross_eur": 337.0, "logistics_mode": "Selbstabholung (125 km einfach)", "logistics_cost_eur": 105.0, "refurb_testing_buffer_eur": 51.84, "ebay_selling_fee_eur": 55.43, "outbound_shipping_eur": 7.49, "tax_regime": "§ 25a UStG Differenzbesteuerung", "vat_payable_to_finanzamt_eur": 49.66, "total_all_in_cost_eur": 606.42, "expected_net_profit_eur": 41.58, "expected_net_roi_pct": 6.86, "discount_vs_ebay_p50_pct": 48.0, "max_safe_sniper_bid_eur": 232.0, "sniper_headroom_eur": -105.0, "sniper_headroom_pct": -45.3, "sniper_status": "OVERBID_SKIP", "sniper_score": 25.4}, {"lot_id": "ZA-983900", "portal": "zoll-auktion.de", "title": "1 Herrenarmbanduhr von ZENITH, Model DEFY Skyline", "url": "https://www.zoll-auktion.de/auktion/produkt/1_Herrenarmbanduhr_von_ZENITH_Model_DEFY_Skyline/983900", "seller_authority": "Hauptzollamt München - Verwertungsstelle", "location_plz_city": "80335 München", "bundesland": "Bayern", "lot_quantity": 1, "normalized_condition": "Gebraucht mit Gutachten", "condition_multiplier": 1.0, "has_official_gutachten": true, "gutachten_schuetzwert_eur": 6200.0, "current_bid_eur": 5630.0, "next_min_bid_eur": 5730.0, "bid_count": 31, "remaining_time_str": "6 Tage 4 Std. 31 Min.", "remaining_minutes": 8911, "canonical_model": "Zenith DEFY Skyline 41mm Automatik Edelstahl (Ref. 03.9300.3620)", "unit_idealo_neupreis_eur": 8900.0, "total_idealo_neupreis_eur": 8900.0, "ebay_sold_p25_lot_eur": 5400.0, "ebay_sold_p50_lot_eur": 5950.0, "ebay_sold_p75_lot_eur": 6450.0, "expected_resale_gross_eur": 5950.0, "avg_days_to_sell_ebay": 16, "monthly_sold_volume_de": 11, "buyer_premium_pct": 0.0, "buyer_premium_eur": 0.0, "vat_on_acquisition_eur": 0.0, "total_acquisition_gross_eur": 5730.0, "logistics_mode": "Selbstabholung (160 km einfach)", "logistics_cost_eur": 134.4, "refurb_testing_buffer_eur": 148.75, "ebay_selling_fee_eur": 298.45, "outbound_shipping_eur": 7.49, "tax_regime": "§ 25a UStG Differenzbesteuerung", "vat_payable_to_finanzamt_eur": 35.13, "total_all_in_cost_eur": 6354.22, "expected_net_profit_eur": -404.22, "expected_net_roi_pct": -6.36, "discount_vs_ebay_p50_pct": 3.7, "max_safe_sniper_bid_eur": 3833.0, "sniper_headroom_eur": -1897.0, "sniper_headroom_pct": -49.5, "sniper_status": "OVERBID_SKIP", "sniper_score": 9.3}, {"lot_id": "JA-211062", "portal": "justiz-auktion.de", "title": "Grüneberg, BGB-Kommentar, 84. Auflage 2025, gebraucht", "url": "https://www.justiz-auktion.de/Gruumlnebergcomma-BGBKommentarcomma-84period-Auflage-2025comma-gebraucht-211062", "seller_authority": "Amtsgericht München - Verwertungsstelle", "location_plz_city": "80335 München", "bundesland": "Bayern", "lot_quantity": 1, "normalized_condition": "Gebraucht / Ungeprüft", "condition_multiplier": 0.88, "has_official_gutachten": false, "gutachten_schuetzwert_eur": 95.0, "current_bid_eur": 65.0, "next_min_bid_eur": 70.0, "bid_count": 10, "remaining_time_str": "1 T, 3 Std, 29 Min", "remaining_minutes": 1649, "canonical_model": "Grüneberg BGB-Kommentar 84. Auflage 2025 (Beck Verlag)", "unit_idealo_neupreis_eur": 125.0, "total_idealo_neupreis_eur": 125.0, "ebay_sold_p25_lot_eur": 73.92, "ebay_sold_p50_lot_eur": 84.48, "ebay_sold_p75_lot_eur": 92.4, "expected_resale_gross_eur": 84.48, "avg_days_to_sell_ebay": 4, "monthly_sold_volume_de": 46, "buyer_premium_pct": 0.0, "buyer_premium_eur": 0.0, "vat_on_acquisition_eur": 0.0, "total_acquisition_gross_eur": 70.0, "logistics_mode": "DHL/Paket-Versand (6.99 €)", "logistics_cost_eur": 6.99, "refurb_testing_buffer_eur": 12.0, "ebay_selling_fee_eur": 9.64, "outbound_shipping_eur": 7.49, "tax_regime": "§ 25a UStG Differenzbesteuerung", "vat_payable_to_finanzamt_eur": 2.31, "total_all_in_cost_eur": 108.43, "expected_net_profit_eur": -23.95, "expected_net_roi_pct": -22.09, "discount_vs_ebay_p50_pct": 17.1, "max_safe_sniper_bid_eur": 21.0, "sniper_headroom_eur": -49.0, "sniper_headroom_pct": -233.3, "sniper_status": "OVERBID_SKIP", "sniper_score": 5.0}];
+let currentLot = LOTS[0];
+
+function applyFilters() {
+    const p = document.getElementById('filterPortal').value;
+    const s = document.getElementById('filterStatus').value;
+    const q = document.getElementById('searchQuery').value.toLowerCase();
+    document.querySelectorAll('#lotsTableBody tr.lot-row').forEach(row => {
+        const matchPortal = (p === 'ALL' || row.dataset.portal === p);
+        const matchStatus = (s === 'ALL' || row.dataset.status === s);
+        const matchText = (!q || row.innerText.toLowerCase().includes(q));
+        row.style.display = (matchPortal && matchStatus && matchText) ? '' : 'none';
+    });
+}
+
+function selectLot(lotId) {
+    const found = LOTS.find(x => x.lot_id === lotId);
+    if (!found) return;
+    currentLot = found;
+    document.querySelectorAll('#lotsTableBody tr.lot-row').forEach(r => {
+        r.classList.toggle('active', r.dataset.lotId === lotId);
+    });
+    document.getElementById('simBidInput').value = found.next_min_bid_eur;
+    recalcSimulator();
+}
+
+function recalcSimulator() {
+    if (!currentLot) return;
+    const bid = parseFloat(document.getElementById('simBidInput').value || '0');
+    const isCommercialInsolvency = currentLot.portal === 'insolvenz-industrieauktion';
+    const aufgeld = isCommercialInsolvency ? bid * 0.18 : 0.0;
+    const acqVat = isCommercialInsolvency ? (bid + aufgeld) * 0.19 : 0.0;
+    const acqGross = bid + aufgeld + acqVat;
+    const resale = currentLot.expected_resale_gross_eur;
+
+    let vatPayable = 0.0;
+    if (!isCommercialInsolvency && currentLot.tax_regime.includes('25a')) {
+        vatPayable = Math.max(0.0, resale - acqGross) * (19.0 / 119.0);
+    } else {
+        const outVat = resale * (19.0 / 119.0);
+        const serviceVat = (currentLot.logistics_cost_eur + currentLot.ebay_selling_fee_eur + currentLot.outbound_shipping_eur + currentLot.refurb_testing_buffer_eur) * (19.0 / 119.0);
+        vatPayable = Math.max(0.0, outVat - acqVat - serviceVat);
+    }
+
+    const allIn = acqGross + currentLot.logistics_cost_eur + currentLot.refurb_testing_buffer_eur + currentLot.ebay_selling_fee_eur + currentLot.outbound_shipping_eur + vatPayable;
+    const profit = resale - allIn;
+    const roi = allIn > 0 ? (profit / allIn) * 100.0 : 0.0;
+
+    document.getElementById('simLotTitle').innerHTML = `<strong>${currentLot.lot_id}:</strong> ${currentLot.title}`;
+    document.getElementById('simBreakdown').innerHTML = `
+        <div class="calc-row"><span>eBay.de SoldComps P50 (${currentLot.lot_quantity}x · ${currentLot.normalized_condition})</span><strong>${resale.toFixed(2)} €</strong></div>
+        <div class="calc-row"><span>Hammer-Gebot (${currentLot.portal})</span><span>${bid.toFixed(2)} €</span></div>
+        <div class="calc-row"><span>Käufer-Aufgeld (${currentLot.buyer_premium_pct.toFixed(0)}%) + Erwerbs-USt</span><span>${(aufgeld + acqVat).toFixed(2)} €</span></div>
+        <div class="calc-row"><span>Logistik (${currentLot.logistics_mode})</span><span>${currentLot.logistics_cost_eur.toFixed(2)} €</span></div>
+        <div class="calc-row"><span>Prüf-/Aufbereitungs-Puffer</span><span>${currentLot.refurb_testing_buffer_eur.toFixed(2)} €</span></div>
+        <div class="calc-row"><span>eBay.de Verkaufsprovision + DHL-Versand</span><span>${(currentLot.ebay_selling_fee_eur + currentLot.outbound_shipping_eur).toFixed(2)} €</span></div>
+        <div class="calc-row"><span>Finanzamt USt (${currentLot.tax_regime})</span><span>${vatPayable.toFixed(2)} €</span></div>
+        <div class="calc-row total"><span>Gesamtkosten (All-In)</span><span>${allIn.toFixed(2)} €</span></div>
+        <div class="calc-row total"><span>Erwarteter Netto-Gewinn</span><span class="${profit >= 0 ? 'pos' : 'neg'}">${profit >= 0 ? '+' : ''}${profit.toFixed(2)} € (${roi.toFixed(1)}% ROI)</span></div>
+        <div class="calc-row" style="border:none; padding-top:10px; color:var(--accent);">
+            <span>🎯 Max Safe Sniper Bid (&ge; 25% Netto-ROI):</span>
+            <strong>${currentLot.max_safe_sniper_bid_eur.toFixed(0)} €</strong>
+        </div>
+    `;
+}
+
+selectLot(LOTS[0].lot_id);
+</script>
+</body>
+</html>

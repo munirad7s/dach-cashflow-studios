@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PendlerPrüfer DACH — Hands-Free CarPlay & Audio-Prüfungstrainer (§ 34a GewO | BKF | AEVO)</title>
+  <style>
+    :root {
+      --bg: #080d14;
+      --panel: #101926;
+      --panel-elevated: #162336;
+      --border: #243650;
+      --text: #f3f7fc;
+      --muted: #93a8c4;
+      --amber: #f59e0b;
+      --emerald: #10b981;
+      --cyan: #06b6d4;
+      --rose: #f43f5e;
+      --indigo: #6366f1;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, sans-serif;
+      background: radial-gradient(circle at top right, #132338 0%, var(--bg) 65%);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 20px;
+      line-height: 1.5;
+    }
+    .container {
+      max-width: 1320px;
+      margin: 0 auto;
+    }
+    header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      padding: 20px 24px;
+      background: rgba(16, 25, 38, 0.92);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      margin-bottom: 20px;
+      box-shadow: 0 14px 34px rgba(0, 0, 0, 0.45);
+    }
+    .brand-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--amber);
+      background: rgba(245, 158, 11, 0.14);
+      border: 1px solid rgba(245, 158, 11, 0.35);
+      padding: 4px 10px;
+      border-radius: 999px;
+      margin-bottom: 6px;
+    }
+    h1 {
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+    .subtitle {
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .track-tabs {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .track-tab {
+      cursor: pointer;
+      background: var(--panel-elevated);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 12px 18px;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 14px;
+      transition: all 0.18s ease;
+    }
+    .track-tab.active {
+      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+      color: #080d14;
+      border-color: #fbbf24;
+      box-shadow: 0 6px 20px rgba(245, 158, 11, 0.35);
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1.35fr 0.95fr;
+      gap: 20px;
+    }
+    @media (max-width: 980px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+    .card {
+      background: rgba(16, 25, 38, 0.94);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 24px;
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
+    }
+    .carplay-hud {
+      background: linear-gradient(160deg, #0d1724 0%, #15253b 100%);
+      border: 2px solid #2d4669;
+      border-radius: 18px;
+      padding: 22px;
+      margin-bottom: 18px;
+      position: relative;
+    }
+    .hud-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+      gap: 12px;
+    }
+    .hud-pill {
+      font-size: 12px;
+      font-weight: 700;
+      padding: 5px 12px;
+      border-radius: 999px;
+      background: rgba(6, 182, 212, 0.16);
+      color: #22d3ee;
+      border: 1px solid rgba(6, 182, 212, 0.35);
+    }
+    .phase-stepper {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-bottom: 18px;
+    }
+    .phase-step {
+      padding: 10px 12px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border);
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .phase-step.active {
+      background: rgba(16, 185, 129, 0.16);
+      border-color: var(--emerald);
+      color: #ecfdf5;
+      font-weight: 700;
+    }
+    .drill-title {
+      font-size: 20px;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+    .statute-badge {
+      display: inline-block;
+      font-size: 13px;
+      font-weight: 700;
+      color: #fbbf24;
+      background: rgba(245, 158, 11, 0.15);
+      border: 1px solid rgba(245, 158, 11, 0.35);
+      padding: 4px 10px;
+      border-radius: 8px;
+      margin-bottom: 14px;
+    }
+    .phase-box {
+      background: rgba(8, 13, 20, 0.72);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px;
+      margin-bottom: 14px;
+    }
+    .phase-box h3 {
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--cyan);
+      margin-bottom: 8px;
+    }
+    .phase-box p {
+      font-size: 16px;
+      line-height: 1.55;
+    }
+    .countdown-bar-wrap {
+      height: 10px;
+      background: #1e293b;
+      border-radius: 999px;
+      overflow: hidden;
+      margin-top: 10px;
+    }
+    .countdown-bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--amber), var(--emerald));
+      transition: width 0.1s linear;
+    }
+    .carplay-controls {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: 16px;
+    }
+    .btn-giant {
+      cursor: pointer;
+      border: none;
+      border-radius: 14px;
+      padding: 16px 14px;
+      font-size: 15px;
+      font-weight: 800;
+      color: #080d14;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      transition: transform 0.12s ease;
+    }
+    .btn-giant:active { transform: scale(0.97); }
+    .btn-perfect { background: linear-gradient(135deg, #34d399, #10b981); }
+    .btn-unsure { background: linear-gradient(135deg, #fbbf24, #f59e0b); }
+    .btn-repeat { background: linear-gradient(135deg, #fb7185, #e11d48); color: #fff; }
+    .audio-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .btn-action {
+      cursor: pointer;
+      background: var(--panel-elevated);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 11px 16px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 14px;
+    }
+    .btn-action.primary {
+      background: var(--cyan);
+      color: #06121c;
+      border-color: #22d3ee;
+    }
+    .guarantee-box {
+      background: linear-gradient(145deg, rgba(16, 185, 129, 0.14), rgba(6, 182, 212, 0.08));
+      border: 1px solid rgba(16, 185, 129, 0.45);
+      border-radius: 16px;
+      padding: 18px;
+      margin-bottom: 18px;
+    }
+    .index-number {
+      font-size: 36px;
+      font-weight: 900;
+      color: #34d399;
+    }
+    .domain-row {
+      margin-bottom: 12px;
+    }
+    .domain-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      margin-bottom: 4px;
+    }
+    .progress-track {
+      height: 8px;
+      background: #1e293b;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #06b6d4, #10b981);
+    }
+    pre.ssml-view {
+      background: #060a0f;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      font-size: 12px;
+      color: #93c5fd;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      margin-top: 12px;
+    }
+    .sm2-meta {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+      font-size: 13px;
+      color: var(--muted);
+      padding-top: 10px;
+      border-top: 1px solid var(--border);
+    }
+  </style>
+</head>
+<body>
+
+<!-- DACH CASHFLOW STUDIOS LAUNCH BAR -->
+<style>
+  #dcs-launch-bar {
+    position: sticky;
+    top: 0;
+    z-index: 99999;
+    background: linear-gradient(90deg, #0b1120 0%, #111827 50%, #0f172a 100%);
+    color: #f8fafc;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.35);
+    padding: 8px 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  }
+  #dcs-launch-bar .dcs-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+  }
+  #dcs-launch-bar .dcs-badge {
+    background: rgba(16, 185, 129, 0.18);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.03em;
+  }
+  #dcs-launch-bar a.dcs-nav {
+    color: #93c5fd;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 12.5px;
+  }
+  #dcs-launch-bar a.dcs-nav:hover {
+    text-decoration: underline;
+    color: #dbeafe;
+  }
+  #dcs-launch-bar .dcs-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  #dcs-launch-bar .dcs-btn {
+    padding: 5px 11px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s ease;
+  }
+  #dcs-launch-bar .dcs-btn-ghost {
+    background: rgba(255,255,255,0.08);
+    color: #e2e8f0;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  #dcs-launch-bar .dcs-btn-primary {
+    background: linear-gradient(135deg, #0ea5e9, #2563eb);
+    color: #ffffff;
+  }
+  #dcs-launch-bar .dcs-btn-emerald {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
+  }
+  @media print {
+    #dcs-launch-bar { display: none !important; }
+  }
+</style>
+<div id="dcs-launch-bar">
+  <div class="dcs-left">
+    <a href="/index.html" class="dcs-nav">← Alle 150 DACH Studios</a>
+    <span class="dcs-badge">MVP #047 VERIFIED</span>
+    <span style="color:#cbd5e1;font-size:12px;">B2B SaaS, Lead-Intent Sniper & AI/MCP Infrastructure</span>
+  </div>
+  <div class="dcs-actions">
+    <button onclick="window.print()" class="dcs-btn dcs-btn-ghost">🖨️ PDF / Dossier drucken</button>
+    <a href="#checkout-modal-49" target="_blank" rel="noopener" class="dcs-btn dcs-btn-primary">⚡ Musterschreiben & Voll-Dossier (€49)</a>
+    <a href="#checkout-modal-299" target="_blank" rel="noopener" class="dcs-btn dcs-btn-emerald">🛡️ B2B Umsetzung buchen (€299 / €1.490)</a>
+  </div>
+</div>
+
+  <div class="container">
+    <header>
+      <div>
+        <div class="brand-badge">MVP #47 · DACH Commuter Audio Exam Engine · Tree Nerd Academy Blueprint</div>
+        <h1>PendlerPrüfer DACH — Hands-Free CarPlay &amp; Audio-Prüfungstrainer</h1>
+        <div class="subtitle">4-Phasen Active-Recall Audio-Drills am Steuer · SM-2 Spaced Repetition · Erstversuch-Bestehensgarantie (&ge; 85% Index)</div>
+      </div>
+      <div class="track-tabs" id="trackTabs"></div>
+    </header>
+
+    <div class="grid">
+      <!-- LEFT COLUMN: HANDS-FREE CARPLAY / COMMUTER AUDIO PLAYER -->
+      <div class="card">
+        <div class="carplay-hud">
+          <div class="hud-top">
+            <span class="hud-pill" id="hudTrackBadge">CARPLAY HANDS-FREE MODUS</span>
+            <span style="font-size:13px;color:var(--muted);" id="cardCounterLabel">Karte 1 / 5</span>
+          </div>
+
+          <div class="phase-stepper" id="phaseStepper">
+            <div class="phase-step active" data-step="1">1. Praxis-Fall</div>
+            <div class="phase-step" data-step="2">2. 4,5s Sprechpause</div>
+            <div class="phase-step" data-step="3">3. § Lösung &amp; Eselsbrücke</div>
+            <div class="phase-step" data-step="4">4. SM-2 Sprachbefehl</div>
+          </div>
+
+          <div class="drill-title" id="drillTitle">Lade Audio-Drill...</div>
+          <div class="statute-badge" id="statuteBadge">§</div>
+
+          <div class="audio-toolbar">
+            <button class="btn-action primary" id="btnPlayCycle">▶ 4-Phasen Audio-Drill abspielen (TTS)</button>
+            <button class="btn-action" id="btnStopAudio">⏹ Stopp</button>
+            <button class="btn-action" id="btnPrevCard">◀ Vorherige Karte</button>
+            <button class="btn-action" id="btnNextCard">Nächste Karte ▶</button>
+          </div>
+
+          <div class="phase-box">
+            <h3>Phase 1 · Praxis-Fallbeispiel am Steuer</h3>
+            <p id="phase1Text"></p>
+          </div>
+
+          <div class="phase-box">
+            <h3 id="phase2Header">Phase 2 · 4,5s Active-Recall Sprechpause (Laut im Auto antworten)</h3>
+            <p id="phase2Status">Bereit für Abruf-Pause (4,5 Sekunden Countdown)...</p>
+            <div class="countdown-bar-wrap">
+              <div class="countdown-bar" id="countdownBar"></div>
+            </div>
+          </div>
+
+          <div class="phase-box" id="solutionBox">
+            <h3>Phase 3 · Musterlösung mit Gesetzesparagraphen, Eselsbrücke &amp; IHK-Falle</h3>
+            <p id="phase3Solution" style="margin-bottom:8px;"></p>
+            <p id="phase3Mnemonic" style="color:#34d399;font-weight:700;margin-bottom:6px;"></p>
+            <p id="phase3Trap" style="color:#fda4af;font-size:14px;"></p>
+          </div>
+
+          <div>
+            <h3 style="font-size:13px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">
+              Phase 4 · Hands-Free SM-2 Bewertung (Lenkrad-Tap oder Sprachbefehl)
+            </h3>
+            <div class="carplay-controls">
+              <button class="btn-giant btn-perfect" onclick="applySm2Rating(5)">
+                <span>🎙️ „Sitzt perfekt“</span>
+                <small>SM-2 q=5 · Intervall +</small>
+              </button>
+              <button class="btn-giant btn-unsure" onclick="applySm2Rating(3)">
+                <span>🎙️ „Unsicher“</span>
+                <small>SM-2 q=3 · Kurzintervall</small>
+              </button>
+              <button class="btn-giant btn-repeat" onclick="applySm2Rating(1)">
+                <span>🎙️ „Nochmal“</span>
+                <small>SM-2 q=1 · Reset auf 1 Tag</small>
+              </button>
+            </div>
+          </div>
+
+          <div class="sm2-meta" style="margin-top:14px;">
+            <span id="sm2StateLabel">SM-2 Status: EF 2.50 · Intervall 6 Tage · Wiederholungen: 2</span>
+            <span id="nextReviewLabel">Nächste Wiederholung: —</span>
+          </div>
+        </div>
+
+        <details>
+          <summary style="cursor:pointer;font-weight:700;color:var(--cyan);">
+            SSML 1.1 Neural Audio-Skript anzeigen (&lt;break time="4500ms"/&gt;)
+          </summary>
+          <pre class="ssml-view" id="ssmlPreview"></pre>
+        </details>
+      </div>
+
+      <!-- RIGHT COLUMN: BESTEHENSGARANTIE-INDEX & B2B CREW DASHBOARD -->
+      <div class="card">
+        <div class="guarantee-box">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div>
+              <div style="font-size:12px;font-weight:800;text-transform:uppercase;color:#a7f3d0;">
+                Erstversuch-Bestehensgarantie (Pass Guarantee)
+              </div>
+              <div class="index-number" id="guaranteeIndexValue">89.8%</div>
+            </div>
+            <div id="guaranteeBadge" style="padding:8px 14px;border-radius:12px;font-weight:800;font-size:13px;background:#065f46;color:#ecfdf5;">
+              GARANTIE AKTIV (&ge; 85%)
+            </div>
+          </div>
+          <p style="font-size:13px;color:var(--muted);margin-top:8px;" id="guaranteeConditionsText">
+            Bedingungen analog Tree Nerd Academy: &ge; 90% Audio-Lektionen gehört + &ge; 3 IHK-Generalproben &ge; 80% + Bestehensgarantie-Index &ge; 85%. Bei Nichtbestehen im Erstversuch: 100% Rückerstattung.
+          </p>
+        </div>
+
+        <h3 style="font-size:15px;font-weight:800;margin-bottom:12px;">
+          Gewichtete IHK-Prüfungsgebiete (Domain Readiness)
+        </h3>
+        <div id="domainBreakdownContainer"></div>
+
+        <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border);">
+          <h3 style="font-size:15px;font-weight:800;margin-bottom:8px;">
+            Anti-Abo Lifetime-Pricing &amp; B2B Flotten-/Betriebs-Lizenzen
+          </h3>
+          <p style="font-size:13px;color:var(--muted);margin-bottom:12px;" id="trackMetaInfo"></p>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+            <div style="background:var(--panel-elevated);padding:14px;border-radius:12px;border:1px solid var(--border);">
+              <div style="font-size:12px;color:var(--amber);font-weight:700;">B2C SELBSTZAHLER (LIFETIME)</div>
+              <div style="font-size:24px;font-weight:900;margin:4px 0;" id="priceB2C">149 €</div>
+              <div style="font-size:12px;color:var(--muted);">Einmalzahlung · Kein Abo · Inkl. Bestehensgarantie &amp; Offline-Auto-Modus</div>
+            </div>
+            <div style="background:var(--panel-elevated);padding:14px;border-radius:12px;border:1px solid var(--border);">
+              <div style="font-size:12px;color:var(--cyan);font-weight:700;">B2B FUHRPARK / SICHERHEITSDIENST</div>
+              <div style="font-size:24px;font-weight:900;margin:4px 0;" id="priceB2B">99 € / Sitz</div>
+              <div style="font-size:12px;color:var(--muted);">Ab 5 Mitarbeitern · Inkl. Disponenten-/Ausbilder-Readiness-Dashboard</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const MANIFEST = {"mvp_id": "MVP_47_DACH_PENDLER_AUDIO_EXAM_TRAINER", "inspired_by": {"founder": "Herman Palmgren (@hpalmtreebranch) & Chris Comer (ISA Board Certified Master Arborist)", "studio_entity": "Nordic Social Media AB (herman@nordicsocialmedia.com)", "benchmark_metrics": "$19,220 MRR | 1,786 active subscribers | $263,031 all-time revenue", "reference_products": ["Tree Nerd Academy (https://treenerdacademy.com/) — $60 Starter / $199 Self-Study / $229 Inner Circle + B2B Crew Dashboard", "Certified Arborist Exam Theory (iOS id6748621292) — 55 offline commuter audio/text lessons, 600+ glossary terms, Arb AI Tutor", "Steady: Fear of Flying (iOS id6764277758) — Offline-first pocket co-pilot + 4-4-4-4 voice breathing", "Pouch Quit: Quit Nicotine (iOS id6753627197) — Driving/work craving trigger analytics"]}, "generated_at": "2026-10-17T17:10:00+02:00", "voice_command_mapping": {"sitzt perfekt": 5, "perfekt": 5, "weiter": 5, "fast richtig": 4, "gut": 4, "unsicher": 3, "knapp": 3, "nochmal": 1, "wiederholen": 1, "falsch": 1}, "tracks": {"ihk_34a_gewo": {"track_id": "ihk_34a_gewo", "short_code": "§ 34a GewO", "title": "IHK-Sachkundeprüfung § 34a GewO (Bewachungsgewerbe)", "subtitle": "Pendler-Audio-Drill für Sicherheitskräfte, Türsteher, City-Streife & Kaufhausdetektive", "target_audience": "Sicherheitsmitarbeiter, Objektschützer, Quereinsteiger & Sicherheitsunternehmen", "annual_candidates_dach_est": "35.000+ Prüflinge/Jahr (DE)", "ihk_exam_format": "82 schriftliche MC-Fragen (120 Min, >=50%) + 15 Min mündliche Prüfung vor IHK-Ausschuss", "ihk_pass_threshold_pct": 50.0, "pass_guarantee_threshold_pct": 85.0, "pricing_b2c_lifetime_eur": 149, "pricing_b2b_seat_eur": 99, "domains": [{"domain_id": "straf_stpo", "name": "Straf- und Strafverfahrensrecht (StGB / StPO)", "weight_pct": 20.0}, {"domain_id": "bgb", "name": "Bürgerliches Gesetzbuch (BGB)", "weight_pct": 15.0}, {"domain_id": "gewerberecht", "name": "Öffentliche Sicherheit & Gewerberecht (§ 34a GewO / BewachV)", "weight_pct": 20.0}, {"domain_id": "uvv_psychologie", "name": "Unfallverhütung (DGUV V23), Waffenrecht & Umgang mit Menschen", "weight_pct": 45.0}], "readiness_report": {"track_id": "ihk_34a_gewo", "track_title": "IHK-Sachkundeprüfung § 34a GewO (Bewachungsgewerbe)", "weighted_domain_score_pct": 90.05, "audio_lesson_completion_pct": 94.5, "sm2_retention_stability_pct": 100.0, "mock_exams_passed_count": 3, "bestehensgarantie_index_pct": 93.43, "pass_guarantee_unlocked": true, "ihk_pass_threshold_pct": 50.0, "guarantee_threshold_pct": 85.0, "domain_breakdown": [{"domain_id": "straf_stpo", "domain_name": "Straf- und Strafverfahrensrecht (StGB / StPO)", "exam_weight_pct": 20.0, "accuracy_pct": 91.0, "status": "PRÜFUNGSREIF"}, {"domain_id": "bgb", "domain_name": "Bürgerliches Gesetzbuch (BGB)", "exam_weight_pct": 15.0, "accuracy_pct": 88.0, "status": "PRÜFUNGSREIF"}, {"domain_id": "gewerberecht", "domain_name": "Öffentliche Sicherheit & Gewerberecht (§ 34a GewO / BewachV)", "exam_weight_pct": 20.0, "accuracy_pct": 93.0, "status": "PRÜFUNGSREIF"}, {"domain_id": "uvv_psychologie", "domain_name": "Unfallverhütung (DGUV V23), Waffenrecht & Umgang mit Menschen", "exam_weight_pct": 45.0, "accuracy_pct": 89.0, "status": "PRÜFUNGSREIF"}], "missing_requirements": []}, "drills": [{"card_id": "34A-STPO-127", "track_id": "ihk_34a_gewo", "domain_id": "straf_stpo", "domain_name": "Straf- und Strafverfahrensrecht (StGB / StPO)", "domain_exam_weight_pct": 20.0, "title": "Vorläufige Festnahme durch Jedermann bei Ladendiebstahl", "statute_reference": "§ 127 Abs. 1 Satz 1 StPO (Jedermannsrecht)", "exam_trap_warning": "§ 127 Abs. 1 StPO erlaubt KEINE Festnahme bei bloßer Ordnungswidrigkeit (z.B. Falschparken) und KEINE Durchsuchung zur Beweissicherung — nur zur Eigensicherung auf Waffen!", "phase_1_scenario": "Du arbeitest als Kaufhausdetektiv. Du beobachtest live, wie ein Kunde ein Parfüm im Wert von 120 Euro in seine Jacke steckt und die Kasse ohne Bezahlung passiert. Er will weglaufen und verweigert seinen Ausweis. Auf welcher exakten Rechtsgrundlage darfst du ihn festhalten?", "active_recall_pause_seconds": 4.5, "phase_3_solution": "Vorläufige Festnahme nach Paragraph 127 Absatz 1 Satz 1 StPO (Jedermannsrecht). Voraussetzungen: Erstens eine Straftat (hier Diebstahl nach Paragraph 242 StGB), zweitens auf frischer Tat betroffen oder verfolgt, drittens Fluchtverdacht oder Identität nicht sofort feststellbar, viertens Verhältnismäßigkeit.", "phase_3_mnemonic": "Merksatz 127-F-F-I: Frische Straftat, Fluchtverdacht oder Identität unklar — festhalten bis Polizei eintrifft!", "key_terms": ["§ 127 Abs. 1 StPO", "Frische Tat", "Fluchtverdacht", "Identitätsfeststellung", "Straftat"], "sm2_state": {"card_id": "34A-STPO-127", "repetitions": 2, "easiness_factor": 2.7, "interval_days": 6, "last_quality": 5, "next_review_iso": "2026-10-23"}, "four_phase_cycle": [{"phase_number": 1, "phase_code": "PHASE_1_SCENARIO", "phase_title": "Phase 1: Praxis-Fallbeispiel am Steuer", "duration_seconds": 14.0, "spoken_text": "Du arbeitest als Kaufhausdetektiv. Du beobachtest live, wie ein Kunde ein Parfüm im Wert von 120 Euro in seine Jacke steckt und die Kasse ohne Bezahlung passiert. Er will weglaufen und verweigert seinen Ausweis. Auf welcher exakten Rechtsgrundlage darfst du ihn festhalten?", "ssml_fragment": "<p><emphasis level=\"moderate\">Fallbeispiel (Straf- und Strafverfahrensrecht (StGB / StPO)):</emphasis> <prosody rate=\"98%\">Du arbeitest als Kaufhausdetektiv. Du beobachtest live, wie ein Kunde ein Parfüm im Wert von 120 Euro in seine Jacke steckt und die Kasse ohne Bezahlung passiert. Er will weglaufen und verweigert seinen Ausweis. Auf welcher exakten Rechtsgrundlage darfst du ihn festhalten?</prosody></p>", "carplay_hud_caption": "FALL: Vorläufige Festnahme durch Jedermann bei Ladendiebstahl"}, {"phase_number": 2, "phase_code": "PHASE_2_ACTIVE_RECALL_GAP", "phase_title": "Phase 2: 4.5s Active-Recall Sprechpause", "duration_seconds": 4.5, "spoken_text": "[4,5 Sekunden aktive Sprechpause — Antworte jetzt laut im Fahrzeug]", "ssml_fragment": "<p><prosody rate=\"92%\">Jetzt laut antworten. Paragraph und Voraussetzung?</prosody> <break time=\"4500ms\"/></p>", "carplay_hud_caption": "JETZT LAUT ANTWORTEN (4.5s)"}, {"phase_number": 3, "phase_code": "PHASE_3_STATUTE_MNEMONIC", "phase_title": "Phase 3: Musterlösung mit Gesetzesparagraphen & Eselsbrücke", "duration_seconds": 18.0, "spoken_text": "§ 127 Abs. 1 Satz 1 StPO (Jedermannsrecht): Vorläufige Festnahme nach Paragraph 127 Absatz 1 Satz 1 StPO (Jedermannsrecht). Voraussetzungen: Erstens eine Straftat (hier Diebstahl nach Paragraph 242 StGB), zweitens auf frischer Tat betroffen oder verfolgt, drittens Fluchtverdacht oder Identität nicht sofort feststellbar, viertens Verhältnismäßigkeit. Eselsbrücke: Merksatz 127-F-F-I: Frische Straftat, Fluchtverdacht oder Identität unklar — festhalten bis Polizei eintrifft! Prüfungsfalle: § 127 Abs. 1 StPO erlaubt KEINE Festnahme bei bloßer Ordnungswidrigkeit (z.B. Falschparken) und KEINE Durchsuchung zur Beweissicherung — nur zur Eigensicherung auf Waffen!", "ssml_fragment": "<p><emphasis level=\"strong\">Musterlösung nach § 127 Abs. 1 Satz 1 StPO (Jedermannsrecht):</emphasis> <prosody rate=\"98%\">Vorläufige Festnahme nach Paragraph 127 Absatz 1 Satz 1 StPO (Jedermannsrecht). Voraussetzungen: Erstens eine Straftat (hier Diebstahl nach Paragraph 242 StGB), zweitens auf frischer Tat betroffen oder verfolgt, drittens Fluchtverdacht oder Identität nicht sofort feststellbar, viertens Verhältnismäßigkeit.</prosody> <break time=\"600ms\"/> <emphasis level=\"moderate\">Eselsbrücke fürs Steuer:</emphasis> Merksatz 127-F-F-I: Frische Straftat, Fluchtverdacht oder Identität unklar — festhalten bis Polizei eintrifft! <break time=\"400ms\"/> <prosody pitch=\"-2%\">IHK-Prüfungsfalle: § 127 Abs. 1 StPO erlaubt KEINE Festnahme bei bloßer Ordnungswidrigkeit (z.B. Falschparken) und KEINE Durchsuchung zur Beweissicherung — nur zur Eigensicherung auf Waffen!</prosody></p>", "carplay_hud_caption": "LÖSUNG: § 127 Abs. 1 Satz 1 StPO (Jedermannsrecht)"}, {"phase_number": 4, "phase_code": "PHASE_4_SM2_VOICE_FEEDBACK", "phase_title": "Phase 4: SM-2 Spaced-Repetition Intervall-Update per Sprachbefehl/Lenkrad-Tap", "duration_seconds": 4.0, "spoken_text": "Bewerte deine Antwort per Sprachbefehl oder Lenkrad-Tap: 'Sitzt perfekt' (Intervall verlängern), 'Unsicher' (kurzes Intervall) oder 'Nochmal' (sofort wiederholen).", "ssml_fragment": "<p><prosody rate=\"95%\">Sprachbefehl oder Lenkrad-Tap: Sag <emphasis level=\"strong\">Sitzt perfekt</emphasis>, <emphasis level=\"moderate\">Unsicher</emphasis> oder <emphasis level=\"strong\">Nochmal</emphasis>.</prosody></p>", "carplay_hud_caption": "SPRACHBEFEHL: SITZT PERFEKT | UNSICHER | NOCHMAL"}], "ssml_document": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<speak version=\"1.1\" xmlns=\"http://www.w3.org/2001/10/synthesis\" xml:lang=\"de-DE\">\n  <p><emphasis level=\"moderate\">Fallbeispiel (Straf- und Strafverfahrensrecht (StGB / StPO)):</emphasis> <prosody rate=\"98%\">Du arbeitest als Kaufhausdetektiv. Du beobachtest live, wie ein Kunde ein Parfüm im Wert von 120 Euro in seine Jacke steckt und die Kasse ohne Bezahlung passiert. Er will weglaufen und verweigert seinen Ausweis. Auf welcher exakten Rechtsgrundlage darfst du ihn festhalten?</prosody></p>\n  <p><prosody rate=\"92%\">Jetzt laut antworten. Paragraph und Voraussetzung?</prosody> <break time=\"4500ms\"/></p>\n  <p><emphasis level=\"strong\">Musterlösung nach § 127 Abs. 1 Satz 1 StPO (Jedermannsrecht):</emphasis> <prosody rate=\"98%\">Vorläufige Festnahme nach Paragraph 127 Absatz 1 Satz 1 StPO (Jedermannsrecht). Voraussetzungen: Erstens eine Straftat (hier Diebstahl nach Paragraph 242 StGB), zweitens auf frischer Tat betroffen oder verfolgt, drittens Fluchtverdacht oder Identität nicht sofort feststellbar, viertens Verhältnismäßigkeit.</prosody> <break time=\"600ms\"/> <emphasis level=\"moderate\">Eselsbrücke fürs Steuer:</emphasis> Merksatz 127-F-F-I: Frische Straftat, Fluchtverdacht oder Identität unklar — festhalten bis Polizei eintrifft! <break time=\"400ms\"/> <prosody pitch=\"-2%\">IHK-Prüfungsfalle: § 127 Abs. 1 StPO erlaubt KEINE Festnahme bei bloßer Ordnungswidrigkeit (z.B. Falschparken) und KEINE Durchsuchung zur Beweissicherung — nur zur Eigensicherung auf Waffen!</prosody></p>\n  <p><prosody rate=\"95%\">Sprachbefehl oder Lenkrad-Tap: Sag <emphasis level=\"strong\">Sitzt perfekt</emphasis>, <emphasis level=\"moderate\">Unsicher</emphasis> oder <emphasis level=\"strong\">Nochmal</emphasis>.</prosody></p>\n</speak>"}, {"card_id": "34A-STGB-32", "track_id": "ihk_34a_gewo", "domain_id": "straf_stpo", "domain_name": "Straf- und Strafverfahrensrecht (StGB / StPO)", "domain_exam_weight_pct": 20.0, "title": "Notwehr und Nothilfe bei gegenwärtigem Angriff am Einlass", "statute_reference": "§ 32 StGB (Notwehr / Nothilfe)", "exam_trap_warning": "Schimpfworte nach beendetem Angriff oder ein bereits weglaufender Täter ohne Beute begründen KEINEN gegenwärtigen Angriff mehr — Nachtreten ist strafbarer Notwehrexzess (§ 33 StGB erlaubt nur Verwirrung, Furcht oder Schrecken)!", "phase_1_scenario": "An der Einlasskontrolle holt ein abgewiesener Gast unvermittelt mit einer Glasflasche aus, um deinen Kollegen am Kopf zu treffen. Du reißt den Arm des Angreifers herum und bringst ihn zu Boden. Welcher Rechtfertigungsgrund greift und wie lautet die gesetzliche Definition?", "active_recall_pause_seconds": 4.5, "phase_3_solution": "Nothilfe gemäß Paragraph 32 Absatz 2 StGB. Notwehr ist die Verteidigung, die erforderlich und geboten ist, um einen gegenwärtigen rechtswidrigen Angriff von sich oder einem anderen abzuwenden. Das mildeste gleich wirksame Mittel muss gewählt werden.", "phase_3_mnemonic": "Merksatz G-R-A-E: Gegenwärtiger Rechtswidriger Angriff -> Erforderliche Verteidigung!", "key_terms": ["§ 32 StGB", "Nothilfe", "Gegenwärtiger rechtswidriger Angriff", "Erforderlichkeit"], "sm2_state": {"card_id": "34A-STGB-32", "repetitions": 2, "easiness_factor": 2.7, "interval_days": 6, "last_quality": 5, "next_review_iso": "2026-10-23"}, "four_phase_cycle": [{"phase_number": 1, "phase_code": "PHASE_1_SCENARIO", "phase_title": "Phase 1: Praxis-Fallbeispiel am Steuer", "duration_seconds": 14.0, "spoken_text": "An der Einlasskontrolle holt ein abgewiesener Gast unvermittelt mit einer Glasflasche aus, um deinen Kollegen am Kopf zu treffen. Du reißt den Arm des Angreifers herum und bringst ihn zu Boden. Welcher Rechtfertigungsgrund greift und wie lautet die gesetzliche Definition?", "ssml_fragment": "<p><emphasis level=\"moderate\">Fallbeispiel (Straf- und Strafverfahrensrecht (StGB / StPO)):</emphasis> <prosody rate=\"98%\">An der Einlasskontrolle holt ein abgewiesener Gast unvermittelt mit einer Glasflasche aus, um deinen Kollegen am Kopf zu treffen. Du reißt den Arm des Angreifers herum und bringst ihn zu Boden. Welcher Rechtfertigungsgrund greift und wie lautet die gesetzliche Definition?</prosody></p>", "carplay_hud_caption": "FALL: Notwehr und Nothilfe bei gegenwärtigem Angriff am Einlass"}, {"phase_number": 2, "phase_code": "PHASE_2_ACTIVE_RECALL_GAP", "phase_title": "Phase 2: 4.5s Active-Recall Sprechpause", "duration_seconds": 4.5, "spoken_text": "[4,5 Sekunden aktive Sprechpause — Antworte jetzt laut im Fahrzeug]", "ssml_fragment": "<p><prosody rate=\"92%\">Jetzt laut antworten. Paragraph und Voraussetzung?</prosody> <break time=\"4500ms\"/></p>", "carplay_hud_caption": "JETZT LAUT ANTWORTEN (4.5s)"}, {"phase_number": 3, "phase_code": "PHASE_3_STATUTE_MNEMONIC", "phase_title": "Phase 3: Musterlösung mit Gesetzesparagraphen & Eselsbrücke", "duration_seconds": 18.0, "spoken_text": "§ 32 StGB (Notwehr / Nothilfe): Nothilfe gemäß Paragraph 32 Absatz 2 StGB. Notwehr ist die Verteidigung, die erforderlich und geboten ist, um einen gegenwärtigen rechtswidrigen Angriff von sich oder einem anderen abzuwenden. Das mildeste gleich wirksame Mittel muss gewählt werden. Eselsbrücke: Merksatz G-R-A-E: Gegenwärtiger Rechtswidriger Angriff -> Erforderliche Verteidigung! Prüfungsfalle: Schimpfworte nach beendetem Angriff oder ein bereits weglaufender Täter ohne Beute begründen KEINEN gegenwärtigen Angriff mehr — Nachtreten ist strafbarer Notwehrexzess (§ 33 StGB erlaubt nur Verwirrung, Furcht oder Schrecken)!", "ssml_fragment": "<p><emphasis level=\"strong\">Musterlösung nach § 32 StGB (Notwehr / Nothilfe):</emphasis> <prosody rate=\"98%\">Nothilfe gemäß Paragraph 32 Absatz 2 StGB. Notwehr ist die Verteidigung, die erforderlich und geboten ist, um einen gegenwärtigen rechtswidrigen Angriff von sich oder einem anderen abzuwenden. Das mildeste gleich wirksame Mittel muss gewählt werden.</prosody> <break time=\"600ms\"/> <emphasis level=\"moderate\">Eselsbrücke fürs Steuer:</emphasis> Merksatz G-R-A-E: Gegenwärtiger Rechtswidriger Angriff -> Erforderliche Verteidigung! <break time=\"400ms\"/> <prosody pitch=\"-2%\">IHK-Prüfungsfalle: Schimpfworte nach beendetem Angriff oder ein bereits weglaufender Täter ohne Beute begründen KEINEN gegenwärtigen Angriff mehr — Nachtreten ist strafbarer Notwehrexzess (§ 33 StGB erlaubt nur Verwirrung, Furcht oder Schrecken)!</prosody></p>", "carplay_hud_caption": "LÖSUNG: § 32 StGB (Notwehr / Nothilfe)"}, {"phase_number": 4, "phase_code": "PHASE_4_SM2_VOICE_FEEDBACK", "phase_title": "Phase 4: SM-2 Spaced-Repetition Intervall-Update per Sprachbefehl/Lenkrad-Tap", "duration_seconds": 4.0, "spoken_text": "Bewerte deine Antwort per Sprachbefehl oder Lenkrad-Tap: 'Sitzt perfekt' (Intervall verlängern), 'Unsicher' (kurzes Intervall) oder 'Nochmal' (sofort wiederholen).", "ssml_fragment": "<p><prosody rate=\"95%\">Sprachbefehl oder Lenkrad-Tap: Sag <emphasis level=\"strong\">Sitzt perfekt</emphasis>, <emphasis level=\"moderate\">Unsicher</emphasis> oder <emphasis level=\"strong\">Nochmal</emphasis>.</prosody></p>", "carplay_hud_caption": "SPRACHBEFEHL: SITZT PERFEKT | UNSICHER | NOCHMAL"}], "ssml_document": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<speak version=\"1.1\" xmlns=\"http://www.w3.org/2001/10/synthesis\" xml:lang=\"de-DE\">\n  <p><emphasis level=\"moderate\">Fallbeispiel (Straf- und Strafverfahrensrecht (StGB / StPO)):</emphasis> <prosody rate=\"98%\">An der Einlasskontrolle holt ein abgewiesener Gast unvermittelt mit einer Glasflasche aus, um deinen Kollegen am Kopf zu treffen. Du reißt den Arm des Angreifers herum und bringst ihn zu Boden. Welcher Rechtfertigungsgrund greift und wie lautet die gesetzliche Definition?</prosody></p>\n  <p><prosody rate=\"92%\">Jetzt laut antworten. Paragraph und Voraussetzung?</prosody> <break time=\"4500ms\"/></p>\n  <p><emphasis level=\"strong\">Musterlösung nach § 32 StGB (Notwehr / Nothilfe):</emphasis> <prosody rate=\"98%\">Nothilfe gemäß Paragraph 32 Absatz 2 StGB. Notwehr ist die Verteidigung, die erforderlich und geboten ist, um einen gegenwärtigen rechtswidrigen Angriff von sich oder einem anderen abzuwenden. Das mildeste gleich wirksame Mittel muss gewählt werden.</prosody> <break time=\"600ms\"/> <emphasis level=\"moderate\">Eselsbrücke fürs Steuer:</emphasis> Merksatz G-R-A-E: Gegenwärtiger Rechtswidriger Angriff -> Erforderliche Verteidigung! <break time=\"400ms\"/> <prosody pitch=\"-2%\">IHK-Prüfungsfalle: Schimpfworte nach beendetem Angriff oder ein bereits weglaufender Täter ohne Beute begründen KEINEN gegenwärtigen Angriff mehr — Nachtreten ist strafbarer Notwehrexzess (§ 33 StGB erlaubt nur Verwirrung, Furcht oder Schrecken)!</prosody></p>\n  <p><prosody rate=\"95%\">Sprachbefehl oder Lenkrad-Tap: Sag <emphasis level=\"strong\">Sitzt perfekt</emphasis>, <emphasis level=\"moderate\">Unsicher</emphasis> oder <emphasis level=\"strong\">Nochmal</emphasis>.</prosody></p>\n</speak>"}, {"card_id": "34A-BGB-859", "track_id": "ihk_34a_gewo", "domain_id": "bgb", "domain_name": "Bürgerliches Gesetzbuch (BGB)", "domain_exam_weight_pct": 15.0, "title": "Besitzwehr und Besitzkehr durch den Besitzdiener", "statute_reference": "§§ 855, 858, 859 BGB (Selbsthilfe des Besitzers / Besitzdieners)", "exam_trap_warning": "Besitzdiener (§ 855 BGB, Sicherheitsmitarbeiter) üben die Selbsthilfe nach § 860 BGB für den Besitzer (Auftraggeber) aus — Besitzkehr nach § 859 Abs. 2 BGB gilt nur SOFORT bei Nacheile, nicht am nächsten Tag!", "phase_1_scenario": "Ein Dieb entreißt im Einkaufszentrum einer Kundin bzw. dem Juweliergeschäft deines Auftraggebers eine Uhr. Du verfolgst ihn unmittelbar auf den Parkplatz und nimmst ihm die Uhr mit körperlicher Gewalt wieder ab. Welches BGB-Recht nutzt du als Sicherheitsmitarbeiter?", "active_recall_pause_seconds": 4.5, "phase_3_solution": "Besitzkehr gemäß Paragraph 859 Absatz 2 BGB in Verbindung mit Paragraph 855 und 860 BGB als Besitzdiener. Wird eine bewegliche Sache mittels verbotener Eigenmacht (Paragraph 858 BGB) weggenommen, darf sie dem auf frischer Tat betroffenen oder verfolgten Täter mit Gewalt wieder abgenommen werden.", "phase_3_mnemonic": "858 ist Eigenmacht, 859 holt's zurück mit Macht, 860 macht den Wachmann stark!", "key_terms": ["§ 859 Abs. 2 BGB", "Besitzkehr", "§ 855 BGB Besitzdiener", "Verbotene Eigenmacht"], "sm2_state": {"card_id": "34A-BGB-859", "repetitions": 2, "easiness_factor": 2.5, "interval_days": 6, "last_quality": 4, "next_review_iso": "2026-10-23"}, "four_phase_cycle": [{"phase_number": 1, "phase_code": "PHASE_1_SCENARIO", "phase_title": "Phase 1: Praxis-Fallbeispiel am Steuer", "duration_seconds": 14.0, "spoken_text": "Ein Dieb entreißt im Einkaufszentrum einer Kundin bzw. dem Juweliergeschäft deines Auftraggebers eine Uhr. Du verfolgst ihn unmittelbar auf den Parkplatz und nimmst ihm die Uhr mit körperlicher Gewalt wieder ab. Welches BGB-Recht nutzt du als Sicherheitsmitarbeiter?", "ssml_fragment": "<p><emphasis level=\"moderate\">Fallbeispiel (Bürgerliches Gesetzbuch (BGB)):</emphasis> <prosody rate=\"98%\">Ein Dieb entreißt im Einkaufszentrum einer Kundin bzw. dem Juweliergeschäft deines Auftraggebers eine Uhr. Du verfolgst ihn unmittelbar auf den Parkplatz und nimmst ihm die Uhr mit körperlicher Gewalt wieder ab. Welches BGB-Recht nutzt du als Sicherheitsmitarbeiter?</prosody></p>", "carplay_hud_caption": "FALL: Besitzwehr und Besitzkehr durch den Besitzdiener"}, {"phase_number": 2, "phase_code": "PHASE_2_ACTIVE_RECALL_GAP", "phase_title": "Phase 2: 4.5s Active-Recall Sprechpause", "duration_seconds": 4.5, "spoken_text": "[4,5 Sekunden aktive Sprechpause — Antworte jetzt laut im Fahrzeug]", "ssml_fragment": "<p><prosody rate=\"92%\">Jetzt laut antworten. Paragraph und Voraussetzung?</prosody> <break time=\"4500ms\"/></p>", "carplay_hud_caption": "JETZT LAUT ANTWORTEN (4.5s)"}, {"phase_number": 3, "phase_code": "PHASE_3_STATUTE_MNEMONIC", "phase_title": "Phase 3: Musterlösung mit Gesetzesparagraphen & Eselsbrücke", "duration_seconds": 18.0, "spoken_text": "§§ 855, 858, 859 BGB (Selbsthilfe des Besitzers / Besitzdieners): Besitzkehr gemäß Paragraph 859 Absatz 2 BGB in Verbindung mit Paragraph 855 und 860 BGB als Besitzdiener. Wird eine bewegliche Sache mittels verbotener Eigenmacht (Paragraph 858 BGB) weggenommen, darf sie dem auf frischer Tat betroffenen oder verfolgten Täter mit Gewalt wieder abgenommen werden. Eselsbrücke: 858 ist Eigenmacht, 859 holt's zurück mit Macht, 860 macht den Wachmann stark! Prüfungsfalle: Besitzdiener (§ 855 BGB, Sicherheitsmitarbeiter) üben die Selbsthilfe nach § 860 BGB für den Besitzer (Auftraggeber) aus — Besitzkehr nach § 859 Abs. 2 BGB gilt nur SOFORT bei Nacheile, nicht am nächsten Tag!", "ssml_fragment": "<p><emphasis level=\"strong\">Musterlösung nach §§ 855, 858, 859 BGB (Selbsthilfe des Besitzers / Besitzdieners):</emphasis> <prosody rate=\"98%\">Besitzkehr gemäß Paragraph 859 Absatz 2 BGB in Verbindung mit Paragraph 855 und 860 BGB als Besitzdiener. Wird eine bewegliche Sache mittels verbotener Eigenmacht (Paragraph 858 BGB) weggenommen, darf sie dem auf frischer Tat betroffenen oder verfolgten Täter mit Gewalt wieder abgenommen werden.</prosody> <break time=\"600ms\"/> <emphasis level=\"moderate\">Eselsbrücke fürs Steuer:</emphasis> 858 ist Eigenmacht, 859 holt's zurück mit Macht, 860 macht den Wachmann stark! <break time=\"400ms\"/> <prosody pitch=\"-2%\">IHK-Prüfungsfalle: Besitzdiener (§ 855 BGB, Sicherheitsmitarbeiter) üben die Selbsthilfe nach § 860 BGB für den Besitzer (Auftraggeber) aus — Besitzkehr nach § 859 Abs. 2 BGB gilt nur SOFORT bei Nacheile, nicht am nächsten Tag!</prosody></p>", "carplay_hud_caption": "LÖSUNG: §§ 855, 858, 859 BGB (Selbsthilfe des Besitzers / Besitzdieners)"}, {"phase_number": 4, "phase_code": "PHASE_4_SM2_VOICE_FEEDBACK", "phase_title": "Phase 4: SM-2 Spaced-Repetition Intervall-Update per Sprachbefehl/Lenkrad-Tap", "duration_seconds": 4.0, "spoken_text": "Bewerte deine Antwort per Sprachbefehl oder Lenkrad-Tap: 'Sitzt perfekt' (Intervall verlängern), 'Unsicher' (kurzes Intervall) oder 'Nochmal' (sofort wiederholen).", "ssml_fragment": "<p><prosody rate=\"95%\">Sprachbefehl oder Lenkrad-Tap: Sag <emphasis level=\"strong\">Sitzt perfekt</emphasis>, <emphasis level=\"moderate\">Unsicher</emphasis> oder <emphasis level=\"strong\">Nochmal</emphasis>.</prosody></p>", "carplay_hud_caption": "SPRACHBEFEHL: SITZT PERFEKT | UNSICHER | NOCHMAL"}], "ssml_document": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<speak version=\"1.1\" xmlns=\"http://www.w3.org/2001/10/synthesis\" xml:lang=\"de-DE\">\n  <p><emphasis level=\"moderate\">Fallbeispiel (Bürgerliches Gesetzbuch (BGB)):</emphasis> <prosody rate=\"98%\">Ein Dieb entreißt im Einkaufszentrum einer Kundin bzw. dem Juweliergeschäft deines Auftraggebers eine Uhr. Du verfolgst ihn unmittelbar auf den Parkplatz und nimmst ihm die Uhr mit körperlicher Gewalt wieder ab. Welches BGB-Recht nutzt du als Sicherheitsmitarbeiter?</prosody></p>\n  <p><prosody rate=\"92%\">Jetzt laut antworten. Paragraph und Voraussetzung?</prosody> <break time=\"4500ms\"/></p>\n  <p><emphasis level=\"strong\">Musterlösung nach §§ 855, 858, 859 BGB (Selbsthilfe des Besitzers / Besitzdieners):</emphasis> <prosody rate=\"98%\">Besitzkehr gemäß Paragraph 859 Absatz 2 BGB in Verbindung mit Paragraph 855 und 860 BGB als Besitzdiener. Wird eine bewegliche Sache mittels verbotener Eigenmacht (Paragraph 858 BGB) weggenommen, darf sie dem auf frischer Tat betroffenen oder verfolgten Täter mit Gewalt wieder abgenommen werden.</prosody> <break time=\"600ms\"/> <emphasis level=\"moderate\">Eselsbrücke fürs Steuer:</emphasis> 858 ist Eigenmacht, 859 holt's zurück mit Macht, 860 macht den Wachmann stark! <break time=\"400ms\"/> <prosody pitch=\"-2%\">IHK-Prüfungsfalle: Besitzdiener (§ 855 BGB, Sicherheitsmitarbeiter) üben die Selbsthilfe nach § 860 BGB für den Besitzer (Auftraggeber) aus — Besitzkehr nach § 859 Abs. 2 BGB gilt nur SOFORT bei Nacheile, nicht am nächsten Tag!</prosody></p>\n  <p><prosody rate=\"95%\">Sprachbefehl oder Lenkrad-Tap: Sag <emphasis level=\"strong\">Sitzt perfekt</emphasis>, <emphasis level=\"moderate\">Unsicher</emphasis> oder <emphasis level=\"strong\">Nochmal</emphasis>.</prosody></p>\n</speak>"}, {"card_id": "34A-GEWO-BEWACHV", "track_id": "ihk_34a_gewo", "domain_id": "gewerberecht", "domain_name": "Recht der öffentlichen Sicherheit & Gewerberecht (§ 34a GewO / BewachV)", "domain_exam_weight_pct": 20.0, "title": "Zwingende Sachkundeprüfung vs. 40-Stunden-Unterrichtung", "statute_reference": "§ 34a Abs. 1a Satz 2 GewO & § 11 BewachV (Ausweis / Kennschild)", "exam_trap_warning": "Für Kontrollgänge im öffentlichen Verkehrsraum (City-Streife), Schutz vor Ladendieben (Kaufhausdetektiv) und Türsteher im gastgewerblichen Diskothekenbereich reicht die 40h-Unterrichtung NIEMALS — dort ist die IHK-Sachkundeprüfung Pflicht!", "phase_1_scenario": "Dein Einsatzleiter will einen neuen Kollegen, der nur die 40-stündige IHK-Unterrichtung besitzt, allein als Kaufhausdetektiv und abends als Diskotheken-Türsteher einsetzen. Ist das nach Paragraph 34a GewO zulässig und welche Ausweispflicht gilt im Dienst?", "active_recall_pause_seconds": 4.5, "phase_3_solution": "Nein, unzulässig! Nach Paragraph 34a Absatz 1a Satz 2 GewO ist die bestandene IHK-Sachkundeprüfung zwingend für: 1. Kontrollgänge im öffentlichen Verkehrsraum, 2. Schutz vor Ladendieben, 3. Bewachung im Einlassbereich gastgewerblicher Diskotheken sowie 4. leitende Funktion bei Flüchtlingsunterkünften und Großveranstaltungen. Zudem muss nach Paragraph 11 BewachV das Wachpersonen-Kennschild mit Namen oder Kennnummer und Bewachungsregister-ID sichtbar getragen werden (Ausnahme: Kaufhausdetektiv).", "phase_3_mnemonic": "Merksatz K-L-D-F-G: City-Kontrollgang, Ladendieb, Disko-Tür, Flüchtlingsheim-Leitung, Großevent-Leitung = immer Sachkundeprüfung!", "key_terms": ["§ 34a Abs. 1a GewO", "§ 11 BewachV", "Kaufhausdetektiv", "Diskotheken-Einlass", "Bewacherregister"], "sm2_state": {"card_id": "34A-GEWO-BEWACHV", "repetitions": 2, "easiness_factor": 2.7, "interval_days": 6, "last_quality": 5, "next_review_iso": "2026-10-23"}, "four_phase_cycle": [{"phase_number": 1, "phase_code": "PHASE_1_SCENARIO", "phase_title": "Phase 1: Praxis-Fallbeispiel am Steuer", "duration_seconds": 14.0, "spoken_text": "Dein Einsatzleiter will einen neuen Kollegen, der nur die 40-stündige IHK-Unterrichtung besitzt, allein als Kaufhausdetektiv und abends als Diskotheken-Türsteher einsetzen. Ist das nach Paragraph 34a GewO zulässig und welche Ausweispflicht gilt im Dienst?", "ssml_fragment": "<p><emphasis level=\"moderate\">Fallbeispiel (Recht der öffentlichen Sicherheit & Gewerberecht (§ 34a GewO / BewachV)):</emphasis> <prosody rate=\"98%\">Dein Einsatzleiter will einen neuen Kollegen, der nur die 40-stündige IHK-Unterrichtung besitzt, allein als Kaufhausdetektiv und abends als Diskotheken-Türsteher einsetzen. Ist das nach Paragraph 34a GewO zulässig und welche Ausweispflicht gilt im Dienst?</prosody></p>", "carplay_hud_caption": "FALL: Zwingende Sachkundeprüfung vs. 40-Stunden-Unterrichtung"}, {"phase_number": 2, "phase_code": "PHASE_2_ACTIVE_RECALL_GAP", "phase_title": "Phase 2: 4.5s Active-Recall Sprechpause", "duration_seconds": 4.5, "spoken_text": "[4,5 Sekunden aktive Sprechpause — Antworte jetzt laut im Fahrzeug]", "ssml_fragment": "<p><prosody rate=\"92%\">Jetzt laut antworten. Paragraph und Voraussetzung?</prosody> <break time=\"4500ms\"/></p>", "carplay_hud_caption": "JETZT LAUT ANTWORTEN (4.5s)"}, {"phase_number": 3, "phase_code": "PHASE_3_STATUTE_MNEMONIC", "phase_title": "Phase 3: Musterlösung mit Gesetzesparagraphen & Eselsbrücke", "duration_seconds": 18.0, "spoken_text": "§ 34a Abs. 1a Satz 2 GewO & § 11 BewachV (Ausweis / Kennschild): Nein, unzulässig! Nach Paragraph 34a Absatz 1a Satz 2 GewO ist die bestandene IHK-Sachkundeprüfung zwingend für: 1. Kontrollgänge im öffentlichen Verkehrsraum, 2. Schutz vor Ladendieben, 3. Bewachung im Einlassbereich gastgewerblicher Diskotheken sowie 4. leitende Funktion bei Flüchtlingsunterkünften und Großveranstaltungen. Zudem muss nach Paragraph 11 BewachV das Wachpersonen-Kennschild mit Namen oder Kennnummer und Bewachungsregister-ID sichtbar getragen werden (Ausnahme: Kaufhausdetektiv). Eselsbrücke: Merksatz K-L-D-F-G: City-Kontrollgang, Ladendieb, Disko-Tür, Flüchtlingsheim-Leitung, Großevent-Leitung = immer Sachkundeprüfung! Prüfungsfalle: Für Kontrollgänge im öffentlichen Verkehrsraum (City-Streife), Schutz vor Ladendieben (Kaufhausdetektiv) und Türsteher im gastgewerblichen Diskothekenbereich reicht die 40h-Unterrichtung NIEMALS — dort ist die IHK-Sachkundeprüfung Pflicht!", "ssml_fragment": "<p><emphasis level=\"strong\">Musterlösung nach § 34a Abs. 1a Satz 2 GewO & § 11 BewachV (Ausweis / Kennschild):</emphasis> <prosody rate=\"98%\">Nein, unzulässig! Nach Paragraph 34a Absatz 1a Satz 2 GewO ist die bestandene IHK-Sachkundeprüfung zwingend für: 1. Kontrollgänge im öffentlichen Verkehrsraum, 2. Schutz vor Ladendieben, 3. Bewachung im Einlassbereich gastgewerblicher Diskotheken sowie 4. leitende Funktion bei Flüchtlingsunterkünften und Großveranstaltungen. Zudem muss nach Paragraph 11 BewachV das Wachpersonen-Kennschild mit Namen oder Kennnummer und Bewachungsregister-ID sichtbar getragen werden (Ausnahme: Kaufhausdetektiv).</prosody> <break time=\"600ms\"/> <emphasis level=\"moderate\">Eselsbrücke fürs Steuer:</emphasis> Merksatz K-L-D-F-G: City-Kontrollgang, Ladendieb, Disko-Tür, Flüchtlingsheim-Leitung, Großevent-Leitung = immer Sachkundeprüfung! <break time=\"400ms\"/> <prosody pitch=\"-2%\">IHK-Prüfungsfalle: Für Kontrollgänge im öffentlichen Verkehrsraum (City-Streife), Schutz vor Ladendieben (Kaufhausdetektiv) und Türsteher im gastgewerblichen Diskothekenbereich reicht die 40h-Unterrichtung NIEMALS — dort ist die IHK-Sachkundeprüfung Pflicht!</prosody></p>", "carplay_hud_caption": "LÖSUNG: § 34a Abs. 1a Satz 2 GewO & § 11 BewachV (Ausweis / Kennschild)"}, {"phase_number": 4, "phase_code": "PHASE_4_SM2_VOICE_FEEDBACK", "phase_title": "Phase 4: SM-2 Spaced-Repetition Intervall-Update per Sprachbefehl/Lenkrad-Tap", "duration_seconds": 4.0, "spoken_text": "Bewerte deine Antwort per Sprachbefehl oder Lenkrad-Tap: 'Sitzt perfekt' (Intervall verlängern), 'Unsicher' (kurzes Intervall) oder 'Nochmal' (sofort wiederholen).", "ssml_fragment": "<p><prosody rate=\"95%\">Sprachbefehl oder Lenkrad-Tap: Sag <emphasis level=\"strong\">Sitzt perfekt</emphasis>, <emphasis level=\"moderate\">Unsicher</emphasis> oder <emphasis level=\"strong\">Nochmal</emphasis>.</prosody></p>", "carplay_hud_caption": "SPRACHBEFEHL: SITZT PERFEKT | UNSICHER | NOCHMAL"}], "ssml_document": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<speak version=\"1.1\" xmlns=\"http://www.w3.org/2001/10/synthesis\" xml:lang=\"de-DE\">\n  <p><emphasis level=\"moderate\">Fallbeispiel (Recht der öffentlichen Sicherheit & Gewerberecht (§ 34a GewO / BewachV)):</emphasis> <prosody rate=\"98%\">Dein Einsatzleiter will einen neuen Kollegen, der nur die 40-stündige IHK-Unterrichtung besitzt, allein als Kaufhausdetektiv und abends als Diskotheken-Türsteher einsetzen. Ist das nach Paragraph 34a GewO zulässig und welche Ausweispflicht gilt im Dienst?</prosody></p>\n  <p><prosody rate=\"92%\">Jetzt laut antworten. Paragraph und Voraussetzung?</prosody> <break time=\"4500ms\"/></p>\n  <p><emphasis level=\"strong\">Musterlösung nach § 34a Abs. 1a Satz 2 GewO & § 11 BewachV (Ausweis / Kennschild):</emphasis> <prosody rate=\"98%\">Nein, unzulässig! Nach Paragraph 34a Absatz 1a Satz 2 GewO ist die bestandene IHK-Sachkundeprüfung zwingend für: 1. Kontrollgänge im öffentlichen Verkehrsraum, 2. Schutz vor Ladendieben, 3. Bewachung im Einlassbereich gastgewerblicher Diskotheken sowie 4. leitende Funktion bei Flüchtlingsunterkünften und Großveranstaltungen. Zudem muss nach Paragraph 11 BewachV das Wachpersonen-Kennschild mit Namen oder Kennnummer und Bewachungsregister-ID sichtbar getragen werden (Ausnahme: Kaufhausdetektiv).</prosody> <break time=\"600ms\"/> <emphasis level=\"moderate\">Eselsbrücke fürs Steuer:</emphasis> Merksatz K-L-D-F-G: City-Kontrollgang, Ladendieb, Disko-Tür, Flüchtlingsheim-Leitung, Großevent-Leitung = immer Sachkundeprüfung! <break time=\"400ms\"/> <prosody pitch=\"-2%\">IHK-Prüfungsfalle: Für Kontrollgänge im öffentlichen Verkehrsraum (City-Streife), Schutz vor Ladendieben (Kaufhausdetektiv) und Türsteher im gastgewerblichen Diskothekenbereich reicht die 40h-Unterrichtung NIEMALS — dort ist die IHK-Sachkundeprüfung Pflicht!</prosody></p>\n  <p><prosody rate=\"95%\">Sprachbefehl oder Lenkrad-Tap: Sag <emphasis level=\"strong\">Sitzt perfekt</emphasis>, <emphasis level=\"moderate\">Unsicher</emphasis> oder <emphasis level=\"strong\">Nochmal</emphasis>.</prosody></p>\n</speak>"}, {"card_id": "34A-DGUV-V23", "track_id": "ihk_34a_gewo", "domain_id": "uvv_psychologie", "domain_name": "Unfallverhütungsvorschrift (DGUV Vorschrift 23) & Deeskalation", "domain_exam_weight_pct": 45.0, "title": "Dienstanweisung, Alkohol-Nulltoleranz und Umgang mit Hunden / Schusswaffen", "statute_reference": "§§ 4, 10, 12, 18 DGUV Vorschrift 23 (Wach- und Sicherungsdienste)", "exam_trap_warning": "Nach § 12 DGUV Vorschrift 23 gilt während des gesamten Dienstes und bereits bei Dienstantritt absolutes Alkoholverbot (0,0 Promille) / Rauschmittelverbot!", "phase_1_scenario": "Ein Wachmann erscheint nach einem Feierabendbier mit 0,2 Promille zum Objektschutz mit Diensthund. Welche klaren Vorgaben macht die DGUV Vorschrift 23 zu Rauschmitteln, Dienstanweisung und Ausrüstung?", "active_recall_pause_seconds": 4.5, "phase_3_solution": "Nach Paragraph 12 DGUV Vorschrift 23 dürfen Versicherte sich durch Alkohol oder andere berauschende Mittel nicht in einen Zustand versetzen, durch den sie sich oder andere gefährden können — im Wachdienst gilt faktisch 0,0 Promille bei Dienstantritt. Nach Paragraph 4 muss eine schriftliche Dienstanweisung vorliegen, und nach Paragraph 10 müssen erforderliche Einrichtungen und Ausrüstungen (z.B. Taschenlampe bei Dunkelheit, Meldegeräte bei Alleinarbeit) bereitgestellt werden.", "phase_3_mnemonic": "DGUV 23: Paragraph 4 = Papier (Dienstanweisung), Paragraph 10 = Taschenlampe/Melder, Paragraph 12 = Null Promille!", "key_terms": ["DGUV Vorschrift 23", "§ 4 Dienstanweisung", "§ 12 Alkoholverbot", "Alleinarbeit Totmannmelder"], "sm2_state": {"card_id": "34A-DGUV-V23", "repetitions": 2, "easiness_factor": 2.7, "interval_days": 6, "last_quality": 5, "next_review_iso": "2026-10-23"}, "four_phase_cycle": [{"phase_number": 1, "phase_code": "PHASE_1_SCENARIO", "phase_title": "Phase 1: Praxis-Fallbeispiel am Steuer", "duration_seconds": 14.0, "spoken_text": "Ein Wachmann erscheint nach einem Feierabendbier mit 0,2 Promille zum Objektschutz mit Diensthund. Welche klaren Vorgaben macht die DGUV Vorschrift 23 zu Rauschmitteln, Dienstanweisung und Ausrüstung?", "ssml_fragment": "<p><emphasis level=\"moderate\">Fallbeispiel (Unfallverhütungsvorschrift (DGUV Vorschrift 23) & Deeskalation):</emphasis> <prosody rate=\"98%\">Ein Wachmann erscheint nach einem Feierabendbier mit 0,2 Promille zum Objektschutz mit Diensthund. Welche klaren Vorgaben macht die DGUV Vorschrift 23 zu Rauschmitteln, Dienstanweisung und Ausrüstung?</prosody></p>", "carplay_hud_caption": "FALL: Dienstanweisung, Alkohol-Nulltoleranz und Umgang mit Hunden / Schusswaffen"}, {"phase_number": 2, "phase_code": "PHASE_2_ACTIVE_RECALL_GAP", "phase_title": "Phase 2: 4.5s Active-Recall Sprechpause", "duration_seconds": 4.5, "spoken_text": "[4,5 Sekunden aktive Sprechpause — Antworte jetzt laut im Fahrzeug]", "ssml_fragment": "<p><prosody rate=\"92%\">Jetzt laut antworten. Paragraph und Voraussetzung?</prosody> <break time=\"4500ms\"/></p>", "carplay_hud_caption": "JETZT LAUT ANTWORTEN (4.5s)"}, {"phase_number": 3, "phase_code": "PHASE_3_STATUTE_MNEMONIC", "phase_title": "Phase 3: Musterlösung mit Gesetzesparagraphen & Eselsbrücke", "duration_seconds": 18.0, "spoken_text": "§§ 4, 10, 12, 18 DGUV Vorschrift 23 (Wach- und Sicherungsdienste): Nach Paragraph 12 DGUV Vorschrift 23 dürfen Versicherte sich durch Alkohol oder andere berauschende Mittel nicht in einen Zustand versetzen, durch den sie sich oder andere gefährden können — im Wachdienst gilt faktisch 0,0 Promille bei Dienstantritt. Nach Paragraph 4 muss eine schriftliche Dienstanweisung vorliegen, und nach Paragraph 10 müssen erforderliche Einrichtungen und Ausrüstungen (z.B. Taschenlampe bei Dunkelheit, Meldegeräte bei Alleinarbeit) bereitgestellt werden. Eselsbrücke: DGUV 23: Paragraph 4 = Papier (Dienstanweisung), Paragraph 10 = Taschenlampe/Melder, Paragraph 12 = Null Promille! Prüfungsfalle: Nach § 12 DGUV Vorschrift 23 gilt während des gesamten Dienstes und bereits bei Dienstantritt absolutes Alkoholverbot (0,0 Promille) / Rauschmittelverbot!", "ssml_fragment": "<p><emphasis level=\"strong\">Musterlösung nach §§ 4, 10, 12, 18 DGUV Vorschrift 23 (Wach- und Sicherungsdienste):</emphasis> <prosody rate=\"98%\">Nach Paragraph 12 DGUV Vorschrift 23 dürfen Versicherte sich durch Alkohol oder andere berauschende Mittel nicht in einen Zustand versetzen, durch den sie sich oder andere gefährden können — im Wachdienst gilt faktisch 0,0 Promille bei Dienstantritt. Nach Paragraph 4 muss eine schriftliche Dienstanweisung vorliegen, und nach Paragraph 10 müssen erforderliche Einrichtungen und Ausrüstungen (z.B. Taschenlampe bei Dunkelheit, Meldegeräte bei Alleinarbeit) bereitgestellt werden.</prosody> <break time=\"600ms\"/> <emphasis level=\"moderate\">Eselsbrücke fürs Steuer:</emphasis> DGUV 23: Paragraph 4 = Papier (Dienstanweisung), Paragraph 10 = Taschenlampe/Melder, Paragraph 12 = Null Promille! <break time=\"400ms\"/> <prosody pitch=\"-2%\">IHK-Prüfungsfalle: Nach § 12 DGUV Vorschrift 23 gilt während des gesamten Dienstes und bereits bei Dienstantritt absolutes Alkoholverbot (0,0 Promille) / Rauschmittelverbot!</prosody></p>", "carplay_hud_caption": "LÖSUNG: §§ 4, 10, 12, 18 DGUV Vorschrift 23 (Wach- und Sicherungsdienste)"}, {"phase_number": 4, "phase_code": "PHASE_4_SM2_VOICE_FEEDBACK", "phase_title": "Phase 4: SM-2 Spaced-Repetition Intervall-Update per Sprachbefehl/Lenkrad-Tap", "duration_seconds": 4.0, "spoken_text": "Bewerte deine Antwort per Sprachbefehl oder Lenkrad-Tap: 'Sitzt perfekt' (Intervall verlängern), 'Unsicher' (kurzes Intervall) oder 'Nochmal' (sofort wiederholen).", "ssml_fragment": "<p><prosody rate=\"95%\">Sprachbefehl oder Lenkrad-Tap: Sag <emphasis level=\"strong\">Sitzt perfekt</emphasis>, <emphasis level=\"moderate\">Unsicher</emphasis> oder <emphasis level=\"strong\">Nochmal</emphasis>.</prosody></p>", "carplay_hud_caption": "SPRACHBEFEHL: SITZT PERFEKT | UNSICHER | NOCHMAL"}], "ssml_document": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<speak version=\"1.1\" xmlns=\"http://www.w3.org/2001/10/synthesis\" xml:lang=\"de-DE\">\n  <p><emphasis level=\"moderate\">Fallbeispiel (Unfallverhütungsvorschrift (DGUV Vorschrift 23) & Deeskalation):</emphasis> <prosody rate=\"98%\">Ein Wachmann erscheint nach einem Feierabendbier mit 0,2 Promille zum Objektschutz mit Diensthund. Welche klaren Vorgaben macht die DGUV Vorschrift 23 zu Rauschmitteln, Dienstanweisung und Ausrüstung?</prosody></p>\n  <p><prosody rate=\"92%\">Jetzt laut antworten. Paragraph und Voraussetzung?</prosody> <break time=\"4500ms\"/></p>\n  <p><emphasis level=\"strong\">Musterlösung nach §§ 4, 10, 12, 18 DGUV Vorschrift 23 (Wach- und Sicherungsdienste):</emphasis> <prosody rate=\"98%\">Nach Paragraph 12 DGUV Vorschrift 23 dürfen Versicherte sich durch Alkohol oder andere berauschende Mittel nicht in einen Zustand versetzen, durch den sie sich oder andere gefährden können — im Wachdienst gilt faktisch 0,0 Promille bei Dienstantritt. Nach Paragraph 4 muss eine schriftliche Dienstanweisung vorliegen, und nach Paragraph 10 müssen erforderliche Einrichtungen und Ausrüstungen (z.B. Taschenlampe bei Dunkelheit, Meldegeräte bei Alleinarbeit) bereitgestellt werden.</prosody> <break time=\"600ms\"/> <emphasis level=\"moderate\">Eselsbrücke fürs Steuer:</emphasis> DGUV 23: Paragraph 4 = Papier (Dienstanweisung), Paragraph 10 = Taschenlampe/Melder, Paragraph 12 = Null Promille! <break time=\"400ms\"/> <prosody pitch=\"-2%\">IHK-Prüfungsfalle: Nach § 12 DGUV Vorschrift 23 gilt während des gesamten Dienstes und bereits bei Dienstantritt absolutes Alkoholverbot (0,0 Promille) / Rauschmittelverbot!</prosody></p>\n  <p><prosody rate=\"95%\">Sprachbefehl oder Lenkrad-Tap: Sag <emphasis level=\"strong\">Sitzt perfekt</emphasis>, <emphasis level=\"moderate\">Unsicher</emphasis> oder <emphasis level=\"strong\">Nochmal</emphasis>.</prosody></p>\n</speak>"}]}, "ihk_bkf_lkw": {"track_id": "ihk_bkf_lkw", "short_code": "BKF LKW/Bus", "title": "IHK-Beschleunigte Grundqualifikation Berufskraftfahrer (BKrFQG)", "subtitle": "Hands-Free Führerhaus-Audio-Trainer für LKW- und Busfahrer (Schlüsselzahl 95)", "target_audience": "Angehende LKW-/Busfahrer, Speditionen, Fuhrparkleiter & Fahrschulen", "annual_candidates_dach_est": "45.000+ Prüflinge/Jahr (DE/AT/CH)", "ihk_exam_format": "90 Minuten schriftliche IHK-Prüfung (Multiple Choice + offene Praxis-Fallstudien)", "ihk_pass_threshold_pct": 50.0, "pass_guarantee_threshold_pct": 85.0, "pricing_b2c_lifetime_eur": 179, "pricing_b2b_seat_eur": 119, "domains": [{"domain_id": "sozialvorschriften", "name": "Sozialvorschriften & Fahrtenschreiber (VO (EG) 561/2006)", "weight_pct": 35.0}, {"domain_id": "ladungssicherung", "name": "Ladungssicherung & Fahrphysik (VDI 2700 / § 22 StVO)", "weight_pct": 35.0}, {"domain_id": "technik_eco", "name": "Kinematische Kette, Dauerbremsen & Eco-Driving", "weight_pct": 30.0}], "readiness_report": {"track_id": "ihk_bkf_lkw", "track_title": "IHK-Beschleunigte Grundqualifikation Berufskraftfahrer (BKrFQG)", "weighted_domain_score_pct": 87.92, "audio_lesson_completion_pct": 92.0, "sm2_retention_stability_pct": 100.0, "mock_exams_passed_count": 3, "bestehensgarantie_index_pct": 91.76, "pass_guarantee_unlocked": true, "ihk_pass_threshold_pct": 50.0, "guarantee_threshold_pct": 85.0, "domain_breakdown": [{"domain_id": "sozialvorschriften", "domain_name": "Sozialvorschriften & Fahrtenschreiber (VO (EG) 561/2006)", "exam_weight_pct": 35.0, "accuracy_pct": 90.0, "status": "PRÜFUNGSREIF"}, {"domain_id": "ladungssicherung", "domain_name": "Ladungssicherung & Fahrphysik (VDI 2700 / § 22 StVO)", "exam_weight_pct": 35.0, "accuracy_pct": 87.5, "status": "PRÜFUNGSREIF"}, {"domain_id": "technik_eco", "domain_name": "Kinematische Kette, Dauerbremsen & Eco-Driving", "exam_weight_pct": 30.0, "accuracy_pct": 86.0, "status": "PRÜFUNGSREIF"}], "missing_requirements": []}, "drills": [{"card_id": "BKF-VO561-LENKZEIT", "track_id": "ihk_bkf_lkw", "domain_id": "sozialvorschriften", "domain_name": "Sozialvorschriften & Fahrtenschreiber (VO (EG) 561/2006 & VO (EU) 165/2014)", "domain_exam_weight_pct": 35.0, "title": "Lenkzeitunterbrechung 4,5 Stunden und 15+30 Minuten Split-Regel", "statute_reference": "Art. 7 VO (EG) Nr. 561/2006 (Lenkzeitunterbrechung)", "exam_trap_warning": "Die Reihenfolge beim Split ist gesetzlich starr: IMMER zuerst mindestens 15 Minuten und danach mindestens 30 Minuten! Wer zuerst 30 Minuten und danach 15 Minuten pausiert, begeht einen Bußgeldverstoß!", "phase_1_scenario": "Du fährst einen 40-Tonner auf der A3. Nach 2 Stunden Lenkzeit machst du auf einem Rastplatz Pause. Wie lange musst du spätestens nach 4,5 Stunden Lenkzeit pausieren, und wie genau darfst du diese Fahrtunterbrechung aufteilen?", "active_recall_pause_seconds": 4.5, "phase_3_solution": "Gemäß Artikel 7 der Verordnung EG Nummer 561 aus 2006 muss nach einer Lenkdauer von viereinhalb Stunden eine ununterbrochene Fahrtunterbrechung von mindestens 45 Minuten eingelegt werden. Alternativ darf sie in zwei Abschnitte aufgeteilt werden: Zuerst mindestens 15 Minuten und anschließend mindestens 30 Minuten innerhalb oder direkt am Ende der 4,5 Stunden.", "phase_3_mnemonic": "Merksatz 4,5 -> 15 vor 30: Erst der kleine Kaffee (15 Min), dann das große Schnitzel (30 Min) — niemals umgekehrt!", "key_terms": ["Art. 7 VO (EG) 561/2006", "4,5 Stunden Lenkdauer", "45 Min Pause", "15+30 Split-Regel"], "sm2_state": {"card_id": "BKF-VO561-LENKZEIT", "repetitions": 2, "easiness_factor": 2.7, "interval_days": 6, "last_quality": 5, "next_review_iso": "2026-10-23"}, "four_phase_cycle": [{"phase_number": 1, "phase_code": "PHASE_1_SCENARIO", "phase_title": "Phase 1: Praxis-Fallbeispiel am Steuer", "duration_seconds": 14.0, "spoken_text": "Du fährst einen 40-Tonner auf der A3. Nach 2 Stunden Lenkzeit machst du auf einem Rastplatz Pause. Wie lange musst du spätestens nach 4,5 Stunden Lenkzeit pausieren, und wie genau darfst du diese Fahrtunterbrechung aufteilen?", "ssml_fragment": "<p><emphasis level=\"moderate\">Fallbeispiel (Sozialvorschriften & Fahrtenschreiber (VO (EG) 561/2006 & VO (EU) 165/2014)):</emphasis> <prosody rate=\"98%\">Du fährst einen 40-Tonner auf der A3. Nach 2 Stunden Lenkzeit machst du auf einem Rastplatz Pause. Wie lange musst du spätestens nach 4,5 Stunden Lenkzeit pausieren, und wie genau darfst du diese Fahrtunterbrechung aufteilen?</prosody></p>", "carplay_hud_caption": "FALL: Lenkzeitunterbrechung 4,5 Stunden und 15+30 Minuten Split-Regel"}, {"phase_number": 2, "phase_code": "PHASE_2_ACTIVE_RECALL_GAP", "phase_title": "Phase 2: 4.5s Active-Recall Sprechpause", "duration_seconds": 4.5, "spoken_text": "[4,5 Sekunden aktive Sprechpause — Antworte jetzt laut im Fahrzeug]", "ssml_fragment": "<p><prosody rate=\"92%\">Jetzt laut antworten. Paragraph und Voraussetzung?</prosody> <break time=\"4500ms\"/></p>", "carplay_hud_caption": "JETZT LAUT ANTWORTEN (4.5s)"}, {"phase_number": 3, "phase_code": "PHASE_3_STATUTE_MNEMONIC", "phase_title": "Phase 3: Musterlösung mit Gesetzesparagraphen & Eselsbrücke", "duration_seconds": 18.0, "spoken_text": "Art. 7 VO (EG) Nr. 561/2006 (Lenkzeitunterbrechung): Gemäß Artikel 7 der Verordnung EG Nummer 561 aus 2006 muss nach einer Lenkdauer von viereinhalb Stunden eine ununterbrochene Fahrtunterbrechung von mindestens 45 Minuten eingelegt werden. Alternativ darf sie in zwei Abschnitte aufgeteilt werden: Zuerst mindestens 15 Minuten und anschließend mindestens 30 Minuten innerhalb oder direkt am Ende der 4,5 Stunden. Eselsbrücke: Merksatz 4,5 -> 15 vor 30: Erst der kleine Kaffee (15 Min), dann das große Schnitzel (30 Min) — niemals umgekehrt! Prüfungsfalle: Die Reihenfolge beim Split ist gesetzlich starr: IMMER zuerst mindestens 15 Minuten und danach mindestens 30 Minuten! Wer zuerst 30 Minuten und danach 15 Minuten pausiert, begeht einen Bußgeldverstoß!", "ssml_fragment": "<p><emphasis level=\"strong\">Musterlösung nach Art. 7 VO (EG) Nr. 561/2006 (Lenkzeitunterbrechung):</emphasis> <prosody rate=\"98%\">Gemäß Artikel 7 der Verordnung EG Nummer 561 aus 2006 muss nach einer Lenkdauer von viereinhalb Stunden eine ununterbrochene Fahrtunterbrechung von mindestens 45 Minuten eingelegt werden. Alternativ darf sie in zwei Abschnitte aufgeteilt werden: Zuerst mindestens 15 Minuten und anschließend mindestens 30 Minuten innerhalb oder direkt am Ende der 4,5 Stunden.</prosody> <break time=\"600ms\"/> <emphasis level=\"moderate\">Eselsbrücke fürs Steuer:</emphasis> Merksatz 4,5 -> 15 vor 30: Erst der kleine Kaffee (15 Min), dann das große Schnitzel (30 Min) — niemals umgekehrt! <break time=\"400ms\"/> <prosody pitch=\"-2%\">IHK-Prüfungsfalle: Die Reihenfolge beim Split ist gesetzlich starr: IMMER zuerst mindestens 15 Minuten und danach mindestens 30 Minuten! Wer zuerst 30 Minuten und danach 15 Minuten pausiert, begeht einen Bußgeldverstoß!</prosody></p>", "carplay_hud_caption": "LÖSUNG: Art. 7 VO (EG) Nr. 561/2006 (Lenkzeitunterbrechung)"}, {"phase_number": 4, "phase_code": "PHASE_4_SM2_VOICE_FEEDBACK", "phase_title": "Phase 4: SM-2 Spaced-Repetition Intervall-Update per Sprachbefehl/Lenkrad-Tap", "duration_seconds": 4.0, "spoken_text": "Bewerte deine Antwort per Sprachbefehl oder Lenkrad-Tap: 'Sitzt perfekt' (Intervall verlängern), 'Unsicher' (kurzes Intervall) oder 'Nochmal' (sofort wiederholen).", "ssml_fragment": "<p><prosody rate=\"95%\">Sprachbefehl oder Lenkrad-Tap: Sag <emphasis level=\"strong\">Sitzt perfekt</emphasis>, <emphasis level=\"moderate\">Unsicher</emphasis> oder <emphasis level=\"strong\">Nochmal</emphasis>.</prosody></p>", "carplay_hud_caption": "SPRACHBEFEHL: SITZT PERFEKT | UNSICHER | NOCHMAL"}], "ssml_document": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<speak version=\"1.1\" xmlns=\"http://www.w3.org/2001/10/synthesis\" xml:lang=\"de-DE\">\n  <p><emphasis level=\"moderate\">Fallbeispiel (Sozialvorschriften & Fahrtenschreiber (VO (EG) 561/2006 & VO (EU) 165/2014)):</emphasis> <prosody rate=\"98%\">Du fährst einen 40-Tonner auf der A3. Nach 2 Stunden Lenkzeit machst du auf einem Rastplatz Pause. Wie lange musst du spätestens nach 4,5 Stunden Lenkzeit pausieren, und wie genau darfst du diese Fahrtunterbrechung aufteilen?</prosody></p>\n  <p><prosody rate=\"92%\">Jetzt laut antworten. Paragraph und Voraussetzung?</prosody> <break time=\"4500ms\"/></p>\n  <p><emphasis level=\"strong\">Musterlösung nach Art. 7 VO (EG) Nr. 561/2006 (Lenkzeitunterbrechung):</emphasis> <prosody rate=\"98%\">Gemäß Artikel 7 der Verordnung EG Nummer 561 aus 2006 muss nach einer Lenkdauer von viereinhalb Stunden eine ununterbrochene Fahrtunterbrechung von mindestens 45 Minuten eingelegt werden. Alternativ darf sie in zwei Abschnitte aufgeteilt werden: Zuerst mindestens 15 Minuten und anschließend mindestens 30 Minuten innerhalb oder direkt am Ende der 4,5 Stunden.</prosody> <break time=\"600ms\"/> <emphasis level=\"moderate\">Eselsbrücke fürs Steuer:</emphasis> Merksatz 4,5 -> 15 vor 30: Erst der kleine Kaffee (15 Min), dann das große Schnitzel (30 Min) — niemals umgekehrt! <break time=\"400ms\"/> <prosody pitch=\"-2%\">IHK-Prüfungsfalle: Die Reihenfolge beim Split ist gesetzlich starr: IMMER zuerst mindestens 15 Minuten und danach mindestens 30 Minuten! Wer zuerst 30 Minuten und danach 15 Minuten pausiert, begeht einen Bußgeldverstoß!</prosody></p>\n  <p><prosody rate=\"95%\">Sprachbefehl oder Lenkrad-Tap: Sag <emphasis level=\"strong\">Sitzt perfekt</emphasis>, <emphasis level=\"moderate\">Unsicher</emphasis> oder <emphasis level=\"strong\">Nochmal</emphasis>.</prosody></p>\n</speak>"}, {"card_id": "BKF-VO561-WOCHE", "track_id": "ihk_bkf_lkw", "domain_id": "sozialvorschriften", "domain_name": "Sozialvorschriften & Fahrtenschreiber (VO (EG) 561/2006 & VO (EU) 165/2014)", "domain_exam_weight_pct": 35.0, "title": "Tageslenkzeit (9h/10h), Wochenlenkzeit (56h) und Doppelwochenlimit (90h)", "statute_reference": "Art. 6 & Art. 8 VO (EG) Nr. 561/2006", "exam_trap_warning": "Wer in Woche 1 volle 56 Stunden lenkt, darf in Woche 2 HÖCHSTENS noch 34 Stunden lenken (90 minus 56 = 34), nicht nochmal 56 Stunden!", "phase_1_scenario": "Dein Disponent plant für dich in Kalenderwoche 1 volle 56 Lenkstunden ein und fragt dich am Funk, wie viele Stunden du in Kalenderwoche 2 maximal noch lenken darfst und wie oft du pro Woche auf 10 Stunden Tageslenkzeit erhöhen darfst.", "active_recall_pause_seconds": 4.5, "phase_3_solution": "Nach Artikel 6 VO EG 561/2006 beträgt die reguläre Tageslenkzeit 9 Stunden und darf höchstens zweimal pro Woche auf 10 Stunden verlängert werden. Die Einzelwochenlenkzeit beträgt maximal 56 Stunden, die Gesamtlenkzeit in zwei aufeinanderfolgenden Wochen jedoch maximal 90 Stunden. Nach 56 Stunden in Woche 1 bleiben in Woche 2 exakt 34 Lenkstunden übrig!", "phase_3_mnemonic": "Merksatz 9-10-56-90: 9 Stunden Standard, 2x 10 Stunden Bonus, 56 in einer Woche, 90 in der Doppelwoche (56 + 34 = 90)!", "key_terms": ["Art. 6 VO (EG) 561/2006", "9h / 2x 10h Tageslenkzeit", "56h Wochenlenkzeit", "90h Doppelwoche"], "sm2_state": {"card_id": "BKF-VO561-WOCHE", "repetitions": 2, "easiness_factor": 2.5, "interval_days": 6, "last_quality": 4, "next_review_iso": "2026-10-23"}, "four_phase_cycle": [{"phase_number": 1, "phase_code": "PHASE_1_SCENARIO", "phase_title": "Phase 1: Praxis-Fallbeispiel am Steuer", "duration_seconds": 14.0, "spoken_text": "Dein Disponent plant für dich in Kalenderwoche 1 volle 56 Lenkstunden ein und fragt dich am Funk, wie viele Stunden du in Kalenderwoche 2 maximal noch lenken darfst und wie oft du pro Woche auf 10 Stunden Tageslenkzeit erhöhen darfst.", "ssml_fragment": "<p><emphasis level=\"moderate\">Fallbeispiel (Sozialvorschriften & Fahrtenschreiber (VO (EG) 561/2006 & VO (EU) 165/2014)):</emphasis> <prosody rate=\"98%\">Dein Disponent plant für dich in Kalenderwoche 1 volle 56 Lenkstunden ein und fragt dich am Funk, wie viele Stunden du in Kalenderwoche 2 maximal noch lenken darfst und wie oft du pro Woche auf 10 Stunden Tageslenkzeit erhöhen darfst.</prosody></p>", "carplay_hud_caption": "FALL: Tageslenkzeit (9h/10h), Wochenlenkzeit (56h) und Doppelwochenlimit (90h)"}, {"phase_number": 2, "phase_code": "PHASE_2_ACTIVE_RECALL_GAP", "phase_title": "Phase 2: 4.5s Active-Recall Sprechpause", "duration_seconds": 4.5, "spoken_text": "[4,5 Sekunden aktive Sprechpause — Antworte jetzt laut im Fahrzeug]", "ssml_fragment": "<p><prosody rate=\"92%\">Jetzt laut antworten. Paragraph und Voraussetzung?</prosody> <break time=\"4500ms\"/></p>", "carplay_hud_caption": "JETZT LAUT ANTWORTEN (4.5s)"}, {"phase_number": 3, "phase_code": "PHASE_3_STATUTE_MNEMONIC", "phase_title": "Phase 3: Musterlösung mit Gesetzesparagraphen & Eselsbrücke", "duration_seconds": 18.0, "spoken_text": "Art. 6 & Art. 8 VO (EG) Nr. 561/2006: Nach Artikel 6 VO EG 561/2006 beträgt die reguläre Tageslenkzeit 9 Stunden und darf höchstens zweimal pro Woche auf 10 Stunden verlängert werden. Die Einzelwochenlenkzeit beträgt maximal 56 Stunden, die Gesamtlenkzeit in zwei aufeinanderfolgenden Wochen jedoch maximal 90 Stunden. Nach 56 Stunden in Woche 1 bleiben in Woche 2 exakt 34 Lenkstunden übrig! Eselsbrücke: Merksatz 9-10-56-90: 9 Stunden Standard, 2x 10 Stunden Bonus, 56 in einer Woche, 90 in der Doppelwoche (56 + 34 = 90)! Prüfungsfalle: Wer in Woche 1 volle 56 Stunden lenkt, darf in Woche 2 HÖCHSTENS noch 34 Stunden lenken (90 minus 56 = 34), nicht nochmal 56 Stunden!", "ssml_fragment": "<p><emphasis level=\"strong\">Musterlösung nach Art. 6 & Art. 8 VO (EG) Nr. 561/2006:</emphasis> <prosody rate=\"98%\">Nach Artikel 6 VO EG 561/2006 beträgt die reguläre Tageslenkzeit 9 Stunden und darf höchstens zweimal pro Woche auf 10 Stunden verlängert werden. Die Einzelwochenlenkzeit beträgt maximal 56 Stunden, die Gesamtlenkzeit in zwei aufeinanderfolgenden Wochen jedoch maximal 90 Stunden. Nach 56 Stunden in Woche 1 bleiben in Woche 2 exakt 34 Lenkstunden übrig!</prosody> <break time=\"600ms\"/> <emphasis level=\"moderate\">Eselsbrücke fürs Steuer:</emphasis> Merksatz 9-10-56-90: 9 Stunden Standard, 2x 10 Stunden Bonus, 56 in einer Woche, 90 in der Doppelwoche (56 + 34 = 90)! <break time=\"400ms\"/> <prosody pitch=\"-2%\">IHK-Prüfungsfalle: Wer in Woche 1 volle 56 Stunden lenkt, darf in Woche 2 HÖCHSTENS noch 34 Stunden lenken (90 minus 56 = 34), nicht nochmal 56 Stunden!</prosody></p>", "carplay_hud_caption": "LÖSUNG: Art. 6 & Art. 8 VO (EG) Nr. 561/2006"}, {"phase_number": 4, "phase_code": "PHASE_4_SM2_VOICE_FEEDBACK", "phase_title": "Phase 4: SM-2 Spaced-Repetition Intervall-Update per Sprachbefehl/Lenkrad-Tap", "duration_seconds": 4.0, "spoken_text": "Bewerte deine Antwort per Sprachbefehl oder Lenkrad-Tap: 'Sitzt perfekt' (Intervall verlängern), 'Unsicher' (kurzes Intervall) oder 'Nochmal' (sofort wiederholen).", "ssml_fragment": "<p><prosody rate=\"95%\">Sprachbefehl oder Lenkrad-Tap: Sag <emphasis level=\"strong\">Sitzt perfekt</emphasis>, <emphasis level=\"moderate\">Unsicher</emphasis> oder <emphasis level=\"strong\">Nochmal</emphasis>.</prosody></p>", "carplay_hud_caption": "SPRACHBEFEHL: SITZT PERFEKT | UNSICHER | NOCHMAL"}], "ssml_document": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<speak version=\"1.1\" xmlns=\"http://www.w3.org/2001/10/synthesis\" xml:lang=\"de-DE\">\n  <p><emphasis level=\"moderate\">Fallbeispiel (Sozialvorschriften & Fahrtenschreiber (VO (EG) 561/2006 & VO (EU) 165/2014)):</emphasis> <prosody rate=\"98%\">Dein Disponent plant für dich in Kalenderwoche 1 volle 56 Lenkstunden ein und fragt dich am Funk, wie viele Stunden du in Kalenderwoche 2 maximal noch lenken darfst und wie oft du pro Woche auf 10 Stunden Tageslenkzeit erhöhen darfst.</prosody></p>\n  <p><prosody rate=\"92%\">Jetzt laut antworten. Paragraph und Voraussetzung?</prosody> <break time=\"4500ms\"/></p>\n  <p><emphasis level=\"strong\">Musterlösung nach Art. 6 & Art. 8 VO (EG) Nr. 561/2006:</emphasis> <prosody rate=\"98%\">Nach Artikel 6 VO EG 561/2006 beträgt die reguläre Tageslenkzeit 9 Stunden und darf höchstens zweimal pro Woche auf 10 Stunden verlängert werden. Die Einzelwochenlenkzeit beträgt maximal 56 Stunden, die Gesamtlenkzeit in zwei aufeinanderfolgenden Wochen jedoch maximal 90 Stunden. Nach 56 Stunden in Woche 1 bleiben in Woche 2 exakt 34 Lenkstunden übrig!</prosody> <break time=\"600ms\"/> <emphasis level=\"moderate\">Eselsbrücke fürs Steuer:</emphasis> Merksatz 9-10-56-90: 9 Stunden Standard, 2x 10 Stunden Bonus, 56 in einer Woche, 90 in der Doppelwoche (56 + 34 = 90)! <break time=\"400ms\"/> <prosody pitch=\"-2%\">IHK-Prüfungsfalle: Wer in Woche 1 volle 56 Stunden lenkt, darf in Woche 2 HÖCHSTENS noch 34 Stunden lenken (90 minus 56 = 34), nicht nochmal 56 Stunden!</prosody></p>\n  <p><prosody rate=\"95%\">Sprachbefehl oder Lenkrad-Tap: Sag <emphasis level=\"strong\">Sitzt perfekt</emphasis>, <emphasis level=\"moderate\">Unsicher</emphasis> oder <emphasis level=\"strong\">Nochmal</emphasis>.</prosody></p>\n</speak>"}, {"card_id": "BKF-VDI2700-LASI", "track_id": "ihk_bkf_lkw", "domain_id": "ladungssicherung", "domain_name": "Ladungssicherung & Physik (VDI 2700 / § 22 StVO / EN 12195-2)", "domain_exam_weight_pct": 35.0, "title": "Massenkräfte bei Vollbremsung (0,8 G nach vorn, 0,5 G seitlich/hinten) & Antirutschmatte", "statute_reference": "§ 22 StVO & VDI 2700 Blatt 2 (Beschleunigungsbeiwerte & Niederzurren)", "exam_trap_warning": "Verwechsle niemals STF (Standard Tension Force = Vorspannkraft der Ratsche beim Niederzurren) mit LC (Lashing Capacity = zulässige Zugkraft im Direktzurren)!", "phase_1_scenario": "Du lädst eine 10 Tonnen schwere Werkzeugmaschine auf deinen Sattelauflieger. Mit welchem Anteil des Ladungsgewichts drückt die Ladung bei einer Vollbremsung nach vorn, zur Seite und nach hinten, und welchen Mindest-Gleitreibbeiwert muss eine zertifizierte Antirutschmatte liefern?", "active_recall_pause_seconds": 4.5, "phase_3_solution": "Nach VDI 2700 und DIN EN 12195-1 musst du im Straßenverkehr folgende Massenkräfte absichern: Nach vorn in Fahrtrichtung das 0,8-Fache des Ladungsgewichts (80 Prozent, bei 10 Tonnen also 8.000 daN), zu beiden Seiten und nach hinten jeweils das 0,5-Fache (50 Prozent, also 5.000 daN). Eine zertifizierte Antirutschmatte erreicht einen Gleitreibbeiwert My von mindestens 0,6.", "phase_3_mnemonic": "Merksatz 80-50-50 & Matte 0,6: Vorne 80 Prozent Bremswand, Seite/Hinten 50 Prozent, Gummimatte bringt My = 0,6!", "key_terms": ["VDI 2700", "0,8 G nach vorn", "0,5 G seitlich/hinten", "Gleitreibbeiwert µ = 0,6", "STF vs. LC"], "sm2_state": {"card_id": "BKF-VDI2700-LASI", "repetitions": 2, "easiness_factor": 2.7, "interval_days": 6, "last_quality": 5, "next_review_iso": "2026-10-23"}, "four_phase_cycle": [{"phase_number": 1, "phase_code": "PHASE_1_SCENARIO", "phase_title": "Phase 1: Praxis-Fallbeispiel am Steuer", "duration_seconds": 14.0, "spoken_text": "Du lädst eine 10 Tonnen schwere Werkzeugmaschine auf deinen Sattelauflieger. Mit welchem Anteil des Ladungsgewichts drückt die Ladung bei einer Vollbremsung nach vorn, zur Seite und nach hinten, und welchen Mindest-Gleitreibbeiwert muss eine zertifizierte Antirutschmatte liefern?", "ssml_fragment": "<p><emphasis level=\"moderate\">Fallbeispiel (Ladungssicherung & Physik (VDI 2700 / § 22 StVO / EN 12195-2)):</emphasis> <prosody rate=\"98%\">Du lädst eine 10 Tonnen schwere Werkzeugmaschine auf deinen Sattelauflieger. Mit welchem Anteil des Ladungsgewichts drückt die Ladung bei einer Vollbremsung nach vorn, zur Seite und nach hinten, und welchen Mindest-Gleitreibbeiwert muss eine zertifizierte Antirutschmatte liefern?</prosody></p>", "carplay_hud_caption": "FALL: Massenkräfte bei Vollbremsung (0,8 G nach vorn, 0,5 G seitlich/hinten) & Antirutschmatte"}, {"phase_number": 2, "phase_code": "PHASE_2_ACTIVE_RECALL_GAP", "phase_title": "Phase 2: 4.5s Active-Recall Sprechpause", "duration_seconds": 4.5, "spoken_text": "[4,5 Sekunden aktive Sprechpause — Antworte jetzt laut im Fahrzeug]", "ssml_fragment": "<p><prosody rate=\"92%\">Jetzt laut antworten. Paragraph und Voraussetzung?</prosody> <break time=\"4500ms\"/></p>", "carplay_hud_caption": "JETZT LAUT ANTWORTEN (4.5s)"}, {"phase_number": 3, "phase_code": "PHASE_3_STATUTE_MNEMONIC", "phase_title": "Phase 3: Musterlösung mit Gesetzesparagraphen & Eselsbrücke", "duration_seconds": 18.0, "spoken_text": "§ 22 StVO & VDI 2700 Blatt 2 (Beschleunigungsbeiwerte & Niederzurren): Nach VDI 2700 und DIN EN 12195-1 musst du im Straßenverkehr folgende Massenkräfte absichern: Nach vorn in Fahrtrichtung das 0,8-Fache des Ladungsgewichts (80 Prozent, bei 10 Tonnen also 8.000 daN), zu beiden Seiten und nach hinten jeweils das 0,5-Fache (50 Prozent, also 5.000 daN). Eine zertifizierte Antirutschmatte erreicht einen Gleitreibbeiwert My von mindestens 0,6. Eselsbrücke: Merksatz 80-50-50 & Matte 0,6: Vorne 80 Prozent Bremswand, Seite/Hinten 50 Prozent, Gummimatte bringt My = 0,6! Prüfungsfalle: Verwechsle niemals STF (Standard Tension Force = Vorspannkraft der Ratsche beim Niederzurren) mit LC (Lashing Capacity = zulässige Zugkraft im Direktzurren)!", "ssml_fragment": "<p><emphasis level=\"strong\">Musterlösung nach § 22 StVO & VDI 2700 Blatt 2 (Beschleunigungsbeiwerte & Niederzurren):</emphasis> <prosody rate=\"98%\">Nach VDI 2700 und DIN EN 12195-1 musst du im Straßenverkehr folgende Massenkräfte absichern: Nach vorn in Fahrtrichtung das 0,8-Fache des Ladungsgewichts (80 Prozent, bei 10 Tonnen also 8.000 daN), zu beiden Seiten und nach hinten jeweils das 0,5-Fache (50 Prozent, also 5.000 daN). Eine zertifizierte Antirutschmatte erreicht einen Gleitreibbeiwert My von mindestens 0,6.</prosody> <break time=\"600ms\"/> <emphasis level=\"moderate\">Eselsbrücke fürs Steuer:</emphasis> Merksatz 80-50-50 & Matte 0,6: Vorne 80 Prozent Bremswand, Seite/Hinten 50 Prozent, Gummimatte bringt My = 0,6! <break time=\"400ms\"/> <prosody pitch=\"-2%\">IHK-Prüfungsfalle: Verwechsle niemals STF (Standard Tension Force = Vorspannkraft der Ratsche beim Niederzurren) mit LC (Lashing Capacity = zulässige Zugkraft im Direktzurren)!</prosody></p>", "carplay_hud_caption": "LÖSUNG: § 22 StVO & VDI 2700 Blatt 2 (Beschleunigungsbeiwerte & Niederzurren)"}, {"phase_number": 4, "phase_code": "PHASE_4_SM2_VOICE_FEEDBACK", "phase_title": "Phase 4: SM-2 Spaced-Repetition Intervall-Update per Sprachbefehl/Lenkrad-Tap", "duration_seconds": 4.0, "spoken_text": "Bewerte deine Antwort per Sprachbefehl oder Lenkrad-Tap: 'Sitzt perfekt' (Intervall verlängern), 'Unsicher' (kurzes Intervall) oder 'Nochmal' (sofort wiederholen).", "ssml_fragment": "<p><prosody rate=\"95%\">Sprachbefehl oder Lenkrad-Tap: Sag <emphasis level=\"strong\">Sitzt perfekt</emphasis>, <emphasis level=\"moderate\">Unsicher</emphasis> oder <emphasis level=\"strong\">Nochmal</emphasis>.</prosody></p>", "carplay_hud_caption": "SPRACHBEFEHL: SITZT PERFEKT | UNSICHER | NOCHMAL"}], "ssml_document": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<speak version=\"1.1\" xmlns=\"http://www.w3.org/2001/10/synthesis\" xml:lang=\"de-DE\">\n  <p><emphasis level=\"moderate\">Fallbeispiel (Ladungssicherung & Physik (VDI 2700 / § 22 StVO / EN 12195-2)):</emphasis> <prosody rate=\"98%\">Du lädst eine 10 Tonnen schwere Werkzeugmaschine auf deinen Sattelauflieger. Mit welchem Anteil des Ladungsgewichts drückt die Ladung bei einer Vollbremsung nach vorn, zur Seite und nach hinten, und welchen Mindest-Gleitreibbeiwert muss eine zertifizierte Antirutschmatte liefern?</prosody></p>\n  <p><prosody rate=\"92%\">Jetzt laut antworten. Paragraph und Voraussetzung?</prosody> <break time=\"4500ms\"/></p>\n  <p><emphasis level=\"strong\">Musterlösung nach § 22 StVO & VDI 2700 Blatt 2 (Beschleunigungsbeiwerte & Niederzurren):</emphasis> <prosody rate=\"98%\">Nach VDI 2700 und DIN EN 12195-1 musst du im Straßenverkehr folgende Massenkräfte absichern: Nach vorn in Fahrtrichtung das 0,8-Fache des Ladungsgewichts (80 Prozent, bei 10 Tonnen also 8.000 daN), zu beiden Seiten und nach hinten jeweils das 0,5-Fache (50 Prozent, also 5.000 daN). Eine zertifizierte Antirutschmatte erreicht einen Gleitreibbeiwert My von mindestens 0,6.</prosody> <break time=\"600ms\"/> <emphasis level=\"moderate\">Eselsbrücke fürs Steuer:</emphasis> Merksatz 80-50-50 & Matte 0,6: Vorne 80 Prozent Bremswand, Seite/Hinten 50 Prozent, Gummimatte bringt My = 0,6! <break time=\"400ms\"/> <prosody pitch=\"-2%\">IHK-Prüfungsfalle: Verwechsle niemals STF (Standard Tension Force = Vorspannkraft der Ratsche beim Niederzurren) mit LC (Lashing Capacity = zulässige Zugkraft im Direktzurren)!</prosody></p>\n  <p><prosody rate=\"95%\">Sprachbefehl oder Lenkrad-Tap: Sag <emphasis level=\"strong\">Sitzt perfekt</emphasis>, <emphasis level=\"moderate\">Unsicher</emphasis> oder <emphasis level=\"strong\">Nochmal</emphasis>.</prosody></p>\n</speak>"}, {"card_id": "BKF-TECHNIK-BREMSEN", "track_id": "ihk_bkf_lkw", "domain_id": "technik_eco", "domain_name": "Kinematische Kette, Dauerbremsen & Eco-Driving", "domain_exam_weight_pct": 30.0, "title": "Verschleißfreie Dauerbremsen (Retarder / Motorbremse) bei Gefällefahrten", "statute_reference": "§ 41 StVZO & Anlage 1 BKrFQG (Kenntnisbereich 1.1 / 1.2)", "exam_trap_warning": "Auf Schnee- oder Eisglätte darf der Retarder / Intarder NICHT unkontrolliert eingeschaltet bleiben, da nur die Antriebsachse stark abgebremst wird und der Sattelzug sofort einknicken kann (Klappmesser-Effekt)!", "phase_1_scenario": "Du fährst mit 40 Tonnen Gesamtgewicht ein 7 Kilometer langes Gefälle von 8 Prozent hinab. Warum nutzt du vorrangig Retarder und Motorstaubremse statt der Betriebsbremse, und wann musst du den Retarder sofort deaktivieren?", "active_recall_pause_seconds": 4.5, "phase_3_solution": "Hydrodynamische Retarder (Sekundärretarder/Intarder) und Motorbremsen arbeiten verschleißfrei und verhindern das Überhitzen (Fading) der Radbremsen, sodass die Betriebsbremse als kalte Sicherheitsreserve für eine Gefahrenbremsung erhalten bleibt. Bei Glatteis oder Schneeglätte muss der Retarder abgeschaltet werden, da er nur auf die Hinterachse wirkt und den Zug zum Ausbrechen bringt.", "phase_3_mnemonic": "Retarder spart Belag am Berg — doch bei Eis am Asphalt wird der Retarder ausgeschaltet!", "key_terms": ["Retarder / Intarder", "Bremsfading vermeiden", "Klappmesser-Effekt bei Glätte", "§ 41 StVZO"], "sm2_state": {"card_id": "BKF-TECHNIK-BREMSEN", "repetitions": 2, "easiness_factor": 2.7, "interval_days": 6, "last_quality": 5, "next_review_iso": "2026-10-23"}, "four_phase_cycle": [{"phase_number": 1, "phase_code": "PHASE_1_SCENARIO", "phase_title": "Phase 1: Praxis-Fallbeispiel am Steuer", "duration_seconds": 14.0, "spoken_text": "Du fährst mit 40 Tonnen Gesamtgewicht ein 7 Kilometer langes Gefälle von 8 Prozent hinab. Warum nutzt du vorrangig Retarder und Motorstaubremse statt der Betriebsbremse, und wann musst du den Retarder sofort deaktivieren?", "ssml_fragment": "<p><emphasis level=\"moderate\">Fallbeispiel (Kinematische Kette, Dauerbremsen & Eco-Driving):</emphasis> <prosody rate=\"98%\">Du fährst mit 40 Tonnen Gesamtgewicht ein 7 Kilometer langes Gefälle von 8 Prozent hinab. Warum nutzt du vorrangig Retarder und Motorstaubremse statt der Betriebsbremse, und wann musst du den Retarder sofort deaktivieren?</prosody></p>", "carplay_hud_caption": "FALL: Verschleißfreie Dauerbremsen (Retarder / Motorbremse) bei Gefällefahrten"}, {"phase_number": 2, "phase_code": "PHASE_2_ACTIVE_RECALL_GAP", "phase_title": "Phase 2: 4.5s Active-Recall Sprechpause", "duration_seconds": 4.5, "spoken_text": "[4,5 Sekunden aktive Sprechpause — Antworte jetzt laut im Fahrzeug]", "ssml_fragment": "<p><prosody rate=\"92%\">Jetzt laut antworten. Paragraph und Voraussetzung?</prosody> <break time=\"4500ms\"/></p>", "carplay_hud_caption": "JETZT LAUT ANTWORTEN (4.5s)"}, {"phase_number": 3, "phase_code": "PHASE_3_STATUTE_MNEMONIC", "phase_title": "Phase 3: Musterlösung mit Gesetzesparagraphen & Eselsbrücke", "duration_seconds": 18.0, "spoken_text": "§ 41 StVZO & Anlage 1 BKrFQG (Kenntnisbereich 1.1 / 1.2): Hydrodynamische Retarder (Sekundärretarder/Intarder) und Motorbremsen arbeiten verschleißfrei und verhindern das Überhitzen (Fading) der Radbremsen, sodass die Betriebsbremse als kalte Sicherheitsreserve für eine Gefahrenbremsung erhalten bleibt. Bei Glatteis oder Schneeglätte muss der Retarder abgeschaltet werden, da er nur auf die Hinterachse wirkt und den Zug zum Ausbrechen bringt. Eselsbrücke: Retarder spart Belag am Berg — doch bei Eis am Asphalt wird der Retarder ausgeschaltet! Prüfungsfalle: Auf Schnee- oder Eisglätte darf der Retarder / Intarder NICHT unkontrolliert eingeschaltet bleiben, da nur die Antriebsachse stark abgebremst wird und der Sattelzug sofort einknicken kann (Klappmesser-Effekt)!", "ssml_fragment": "<p><emphasis level=\"strong\">Musterlösung nach § 41 StVZO & Anlage 1 BKrFQG (Kenntnisbereich 1.1 / 1.2):</emphasis> <prosody rate=\"98%\">Hydrodynamische Retarder (Sekundärretarder/Intarder) und Motorbremsen arbeiten verschleißfrei und verhindern das Überhitzen (Fading) der Radbremsen, sodass die Betriebsbremse als kalte Sicherheitsreserve für eine Gefahrenbremsung erhalten bleibt. Bei Glatteis oder Schneeglätte muss der Retarder abgeschaltet werden, da er nur auf die Hinterachse wirkt und den Zug zum Ausbrechen bringt.</prosody> <break time=\"600ms\"/> <emphasis level=\"moderate\">Eselsbrücke fürs Steuer:</emphasis> Retarder spart Belag am Berg — doch bei Eis am Asphalt wird der Retarder ausgeschaltet! <break time=\"400ms\"/> <prosody pitch=\"-2%\">IHK-Prüfungsfalle: Auf Schnee- oder Eisglätte darf der Retarder / Intarder NICHT unkontrolliert eingeschaltet bleiben, da nur die Antriebsachse stark abgebremst wird und der Sattelzug sofort einknicken kann (Klappmesser-Effekt)!</prosody></p>", "carplay_hud_caption": "LÖSUNG: § 41 StVZO & Anlage 1 BKrFQG (Kenntnisbereich 1.1 / 1.2)"}, {"phase_number": 4, "phase_code": "PHASE_4_SM2_VOICE_FEEDBACK", "phase_title": "Phase 4: SM-2 Spaced-Repetition Intervall-Update per Sprachbefehl/Lenkrad-Tap", "duration_seconds": 4.0, "spoken_text": "Bewerte deine Antwort per Sprachbefehl oder Lenkrad-Tap: 'Sitzt perfekt' (Intervall verlängern), 'Unsicher' (kurzes Intervall) oder 'Nochmal' (sofort wiederholen).", "ssml_fragment": "<p><prosody rate=\"95%\">Sprachbefehl oder Lenkrad-Tap: Sag <emphasis level=\"strong\">Sitzt perfekt</emphasis>, <emphasis level=\"moderate\">Unsicher</emphasis> oder <emphasis level=\"strong\">Nochmal</emphasis>.</prosody></p>", "carplay_hud_caption": "SPRACHBEFEHL: SITZT PERFEKT | UNSICHER | NOCHMAL"}], "ssml_document": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<speak version=\"1.1\" xmlns=\"http://www.w3.org/2001/10/synthesis\" xml:lang=\"de-DE\">\n  <p><emphasis level=\"moderate\">Fallbeispiel (Kinematische Kette, Dauerbremsen & Eco-Driving):</emphasis> <prosody rate=\"98%\">Du fährst mit 40 Tonnen Gesamtgewicht ein 7 Kilometer langes Gefälle von 8 Prozent hinab. Warum nutzt du vorrangig Retarder und Motorstaubremse statt der Betriebsbremse, und wann musst du den Retarder sofort deaktivieren?</prosody></p>\n  <p><prosody rate=\"92%\">Jetzt laut antworten. Paragraph und Voraussetzung?</prosody> <break time=\"4500ms\"/></p>\n  <p><emphasis level=\"strong\">Musterlösung nach § 41 StVZO & Anlage 1 BKrFQG (Kenntnisbereich 1.1 / 1.2):</emphasis> <prosody rate=\"98%\">Hydrodynamische Retarder (Sekundärretarder/Intarder) und Motorbremsen arbeiten verschleißfrei und verhindern das Überhitzen (Fading) der Radbremsen, sodass die Betriebsbremse als kalte Sicherheitsreserve für eine Gefahrenbremsung erhalten bleibt. Bei Glatteis oder Schneeglätte muss der Retarder abgeschaltet werden, da er nur auf die Hinterachse wirkt und den Zug zum Ausbrechen bringt.</prosody> <break time=\"600ms\"/> <emphasis level=\"moderate\">Eselsbrücke fürs Steuer:</emphasis> Retarder spart Belag am Berg — doch bei Eis am Asphalt wird der Retarder ausgeschaltet! <break time=\"400ms\"/> <prosody pitch=\"-2%\">IHK-Prüfungsfalle: Auf Schnee- oder Eisglätte darf der Retarder / Intarder NICHT unkontrolliert eingeschaltet bleiben, da nur die Antriebsachse stark abgebremst wird und der Sattelzug sofort einknicken kann (Klappmesser-Effekt)!</prosody></p>\n  <p><prosody rate=\"95%\">Sprachbefehl oder Lenkrad-Tap: Sag <emphasis level=\"strong\">Sitzt perfekt</emphasis>, <emphasis level=\"moderate\">Unsicher</emphasis> oder <emphasis level=\"strong\">Nochmal</emphasis>.</prosody></p>\n</speak>"}]}, "ihk_aevo_ada": {"track_id": "ihk_aevo_ada", "short_code": "AEVO / AdA", "title": "IHK-/HWK-Ausbildereignungsprüfung (AEVO / AdA-Schein)", "subtitle": "Pendler-Audio-Prüfungstrainer für angehende Meister, Fachwirte & Ausbilder", "target_audience": "Handwerksmeister-Anwärter, Industriemeister, Fachwirte & Ausbildungsleiter", "annual_candidates_dach_est": "90.000+ Prüflinge/Jahr (IHK + HWK)", "ihk_exam_format": "180 Min schriftliche Fallaufgaben (~70–80 Fragen) + 30 Min praktische Unterweisung & Fachgespräch", "ihk_pass_threshold_pct": 50.0, "pass_guarantee_threshold_pct": 85.0, "pricing_b2c_lifetime_eur": 169, "pricing_b2b_seat_eur": 109, "domains": [{"domain_id": "hf2_vorbereiten", "name": "Handlungsfeld 1 & 2: Ausbildung planen & vorbereiten (BBiG / JArbSchG)", "weight_pct": 45.0}, {"domain_id": "hf3_durchfuehren", "name": "Handlungsfeld 3 & 4: Ausbildung durchführen & abschließen (Methodik)", "weight_pct": 55.0}], "readiness_report": {"track_id": "ihk_aevo_ada", "track_title": "IHK-/HWK-Ausbildereignungsprüfung (AEVO / AdA-Schein)", "weighted_domain_score_pct": 89.88, "audio_lesson_completion_pct": 95.0, "sm2_retention_stability_pct": 100.0, "mock_exams_passed_count": 3, "bestehensgarantie_index_pct": 93.43, "pass_guarantee_unlocked": true, "ihk_pass_threshold_pct": 50.0, "guarantee_threshold_pct": 85.0, "domain_breakdown": [{"domain_id": "hf2_vorbereiten", "domain_name": "Handlungsfeld 1 & 2: Ausbildung planen & vorbereiten (BBiG / JArbSchG)", "exam_weight_pct": 45.0, "accuracy_pct": 88.5, "status": "PRÜFUNGSREIF"}, {"domain_id": "hf3_durchfuehren", "domain_name": "Handlungsfeld 3 & 4: Ausbildung durchführen & abschließen (Methodik)", "exam_weight_pct": 55.0, "accuracy_pct": 91.0, "status": "PRÜFUNGSREIF"}], "missing_requirements": []}, "drills": [{"card_id": "AEVO-BBIG-PROBEZEIT", "track_id": "ihk_aevo_ada", "domain_id": "hf2_vorbereiten", "domain_name": "Handlungsfeld 1 & 2: Ausbildung prüfen, planen & einstellen (BBiG / JArbSchG)", "domain_exam_weight_pct": 45.0, "title": "Gesetzliche Dauer der Probezeit und Kündigung im Berufsausbildungsverhältnis", "statute_reference": "§§ 20, 22 BBiG (Probezeit & Kündigung)", "exam_trap_warning": "Eine ordentliche Kündigung durch den Ausbildungsbetrieb NACH Ablauf der Probezeit gibt es im BBiG NICHT! Nach der Probezeit kann der Betrieb nur noch fristlos aus wichtigem Grund (§ 22 Abs. 2 Nr. 1 BBiG) kündigen!", "phase_1_scenario": "Du stellst einen neuen Auszubildenden im Handwerksbetrieb ein. Wie lange muss die Probezeit nach Berufsbildungsgesetz mindestens und darf sie höchstens dauern, und wie unterscheiden sich die Kündigungsregeln während und nach der Probezeit?", "active_recall_pause_seconds": 4.5, "phase_3_solution": "Gemäß Paragraph 20 BBiG muss das Berufsausbildungsverhältnis mit einer Probezeit beginnen, die mindestens einen Monat und höchstens vier Monate beträgt. Während der Probezeit kann nach Paragraph 22 Absatz 1 BBiG jederzeit von beiden Seiten ohne Einhalten einer Kündigungsfrist und ohne Angabe von Gründen schriftlich gekündigt werden. Nach der Probezeit kann der Betrieb nur noch aus einem wichtigen Grund ohne Vorankündigungsfrist kündigen (Paragraph 22 Absatz 2 Nummer 1 BBiG), der Azubi zusätzlich mit 4 Wochen Frist bei Berufsaufgabe.", "phase_3_mnemonic": "Merksatz 1-bis-4-BBiG-20: Probezeit 1 bis 4 Monate — danach ist der Azubi für ordentliche Arbeitgeberkündigungen unkündbar!", "key_terms": ["§ 20 BBiG Probezeit (1–4 Monate)", "§ 22 BBiG Kündigung", "Schriftformzwang", "Wichtiger Grund"], "sm2_state": {"card_id": "AEVO-BBIG-PROBEZEIT", "repetitions": 2, "easiness_factor": 2.7, "interval_days": 6, "last_quality": 5, "next_review_iso": "2026-10-23"}, "four_phase_cycle": [{"phase_number": 1, "phase_code": "PHASE_1_SCENARIO", "phase_title": "Phase 1: Praxis-Fallbeispiel am Steuer", "duration_seconds": 14.0, "spoken_text": "Du stellst einen neuen Auszubildenden im Handwerksbetrieb ein. Wie lange muss die Probezeit nach Berufsbildungsgesetz mindestens und darf sie höchstens dauern, und wie unterscheiden sich die Kündigungsregeln während und nach der Probezeit?", "ssml_fragment": "<p><emphasis level=\"moderate\">Fallbeispiel (Handlungsfeld 1 & 2: Ausbildung prüfen, planen & einstellen (BBiG / JArbSchG)):</emphasis> <prosody rate=\"98%\">Du stellst einen neuen Auszubildenden im Handwerksbetrieb ein. Wie lange muss die Probezeit nach Berufsbildungsgesetz mindestens und darf sie höchstens dauern, und wie unterscheiden sich die Kündigungsregeln während und nach der Probezeit?</prosody></p>", "carplay_hud_caption": "FALL: Gesetzliche Dauer der Probezeit und Kündigung im Berufsausbildungsverhältnis"}, {"phase_number": 2, "phase_code": "PHASE_2_ACTIVE_RECALL_GAP", "phase_title": "Phase 2: 4.5s Active-Recall Sprechpause", "duration_seconds": 4.5, "spoken_text": "[4,5 Sekunden aktive Sprechpause — Antworte jetzt laut im Fahrzeug]", "ssml_fragment": "<p><prosody rate=\"92%\">Jetzt laut antworten. Paragraph und Voraussetzung?</prosody> <break time=\"4500ms\"/></p>", "carplay_hud_caption": "JETZT LAUT ANTWORTEN (4.5s)"}, {"phase_number": 3, "phase_code": "PHASE_3_STATUTE_MNEMONIC", "phase_title": "Phase 3: Musterlösung mit Gesetzesparagraphen & Eselsbrücke", "duration_seconds": 18.0, "spoken_text": "§§ 20, 22 BBiG (Probezeit & Kündigung): Gemäß Paragraph 20 BBiG muss das Berufsausbildungsverhältnis mit einer Probezeit beginnen, die mindestens einen Monat und höchstens vier Monate beträgt. Während der Probezeit kann nach Paragraph 22 Absatz 1 BBiG jederzeit von beiden Seiten ohne Einhalten einer Kündigungsfrist und ohne Angabe von Gründen schriftlich gekündigt werden. Nach der Probezeit kann der Betrieb nur noch aus einem wichtigen Grund ohne Vorankündigungsfrist kündigen (Paragraph 22 Absatz 2 Nummer 1 BBiG), der Azubi zusätzlich mit 4 Wochen Frist bei Berufsaufgabe. Eselsbrücke: Merksatz 1-bis-4-BBiG-20: Probezeit 1 bis 4 Monate — danach ist der Azubi für ordentliche Arbeitgeberkündigungen unkündbar! Prüfungsfalle: Eine ordentliche Kündigung durch den Ausbildungsbetrieb NACH Ablauf der Probezeit gibt es im BBiG NICHT! Nach der Probezeit kann der Betrieb nur noch fristlos aus wichtigem Grund (§ 22 Abs. 2 Nr. 1 BBiG) kündigen!", "ssml_fragment": "<p><emphasis level=\"strong\">Musterlösung nach §§ 20, 22 BBiG (Probezeit & Kündigung):</emphasis> <prosody rate=\"98%\">Gemäß Paragraph 20 BBiG muss das Berufsausbildungsverhältnis mit einer Probezeit beginnen, die mindestens einen Monat und höchstens vier Monate beträgt. Während der Probezeit kann nach Paragraph 22 Absatz 1 BBiG jederzeit von beiden Seiten ohne Einhalten einer Kündigungsfrist und ohne Angabe von Gründen schriftlich gekündigt werden. Nach der Probezeit kann der Betrieb nur noch aus einem wichtigen Grund ohne Vorankündigungsfrist kündigen (Paragraph 22 Absatz 2 Nummer 1 BBiG), der Azubi zusätzlich mit 4 Wochen Frist bei Berufsaufgabe.</prosody> <break time=\"600ms\"/> <emphasis level=\"moderate\">Eselsbrücke fürs Steuer:</emphasis> Merksatz 1-bis-4-BBiG-20: Probezeit 1 bis 4 Monate — danach ist der Azubi für ordentliche Arbeitgeberkündigungen unkündbar! <break time=\"400ms\"/> <prosody pitch=\"-2%\">IHK-Prüfungsfalle: Eine ordentliche Kündigung durch den Ausbildungsbetrieb NACH Ablauf der Probezeit gibt es im BBiG NICHT! Nach der Probezeit kann der Betrieb nur noch fristlos aus wichtigem Grund (§ 22 Abs. 2 Nr. 1 BBiG) kündigen!</prosody></p>", "carplay_hud_caption": "LÖSUNG: §§ 20, 22 BBiG (Probezeit & Kündigung)"}, {"phase_number": 4, "phase_code": "PHASE_4_SM2_VOICE_FEEDBACK", "phase_title": "Phase 4: SM-2 Spaced-Repetition Intervall-Update per Sprachbefehl/Lenkrad-Tap", "duration_seconds": 4.0, "spoken_text": "Bewerte deine Antwort per Sprachbefehl oder Lenkrad-Tap: 'Sitzt perfekt' (Intervall verlängern), 'Unsicher' (kurzes Intervall) oder 'Nochmal' (sofort wiederholen).", "ssml_fragment": "<p><prosody rate=\"95%\">Sprachbefehl oder Lenkrad-Tap: Sag <emphasis level=\"strong\">Sitzt perfekt</emphasis>, <emphasis level=\"moderate\">Unsicher</emphasis> oder <emphasis level=\"strong\">Nochmal</emphasis>.</prosody></p>", "carplay_hud_caption": "SPRACHBEFEHL: SITZT PERFEKT | UNSICHER | NOCHMAL"}], "ssml_document": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<speak version=\"1.1\" xmlns=\"http://www.w3.org/2001/10/synthesis\" xml:lang=\"de-DE\">\n  <p><emphasis level=\"moderate\">Fallbeispiel (Handlungsfeld 1 & 2: Ausbildung prüfen, planen & einstellen (BBiG / JArbSchG)):</emphasis> <prosody rate=\"98%\">Du stellst einen neuen Auszubildenden im Handwerksbetrieb ein. Wie lange muss die Probezeit nach Berufsbildungsgesetz mindestens und darf sie höchstens dauern, und wie unterscheiden sich die Kündigungsregeln während und nach der Probezeit?</prosody></p>\n  <p><prosody rate=\"92%\">Jetzt laut antworten. Paragraph und Voraussetzung?</prosody> <break time=\"4500ms\"/></p>\n  <p><emphasis level=\"strong\">Musterlösung nach §§ 20, 22 BBiG (Probezeit & Kündigung):</emphasis> <prosody rate=\"98%\">Gemäß Paragraph 20 BBiG muss das Berufsausbildungsverhältnis mit einer Probezeit beginnen, die mindestens einen Monat und höchstens vier Monate beträgt. Während der Probezeit kann nach Paragraph 22 Absatz 1 BBiG jederzeit von beiden Seiten ohne Einhalten einer Kündigungsfrist und ohne Angabe von Gründen schriftlich gekündigt werden. Nach der Probezeit kann der Betrieb nur noch aus einem wichtigen Grund ohne Vorankündigungsfrist kündigen (Paragraph 22 Absatz 2 Nummer 1 BBiG), der Azubi zusätzlich mit 4 Wochen Frist bei Berufsaufgabe.</prosody> <break time=\"600ms\"/> <emphasis level=\"moderate\">Eselsbrücke fürs Steuer:</emphasis> Merksatz 1-bis-4-BBiG-20: Probezeit 1 bis 4 Monate — danach ist der Azubi für ordentliche Arbeitgeberkündigungen unkündbar! <break time=\"400ms\"/> <prosody pitch=\"-2%\">IHK-Prüfungsfalle: Eine ordentliche Kündigung durch den Ausbildungsbetrieb NACH Ablauf der Probezeit gibt es im BBiG NICHT! Nach der Probezeit kann der Betrieb nur noch fristlos aus wichtigem Grund (§ 22 Abs. 2 Nr. 1 BBiG) kündigen!</prosody></p>\n  <p><prosody rate=\"95%\">Sprachbefehl oder Lenkrad-Tap: Sag <emphasis level=\"strong\">Sitzt perfekt</emphasis>, <emphasis level=\"moderate\">Unsicher</emphasis> oder <emphasis level=\"strong\">Nochmal</emphasis>.</prosody></p>\n</speak>"}, {"card_id": "AEVO-JARBSCHG-PAUSEN", "track_id": "ihk_aevo_ada", "domain_id": "hf2_vorbereiten", "domain_name": "Handlungsfeld 1 & 2: Ausbildung prüfen, planen & einstellen (BBiG / JArbSchG)", "domain_exam_weight_pct": 45.0, "title": "Ruhepausen und Berufsschulfreistellung für jugendliche Auszubildende", "statute_reference": "§§ 8, 9, 11 JArbSchG & § 15 BBiG", "exam_trap_warning": "Bei Jugendlichen zählt eine Pause NUR als Ruhepause, wenn sie mindestens 15 Minuten dauert (§ 11 Abs. 1 Satz 2 JArbSchG) und im Zeitfenster zwischen frühestens 1 Stunde nach Beginn und spätestens 1 Stunde vor Ende liegt!", "phase_1_scenario": "Deine 16-jährige Auszubildende arbeitet heute 7 Stunden im Betrieb. Wie viele Minuten Ruhepause stehen ihr nach Jugendarbeitsschutzgesetz mindestens zu, und wann muss sie für einen Berufsschultag komplett von der Arbeit im Betrieb freigestellt werden?", "active_recall_pause_seconds": 4.5, "phase_3_solution": "Nach Paragraph 11 Absatz 1 JArbSchG müssen Jugendlichen bei einer Arbeitszeit von mehr als 4,5 bis zu 6 Stunden mindestens 30 Minuten, und bei mehr als 6 Stunden mindestens 60 Minuten Ruhepause gewährt werden. Länger als 4,5 Stunden hintereinander dürfen Jugendliche nicht ohne Pause beschäftigt werden. Nach Paragraph 9 JArbSchG und Paragraph 15 BBiG gilt einmal pro Woche eine vollständige Freistellung an einem Berufsschultag mit mehr als 5 Unterrichtsstunden von mindestens je 45 Minuten.", "phase_3_mnemonic": "Merksatz JArbSchG 4,5->30 / 6->60 / Schule >5x45 = Heimgehen unter Anrechnung der durchschnittlichen täglichen Arbeitszeit!", "key_terms": ["§ 11 JArbSchG (30/60 Min Pause)", "§ 9 JArbSchG & § 15 BBiG", ">5 Unterrichtsstunden à 45 Min"], "sm2_state": {"card_id": "AEVO-JARBSCHG-PAUSEN", "repetitions": 2, "easiness_factor": 2.7, "interval_days": 6, "last_quality": 5, "next_review_iso": "2026-10-23"}, "four_phase_cycle": [{"phase_number": 1, "phase_code": "PHASE_1_SCENARIO", "phase_title": "Phase 1: Praxis-Fallbeispiel am Steuer", "duration_seconds": 14.0, "spoken_text": "Deine 16-jährige Auszubildende arbeitet heute 7 Stunden im Betrieb. Wie viele Minuten Ruhepause stehen ihr nach Jugendarbeitsschutzgesetz mindestens zu, und wann muss sie für einen Berufsschultag komplett von der Arbeit im Betrieb freigestellt werden?", "ssml_fragment": "<p><emphasis level=\"moderate\">Fallbeispiel (Handlungsfeld 1 & 2: Ausbildung prüfen, planen & einstellen (BBiG / JArbSchG)):</emphasis> <prosody rate=\"98%\">Deine 16-jährige Auszubildende arbeitet heute 7 Stunden im Betrieb. Wie viele Minuten Ruhepause stehen ihr nach Jugendarbeitsschutzgesetz mindestens zu, und wann muss sie für einen Berufsschultag komplett von der Arbeit im Betrieb freigestellt werden?</prosody></p>", "carplay_hud_caption": "FALL: Ruhepausen und Berufsschulfreistellung für jugendliche Auszubildende"}, {"phase_number": 2, "phase_code": "PHASE_2_ACTIVE_RECALL_GAP", "phase_title": "Phase 2: 4.5s Active-Recall Sprechpause", "duration_seconds": 4.5, "spoken_text": "[4,5 Sekunden aktive Sprechpause — Antworte jetzt laut im Fahrzeug]", "ssml_fragment": "<p><prosody rate=\"92%\">Jetzt laut antworten. Paragraph und Voraussetzung?</prosody> <break time=\"4500ms\"/></p>", "carplay_hud_caption": "JETZT LAUT ANTWORTEN (4.5s)"}, {"phase_number": 3, "phase_code": "PHASE_3_STATUTE_MNEMONIC", "phase_title": "Phase 3: Musterlösung mit Gesetzesparagraphen & Eselsbrücke", "duration_seconds": 18.0, "spoken_text": "§§ 8, 9, 11 JArbSchG & § 15 BBiG: Nach Paragraph 11 Absatz 1 JArbSchG müssen Jugendlichen bei einer Arbeitszeit von mehr als 4,5 bis zu 6 Stunden mindestens 30 Minuten, und bei mehr als 6 Stunden mindestens 60 Minuten Ruhepause gewährt werden. Länger als 4,5 Stunden hintereinander dürfen Jugendliche nicht ohne Pause beschäftigt werden. Nach Paragraph 9 JArbSchG und Paragraph 15 BBiG gilt einmal pro Woche eine vollständige Freistellung an einem Berufsschultag mit mehr als 5 Unterrichtsstunden von mindestens je 45 Minuten. Eselsbrücke: Merksatz JArbSchG 4,5->30 / 6->60 / Schule >5x45 = Heimgehen unter Anrechnung der durchschnittlichen täglichen Arbeitszeit! Prüfungsfalle: Bei Jugendlichen zählt eine Pause NUR als Ruhepause, wenn sie mindestens 15 Minuten dauert (§ 11 Abs. 1 Satz 2 JArbSchG) und im Zeitfenster zwischen frühestens 1 Stunde nach Beginn und spätestens 1 Stunde vor Ende liegt!", "ssml_fragment": "<p><emphasis level=\"strong\">Musterlösung nach §§ 8, 9, 11 JArbSchG & § 15 BBiG:</emphasis> <prosody rate=\"98%\">Nach Paragraph 11 Absatz 1 JArbSchG müssen Jugendlichen bei einer Arbeitszeit von mehr als 4,5 bis zu 6 Stunden mindestens 30 Minuten, und bei mehr als 6 Stunden mindestens 60 Minuten Ruhepause gewährt werden. Länger als 4,5 Stunden hintereinander dürfen Jugendliche nicht ohne Pause beschäftigt werden. Nach Paragraph 9 JArbSchG und Paragraph 15 BBiG gilt einmal pro Woche eine vollständige Freistellung an einem Berufsschultag mit mehr als 5 Unterrichtsstunden von mindestens je 45 Minuten.</prosody> <break time=\"600ms\"/> <emphasis level=\"moderate\">Eselsbrücke fürs Steuer:</emphasis> Merksatz JArbSchG 4,5->30 / 6->60 / Schule >5x45 = Heimgehen unter Anrechnung der durchschnittlichen täglichen Arbeitszeit! <break time=\"400ms\"/> <prosody pitch=\"-2%\">IHK-Prüfungsfalle: Bei Jugendlichen zählt eine Pause NUR als Ruhepause, wenn sie mindestens 15 Minuten dauert (§ 11 Abs. 1 Satz 2 JArbSchG) und im Zeitfenster zwischen frühestens 1 Stunde nach Beginn und spätestens 1 Stunde vor Ende liegt!</prosody></p>", "carplay_hud_caption": "LÖSUNG: §§ 8, 9, 11 JArbSchG & § 15 BBiG"}, {"phase_number": 4, "phase_code": "PHASE_4_SM2_VOICE_FEEDBACK", "phase_title": "Phase 4: SM-2 Spaced-Repetition Intervall-Update per Sprachbefehl/Lenkrad-Tap", "duration_seconds": 4.0, "spoken_text": "Bewerte deine Antwort per Sprachbefehl oder Lenkrad-Tap: 'Sitzt perfekt' (Intervall verlängern), 'Unsicher' (kurzes Intervall) oder 'Nochmal' (sofort wiederholen).", "ssml_fragment": "<p><prosody rate=\"95%\">Sprachbefehl oder Lenkrad-Tap: Sag <emphasis level=\"strong\">Sitzt perfekt</emphasis>, <emphasis level=\"moderate\">Unsicher</emphasis> oder <emphasis level=\"strong\">Nochmal</emphasis>.</prosody></p>", "carplay_hud_caption": "SPRACHBEFEHL: SITZT PERFEKT | UNSICHER | NOCHMAL"}], "ssml_document": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<speak version=\"1.1\" xmlns=\"http://www.w3.org/2001/10/synthesis\" xml:lang=\"de-DE\">\n  <p><emphasis level=\"moderate\">Fallbeispiel (Handlungsfeld 1 & 2: Ausbildung prüfen, planen & einstellen (BBiG / JArbSchG)):</emphasis> <prosody rate=\"98%\">Deine 16-jährige Auszubildende arbeitet heute 7 Stunden im Betrieb. Wie viele Minuten Ruhepause stehen ihr nach Jugendarbeitsschutzgesetz mindestens zu, und wann muss sie für einen Berufsschultag komplett von der Arbeit im Betrieb freigestellt werden?</prosody></p>\n  <p><prosody rate=\"92%\">Jetzt laut antworten. Paragraph und Voraussetzung?</prosody> <break time=\"4500ms\"/></p>\n  <p><emphasis level=\"strong\">Musterlösung nach §§ 8, 9, 11 JArbSchG & § 15 BBiG:</emphasis> <prosody rate=\"98%\">Nach Paragraph 11 Absatz 1 JArbSchG müssen Jugendlichen bei einer Arbeitszeit von mehr als 4,5 bis zu 6 Stunden mindestens 30 Minuten, und bei mehr als 6 Stunden mindestens 60 Minuten Ruhepause gewährt werden. Länger als 4,5 Stunden hintereinander dürfen Jugendliche nicht ohne Pause beschäftigt werden. Nach Paragraph 9 JArbSchG und Paragraph 15 BBiG gilt einmal pro Woche eine vollständige Freistellung an einem Berufsschultag mit mehr als 5 Unterrichtsstunden von mindestens je 45 Minuten.</prosody> <break time=\"600ms\"/> <emphasis level=\"moderate\">Eselsbrücke fürs Steuer:</emphasis> Merksatz JArbSchG 4,5->30 / 6->60 / Schule >5x45 = Heimgehen unter Anrechnung der durchschnittlichen täglichen Arbeitszeit! <break time=\"400ms\"/> <prosody pitch=\"-2%\">IHK-Prüfungsfalle: Bei Jugendlichen zählt eine Pause NUR als Ruhepause, wenn sie mindestens 15 Minuten dauert (§ 11 Abs. 1 Satz 2 JArbSchG) und im Zeitfenster zwischen frühestens 1 Stunde nach Beginn und spätestens 1 Stunde vor Ende liegt!</prosody></p>\n  <p><prosody rate=\"95%\">Sprachbefehl oder Lenkrad-Tap: Sag <emphasis level=\"strong\">Sitzt perfekt</emphasis>, <emphasis level=\"moderate\">Unsicher</emphasis> oder <emphasis level=\"strong\">Nochmal</emphasis>.</prosody></p>\n</speak>"}, {"card_id": "AEVO-HF3-METHODEN", "track_id": "ihk_aevo_ada", "domain_id": "hf3_durchfuehren", "domain_name": "Handlungsfeld 3 & 4: Ausbildung durchführen & abschließen (Methodik / Prüfung)", "domain_exam_weight_pct": 55.0, "title": "4-Stufen-Methode (REFA) vs. Leittextmethode (6 Phasen vollständige Handlung)", "statute_reference": "§ 3 AEVO (Handlungsfeld 3) & § 14 BBiG (Berufliche Handlungsfähigkeit)", "exam_trap_warning": "In der praktischen AEVO-Prüfung: In Stufe 2 der 4-Stufen-Methode führt IMMER noch der Ausbilder vor und erklärt das Warum — erst in Stufe 3 macht der Azubi selbst und erklärt dabei jeden Schritt!", "phase_1_scenario": "Du bereitest deine praktische AEVO-Unterweisungsprobe für eine psychomotorische Fertigkeit im 1. Lehrjahr vor. Nenne exakt die 4 Phasen der klassischen Vier-Stufen-Methode und grenze sie von den 6 Stufen der vollständigen Handlung ab.", "active_recall_pause_seconds": 4.5, "phase_3_solution": "Die 4-Stufen-Methode für psychomotorische Fertigkeiten lautet: Stufe 1: Vorbereiten und Motivieren (Lernziel nennen, Vorkenntnisse aktivieren). Stufe 2: Vormachen und Erklären durch den Ausbilder (Was, Wie, Warum). Stufe 3: Nachmachen und Erklären lassen durch den Auszubildenden (Verständniskontrolle). Stufe 4: Üben und Festigen (Selbstständige Vertiefung, Erfolgskontrolle). Für kognitive und komplexe Aufgaben nutzt man das Modell der vollständigen Handlung (6 Phasen: Informieren, Planen, Entscheiden, Ausführen, Kontrollieren, Bewerten).", "phase_3_mnemonic": "4-Stufen V-V-N-Ü (Vorbereiten, Vormachen, Nachmachen, Üben) vs. 6-Stufen I-P-E-A-K-B!", "key_terms": ["4-Stufen-Methode (V-V-N-Ü)", "Modell der vollständigen Handlung (I-P-E-A-K-B)", "§ 14 BBiG"], "sm2_state": {"card_id": "AEVO-HF3-METHODEN", "repetitions": 2, "easiness_factor": 2.7, "interval_days": 6, "last_quality": 5, "next_review_iso": "2026-10-23"}, "four_phase_cycle": [{"phase_number": 1, "phase_code": "PHASE_1_SCENARIO", "phase_title": "Phase 1: Praxis-Fallbeispiel am Steuer", "duration_seconds": 14.0, "spoken_text": "Du bereitest deine praktische AEVO-Unterweisungsprobe für eine psychomotorische Fertigkeit im 1. Lehrjahr vor. Nenne exakt die 4 Phasen der klassischen Vier-Stufen-Methode und grenze sie von den 6 Stufen der vollständigen Handlung ab.", "ssml_fragment": "<p><emphasis level=\"moderate\">Fallbeispiel (Handlungsfeld 3 & 4: Ausbildung durchführen & abschließen (Methodik / Prüfung)):</emphasis> <prosody rate=\"98%\">Du bereitest deine praktische AEVO-Unterweisungsprobe für eine psychomotorische Fertigkeit im 1. Lehrjahr vor. Nenne exakt die 4 Phasen der klassischen Vier-Stufen-Methode und grenze sie von den 6 Stufen der vollständigen Handlung ab.</prosody></p>", "carplay_hud_caption": "FALL: 4-Stufen-Methode (REFA) vs. Leittextmethode (6 Phasen vollständige Handlung)"}, {"phase_number": 2, "phase_code": "PHASE_2_ACTIVE_RECALL_GAP", "phase_title": "Phase 2: 4.5s Active-Recall Sprechpause", "duration_seconds": 4.5, "spoken_text": "[4,5 Sekunden aktive Sprechpause — Antworte jetzt laut im Fahrzeug]", "ssml_fragment": "<p><prosody rate=\"92%\">Jetzt laut antworten. Paragraph und Voraussetzung?</prosody> <break time=\"4500ms\"/></p>", "carplay_hud_caption": "JETZT LAUT ANTWORTEN (4.5s)"}, {"phase_number": 3, "phase_code": "PHASE_3_STATUTE_MNEMONIC", "phase_title": "Phase 3: Musterlösung mit Gesetzesparagraphen & Eselsbrücke", "duration_seconds": 18.0, "spoken_text": "§ 3 AEVO (Handlungsfeld 3) & § 14 BBiG (Berufliche Handlungsfähigkeit): Die 4-Stufen-Methode für psychomotorische Fertigkeiten lautet: Stufe 1: Vorbereiten und Motivieren (Lernziel nennen, Vorkenntnisse aktivieren). Stufe 2: Vormachen und Erklären durch den Ausbilder (Was, Wie, Warum). Stufe 3: Nachmachen und Erklären lassen durch den Auszubildenden (Verständniskontrolle). Stufe 4: Üben und Festigen (Selbstständige Vertiefung, Erfolgskontrolle). Für kognitive und komplexe Aufgaben nutzt man das Modell der vollständigen Handlung (6 Phasen: Informieren, Planen, Entscheiden, Ausführen, Kontrollieren, Bewerten). Eselsbrücke: 4-Stufen V-V-N-Ü (Vorbereiten, Vormachen, Nachmachen, Üben) vs. 6-Stufen I-P-E-A-K-B! Prüfungsfalle: In der praktischen AEVO-Prüfung: In Stufe 2 der 4-Stufen-Methode führt IMMER noch der Ausbilder vor und erklärt das Warum — erst in Stufe 3 macht der Azubi selbst und erklärt dabei jeden Schritt!", "ssml_fragment": "<p><emphasis level=\"strong\">Musterlösung nach § 3 AEVO (Handlungsfeld 3) & § 14 BBiG (Berufliche Handlungsfähigkeit):</emphasis> <prosody rate=\"98%\">Die 4-Stufen-Methode für psychomotorische Fertigkeiten lautet: Stufe 1: Vorbereiten und Motivieren (Lernziel nennen, Vorkenntnisse aktivieren). Stufe 2: Vormachen und Erklären durch den Ausbilder (Was, Wie, Warum). Stufe 3: Nachmachen und Erklären lassen durch den Auszubildenden (Verständniskontrolle). Stufe 4: Üben und Festigen (Selbstständige Vertiefung, Erfolgskontrolle). Für kognitive und komplexe Aufgaben nutzt man das Modell der vollständigen Handlung (6 Phasen: Informieren, Planen, Entscheiden, Ausführen, Kontrollieren, Bewerten).</prosody> <break time=\"600ms\"/> <emphasis level=\"moderate\">Eselsbrücke fürs Steuer:</emphasis> 4-Stufen V-V-N-Ü (Vorbereiten, Vormachen, Nachmachen, Üben) vs. 6-Stufen I-P-E-A-K-B! <break time=\"400ms\"/> <prosody pitch=\"-2%\">IHK-Prüfungsfalle: In der praktischen AEVO-Prüfung: In Stufe 2 der 4-Stufen-Methode führt IMMER noch der Ausbilder vor und erklärt das Warum — erst in Stufe 3 macht der Azubi selbst und erklärt dabei jeden Schritt!</prosody></p>", "carplay_hud_caption": "LÖSUNG: § 3 AEVO (Handlungsfeld 3) & § 14 BBiG (Berufliche Handlungsfähigkeit)"}, {"phase_number": 4, "phase_code": "PHASE_4_SM2_VOICE_FEEDBACK", "phase_title": "Phase 4: SM-2 Spaced-Repetition Intervall-Update per Sprachbefehl/Lenkrad-Tap", "duration_seconds": 4.0, "spoken_text": "Bewerte deine Antwort per Sprachbefehl oder Lenkrad-Tap: 'Sitzt perfekt' (Intervall verlängern), 'Unsicher' (kurzes Intervall) oder 'Nochmal' (sofort wiederholen).", "ssml_fragment": "<p><prosody rate=\"95%\">Sprachbefehl oder Lenkrad-Tap: Sag <emphasis level=\"strong\">Sitzt perfekt</emphasis>, <emphasis level=\"moderate\">Unsicher</emphasis> oder <emphasis level=\"strong\">Nochmal</emphasis>.</prosody></p>", "carplay_hud_caption": "SPRACHBEFEHL: SITZT PERFEKT | UNSICHER | NOCHMAL"}], "ssml_document": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<speak version=\"1.1\" xmlns=\"http://www.w3.org/2001/10/synthesis\" xml:lang=\"de-DE\">\n  <p><emphasis level=\"moderate\">Fallbeispiel (Handlungsfeld 3 & 4: Ausbildung durchführen & abschließen (Methodik / Prüfung)):</emphasis> <prosody rate=\"98%\">Du bereitest deine praktische AEVO-Unterweisungsprobe für eine psychomotorische Fertigkeit im 1. Lehrjahr vor. Nenne exakt die 4 Phasen der klassischen Vier-Stufen-Methode und grenze sie von den 6 Stufen der vollständigen Handlung ab.</prosody></p>\n  <p><prosody rate=\"92%\">Jetzt laut antworten. Paragraph und Voraussetzung?</prosody> <break time=\"4500ms\"/></p>\n  <p><emphasis level=\"strong\">Musterlösung nach § 3 AEVO (Handlungsfeld 3) & § 14 BBiG (Berufliche Handlungsfähigkeit):</emphasis> <prosody rate=\"98%\">Die 4-Stufen-Methode für psychomotorische Fertigkeiten lautet: Stufe 1: Vorbereiten und Motivieren (Lernziel nennen, Vorkenntnisse aktivieren). Stufe 2: Vormachen und Erklären durch den Ausbilder (Was, Wie, Warum). Stufe 3: Nachmachen und Erklären lassen durch den Auszubildenden (Verständniskontrolle). Stufe 4: Üben und Festigen (Selbstständige Vertiefung, Erfolgskontrolle). Für kognitive und komplexe Aufgaben nutzt man das Modell der vollständigen Handlung (6 Phasen: Informieren, Planen, Entscheiden, Ausführen, Kontrollieren, Bewerten).</prosody> <break time=\"600ms\"/> <emphasis level=\"moderate\">Eselsbrücke fürs Steuer:</emphasis> 4-Stufen V-V-N-Ü (Vorbereiten, Vormachen, Nachmachen, Üben) vs. 6-Stufen I-P-E-A-K-B! <break time=\"400ms\"/> <prosody pitch=\"-2%\">IHK-Prüfungsfalle: In der praktischen AEVO-Prüfung: In Stufe 2 der 4-Stufen-Methode führt IMMER noch der Ausbilder vor und erklärt das Warum — erst in Stufe 3 macht der Azubi selbst und erklärt dabei jeden Schritt!</prosody></p>\n  <p><prosody rate=\"95%\">Sprachbefehl oder Lenkrad-Tap: Sag <emphasis level=\"strong\">Sitzt perfekt</emphasis>, <emphasis level=\"moderate\">Unsicher</emphasis> oder <emphasis level=\"strong\">Nochmal</emphasis>.</prosody></p>\n</speak>"}, {"card_id": "AEVO-HF4-PRUEFUNG", "track_id": "ihk_aevo_ada", "domain_id": "hf3_durchfuehren", "domain_name": "Handlungsfeld 3 & 4: Ausbildung durchführen & abschließen (Methodik / Prüfung)", "domain_exam_weight_pct": 55.0, "title": "Nichtbestehen der Abschlussprüfung und Verlängerung nach § 21 Abs. 3 BBiG", "statute_reference": "§ 21 Abs. 2 & 3 BBiG (Beendigung & Verlängerung bei Nichtbestehen)", "exam_trap_warning": "Das Ausbildungsverhältnis verlängert sich bei Nichtbestehen NICHT automatisch, sondern nur auf ausdrückliches Verlangen des Auszubildenden bis zur nächsten Wiederholungsprüfung, höchstens um 1 Jahr!", "phase_1_scenario": "Dein Auszubildender fällt durch die IHK-Abschlussprüfung und möchte die Prüfung in 6 Monaten wiederholen. Verlängert sich der Ausbildungsvertrag automatisch, oder was genau regelt Paragraph 21 Absatz 3 BBiG?", "active_recall_pause_seconds": 4.5, "phase_3_solution": "Nein, keine automatische Verlängerung! Gemäß Paragraph 21 Absatz 3 BBiG verlängert sich das Berufsausbildungsverhältnis bei Nichtbestehen der Abschlussprüfung nur auf Verlangen der Auszubildenden bis zur nächstmöglichen Wiederholungsprüfung, höchstens jedoch um ein Jahr. Der Betrieb muss diesem Verlangen zustimmen, hat also kein Ablehnungsrecht.", "phase_3_mnemonic": "Paragraph 21 Absatz 3 BBiG: Azubi verlangt, Vertrag verlängert sich zwingend bis zur nächsten Prüfung (maximal 1 Jahr)!", "key_terms": ["§ 21 Abs. 3 BBiG", "Verlangen des Azubis", "Maximal 1 Jahr Verlängerung", "§ 37 BBiG (2 Wiederholungen)"], "sm2_state": {"card_id": "AEVO-HF4-PRUEFUNG", "repetitions": 2, "easiness_factor": 2.5, "interval_days": 6, "last_quality": 4, "next_review_iso": "2026-10-23"}, "four_phase_cycle": [{"phase_number": 1, "phase_code": "PHASE_1_SCENARIO", "phase_title": "Phase 1: Praxis-Fallbeispiel am Steuer", "duration_seconds": 14.0, "spoken_text": "Dein Auszubildender fällt durch die IHK-Abschlussprüfung und möchte die Prüfung in 6 Monaten wiederholen. Verlängert sich der Ausbildungsvertrag automatisch, oder was genau regelt Paragraph 21 Absatz 3 BBiG?", "ssml_fragment": "<p><emphasis level=\"moderate\">Fallbeispiel (Handlungsfeld 3 & 4: Ausbildung durchführen & abschließen (Methodik / Prüfung)):</emphasis> <prosody rate=\"98%\">Dein Auszubildender fällt durch die IHK-Abschlussprüfung und möchte die Prüfung in 6 Monaten wiederholen. Verlängert sich der Ausbildungsvertrag automatisch, oder was genau regelt Paragraph 21 Absatz 3 BBiG?</prosody></p>", "carplay_hud_caption": "FALL: Nichtbestehen der Abschlussprüfung und Verlängerung nach § 21 Abs. 3 BBiG"}, {"phase_number": 2, "phase_code": "PHASE_2_ACTIVE_RECALL_GAP", "phase_title": "Phase 2: 4.5s Active-Recall Sprechpause", "duration_seconds": 4.5, "spoken_text": "[4,5 Sekunden aktive Sprechpause — Antworte jetzt laut im Fahrzeug]", "ssml_fragment": "<p><prosody rate=\"92%\">Jetzt laut antworten. Paragraph und Voraussetzung?</prosody> <break time=\"4500ms\"/></p>", "carplay_hud_caption": "JETZT LAUT ANTWORTEN (4.5s)"}, {"phase_number": 3, "phase_code": "PHASE_3_STATUTE_MNEMONIC", "phase_title": "Phase 3: Musterlösung mit Gesetzesparagraphen & Eselsbrücke", "duration_seconds": 18.0, "spoken_text": "§ 21 Abs. 2 & 3 BBiG (Beendigung & Verlängerung bei Nichtbestehen): Nein, keine automatische Verlängerung! Gemäß Paragraph 21 Absatz 3 BBiG verlängert sich das Berufsausbildungsverhältnis bei Nichtbestehen der Abschlussprüfung nur auf Verlangen der Auszubildenden bis zur nächstmöglichen Wiederholungsprüfung, höchstens jedoch um ein Jahr. Der Betrieb muss diesem Verlangen zustimmen, hat also kein Ablehnungsrecht. Eselsbrücke: Paragraph 21 Absatz 3 BBiG: Azubi verlangt, Vertrag verlängert sich zwingend bis zur nächsten Prüfung (maximal 1 Jahr)! Prüfungsfalle: Das Ausbildungsverhältnis verlängert sich bei Nichtbestehen NICHT automatisch, sondern nur auf ausdrückliches Verlangen des Auszubildenden bis zur nächsten Wiederholungsprüfung, höchstens um 1 Jahr!", "ssml_fragment": "<p><emphasis level=\"strong\">Musterlösung nach § 21 Abs. 2 & 3 BBiG (Beendigung & Verlängerung bei Nichtbestehen):</emphasis> <prosody rate=\"98%\">Nein, keine automatische Verlängerung! Gemäß Paragraph 21 Absatz 3 BBiG verlängert sich das Berufsausbildungsverhältnis bei Nichtbestehen der Abschlussprüfung nur auf Verlangen der Auszubildenden bis zur nächstmöglichen Wiederholungsprüfung, höchstens jedoch um ein Jahr. Der Betrieb muss diesem Verlangen zustimmen, hat also kein Ablehnungsrecht.</prosody> <break time=\"600ms\"/> <emphasis level=\"moderate\">Eselsbrücke fürs Steuer:</emphasis> Paragraph 21 Absatz 3 BBiG: Azubi verlangt, Vertrag verlängert sich zwingend bis zur nächsten Prüfung (maximal 1 Jahr)! <break time=\"400ms\"/> <prosody pitch=\"-2%\">IHK-Prüfungsfalle: Das Ausbildungsverhältnis verlängert sich bei Nichtbestehen NICHT automatisch, sondern nur auf ausdrückliches Verlangen des Auszubildenden bis zur nächsten Wiederholungsprüfung, höchstens um 1 Jahr!</prosody></p>", "carplay_hud_caption": "LÖSUNG: § 21 Abs. 2 & 3 BBiG (Beendigung & Verlängerung bei Nichtbestehen)"}, {"phase_number": 4, "phase_code": "PHASE_4_SM2_VOICE_FEEDBACK", "phase_title": "Phase 4: SM-2 Spaced-Repetition Intervall-Update per Sprachbefehl/Lenkrad-Tap", "duration_seconds": 4.0, "spoken_text": "Bewerte deine Antwort per Sprachbefehl oder Lenkrad-Tap: 'Sitzt perfekt' (Intervall verlängern), 'Unsicher' (kurzes Intervall) oder 'Nochmal' (sofort wiederholen).", "ssml_fragment": "<p><prosody rate=\"95%\">Sprachbefehl oder Lenkrad-Tap: Sag <emphasis level=\"strong\">Sitzt perfekt</emphasis>, <emphasis level=\"moderate\">Unsicher</emphasis> oder <emphasis level=\"strong\">Nochmal</emphasis>.</prosody></p>", "carplay_hud_caption": "SPRACHBEFEHL: SITZT PERFEKT | UNSICHER | NOCHMAL"}], "ssml_document": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<speak version=\"1.1\" xmlns=\"http://www.w3.org/2001/10/synthesis\" xml:lang=\"de-DE\">\n  <p><emphasis level=\"moderate\">Fallbeispiel (Handlungsfeld 3 & 4: Ausbildung durchführen & abschließen (Methodik / Prüfung)):</emphasis> <prosody rate=\"98%\">Dein Auszubildender fällt durch die IHK-Abschlussprüfung und möchte die Prüfung in 6 Monaten wiederholen. Verlängert sich der Ausbildungsvertrag automatisch, oder was genau regelt Paragraph 21 Absatz 3 BBiG?</prosody></p>\n  <p><prosody rate=\"92%\">Jetzt laut antworten. Paragraph und Voraussetzung?</prosody> <break time=\"4500ms\"/></p>\n  <p><emphasis level=\"strong\">Musterlösung nach § 21 Abs. 2 & 3 BBiG (Beendigung & Verlängerung bei Nichtbestehen):</emphasis> <prosody rate=\"98%\">Nein, keine automatische Verlängerung! Gemäß Paragraph 21 Absatz 3 BBiG verlängert sich das Berufsausbildungsverhältnis bei Nichtbestehen der Abschlussprüfung nur auf Verlangen der Auszubildenden bis zur nächstmöglichen Wiederholungsprüfung, höchstens jedoch um ein Jahr. Der Betrieb muss diesem Verlangen zustimmen, hat also kein Ablehnungsrecht.</prosody> <break time=\"600ms\"/> <emphasis level=\"moderate\">Eselsbrücke fürs Steuer:</emphasis> Paragraph 21 Absatz 3 BBiG: Azubi verlangt, Vertrag verlängert sich zwingend bis zur nächsten Prüfung (maximal 1 Jahr)! <break time=\"400ms\"/> <prosody pitch=\"-2%\">IHK-Prüfungsfalle: Das Ausbildungsverhältnis verlängert sich bei Nichtbestehen NICHT automatisch, sondern nur auf ausdrückliches Verlangen des Auszubildenden bis zur nächsten Wiederholungsprüfung, höchstens um 1 Jahr!</prosody></p>\n  <p><prosody rate=\"95%\">Sprachbefehl oder Lenkrad-Tap: Sag <emphasis level=\"strong\">Sitzt perfekt</emphasis>, <emphasis level=\"moderate\">Unsicher</emphasis> oder <emphasis level=\"strong\">Nochmal</emphasis>.</prosody></p>\n</speak>"}]}}};
+    let currentTrackId = "ihk_34a_gewo";
+    let currentCardIndex = 0;
+    let activeTimers = [];
+
+    function clearTimers() {
+      activeTimers.forEach(t => clearTimeout(t));
+      activeTimers = [];
+      if ("speechSynthesis" in window) {
+        window.speechSynthesis.cancel();
+      }
+      document.getElementById("countdownBar").style.width = "0%";
+    }
+
+    function setPhaseHighlight(stepNum) {
+      document.querySelectorAll(".phase-step").forEach(el => {
+        el.classList.toggle("active", Number(el.dataset.step) === stepNum);
+      });
+    }
+
+    function renderTrackTabs() {
+      const container = document.getElementById("trackTabs");
+      container.innerHTML = "";
+      Object.values(MANIFEST.tracks).forEach(track => {
+        const btn = document.createElement("button");
+        btn.className = "track-tab" + (track.track_id === currentTrackId ? " active" : "");
+        btn.textContent = track.short_code + " · " + track.drills.length + " Audio-Drills";
+        btn.onclick = () => {
+          clearTimers();
+          currentTrackId = track.track_id;
+          currentCardIndex = 0;
+          renderAll();
+        };
+        container.appendChild(btn);
+      });
+    }
+
+    function renderAll() {
+      renderTrackTabs();
+      const track = MANIFEST.tracks[currentTrackId];
+      const drill = track.drills[currentCardIndex];
+      const report = track.readiness_report;
+
+      document.getElementById("hudTrackBadge").textContent = track.short_code + " · HANDS-FREE AUTO-MODUS";
+      document.getElementById("cardCounterLabel").textContent =
+        `Karte ${currentCardIndex + 1} / ${track.drills.length} · ${drill.domain_name}`;
+      document.getElementById("drillTitle").textContent = drill.title;
+      document.getElementById("statuteBadge").textContent = drill.statute_reference;
+      document.getElementById("phase1Text").textContent = drill.phase_1_scenario;
+      document.getElementById("phase2Status").textContent =
+        `Active-Recall Sprechpause (${drill.active_recall_pause_seconds.toFixed(1)} Sekunden) — Antworte laut am Steuer, bevor Phase 3 startet.`;
+      document.getElementById("phase3Solution").textContent = drill.phase_3_solution;
+      document.getElementById("phase3Mnemonic").textContent = "💡 Eselsbrücke: " + drill.phase_3_mnemonic;
+      document.getElementById("phase3Trap").textContent = "⚠️ IHK-Prüfungsfalle: " + drill.exam_trap_warning;
+      document.getElementById("ssmlPreview").textContent = drill.ssml_document;
+
+      const sm2 = drill.sm2_state;
+      document.getElementById("sm2StateLabel").textContent =
+        `SM-2 Status: EF ${sm2.easiness_factor.toFixed(2)} · Intervall ${sm2.interval_days} Tag(e) · Wiederholungen: ${sm2.repetitions}`;
+      document.getElementById("nextReviewLabel").textContent =
+        `Nächste Fälligkeit: ${sm2.next_review_iso || "Heute"}`;
+
+      document.getElementById("guaranteeIndexValue").textContent =
+        report.bestehensgarantie_index_pct.toFixed(1) + "%";
+      const badge = document.getElementById("guaranteeBadge");
+      if (report.pass_guarantee_unlocked) {
+        badge.textContent = "GARANTIE FREIGESCHALTET (≥ 85%)";
+        badge.style.background = "#065f46";
+      } else {
+        badge.textContent = "NOCH IM AUFBAU (< 85%)";
+        badge.style.background = "#92400e";
+      }
+
+      const domContainer = document.getElementById("domainBreakdownContainer");
+      domContainer.innerHTML = "";
+      report.domain_breakdown.forEach(d => {
+        const row = document.createElement("div");
+        row.className = "domain-row";
+        row.innerHTML = `
+          <div class="domain-header">
+            <span><strong>${d.domain_name}</strong> (${d.exam_weight_pct}% Prüfungsgewicht)</span>
+            <span style="color:#34d399;font-weight:700;">${d.accuracy_pct.toFixed(1)}% · ${d.status}</span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill" style="width:${Math.min(100, d.accuracy_pct)}%"></div>
+          </div>
+        `;
+        domContainer.appendChild(row);
+      });
+
+      document.getElementById("trackMetaInfo").textContent =
+        `${track.annual_candidates_dach_est} · Format: ${track.ihk_exam_format}`;
+      document.getElementById("priceB2C").textContent = track.pricing_b2c_lifetime_eur + " €";
+      document.getElementById("priceB2B").textContent = track.pricing_b2b_seat_eur + " € / Sitz";
+    }
+
+    function speakGerman(text, onEndCallback) {
+      if (!("speechSynthesis" in window)) {
+        if (onEndCallback) activeTimers.push(setTimeout(onEndCallback, 1200));
+        return;
+      }
+      const utter = new SpeechSynthesisUtterance(text);
+      utter.lang = "de-DE";
+      utter.rate = 0.98;
+      utter.onend = () => { if (onEndCallback) onEndCallback(); };
+      window.speechSynthesis.speak(utter);
+    }
+
+    function playFourPhaseCycle() {
+      clearTimers();
+      const track = MANIFEST.tracks[currentTrackId];
+      const drill = track.drills[currentCardIndex];
+      setPhaseHighlight(1);
+
+      speakGerman("Phase 1, Fallbeispiel: " + drill.phase_1_scenario, () => {
+        setPhaseHighlight(2);
+        const pauseMs = drill.active_recall_pause_seconds * 1000;
+        const bar = document.getElementById("countdownBar");
+        const start = performance.now();
+
+        function tick(now) {
+          const pct = Math.min(100, ((now - start) / pauseMs) * 100);
+          bar.style.width = pct + "%";
+          if (pct < 100) {
+            requestAnimationFrame(tick);
+          }
+        }
+        requestAnimationFrame(tick);
+
+        activeTimers.push(setTimeout(() => {
+          setPhaseHighlight(3);
+          speakGerman(
+            `Phase 3, Musterlösung nach ${drill.statute_reference}: ${drill.phase_3_solution} Eselsbrücke: ${drill.phase_3_mnemonic}`,
+            () => {
+              setPhaseHighlight(4);
+              speakGerman("Phase 4: Sag jetzt Sitzt perfekt, Unsicher oder Nochmal.");
+            }
+          );
+        }, pauseMs));
+      });
+    }
+
+    function applySm2Rating(quality) {
+      const track = MANIFEST.tracks[currentTrackId];
+      const drill = track.drills[currentCardIndex];
+      const sm2 = drill.sm2_state;
+      const qDiff = 5 - quality;
+      sm2.easiness_factor = Math.max(1.3, sm2.easiness_factor + (0.1 - qDiff * (0.08 + qDiff * 0.02)));
+      if (quality < 3) {
+        sm2.repetitions = 0;
+        sm2.interval_days = 1;
+      } else {
+        sm2.repetitions += 1;
+        if (sm2.repetitions === 1) sm2.interval_days = 1;
+        else if (sm2.repetitions === 2) sm2.interval_days = 6;
+        else sm2.interval_days = Math.max(1, Math.round(sm2.interval_days * sm2.easiness_factor));
+      }
+      setPhaseHighlight(4);
+      renderAll();
+    }
+
+    document.getElementById("btnPlayCycle").onclick = playFourPhaseCycle;
+    document.getElementById("btnStopAudio").onclick = clearTimers;
+    document.getElementById("btnPrevCard").onclick = () => {
+      clearTimers();
+      const drills = MANIFEST.tracks[currentTrackId].drills;
+      currentCardIndex = (currentCardIndex - 1 + drills.length) % drills.length;
+      renderAll();
+    };
+    document.getElementById("btnNextCard").onclick = () => {
+      clearTimers();
+      const drills = MANIFEST.tracks[currentTrackId].drills;
+      currentCardIndex = (currentCardIndex + 1) % drills.length;
+      renderAll();
+    };
+
+    renderAll();
+  </script>
+</body>
+</html>

@@ -1,0 +1,1206 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MVP #32 · DACH Legacy Accounting Unified REST &amp; MCP Bridge (Lexware + DATEV)</title>
+  <style>
+    :root {
+      --bg: #0b0d13;
+      --panel: #121621;
+      --panel-alt: #171c2b;
+      --border: #262e45;
+      --text: #e5e9f5;
+      --muted: #939db8;
+      --accent: #6366f1;
+      --accent-soft: rgba(99, 102, 241, 0.16);
+      --emerald: #10b981;
+      --emerald-soft: rgba(16, 185, 129, 0.15);
+      --amber: #f59e0b;
+      --amber-soft: rgba(245, 158, 11, 0.15);
+      --rose: #f43f5e;
+      --mono: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
+      --sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      line-height: 1.55;
+      padding: 28px 32px 64px;
+    }
+    .container { max-width: 1440px; margin: 0 auto; }
+    header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 20px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 26px;
+    }
+    .eyebrow {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #818cf8;
+      margin-bottom: 6px;
+    }
+    h1 { font-size: 26px; font-weight: 700; letter-spacing: -0.02em; }
+    .subtitle { color: var(--muted); font-size: 14px; max-width: 780px; margin-top: 6px; }
+    .kpi-strip {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 14px;
+      margin-bottom: 26px;
+    }
+    .kpi-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 18px;
+    }
+    .kpi-label { font-size: 11.5px; color: var(--muted); font-family: var(--mono); text-transform: uppercase; }
+    .kpi-val { font-size: 24px; font-weight: 700; margin-top: 4px; color: #fff; }
+    .kpi-sub { font-size: 12px; color: var(--emerald); margin-top: 4px; }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      margin-bottom: 24px;
+    }
+    @media (max-width: 1024px) { .grid-2 { grid-template-columns: 1fr; } }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px 22px;
+      margin-bottom: 22px;
+    }
+    .card h2 {
+      font-size: 16.5px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .badge {
+      display: inline-block;
+      padding: 3px 9px;
+      border-radius: 999px;
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .badge-indigo { background: var(--accent-soft); color: #a5b4fc; border: 1px solid rgba(99,102,241,0.35); }
+    .badge-emerald { background: var(--emerald-soft); color: #6ee7b7; border: 1px solid rgba(16,185,129,0.35); }
+    .badge-amber { background: var(--amber-soft); color: #fcd34d; border: 1px solid rgba(245,158,11,0.35); }
+    .badge-slate { background: rgba(148,163,184,0.12); color: #cbd5e1; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    th, td {
+      text-align: left;
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+    th {
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      background: var(--panel-alt);
+    }
+    code {
+      font-family: var(--mono);
+      font-size: 12px;
+      background: rgba(255,255,255,0.06);
+      padding: 2px 6px;
+      border-radius: 5px;
+      color: #c7d2fe;
+    }
+    .tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 10px;
+    }
+    .tab-btn {
+      background: var(--panel-alt);
+      color: var(--muted);
+      border: 1px solid var(--border);
+      padding: 8px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 600;
+      transition: all 0.15s ease;
+    }
+    .tab-btn.active {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+    .tab-pane { display: none; }
+    .tab-pane.active { display: block; }
+    pre {
+      background: #080a0f;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px;
+      overflow-x: auto;
+      font-family: var(--mono);
+      font-size: 12px;
+      line-height: 1.5;
+      color: #d1d5db;
+      max-height: 460px;
+    }
+    .calc-row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+    input[type="range"] { width: 260px; accent-color: var(--accent); }
+    .teardown-list li {
+      margin-bottom: 7px;
+      color: #d1d9ec;
+      font-size: 13.5px;
+      list-style-position: inside;
+    }
+  </style>
+</head>
+<body>
+
+<!-- DACH CASHFLOW STUDIOS LAUNCH BAR -->
+<style>
+  #dcs-launch-bar {
+    position: sticky;
+    top: 0;
+    z-index: 99999;
+    background: linear-gradient(90deg, #0b1120 0%, #111827 50%, #0f172a 100%);
+    color: #f8fafc;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.35);
+    padding: 8px 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  }
+  #dcs-launch-bar .dcs-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+  }
+  #dcs-launch-bar .dcs-badge {
+    background: rgba(16, 185, 129, 0.18);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.03em;
+  }
+  #dcs-launch-bar a.dcs-nav {
+    color: #93c5fd;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 12.5px;
+  }
+  #dcs-launch-bar a.dcs-nav:hover {
+    text-decoration: underline;
+    color: #dbeafe;
+  }
+  #dcs-launch-bar .dcs-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  #dcs-launch-bar .dcs-btn {
+    padding: 5px 11px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s ease;
+  }
+  #dcs-launch-bar .dcs-btn-ghost {
+    background: rgba(255,255,255,0.08);
+    color: #e2e8f0;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  #dcs-launch-bar .dcs-btn-primary {
+    background: linear-gradient(135deg, #0ea5e9, #2563eb);
+    color: #ffffff;
+  }
+  #dcs-launch-bar .dcs-btn-emerald {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
+  }
+  @media print {
+    #dcs-launch-bar { display: none !important; }
+  }
+</style>
+<div id="dcs-launch-bar">
+  <div class="dcs-left">
+    <a href="/index.html" class="dcs-nav">← Alle 150 DACH Studios</a>
+    <span class="dcs-badge">MVP #032 VERIFIED</span>
+    <span style="color:#cbd5e1;font-size:12px;">DACH Tax, Corporate & Accounting Arbitrage</span>
+  </div>
+  <div class="dcs-actions">
+    <button onclick="window.print()" class="dcs-btn dcs-btn-ghost">🖨️ PDF / Dossier drucken</button>
+    <a href="#checkout-modal-49" target="_blank" rel="noopener" class="dcs-btn dcs-btn-primary">⚡ Musterschreiben & Voll-Dossier (€49)</a>
+    <a href="#checkout-modal-299" target="_blank" rel="noopener" class="dcs-btn dcs-btn-emerald">🛡️ B2B Umsetzung buchen (€299 / €1.490)</a>
+  </div>
+</div>
+
+  <div class="container">
+    <header>
+      <div>
+        <div class="eyebrow">Round 6 Gold-Dive · MVP #32 · DACH Financial Infrastructure</div>
+        <h1>Conductor-for-DACH · Lexware &amp; DATEV Unified REST + MCP Bridge</h1>
+        <p class="subtitle">
+          Echtzeit-Passthrough-API &amp; Model Context Protocol (MCP) Bridge für lokale deutsche Buchhaltungs-Desktop-Installationen
+          (<strong>Lexware Buchhaltung / Büro Easy</strong> &amp; <strong>DATEV Rechnungswesen / RDS 1.0</strong>) inkl. deterministischer
+          Steuerschlüssel-, SKR03/SKR04- und GoBD-Festschreibungs-Engine.
+        </p>
+      </div>
+      <div>
+        <span class="badge badge-emerald">● DWC Web Connector Warm (340ms)</span>
+        <span class="badge badge-indigo">GoBD Merkle Verified</span>
+      </div>
+    </header>
+
+    <section class="kpi-strip">
+      <div class="kpi-card">
+        <div class="kpi-label">Conductor.is Benchmark</div>
+        <div class="kpi-val">$40,740 / 30d</div>
+        <div class="kpi-sub">$42.9k MRR · 278 Subs · 95.0% Margin ($49/File)</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Fastwrite.io Benchmark</div>
+        <div class="kpi-val">$13,136 / 30d</div>
+        <div class="kpi-sub">605 Subs · 30k Studierende · Word Add-in + MCP</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">DACH Bridge Pricing</div>
+        <div class="kpi-val">€39 / Mandant</div>
+        <div class="kpi-sub">Pro aktiver Buchungsdatei / Monat · 95% Marge</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">GoBD Merkle Root (SKR03)</div>
+        <div class="kpi-val"><code>98573caa81fb…</code></div>
+        <div class="kpi-sub">5 deterministische Export-Artefakte versiegelt</div>
+      </div>
+    </section>
+
+    <div class="grid-2">
+      <div class="card">
+        <h2>
+          <span>1. Conductor.is Teardown ($40.7k/30d · 95% Margin)</span>
+          <span class="badge badge-indigo">QuickBooks Desktop API</span>
+        </h2>
+        <ul class="teardown-list">
+          <li><strong>Pricing:</strong> $49/Monat pro aktiv genutzter QuickBooks Desktop Company File (kostenlose Sandbox/Trial-Files, Deduplizierung bei Multi-Host-Zugriff auf dieselbe Datei).</li>
+          <li><strong>Zero-Cache Passthrough:</strong> Keine Speicherung der Finanzbuchhaltung in der Cloud. Jeder REST/MCP-Call wird in Echtzeit in <code>qbXML</code> übersetzt und über den lokalen Windows <em>QuickBooks Web Connector (QBWC)</em> ausgeführt (0,44s Median-Latenz im 10s Warm-Session-Fenster).</li>
+          <li><strong>Onboarding via .QWC Datei:</strong> End-User öffnet gehosteten Auth-Flow (<code>connect.conductor.is</code>), lädt eine generierte <code>.qwc</code> Konfigurationsdatei herunter und autorisiert einmalig den Background-User.</li>
+          <li><strong>Stainless MCP Server:</strong> Gehosteter HTTP-MCP (<code>https://mcp.conductor.is/</code>) + <code>npx -y conductor-node-mcp</code> mit Read-Only Guardrail Header (<code>x-stainless-mcp-client-permissions: {"allow_http_gets":true}</code>).</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h2>
+          <span>2. Fastwrite.io Teardown ($13.1k/30d · DocuTrust GmbH)</span>
+          <span class="badge badge-emerald">German Word Add-in + MCP</span>
+        </h2>
+        <ul class="teardown-list">
+          <li><strong>Betreiber &amp; Traktion:</strong> DocuTrust GmbH (Hamburg, HRB 191525 — Timothy Williams, Andre Timofeev, Moritz Ledeganck). $202.8k All-Time Revenue, 605 zahlende Abos, &gt;30.000 Studierende (LMU, Göttingen, Paderborn, FOM, IU).</li>
+          <li><strong>Pricing-Tiers:</strong> <strong>Free (€0)</strong> inkl. 5 PDFs (je 1.000 Seiten) &amp; Claude/ChatGPT MCP-Connector · <strong>Premium (€22/Mo</strong> bzw. €11/Mo im Jahresabo) mit unbegrenztem Word-Autocomplete &amp; Deep Review · <strong>Ultimate (€35/Mo)</strong> mit 250 KI-Betreuer-Nachrichten.</li>
+          <li><strong>In-Word UX + Anti-Halluzinations-Schalter:</strong> Schlägt direkt in MS Word (Office.js / C# / Swift) nächste Sätze vor (<code>Tab</code> übernimmt Text + APA-7/Harvard-Zitat mit Seitenzahl). Der <em>„Nur-eigene-Quellen-Modus“</em> unterbindet erfundene Belege komplett.</li>
+          <li><strong>MCP als B2C-Akquise-Wedge:</strong> Kostenloser 1-Klick OAuth-Konnektor im offiziellen Claude-Verzeichnis (<code>claude.ai/directory/fastwrite</code>) &amp; ChatGPT App Store.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>
+        <span>3. DACH Steuerschlüssel &amp; Kontenrahmen-Matrix (SKR03 / SKR04 / DATEV BU / Lexware)</span>
+        <span class="badge badge-indigo">Strict Tax Validation</span>
+      </h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Unified Tax Code</th>
+            <th>DATEV BU</th>
+            <th>Lexware Key</th>
+            <th>USt-Satz</th>
+            <th>SKR03 (Erlös / Aufw.)</th>
+            <th>SKR04 (Erlös / Aufw.)</th>
+            <th>USt-IdNr. Check</th>
+            <th>Steuerrechtliche Bedeutung</th>
+          </tr>
+        </thead>
+        <tbody>
+          
+        <tr>
+          <td><span class="badge badge-indigo">DE_UST_19</span></td>
+          <td><code>BU 3</code></td>
+          <td><code>UST_19</code></td>
+          <td><strong>19.00%</strong></td>
+          <td><code>8400</code> / <code>3400</code></td>
+          <td><code>4400</code> / <code>5400</code></td>
+          <td><span class='badge badge-slate'>Optional</span></td>
+          <td>Umsatzsteuer 19% / Vorsteuer 19% (Regelsteuersatz § 12 Abs. 1 UStG)</td>
+        </tr>
+        
+        <tr>
+          <td><span class="badge badge-indigo">DE_UST_7</span></td>
+          <td><code>BU 2</code></td>
+          <td><code>UST_7</code></td>
+          <td><strong>7.00%</strong></td>
+          <td><code>8300</code> / <code>3300</code></td>
+          <td><code>4300</code> / <code>5300</code></td>
+          <td><span class='badge badge-slate'>Optional</span></td>
+          <td>Umsatzsteuer 7% / Vorsteuer 7% (Ermäßigter Steuersatz § 12 Abs. 2 UStG)</td>
+        </tr>
+        
+        <tr>
+          <td><span class="badge badge-indigo">DE_UST_0_EXPORT</span></td>
+          <td><code>BU 4</code></td>
+          <td><code>UST_0_DRITTLAND</code></td>
+          <td><strong>0.00%</strong></td>
+          <td><code>8120</code> / <code>3120</code></td>
+          <td><code>4120</code> / <code>5120</code></td>
+          <td><span class='badge badge-slate'>Optional</span></td>
+          <td>Steuerfreie Ausfuhrlieferung Drittland (§ 4 Nr. 1a UStG)</td>
+        </tr>
+        
+        <tr>
+          <td><span class="badge badge-indigo">EU_IGE_19</span></td>
+          <td><code>BU 11</code></td>
+          <td><code>EU_IGL_19</code></td>
+          <td><strong>0.00%</strong></td>
+          <td><code>8125</code> / <code>3425</code></td>
+          <td><code>4125</code> / <code>5425</code></td>
+          <td><span class='badge badge-amber'>Pflicht (§18a UStG)</span></td>
+          <td>Innergemeinschaftliche Lieferung / Leistung (§ 4 Nr. 1b i.V.m. § 6a UStG)</td>
+        </tr>
+        
+        <tr>
+          <td><span class="badge badge-indigo">RC_13B_19</span></td>
+          <td><code>BU 94</code></td>
+          <td><code>U13B_19</code></td>
+          <td><strong>0.00%</strong></td>
+          <td><code>8337</code> / <code>3123</code></td>
+          <td><code>4337</code> / <code>5923</code></td>
+          <td><span class='badge badge-amber'>Pflicht (§18a UStG)</span></td>
+          <td>Steuerschuldnerschaft des Leistungsempfängers § 13b UStG (Reverse Charge)</td>
+        </tr>
+        
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>
+        <span>4. Live Konverter-Vorschau: SaaS JSON/MCP &rarr; Lexware ASCII/XML &amp; DATEV RDS 1.0 / EXTF</span>
+        <span class="badge badge-emerald">Mandant 10420 (SKR03) + 20890 (SKR04)</span>
+      </h2>
+      <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('lex-csv', this)">Lexware ASCII (CSV)</button>
+        <button class="tab-btn" onclick="switchTab('lex-xml', this)">Lexware eRechnung XML</button>
+        <button class="tab-btn" onclick="switchTab('datev-rds', this)">DATEV RDS 1.0 (LedgerImport.xml)</button>
+        <button class="tab-btn" onclick="switchTab('datev-doc', this)">DATEV document.xml</button>
+        <button class="tab-btn" onclick="switchTab('datev-extf', this)">DATEV EXTF Buchungsstapel (v700)</button>
+        <button class="tab-btn" onclick="switchTab('gobd-xml', this)">GoBD Index &amp; Hash-Chain</button>
+        <button class="tab-btn" onclick="switchTab('mcp-json', this)">Full Sync Manifest JSON</button>
+      </div>
+      <div id="lex-csv" class="tab-pane active"><pre>&quot;Belegdatum&quot;;&quot;Belegnummer&quot;;&quot;Buchungstext&quot;;&quot;BetragBrutto&quot;;&quot;KontoSoll&quot;;&quot;KontoHaben&quot;;&quot;Steuerschluessel&quot;;&quot;Kostenstelle1&quot;;&quot;Kostenstelle2&quot;;&quot;Waehrung&quot;;&quot;Festschreibung&quot;
+&quot;05.10.2026&quot;;&quot;RE-2026-4091&quot;;&quot;CNC-Fräskopf Serie X &amp; Fachbuch-Dokumentation Pos.1&quot;;&quot;3451,00&quot;;&quot;10042&quot;;&quot;8400&quot;;&quot;UST_19&quot;;&quot;PROD10&quot;;&quot;&quot;;&quot;EUR&quot;;&quot;1&quot;
+&quot;05.10.2026&quot;;&quot;RE-2026-4091&quot;;&quot;CNC-Fräskopf Serie X &amp; Fachbuch-Dokumentation Pos.2&quot;;&quot;107,00&quot;;&quot;10042&quot;;&quot;8300&quot;;&quot;UST_7&quot;;&quot;DOKU20&quot;;&quot;&quot;;&quot;EUR&quot;;&quot;1&quot;
+&quot;09.10.2026&quot;;&quot;RE-2026-4092&quot;;&quot;IGL Lieferung Sensorik-Modul Österreich Pos.1&quot;;&quot;2400,00&quot;;&quot;10088&quot;;&quot;8125&quot;;&quot;EU_IGL_19&quot;;&quot;EXP30&quot;;&quot;&quot;;&quot;EUR&quot;;&quot;1&quot;
+&quot;12.10.2026&quot;;&quot;ER-IE-88210&quot;;&quot;SaaS Payment Processing &amp; Cloud-Gebühren §13b Pos.1&quot;;&quot;420,50&quot;;&quot;3123&quot;;&quot;70055&quot;;&quot;U13B_19&quot;;&quot;IT90&quot;;&quot;&quot;;&quot;EUR&quot;;&quot;1&quot;
+</pre></div>
+      <div id="lex-xml" class="tab-pane"><pre>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;LexwareBuchungsListe xmlns=&quot;http://www.lexware.de/schema/buchhaltung/import/2026&quot; version=&quot;26.0&quot; kontenrahmen=&quot;SKR03&quot; mandant=&quot;AlpenWerk Präzisionstechnik GmbH&quot;&gt;
+  &lt;Buchungssatz id=&quot;bk_2026_1001&quot; typ=&quot;AR_OUTGOING&quot; festgeschrieben=&quot;true&quot;&gt;
+    &lt;Belegnummer&gt;RE-2026-4091&lt;/Belegnummer&gt;
+    &lt;Belegdatum&gt;2026-10-05&lt;/Belegdatum&gt;
+    &lt;Leistungsdatum&gt;2026-10-04&lt;/Leistungsdatum&gt;
+    &lt;Faelligkeitsdatum&gt;2026-10-19&lt;/Faelligkeitsdatum&gt;
+    &lt;Personenkonto&gt;10042&lt;/Personenkonto&gt;
+    &lt;Geschaeftspartner&gt;Bavaria Maschinenbau AG&lt;/Geschaeftspartner&gt;
+    &lt;UStIdNr&gt;DE129485731&lt;/UStIdNr&gt;
+    &lt;Waehrung&gt;EUR&lt;/Waehrung&gt;
+    &lt;GesamtBrutto&gt;3558.00&lt;/GesamtBrutto&gt;
+    &lt;Splittbuchungen&gt;
+      &lt;Position nr=&quot;1&quot;&gt;
+        &lt;Buchungstext&gt;CNC-Fräskopf Serie X inkl. Kalibrierung&lt;/Buchungstext&gt;
+        &lt;Sachkonto&gt;8400&lt;/Sachkonto&gt;
+        &lt;Steuerschluessel&gt;UST_19&lt;/Steuerschluessel&gt;
+        &lt;SteuersatzProzent&gt;19.00&lt;/SteuersatzProzent&gt;
+        &lt;Nettobetrag&gt;2900.00&lt;/Nettobetrag&gt;
+        &lt;Steuerbetrag&gt;551.00&lt;/Steuerbetrag&gt;
+        &lt;Bruttobetrag&gt;3451.00&lt;/Bruttobetrag&gt;
+        &lt;Kostenstelle1&gt;PROD10&lt;/Kostenstelle1&gt;
+      &lt;/Position&gt;
+      &lt;Position nr=&quot;2&quot;&gt;
+        &lt;Buchungstext&gt;Gedrucktes Technisches Handbuch (ermäßigt 7%)&lt;/Buchungstext&gt;
+        &lt;Sachkonto&gt;8300&lt;/Sachkonto&gt;
+        &lt;Steuerschluessel&gt;UST_7&lt;/Steuerschluessel&gt;
+        &lt;SteuersatzProzent&gt;7.00&lt;/SteuersatzProzent&gt;
+        &lt;Nettobetrag&gt;100.00&lt;/Nettobetrag&gt;
+        &lt;Steuerbetrag&gt;7.00&lt;/Steuerbetrag&gt;
+        &lt;Bruttobetrag&gt;107.00&lt;/Bruttobetrag&gt;
+        &lt;Kostenstelle1&gt;DOKU20&lt;/Kostenstelle1&gt;
+      &lt;/Position&gt;
+    &lt;/Splittbuchungen&gt;
+  &lt;/Buchungssatz&gt;
+  &lt;Buchungssatz id=&quot;bk_2026_1002&quot; typ=&quot;AR_OUTGOING&quot; festgeschrieben=&quot;true&quot;&gt;
+    &lt;Belegnummer&gt;RE-2026-4092&lt;/Belegnummer&gt;
+    &lt;Belegdatum&gt;2026-10-09&lt;/Belegdatum&gt;
+    &lt;Leistungsdatum&gt;2026-10-08&lt;/Leistungsdatum&gt;
+    &lt;Faelligkeitsdatum&gt;2026-11-08&lt;/Faelligkeitsdatum&gt;
+    &lt;Personenkonto&gt;10088&lt;/Personenkonto&gt;
+    &lt;Geschaeftspartner&gt;TirolTech Automatisierung GmbH&lt;/Geschaeftspartner&gt;
+    &lt;UStIdNr&gt;ATU67891234&lt;/UStIdNr&gt;
+    &lt;Waehrung&gt;EUR&lt;/Waehrung&gt;
+    &lt;GesamtBrutto&gt;2400.00&lt;/GesamtBrutto&gt;
+    &lt;Splittbuchungen&gt;
+      &lt;Position nr=&quot;1&quot;&gt;
+        &lt;Buchungstext&gt;Optisches Prüfmodul OPM-9 (steuerfreie igL)&lt;/Buchungstext&gt;
+        &lt;Sachkonto&gt;8125&lt;/Sachkonto&gt;
+        &lt;Steuerschluessel&gt;EU_IGL_19&lt;/Steuerschluessel&gt;
+        &lt;SteuersatzProzent&gt;0.00&lt;/SteuersatzProzent&gt;
+        &lt;Nettobetrag&gt;2400.00&lt;/Nettobetrag&gt;
+        &lt;Steuerbetrag&gt;0.00&lt;/Steuerbetrag&gt;
+        &lt;Bruttobetrag&gt;2400.00&lt;/Bruttobetrag&gt;
+        &lt;Kostenstelle1&gt;EXP30&lt;/Kostenstelle1&gt;
+      &lt;/Position&gt;
+    &lt;/Splittbuchungen&gt;
+  &lt;/Buchungssatz&gt;
+  &lt;Buchungssatz id=&quot;bk_2026_1003&quot; typ=&quot;AP_INCOMING&quot; festgeschrieben=&quot;true&quot;&gt;
+    &lt;Belegnummer&gt;ER-IE-88210&lt;/Belegnummer&gt;
+    &lt;Belegdatum&gt;2026-10-12&lt;/Belegdatum&gt;
+    &lt;Leistungsdatum&gt;2026-10-12&lt;/Leistungsdatum&gt;
+    &lt;Faelligkeitsdatum&gt;2026-10-12&lt;/Faelligkeitsdatum&gt;
+    &lt;Personenkonto&gt;70055&lt;/Personenkonto&gt;
+    &lt;Geschaeftspartner&gt;Stripe Payments Europe Ltd.&lt;/Geschaeftspartner&gt;
+    &lt;UStIdNr&gt;IE3206488LH&lt;/UStIdNr&gt;
+    &lt;Waehrung&gt;EUR&lt;/Waehrung&gt;
+    &lt;GesamtBrutto&gt;420.50&lt;/GesamtBrutto&gt;
+    &lt;Splittbuchungen&gt;
+      &lt;Position nr=&quot;1&quot;&gt;
+        &lt;Buchungstext&gt;Transaktionsgebühren Oktober (§ 13b UStG Reverse Charge)&lt;/Buchungstext&gt;
+        &lt;Sachkonto&gt;3123&lt;/Sachkonto&gt;
+        &lt;Steuerschluessel&gt;U13B_19&lt;/Steuerschluessel&gt;
+        &lt;SteuersatzProzent&gt;0.00&lt;/SteuersatzProzent&gt;
+        &lt;Nettobetrag&gt;420.50&lt;/Nettobetrag&gt;
+        &lt;Steuerbetrag&gt;0.00&lt;/Steuerbetrag&gt;
+        &lt;Bruttobetrag&gt;420.50&lt;/Bruttobetrag&gt;
+        &lt;Kostenstelle1&gt;IT90&lt;/Kostenstelle1&gt;
+      &lt;/Position&gt;
+    &lt;/Splittbuchungen&gt;
+  &lt;/Buchungssatz&gt;
+&lt;/LexwareBuchungsListe&gt;
+</pre></div>
+      <div id="datev-rds" class="tab-pane"><pre>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;LedgerImport xmlns=&quot;http://xml.datev.de/bedi/tps/ledger/v060&quot; xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; version=&quot;6.0&quot; generator_info=&quot;DACH-Unified-Accounting-Bridge-MVP32&quot; generating_system=&quot;ConductorDACH-Engine-1.4&quot; xml_data=&quot;Kopie nur zur Verbuchung berechtigt nicht zum Vorsteuerabzug&quot;&gt;
+  &lt;consolidate consolidatedAmount=&quot;6378.50&quot; consolidatedDate=&quot;2026-10-12&quot; consolidatedInvoiceId=&quot;BATCH-10420-202610&quot; consolidatedCurrencyCode=&quot;EUR&quot; consolidatedDeliveryDate=&quot;2026-10-12&quot;&gt;
+    &lt;accountsReceivableLedger&gt;
+      &lt;bookingDate&gt;2026-10-05&lt;/bookingDate&gt;
+      &lt;invoiceId&gt;RE-2026-4091&lt;/invoiceId&gt;
+      &lt;postingDescription&gt;CNC-Fräskopf Serie X &amp;amp; Fachbuch-Dokumentation&lt;/postingDescription&gt;
+      &lt;typeOfReceivable&gt;Rg&lt;/typeOfReceivable&gt;
+      &lt;amount&gt;3558.00&lt;/amount&gt;
+      &lt;accountNo&gt;10042&lt;/accountNo&gt;
+      &lt;currencyCode&gt;EUR&lt;/currencyCode&gt;
+      &lt;dueDate&gt;2026-10-19&lt;/dueDate&gt;
+      &lt;vatId&gt;DE129485731&lt;/vatId&gt;
+      &lt;deliveryDate&gt;2026-10-04&lt;/deliveryDate&gt;
+      &lt;ledgerLineItem&gt;
+        &lt;bookingAmount&gt;3451.00&lt;/bookingAmount&gt;
+        &lt;taxRate&gt;19.00&lt;/taxRate&gt;
+        &lt;taxKey&gt;3&lt;/taxKey&gt;
+        &lt;generalLedgerAccountNo&gt;8400&lt;/generalLedgerAccountNo&gt;
+        &lt;information&gt;CNC-Fräskopf Serie X inkl. Kalibrierung&lt;/information&gt;
+        &lt;costCategoryId1&gt;PROD10&lt;/costCategoryId1&gt;
+      &lt;/ledgerLineItem&gt;
+      &lt;ledgerLineItem&gt;
+        &lt;bookingAmount&gt;107.00&lt;/bookingAmount&gt;
+        &lt;taxRate&gt;7.00&lt;/taxRate&gt;
+        &lt;taxKey&gt;2&lt;/taxKey&gt;
+        &lt;generalLedgerAccountNo&gt;8300&lt;/generalLedgerAccountNo&gt;
+        &lt;information&gt;Gedrucktes Technisches Handbuch (ermäßigt 7%)&lt;/information&gt;
+        &lt;costCategoryId1&gt;DOKU20&lt;/costCategoryId1&gt;
+      &lt;/ledgerLineItem&gt;
+    &lt;/accountsReceivableLedger&gt;
+    &lt;accountsReceivableLedger&gt;
+      &lt;bookingDate&gt;2026-10-09&lt;/bookingDate&gt;
+      &lt;invoiceId&gt;RE-2026-4092&lt;/invoiceId&gt;
+      &lt;postingDescription&gt;IGL Lieferung Sensorik-Modul Österreich&lt;/postingDescription&gt;
+      &lt;typeOfReceivable&gt;Rg&lt;/typeOfReceivable&gt;
+      &lt;amount&gt;2400.00&lt;/amount&gt;
+      &lt;accountNo&gt;10088&lt;/accountNo&gt;
+      &lt;currencyCode&gt;EUR&lt;/currencyCode&gt;
+      &lt;dueDate&gt;2026-11-08&lt;/dueDate&gt;
+      &lt;vatId&gt;ATU67891234&lt;/vatId&gt;
+      &lt;deliveryDate&gt;2026-10-08&lt;/deliveryDate&gt;
+      &lt;ledgerLineItem&gt;
+        &lt;bookingAmount&gt;2400.00&lt;/bookingAmount&gt;
+        &lt;taxRate&gt;0.00&lt;/taxRate&gt;
+        &lt;taxKey&gt;11&lt;/taxKey&gt;
+        &lt;generalLedgerAccountNo&gt;8125&lt;/generalLedgerAccountNo&gt;
+        &lt;information&gt;Optisches Prüfmodul OPM-9 (steuerfreie igL)&lt;/information&gt;
+        &lt;costCategoryId1&gt;EXP30&lt;/costCategoryId1&gt;
+      &lt;/ledgerLineItem&gt;
+    &lt;/accountsReceivableLedger&gt;
+    &lt;accountsPayableLedger&gt;
+      &lt;bookingDate&gt;2026-10-12&lt;/bookingDate&gt;
+      &lt;invoiceId&gt;ER-IE-88210&lt;/invoiceId&gt;
+      &lt;postingDescription&gt;SaaS Payment Processing &amp;amp; Cloud-Gebühren §13b&lt;/postingDescription&gt;
+      &lt;typeOfReceivable&gt;Rg&lt;/typeOfReceivable&gt;
+      &lt;amount&gt;420.50&lt;/amount&gt;
+      &lt;accountNo&gt;70055&lt;/accountNo&gt;
+      &lt;currencyCode&gt;EUR&lt;/currencyCode&gt;
+      &lt;dueDate&gt;2026-10-12&lt;/dueDate&gt;
+      &lt;vatId&gt;IE3206488LH&lt;/vatId&gt;
+      &lt;deliveryDate&gt;2026-10-12&lt;/deliveryDate&gt;
+      &lt;ledgerLineItem&gt;
+        &lt;bookingAmount&gt;420.50&lt;/bookingAmount&gt;
+        &lt;taxRate&gt;0.00&lt;/taxRate&gt;
+        &lt;taxKey&gt;94&lt;/taxKey&gt;
+        &lt;generalLedgerAccountNo&gt;3123&lt;/generalLedgerAccountNo&gt;
+        &lt;information&gt;Transaktionsgebühren Oktober (§ 13b UStG Reverse Charge)&lt;/information&gt;
+        &lt;costCategoryId1&gt;IT90&lt;/costCategoryId1&gt;
+      &lt;/ledgerLineItem&gt;
+    &lt;/accountsPayableLedger&gt;
+  &lt;/consolidate&gt;
+&lt;/LedgerImport&gt;
+</pre></div>
+      <div id="datev-doc" class="tab-pane"><pre>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;archive xmlns=&quot;http://xml.datev.de/bedi/tps/document/v06.0&quot; xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; version=&quot;6.0&quot; generatingSystem=&quot;ConductorDACH-Bridge&quot;&gt;
+  &lt;header&gt;
+    &lt;date&gt;2026-10-17T13:06:06&lt;/date&gt;
+    &lt;consultantNumber&gt;129845&lt;/consultantNumber&gt;
+    &lt;clientNumber&gt;10420&lt;/clientNumber&gt;
+    &lt;clientName&gt;AlpenWerk Präzisionstechnik GmbH&lt;/clientName&gt;
+  &lt;/header&gt;
+  &lt;content&gt;
+    &lt;document guid=&quot;0f116d2f-9049-5944-b946-880c2d2b1770&quot;&gt;
+      &lt;extension xsi:type=&quot;accountsPayableLedger&quot; datafile=&quot;datev_rds10_ledger_import_10420.xml&quot;&gt;
+        &lt;property key=&quot;1&quot; value=&quot;2026-10&quot; /&gt;
+        &lt;property key=&quot;3&quot; value=&quot;Rechnungsstapel_UnifiedBridge&quot; /&gt;
+      &lt;/extension&gt;
+    &lt;/document&gt;
+    &lt;document guid=&quot;cd8d03ae-db22-5ddf-98f2-4a6e8c3c5aa6&quot; type=&quot;1&quot;&gt;
+      &lt;extension xsi:type=&quot;File&quot; name=&quot;Beleg_RE-2026-4091.pdf&quot; /&gt;
+      &lt;repository&gt;
+        &lt;level id=&quot;1&quot; name=&quot;Register&quot;&gt;
+          &lt;level id=&quot;2&quot; name=&quot;Ausgangsrechnungen&quot; /&gt;
+        &lt;/level&gt;
+      &lt;/repository&gt;
+    &lt;/document&gt;
+    &lt;document guid=&quot;85e934d1-6bc5-59d6-804e-289efe0ad41e&quot; type=&quot;1&quot;&gt;
+      &lt;extension xsi:type=&quot;File&quot; name=&quot;Beleg_RE-2026-4092.pdf&quot; /&gt;
+      &lt;repository&gt;
+        &lt;level id=&quot;1&quot; name=&quot;Register&quot;&gt;
+          &lt;level id=&quot;2&quot; name=&quot;Ausgangsrechnungen&quot; /&gt;
+        &lt;/level&gt;
+      &lt;/repository&gt;
+    &lt;/document&gt;
+    &lt;document guid=&quot;e6aafd7c-7fcc-5542-a54a-d083544bf093&quot; type=&quot;2&quot;&gt;
+      &lt;extension xsi:type=&quot;File&quot; name=&quot;Beleg_ER-IE-88210.pdf&quot; /&gt;
+      &lt;repository&gt;
+        &lt;level id=&quot;1&quot; name=&quot;Register&quot;&gt;
+          &lt;level id=&quot;2&quot; name=&quot;Eingangsrechnungen&quot; /&gt;
+        &lt;/level&gt;
+      &lt;/repository&gt;
+    &lt;/document&gt;
+  &lt;/content&gt;
+&lt;/archive&gt;
+</pre></div>
+      <div id="datev-extf" class="tab-pane"><pre>&quot;EXTF&quot;;700;21;&quot;Buchungsstapel&quot;;13;&quot;20261017120000000&quot;;&quot;&quot;;&quot;CD&quot;;&quot;ConductorDACH&quot;;&quot;&quot;;129845;10420;20260101;4;20261005;20261012;&quot;SaaS Webhook Sync&quot;;&quot;CD&quot;;1;0;1;&quot;03&quot;
+Umsatz (ohne Soll/Haben-Kz);Soll/Haben-Kennzeichen;WKZ Umsatz;Kurs;Basis-Umsatz;WKZ Basis-Umsatz;Konto;Gegenkonto (ohne BU-Schlüssel);BU-Schlüssel;Belegdatum;Belegfeld 1;Belegfeld 2;Skonto;Buchungstext;Postensperre;Diverse Adressnummer;Geschäftspartnerbank;Sachverhalt;Zinssperre;Beleglink;KOST1 - Kostenstelle;KOST2 - Kostenträger;EU-Land u. UStID (Bestimmung);Steuersatz;Festschreibung;Leistungsdatum
+3451,00;&quot;S&quot;;&quot;EUR&quot;;;;;10042;8400;&quot;3&quot;;0510;&quot;RE-2026-4091&quot;;&quot;191026&quot;;;&quot;CNC-Fräskopf Serie X inkl. Kalibrierung&quot;;0;;;;0;&quot;BEDI:\\Beleg_RE-2026-4091.pdf&quot;;&quot;PROD10&quot;;&quot;&quot;;&quot;DE129485731&quot;;19,00;1;04102026
+107,00;&quot;S&quot;;&quot;EUR&quot;;;;;10042;8300;&quot;2&quot;;0510;&quot;RE-2026-4091&quot;;&quot;191026&quot;;;&quot;Gedrucktes Technisches Handbuch (ermäßigt 7%)&quot;;0;;;;0;&quot;BEDI:\\Beleg_RE-2026-4091.pdf&quot;;&quot;DOKU20&quot;;&quot;&quot;;&quot;DE129485731&quot;;7,00;1;04102026
+2400,00;&quot;S&quot;;&quot;EUR&quot;;;;;10088;8125;&quot;11&quot;;0910;&quot;RE-2026-4092&quot;;&quot;081126&quot;;;&quot;Optisches Prüfmodul OPM-9 (steuerfreie igL)&quot;;0;;;;0;&quot;BEDI:\\Beleg_RE-2026-4092.pdf&quot;;&quot;EXP30&quot;;&quot;&quot;;&quot;ATU67891234&quot;;0,00;1;08102026
+420,50;&quot;H&quot;;&quot;EUR&quot;;;;;70055;3123;&quot;94&quot;;1210;&quot;ER-IE-88210&quot;;&quot;121026&quot;;;&quot;Transaktionsgebühren Oktober (§ 13b UStG Reverse Charge)&quot;;0;;;;0;&quot;BEDI:\\Beleg_ER-IE-88210.pdf&quot;;&quot;IT90&quot;;&quot;&quot;;&quot;IE3206488LH&quot;;0,00;1;12102026
+</pre></div>
+      <div id="gobd-xml" class="tab-pane"><pre>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;GoBDArchivPaket xmlns=&quot;urn:gobd:archiv:2026:v1&quot; version=&quot;1.0&quot; unveraenderbarkeit=&quot;SHA256-MERKLE-CHAIN&quot;&gt;
+  &lt;MandantenMetadaten&gt;
+    &lt;Unternehmen&gt;AlpenWerk Präzisionstechnik GmbH&lt;/Unternehmen&gt;
+    &lt;DATEVBeraterNr&gt;129845&lt;/DATEVBeraterNr&gt;
+    &lt;DATEVMandantenNr&gt;10420&lt;/DATEVMandantenNr&gt;
+    &lt;Kontenrahmen&gt;SKR03&lt;/Kontenrahmen&gt;
+    &lt;GoBDMerkleRoot&gt;98573caa81fbdc9590259e618ef3de24fd0910b8d16248e08dd348ab3b7fa12e&lt;/GoBDMerkleRoot&gt;
+  &lt;/MandantenMetadaten&gt;
+  &lt;ArchivDateien&gt;
+    &lt;Datei typ=&quot;lexware_ascii_csv&quot;&gt;
+      &lt;Dateiname&gt;lexware_buchungsstapel_10420.txt&lt;/Dateiname&gt;
+      &lt;GroesseBytes&gt;709&lt;/GroesseBytes&gt;
+      &lt;SHA256&gt;0982db2bab798937dca0159c2e583c4c3981d147172e0e07d84177d8381873b6&lt;/SHA256&gt;
+      &lt;GoBDChainHash&gt;268dbd0ed6aa083b581ea5373228968153e96079c87460ae2709c09f347acc1c&lt;/GoBDChainHash&gt;
+    &lt;/Datei&gt;
+    &lt;Datei typ=&quot;lexware_xml&quot;&gt;
+      &lt;Dateiname&gt;lexware_erechnung_export_10420.xml&lt;/Dateiname&gt;
+      &lt;GroesseBytes&gt;3622&lt;/GroesseBytes&gt;
+      &lt;SHA256&gt;33ddf85f045e5e1618d089dc465fb9fdb1fabb6d43bcca5fd756e010300e213b&lt;/SHA256&gt;
+      &lt;GoBDChainHash&gt;fa5203956c3a2ce6f99bbb11b299a287c69ed125384dc08b7625158dfb116af8&lt;/GoBDChainHash&gt;
+    &lt;/Datei&gt;
+    &lt;Datei typ=&quot;datev_rds10_ledger_xml&quot;&gt;
+      &lt;Dateiname&gt;datev_rds10_ledger_import_10420.xml&lt;/Dateiname&gt;
+      &lt;GroesseBytes&gt;3475&lt;/GroesseBytes&gt;
+      &lt;SHA256&gt;33ebd131f8f5a7303c6ea96a79d20454b5812fe5a044fd9db77b3d72a60dd9a2&lt;/SHA256&gt;
+      &lt;GoBDChainHash&gt;91eada4c1649ebbcb2b7995917b4eb987a30419f602ee46343373f219b8c2723&lt;/GoBDChainHash&gt;
+    &lt;/Datei&gt;
+    &lt;Datei typ=&quot;datev_document_xml&quot;&gt;
+      &lt;Dateiname&gt;datev_document_10420.xml&lt;/Dateiname&gt;
+      &lt;GroesseBytes&gt;1652&lt;/GroesseBytes&gt;
+      &lt;SHA256&gt;eab579b84f813fbbcf4d06d51b3cd2f02c8cce0d47830f463f8e506cc60eda07&lt;/SHA256&gt;
+      &lt;GoBDChainHash&gt;01a0569ad18e49fb29abd9fbdc2efdb1e753d2a78d193d0f3f8c7c937e802592&lt;/GoBDChainHash&gt;
+    &lt;/Datei&gt;
+    &lt;Datei typ=&quot;datev_extf_csv&quot;&gt;
+      &lt;Dateiname&gt;EXTF_Buchungsstapel_10420.csv&lt;/Dateiname&gt;
+      &lt;GroesseBytes&gt;1351&lt;/GroesseBytes&gt;
+      &lt;SHA256&gt;611d5625f6502d003f36e13d46544b23deb793bc5c445dfa3621f49e5aa27b29&lt;/SHA256&gt;
+      &lt;GoBDChainHash&gt;98573caa81fbdc9590259e618ef3de24fd0910b8d16248e08dd348ab3b7fa12e&lt;/GoBDChainHash&gt;
+    &lt;/Datei&gt;
+  &lt;/ArchivDateien&gt;
+&lt;/GoBDArchivPaket&gt;
+</pre></div>
+      <div id="mcp-json" class="tab-pane"><pre>{
+  &quot;mvp_id&quot;: &quot;MVP_32_LEXWARE_DATEV_UNIFIED_BRIDGE&quot;,
+  &quot;generated_at_utc&quot;: &quot;2026-10-17T13:06:06Z&quot;,
+  &quot;product_positioning&quot;: {
+    &quot;title&quot;: &quot;DACH Legacy Desktop Accounting Unified REST &amp; MCP Bridge&quot;,
+    &quot;tagline&quot;: &quot;Conductor.is ($40.7k/30d) for German Steuerberater &amp; Mittelstand (Lexware + DATEV)&quot;,
+    &quot;pricing_eur_per_mandant_mo&quot;: 39,
+    &quot;target_gross_margin_pct&quot;: 95.0
+  },
+  &quot;competitor_teardowns&quot;: {
+    &quot;conductor_is&quot;: {
+      &quot;name&quot;: &quot;Conductor (conductor.is)&quot;,
+      &quot;founder&quot;: &quot;Danny Nemer&quot;,
+      &quot;founded&quot;: &quot;2022-07-31&quot;,
+      &quot;country&quot;: &quot;US&quot;,
+      &quot;verified_metrics&quot;: {
+        &quot;revenue_30d_usd&quot;: 40740,
+        &quot;mrr_usd&quot;: 42928,
+        &quot;all_time_revenue_usd&quot;: 480351,
+        &quot;active_subscriptions&quot;: 278,
+        &quot;profit_margin_pct&quot;: 95.0,
+        &quot;mrr_growth_30d_pct&quot;: 14.6,
+        &quot;asking_price_usd&quot;: 1250000,
+        &quot;revenue_multiple&quot;: &quot;2.6x&quot;,
+        &quot;enterprise_customers&quot;: [
+          &quot;Ramp&quot;,
+          &quot;Vertical SaaS platforms&quot;,
+          &quot;Construction &amp; Manufacturing ERPs&quot;
+        ]
+      },
+      &quot;pricing_architecture&quot;: {
+        &quot;trial_dev&quot;: &quot;$0/mo (Unlimited sandbox, sample company files &amp; NFR developer licenses)&quot;,
+        &quot;production_per_connection&quot;: &quot;$49/month per active QuickBooks Desktop company file connection&quot;,
+        &quot;active_definition&quot;: &quot;Billed ONLY when (1) connection is established AND (2) at least 1 API call was made to that company file in the rolling 30-day window. No platform base fee, no minimums.&quot;,
+        &quot;deduplication_rule&quot;: &quot;Multiple connectors pointing to the same QBD company file across different Windows users/machines are deduplicated and billed as a single $49 connection.&quot;
+      },
+      &quot;onboarding_flow&quot;: [
+        &quot;1. Developer creates EndUser via POST /v1/end-users (maps 1:1 to a legal entity / company file).&quot;,
+        &quot;2. Developer calls POST /v1/auth-sessions to generate a hosted authFlowUrl (connect.conductor.is).&quot;,
+        &quot;3. End-user opens authFlowUrl on the Windows machine/server running QuickBooks Desktop.&quot;,
+        &quot;4. End-user downloads a generated .QWC (QuickBooks Web Connector XML config) file and opens it.&quot;,
+        &quot;5. QBWC registers the SOAP endpoint, QuickBooks Admin approves certificate once (&#x27;Login as&#x27; user with Full Access).&quot;,
+        &quot;6. QBWC runs invisibly in background: polls every 10s when idle (cold start 3-10s), wakes up to 3s polling for 10m, keeps 10s warm session (~0.44s median round-trip).&quot;
+      ],
+      &quot;technical_architecture&quot;: {
+        &quot;stack&quot;: &quot;Next.js, TypeScript, Tailwind CSS, Node.js, Express, Prisma, Redis, Stripe, Mintlify Docs&quot;,
+        &quot;zero_cache_passthrough&quot;: &quot;No database cache of accounting books. Real-time passthrough pipeline translating JSON REST -&gt; qbXML over SOAP to local QuickBooks Web Connector (QBWC). Logs auto-purged after 15 days (SOC2/GDPR).&quot;,
+        &quot;api_surface&quot;: &quot;62 QBD object types across 256 endpoints and 20,000+ strongly-typed fields (vs 11 objects / 426 fields on Apideck).&quot;,
+        &quot;mcp_server&quot;: &quot;Hosted HTTP MCP server at https://mcp.conductor.is/ + local stdio wrapper `npx -y conductor-node-mcp`. Built on Stainless MCP (`execute` + `search_docs` tools) with header-based read-only guardrail (`x-stainless-mcp-client-permissions: {\&quot;allow_http_gets\&quot;:true}`).&quot;
+      }
+    },
+    &quot;fastwrite_io&quot;: {
+      &quot;name&quot;: &quot;fastwrite.io (DocuTrust GmbH, Hamburg)&quot;,
+      &quot;founders&quot;: [
+        &quot;Timothy Williams&quot;,
+        &quot;Andre Timofeev&quot;,
+        &quot;Moritz Ledeganck&quot;
+      ],
+      &quot;legal_entity&quot;: &quot;DocuTrust GmbH (Rennbahnstraße 2, 22111 Hamburg, HRB 191525)&quot;,
+      &quot;founded&quot;: &quot;2025-05-08&quot;,
+      &quot;country&quot;: &quot;DE&quot;,
+      &quot;verified_metrics&quot;: {
+        &quot;revenue_30d_usd&quot;: 13136,
+        &quot;mrr_usd&quot;: 13230,
+        &quot;all_time_revenue_usd&quot;: 202816,
+        &quot;active_subscriptions&quot;: 605,
+        &quot;registered_students&quot;: 30000,
+        &quot;profit_margin_pct&quot;: 65.0,
+        &quot;asking_price_usd&quot;: 320000,
+        &quot;revenue_multiple&quot;: &quot;2.0x&quot;,
+        &quot;universities_penetrated&quot;: [
+          &quot;LMU München&quot;,
+          &quot;Uni Göttingen&quot;,
+          &quot;Uni Paderborn&quot;,
+          &quot;FOM Hochschule&quot;,
+          &quot;IU Internationale Hochschule&quot;
+        ]
+      },
+      &quot;pricing_architecture&quot;: {
+        &quot;free_tier&quot;: &quot;€0/mo (Permanent free): Word Add-in (macOS/Win/Web), 1 project, 5 PDFs (up to 1,000 pages &amp; 20MB each), 50 Autocompletes/day, 5 AI tutor messages/mo, Claude &amp; ChatGPT MCP Connector included!&quot;,
+        &quot;premium_tier&quot;: &quot;€22/mo monthly (€11/mo billed annually, ~50% savings): Unlimited projects, unlimited 1,000-page PDFs, unlimited in-Word Autocompletes, 50 AI tutor messages/mo, Deep Review (9 university rubric criteria).&quot;,
+        &quot;ultimate_tier&quot;: &quot;€35/mo monthly (~€17.50/mo billed annually): Everything in Premium + 250 AI tutor messages/mo for multi-stage thesis reviews.&quot;
+      },
+      &quot;onboarding_flow&quot;: [
+        &quot;1. Student signs up free at app.fastwrite.io and installs the Microsoft Word Add-in (Windows, macOS, or Word Web).&quot;,
+        &quot;2. Creates a thesis project and either searches 20M+ academic papers in natural language or uploads up to 1,000-page PDFs (including OCR scans).&quot;,
+        &quot;3. Writes directly inside MS Word: ghost-text autocomplete suggests the next sentence/paragraph backed by uploaded PDFs; pressing `Tab` inserts text + exact APA 7 / Harvard citation with page number.&quot;,
+        &quot;4. Optional 1-click OAuth MCP connection in Claude Directory (`claude.ai/directory/fastwrite`) or ChatGPT Plugins to chat with the entire 1,000-page library.&quot;,
+        &quot;5. Runs &#x27;Deep Review&#x27; before submission to score the thesis across 9 university grading rubric criteria.&quot;
+      ],
+      &quot;technical_architecture&quot;: {
+        &quot;stack&quot;: &quot;Next.js (Frontend/Web), Office.js + C# / Swift (Word Add-in across Win/Mac), Appwrite, Google Cloud, Vercel, Stripe, Umami Analytics&quot;,
+        &quot;hallucination_guardrail&quot;: &quot;&#x27;Nur-eigene-Quellen-Modus&#x27; (Source-only toggle): strictly restricts autocomplete citations to the user&#x27;s uploaded PDFs; falls back to uncited generic phrasing if no evidence matches, eliminating fake citations.&quot;,
+        &quot;mcp_distribution_wedge&quot;: &quot;Zero-config OAuth MCP server listed natively in Claude&#x27;s Connector directory and ChatGPT&#x27;s plugin store, turning a free multi-PDF RAG index into a top-of-funnel acquisition engine for the paid Word Add-in.&quot;
+      }
+    }
+  },
+  &quot;mandanten_connections&quot;: {
+    &quot;mandant_10420_skr03&quot;: {
+      &quot;mandant_id&quot;: &quot;mandant_10420_skr03&quot;,
+      &quot;company_name&quot;: &quot;AlpenWerk Präzisionstechnik GmbH&quot;,
+      &quot;berater_nr&quot;: &quot;129845&quot;,
+      &quot;mandanten_nr&quot;: &quot;10420&quot;,
+      &quot;kontenrahmen&quot;: &quot;SKR03&quot;,
+      &quot;wirtschaftsjahr_beginn&quot;: &quot;2026-01-01&quot;,
+      &quot;sachkonten_laenge&quot;: 4,
+      &quot;connector_status&quot;: &quot;CONNECTED_WARM&quot;,
+      &quot;connector_version&quot;: &quot;dwc-agent-1.4.2-win64&quot;,
+      &quot;median_latency_ms&quot;: 340,
+      &quot;monthly_fee_eur&quot;: 39
+    },
+    &quot;mandant_20890_skr04&quot;: {
+      &quot;mandant_id&quot;: &quot;mandant_20890_skr04&quot;,
+      &quot;company_name&quot;: &quot;RheinCloud SaaS Solutions GmbH&quot;,
+      &quot;berater_nr&quot;: &quot;129845&quot;,
+      &quot;mandanten_nr&quot;: &quot;20890&quot;,
+      &quot;kontenrahmen&quot;: &quot;SKR04&quot;,
+      &quot;wirtschaftsjahr_beginn&quot;: &quot;2026-01-01&quot;,
+      &quot;sachkonten_laenge&quot;: 4,
+      &quot;connector_status&quot;: &quot;CONNECTED_WARM&quot;,
+      &quot;connector_version&quot;: &quot;dwc-agent-1.4.2-win64&quot;,
+      &quot;median_latency_ms&quot;: 410,
+      &quot;monthly_fee_eur&quot;: 39
+    }
+  },
+  &quot;validation_test_results&quot;: {
+    &quot;valid_bookings_committed_skr03&quot;: [
+      &quot;bk_2026_1001&quot;,
+      &quot;bk_2026_1002&quot;,
+      &quot;bk_2026_1003&quot;
+    ],
+    &quot;invalid_eu_without_vat_id_status&quot;: &quot;REJECTED_SCHEMA_OR_TAX_ERROR&quot;,
+    &quot;invalid_eu_without_vat_id_errors&quot;: [
+      &quot;Position 1: Steuerschlüssel &#x27;EU_IGE_19&#x27; (BU 11) zwingend mit USt-IdNr. des Geschäftspartners erforderlich (§ 18a UStG ZM-Meldung).&quot;
+    ],
+    &quot;mcp_skr04_booking_status&quot;: &quot;COMMITTED_GOBD_LOCKED&quot;,
+    &quot;mcp_readonly_guardrail_blocked&quot;: true,
+    &quot;mcp_readonly_error_message&quot;: &quot;MCP Read-Only Guardrail aktiv: Schreibzugriff &#x27;create_invoice_booking&#x27; wurde blockiert (Header x-dach-mcp-client-permissions: allow_http_gets=true).&quot;
+  },
+  &quot;skr03_invoices&quot;: {
+    &quot;tool&quot;: &quot;list_invoices&quot;,
+    &quot;objectType&quot;: &quot;list&quot;,
+    &quot;mandant_id&quot;: &quot;mandant_10420_skr03&quot;,
+    &quot;company_name&quot;: &quot;AlpenWerk Präzisionstechnik GmbH&quot;,
+    &quot;kontenrahmen&quot;: &quot;SKR03&quot;,
+    &quot;count&quot;: 3,
+    &quot;data&quot;: [
+      {
+        &quot;booking_id&quot;: &quot;bk_2026_1001&quot;,
+        &quot;invoice_number&quot;: &quot;RE-2026-4091&quot;,
+        &quot;direction&quot;: &quot;AR_OUTGOING&quot;,
+        &quot;invoice_date&quot;: &quot;2026-10-05&quot;,
+        &quot;due_date&quot;: &quot;2026-10-19&quot;,
+        &quot;party_konto&quot;: &quot;10042&quot;,
+        &quot;party_name&quot;: &quot;Bavaria Maschinenbau AG&quot;,
+        &quot;party_country&quot;: &quot;DE&quot;,
+        &quot;party_ust_id&quot;: &quot;DE129485731&quot;,
+        &quot;total_net_eur&quot;: &quot;3000.00&quot;,
+        &quot;total_tax_eur&quot;: &quot;558.00&quot;,
+        &quot;total_gross_eur&quot;: &quot;3558.00&quot;,
+        &quot;festschreibung&quot;: true,
+        &quot;document_pdf_filename&quot;: &quot;Beleg_RE-2026-4091.pdf&quot;,
+        &quot;line_items&quot;: [
+          {
+            &quot;position&quot;: 1,
+            &quot;description&quot;: &quot;CNC-Fräskopf Serie X inkl. Kalibrierung&quot;,
+            &quot;quantity&quot;: &quot;2&quot;,
+            &quot;unit_price_net&quot;: &quot;1450.00&quot;,
+            &quot;net_amount&quot;: &quot;2900.00&quot;,
+            &quot;tax_amount&quot;: &quot;551.00&quot;,
+            &quot;gross_amount&quot;: &quot;3451.00&quot;,
+            &quot;tax_code&quot;: &quot;DE_UST_19&quot;,
+            &quot;datev_bu_key&quot;: &quot;3&quot;,
+            &quot;lexware_tax_key&quot;: &quot;UST_19&quot;,
+            &quot;sachkonto&quot;: &quot;8400&quot;,
+            &quot;cost_center_1&quot;: &quot;PROD10&quot;
+          },
+          {
+            &quot;position&quot;: 2,
+            &quot;description&quot;: &quot;Gedrucktes Technisches Handbuch (ermäßigt 7%)&quot;,
+            &quot;quantity&quot;: &quot;1&quot;,
+            &quot;unit_price_net&quot;: &quot;100.00&quot;,
+            &quot;net_amount&quot;: &quot;100.00&quot;,
+            &quot;tax_amount&quot;: &quot;7.00&quot;,
+            &quot;gross_amount&quot;: &quot;107.00&quot;,
+            &quot;tax_code&quot;: &quot;DE_UST_7&quot;,
+            &quot;datev_bu_key&quot;: &quot;2&quot;,
+            &quot;lexware_tax_key&quot;: &quot;UST_7&quot;,
+            &quot;sachkonto&quot;: &quot;8300&quot;,
+            &quot;cost_center_1&quot;: &quot;DOKU20&quot;
+          }
+        ]
+      },
+      {
+        &quot;booking_id&quot;: &quot;bk_2026_1002&quot;,
+        &quot;invoice_number&quot;: &quot;RE-2026-4092&quot;,
+        &quot;direction&quot;: &quot;AR_OUTGOING&quot;,
+        &quot;invoice_date&quot;: &quot;2026-10-09&quot;,
+        &quot;due_date&quot;: &quot;2026-11-08&quot;,
+        &quot;party_konto&quot;: &quot;10088&quot;,
+        &quot;party_name&quot;: &quot;TirolTech Automatisierung GmbH&quot;,
+        &quot;party_country&quot;: &quot;AT&quot;,
+        &quot;party_ust_id&quot;: &quot;ATU67891234&quot;,
+        &quot;total_net_eur&quot;: &quot;2400.00&quot;,
+        &quot;total_tax_eur&quot;: &quot;0.00&quot;,
+        &quot;total_gross_eur&quot;: &quot;2400.00&quot;,
+        &quot;festschreibung&quot;: true,
+        &quot;document_pdf_filename&quot;: &quot;Beleg_RE-2026-4092.pdf&quot;,
+        &quot;line_items&quot;: [
+          {
+            &quot;position&quot;: 1,
+            &quot;description&quot;: &quot;Optisches Prüfmodul OPM-9 (steuerfreie igL)&quot;,
+            &quot;quantity&quot;: &quot;3&quot;,
+            &quot;unit_price_net&quot;: &quot;800.00&quot;,
+            &quot;net_amount&quot;: &quot;2400.00&quot;,
+            &quot;tax_amount&quot;: &quot;0.00&quot;,
+            &quot;gross_amount&quot;: &quot;2400.00&quot;,
+            &quot;tax_code&quot;: &quot;EU_IGE_19&quot;,
+            &quot;datev_bu_key&quot;: &quot;11&quot;,
+            &quot;lexware_tax_key&quot;: &quot;EU_IGL_19&quot;,
+            &quot;sachkonto&quot;: &quot;8125&quot;,
+            &quot;cost_center_1&quot;: &quot;EXP30&quot;
+          }
+        ]
+      },
+      {
+        &quot;booking_id&quot;: &quot;bk_2026_1003&quot;,
+        &quot;invoice_number&quot;: &quot;ER-IE-88210&quot;,
+        &quot;direction&quot;: &quot;AP_INCOMING&quot;,
+        &quot;invoice_date&quot;: &quot;2026-10-12&quot;,
+        &quot;due_date&quot;: &quot;2026-10-12&quot;,
+        &quot;party_konto&quot;: &quot;70055&quot;,
+        &quot;party_name&quot;: &quot;Stripe Payments Europe Ltd.&quot;,
+        &quot;party_country&quot;: &quot;IE&quot;,
+        &quot;party_ust_id&quot;: &quot;IE3206488LH&quot;,
+        &quot;total_net_eur&quot;: &quot;420.50&quot;,
+        &quot;total_tax_eur&quot;: &quot;0.00&quot;,
+        &quot;total_gross_eur&quot;: &quot;420.50&quot;,
+        &quot;festschreibung&quot;: true,
+        &quot;document_pdf_filename&quot;: &quot;Beleg_ER-IE-88210.pdf&quot;,
+        &quot;line_items&quot;: [
+          {
+            &quot;position&quot;: 1,
+            &quot;description&quot;: &quot;Transaktionsgebühren Oktober (§ 13b UStG Reverse Charge)&quot;,
+            &quot;quantity&quot;: &quot;1&quot;,
+            &quot;unit_price_net&quot;: &quot;420.50&quot;,
+            &quot;net_amount&quot;: &quot;420.50&quot;,
+            &quot;tax_amount&quot;: &quot;0.00&quot;,
+            &quot;gross_amount&quot;: &quot;420.50&quot;,
+            &quot;tax_code&quot;: &quot;RC_13B_19&quot;,
+            &quot;datev_bu_key&quot;: &quot;94&quot;,
+            &quot;lexware_tax_key&quot;: &quot;U13B_19&quot;,
+            &quot;sachkonto&quot;: &quot;3123&quot;,
+            &quot;cost_center_1&quot;: &quot;IT90&quot;
+          }
+        ]
+      }
+    ]
+  },
+  &quot;skr04_invoices&quot;: {
+    &quot;tool&quot;: &quot;list_invoices&quot;,
+    &quot;objectType&quot;: &quot;list&quot;,
+    &quot;mandant_id&quot;: &quot;mandant_20890_skr04&quot;,
+    &quot;company_name&quot;: &quot;RheinCloud SaaS Solutions GmbH&quot;,
+    &quot;kontenrahmen&quot;: &quot;SKR04&quot;,
+    &quot;count&quot;: 1,
+    &quot;data&quot;: [
+      {
+        &quot;booking_id&quot;: &quot;bk_skr04_2001&quot;,
+        &quot;invoice_number&quot;: &quot;SAAS-2026-0815&quot;,
+        &quot;direction&quot;: &quot;AR_OUTGOING&quot;,
+        &quot;invoice_date&quot;: &quot;2026-10-15&quot;,
+        &quot;due_date&quot;: &quot;2026-10-29&quot;,
+        &quot;party_konto&quot;: &quot;10010&quot;,
+        &quot;party_name&quot;: &quot;Nordstern Logistik GmbH&quot;,
+        &quot;party_country&quot;: &quot;DE&quot;,
+        &quot;party_ust_id&quot;: &quot;DE299110445&quot;,
+        &quot;total_net_eur&quot;: &quot;1000.00&quot;,
+        &quot;total_tax_eur&quot;: &quot;190.00&quot;,
+        &quot;total_gross_eur&quot;: &quot;1190.00&quot;,
+        &quot;festschreibung&quot;: true,
+        &quot;document_pdf_filename&quot;: &quot;Beleg_SAAS-2026-0815.pdf&quot;,
+        &quot;line_items&quot;: [
+          {
+            &quot;position&quot;: 1,
+            &quot;description&quot;: &quot;DACH Accounting Bridge Enterprise Plan&quot;,
+            &quot;quantity&quot;: &quot;1&quot;,
+            &quot;unit_price_net&quot;: &quot;1000.00&quot;,
+            &quot;net_amount&quot;: &quot;1000.00&quot;,
+            &quot;tax_amount&quot;: &quot;190.00&quot;,
+            &quot;gross_amount&quot;: &quot;1190.00&quot;,
+            &quot;tax_code&quot;: &quot;DE_UST_19&quot;,
+            &quot;datev_bu_key&quot;: &quot;3&quot;,
+            &quot;lexware_tax_key&quot;: &quot;UST_19&quot;,
+            &quot;sachkonto&quot;: &quot;4400&quot;,
+            &quot;cost_center_1&quot;: &quot;SAAS01&quot;
+          }
+        ]
+      }
+    ]
+  },
+  &quot;gobd_packages&quot;: {
+    &quot;mandant_10420_skr03&quot;: {
+      &quot;gobd_merkle_root&quot;: &quot;98573caa81fbdc9590259e618ef3de24fd0910b8d16248e08dd348ab3b7fa12e&quot;,
+      &quot;artifacts&quot;: [
+        {
+          &quot;artifact_type&quot;: &quot;lexware_ascii_csv&quot;,
+          &quot;filename&quot;: &quot;lexware_buchungsstapel_10420.txt&quot;,
+          &quot;absolute_path&quot;: &quot;C:\\Users\\rescue\\.gemini\\antigravity-cli\\brain\\b361086e-fd70-47e3-ab15-0d4bbfba244e\\scratch\\social_intel\\mvp_lexware_datev_unified_bridge\\test_output\\lexware_buchungsstapel_10420.txt&quot;,
+          &quot;size_bytes&quot;: 709,
+          &quot;sha256&quot;: &quot;0982db2bab798937dca0159c2e583c4c3981d147172e0e07d84177d8381873b6&quot;,
+          &quot;gobd_chain_hash&quot;: &quot;268dbd0ed6aa083b581ea5373228968153e96079c87460ae2709c09f347acc1c&quot;
+        },
+        {
+          &quot;artifact_type&quot;: &quot;lexware_xml&quot;,
+          &quot;filename&quot;: &quot;lexware_erechnung_export_10420.xml&quot;,
+          &quot;absolute_path&quot;: &quot;C:\\Users\\rescue\\.gemini\\antigravity-cli\\brain\\b361086e-fd70-47e3-ab15-0d4bbfba244e\\scratch\\social_intel\\mvp_lexware_datev_unified_bridge\\test_output\\lexware_erechnung_export_10420.xml&quot;,
+          &quot;size_bytes&quot;: 3622,
+          &quot;sha256&quot;: &quot;33ddf85f045e5e1618d089dc465fb9fdb1fabb6d43bcca5fd756e010300e213b&quot;,
+          &quot;gobd_chain_hash&quot;: &quot;fa5203956c3a2ce6f99bbb11b299a287c69ed125384dc08b7625158dfb116af8&quot;
+        },
+        {
+          &quot;artifact_type&quot;: &quot;datev_rds10_ledger_xml&quot;,
+          &quot;filename&quot;: &quot;datev_rds10_ledger_import_10420.xml&quot;,
+          &quot;absolute_path&quot;: &quot;C:\\Users\\rescue\\.gemini\\antigravity-cli\\brain\\b361086e-fd70-47e3-ab15-0d4bbfba244e\\scratch\\social_intel\\mvp_lexware_datev_unified_bridge\\test_output\\datev_rds10_ledger_import_10420.xml&quot;,
+          &quot;size_bytes&quot;: 3475,
+          &quot;sha256&quot;: &quot;33ebd131f8f5a7303c6ea96a79d20454b5812fe5a044fd9db77b3d72a60dd9a2&quot;,
+          &quot;gobd_chain_hash&quot;: &quot;91eada4c1649ebbcb2b7995917b4eb987a30419f602ee46343373f219b8c2723&quot;
+        },
+        {
+          &quot;artifact_type&quot;: &quot;datev_document_xml&quot;,
+          &quot;filename&quot;: &quot;datev_document_10420.xml&quot;,
+          &quot;absolute_path&quot;: &quot;C:\\Users\\rescue\\.gemini\\antigravity-cli\\brain\\b361086e-fd70-47e3-ab15-0d4bbfba244e\\scratch\\social_intel\\mvp_lexware_datev_unified_bridge\\test_output\\datev_document_10420.xml&quot;,
+          &quot;size_bytes&quot;: 1652,
+          &quot;sha256&quot;: &quot;eab579b84f813fbbcf4d06d51b3cd2f02c8cce0d47830f463f8e506cc60eda07&quot;,
+          &quot;gobd_chain_hash&quot;: &quot;01a0569ad18e49fb29abd9fbdc2efdb1e753d2a78d193d0f3f8c7c937e802592&quot;
+        },
+        {
+          &quot;artifact_type&quot;: &quot;datev_extf_csv&quot;,
+          &quot;filename&quot;: &quot;EXTF_Buchungsstapel_10420.csv&quot;,
+          &quot;absolute_path&quot;: &quot;C:\\Users\\rescue\\.gemini\\antigravity-cli\\brain\\b361086e-fd70-47e3-ab15-0d4bbfba244e\\scratch\\social_intel\\mvp_lexware_datev_unified_bridge\\test_output\\EXTF_Buchungsstapel_10420.csv&quot;,
+          &quot;size_bytes&quot;: 1351,
+          &quot;sha256&quot;: &quot;611d5625f6502d003f36e13d46544b23deb793bc5c445dfa3621f49e5aa27b29&quot;,
+          &quot;gobd_chain_hash&quot;: &quot;98573caa81fbdc9590259e618ef3de24fd0910b8d16248e08dd348ab3b7fa12e&quot;
+        }
+      ]
+    },
+    &quot;mandant_20890_skr04&quot;: {
+      &quot;gobd_merkle_root&quot;: &quot;a3d82cf8a0a0272a4e51e617bd1d5a2d751edaf3c6b3144b14a42ac659e23be6&quot;,
+      &quot;artifacts&quot;: [
+        {
+          &quot;artifact_type&quot;: &quot;lexware_ascii_csv&quot;,
+          &quot;filename&quot;: &quot;lexware_buchungsstapel_20890.txt&quot;,
+          &quot;absolute_path&quot;: &quot;C:\\Users\\rescue\\.gemini\\antigravity-cli\\brain\\b361086e-fd70-47e3-ab15-0d4bbfba244e\\scratch\\social_intel\\mvp_lexware_datev_unified_bridge\\test_output\\lexware_buchungsstapel_20890.txt&quot;,
+          &quot;size_bytes&quot;: 285,
+          &quot;sha256&quot;: &quot;f4e5506f6736066ced397887aef867a1109f54db224cbc1090aa372be6f0013a&quot;,
+          &quot;gobd_chain_hash&quot;: &quot;bd56a1ed57cc405b433bfe4c0b80cbda354edfbb69ca91fb516ba06dd9330d23&quot;
+        },
+        {
+          &quot;artifact_type&quot;: &quot;lexware_xml&quot;,
+          &quot;filename&quot;: &quot;lexware_erechnung_export_20890.xml&quot;,
+          &quot;absolute_path&quot;: &quot;C:\\Users\\rescue\\.gemini\\antigravity-cli\\brain\\b361086e-fd70-47e3-ab15-0d4bbfba244e\\scratch\\social_intel\\mvp_lexware_datev_unified_bridge\\test_output\\lexware_erechnung_export_20890.xml&quot;,
+          &quot;size_bytes&quot;: 1202,
+          &quot;sha256&quot;: &quot;60f6c954768722d77d2e0bbed8e0b8323ad470bb2b62633dbb8aadd21f188dd9&quot;,
+          &quot;gobd_chain_hash&quot;: &quot;4384576413dc58b184f8a61fb828fc8992f0ce85804037ad41ee19a2871e2ca5&quot;
+        },
+        {
+          &quot;artifact_type&quot;: &quot;datev_rds10_ledger_xml&quot;,
+          &quot;filename&quot;: &quot;datev_rds10_ledger_import_20890.xml&quot;,
+          &quot;absolute_path&quot;: &quot;C:\\Users\\rescue\\.gemini\\antigravity-cli\\brain\\b361086e-fd70-47e3-ab15-0d4bbfba244e\\scratch\\social_intel\\mvp_lexware_datev_unified_bridge\\test_output\\datev_rds10_ledger_import_20890.xml&quot;,
+          &quot;size_bytes&quot;: 1396,
+          &quot;sha256&quot;: &quot;feb006784cc26bf07caa315f455b0121776a824dc146763baab52774ca351649&quot;,
+          &quot;gobd_chain_hash&quot;: &quot;0f7756871dd77633eb36c480f2c50e221c28b5854af51c41d65c59179385d06b&quot;
+        },
+        {
+          &quot;artifact_type&quot;: &quot;datev_document_xml&quot;,
+          &quot;filename&quot;: &quot;datev_document_20890.xml&quot;,
+          &quot;absolute_path&quot;: &quot;C:\\Users\\rescue\\.gemini\\antigravity-cli\\brain\\b361086e-fd70-47e3-ab15-0d4bbfba244e\\scratch\\social_intel\\mvp_lexware_datev_unified_bridge\\test_output\\datev_document_20890.xml&quot;,
+          &quot;size_bytes&quot;: 1056,
+          &quot;sha256&quot;: &quot;8ba83102a162b94a8c499792475e443dddd207abf6d6078d8ff4caae7eae5454&quot;,
+          &quot;gobd_chain_hash&quot;: &quot;fe769912e51ff53c2da76a205f90bf98bd30d13768227f902a7f6d7628f1317c&quot;
+        },
+        {
+          &quot;artifact_type&quot;: &quot;datev_extf_csv&quot;,
+          &quot;filename&quot;: &quot;EXTF_Buchungsstapel_20890.csv&quot;,
+          &quot;absolute_path&quot;: &quot;C:\\Users\\rescue\\.gemini\\antigravity-cli\\brain\\b361086e-fd70-47e3-ab15-0d4bbfba244e\\scratch\\social_intel\\mvp_lexware_datev_unified_bridge\\test_output\\EXTF_Buchungsstapel_20890.csv&quot;,
+          &quot;size_bytes&quot;: 759,
+          &quot;sha256&quot;: &quot;2a4371cecde0b59ce5eb6e6f196c47a9063dda632f641cce0015e867426f3a81&quot;,
+          &quot;gobd_chain_hash&quot;: &quot;a3d82cf8a0a0272a4e51e617bd1d5a2d751edaf3c6b3144b14a42ac659e23be6&quot;
+        }
+      ]
+    }
+  }
+}</pre></div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <h2>
+          <span>5. GoBD-Archivpaket &amp; SHA-256 Unveränderbarkeits-Nachweis</span>
+          <span class="badge badge-emerald">Alle Prüfungen bestanden</span>
+        </h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Artefakt</th>
+              <th>Dateiname</th>
+              <th>Größe</th>
+              <th>SHA-256</th>
+              <th>GoBD Chain Hash</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            
+        <tr>
+          <td><strong>lexware_ascii_csv</strong></td>
+          <td><code>lexware_buchungsstapel_10420.txt</code></td>
+          <td>709 B</td>
+          <td><code class="hash">0982db2bab798937dca0159c…</code></td>
+          <td><code class="hash">268dbd0ed6aa083b581ea537…</code></td>
+          <td><span class="badge badge-emerald">GoBD Festgeschrieben</span></td>
+        </tr>
+        
+        <tr>
+          <td><strong>lexware_xml</strong></td>
+          <td><code>lexware_erechnung_export_10420.xml</code></td>
+          <td>3622 B</td>
+          <td><code class="hash">33ddf85f045e5e1618d089dc…</code></td>
+          <td><code class="hash">fa5203956c3a2ce6f99bbb11…</code></td>
+          <td><span class="badge badge-emerald">GoBD Festgeschrieben</span></td>
+        </tr>
+        
+        <tr>
+          <td><strong>datev_rds10_ledger_xml</strong></td>
+          <td><code>datev_rds10_ledger_import_10420.xml</code></td>
+          <td>3475 B</td>
+          <td><code class="hash">33ebd131f8f5a7303c6ea96a…</code></td>
+          <td><code class="hash">91eada4c1649ebbcb2b79959…</code></td>
+          <td><span class="badge badge-emerald">GoBD Festgeschrieben</span></td>
+        </tr>
+        
+        <tr>
+          <td><strong>datev_document_xml</strong></td>
+          <td><code>datev_document_10420.xml</code></td>
+          <td>1652 B</td>
+          <td><code class="hash">eab579b84f813fbbcf4d06d5…</code></td>
+          <td><code class="hash">01a0569ad18e49fb29abd9fb…</code></td>
+          <td><span class="badge badge-emerald">GoBD Festgeschrieben</span></td>
+        </tr>
+        
+        <tr>
+          <td><strong>datev_extf_csv</strong></td>
+          <td><code>EXTF_Buchungsstapel_10420.csv</code></td>
+          <td>1351 B</td>
+          <td><code class="hash">611d5625f6502d003f36e13d…</code></td>
+          <td><code class="hash">98573caa81fbdc9590259e61…</code></td>
+          <td><span class="badge badge-emerald">GoBD Festgeschrieben</span></td>
+        </tr>
+        
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <h2>
+          <span>6. DACH Margin &amp; MRR Simulator (€39 / aktive Mandanten-Verbindung)</span>
+          <span class="badge badge-indigo">95% Gross Margin</span>
+        </h2>
+        <p style="font-size:13.5px; color:var(--muted); margin-bottom:12px;">
+          Analog zu Conductor.is ($49/Company File) wird nur berechnet, wenn im rollierenden 30-Tage-Fenster mindestens
+          ein API/MCP-Call gegen die lokale Lexware- oder DATEV-Mandantendatei ausgeführt wurde.
+        </p>
+        <div class="calc-row">
+          <label for="mandantenSlider" style="font-family:var(--mono); font-size:12.5px;">Aktive Mandanten-Dateien:</label>
+          <input type="range" id="mandantenSlider" min="10" max="1500" step="10" value="300" oninput="updateCalc(this.value)" />
+          <span id="mandantenCount" style="font-weight:700; font-size:18px;">300 Mandanten</span>
+        </div>
+        <div class="kpi-strip" style="margin-top:16px; margin-bottom:0;">
+          <div class="kpi-card">
+            <div class="kpi-label">Monatlicher Umsatz (MRR)</div>
+            <div class="kpi-val" id="mrrOut">€11,700</div>
+            <div class="kpi-sub" id="arrOut">€140,400 ARR</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Netto-Deckungsbeitrag (95%)</div>
+            <div class="kpi-val" id="profitOut">€11,115</div>
+            <div class="kpi-sub">Zero-Cache Passthrough (Hetzner CX43)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function switchTab(paneId, btn) {
+      document.querySelectorAll('.tab-pane').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+      document.getElementById(paneId).classList.add('active');
+      btn.classList.add('active');
+    }
+    function updateCalc(val) {
+      const n = parseInt(val, 10);
+      const mrr = n * 39;
+      const arr = mrr * 12;
+      const profit = Math.round(mrr * 0.95);
+      document.getElementById('mandantenCount').textContent = n + ' Mandanten';
+      document.getElementById('mrrOut').textContent = '€' + mrr.toLocaleString('de-DE');
+      document.getElementById('arrOut').textContent = '€' + arr.toLocaleString('de-DE') + ' ARR';
+      document.getElementById('profitOut').textContent = '€' + profit.toLocaleString('de-DE');
+    }
+  </script>
+</body>
+</html>

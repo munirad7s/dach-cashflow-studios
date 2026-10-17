@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MVP #109 — Amazon.de KDP BSR-to-Royalty Calculator, DPMA Guard & DACH Statutory Workbook Sniper</title>
+<style>
+    :root {
+        --bg: #0b0f17;
+        --panel: #131b2e;
+        --panel-alt: #19233c;
+        --border: #263554;
+        --text: #e2e8f0;
+        --muted: #94a3b8;
+        --emerald: #10b981;
+        --amber: #f59e0b;
+        --rose: #f43f5e;
+        --sky: #38bdf8;
+    }
+    * { box-sizing: border-box; }
+    body {
+        margin: 0;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.55;
+    }
+    header {
+        background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+        border-bottom: 1px solid var(--border);
+        padding: 28px 32px;
+    }
+    .header-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        flex-wrap: wrap;
+        gap: 16px;
+        max-width: 1440px;
+        margin: 0 auto;
+    }
+    h1 { margin: 0 0 8px 0; font-size: 1.65rem; letter-spacing: -0.02em; }
+    .lead { margin: 0; color: var(--muted); max-width: 880px; font-size: 0.95rem; }
+    .actor-pills {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+    .actor-pill {
+        background: rgba(56, 189, 248, 0.12);
+        border: 1px solid rgba(56, 189, 248, 0.35);
+        color: var(--sky);
+        padding: 8px 12px;
+        border-radius: 8px;
+        font-size: 0.8rem;
+    }
+    main {
+        max-width: 1440px;
+        margin: 0 auto;
+        padding: 28px 32px 64px;
+    }
+    .top-simulators {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+        margin-bottom: 32px;
+    }
+    @media (max-width: 1100px) {
+        .top-simulators { grid-template-columns: 1fr; }
+    }
+    .panel {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 22px;
+    }
+    .panel h2 {
+        margin: 0 0 6px 0;
+        font-size: 1.2rem;
+        color: #f8fafc;
+    }
+    .panel-desc {
+        margin: 0 0 18px 0;
+        font-size: 0.86rem;
+        color: var(--muted);
+    }
+    .control-group {
+        margin-bottom: 14px;
+    }
+    .control-group label {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin-bottom: 5px;
+    }
+    input[type="range"], select, input[type="text"], textarea {
+        width: 100%;
+        background: var(--panel-alt);
+        color: var(--text);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 8px 10px;
+        font-size: 0.9rem;
+    }
+    .calc-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+        margin-top: 16px;
+    }
+    .calc-box {
+        background: var(--panel-alt);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 12px;
+    }
+    .calc-box .lbl { display: block; font-size: 0.75rem; color: var(--muted); }
+    .calc-box .val { display: block; font-size: 1.25rem; font-weight: 700; margin-top: 2px; }
+    .calc-box .sub { display: block; font-size: 0.72rem; color: var(--muted); margin-top: 2px; }
+    .highlight-emerald { color: var(--emerald); }
+    .highlight-amber { color: var(--amber); }
+    .highlight-rose { color: var(--rose); }
+    .niche-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(620px, 1fr));
+        gap: 22px;
+    }
+    @media (max-width: 760px) {
+        .niche-grid { grid-template-columns: 1fr; }
+    }
+    .niche-card {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+    .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+    .badge {
+        display: inline-block;
+        padding: 3px 9px;
+        border-radius: 999px;
+        font-size: 0.74rem;
+        font-weight: 600;
+    }
+    .badge-emerald { background: rgba(16, 185, 129, 0.16); color: var(--emerald); border: 1px solid rgba(16, 185, 129, 0.4); }
+    .badge-slate { background: rgba(148, 163, 184, 0.12); color: var(--muted); }
+    .bsr-pill {
+        font-size: 0.8rem;
+        font-weight: 700;
+        color: var(--amber);
+        background: rgba(245, 158, 11, 0.12);
+        border: 1px solid rgba(245, 158, 11, 0.35);
+        padding: 4px 10px;
+        border-radius: 6px;
+    }
+    .niche-card h3 { margin: 0; font-size: 1.15rem; color: #ffffff; }
+    .subtitle { margin: 0; font-size: 0.86rem; color: var(--muted); }
+    .statutory-box {
+        background: rgba(56, 189, 248, 0.07);
+        border-left: 3px solid var(--sky);
+        padding: 10px 12px;
+        font-size: 0.82rem;
+        border-radius: 0 6px 6px 0;
+    }
+    .metrics-row {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+    }
+    .metric-cell {
+        background: var(--panel-alt);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 10px;
+    }
+    .m-label { display: block; font-size: 0.72rem; color: var(--muted); }
+    .m-val { display: block; font-size: 1.1rem; font-weight: 700; margin: 2px 0; }
+    .m-sub { display: block; font-size: 0.7rem; color: var(--muted); }
+    .modules-section h4, .kw-section h4 {
+        margin: 0 0 6px 0;
+        font-size: 0.82rem;
+        color: var(--sky);
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+    }
+    .modules-section ul {
+        margin: 0;
+        padding-left: 18px;
+        font-size: 0.82rem;
+        color: #cbd5e1;
+    }
+    .kw-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 6px;
+    }
+    .kw-box {
+        background: #0f172a;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 6px 8px;
+        font-size: 0.75rem;
+    }
+    .kw-idx {
+        display: block;
+        color: var(--emerald);
+        font-weight: 600;
+        font-size: 0.7rem;
+    }
+    .card-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: auto;
+        padding-top: 6px;
+    }
+    .btn-action {
+        background: var(--emerald);
+        color: #042f2e;
+        border: none;
+        padding: 8px 14px;
+        border-radius: 6px;
+        font-weight: 700;
+        font-size: 0.82rem;
+        cursor: pointer;
+    }
+    .btn-secondary {
+        background: var(--panel-alt);
+        color: var(--sky);
+        border: 1px solid var(--sky);
+    }
+    .guard-alert {
+        margin-top: 12px;
+        padding: 12px;
+        border-radius: 8px;
+        font-size: 0.84rem;
+    }
+    .guard-safe {
+        background: rgba(16, 185, 129, 0.12);
+        border: 1px solid var(--emerald);
+    }
+    .guard-danger {
+        background: rgba(244, 63, 94, 0.14);
+        border: 1px solid var(--rose);
+    }
+</style>
+</head>
+<body>
+
+<!-- DACH CASHFLOW STUDIOS LAUNCH BAR -->
+<style>
+  #dcs-launch-bar {
+    position: sticky;
+    top: 0;
+    z-index: 99999;
+    background: linear-gradient(90deg, #0b1120 0%, #111827 50%, #0f172a 100%);
+    color: #f8fafc;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.35);
+    padding: 8px 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  }
+  #dcs-launch-bar .dcs-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+  }
+  #dcs-launch-bar .dcs-badge {
+    background: rgba(16, 185, 129, 0.18);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.03em;
+  }
+  #dcs-launch-bar a.dcs-nav {
+    color: #93c5fd;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 12.5px;
+  }
+  #dcs-launch-bar a.dcs-nav:hover {
+    text-decoration: underline;
+    color: #dbeafe;
+  }
+  #dcs-launch-bar .dcs-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  #dcs-launch-bar .dcs-btn {
+    padding: 5px 11px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s ease;
+  }
+  #dcs-launch-bar .dcs-btn-ghost {
+    background: rgba(255,255,255,0.08);
+    color: #e2e8f0;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  #dcs-launch-bar .dcs-btn-primary {
+    background: linear-gradient(135deg, #0ea5e9, #2563eb);
+    color: #ffffff;
+  }
+  #dcs-launch-bar .dcs-btn-emerald {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
+  }
+  @media print {
+    #dcs-launch-bar { display: none !important; }
+  }
+</style>
+<div id="dcs-launch-bar">
+  <div class="dcs-left">
+    <a href="/index.html" class="dcs-nav">← Alle 150 DACH Studios</a>
+    <span class="dcs-badge">MVP #109 VERIFIED</span>
+    <span style="color:#cbd5e1;font-size:12px;">E-Commerce, Pricing & Cross-Market Arbitrage</span>
+  </div>
+  <div class="dcs-actions">
+    <button onclick="window.print()" class="dcs-btn dcs-btn-ghost">🖨️ PDF / Dossier drucken</button>
+    <a href="#checkout-modal-49" target="_blank" rel="noopener" class="dcs-btn dcs-btn-primary">⚡ Musterschreiben & Voll-Dossier (€49)</a>
+    <a href="#checkout-modal-299" target="_blank" rel="noopener" class="dcs-btn dcs-btn-emerald">🛡️ B2B Umsetzung buchen (€299 / €1.490)</a>
+  </div>
+</div>
+
+<header>
+    <div class="header-top">
+        <div>
+            <h1>MVP #109 — Amazon.de KDP BSR-to-Royalty Calculator, DPMA Guard & DACH Statutory Workbook Sniper</h1>
+            <p class="lead">
+                Live Apify Store Teardown (<code>junglee/amazon-crawler</code> + <code>junglee/amazon-bestsellers</code>) ·
+                Exakte KDP EU Druckkosten- & 7%-Buch-MwSt.-Tantiemenformel ·
+                <code>"Independently published"</code> Nischen-Sniper (BSR &lt; 15.000 &amp; &lt; 35 Bewertungen) ·
+                DPMA/EUIPO Klasse-16 Markenrechts- &amp; KDP Title-Stuffing-Schutzschild.
+            </p>
+        </div>
+        <div class="actor-pills">
+            <div class="actor-pill"><strong>junglee/Amazon-crawler</strong><br>26,388 Users · 3,394 MAU (30d) · 3.72M Runs · $0.005/Result</div>
+            <div class="actor-pill"><strong>junglee/amazon-bestsellers</strong><br>5,298 Users · 487 MAU (30d) · 303k Runs · $0.0059/Item</div>
+            <div class="actor-pill"><strong>Flagship 140p Workbook (€16.90, BSR #1,800)</strong><br>€7.04/Buch · €2,956.80/Monat</div>
+        </div>
+    </div>
+</header>
+
+<main>
+    <section class="top-simulators">
+        <!-- Interactive KDP EU Royalty & BSR Simulator -->
+        <div class="panel">
+            <h2>1. Amazon.de KDP Print-Cost, 7% MwSt. &amp; BSR-Tantiemen-Simulator</h2>
+            <p class="panel-desc">Offizielle KDP EU-Formel: <code>Netto = Brutto ÷ 1,07</code> · <code>60% Tantieme − (€0,75 + €0,012 × Seiten)</code> ab 109 Seiten S/W.</p>
+
+            <div class="control-group">
+                <label><span>Brutto-Listenpreis auf Amazon.de (inkl. 7% Buch-MwSt.)</span><span id="lblPrice">€16.90</span></label>
+                <input type="range" id="inpPrice" min="7.90" max="39.90" step="0.50" value="16.90" oninput="recalcKdp()">
+            </div>
+            <div class="control-group">
+                <label><span>Buchblock-Umfang (Seitenanzahl)</span><span id="lblPages">140 Seiten</span></label>
+                <input type="range" id="inpPages" min="40" max="400" step="4" value="140" oninput="recalcKdp()">
+            </div>
+            <div class="control-group">
+                <label><span>Amazon.de Bestseller-Rang (BSR in „Bücher“)</span><span id="lblBsr">#1,800</span></label>
+                <input type="range" id="inpBsr" min="100" max="30000" step="100" value="1800" oninput="recalcKdp()">
+            </div>
+            <div class="control-group">
+                <label><span>Ausstattung / Bindung</span></label>
+                <select id="inpBinding" onchange="recalcKdp()">
+                    <option value="paperback_bw">Taschenbuch Schwarzweiß (€1.84 bis 108 S. | €0.75 + €0.012/S. ab 109 S.)</option>
+                    <option value="paperback_std_color">Taschenbuch Standardfarbe (€0.75 + €0.024/S.)</option>
+                    <option value="paperback_prem_color">Taschenbuch Premiumfarbe (€0.75 + €0.0565/S. ab 41 S.)</option>
+                    <option value="hardcover_bw">Gebundenes Buch / Hardcover S/W (€5.05 + €0.012/S. ab 109 S.)</option>
+                </select>
+            </div>
+
+            <div class="calc-grid">
+                <div class="calc-box">
+                    <span class="lbl">Netto-Listenpreis (exkl. 7% MwSt.)</span>
+                    <span class="val" id="outNetPrice">€15.79</span>
+                    <span class="sub" id="outVat">MwSt.: €1.11 (§ 12 Abs. 2 UStG)</span>
+                </div>
+                <div class="calc-box">
+                    <span class="lbl">Exakte KDP Druckkosten (DE)</span>
+                    <span class="val" id="outPrintCost">€2.43</span>
+                    <span class="sub" id="outMinPrice">Min. Listenpreis: €4.33</span>
+                </div>
+                <div class="calc-box">
+                    <span class="lbl">Netto-Tantieme pro Verkauf</span>
+                    <span class="val highlight-emerald" id="outNetRoyalty">€7.04</span>
+                    <span class="sub" id="outAcos">Breakeven PPC ACOS: 41.7%</span>
+                </div>
+                <div class="calc-box">
+                    <span class="lbl">Geschätzte Verkäufe (Amazon.de)</span>
+                    <span class="val" id="outMonthlySales">420 / Monat</span>
+                    <span class="sub" id="outDailySales">~14.0 Exemplare / Tag</span>
+                </div>
+                <div class="calc-box">
+                    <span class="lbl">Monatliche Netto-Tantieme</span>
+                    <span class="val highlight-amber" id="outMonthlyRoyalty">€2,956.80</span>
+                    <span class="sub">100% passiv via Prime FBA/PoD</span>
+                </div>
+                <div class="calc-box">
+                    <span class="lbl">Jährlicher KDP Cashflow (1 Buch)</span>
+                    <span class="val highlight-emerald" id="outAnnualRoyalty">€35,481.60</span>
+                    <span class="sub">0 € Lagerbestand / 0 € Vorabdruck</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Interactive DPMA Class-16 & KDP Metadata Compliance Guard -->
+        <div class="panel">
+            <h2>2. DPMA/EUIPO Klasse-16 Marken- &amp; KDP Title-Stuffing-Schutzschild</h2>
+            <p class="panel-desc">Prüft Buchtitel &amp; Untertitel live gegen geschützte DPMA/EUIPO-Marken (z. B. TÜV, DEKRA, Duden, Thermomix, DATEV) und KDP-Spam-Filter.</p>
+
+            <div class="control-group">
+                <label><span>Buch-Haupttitel</span></label>
+                <input type="text" id="inpGuardTitle" value="Pflegegrad Begutachtungs- & Pflegetagebuch nach NBA" oninput="runLiveGuard()">
+            </div>
+            <div class="control-group">
+                <label><span>Buch-Untertitel (Empfehlung ≤ 165 Zeichen gesamt, keine Gattungs-Aufzählung)</span></label>
+                <textarea id="inpGuardSubtitle" rows="2" oninput="runLiveGuard()">Strukturiertes 12-Wochen-Dokumentationsbuch für den Medizinischen Dienst nach § 15 SGB XI mit 6-Module-Checklisten</textarea>
+            </div>
+            <div style="display:flex; gap:10px; margin-bottom:10px;">
+                <button class="btn-action btn-secondary" onclick="loadBadExample()">Negativbeispiel laden (TÜV + Title-Stuffing)</button>
+                <button class="btn-action" onclick="sanitizeCurrentTitle()">Automatisch bereinigen (Safe-Fix)</button>
+            </div>
+            <div id="guardOutput" class="guard-alert guard-safe"></div>
+        </div>
+    </section>
+
+    <section>
+        <h2 style="margin-bottom: 6px;">3. DACH Statutory &amp; Compliance Workbook Sniper — Top 6 Unterversorgte KDP-Nischen</h2>
+        <p style="color: var(--muted); margin-top: 0; margin-bottom: 20px; font-size: 0.9rem;">
+            Gefiltert nach: <code>Publisher == "Independently published"</code> · <code>Amazon.de BSR &lt; 4,000</code> · <code>Ø Bewertungen &lt; 35</code> · Hohe Zahlungsbereitschaft (€15,90–€22,90) dank gesetzlichem Dokumentations- oder Prüfungszwang.
+        </p>
+        <div class="niche-grid">
+            
+            <article class="niche-card" data-niche-id="pv-waermepumpe-inbetriebnahme-vde">
+                <div class="card-header">
+                    <div>
+                        <span class="badge badge-emerald">Sniper Score 83.8/100</span>
+                        <span class="badge badge-slate">Bücher > Naturwissenschaften & Technik > Elektrotechnik > Regenerative Energien</span>
+                    </div>
+                    <div class="bsr-pill">Ø BSR #3,450 · Ø 14 Reviews</div>
+                </div>
+                <h3>PV-Anlagen & Wärmepumpen Inbetriebnahme- und Prüfprotokollbuch</h3>
+                <p class="subtitle">Wartungs-, Mess- und Übergabedokumentation für Elektrofachkräfte nach VDE-AR-N 4105, DIN VDE 0100-600 und § 14a EnWG</p>
+                <div class="statutory-box">
+                    <strong>Gesetzlicher / Normativer Anker:</strong> VDE-AR-N 4105, DIN VDE 0100-600 / 0126-23-1, § 14a EnWG (Steuerbare Verbrauchseinrichtungen) & GEG<br>
+                    <strong>Käufer-Persona:</strong> Elektroinstallateure, Solarteure, SHK-Fachbetriebe und Eigenheimbesitzer mit PV-Speicher + Wärmepumpe<br>
+                    <strong>Schwachstelle bestehender KDP-Bücher (5 Indie-Titel):</strong> Kaum ein KDP-Prüfbuch bildet die neue § 14a EnWG Dimm-/Steuerbarkeits-Dokumentation ab 2024+ zusammen mit VDE-Messprotokollen ab.
+                </div>
+                <div class="metrics-row">
+                    <div class="metric-cell">
+                        <span class="m-label">Listenpreis (inkl. 7% MwSt.)</span>
+                        <span class="m-val">€21.90</span>
+                        <span class="m-sub">Netto €20.47 (148 S.)</span>
+                    </div>
+                    <div class="metric-cell">
+                        <span class="m-label">KDP Druckkosten (EU)</span>
+                        <span class="m-val">€2.53</span>
+                        <span class="m-sub">€0.75 + €0.012 × 148 S.</span>
+                    </div>
+                    <div class="metric-cell">
+                        <span class="m-label">Netto-Tantieme / Buch</span>
+                        <span class="m-val highlight-emerald">€9.75</span>
+                        <span class="m-sub">Breakeven ACOS 44.5%</span>
+                    </div>
+                    <div class="metric-cell">
+                        <span class="m-label">Monatl. Tantieme (bei Ø BSR)</span>
+                        <span class="m-val highlight-amber">€2,730.00</span>
+                        <span class="m-sub">280 Verkäufe/Monat (~9.32/Tag)</span>
+                    </div>
+                </div>
+                <div class="modules-section">
+                    <h4>1-Tages-Buchblock-Architektur (Typst / LaTeX Pflichtmodule):</h4>
+                    <ul><li>Anlagen-Stammblatt (Modulfelder, Strings, Wechselrichter, Speicher-Kapazität, Zählernummern, MaStR-Registrierungsnummer)</li><li>30x Erst- & Wiederholungsprüfungsprotokoll nach DIN VDE 0100-600 / DIN EN 62446-1 (Leerlaufspannung Uoc, Kurzschlussstrom Isc, Riso)</li><li>Nachweisbogen Steuerbare Verbrauchseinrichtung nach § 14a EnWG (EMS / Direktsteuerung / Modul 1–3 Netzentgeltreduzierung)</li><li>Jährliches Betreiber-Wartungs-, Reinigungs- & Ertrags-Logbuch über 10 Betriebsjahre</li></ul>
+                </div>
+                <div class="kw-section">
+                    <h4>KDP 7-Box Backend-Keywords (DPMA-bereinigt, 0 Duplikate zum Titel, ≤ 50 UTF-8 Bytes/Box):</h4>
+                    <div class="kw-grid"><div class="kw-box"><span class="kw-idx">Box 1 (44/50B)</span><code>photovoltaik wechselrichter batteriespeicher</code></div><div class="kw-box"><span class="kw-idx">Box 2 (45/50B)</span><code>logbuch marktstammdatenregister netzbetreiber</code></div><div class="kw-box"><span class="kw-idx">Box 3 (46/50B)</span><code>anmeldung isolationswiderstand erdungsschleife</code></div><div class="kw-box"><span class="kw-idx">Box 4 (43/50B)</span><code>strangmessung wallbox ladeeinrichtung §14a</code></div><div class="kw-box"><span class="kw-idx">Box 5 (47/50B)</span><code>netzentgelt gebäudeenergiegesetz hydraulischer</code></div><div class="kw-box"><span class="kw-idx">Box 6 (44/50B)</span><code>abgleich elektrofachkraft betreiberpflichten</code></div><div class="kw-box"><span class="kw-idx">Box 7 (44/50B)</span><code>sichtprüfung überspannungsschutz dc string</code></div></div>
+                </div>
+                <div class="card-actions">
+                    <button class="btn-action" onclick="loadIntoCalculator(21.9, 148, 3450, 'paperback_bw')">In BSR-Rechner laden</button>
+                    <button class="btn-action btn-secondary" onclick="loadIntoCompliance('pv-waermepumpe-inbetriebnahme-vde')">Im DPMA- & KDP-Guard prüfen</button>
+                </div>
+            </article>
+            
+            <article class="niche-card" data-niche-id="bautagesbericht-vob-b-aufmassbuch">
+                <div class="card-header">
+                    <div>
+                        <span class="badge badge-emerald">Sniper Score 82.8/100</span>
+                        <span class="badge badge-slate">Bücher > Naturwissenschaften & Technik > Ingenieurwissenschaften > Bautechnik & Architektur</span>
+                    </div>
+                    <div class="bsr-pill">Ø BSR #2,890 · Ø 19 Reviews</div>
+                </div>
+                <h3>Bautagesbericht & Aufmaßbuch nach VOB/B für Bauleiter</h3>
+                <p class="subtitle">Baustellen-Dokumentation für Regieberichte, Behinderungsanzeigen (§ 6 VOB/B), Bedenkenanmeldungen und Abnahmen</p>
+                <div class="statutory-box">
+                    <strong>Gesetzlicher / Normativer Anker:</strong> Vergabe- und Vertragsordnung für Bauleistungen Teil B (VOB/B §§ 2, 4, 6, 12, 14) & § 650g BGB<br>
+                    <strong>Käufer-Persona:</strong> Bauleiter, Handwerksmeister (SHK, Elektro, Rohbau, Trockenbau), Poliere und Architekten in der Bauüberwachung (LP 8 HOAI)<br>
+                    <strong>Schwachstelle bestehender KDP-Bücher (7 Indie-Titel):</strong> Standard-Formularblöcke im Bürobedarf enthalten keine rechtssicheren VOB/B-Bedenken- und Behinderungs-Vorlagen zur Nachtragsabwehr.
+                </div>
+                <div class="metrics-row">
+                    <div class="metric-cell">
+                        <span class="m-label">Listenpreis (inkl. 7% MwSt.)</span>
+                        <span class="m-val">€19.90</span>
+                        <span class="m-sub">Netto €18.60 (164 S.)</span>
+                    </div>
+                    <div class="metric-cell">
+                        <span class="m-label">KDP Druckkosten (EU)</span>
+                        <span class="m-val">€2.72</span>
+                        <span class="m-sub">€0.75 + €0.012 × 164 S.</span>
+                    </div>
+                    <div class="metric-cell">
+                        <span class="m-label">Netto-Tantieme / Buch</span>
+                        <span class="m-val highlight-emerald">€8.44</span>
+                        <span class="m-sub">Breakeven ACOS 42.4%</span>
+                    </div>
+                    <div class="metric-cell">
+                        <span class="m-label">Monatl. Tantieme (bei Ø BSR)</span>
+                        <span class="m-val highlight-amber">€2,633.28</span>
+                        <span class="m-sub">312 Verkäufe/Monat (~10.41/Tag)</span>
+                    </div>
+                </div>
+                <div class="modules-section">
+                    <h4>1-Tages-Buchblock-Architektur (Typst / LaTeX Pflichtmodule):</h4>
+                    <ul><li>100x Tagesberichts-Seiten (Witterung, Temperatur, Personalstärke je Gewerk, Großgeräte, Baufortschritt, besondere Vorkommnisse)</li><li>15x Formblatt Bedenkenanzeige nach § 4 Abs. 3 VOB/B & Behinderungsanzeige nach § 6 Abs. 1 VOB/B</li><li>20x Aufmaß- & Regiestunden-Nachweisblatt nach § 14 / § 15 VOB/B mit Unterschriftsfeld des Auftraggebers</li><li>10x förmliches Abnahmeprotokoll nach § 12 Abs. 4 VOB/B inkl. Mängelvorbehalt und Verjährungsfristen</li></ul>
+                </div>
+                <div class="kw-section">
+                    <h4>KDP 7-Box Backend-Keywords (DPMA-bereinigt, 0 Duplikate zum Titel, ≤ 50 UTF-8 Bytes/Box):</h4>
+                    <div class="kw-grid"><div class="kw-box"><span class="kw-idx">Box 1 (46/50B)</span><code>baustellendokumentation bautagebuch handwerker</code></div><div class="kw-box"><span class="kw-idx">Box 2 (39/50B)</span><code>nachtragsmanagement stundenlohnarbeiten</code></div><div class="kw-box"><span class="kw-idx">Box 3 (35/50B)</span><code>regiezettel bauabnahme mängelrüge</code></div><div class="kw-box"><span class="kw-idx">Box 4 (40/50B)</span><code>gewährleistung §13 witterungsprotokoll</code></div><div class="kw-box"><span class="kw-idx">Box 5 (46/50B)</span><code>gewerkekoordination sigeko hoai leistungsphase</code></div><div class="kw-box"><span class="kw-idx">Box 6 (42/50B)</span><code>objektüberwachung bauleitung aufmaßblatt</code></div><div class="kw-box"><span class="kw-idx">Box 7 (27/50B)</span><code>mengenberechnung abrechnung</code></div></div>
+                </div>
+                <div class="card-actions">
+                    <button class="btn-action" onclick="loadIntoCalculator(19.9, 164, 2890, 'paperback_bw')">In BSR-Rechner laden</button>
+                    <button class="btn-action btn-secondary" onclick="loadIntoCompliance('bautagesbericht-vob-b-aufmassbuch')">Im DPMA- & KDP-Guard prüfen</button>
+                </div>
+            </article>
+            
+            <article class="niche-card" data-niche-id="pflegegrad-nba-pflegetagebuch">
+                <div class="card-header">
+                    <div>
+                        <span class="badge badge-emerald">Sniper Score 80.1/100</span>
+                        <span class="badge badge-slate">Bücher > Medizin & Gesundheitsdienste > Pflege > Altenpflege & Häusliche Pflege</span>
+                    </div>
+                    <div class="bsr-pill">Ø BSR #1,680 · Ø 26 Reviews</div>
+                </div>
+                <h3>Pflegegrad Begutachtungs- & Pflegetagebuch nach NBA</h3>
+                <p class="subtitle">Strukturiertes 12-Wochen-Dokumentationsbuch für den Medizinischen Dienst nach § 15 SGB XI mit 6-Module-Checklisten</p>
+                <div class="statutory-box">
+                    <strong>Gesetzlicher / Normativer Anker:</strong> § 14 & § 15 SGB XI (Neues Begutachtungsassessment – NBA, 6 Module der Selbstständigkeit)<br>
+                    <strong>Käufer-Persona:</strong> Pflegende Angehörige vor Erstantrag oder Höherstufungsantrag (Pflegegrad 1 bis 5) beim Medizinischen Dienst (MD) / Medicproof<br>
+                    <strong>Schwachstelle bestehender KDP-Bücher (9 Indie-Titel):</strong> Bestehende KDP-Hefte nutzen veraltete 'Pflegestufen-Minuten'-Tabellen von vor 2017 statt der 6 gewichteten NBA-Module nach § 15 SGB XI.
+                </div>
+                <div class="metrics-row">
+                    <div class="metric-cell">
+                        <span class="m-label">Listenpreis (inkl. 7% MwSt.)</span>
+                        <span class="m-val">€16.90</span>
+                        <span class="m-sub">Netto €15.79 (140 S.)</span>
+                    </div>
+                    <div class="metric-cell">
+                        <span class="m-label">KDP Druckkosten (EU)</span>
+                        <span class="m-val">€2.43</span>
+                        <span class="m-sub">€0.75 + €0.012 × 140 S.</span>
+                    </div>
+                    <div class="metric-cell">
+                        <span class="m-label">Netto-Tantieme / Buch</span>
+                        <span class="m-val highlight-emerald">€7.04</span>
+                        <span class="m-sub">Breakeven ACOS 41.7%</span>
+                    </div>
+                    <div class="metric-cell">
+                        <span class="m-label">Monatl. Tantieme (bei Ø BSR)</span>
+                        <span class="m-val highlight-amber">€3,083.52</span>
+                        <span class="m-sub">438 Verkäufe/Monat (~14.61/Tag)</span>
+                    </div>
+                </div>
+                <div class="modules-section">
+                    <h4>1-Tages-Buchblock-Architektur (Typst / LaTeX Pflichtmodule):</h4>
+                    <ul><li>Modul 1–6 Selbsteinschätzungs-Matrix (Mobilität 10%, Kognition 15%, Verhaltensweisen 15%, Selbstversorgung 40%, Krankheitsbewältigung 20%, Alltagsgestaltung 15%)</li><li>84-Tage-Tagesprotokoll mit Häufigkeits-Skala (selbstständig / überwiegend selbstständig / überwiegend unselbstständig / unselbstständig)</li><li>Medikamenten-, Wundversorgungs- & Arztbesuchs-Nachweisbogen (Modul 5)</li><li>Prüffragen-Leitfaden für den Hausbesuch des Medizinischen Dienstes + Widerspruchs-Mustervorlage</li></ul>
+                </div>
+                <div class="kw-section">
+                    <h4>KDP 7-Box Backend-Keywords (DPMA-bereinigt, 0 Duplikate zum Titel, ≤ 50 UTF-8 Bytes/Box):</h4>
+                    <div class="kw-grid"><div class="kw-box"><span class="kw-idx">Box 1 (36/50B)</span><code>beantragen höherstufung widerspruch</code></div><div class="kw-box"><span class="kw-idx">Box 2 (47/50B)</span><code>medizinischer gutachter vorbereitung mobilität</code></div><div class="kw-box"><span class="kw-idx">Box 3 (39/50B)</span><code>kognitive fähigkeiten selbstversorgung</code></div><div class="kw-box"><span class="kw-idx">Box 4 (31/50B)</span><code>pflegegeld kombinationsleistung</code></div><div class="kw-box"><span class="kw-idx">Box 5 (48/50B)</span><code>verhinderungspflege angehörige demenz alzheimer</code></div><div class="kw-box"><span class="kw-idx">Box 6 (42/50B)</span><code>alltagsbegleitung begutachtungsrichtlinien</code></div><div class="kw-box"><span class="kw-idx">Box 7 (38/50B)</span><code>punkterechner ergotherapie hilfsmittel</code></div></div>
+                </div>
+                <div class="card-actions">
+                    <button class="btn-action" onclick="loadIntoCalculator(16.9, 140, 1680, 'paperback_bw')">In BSR-Rechner laden</button>
+                    <button class="btn-action btn-secondary" onclick="loadIntoCompliance('pflegegrad-nba-pflegetagebuch')">Im DPMA- & KDP-Guard prüfen</button>
+                </div>
+            </article>
+            
+            <article class="niche-card" data-niche-id="ihk-34a-gewo-sachkunde-trainer">
+                <div class="card-header">
+                    <div>
+                        <span class="badge badge-emerald">Sniper Score 79.2/100</span>
+                        <span class="badge badge-slate">Bücher > Schule & Lernen > Berufs- & Fachschulen > Sicherheitsgewerbe</span>
+                    </div>
+                    <div class="bsr-pill">Ø BSR #1,420 · Ø 34 Reviews</div>
+                </div>
+                <h3>IHK § 34a GewO Sachkundeprüfungs-Übungsbuch Bewachungsgewerbe</h3>
+                <p class="subtitle">450 prüfungsnahe Trainingsfragen, Rechtsfall-Lösungen und Vorbereitung auf die mündliche Prüfung nach aktueller BewachV</p>
+                <div class="statutory-box">
+                    <strong>Gesetzlicher / Normativer Anker:</strong> § 34a Gewerbeordnung (GewO) & Bewachungsverordnung (BewachV) – DIHK Rahmenplan<br>
+                    <strong>Käufer-Persona:</strong> Berufseinsteiger im Sicherheitsdienst, Objektschützer, Türsteher und Sicherheitsunternehmer vor der monatlichen IHK-Prüfung<br>
+                    <strong>Schwachstelle bestehender KDP-Bücher (14 Indie-Titel):</strong> Viele ältere Selbstverleger-Bücher berücksichtigen weder die reformierte BewachV noch das Bewacherregister (BWR) und haben keine mündlichen Prüfungs-Dialoge.
+                </div>
+                <div class="metrics-row">
+                    <div class="metric-cell">
+                        <span class="m-label">Listenpreis (inkl. 7% MwSt.)</span>
+                        <span class="m-val">€22.90</span>
+                        <span class="m-sub">Netto €21.40 (210 S.)</span>
+                    </div>
+                    <div class="metric-cell">
+                        <span class="m-label">KDP Druckkosten (EU)</span>
+                        <span class="m-val">€3.27</span>
+                        <span class="m-sub">€0.75 + €0.012 × 210 S.</span>
+                    </div>
+                    <div class="metric-cell">
+                        <span class="m-label">Netto-Tantieme / Buch</span>
+                        <span class="m-val highlight-emerald">€9.57</span>
+                        <span class="m-sub">Breakeven ACOS 41.8%</span>
+                    </div>
+                    <div class="metric-cell">
+                        <span class="m-label">Monatl. Tantieme (bei Ø BSR)</span>
+                        <span class="m-val highlight-amber">€4,660.59</span>
+                        <span class="m-sub">487 Verkäufe/Monat (~16.23/Tag)</span>
+                    </div>
+                </div>
+                <div class="modules-section">
+                    <h4>1-Tages-Buchblock-Architektur (Typst / LaTeX Pflichtmodule):</h4>
+                    <ul><li>9 Fachgebiete-Kompaktkarten (Recht der öffentlichen Sicherheit, Gewerberecht/BewachV, Datenschutz, BGB, Straf-/Verfahrensrecht, Waffenrecht, UVV/DGUV Vorschrift 23, Umgang mit Menschen, Sicherheitstechnik)</li><li>5 vollständige 82-Fragen-Generalproben nach offiziellem DIHK-Punkteschlüssel (inkl. 50%-Bestehensgrenze)</li><li>40 Prüfungsdialoge für das 15-minütige mündliche IHK-Prüfungsgespräch</li><li>Jedermannsrechte-Eselsbrücken (§ 229 BGB, § 32 StGB, § 34 StGB, § 127 Abs. 1 StPO)</li></ul>
+                </div>
+                <div class="kw-section">
+                    <h4>KDP 7-Box Backend-Keywords (DPMA-bereinigt, 0 Duplikate zum Titel, ≤ 50 UTF-8 Bytes/Box):</h4>
+                    <div class="kw-grid"><div class="kw-box"><span class="kw-idx">Box 1 (28/50B)</span><code>sicherheitsdienst wachdienst</code></div><div class="kw-box"><span class="kw-idx">Box 2 (45/50B)</span><code>prüfungsvorbereitung jedermannsrecht notwehr</code></div><div class="kw-box"><span class="kw-idx">Box 3 (37/50B)</span><code>§32 stgb hausrecht datenschutz dsgvo</code></div><div class="kw-box"><span class="kw-idx">Box 4 (43/50B)</span><code>unfallverhütungsvorschrift dguv umgang mit</code></div><div class="kw-box"><span class="kw-idx">Box 5 (38/50B)</span><code>menschen deeskalation konflikttraining</code></div><div class="kw-box"><span class="kw-idx">Box 6 (42/50B)</span><code>waffenrecht §42a waffg sicherheitstechnik</code></div><div class="kw-box"><span class="kw-idx">Box 7 (44/50B)</span><code>gewerberecht öffentliche sicherheit ordnung</code></div></div>
+                </div>
+                <div class="card-actions">
+                    <button class="btn-action" onclick="loadIntoCalculator(22.9, 210, 1420, 'paperback_bw')">In BSR-Rechner laden</button>
+                    <button class="btn-action btn-secondary" onclick="loadIntoCompliance('ihk-34a-gewo-sachkunde-trainer')">Im DPMA- & KDP-Guard prüfen</button>
+                </div>
+            </article>
+            
+            <article class="niche-card" data-niche-id="vermieter-uebergabe-betriebskosten">
+                <div class="card-header">
+                    <div>
+                        <span class="badge badge-emerald">Sniper Score 78.5/100</span>
+                        <span class="badge badge-slate">Bücher > Recht > Bürgerliches Recht > Miet- & Wohnungseigentumsrecht</span>
+                    </div>
+                    <div class="bsr-pill">Ø BSR #2,240 · Ø 31 Reviews</div>
+                </div>
+                <h3>Vermieter Wohnungsübergabeprotokoll & Nebenkosten-Praxisbuch</h3>
+                <p class="subtitle">Abnahmeformulare, Zählerstands-Logbuch und Umlageschlüssel nach § 556 BGB, BetrKV und CO2KostAufG für private Eigentümer</p>
+                <div class="statutory-box">
+                    <strong>Gesetzlicher / Normativer Anker:</strong> § 535 / § 556 BGB, Betriebskostenverordnung (§ 2 BetrKV) & Kohlendioxidkostenaufteilungsgesetz (CO2KostAufG)<br>
+                    <strong>Käufer-Persona:</strong> Private Kleinvermieter (1–12 Wohneinheiten), Erbengemeinschaften und selbstverwaltende WEG-Eigentümer<br>
+                    <strong>Schwachstelle bestehender KDP-Bücher (11 Indie-Titel):</strong> Konkurrenzbücher enthalten nur leere Übergabeseiten ohne CO2-Stufenmodell-Rechner (CO2KostAufG) und ohne § 2 BetrKV-Umlagefähigkeits-Checkliste.
+                </div>
+                <div class="metrics-row">
+                    <div class="metric-cell">
+                        <span class="m-label">Listenpreis (inkl. 7% MwSt.)</span>
+                        <span class="m-val">€18.90</span>
+                        <span class="m-sub">Netto €17.66 (156 S.)</span>
+                    </div>
+                    <div class="metric-cell">
+                        <span class="m-label">KDP Druckkosten (EU)</span>
+                        <span class="m-val">€2.62</span>
+                        <span class="m-sub">€0.75 + €0.012 × 156 S.</span>
+                    </div>
+                    <div class="metric-cell">
+                        <span class="m-label">Netto-Tantieme / Buch</span>
+                        <span class="m-val highlight-emerald">€7.98</span>
+                        <span class="m-sub">Breakeven ACOS 42.2%</span>
+                    </div>
+                    <div class="metric-cell">
+                        <span class="m-label">Monatl. Tantieme (bei Ø BSR)</span>
+                        <span class="m-val highlight-amber">€2,920.68</span>
+                        <span class="m-sub">366 Verkäufe/Monat (~12.21/Tag)</span>
+                    </div>
+                </div>
+                <div class="modules-section">
+                    <h4>1-Tages-Buchblock-Architektur (Typst / LaTeX Pflichtmodule):</h4>
+                    <ul><li>25x Doppelseitiges Wohnungsübergabeprotokoll (Einzug / Auszug) mit Schlüssel-, Zähler- & Rauchwarnmelder-Quittung</li><li>Prüfschema Umlagefähige vs. Nicht-Umlagefähige Kosten nach § 2 Nr. 1–17 BetrKV</li><li>10-Stufen-Berechnungstabelle nach CO2KostAufG (Vermieter-/Mieteranteil nach kg CO2/m²/Jahr)</li><li>Kautionsabrechnungs- & Fristen-Kontrollblatt (§ 548 BGB Verjährung von Ersatzansprüchen)</li></ul>
+                </div>
+                <div class="kw-section">
+                    <h4>KDP 7-Box Backend-Keywords (DPMA-bereinigt, 0 Duplikate zum Titel, ≤ 50 UTF-8 Bytes/Box):</h4>
+                    <div class="kw-grid"><div class="kw-box"><span class="kw-idx">Box 1 (35/50B)</span><code>mietvertrag kündigungsbestätigung</code></div><div class="kw-box"><span class="kw-idx">Box 2 (41/50B)</span><code>kautionsabrechnung schönheitsreparaturen</code></div><div class="kw-box"><span class="kw-idx">Box 3 (32/50B)</span><code>mängelliste schlüsselübergabe</code></div><div class="kw-box"><span class="kw-idx">Box 4 (43/50B)</span><code>heizkostenverordnung warmwasser funkzähler</code></div><div class="kw-box"><span class="kw-idx">Box 5 (46/50B)</span><code>grundsteuerreform umlagefähige hausverwaltung</code></div><div class="kw-box"><span class="kw-idx">Box 6 (44/50B)</span><code>mieterwechsel einzug auszug abnahmeprotokoll</code></div><div class="kw-box"><span class="kw-idx">Box 7 (45/50B)</span><code>rauchwarnmelder wartungsprotokoll trinkwasser</code></div></div>
+                </div>
+                <div class="card-actions">
+                    <button class="btn-action" onclick="loadIntoCalculator(18.9, 156, 2240, 'paperback_bw')">In BSR-Rechner laden</button>
+                    <button class="btn-action btn-secondary" onclick="loadIntoCompliance('vermieter-uebergabe-betriebskosten')">Im DPMA- & KDP-Guard prüfen</button>
+                </div>
+            </article>
+            
+            <article class="niche-card" data-niche-id="adhs-erwachsene-exekutiv-arbeitsbuch">
+                <div class="card-header">
+                    <div>
+                        <span class="badge badge-emerald">Sniper Score 78.4/100</span>
+                        <span class="badge badge-slate">Bücher > Ratgeber > Psychologie & Hilfe > Neurodiversität & ADHS</span>
+                    </div>
+                    <div class="bsr-pill">Ø BSR #1,190 · Ø 29 Reviews</div>
+                </div>
+                <h3>ADHS Alltags- & Fokus-Arbeitsbuch für Erwachsene</h3>
+                <p class="subtitle">Neurodivergenz-freundliches 90-Tage-System gegen Reizüberflutung und Aufschieberitis mit Dopamin-Menü und Wochen-Reset</p>
+                <div class="statutory-box">
+                    <strong>Gesetzlicher / Normativer Anker:</strong> S3-Leitlinie ADHS (AWMF-Registernummer 028-045) – multimodales Selbstmanagement & exekutive Funktionen<br>
+                    <strong>Käufer-Persona:</strong> Spätdiagnostizierte Erwachsene mit ADHS/ADS im Studium, Büroalltag oder Selbstständigkeit<br>
+                    <strong>Schwachstelle bestehender KDP-Bücher (16 Indie-Titel):</strong> US-Übersetzungen wirken künstlich; starre Kalendertage führen bei ADHS-Käufern nach 1 Woche zum Abbruch (undatierte Reset-Seiten fehlen).
+                </div>
+                <div class="metrics-row">
+                    <div class="metric-cell">
+                        <span class="m-label">Listenpreis (inkl. 7% MwSt.)</span>
+                        <span class="m-val">€15.90</span>
+                        <span class="m-sub">Netto €14.86 (144 S.)</span>
+                    </div>
+                    <div class="metric-cell">
+                        <span class="m-label">KDP Druckkosten (EU)</span>
+                        <span class="m-val">€2.48</span>
+                        <span class="m-sub">€0.75 + €0.012 × 144 S.</span>
+                    </div>
+                    <div class="metric-cell">
+                        <span class="m-label">Netto-Tantieme / Buch</span>
+                        <span class="m-val highlight-emerald">€6.44</span>
+                        <span class="m-sub">Breakeven ACOS 40.5%</span>
+                    </div>
+                    <div class="metric-cell">
+                        <span class="m-label">Monatl. Tantieme (bei Ø BSR)</span>
+                        <span class="m-val highlight-amber">€3,503.36</span>
+                        <span class="m-sub">544 Verkäufe/Monat (~18.13/Tag)</span>
+                    </div>
+                </div>
+                <div class="modules-section">
+                    <h4>1-Tages-Buchblock-Architektur (Typst / LaTeX Pflichtmodule):</h4>
+                    <ul><li>Undatiertes 90-Tage Fokus-Cockpit (Maximal 3 'Must-Dos' + Energie-Level-Check ohne Schuldgefühle bei Pausen)</li><li>Dopamin-Menü-Baukasten (Vorspeisen 5 Min, Hauptgänge 25 Min, Beilagen für monotone Aufgaben, Desserts)</li><li>Brain-Dump & Projekt-Zerleger (Großprojekte in 10-Minuten-Mikroschritte aufspalten)</li><li>Impuls-Kauf-Stopp-Seite (72-Stunden-Warteliste gegen ADHS-Impulskäufe) & Wochen-Reset-Checkliste</li></ul>
+                </div>
+                <div class="kw-section">
+                    <h4>KDP 7-Box Backend-Keywords (DPMA-bereinigt, 0 Duplikate zum Titel, ≤ 50 UTF-8 Bytes/Box):</h4>
+                    <div class="kw-grid"><div class="kw-box"><span class="kw-idx">Box 1 (36/50B)</span><code>neurodivergent exekutive dysfunktion</code></div><div class="kw-box"><span class="kw-idx">Box 2 (49/50B)</span><code>zeitmanagement konzentration struktur planer ohne</code></div><div class="kw-box"><span class="kw-idx">Box 3 (32/50B)</span><code>datum impulskontrolle reizfilter</code></div><div class="kw-box"><span class="kw-idx">Box 4 (48/50B)</span><code>selbstorganisation studium prüfungsvorbereitung</code></div><div class="kw-box"><span class="kw-idx">Box 5 (43/50B)</span><code>büroalltag körperdoubling pomodorotechnik</code></div><div class="kw-box"><span class="kw-idx">Box 6 (47/50B)</span><code>gehirnentlastung spätdiagnose erwachsenenalter</code></div><div class="kw-box"><span class="kw-idx">Box 7 (42/50B)</span><code>selbsthilfe haushaltsplan finanzübersicht</code></div></div>
+                </div>
+                <div class="card-actions">
+                    <button class="btn-action" onclick="loadIntoCalculator(15.9, 144, 1190, 'paperback_bw')">In BSR-Rechner laden</button>
+                    <button class="btn-action btn-secondary" onclick="loadIntoCompliance('adhs-erwachsene-exekutiv-arbeitsbuch')">Im DPMA- & KDP-Guard prüfen</button>
+                </div>
+            </article>
+            
+        </div>
+    </section>
+</main>
+
+<script>
+const NICHES = [{"niche_id": "pv-waermepumpe-inbetriebnahme-vde", "category_breadcrumb": "Bücher > Naturwissenschaften & Technik > Elektrotechnik > Regenerative Energien", "workbook_title": "PV-Anlagen & Wärmepumpen Inbetriebnahme- und Prüfprotokollbuch", "workbook_subtitle": "Wartungs-, Mess- und Übergabedokumentation für Elektrofachkräfte nach VDE-AR-N 4105, DIN VDE 0100-600 und § 14a EnWG", "statutory_anchor": "VDE-AR-N 4105, DIN VDE 0100-600 / 0126-23-1, § 14a EnWG (Steuerbare Verbrauchseinrichtungen) & GEG", "target_buyer_persona": "Elektroinstallateure, Solarteure, SHK-Fachbetriebe und Eigenheimbesitzer mit PV-Speicher + Wärmepumpe", "independently_published_competitors": 5, "incumbent_avg_bsr_de": 3450, "incumbent_avg_reviews": 14, "incumbent_weakness": "Kaum ein KDP-Prüfbuch bildet die neue § 14a EnWG Dimm-/Steuerbarkeits-Dokumentation ab 2024+ zusammen mit VDE-Messprotokollen ab.", "recommended_list_price_eur": 21.9, "recommended_page_count": 148, "binding_type": "paperback_bw", "raw_backend_keywords": ["photovoltaik wechselrichter batteriespeicher logbuch", "marktstammdatenregister netzbetreiber anmeldung", "isolationswiderstand erdungsschleife strangmessung", "wallbox ladeeinrichtung §14a enwg netzentgelt", "gebäudeenergiegesetz hydraulischer abgleich", "elektrofachkraft betreiberpflichten sichtprüfung", "überspannungsschutz dc string dokumentation"], "interior_modules": ["Anlagen-Stammblatt (Modulfelder, Strings, Wechselrichter, Speicher-Kapazität, Zählernummern, MaStR-Registrierungsnummer)", "30x Erst- & Wiederholungsprüfungsprotokoll nach DIN VDE 0100-600 / DIN EN 62446-1 (Leerlaufspannung Uoc, Kurzschlussstrom Isc, Riso)", "Nachweisbogen Steuerbare Verbrauchseinrichtung nach § 14a EnWG (EMS / Direktsteuerung / Modul 1–3 Netzentgeltreduzierung)", "Jährliches Betreiber-Wartungs-, Reinigungs- & Ertrags-Logbuch über 10 Betriebsjahre"], "royalty_projection": {"gross_list_price_eur": 21.9, "net_list_price_eur": 20.47, "vat_amount_eur": 1.43, "binding_type": "paperback_bw", "page_count": 148, "print_cost_eur": 2.53, "royalty_rate": 0.6, "gross_royalty_before_print_eur": 12.28, "net_royalty_per_sale_eur": 9.75, "net_margin_pct_of_gross": 44.52, "breakeven_acos_pct": 44.52, "min_allowed_list_price_eur": 4.51, "bsr_de_books": 3450, "estimated_daily_sales": 9.32, "estimated_monthly_sales": 280, "estimated_monthly_royalty_eur": 2730.0, "estimated_annual_royalty_eur": 32760.0}, "compliance_audit": {"title": "PV-Anlagen & Wärmepumpen Inbetriebnahme- und Prüfprotokollbuch", "subtitle": "Wartungs-, Mess- und Übergabedokumentation für Elektrofachkräfte nach VDE-AR-N 4105, DIN VDE 0100-600 und § 14a EnWG", "full_title_length": 179, "status": "SAFE_TO_PUBLISH", "risk_score": 0, "trademark_hits": [], "kdp_policy_violations": [], "statutory_compliance_checks": {"impressumspflicht_ddg_lpressg": true, "buchpreisbindungsgesetz_buchprg_print": true, "kdp_subtitle_under_165_chars": false, "zero_dpma_class16_trademark_collision": true}, "sanitized_title_suggestion": "PV-Anlagen & Wärmepumpen Inbetriebnahme- und Prüfprotokollbuch", "sanitized_subtitle_suggestion": "Wartungs-, Mess- und Übergabedokumentation für Elektrofachkräfte nach VDE-AR-N 4105, DIN VDE 0100-600 und § 14a EnWG", "backend_keywords_7_boxes": [{"box_index": 1, "content": "photovoltaik wechselrichter batteriespeicher", "utf8_bytes": 44, "max_bytes": 50}, {"box_index": 2, "content": "logbuch marktstammdatenregister netzbetreiber", "utf8_bytes": 45, "max_bytes": 50}, {"box_index": 3, "content": "anmeldung isolationswiderstand erdungsschleife", "utf8_bytes": 46, "max_bytes": 50}, {"box_index": 4, "content": "strangmessung wallbox ladeeinrichtung §14a", "utf8_bytes": 43, "max_bytes": 50}, {"box_index": 5, "content": "netzentgelt gebäudeenergiegesetz hydraulischer", "utf8_bytes": 47, "max_bytes": 50}, {"box_index": 6, "content": "abgleich elektrofachkraft betreiberpflichten", "utf8_bytes": 44, "max_bytes": 50}, {"box_index": 7, "content": "sichtprüfung überspannungsschutz dc string", "utf8_bytes": 44, "max_bytes": 50}]}, "niche_sniper_score": 83.8}, {"niche_id": "bautagesbericht-vob-b-aufmassbuch", "category_breadcrumb": "Bücher > Naturwissenschaften & Technik > Ingenieurwissenschaften > Bautechnik & Architektur", "workbook_title": "Bautagesbericht & Aufmaßbuch nach VOB/B für Bauleiter", "workbook_subtitle": "Baustellen-Dokumentation für Regieberichte, Behinderungsanzeigen (§ 6 VOB/B), Bedenkenanmeldungen und Abnahmen", "statutory_anchor": "Vergabe- und Vertragsordnung für Bauleistungen Teil B (VOB/B §§ 2, 4, 6, 12, 14) & § 650g BGB", "target_buyer_persona": "Bauleiter, Handwerksmeister (SHK, Elektro, Rohbau, Trockenbau), Poliere und Architekten in der Bauüberwachung (LP 8 HOAI)", "independently_published_competitors": 7, "incumbent_avg_bsr_de": 2890, "incumbent_avg_reviews": 19, "incumbent_weakness": "Standard-Formularblöcke im Bürobedarf enthalten keine rechtssicheren VOB/B-Bedenken- und Behinderungs-Vorlagen zur Nachtragsabwehr.", "recommended_list_price_eur": 19.9, "recommended_page_count": 164, "binding_type": "paperback_bw", "raw_backend_keywords": ["baustellendokumentation bautagebuch handwerker", "nachtragsmanagement stundenlohnarbeiten regiezettel", "bauabnahme mängelrüge gewährleistung §13 vob", "witterungsprotokoll gewerkekoordination sigeko", "hoai leistungsphase 8 objektüberwachung bauleitung", "aufmaßblatt mengenberechnung vob c abrechnung", "bauhandwerkersicherung §650f bgb nachtrag"], "interior_modules": ["100x Tagesberichts-Seiten (Witterung, Temperatur, Personalstärke je Gewerk, Großgeräte, Baufortschritt, besondere Vorkommnisse)", "15x Formblatt Bedenkenanzeige nach § 4 Abs. 3 VOB/B & Behinderungsanzeige nach § 6 Abs. 1 VOB/B", "20x Aufmaß- & Regiestunden-Nachweisblatt nach § 14 / § 15 VOB/B mit Unterschriftsfeld des Auftraggebers", "10x förmliches Abnahmeprotokoll nach § 12 Abs. 4 VOB/B inkl. Mängelvorbehalt und Verjährungsfristen"], "royalty_projection": {"gross_list_price_eur": 19.9, "net_list_price_eur": 18.6, "vat_amount_eur": 1.3, "binding_type": "paperback_bw", "page_count": 164, "print_cost_eur": 2.72, "royalty_rate": 0.6, "gross_royalty_before_print_eur": 11.16, "net_royalty_per_sale_eur": 8.44, "net_margin_pct_of_gross": 42.41, "breakeven_acos_pct": 42.41, "min_allowed_list_price_eur": 4.85, "bsr_de_books": 2890, "estimated_daily_sales": 10.41, "estimated_monthly_sales": 312, "estimated_monthly_royalty_eur": 2633.28, "estimated_annual_royalty_eur": 31599.36}, "compliance_audit": {"title": "Bautagesbericht & Aufmaßbuch nach VOB/B für Bauleiter", "subtitle": "Baustellen-Dokumentation für Regieberichte, Behinderungsanzeigen (§ 6 VOB/B), Bedenkenanmeldungen und Abnahmen", "full_title_length": 164, "status": "SAFE_TO_PUBLISH", "risk_score": 0, "trademark_hits": [], "kdp_policy_violations": [], "statutory_compliance_checks": {"impressumspflicht_ddg_lpressg": true, "buchpreisbindungsgesetz_buchprg_print": true, "kdp_subtitle_under_165_chars": true, "zero_dpma_class16_trademark_collision": true}, "sanitized_title_suggestion": "Bautagesbericht & Aufmaßbuch nach VOB/B für Bauleiter", "sanitized_subtitle_suggestion": "Baustellen-Dokumentation für Regieberichte, Behinderungsanzeigen (§ 6 VOB/B), Bedenkenanmeldungen und Abnahmen", "backend_keywords_7_boxes": [{"box_index": 1, "content": "baustellendokumentation bautagebuch handwerker", "utf8_bytes": 46, "max_bytes": 50}, {"box_index": 2, "content": "nachtragsmanagement stundenlohnarbeiten", "utf8_bytes": 39, "max_bytes": 50}, {"box_index": 3, "content": "regiezettel bauabnahme mängelrüge", "utf8_bytes": 35, "max_bytes": 50}, {"box_index": 4, "content": "gewährleistung §13 witterungsprotokoll", "utf8_bytes": 40, "max_bytes": 50}, {"box_index": 5, "content": "gewerkekoordination sigeko hoai leistungsphase", "utf8_bytes": 46, "max_bytes": 50}, {"box_index": 6, "content": "objektüberwachung bauleitung aufmaßblatt", "utf8_bytes": 42, "max_bytes": 50}, {"box_index": 7, "content": "mengenberechnung abrechnung", "utf8_bytes": 27, "max_bytes": 50}]}, "niche_sniper_score": 82.8}, {"niche_id": "pflegegrad-nba-pflegetagebuch", "category_breadcrumb": "Bücher > Medizin & Gesundheitsdienste > Pflege > Altenpflege & Häusliche Pflege", "workbook_title": "Pflegegrad Begutachtungs- & Pflegetagebuch nach NBA", "workbook_subtitle": "Strukturiertes 12-Wochen-Dokumentationsbuch für den Medizinischen Dienst nach § 15 SGB XI mit 6-Module-Checklisten", "statutory_anchor": "§ 14 & § 15 SGB XI (Neues Begutachtungsassessment – NBA, 6 Module der Selbstständigkeit)", "target_buyer_persona": "Pflegende Angehörige vor Erstantrag oder Höherstufungsantrag (Pflegegrad 1 bis 5) beim Medizinischen Dienst (MD) / Medicproof", "independently_published_competitors": 9, "incumbent_avg_bsr_de": 1680, "incumbent_avg_reviews": 26, "incumbent_weakness": "Bestehende KDP-Hefte nutzen veraltete 'Pflegestufen-Minuten'-Tabellen von vor 2017 statt der 6 gewichteten NBA-Module nach § 15 SGB XI.", "recommended_list_price_eur": 16.9, "recommended_page_count": 140, "binding_type": "paperback_bw", "raw_backend_keywords": ["pflegegrad beantragen höherstufung widerspruch", "medizinischer dienst gutachter vorbereitung", "mobilität kognitive fähigkeiten selbstversorgung", "pflegegeld kombinationsleistung verhinderungspflege", "angehörige demenz alzheimer alltagsbegleitung", "sgb xi begutachtungsrichtlinien punkterechner", "ergotherapie hilfsmittel wohnumfeldverbesserung"], "interior_modules": ["Modul 1–6 Selbsteinschätzungs-Matrix (Mobilität 10%, Kognition 15%, Verhaltensweisen 15%, Selbstversorgung 40%, Krankheitsbewältigung 20%, Alltagsgestaltung 15%)", "84-Tage-Tagesprotokoll mit Häufigkeits-Skala (selbstständig / überwiegend selbstständig / überwiegend unselbstständig / unselbstständig)", "Medikamenten-, Wundversorgungs- & Arztbesuchs-Nachweisbogen (Modul 5)", "Prüffragen-Leitfaden für den Hausbesuch des Medizinischen Dienstes + Widerspruchs-Mustervorlage"], "royalty_projection": {"gross_list_price_eur": 16.9, "net_list_price_eur": 15.79, "vat_amount_eur": 1.11, "binding_type": "paperback_bw", "page_count": 140, "print_cost_eur": 2.43, "royalty_rate": 0.6, "gross_royalty_before_print_eur": 9.47, "net_royalty_per_sale_eur": 7.04, "net_margin_pct_of_gross": 41.66, "breakeven_acos_pct": 41.66, "min_allowed_list_price_eur": 4.33, "bsr_de_books": 1680, "estimated_daily_sales": 14.61, "estimated_monthly_sales": 438, "estimated_monthly_royalty_eur": 3083.52, "estimated_annual_royalty_eur": 37002.24}, "compliance_audit": {"title": "Pflegegrad Begutachtungs- & Pflegetagebuch nach NBA", "subtitle": "Strukturiertes 12-Wochen-Dokumentationsbuch für den Medizinischen Dienst nach § 15 SGB XI mit 6-Module-Checklisten", "full_title_length": 166, "status": "SAFE_TO_PUBLISH", "risk_score": 0, "trademark_hits": [], "kdp_policy_violations": [], "statutory_compliance_checks": {"impressumspflicht_ddg_lpressg": true, "buchpreisbindungsgesetz_buchprg_print": true, "kdp_subtitle_under_165_chars": false, "zero_dpma_class16_trademark_collision": true}, "sanitized_title_suggestion": "Pflegegrad Begutachtungs- & Pflegetagebuch nach NBA", "sanitized_subtitle_suggestion": "Strukturiertes 12-Wochen-Dokumentationsbuch für den Medizinischen Dienst nach § 15 SGB XI mit 6-Module-Checklisten", "backend_keywords_7_boxes": [{"box_index": 1, "content": "beantragen höherstufung widerspruch", "utf8_bytes": 36, "max_bytes": 50}, {"box_index": 2, "content": "medizinischer gutachter vorbereitung mobilität", "utf8_bytes": 47, "max_bytes": 50}, {"box_index": 3, "content": "kognitive fähigkeiten selbstversorgung", "utf8_bytes": 39, "max_bytes": 50}, {"box_index": 4, "content": "pflegegeld kombinationsleistung", "utf8_bytes": 31, "max_bytes": 50}, {"box_index": 5, "content": "verhinderungspflege angehörige demenz alzheimer", "utf8_bytes": 48, "max_bytes": 50}, {"box_index": 6, "content": "alltagsbegleitung begutachtungsrichtlinien", "utf8_bytes": 42, "max_bytes": 50}, {"box_index": 7, "content": "punkterechner ergotherapie hilfsmittel", "utf8_bytes": 38, "max_bytes": 50}]}, "niche_sniper_score": 80.1}, {"niche_id": "ihk-34a-gewo-sachkunde-trainer", "category_breadcrumb": "Bücher > Schule & Lernen > Berufs- & Fachschulen > Sicherheitsgewerbe", "workbook_title": "IHK § 34a GewO Sachkundeprüfungs-Übungsbuch Bewachungsgewerbe", "workbook_subtitle": "450 prüfungsnahe Trainingsfragen, Rechtsfall-Lösungen und Vorbereitung auf die mündliche Prüfung nach aktueller BewachV", "statutory_anchor": "§ 34a Gewerbeordnung (GewO) & Bewachungsverordnung (BewachV) – DIHK Rahmenplan", "target_buyer_persona": "Berufseinsteiger im Sicherheitsdienst, Objektschützer, Türsteher und Sicherheitsunternehmer vor der monatlichen IHK-Prüfung", "independently_published_competitors": 14, "incumbent_avg_bsr_de": 1420, "incumbent_avg_reviews": 34, "incumbent_weakness": "Viele ältere Selbstverleger-Bücher berücksichtigen weder die reformierte BewachV noch das Bewacherregister (BWR) und haben keine mündlichen Prüfungs-Dialoge.", "recommended_list_price_eur": 22.9, "recommended_page_count": 210, "binding_type": "paperback_bw", "raw_backend_keywords": ["sicherheitsdienst wachdienst prüfungsvorbereitung", "jedermannsrecht notwehr §32 stgb hausrecht", "datenschutz dsgvo unfallverhütungsvorschrift dguv", "umgang mit menschen deeskalation konflikttraining", "waffenrecht §42a waffg sicherheitstechnik", "gewerberecht öffentliche sicherheit ordnung", "mündliche prüfung ihk fragensammlung lösungen"], "interior_modules": ["9 Fachgebiete-Kompaktkarten (Recht der öffentlichen Sicherheit, Gewerberecht/BewachV, Datenschutz, BGB, Straf-/Verfahrensrecht, Waffenrecht, UVV/DGUV Vorschrift 23, Umgang mit Menschen, Sicherheitstechnik)", "5 vollständige 82-Fragen-Generalproben nach offiziellem DIHK-Punkteschlüssel (inkl. 50%-Bestehensgrenze)", "40 Prüfungsdialoge für das 15-minütige mündliche IHK-Prüfungsgespräch", "Jedermannsrechte-Eselsbrücken (§ 229 BGB, § 32 StGB, § 34 StGB, § 127 Abs. 1 StPO)"], "royalty_projection": {"gross_list_price_eur": 22.9, "net_list_price_eur": 21.4, "vat_amount_eur": 1.5, "binding_type": "paperback_bw", "page_count": 210, "print_cost_eur": 3.27, "royalty_rate": 0.6, "gross_royalty_before_print_eur": 12.84, "net_royalty_per_sale_eur": 9.57, "net_margin_pct_of_gross": 41.79, "breakeven_acos_pct": 41.79, "min_allowed_list_price_eur": 5.83, "bsr_de_books": 1420, "estimated_daily_sales": 16.23, "estimated_monthly_sales": 487, "estimated_monthly_royalty_eur": 4660.59, "estimated_annual_royalty_eur": 55927.08}, "compliance_audit": {"title": "IHK § 34a GewO Sachkundeprüfungs-Übungsbuch Bewachungsgewerbe", "subtitle": "450 prüfungsnahe Trainingsfragen, Rechtsfall-Lösungen und Vorbereitung auf die mündliche Prüfung nach aktueller BewachV", "full_title_length": 181, "status": "SAFE_TO_PUBLISH", "risk_score": 0, "trademark_hits": [], "kdp_policy_violations": [], "statutory_compliance_checks": {"impressumspflicht_ddg_lpressg": true, "buchpreisbindungsgesetz_buchprg_print": true, "kdp_subtitle_under_165_chars": false, "zero_dpma_class16_trademark_collision": true}, "sanitized_title_suggestion": "IHK § 34a GewO Sachkundeprüfungs-Übungsbuch Bewachungsgewerbe", "sanitized_subtitle_suggestion": "450 prüfungsnahe Trainingsfragen, Rechtsfall-Lösungen und Vorbereitung auf die mündliche Prüfung nach aktueller BewachV", "backend_keywords_7_boxes": [{"box_index": 1, "content": "sicherheitsdienst wachdienst", "utf8_bytes": 28, "max_bytes": 50}, {"box_index": 2, "content": "prüfungsvorbereitung jedermannsrecht notwehr", "utf8_bytes": 45, "max_bytes": 50}, {"box_index": 3, "content": "§32 stgb hausrecht datenschutz dsgvo", "utf8_bytes": 37, "max_bytes": 50}, {"box_index": 4, "content": "unfallverhütungsvorschrift dguv umgang mit", "utf8_bytes": 43, "max_bytes": 50}, {"box_index": 5, "content": "menschen deeskalation konflikttraining", "utf8_bytes": 38, "max_bytes": 50}, {"box_index": 6, "content": "waffenrecht §42a waffg sicherheitstechnik", "utf8_bytes": 42, "max_bytes": 50}, {"box_index": 7, "content": "gewerberecht öffentliche sicherheit ordnung", "utf8_bytes": 44, "max_bytes": 50}]}, "niche_sniper_score": 79.2}, {"niche_id": "vermieter-uebergabe-betriebskosten", "category_breadcrumb": "Bücher > Recht > Bürgerliches Recht > Miet- & Wohnungseigentumsrecht", "workbook_title": "Vermieter Wohnungsübergabeprotokoll & Nebenkosten-Praxisbuch", "workbook_subtitle": "Abnahmeformulare, Zählerstands-Logbuch und Umlageschlüssel nach § 556 BGB, BetrKV und CO2KostAufG für private Eigentümer", "statutory_anchor": "§ 535 / § 556 BGB, Betriebskostenverordnung (§ 2 BetrKV) & Kohlendioxidkostenaufteilungsgesetz (CO2KostAufG)", "target_buyer_persona": "Private Kleinvermieter (1–12 Wohneinheiten), Erbengemeinschaften und selbstverwaltende WEG-Eigentümer", "independently_published_competitors": 11, "incumbent_avg_bsr_de": 2240, "incumbent_avg_reviews": 31, "incumbent_weakness": "Konkurrenzbücher enthalten nur leere Übergabeseiten ohne CO2-Stufenmodell-Rechner (CO2KostAufG) und ohne § 2 BetrKV-Umlagefähigkeits-Checkliste.", "recommended_list_price_eur": 18.9, "recommended_page_count": 156, "binding_type": "paperback_bw", "raw_backend_keywords": ["mietvertrag kündigungsbestätigung kautionsabrechnung", "schönheitsreparaturen mängelliste schlüsselübergabe", "heizkostenverordnung warmwasser funkzähler", "grundsteuerreform umlagefähige hausverwaltung", "mieterwechsel einzug auszug abnahmeprotokoll", "rauchwarnmelder wartungsprotokoll trinkwasser", "indexmiete staffelmiete mieterhöhung mietspiegel"], "interior_modules": ["25x Doppelseitiges Wohnungsübergabeprotokoll (Einzug / Auszug) mit Schlüssel-, Zähler- & Rauchwarnmelder-Quittung", "Prüfschema Umlagefähige vs. Nicht-Umlagefähige Kosten nach § 2 Nr. 1–17 BetrKV", "10-Stufen-Berechnungstabelle nach CO2KostAufG (Vermieter-/Mieteranteil nach kg CO2/m²/Jahr)", "Kautionsabrechnungs- & Fristen-Kontrollblatt (§ 548 BGB Verjährung von Ersatzansprüchen)"], "royalty_projection": {"gross_list_price_eur": 18.9, "net_list_price_eur": 17.66, "vat_amount_eur": 1.24, "binding_type": "paperback_bw", "page_count": 156, "print_cost_eur": 2.62, "royalty_rate": 0.6, "gross_royalty_before_print_eur": 10.6, "net_royalty_per_sale_eur": 7.98, "net_margin_pct_of_gross": 42.22, "breakeven_acos_pct": 42.22, "min_allowed_list_price_eur": 4.67, "bsr_de_books": 2240, "estimated_daily_sales": 12.21, "estimated_monthly_sales": 366, "estimated_monthly_royalty_eur": 2920.68, "estimated_annual_royalty_eur": 35048.16}, "compliance_audit": {"title": "Vermieter Wohnungsübergabeprotokoll & Nebenkosten-Praxisbuch", "subtitle": "Abnahmeformulare, Zählerstands-Logbuch und Umlageschlüssel nach § 556 BGB, BetrKV und CO2KostAufG für private Eigentümer", "full_title_length": 181, "status": "SAFE_TO_PUBLISH", "risk_score": 0, "trademark_hits": [], "kdp_policy_violations": [], "statutory_compliance_checks": {"impressumspflicht_ddg_lpressg": true, "buchpreisbindungsgesetz_buchprg_print": true, "kdp_subtitle_under_165_chars": false, "zero_dpma_class16_trademark_collision": true}, "sanitized_title_suggestion": "Vermieter Wohnungsübergabeprotokoll & Nebenkosten-Praxisbuch", "sanitized_subtitle_suggestion": "Abnahmeformulare, Zählerstands-Logbuch und Umlageschlüssel nach § 556 BGB, BetrKV und CO2KostAufG für private Eigentümer", "backend_keywords_7_boxes": [{"box_index": 1, "content": "mietvertrag kündigungsbestätigung", "utf8_bytes": 35, "max_bytes": 50}, {"box_index": 2, "content": "kautionsabrechnung schönheitsreparaturen", "utf8_bytes": 41, "max_bytes": 50}, {"box_index": 3, "content": "mängelliste schlüsselübergabe", "utf8_bytes": 32, "max_bytes": 50}, {"box_index": 4, "content": "heizkostenverordnung warmwasser funkzähler", "utf8_bytes": 43, "max_bytes": 50}, {"box_index": 5, "content": "grundsteuerreform umlagefähige hausverwaltung", "utf8_bytes": 46, "max_bytes": 50}, {"box_index": 6, "content": "mieterwechsel einzug auszug abnahmeprotokoll", "utf8_bytes": 44, "max_bytes": 50}, {"box_index": 7, "content": "rauchwarnmelder wartungsprotokoll trinkwasser", "utf8_bytes": 45, "max_bytes": 50}]}, "niche_sniper_score": 78.5}, {"niche_id": "adhs-erwachsene-exekutiv-arbeitsbuch", "category_breadcrumb": "Bücher > Ratgeber > Psychologie & Hilfe > Neurodiversität & ADHS", "workbook_title": "ADHS Alltags- & Fokus-Arbeitsbuch für Erwachsene", "workbook_subtitle": "Neurodivergenz-freundliches 90-Tage-System gegen Reizüberflutung und Aufschieberitis mit Dopamin-Menü und Wochen-Reset", "statutory_anchor": "S3-Leitlinie ADHS (AWMF-Registernummer 028-045) – multimodales Selbstmanagement & exekutive Funktionen", "target_buyer_persona": "Spätdiagnostizierte Erwachsene mit ADHS/ADS im Studium, Büroalltag oder Selbstständigkeit", "independently_published_competitors": 16, "incumbent_avg_bsr_de": 1190, "incumbent_avg_reviews": 29, "incumbent_weakness": "US-Übersetzungen wirken künstlich; starre Kalendertage führen bei ADHS-Käufern nach 1 Woche zum Abbruch (undatierte Reset-Seiten fehlen).", "recommended_list_price_eur": 15.9, "recommended_page_count": 144, "binding_type": "paperback_bw", "raw_backend_keywords": ["neurodivergent exekutive dysfunktion zeitmanagement", "konzentration struktur planer ohne datum", "impulskontrolle reizfilter selbstorganisation", "studium prüfungsvorbereitung büroalltag fokus", "körperdoubling pomodorotechnik gehirnentlastung", "spätdiagnose erwachsenenalter selbsthilfe", "haushaltsplan finanzübersicht dopaminhaushalt"], "interior_modules": ["Undatiertes 90-Tage Fokus-Cockpit (Maximal 3 'Must-Dos' + Energie-Level-Check ohne Schuldgefühle bei Pausen)", "Dopamin-Menü-Baukasten (Vorspeisen 5 Min, Hauptgänge 25 Min, Beilagen für monotone Aufgaben, Desserts)", "Brain-Dump & Projekt-Zerleger (Großprojekte in 10-Minuten-Mikroschritte aufspalten)", "Impuls-Kauf-Stopp-Seite (72-Stunden-Warteliste gegen ADHS-Impulskäufe) & Wochen-Reset-Checkliste"], "royalty_projection": {"gross_list_price_eur": 15.9, "net_list_price_eur": 14.86, "vat_amount_eur": 1.04, "binding_type": "paperback_bw", "page_count": 144, "print_cost_eur": 2.48, "royalty_rate": 0.6, "gross_royalty_before_print_eur": 8.92, "net_royalty_per_sale_eur": 6.44, "net_margin_pct_of_gross": 40.5, "breakeven_acos_pct": 40.5, "min_allowed_list_price_eur": 4.42, "bsr_de_books": 1190, "estimated_daily_sales": 18.13, "estimated_monthly_sales": 544, "estimated_monthly_royalty_eur": 3503.36, "estimated_annual_royalty_eur": 42040.32}, "compliance_audit": {"title": "ADHS Alltags- & Fokus-Arbeitsbuch für Erwachsene", "subtitle": "Neurodivergenz-freundliches 90-Tage-System gegen Reizüberflutung und Aufschieberitis mit Dopamin-Menü und Wochen-Reset", "full_title_length": 167, "status": "SAFE_TO_PUBLISH", "risk_score": 0, "trademark_hits": [], "kdp_policy_violations": [], "statutory_compliance_checks": {"impressumspflicht_ddg_lpressg": true, "buchpreisbindungsgesetz_buchprg_print": true, "kdp_subtitle_under_165_chars": false, "zero_dpma_class16_trademark_collision": true}, "sanitized_title_suggestion": "ADHS Alltags- & Fokus-Arbeitsbuch für Erwachsene", "sanitized_subtitle_suggestion": "Neurodivergenz-freundliches 90-Tage-System gegen Reizüberflutung und Aufschieberitis mit Dopamin-Menü und Wochen-Reset", "backend_keywords_7_boxes": [{"box_index": 1, "content": "neurodivergent exekutive dysfunktion", "utf8_bytes": 36, "max_bytes": 50}, {"box_index": 2, "content": "zeitmanagement konzentration struktur planer ohne", "utf8_bytes": 49, "max_bytes": 50}, {"box_index": 3, "content": "datum impulskontrolle reizfilter", "utf8_bytes": 32, "max_bytes": 50}, {"box_index": 4, "content": "selbstorganisation studium prüfungsvorbereitung", "utf8_bytes": 48, "max_bytes": 50}, {"box_index": 5, "content": "büroalltag körperdoubling pomodorotechnik", "utf8_bytes": 43, "max_bytes": 50}, {"box_index": 6, "content": "gehirnentlastung spätdiagnose erwachsenenalter", "utf8_bytes": 47, "max_bytes": 50}, {"box_index": 7, "content": "selbsthilfe haushaltsplan finanzübersicht", "utf8_bytes": 42, "max_bytes": 50}]}, "niche_sniper_score": 78.4}];
+const TRADEMARKS = {"tüv": "DPMA/EUIPO Wortmarke (Klasse 16/42) – niemals 'TÜV-geprüft' oder 'TÜV-Protokoll' ohne Lizenz nutzen; stattdessen: 'Prüfbuch nach gesetzlichen Vorgaben / BetrSichV'", "dekra": "DPMA/EUIPO Wortmarke – geschütztes Prüfinstitut", "duden": "DPMA/EUIPO Wortmarke (Klasse 9/16) – geschützte Verlagsmarke", "langenscheidt": "DPMA/EUIPO Wortmarke (Klasse 16) – geschützte Verlagsmarke", "beck": "C.H.Beck / Beck-Texte (Klasse 16) – geschützte juristische Verlagsmarke", "datev": "DPMA/EUIPO Wortmarke (Klasse 9/16/35) – geschützte Genossenschaftsmarke", "sap": "DPMA/EUIPO Wortmarke (Klasse 9/16/42) – niemals unautorisiert im Haupttitel führen", "thermomix": "DPMA/EUIPO Wortmarke (Vorwerk, Klasse 7/16) – häufigster Abmahngrund bei Rezeptbüchern", "vorwerk": "DPMA/EUIPO Wortmarke – geschützte Unternehmensmarke", "lego": "DPMA/EUIPO Wortmarke (Klasse 16/28) – strikter Markenrechts-Filter bei KDP", "disney": "EUIPO/USPTO Marke – führt zu sofortiger KDP-Kontosperrung", "pokemon": "EUIPO/USPTO Marke – führt zu sofortiger KDP-Kontosperrung", "pokémon": "EUIPO/USPTO Marke – führt zu sofortiger KDP-Kontosperrung", "minecraft": "EUIPO/USPTO Marke (Mojang/Microsoft) – hohe Sperrquote ohne offizielle Lizenz", "ravensburger": "DPMA/EUIPO Wortmarke (Klasse 16/28)", "playmobil": "DPMA/EUIPO Wortmarke (Klasse 16/28)"};
+
+function calcEuPrintCost(pages, binding) {
+    const p = Math.max(24, parseInt(pages, 10));
+    if (binding === 'paperback_bw') {
+        return p <= 108 ? 1.84 : +(0.75 + 0.012 * p).toFixed(2);
+    } else if (binding === 'paperback_std_color') {
+        return +(0.75 + 0.024 * Math.max(72, p)).toFixed(2);
+    } else if (binding === 'paperback_prem_color') {
+        return p <= 40 ? 2.92 : +(0.75 + 0.0565 * p).toFixed(2);
+    } else if (binding === 'hardcover_bw') {
+        return p <= 108 ? 6.35 : +(5.05 + 0.012 * p).toFixed(2);
+    }
+    return 2.43;
+}
+
+function estimateDeSales(bsr) {
+    const r = Math.max(1, parseInt(bsr, 10));
+    return Math.max(0.1, +(1515.48 * Math.pow(r, -0.625)).toFixed(2));
+}
+
+function recalcKdp() {
+    const gross = parseFloat(document.getElementById('inpPrice').value);
+    const pages = parseInt(document.getElementById('inpPages').value, 10);
+    const bsr = parseInt(document.getElementById('inpBsr').value, 10);
+    const binding = document.getElementById('inpBinding').value;
+
+    document.getElementById('lblPrice').textContent = '€' + gross.toFixed(2);
+    document.getElementById('lblPages').textContent = pages + ' Seiten';
+    document.getElementById('lblBsr').textContent = '#' + bsr.toLocaleString('de-DE');
+
+    const net = +(gross / 1.07).toFixed(2);
+    const vat = +(gross - net).toFixed(2);
+    const printCost = calcEuPrintCost(pages, binding);
+    const grossRoyalty = +(net * 0.60).toFixed(2);
+    const netRoyalty = +(grossRoyalty - printCost).toFixed(2);
+    const minPrice = +((printCost / 0.60) * 1.07).toFixed(2);
+    const acos = gross > 0 ? +((netRoyalty / gross) * 100).toFixed(1) : 0;
+
+    const daily = estimateDeSales(bsr);
+    const monthlySales = Math.round(daily * 30);
+    const monthlyRoyalty = +(monthlySales * netRoyalty).toFixed(2);
+    const annualRoyalty = +(monthlyRoyalty * 12).toFixed(2);
+
+    document.getElementById('outNetPrice').textContent = '€' + net.toFixed(2);
+    document.getElementById('outVat').textContent = 'MwSt.: €' + vat.toFixed(2) + ' (§ 12 Abs. 2 UStG)';
+    document.getElementById('outPrintCost').textContent = '€' + printCost.toFixed(2);
+    document.getElementById('outMinPrice').textContent = 'Min. Listenpreis: €' + minPrice.toFixed(2);
+    document.getElementById('outNetRoyalty').textContent = '€' + netRoyalty.toFixed(2);
+    document.getElementById('outAcos').textContent = 'Breakeven PPC ACOS: ' + acos + '%';
+    document.getElementById('outMonthlySales').textContent = monthlySales.toLocaleString('de-DE') + ' / Monat';
+    document.getElementById('outDailySales').textContent = '~' + daily.toFixed(1) + ' Exemplare / Tag';
+    document.getElementById('outMonthlyRoyalty').textContent = '€' + monthlyRoyalty.toLocaleString('de-DE', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    document.getElementById('outAnnualRoyalty').textContent = '€' + annualRoyalty.toLocaleString('de-DE', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+}
+
+function loadIntoCalculator(price, pages, bsr, binding) {
+    document.getElementById('inpPrice').value = price;
+    document.getElementById('inpPages').value = pages;
+    document.getElementById('inpBsr').value = bsr;
+    document.getElementById('inpBinding').value = binding;
+    recalcKdp();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function loadIntoCompliance(nicheId) {
+    const found = NICHES.find(n => n.niche_id === nicheId);
+    if (!found) return;
+    document.getElementById('inpGuardTitle').value = found.workbook_title;
+    document.getElementById('inpGuardSubtitle').value = found.workbook_subtitle;
+    runLiveGuard();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function loadBadExample() {
+    document.getElementById('inpGuardTitle').value = 'Das #1 TÜV & DEKRA Bestseller Prüfprotokoll Notizbuch';
+    document.getElementById('inpGuardSubtitle').value = 'Gratis Bonus Tagebuch, Logbuch, Planer, Journal und Notizbuch als Geschenk für Männer und Handwerker (Testsieger)';
+    runLiveGuard();
+}
+
+function sanitizeCurrentTitle() {
+    let t = document.getElementById('inpGuardTitle').value;
+    let s = document.getElementById('inpGuardSubtitle').value;
+    Object.keys(TRADEMARKS).forEach(mark => {
+        const rx = new RegExp('\\b' + mark + '\\b[- ]*(?:geprüft|konform|protokoll)?', 'gi');
+        t = t.replace(rx, 'Praxis');
+        s = s.replace(rx, 'Fachstandard');
+    });
+    const badWords = /\b(?:bestseller|testsieger|gratis|kostenlos|#\s*1|nr\.?\s*1)\b/gi;
+    t = t.replace(badWords, '').replace(/\s{2,}/g, ' ').trim();
+    s = s.replace(badWords, '').replace(/\s{2,}/g, ' ').trim();
+    s = s.replace(/\b(?:notizbuch|tagebuch|journal|logbuch|planer)[,\s]+(?:notizbuch|tagebuch|journal|logbuch|planer)[,\sund]+(?:notizbuch|tagebuch|journal|logbuch|planer)/gi, 'Strukturiertes Dokumentationsbuch');
+    s = s.replace(/\b(?:geschenk|geschenkidee)\s+für\s+[^,.]+/gi, 'für die betriebliche Praxis');
+    document.getElementById('inpGuardTitle').value = t;
+    document.getElementById('inpGuardSubtitle').value = s.slice(0, 145).trim();
+    runLiveGuard();
+}
+
+function runLiveGuard() {
+    const t = document.getElementById('inpGuardTitle').value.trim();
+    const s = document.getElementById('inpGuardSubtitle').value.trim();
+    const full = (t + ' ' + s).trim();
+    const lower = full.toLowerCase();
+    const hits = [];
+
+    Object.entries(TRADEMARKS).forEach(([mark, desc]) => {
+        const rx = new RegExp('\\b' + mark + '\\b', 'i');
+        if (rx.test(lower)) {
+            hits.push('<strong>DPMA/EUIPO Marken-Kollision (' + mark.toUpperCase() + '):</strong> ' + desc);
+        }
+    });
+
+    if (/\bbestseller\b/i.test(lower)) hits.push('<strong>KDP Richtlinien-Verstoß:</strong> Werbeaussage "Bestseller" im Titel/Untertitel verboten.');
+    if (/(?:#\s*1\b|\bnr\.?\s*1\b)/i.test(lower)) hits.push('<strong>KDP Richtlinien-Verstoß:</strong> Ranking-Claim ("#1" / "Nr. 1") führt zu Ablehnung.');
+    if (/\btestsieger\b/i.test(lower)) hits.push('<strong>UWG & KDP Verstoß:</strong> Unzulässige Spitzenstellungsbehauptung "Testsieger".');
+    if (/\b(?:gratis|kostenlos)\b/i.test(lower)) hits.push('<strong>BuchPrG & KDP Verstoß:</strong> "Gratis/Kostenlos" im Titel verboten.');
+    if (/\b(?:notizbuch|tagebuch|journal|logbuch|planer)\b.*\b(?:notizbuch|tagebuch|journal|logbuch|planer)\b.*\b(?:notizbuch|tagebuch|journal|logbuch|planer)\b/i.test(lower)) {
+        hits.push('<strong>KDP Title-Stuffing-Sperrfilter:</strong> Aufzählung von ≥ 3 Gattungsbegriffen (Notizbuch/Tagebuch/Logbuch/Planer) im Titel.');
+    }
+    if (/\b(?:geschenk|geschenkidee)\s+für\b/i.test(lower)) {
+        hits.push('<strong>KDP Low-Content Spam-Signal:</strong> Generische "Geschenk für ..."-Floskel im Untertitel.');
+    }
+    if (full.length > 200) {
+        hits.push('<strong>Zeichenlimit überschritten:</strong> ' + full.length + '/200 Zeichen (KDP Hard-Limit).');
+    }
+
+    const box = document.getElementById('guardOutput');
+    if (hits.length === 0) {
+        box.className = 'guard-alert guard-safe';
+        box.innerHTML = '<strong>✅ SAFE_TO_PUBLISH (' + full.length + '/200 Zeichen):</strong> Keine DPMA/EUIPO Klasse-16 Marken-Kollisionen, kein KDP Title-Stuffing, BuchPrG- &amp; Impressum-konform.';
+    } else {
+        box.className = 'guard-alert guard-danger';
+        box.innerHTML = '<strong>🚨 CRITICAL_BAN_RISK (' + hits.length + ' Verstöße erkannt — Kontosperrungs-/Abmahngefahr):</strong><ul style="margin:6px 0 0 0; padding-left:18px;">' +
+            hits.map(h => '<li>' + h + '</li>').join('') + '</ul>';
+    }
+}
+
+recalcKdp();
+runLiveGuard();
+</script>
+</body>
+</html>

@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MILESTONE MVP #100 — DACH Holding- & Immobilien-GmbH Steuer-Architektur Studio</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --card: #131b33;
+      --card-alt: #182342;
+      --border: #283663;
+      --accent: #f59e0b;
+      --accent-glow: rgba(245, 158, 11, 0.2);
+      --emerald: #10b981;
+      --danger: #ef4444;
+      --cyan: #06b6d4;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: radial-gradient(circle at top right, #1e293b 0%, var(--bg) 65%);
+      color: var(--text);
+      line-height: 1.55;
+      padding: 28px 20px 60px;
+    }
+    .container { max-width: 1360px; margin: 0 auto; }
+    .milestone-banner {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.18), rgba(16, 185, 129, 0.14));
+      border: 1px solid var(--accent);
+      border-radius: 16px;
+      padding: 22px 26px;
+      margin-bottom: 24px;
+      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.35);
+    }
+    .badge-row { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; }
+    .badge {
+      font-size: 0.76rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 5px 12px;
+      border-radius: 999px;
+      background: rgba(245, 158, 11, 0.2);
+      color: #fcd34d;
+      border: 1px solid rgba(245, 158, 11, 0.45);
+    }
+    .badge.emerald {
+      background: rgba(16, 185, 129, 0.18);
+      color: #6ee7b7;
+      border-color: rgba(16, 185, 129, 0.4);
+    }
+    .badge.cyan {
+      background: rgba(6, 182, 212, 0.18);
+      color: #67e8f9;
+      border-color: rgba(6, 182, 212, 0.4);
+    }
+    h1 { font-size: 1.85rem; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 8px; }
+    .subtitle { color: var(--muted); font-size: 0.98rem; max-width: 1050px; }
+    .kpi-strip {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+      margin-bottom: 26px;
+    }
+    .kpi-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px 20px;
+    }
+    .kpi-label { font-size: 0.8rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+    .kpi-value { font-size: 1.65rem; font-weight: 800; margin: 6px 0 4px; color: var(--text); }
+    .kpi-value.emerald { color: var(--emerald); }
+    .kpi-value.amber { color: var(--accent); }
+    .kpi-value.danger { color: var(--danger); }
+    .kpi-sub { font-size: 0.8rem; color: var(--muted); }
+    .tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 22px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 14px;
+    }
+    .tab-btn {
+      background: var(--card);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 11px 18px;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.18s ease;
+    }
+    .tab-btn:hover { border-color: var(--accent); }
+    .tab-btn.active {
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      color: #0b1020;
+      border-color: #f59e0b;
+      font-weight: 800;
+    }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1.25fr;
+      gap: 22px;
+    }
+    @media (max-width: 980px) {
+      .grid-2 { grid-template-columns: 1fr; }
+    }
+    .panel-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 22px;
+    }
+    .panel-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .form-group { margin-bottom: 14px; }
+    .form-group label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.86rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: #cbd5e1;
+    }
+    .form-group input[type="number"],
+    .form-group select {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: #0f1629;
+      color: var(--text);
+      font-size: 0.95rem;
+    }
+    .form-group input[type="range"] {
+      width: 100%;
+      accent-color: var(--accent);
+    }
+    .checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 12px;
+      background: var(--card-alt);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      margin-bottom: 10px;
+      font-size: 0.88rem;
+      cursor: pointer;
+    }
+    .checkbox-row input { width: 17px; height: 17px; accent-color: var(--accent); }
+    .alert-box {
+      padding: 14px 16px;
+      border-radius: 10px;
+      margin-top: 14px;
+      font-size: 0.88rem;
+      border: 1px solid;
+    }
+    .alert-box.ok {
+      background: rgba(16, 185, 129, 0.12);
+      border-color: rgba(16, 185, 129, 0.45);
+      color: #a7f3d0;
+    }
+    .alert-box.warn {
+      background: rgba(245, 158, 11, 0.14);
+      border-color: rgba(245, 158, 11, 0.5);
+      color: #fde68a;
+    }
+    .alert-box.danger {
+      background: rgba(239, 68, 68, 0.14);
+      border-color: rgba(239, 68, 68, 0.5);
+      color: #fecaca;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      font-size: 0.86rem;
+    }
+    th, td {
+      padding: 10px 11px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    th {
+      color: var(--muted);
+      font-weight: 700;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: 0.04em;
+    }
+    tr.active-row {
+      background: rgba(245, 158, 11, 0.16);
+      font-weight: 700;
+    }
+    .trap-item {
+      padding: 12px 14px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--card-alt);
+      margin-bottom: 10px;
+    }
+    .trap-item.triggered {
+      border-color: var(--danger);
+      background: rgba(239, 68, 68, 0.11);
+    }
+    .trap-item.safe {
+      border-color: rgba(16, 185, 129, 0.4);
+    }
+    .trap-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 700;
+      font-size: 0.9rem;
+      margin-bottom: 4px;
+    }
+    .status-pill {
+      font-size: 0.72rem;
+      padding: 3px 9px;
+      border-radius: 999px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+    .status-pill.safe { background: rgba(16, 185, 129, 0.2); color: #6ee7b7; }
+    .status-pill.triggered { background: rgba(239, 68, 68, 0.25); color: #fca5a5; }
+    .trap-meta { font-size: 0.8rem; color: var(--muted); margin-bottom: 4px; }
+    .trap-advice { font-size: 0.8rem; color: #cbd5e1; }
+  </style>
+</head>
+<body>
+
+<!-- DACH CASHFLOW STUDIOS LAUNCH BAR -->
+<style>
+  #dcs-launch-bar {
+    position: sticky;
+    top: 0;
+    z-index: 99999;
+    background: linear-gradient(90deg, #0b1120 0%, #111827 50%, #0f172a 100%);
+    color: #f8fafc;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.35);
+    padding: 8px 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  }
+  #dcs-launch-bar .dcs-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+  }
+  #dcs-launch-bar .dcs-badge {
+    background: rgba(16, 185, 129, 0.18);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.03em;
+  }
+  #dcs-launch-bar a.dcs-nav {
+    color: #93c5fd;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 12.5px;
+  }
+  #dcs-launch-bar a.dcs-nav:hover {
+    text-decoration: underline;
+    color: #dbeafe;
+  }
+  #dcs-launch-bar .dcs-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  #dcs-launch-bar .dcs-btn {
+    padding: 5px 11px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s ease;
+  }
+  #dcs-launch-bar .dcs-btn-ghost {
+    background: rgba(255,255,255,0.08);
+    color: #e2e8f0;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  #dcs-launch-bar .dcs-btn-primary {
+    background: linear-gradient(135deg, #0ea5e9, #2563eb);
+    color: #ffffff;
+  }
+  #dcs-launch-bar .dcs-btn-emerald {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
+  }
+  @media print {
+    #dcs-launch-bar { display: none !important; }
+  }
+</style>
+<div id="dcs-launch-bar">
+  <div class="dcs-left">
+    <a href="/index.html" class="dcs-nav">← Alle 150 DACH Studios</a>
+    <span class="dcs-badge">MVP #100 VERIFIED</span>
+    <span style="color:#cbd5e1;font-size:12px;">DACH Tax, Corporate & Accounting Arbitrage</span>
+  </div>
+  <div class="dcs-actions">
+    <button onclick="window.print()" class="dcs-btn dcs-btn-ghost">🖨️ PDF / Dossier drucken</button>
+    <a href="#checkout-modal-49" target="_blank" rel="noopener" class="dcs-btn dcs-btn-primary">⚡ Musterschreiben & Voll-Dossier (€49)</a>
+    <a href="#checkout-modal-299" target="_blank" rel="noopener" class="dcs-btn dcs-btn-emerald">🛡️ B2B Umsetzung buchen (€299 / €1.490)</a>
+  </div>
+</div>
+
+  <div class="container">
+    <div class="milestone-banner">
+      <div class="badge-row">
+        <span class="badge">MILESTONE MVP #100</span>
+        <span class="badge emerald">§ 8b KStG 1,54% Holding-Privileg</span>
+        <span class="badge cyan">§ 9 Nr. 1 S. 2 GewStG 0,00% GewSt Immo-Wächter</span>
+        <span class="badge">§§ 21, 22 UmwStG 7-Jahres-Sperrfrist</span>
+      </div>
+      <h1>DACH Holding- &amp; Immobilien-GmbH Steuer-Architektur Studio</h1>
+      <p class="subtitle">
+        Interaktiver Deterministik-Rechner für Gründer, Gesellschafter-Geschäftsführer und Immobilien-Investoren:
+        <strong>§ 8b KStG Exit- &amp; Schachteldividenden-Simulator (1,54% vs. Streubesitzfalle)</strong>,
+        <strong>§ 9 Nr. 1 Satz 2–5 GewStG Infizierungs-Wächter (5% Betriebsvorrichtungen / 20% PV / Betriebsaufspaltung)</strong>
+        und <strong>§§ 21–22 UmwStG Einbringungsgewinn II 1/7-Abschmelzungsplan</strong>.
+      </p>
+    </div>
+
+    <div class="kpi-strip">
+      <div class="kpi-card">
+        <div class="kpi-label">§ 8b Abs. 2 KStG Holding-Exit-Steuer</div>
+        <div class="kpi-value emerald" id="kpi-exit-rate">1.49%</div>
+        <div class="kpi-sub" id="kpi-exit-adv">+674,844 € mehr Reinvestitions-Kapital vs. Privatverkauf</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Laufende Dividende an Holding</div>
+        <div class="kpi-value amber" id="kpi-div-rate">1.49%</div>
+        <div class="kpi-sub" id="kpi-div-sub">Volles Holding-Schachtelprivileg (§ 8b Abs. 1, 5 KStG + § ...</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Immobilien-GmbH Ertragsteuer (§ 9 Nr. 1 S. 2)</div>
+        <div class="kpi-value emerald" id="kpi-immo-rate">15.825%</div>
+        <div class="kpi-sub" id="kpi-immo-sub">0,00% GewSt statt 30.52% Regel-GmbH</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">§ 22 Abs. 2 UmwStG Sperrfrist-Status</div>
+        <div class="kpi-value" id="kpi-umw-frac">4/7 (57.1%)</div>
+        <div class="kpi-sub" id="kpi-umw-sub">Nach 3 vollen Jahren seit Anteilstausch</div>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('tab-holding', this)">1. § 8b KStG Holding-Exit &amp; Dividenden-Stichtag</button>
+      <button class="tab-btn" onclick="switchTab('tab-immo', this)">2. § 9 Nr. 1 S. 2 GewStG Immo-GmbH Infizierungs-Wächter</button>
+      <button class="tab-btn" onclick="switchTab('tab-umwstg', this)">3. §§ 21, 22 UmwStG 7-Jahres-Sperrfrist-Rechner</button>
+    </div>
+
+    <!-- TAB 1: § 8b KStG HOLDING SIMULATOR -->
+    <div id="tab-holding" class="tab-panel active">
+      <div class="grid-2">
+        <div class="panel-card">
+          <div class="panel-title">Parameter: Operative Tochter-GmbH &amp; Holding</div>
+          <div class="form-group">
+            <label><span>Veräußerungsgewinn Tochter-Exit (§ 8b Abs. 2 KStG)</span><span id="lbl-exit-gain">2.500.000 €</span></label>
+            <input type="number" id="inp-exit-gain" value="2500000" step="50000" oninput="recalcHolding()" />
+          </div>
+          <div class="form-group">
+            <label><span>Jährliche Gewinnausschüttung / Dividende (§ 8b Abs. 1 KStG)</span><span id="lbl-div">400.000 €</span></label>
+            <input type="number" id="inp-div" value="400000" step="10000" oninput="recalcHolding()" />
+          </div>
+          <div class="form-group">
+            <label><span>Beteiligungsquote der Holding an Tochter-GmbH (%)</span><span id="lbl-own">100%</span></label>
+            <input type="range" id="inp-own" min="1" max="100" value="100" oninput="recalcHolding()" />
+          </div>
+          <div class="form-group">
+            <label><span>Gewerbesteuer-Hebesatz Sitzgemeinde (%)</span><span id="lbl-hebesatz">400%</span></label>
+            <input type="number" id="inp-hebesatz" value="400" min="200" max="600" step="10" oninput="recalcHolding()" />
+          </div>
+          <label class="checkbox-row">
+            <input type="checkbox" id="chk-jan1" checked onchange="recalcHolding()" />
+            <span>Beteiligung bereits zu Beginn des Kalenderjahres (01.01., 00:00 Uhr) gehalten?</span>
+          </label>
+          <label class="checkbox-row">
+            <input type="checkbox" id="chk-midblock" checked onchange="recalcHolding()" />
+            <span>Falls unterjährig erworben: Erwerb eines zusammenhängenden Blocks &ge; 10% (§ 8b Abs. 4 S. 6 KStG)?</span>
+          </label>
+          <div class="form-group" style="margin-top:12px;">
+            <label><span>Reinvestitions-Horizont in der Holding (Jahre @ 8% p.a.)</span><span id="lbl-years">15 Jahre</span></label>
+            <input type="range" id="inp-years" min="5" max="30" value="15" oninput="recalcHolding()" />
+          </div>
+        </div>
+
+        <div class="panel-card">
+          <div class="panel-title">Steuer- &amp; Zinseszins-Analyse (Holding vs. Privatperson)</div>
+          <table>
+            <thead>
+              <tr>
+                <th>Kennzahl / Steuerregime</th>
+                <th>Holding-GmbH (§ 8b KStG)</th>
+                <th>Privat (§ 17 EStG TEV / AbgSt)</th>
+                <th>Vorteil Holding</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Tochter-Exit Steuerlast</strong></td>
+                <td id="tbl-exit-hold-tax">38.563 € (1,54%)</td>
+                <td id="tbl-exit-priv-tax">712.125 € (28,49%)</td>
+                <td style="color:var(--emerald);font-weight:700;" id="tbl-exit-diff">+673.563 €</td>
+              </tr>
+              <tr>
+                <td><strong>Sofort reinvestierbares Kapital</strong></td>
+                <td id="tbl-exit-hold-net">2.461.438 €</td>
+                <td id="tbl-exit-priv-net">1.787.875 €</td>
+                <td style="color:var(--emerald);font-weight:700;" id="tbl-exit-net-diff">+37,67% Startkapital</td>
+              </tr>
+              <tr>
+                <td><strong>Laufende Dividende Steuerlast</strong></td>
+                <td id="tbl-div-hold-tax">6.170 € (1,54%)</td>
+                <td id="tbl-div-priv-tax">105.500 € (26,38%)</td>
+                <td style="color:var(--emerald);font-weight:700;" id="tbl-div-diff">+99.330 € / Jahr</td>
+              </tr>
+              <tr>
+                <td><strong>Endvermögen (Netto nach Privat-Ausschüttung)</strong></td>
+                <td id="tbl-comp-hold">5.412.000 €</td>
+                <td id="tbl-comp-priv">3.920.000 €</td>
+                <td style="color:var(--accent);font-weight:800;" id="tbl-comp-diff">+1.492.000 €</td>
+              </tr>
+            </tbody>
+          </table>
+          <div id="div-regime-alert" class="alert-box ok"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 2: § 9 Nr. 1 Satz 2 GewStG IMMO-GMBH GUARD -->
+    <div id="tab-immo" class="tab-panel">
+      <div class="grid-2">
+        <div class="panel-card">
+          <div class="panel-title">Immobilien-GmbH Einnahmen &amp; 6 Infizierungs-Checks</div>
+          <div class="form-group">
+            <label><span>Jährliche Netto-Mieteinnahmen (Grundbesitz-Gebrauchsüberlassung)</span></label>
+            <input type="number" id="inp-immo-rent" value="360000" step="10000" oninput="recalcImmo()" />
+          </div>
+          <div class="form-group">
+            <label><span>Zu versteuernder Mietüberschuss (Gewinn vor Steuern)</span></label>
+            <input type="number" id="inp-immo-profit" value="240000" step="10000" oninput="recalcImmo()" />
+          </div>
+          <div class="form-group">
+            <label><span>Einnahmen aus Mitvermietung von Betriebsvorrichtungen (5%-Grenze § 9 Nr. 1 S. 3c)</span><span id="lbl-bv-pct">3,33%</span></label>
+            <input type="number" id="inp-immo-bv" value="12000" step="1000" oninput="recalcImmo()" />
+          </div>
+          <div class="form-group">
+            <label><span>Einnahmen aus PV-Anlagen / Mieterstrom &amp; E-Ladesäulen (20%-Grenze § 9 Nr. 1 S. 3b)</span><span id="lbl-pv-pct">12,50%</span></label>
+            <input type="number" id="inp-immo-pv" value="45000" step="2500" oninput="recalcImmo()" />
+          </div>
+          <div class="form-group">
+            <label><span>Verkaufte Immobilien-Objekte in den letzten 5 Jahren (3-Objekt-Grenze)</span></label>
+            <input type="number" id="inp-immo-sold" value="0" min="0" max="10" step="1" oninput="recalcImmo()" />
+          </div>
+          <label class="checkbox-row">
+            <input type="checkbox" id="chk-immo-aufspaltung" onchange="recalcImmo()" />
+            <span>Falle 1: Vermietung an eigene operative GmbH / Personengesellschaft (Betriebsaufspaltung / § 9 Nr. 1 S. 5)?</span>
+          </label>
+          <label class="checkbox-row">
+            <input type="checkbox" id="chk-immo-hotel" onchange="recalcImmo()" />
+            <span>Falle 5: Kurzzeitvermietung / Ferienwohnungen mit Hotel-Service (Reinigung, Frühstück)?</span>
+          </label>
+          <label class="checkbox-row">
+            <input type="checkbox" id="chk-immo-kg" onchange="recalcImmo()" />
+            <span>Falle 6: Hält die Immo-GmbH Anteile an einer gewerblichen Personengesellschaft (Mitunternehmerschaft)?</span>
+          </label>
+          <div id="immo-summary-alert" class="alert-box ok"></div>
+        </div>
+
+        <div class="panel-card">
+          <div class="panel-title">Live-Prüfung der 6 Infizierungs-Fallen („Alles-oder-Nichts-Prinzip“)</div>
+          <div id="immo-traps-container"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 3: §§ 21, 22 UmwStG 7-YEAR SHARE SWAP LOCKUP -->
+    <div id="tab-umwstg" class="tab-panel">
+      <div class="grid-2">
+        <div class="panel-card">
+          <div class="panel-title">Qualifizierter Anteilstausch (§ 21 Abs. 1 S. 2 UmwStG)</div>
+          <div class="form-group">
+            <label><span>Gemeiner Wert (Unternehmenswert) beim Einbringungsstichtag</span></label>
+            <input type="number" id="inp-umw-fmv" value="2000000" step="50000" oninput="recalcUmw()" />
+          </div>
+          <div class="form-group">
+            <label><span>Historische Anschaffungskosten / Buchwert (z. B. Stammkapital)</span></label>
+            <input type="number" id="inp-umw-bv" value="25000" step="5000" oninput="recalcUmw()" />
+          </div>
+          <div class="form-group">
+            <label><span>Späterer Exit-Verkaufspreis durch die Holding</span></label>
+            <input type="number" id="inp-umw-exit" value="3000000" step="100000" oninput="recalcUmw()" />
+          </div>
+          <div class="form-group">
+            <label><span>Abgelaufene volle Zeitjahre seit Einbringungsstichtag (0 bis 7 Jahre)</span><span id="lbl-umw-yr">3 Jahre (4/7 steuerpflichtig)</span></label>
+            <input type="range" id="inp-umw-yr" min="0" max="7" value="3" oninput="recalcUmw()" />
+          </div>
+          <div class="alert-box warn">
+            <strong>§ 22 Abs. 3 UmwStG Stichtags-Warnung (31. Mai!):</strong><br/>
+            Jedes Jahr bis zum <strong>31. Mai</strong> muss dem Finanzamt unaufgefordert schriftlich nachgewiesen werden,
+            dass die Holding die eingebrachten Anteile weiterhin hält. Fehlt der Nachweis, fingiert das Gesetz einen
+            sofortigen Sperrfristverstoß!
+          </div>
+        </div>
+
+        <div class="panel-card">
+          <div class="panel-title">Einbringungsgewinn II Abschmelzungstabelle (§ 22 Abs. 2 UmwStG)</div>
+          <table>
+            <thead>
+              <tr>
+                <th>Volle Jahre</th>
+                <th>Sperrfrist-Quote</th>
+                <th>Einbringungsgewinn II</th>
+                <th>Rückw. ESt (TEV)</th>
+                <th>§ 8b KStG Holding</th>
+                <th>Gesamtsteuer</th>
+                <th>Ersparnis vs. Jahr 0</th>
+              </tr>
+            </thead>
+            <tbody id="umw-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const INITIAL_STATE = {"holding": {"hebesatz_pct": 400.0, "gewst_rate_pct": 14.0, "standard_gmbh_rate_pct": 29.825, "exit_gain_eur": 2500000.0, "holding_exit_taxable_share_pct": 5.0, "holding_exit_effective_tax_rate_pct": 1.4913, "holding_exit_tax_eur": 37281.25, "holding_exit_net_reinvestable_eur": 2462718.75, "private_tev_personal_tax_rate_pct": 47.475, "private_tev_effective_exit_rate_pct": 28.485, "private_tev_exit_tax_eur": 712125.0, "private_tev_net_eur": 1787875.0, "holding_exit_liquidity_advantage_eur": 674843.75, "dividend_amount_eur": 400000.0, "ownership_pct": 100.0, "held_at_jan_1": true, "acquired_mid_year_single_block_ge_10pct": true, "kst_exempt_95pct": true, "gewst_exempt_95pct": true, "active_dividend_regime": "Volles Holding-Schachtelprivileg (§ 8b Abs. 1, 5 KStG + § 9 Nr. 2a GewStG >= 15% ab 01.01.)", "active_dividend_effective_tax_rate_pct": 1.4913, "active_dividend_tax_eur": 5965.0, "active_dividend_net_in_holding_eur": 394035.0, "optimal_jan1_15pct_dividend_tax_eur": 5965.0, "mid_year_or_streubesitz_penalty_eur": 0.0, "compounding_years": 15, "annual_return_pct": 8.0, "holding_terminal_net_after_payout_eur": 5657133.94, "private_terminal_net_eur": 4218532.28, "compounding_wealth_advantage_eur": 1438601.66}, "immo_clean": {"annual_rental_revenue_eur": 360000.0, "net_taxable_rental_profit_eur": 240000.0, "hebesatz_pct": 420.0, "bv_revenue_eur": 12000.0, "bv_share_pct": 3.33, "bv_limit_pct": 5.0, "pv_ev_revenue_eur": 45000.0, "pv_ev_share_pct": 12.5, "pv_ev_limit_pct": 20.0, "erweiterte_kuerzung_granted": true, "triggered_trap_count": 0, "effective_tax_rate_pct": 15.825, "clean_tax_rate_pct": 15.825, "infected_tax_rate_pct": 30.525, "annual_tax_clean_eur": 37980.0, "annual_tax_infected_eur": 73260.0, "annual_tax_actual_eur": 37980.0, "annual_infection_damage_eur": 35280.0, "ten_year_infection_damage_eur": 352800.0, "trap_checks": [{"trap_id": "TRAP_1_BETRIEBSAUFSPALTUNG", "legal_basis": "§ 9 Nr. 1 Satz 5 GewStG / § 15 EStG", "title": "Betriebsaufspaltung / Vermietung an operative Schwester- oder Gesellschafter-GmbH/KG", "triggered": false, "current_metric_label": "Nein (Drittvermietung / Trennung gewahrt)", "limit_label": "Striktes Verbot (0% Toleranz bei personeller + sachlicher Verflechtung)", "remediation_advice": "Keine wesentliche Betriebsgrundlage der Immo-GmbH an die eigene operative GmbH/Personengesellschaft vermieten oder Stimmrechts-/Beteiligungsidentität über Wiesbadener Modell / Schwesterstruktur mit Vorab-Verbindlicher Auskunft (§ 89 AO) trennen."}, {"trap_id": "TRAP_2_BETRIEBSVORRICHTUNGEN_5PCT", "legal_basis": "§ 9 Nr. 1 Satz 3 Buchst. c GewStG", "title": "Mitvermietung von Betriebsvorrichtungen (Einbauküchen, Lastenaufzüge, Kranbahnen, Kühlzellen)", "triggered": false, "current_metric_label": "3.33% (12,000 € / Jahr)", "limit_label": "Max. 5.00% der Mieteinnahmen (18,000 €)", "remediation_advice": "Betriebsvorrichtungen vorab an den Mieter verkaufen, in eine separate Service-/Ausstattungs-UG auslagern oder den Mietzinsanteil vertraglich sauber unter 5,00% deckeln."}, {"trap_id": "TRAP_3_PV_LADESTATIONEN_20PCT", "legal_basis": "§ 9 Nr. 1 Satz 3 Buchst. b GewStG (Wachstumschancengesetz)", "title": "Photovoltaik-Einspeisung / Mieterstrom & E-Ladesäulen-Umsätze", "triggered": false, "current_metric_label": "12.50% (45,000 € / Jahr)", "limit_label": "Max. 20.00% der Mieteinnahmen (72,000 €)", "remediation_advice": "Bei Überschreitung der 20%-Grenze (oder Stromverkauf an Nicht-Mieter außer Netzeinspeisung): PV-Anlage über eine separate Betreiber-GmbH (Dachpacht-Modell) betreiben."}, {"trap_id": "TRAP_4_DREI_OBJEKT_GRENZE", "legal_basis": "§ 9 Nr. 1 Satz 2 GewStG i.V.m. BFH-Rspr. (3-Objekt-Grenze)", "title": "Gewerblicher Grundstückshandel (Veräußerung von > 3 Objekten innerhalb von 5 Jahren)", "triggered": false, "current_metric_label": "0 Objekte in 5 Jahren veräußert", "limit_label": "Max. 3 Objekte in 5 Jahren (oder Haltedauer > 10 Jahre / Share Deal über Holding)", "remediation_advice": "Bestandsimmobilien in eigene Objekt-GmbHs kapseln (Veräußerung als Share Deal über die Holding nach § 8b Abs. 2 KStG zu 1,54% Steuer) oder 5-/10-Jahres-Haltefristen strikt einhalten."}, {"trap_id": "TRAP_5_GEWERBLICHE_BEHERBERGung", "legal_basis": "§ 9 Nr. 1 Satz 2 GewStG (Ausschließlichkeitsgebot)", "title": "Kurzzeitvermietung / Ferienwohnungen mit Hotel-Service (Reinigung, Wäsche, Frühstück)", "triggered": false, "current_metric_label": "Nein (Reine Raumüberlassung)", "limit_label": "0% gewerbliche Beherbergungsleistungen durch die Immo-GmbH", "remediation_advice": "Immo-GmbH verpachtet das Objekt langfristig (reine Raumüberlassung) an eine separate Betreiber-GmbH, die das Kurzzeit-/Airbnb-Geschäft abwickelt."}, {"trap_id": "TRAP_6_MITUNTERNEHMERSCHAFT", "legal_basis": "§ 9 Nr. 1 Satz 2 GewStG", "title": "Beteiligung an einer gewerblichen Personengesellschaft (z. B. GmbH & Co. KG / Mitunternehmerschaft)", "triggered": false, "current_metric_label": "Nein (Nur Grundbesitz & eigenes Kapitalvermögen)", "limit_label": "Keine Beteiligung an gewerblichen Personengesellschaften", "remediation_advice": "Gewerbliche Personengesellschaftsanteile direkt in der übergeordneten Holding-GmbH oder einer separaten Beteiligungs-GmbH halten, niemals in der vermögensverwaltenden Immo-GmbH."}]}, "immo_infected": {"annual_rental_revenue_eur": 360000.0, "net_taxable_rental_profit_eur": 240000.0, "hebesatz_pct": 420.0, "bv_revenue_eur": 22000.0, "bv_share_pct": 6.11, "bv_limit_pct": 5.0, "pv_ev_revenue_eur": 80000.0, "pv_ev_share_pct": 22.22, "pv_ev_limit_pct": 20.0, "erweiterte_kuerzung_granted": false, "triggered_trap_count": 3, "effective_tax_rate_pct": 30.525, "clean_tax_rate_pct": 15.825, "infected_tax_rate_pct": 30.525, "annual_tax_clean_eur": 37980.0, "annual_tax_infected_eur": 73260.0, "annual_tax_actual_eur": 73260.0, "annual_infection_damage_eur": 35280.0, "ten_year_infection_damage_eur": 352800.0, "trap_checks": [{"trap_id": "TRAP_1_BETRIEBSAUFSPALTUNG", "legal_basis": "§ 9 Nr. 1 Satz 5 GewStG / § 15 EStG", "title": "Betriebsaufspaltung / Vermietung an operative Schwester- oder Gesellschafter-GmbH/KG", "triggered": true, "current_metric_label": "Ja (Vermietung an eigenes Betriebsunternehmen)", "limit_label": "Striktes Verbot (0% Toleranz bei personeller + sachlicher Verflechtung)", "remediation_advice": "Keine wesentliche Betriebsgrundlage der Immo-GmbH an die eigene operative GmbH/Personengesellschaft vermieten oder Stimmrechts-/Beteiligungsidentität über Wiesbadener Modell / Schwesterstruktur mit Vorab-Verbindlicher Auskunft (§ 89 AO) trennen."}, {"trap_id": "TRAP_2_BETRIEBSVORRICHTUNGEN_5PCT", "legal_basis": "§ 9 Nr. 1 Satz 3 Buchst. c GewStG", "title": "Mitvermietung von Betriebsvorrichtungen (Einbauküchen, Lastenaufzüge, Kranbahnen, Kühlzellen)", "triggered": true, "current_metric_label": "6.11% (22,000 € / Jahr)", "limit_label": "Max. 5.00% der Mieteinnahmen (18,000 €)", "remediation_advice": "Betriebsvorrichtungen vorab an den Mieter verkaufen, in eine separate Service-/Ausstattungs-UG auslagern oder den Mietzinsanteil vertraglich sauber unter 5,00% deckeln."}, {"trap_id": "TRAP_3_PV_LADESTATIONEN_20PCT", "legal_basis": "§ 9 Nr. 1 Satz 3 Buchst. b GewStG (Wachstumschancengesetz)", "title": "Photovoltaik-Einspeisung / Mieterstrom & E-Ladesäulen-Umsätze", "triggered": true, "current_metric_label": "22.22% (80,000 € / Jahr)", "limit_label": "Max. 20.00% der Mieteinnahmen (72,000 €)", "remediation_advice": "Bei Überschreitung der 20%-Grenze (oder Stromverkauf an Nicht-Mieter außer Netzeinspeisung): PV-Anlage über eine separate Betreiber-GmbH (Dachpacht-Modell) betreiben."}, {"trap_id": "TRAP_4_DREI_OBJEKT_GRENZE", "legal_basis": "§ 9 Nr. 1 Satz 2 GewStG i.V.m. BFH-Rspr. (3-Objekt-Grenze)", "title": "Gewerblicher Grundstückshandel (Veräußerung von > 3 Objekten innerhalb von 5 Jahren)", "triggered": false, "current_metric_label": "0 Objekte in 5 Jahren veräußert", "limit_label": "Max. 3 Objekte in 5 Jahren (oder Haltedauer > 10 Jahre / Share Deal über Holding)", "remediation_advice": "Bestandsimmobilien in eigene Objekt-GmbHs kapseln (Veräußerung als Share Deal über die Holding nach § 8b Abs. 2 KStG zu 1,54% Steuer) oder 5-/10-Jahres-Haltefristen strikt einhalten."}, {"trap_id": "TRAP_5_GEWERBLICHE_BEHERBERGung", "legal_basis": "§ 9 Nr. 1 Satz 2 GewStG (Ausschließlichkeitsgebot)", "title": "Kurzzeitvermietung / Ferienwohnungen mit Hotel-Service (Reinigung, Wäsche, Frühstück)", "triggered": false, "current_metric_label": "Nein (Reine Raumüberlassung)", "limit_label": "0% gewerbliche Beherbergungsleistungen durch die Immo-GmbH", "remediation_advice": "Immo-GmbH verpachtet das Objekt langfristig (reine Raumüberlassung) an eine separate Betreiber-GmbH, die das Kurzzeit-/Airbnb-Geschäft abwickelt."}, {"trap_id": "TRAP_6_MITUNTERNEHMERSCHAFT", "legal_basis": "§ 9 Nr. 1 Satz 2 GewStG", "title": "Beteiligung an einer gewerblichen Personengesellschaft (z. B. GmbH & Co. KG / Mitunternehmerschaft)", "triggered": false, "current_metric_label": "Nein (Nur Grundbesitz & eigenes Kapitalvermögen)", "limit_label": "Keine Beteiligung an gewerblichen Personengesellschaften", "remediation_advice": "Gewerbliche Personengesellschaftsanteile direkt in der übergeordneten Holding-GmbH oder einer separaten Beteiligungs-GmbH halten, niemals in der vermögensverwaltenden Immo-GmbH."}]}, "umwstg": {"fair_market_value_at_swap_eur": 2000000.0, "acquisition_cost_book_value_eur": 25000.0, "hidden_reserves_at_swap_eur": 1975000.0, "future_exit_valuation_eur": 3000000.0, "voting_rights_acquired_by_holding_pct": 100.0, "qualifies_for_buchwert_swap_21_umwstg": true, "selected_completed_years": 3, "selected_year_row": {"completed_years": 3, "remaining_lockup_fraction_str": "4/7", "remaining_lockup_pct": 57.14, "retroactive_einbringungsgewinn_ii_eur": 1128571.43, "retroactive_personal_tax_tev_eur": 321473.57, "holding_current_exit_tax_8b_eur": 27534.87, "total_tax_if_sold_in_year_eur": 349008.44, "effective_total_tax_rate_on_exit_pct": 11.73, "tax_saved_vs_year_0_eur": 228482.81}, "may_31_nachweis_warning": "PFLICHT-COMPLIANCE (§ 22 Abs. 3 UmwStG): Der Einbringende muss dem Finanzamt in den 7 Jahren nach dem Einbringungsstichtag jährlich spätestens bis zum 31. Mai nachweisen, wem die eingebrachten Anteile zuzurechnen sind. Versäumnis = fiktive rückwirkende Veräußerung!", "schedule_0_to_7": [{"completed_years": 0, "remaining_lockup_fraction_str": "7/7", "remaining_lockup_pct": 100.0, "retroactive_einbringungsgewinn_ii_eur": 1975000.0, "retroactive_personal_tax_tev_eur": 562578.75, "holding_current_exit_tax_8b_eur": 14912.5, "total_tax_if_sold_in_year_eur": 577491.25, "effective_total_tax_rate_on_exit_pct": 19.41, "tax_saved_vs_year_0_eur": 0.0}, {"completed_years": 1, "remaining_lockup_fraction_str": "6/7", "remaining_lockup_pct": 85.71, "retroactive_einbringungsgewinn_ii_eur": 1692857.14, "retroactive_personal_tax_tev_eur": 482210.36, "holding_current_exit_tax_8b_eur": 19119.96, "total_tax_if_sold_in_year_eur": 501330.32, "effective_total_tax_rate_on_exit_pct": 16.85, "tax_saved_vs_year_0_eur": 76160.93}, {"completed_years": 2, "remaining_lockup_fraction_str": "5/7", "remaining_lockup_pct": 71.43, "retroactive_einbringungsgewinn_ii_eur": 1410714.29, "retroactive_personal_tax_tev_eur": 401841.97, "holding_current_exit_tax_8b_eur": 23327.41, "total_tax_if_sold_in_year_eur": 425169.38, "effective_total_tax_rate_on_exit_pct": 14.29, "tax_saved_vs_year_0_eur": 152321.87}, {"completed_years": 3, "remaining_lockup_fraction_str": "4/7", "remaining_lockup_pct": 57.14, "retroactive_einbringungsgewinn_ii_eur": 1128571.43, "retroactive_personal_tax_tev_eur": 321473.57, "holding_current_exit_tax_8b_eur": 27534.87, "total_tax_if_sold_in_year_eur": 349008.44, "effective_total_tax_rate_on_exit_pct": 11.73, "tax_saved_vs_year_0_eur": 228482.81}, {"completed_years": 4, "remaining_lockup_fraction_str": "3/7", "remaining_lockup_pct": 42.86, "retroactive_einbringungsgewinn_ii_eur": 846428.57, "retroactive_personal_tax_tev_eur": 241105.18, "holding_current_exit_tax_8b_eur": 31742.32, "total_tax_if_sold_in_year_eur": 272847.5, "effective_total_tax_rate_on_exit_pct": 9.17, "tax_saved_vs_year_0_eur": 304643.75}, {"completed_years": 5, "remaining_lockup_fraction_str": "2/7", "remaining_lockup_pct": 28.57, "retroactive_einbringungsgewinn_ii_eur": 564285.71, "retroactive_personal_tax_tev_eur": 160736.78, "holding_current_exit_tax_8b_eur": 35949.78, "total_tax_if_sold_in_year_eur": 196686.56, "effective_total_tax_rate_on_exit_pct": 6.61, "tax_saved_vs_year_0_eur": 380804.69}, {"completed_years": 6, "remaining_lockup_fraction_str": "1/7", "remaining_lockup_pct": 14.29, "retroactive_einbringungsgewinn_ii_eur": 282142.86, "retroactive_personal_tax_tev_eur": 80368.39, "holding_current_exit_tax_8b_eur": 40157.23, "total_tax_if_sold_in_year_eur": 120525.62, "effective_total_tax_rate_on_exit_pct": 4.05, "tax_saved_vs_year_0_eur": 456965.63}, {"completed_years": 7, "remaining_lockup_fraction_str": "0/7", "remaining_lockup_pct": 0.0, "retroactive_einbringungsgewinn_ii_eur": 0.0, "retroactive_personal_tax_tev_eur": 0.0, "holding_current_exit_tax_8b_eur": 44364.69, "total_tax_if_sold_in_year_eur": 44364.69, "effective_total_tax_rate_on_exit_pct": 1.49, "tax_saved_vs_year_0_eur": 533126.56}]}};
+
+    function fmtEur(v) {
+      return new Intl.NumberFormat('de-DE', { maximumFractionDigits: 0 }).format(Math.round(v)) + ' €';
+    }
+    function fmtPct(v, d = 2) {
+      return v.toFixed(d).replace('.', ',') + '%';
+    }
+
+    function switchTab(tabId, btn) {
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById(tabId).classList.add('active');
+      btn.classList.add('active');
+    }
+
+    function recalcHolding() {
+      const exitGain = parseFloat(document.getElementById('inp-exit-gain').value) || 0;
+      const divAmt = parseFloat(document.getElementById('inp-div').value) || 0;
+      const ownPct = parseFloat(document.getElementById('inp-own').value) || 0;
+      const hebesatz = parseFloat(document.getElementById('inp-hebesatz').value) || 400;
+      const jan1 = document.getElementById('chk-jan1').checked;
+      const midBlock = document.getElementById('chk-midblock').checked;
+      const years = parseInt(document.getElementById('inp-years').value) || 15;
+
+      document.getElementById('lbl-exit-gain').textContent = fmtEur(exitGain);
+      document.getElementById('lbl-div').textContent = fmtEur(divAmt);
+      document.getElementById('lbl-own').textContent = ownPct + '%';
+      document.getElementById('lbl-hebesatz').textContent = hebesatz + '%';
+      document.getElementById('lbl-years').textContent = years + ' Jahre';
+
+      const kstSoli = 0.15825;
+      const gewst = 0.035 * (hebesatz / 100.0);
+      const combGmbh = kstSoli + gewst;
+
+      const holdExitRate = 0.05 * combGmbh;
+      const holdExitTax = exitGain * holdExitRate;
+      const holdExitNet = exitGain - holdExitTax;
+
+      const privTevRate = 0.60 * 0.47475;
+      const privExitTax = exitGain * privTevRate;
+      const privExitNet = exitGain - privExitTax;
+
+      const kstExempt = (ownPct >= 10) && (jan1 || midBlock);
+      const gewstExempt = (ownPct >= 15) && jan1;
+
+      let divRate = combGmbh;
+      let regimeText = '';
+      let alertClass = 'ok';
+
+      if (kstExempt && gewstExempt) {
+        divRate = 0.05 * combGmbh;
+        regimeText = 'Volles Holding-Schachtelprivileg (§ 8b Abs. 1, 5 KStG + § 9 Nr. 2a GewStG >= 15% ab 01.01.): Nur ' + fmtPct(divRate * 100) + ' effektive Steuer!';
+        alertClass = 'ok';
+      } else if (kstExempt && !gewstExempt) {
+        divRate = (0.05 * kstSoli) + gewst;
+        regimeText = 'ACHTUNG GEWERBESTEUER-FALLE (§ 9 Nr. 2a GewStG): KSt ist zu 95% frei, aber volle Gewerbesteuer (' + fmtPct(gewst * 100) + ') fällt an, da < 15% oder Erwerb erst unterjährig nach dem 01.01.! Lösung: Ausschüttung auf den 02.01. des Folgejahres verschieben!';
+        alertClass = 'warn';
+      } else {
+        divRate = combGmbh;
+        regimeText = 'STREUBESITZ-STEUERFALLE (§ 8b Abs. 4 KStG < 10%): Volle KSt + Soli + GewSt (' + fmtPct(divRate * 100) + ') auf die Dividende!';
+        alertClass = 'danger';
+      }
+
+      const divHoldTax = divAmt * divRate;
+      const divPrivTax = divAmt * 0.26375;
+
+      const r = 0.08;
+      const holdR = r * (1 - holdExitRate);
+      const privR = r * (1 - 0.26375);
+      const holdTermNet = (holdExitNet * Math.pow(1 + holdR, years)) * (1 - 0.26375);
+      const privTermNet = privExitNet * Math.pow(1 + privR, years);
+
+      document.getElementById('kpi-exit-rate').textContent = fmtPct(holdExitRate * 100);
+      document.getElementById('kpi-exit-adv').textContent = '+' + fmtEur(holdExitNet - privExitNet) + ' mehr Reinvestitions-Kapital vs. Privatverkauf';
+      document.getElementById('kpi-div-rate').textContent = fmtPct(divRate * 100);
+      document.getElementById('kpi-div-sub').textContent = regimeText.slice(0, 68) + '...';
+
+      document.getElementById('tbl-exit-hold-tax').textContent = fmtEur(holdExitTax) + ' (' + fmtPct(holdExitRate * 100) + ')';
+      document.getElementById('tbl-exit-priv-tax').textContent = fmtEur(privExitTax) + ' (' + fmtPct(privTevRate * 100) + ')';
+      document.getElementById('tbl-exit-diff').textContent = '+' + fmtEur(privExitTax - holdExitTax);
+      document.getElementById('tbl-exit-hold-net').textContent = fmtEur(holdExitNet);
+      document.getElementById('tbl-exit-priv-net').textContent = fmtEur(privExitNet);
+      document.getElementById('tbl-div-hold-tax').textContent = fmtEur(divHoldTax) + ' (' + fmtPct(divRate * 100) + ')';
+      document.getElementById('tbl-div-priv-tax').textContent = fmtEur(divPrivTax) + ' (26,38%)';
+      document.getElementById('tbl-div-diff').textContent = '+' + fmtEur(divPrivTax - divHoldTax) + ' / Jahr';
+      document.getElementById('tbl-comp-hold').textContent = fmtEur(holdTermNet);
+      document.getElementById('tbl-comp-priv').textContent = fmtEur(privTermNet);
+      document.getElementById('tbl-comp-diff').textContent = '+' + fmtEur(holdTermNet - privTermNet);
+
+      const alertEl = document.getElementById('div-regime-alert');
+      alertEl.className = 'alert-box ' + alertClass;
+      alertEl.textContent = regimeText;
+    }
+
+    function recalcImmo() {
+      const rent = parseFloat(document.getElementById('inp-immo-rent').value) || 1;
+      const profit = parseFloat(document.getElementById('inp-immo-profit').value) || 0;
+      const bv = parseFloat(document.getElementById('inp-immo-bv').value) || 0;
+      const pv = parseFloat(document.getElementById('inp-immo-pv').value) || 0;
+      const sold = parseInt(document.getElementById('inp-immo-sold').value) || 0;
+      const aufspaltung = document.getElementById('chk-immo-aufspaltung').checked;
+      const hotel = document.getElementById('chk-immo-hotel').checked;
+      const kg = document.getElementById('chk-immo-kg').checked;
+      const hebesatz = parseFloat(document.getElementById('inp-hebesatz').value) || 420;
+
+      const bvPct = (bv / rent) * 100.0;
+      const pvPct = (pv / rent) * 100.0;
+      document.getElementById('lbl-bv-pct').textContent = fmtPct(bvPct) + ' (Limit: 5,00%)';
+      document.getElementById('lbl-pv-pct').textContent = fmtPct(pvPct) + ' (Limit: 20,00%)';
+
+      const traps = [
+        {
+          title: '1. Betriebsaufspaltung / Vermietung an eigenes Betriebsunternehmen (§ 9 Nr. 1 S. 5 GewStG)',
+          triggered: aufspaltung,
+          meta: aufspaltung ? 'AKTIV: Sachliche + personelle Verflechtung infiziert gesamte Immo-GmbH!' : 'Sicher: Keine Überlassung an eigene operative Gesellschaft',
+          advice: 'Lösung: Keine wesentlichen Betriebsgrundlagen an eigene operative GmbH/KG vermieten oder Stimmrechtsmehrheit sauber trennen.'
+        },
+        {
+          title: '2. Mitvermietung von Betriebsvorrichtungen (§ 9 Nr. 1 S. 3 Buchst. c GewStG — 5%-Grenze)',
+          triggered: bvPct > 5.0,
+          meta: 'Aktuell: ' + fmtPct(bvPct) + ' (' + fmtEur(bv) + ') | Unschädlichkeitsgrenze: max. 5,00% (' + fmtEur(rent * 0.05) + ')',
+          advice: 'Lösung: Einbauküchen/Lastenaufzüge/Kranbahnen separat verkaufen oder in eigene Ausstattungs-UG ausgliedern.'
+        },
+        {
+          title: '3. Photovoltaik & E-Ladesäulen (§ 9 Nr. 1 S. 3 Buchst. b GewStG — 20%-Grenze Wachstumschancengesetz)',
+          triggered: pvPct > 20.0,
+          meta: 'Aktuell: ' + fmtPct(pvPct) + ' (' + fmtEur(pv) + ') | Unschädlichkeitsgrenze: max. 20,00% (' + fmtEur(rent * 0.20) + ')',
+          advice: 'Lösung: Bei > 20% Umsatzanteil Dachfläche an separate PV-Betreiber-GmbH verpachten.'
+        },
+        {
+          title: '4. Gewerblicher Grundstückshandel (3-Objekt-Grenze in 5 Jahren)',
+          triggered: sold > 3,
+          meta: 'Aktuell: ' + sold + ' Objektverkäufe in 5 Jahren | Limit: max. 3 Objekte',
+          advice: 'Lösung: Immobilien in Objekt-GmbHs kapseln und nach § 8b Abs. 2 KStG als Share Deal über Holding verkaufen.'
+        },
+        {
+          title: '5. Kurzzeitvermietung / Hotel-Nebenleistungen (Airbnb/Serviced Apartments)',
+          triggered: hotel,
+          meta: hotel ? 'AKTIV: Gewerbliche Beherbergung zerstört Kürzung!' : 'Sicher: Reine vermögensverwaltende Raumüberlassung',
+          advice: 'Lösung: Immo-GmbH verpachtet langfristig an eine separate Betreiber-GmbH.'
+        },
+        {
+          title: '6. Beteiligung an gewerblicher Personengesellschaft / Mitunternehmerschaft',
+          triggered: kg,
+          meta: kg ? 'AKTIV: Gewerbliche Mitunternehmerschaft gehalten!' : 'Sicher: Nur Grundbesitz & Kapitalvermögen',
+          advice: 'Lösung: Gewerbliche KG-Beteiligungen direkt in der Mutter-Holding halten.'
+        }
+      ];
+
+      const trigCount = traps.filter(t => t.triggered).length;
+      const cleanRate = 0.15825;
+      const infRate = cleanRate + (0.035 * (hebesatz / 100.0));
+      const actualRate = trigCount === 0 ? cleanRate : infRate;
+
+      const cleanTax = profit * cleanRate;
+      const infTax = profit * infRate;
+      const damageYr = infTax - cleanTax;
+
+      const kpiEl = document.getElementById('kpi-immo-rate');
+      kpiEl.textContent = fmtPct(actualRate * 100, 3);
+      kpiEl.className = 'kpi-value ' + (trigCount === 0 ? 'emerald' : 'danger');
+      document.getElementById('kpi-immo-sub').textContent = trigCount === 0
+        ? '0,00% GewSt gesichert (' + fmtEur(damageYr) + '/Jahr gespart)'
+        : trigCount + ' Infizierungs-Falle(n) aktiv! +' + fmtEur(damageYr) + '/Jahr Straf-GewSt!';
+
+      const sumAlert = document.getElementById('immo-summary-alert');
+      if (trigCount === 0) {
+        sumAlert.className = 'alert-box ok';
+        sumAlert.innerHTML = '<strong>ERWEITERTE GEWERBESTEUERKÜRZUNG GESICHERT (15,825% Gesamtsteuer):</strong><br/>Jährliche Steuerlast: <strong>' + fmtEur(cleanTax) + '</strong> statt ' + fmtEur(infTax) + '. Ersparnis über 10 Jahre: <strong>+' + fmtEur(damageYr * 10) + '</strong>!';
+      } else {
+        sumAlert.className = 'alert-box danger';
+        sumAlert.innerHTML = '<strong>ALLES-ODER-NICHTS-INFIZIERUNG (' + trigCount + ' Verstoß/Verstöße):</strong><br/>Die gesamte Erweiterte Kürzung entfällt rückwirkend! Steuerlast springt von ' + fmtEur(cleanTax) + ' auf <strong>' + fmtEur(infTax) + '</strong> (+' + fmtEur(damageYr * 10) + ' Schaden auf 10 Jahre)!';
+      }
+
+      const container = document.getElementById('immo-traps-container');
+      container.innerHTML = traps.map(t => `
+        <div class="trap-item ${t.triggered ? 'triggered' : 'safe'}">
+          <div class="trap-header">
+            <span>${t.title}</span>
+            <span class="status-pill ${t.triggered ? 'triggered' : 'safe'}">${t.triggered ? 'INFIZIERT' : 'UNSCHÄDLICH'}</span>
+          </div>
+          <div class="trap-meta">${t.meta}</div>
+          <div class="trap-advice">${t.advice}</div>
+        </div>
+      `).join('');
+    }
+
+    function recalcUmw() {
+      const fmv = parseFloat(document.getElementById('inp-umw-fmv').value) || 0;
+      const bv = parseFloat(document.getElementById('inp-umw-bv').value) || 0;
+      const exitVal = parseFloat(document.getElementById('inp-umw-exit').value) || 0;
+      const selYr = parseInt(document.getElementById('inp-umw-yr').value) || 0;
+      const hebesatz = parseFloat(document.getElementById('inp-hebesatz').value) || 400;
+
+      const hiddenRes = Math.max(0, fmv - bv);
+      const combGmbh = 0.15825 + (0.035 * (hebesatz / 100.0));
+      const tevEff = 0.60 * 0.47475;
+
+      let y0Total = 0;
+      let rowsHtml = '';
+
+      for (let yr = 0; yr <= 7; yr++) {
+        const rem = 7 - yr;
+        const ebg = hiddenRes * (rem / 7.0);
+        const retroTax = ebg * tevEff;
+        const stepBasis = bv + ebg;
+        const holdGain = Math.max(0, exitVal - stepBasis);
+        const hold8bTax = holdGain * (0.05 * combGmbh);
+        const totalTax = retroTax + hold8bTax;
+        if (yr === 0) y0Total = totalTax;
+        const saved = y0Total - totalTax;
+
+        if (yr === selYr) {
+          document.getElementById('lbl-umw-yr').textContent = yr + ' Jahre (' + rem + '/7 steuerpflichtig)';
+          document.getElementById('kpi-umw-frac').textContent = rem + '/7 (' + ((rem / 7.0) * 100).toFixed(1).replace('.', ',') + '%)';
+          document.getElementById('kpi-umw-sub').textContent = 'Steuerersparnis durch Haltefrist: +' + fmtEur(saved);
+        }
+
+        rowsHtml += `
+          <tr class="${yr === selYr ? 'active-row' : ''}">
+            <td>${yr === 7 ? '7+ Jahre (Frei!)' : yr + ' Jahre'}</td>
+            <td>${rem}/7 (${((rem / 7.0) * 100).toFixed(1).replace('.', ',')}%)</td>
+            <td>${fmtEur(ebg)}</td>
+            <td>${fmtEur(retroTax)}</td>
+            <td>${fmtEur(hold8bTax)}</td>
+            <td><strong>${fmtEur(totalTax)}</strong></td>
+            <td style="color:var(--emerald);font-weight:700;">+${fmtEur(saved)}</td>
+          </tr>
+        `;
+      }
+      document.getElementById('umw-tbody').innerHTML = rowsHtml;
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      recalcHolding();
+      recalcImmo();
+      recalcUmw();
+    });
+  </script>
+</body>
+</html>

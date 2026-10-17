@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8" />
+<title>MVP #81 — Facebook Group & Comment Buying-Intent Lead Sniper</title>
+<style>
+    :root {
+        --bg: #0b0f19;
+        --panel: #111827;
+        --border: #1f2937;
+        --text: #f3f4f6;
+        --muted: #9ca3af;
+        --accent: #38bdf8;
+        --green: #10b981;
+        --indigo: #6366f1;
+        --rose: #f43f5e;
+    }
+    * { box-sizing: border-box; }
+    body {
+        margin: 0;
+        padding: 28px;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.5;
+    }
+    .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        border-bottom: 1px solid var(--border);
+        padding-bottom: 20px;
+        margin-bottom: 24px;
+    }
+    h1 { margin: 0 0 6px 0; font-size: 24px; color: #fff; }
+    .subtitle { color: var(--muted); font-size: 14px; max-width: 920px; }
+    .kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+        gap: 14px;
+        margin-bottom: 24px;
+    }
+    .kpi-card {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 16px;
+    }
+    .kpi-label { font-size: 12px; text-transform: uppercase; color: var(--muted); letter-spacing: 0.05em; }
+    .kpi-val { font-size: 26px; font-weight: 700; margin-top: 6px; color: #fff; }
+    .kpi-sub { font-size: 12px; color: var(--accent); margin-top: 4px; }
+    .teardown-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 14px;
+        margin-bottom: 28px;
+    }
+    .td-card {
+        background: #131c2e;
+        border: 1px solid #263554;
+        border-radius: 10px;
+        padding: 16px;
+    }
+    .td-title { font-weight: 700; font-size: 14px; color: #fff; margin-bottom: 6px; }
+    .td-stat { font-size: 13px; color: #cbd5e1; margin-bottom: 8px; }
+    .td-desc { font-size: 12px; color: var(--muted); }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        overflow: hidden;
+    }
+    th {
+        text-align: left;
+        padding: 12px 14px;
+        background: #162032;
+        color: #cbd5e1;
+        font-size: 12px;
+        text-transform: uppercase;
+        border-bottom: 1px solid var(--border);
+    }
+    td {
+        padding: 14px;
+        border-bottom: 1px solid var(--border);
+        vertical-align: top;
+        font-size: 13px;
+    }
+    .lead-author { font-weight: 700; color: #fff; font-size: 14px; }
+    .lead-sub { color: var(--muted); font-size: 12px; margin-bottom: 6px; }
+    .pill {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 600;
+    }
+    .pill-op { background: #065f4633; color: #34d399; border: 1px solid #05966966; }
+    .pill-comment { background: #3730a333; color: #818cf8; border: 1px solid #4f46e566; }
+    .intent-badge {
+        display: inline-block;
+        padding: 3px 8px;
+        border-radius: 6px;
+        font-size: 11px;
+        font-weight: 700;
+        margin-bottom: 6px;
+    }
+    .lead-vertical { font-weight: 600; color: #e2e8f0; margin-bottom: 4px; }
+    .lead-scope { font-size: 12px; color: var(--accent); }
+    .comp-alert {
+        margin-top: 6px;
+        padding: 4px 8px;
+        background: #88133744;
+        border: 1px solid #f43f5e66;
+        border-radius: 6px;
+        color: #fda4af;
+        font-size: 11px;
+    }
+    .raw-quote {
+        font-style: italic;
+        color: #e5e7eb;
+        background: #0f172a;
+        padding: 10px;
+        border-left: 3px solid var(--accent);
+        border-radius: 4px;
+        margin-bottom: 8px;
+    }
+    .sig-tag {
+        display: inline-block;
+        background: #1e293b;
+        color: #94a3b8;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 11px;
+        margin-right: 4px;
+        margin-bottom: 4px;
+    }
+    .num-col { white-space: nowrap; }
+    .score-pill { color: #34d399; font-size: 13px; }
+    .urg-pill { color: #fbbf24; font-size: 12px; margin-bottom: 6px; }
+    .deal-val { font-weight: 700; color: #fff; font-size: 14px; }
+    .cpl-val { color: var(--accent); font-weight: 600; font-size: 13px; }
+    .copy-box {
+        background: #0f172a;
+        border: 1px solid #1e293b;
+        border-radius: 6px;
+        padding: 8px 10px;
+    }
+    .copy-label { font-size: 11px; font-weight: 700; color: #94a3b8; margin-bottom: 4px; }
+    .copy-text { font-size: 12px; color: #e2e8f0; }
+    .spam-section {
+        margin-top: 24px;
+        background: #111827;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 16px;
+    }
+    .spam-card {
+        font-size: 12px;
+        color: var(--muted);
+        padding: 6px 0;
+        border-bottom: 1px dashed #1f2937;
+    }
+</style>
+</head>
+<body>
+
+<!-- DACH CASHFLOW STUDIOS LAUNCH BAR -->
+<style>
+  #dcs-launch-bar {
+    position: sticky;
+    top: 0;
+    z-index: 99999;
+    background: linear-gradient(90deg, #0b1120 0%, #111827 50%, #0f172a 100%);
+    color: #f8fafc;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.35);
+    padding: 8px 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  }
+  #dcs-launch-bar .dcs-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+  }
+  #dcs-launch-bar .dcs-badge {
+    background: rgba(16, 185, 129, 0.18);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.03em;
+  }
+  #dcs-launch-bar a.dcs-nav {
+    color: #93c5fd;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 12.5px;
+  }
+  #dcs-launch-bar a.dcs-nav:hover {
+    text-decoration: underline;
+    color: #dbeafe;
+  }
+  #dcs-launch-bar .dcs-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  #dcs-launch-bar .dcs-btn {
+    padding: 5px 11px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s ease;
+  }
+  #dcs-launch-bar .dcs-btn-ghost {
+    background: rgba(255,255,255,0.08);
+    color: #e2e8f0;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  #dcs-launch-bar .dcs-btn-primary {
+    background: linear-gradient(135deg, #0ea5e9, #2563eb);
+    color: #ffffff;
+  }
+  #dcs-launch-bar .dcs-btn-emerald {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
+  }
+  @media print {
+    #dcs-launch-bar { display: none !important; }
+  }
+</style>
+<div id="dcs-launch-bar">
+  <div class="dcs-left">
+    <a href="/index.html" class="dcs-nav">← Alle 150 DACH Studios</a>
+    <span class="dcs-badge">MVP #081 VERIFIED</span>
+    <span style="color:#cbd5e1;font-size:12px;">B2B SaaS, Lead-Intent Sniper & AI/MCP Infrastructure</span>
+  </div>
+  <div class="dcs-actions">
+    <button onclick="window.print()" class="dcs-btn dcs-btn-ghost">🖨️ PDF / Dossier drucken</button>
+    <a href="#checkout-modal-49" target="_blank" rel="noopener" class="dcs-btn dcs-btn-primary">⚡ Musterschreiben & Voll-Dossier (€49)</a>
+    <a href="#checkout-modal-299" target="_blank" rel="noopener" class="dcs-btn dcs-btn-emerald">🛡️ B2B Umsetzung buchen (€299 / €1.490)</a>
+  </div>
+</div>
+
+    <div class="header">
+        <div>
+            <h1>MVP #81 — Facebook Group & Comment Buying-Intent Lead Sniper</h1>
+            <div class="subtitle">
+                Replaces broken comment/member scrapers (<code>expected_knight</code> 38.78% fail, <code>curious_coder</code> 95.73% fail)
+                with nested comment-tree Piggyback Buyer & Competitor-Churn extraction across DACH Facebook Groups.
+            </div>
+        </div>
+        <div style="text-align:right;font-size:12px;color:var(--muted);">
+            Generated: 2026-10-17T17:20:34.897231+00:00<br/>
+            Status: <strong>VERIFIED (Exit 0)</strong>
+        </div>
+    </div>
+
+    <div class="kpi-grid">
+        <div class="kpi-card">
+            <div class="kpi-label">Qualified Buying Leads</div>
+            <div class="kpi-val">8</div>
+            <div class="kpi-sub">4 Post OPs + 4 Piggyback/Churn Commenters</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">Comment-Thread Yield Multiplier</div>
+            <div class="kpi-val">2.0x</div>
+            <div class="kpi-sub">+100% extra buyers harvested from nested comments</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">Pipeline Deal Value (EUR)</div>
+            <div class="kpi-val">€154,700</div>
+            <div class="kpi-sub">High-Ticket Solar, Holding Tax, Immo & Roof</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">Total Lead CPL Value</div>
+            <div class="kpi-val">€1,312</div>
+            <div class="kpi-sub">Avg €164.0 per qualified lead</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">Vendor Spam Filtered Out</div>
+            <div class="kpi-val">2</div>
+            <div class="kpi-sub">100% self-promo agency/handyman noise blocked</div>
+        </div>
+    </div>
+
+    <div class="teardown-grid">
+        <div class="td-card">
+            <div class="td-title">1. expected_knight/facebook-comments-pay-per-comment</div>
+            <div class="td-stat"><strong>73,828 runs/30d</strong> · <span style="color:#f43f5e;font-weight:700;">38.78% FAILED (28,633 fails)</span></div>
+            <div class="td-desc">512MB container OOMs on deep nested comment trees and throws unhandled exceptions when Facebook serves Comet login_wall checkpoints after 3-5 unauthenticated GraphQL cursor pages.</div>
+        </div>
+        <div class="td-card">
+            <div class="td-title">2. curious_coder/facebook-group-member-scraper</div>
+            <div class="td-stat"><strong>983 runs/30d</strong> · <span style="color:#f43f5e;font-weight:700;">95.73% FAILED (941 fails)</span></div>
+            <div class="td-desc">Facebook locked down /groups/{id}/members (CometGroupMembersTabRootQuery) behind authenticated membership + strict anti-enumeration cursor checkpoints; cold member lists have 0% active buying intent.</div>
+        </div>
+        <div class="td-card">
+            <div class="td-title">3. scrapeforge/facebook-search-posts</div>
+            <div class="td-stat"><strong>979,455 runs/30d</strong> · <span style="color:#10b981;font-weight:700;">99.985% SUCCEEDED (2,954 MAU)</span></div>
+            <div class="td-desc">Stateless 256MB HTTP/GraphQL keyword search worker (SearchCometResultsInitialResultsQuery) with date-range + location UID filters and graceful empty-set completion.</div>
+        </div>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th style="width:15%;">Buyer & Source</th>
+                <th style="width:18%;">Intent Class & Vertical</th>
+                <th style="width:27%;">Verbatim Group Post / Nested Comment</th>
+                <th style="width:12%;">Score & CPL</th>
+                <th style="width:28%;">2-Step Group Reply + Messenger Handshake</th>
+            </tr>
+        </thead>
+        <tbody>
+            
+            <tr>
+                <td>
+                    <div class="lead-author">Markus Lindner</div>
+                    <div class="lead-sub">DE-BY (München/Augsburg)</div>
+                    <span class="pill pill-op">GROUP POST OP</span>
+                </td>
+                <td>
+                    <span class="intent-badge" style="background:#10b98122;color:#10b981;border:1px solid #10b98155;">
+                        DIRECT_VENDOR_REQUEST
+                    </span>
+                    <div class="lead-vertical">PV-Anlage, Wärmepumpe &amp; energetische Sanierung</div>
+                    <div class="lead-scope">Scope: <strong>16 kWp, 12 kWh</strong></div>
+                    
+                </td>
+                <td>
+                    <div class="raw-quote">"Suche dringend eine Empfehlung für einen zuverlässigen Solarteur im Raum München / Augsburg (PLZ 86150)! Wir planen 16 kWp auf unserem Satteldach + 12 kWh Stromspeicher + Wallbox und neuer Zählerschrank. Überregionales Mietmodell kommt für uns nicht in Frage, Montage soll noch dieses Jahr passieren. Wer kann einen ehrlichen Meisterbetrieb empfehlen?"</div>
+                    <div class="sig-row"><span class="sig-tag">explicit_suche_vendor</span> <span class="sig-tag">wer_kann_empfehlen</span> <span class="sig-tag">timeline_urgency</span> <span class="sig-tag">quantified_project_scope</span></div>
+                </td>
+                <td class="num-col">
+                    <div class="score-pill">Intent: <strong>99/100</strong></div>
+                    <div class="urg-pill">Urgency: <strong>99/100</strong></div>
+                    <div class="deal-val">Deal: €29,400</div>
+                    <div class="cpl-val">CPL: €190</div>
+                </td>
+                <td>
+                    <div class="copy-box">
+                        <div class="copy-label">1. Public Comment Hook (Non-Spammy):</div>
+                        <div class="copy-text">@Markus Für 16 kWp, 12 kWh in DE-BY (München/Augsburg) lohnt sich vorab ein Blick auf die aktuellen Vergleichswerte, damit ihr nicht zu viel zahlt. Ich kann dir gerne unseren unabhängigen Angebots-Check (kWp/Speicher-Amortisationsrechner + regionale Meisterbetrieb-Checkliste) + unsere Empfehlung aus DE-BY (München/Augsburg) per PN schicken, wenn du magst?</div>
+                    </div>
+                    <div class="copy-box" style="margin-top:8px;">
+                        <div class="copy-label">2. Messenger Handshake (<a href="https://m.me/markus.lindner.muc" target="_blank" style="color:#38bdf8;">https://m.me/markus.lindner.muc</a>):</div>
+                        <div class="copy-text">Hi Markus, zu deiner Suche in der Gruppe (PV-Anlage, Wärmepumpe &amp; energetische Sanierung, 16 kWp, 12 kWh in DE-BY (München/Augsburg)): Hier ist der unabhängigen Angebots-Check (kWp/Speicher-Amortisationsrechner + regionale Meisterbetrieb-Checkliste). Welche Postleitzahl genau und bis wann soll das Projekt stehen?</div>
+                    </div>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>
+                    <div class="lead-author">Sandra Weber-Koch</div>
+                    <div class="lead-sub">DE-BY (München/Augsburg)</div>
+                    <span class="pill pill-comment">NESTED COMMENT (Depth 1)</span>
+                </td>
+                <td>
+                    <span class="intent-badge" style="background:#6366f122;color:#6366f1;border:1px solid #6366f155;">
+                        PIGGYBACK_COMMENT_BUYER
+                    </span>
+                    <div class="lead-vertical">PV-Anlage, Wärmepumpe &amp; energetische Sanierung</div>
+                    <div class="lead-scope">Scope: <strong>14 kWp, 16 kWp, 12 kWh</strong></div>
+                    
+                </td>
+                <td>
+                    <div class="raw-quote">"Ich hänge mich mal dran! Mir bitte auch den Kontakt per PN schicken, wir suchen ebenfalls für 14 kWp + Wärmepumpe in 86316 Friedberg bei Augsburg für Q4!"</div>
+                    <div class="sig-row"><span class="sig-tag">mir_bitte_auch</span> <span class="sig-tag">piggyback_thread_join</span> <span class="sig-tag">timeline_urgency</span> <span class="sig-tag">quantified_project_scope</span></div>
+                </td>
+                <td class="num-col">
+                    <div class="score-pill">Intent: <strong>99/100</strong></div>
+                    <div class="urg-pill">Urgency: <strong>99/100</strong></div>
+                    <div class="deal-val">Deal: €29,400</div>
+                    <div class="cpl-val">CPL: €190</div>
+                </td>
+                <td>
+                    <div class="copy-box">
+                        <div class="copy-label">1. Public Comment Hook (Non-Spammy):</div>
+                        <div class="copy-text">@Sandra Ich schicke dir die Übersicht und den unabhängigen Angebots-Check (kWp/Speicher-Amortisationsrechner + regionale Meisterbetrieb-Checkliste) für DE-BY (München/Augsburg) gleich ebenfalls per PN rüber (evtl. kurz in den &#x27;Nachrichtenanfragen&#x27;-Ordner schauen)!</div>
+                    </div>
+                    <div class="copy-box" style="margin-top:8px;">
+                        <div class="copy-label">2. Messenger Handshake (<a href="https://m.me/sandra.weberkoch.aux" target="_blank" style="color:#38bdf8;">https://m.me/sandra.weberkoch.aux</a>):</div>
+                        <div class="copy-text">Hi Sandra, du hattest im Thread kommentiert, dass du ebenfalls nach einer Lösung im Bereich PV-Anlage, Wärmepumpe &amp; energetische Sanierung (14 kWp, 16 kWp, 12 kWh) in DE-BY (München/Augsburg) suchst. Hier ist der unabhängigen Angebots-Check (kWp/Speicher-Amortisationsrechner + regionale Meisterbetrieb-Checkliste) – suchst du noch für dieses Quartal?</div>
+                    </div>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>
+                    <div class="lead-author">Christian Bauer</div>
+                    <div class="lead-sub">DE-BY (München/Augsburg)</div>
+                    <span class="pill pill-comment">NESTED COMMENT (Depth 2)</span>
+                </td>
+                <td>
+                    <span class="intent-badge" style="background:#f43f5e22;color:#f43f5e;border:1px solid #f43f5e55;">
+                        COMPETITOR_CHURN_COMPLAINT
+                    </span>
+                    <div class="lead-vertical">PV-Anlage, Wärmepumpe &amp; energetische Sanierung</div>
+                    <div class="lead-scope">Scope: <strong>4.900 €, 15 kWp, 10 kWh</strong></div>
+                    <div class="comp-alert">Churn From: <strong>Enpal</strong></div>
+                </td>
+                <td>
+                    <div class="raw-quote">"Finger weg von Enpal und 1Komma5! Wir haben unseren Vertrag letzte Woche widerrufen / gekündigt, weil nach 4 Monaten Wartezeit plötzlich 4.900 € Nachtrag für den Zählerschrank gefordert wurden. Suchen jetzt dringend Ersatz in 85221 Dachau (15 kWp + 10 kWh Speicher), bitte mir auch gerne schicken!"</div>
+                    <div class="sig-row"><span class="sig-tag">explicit_competitor_warning</span> <span class="sig-tag">active_contract_cancellation</span> <span class="sig-tag">pricing_dispute_churn</span> <span class="sig-tag">timeline_urgency</span></div>
+                </td>
+                <td class="num-col">
+                    <div class="score-pill">Intent: <strong>99/100</strong></div>
+                    <div class="urg-pill">Urgency: <strong>99/100</strong></div>
+                    <div class="deal-val">Deal: €29,400</div>
+                    <div class="cpl-val">CPL: €190</div>
+                </td>
+                <td>
+                    <div class="copy-box">
+                        <div class="copy-label">1. Public Comment Hook (Non-Spammy):</div>
+                        <div class="copy-text">@Christian Ärgerlich zu hören, dass es bei Enpal solche Verzögerungen gab – gerade bei 4.900 €, 15 kWp, 10 kWh in DE-BY (München/Augsburg) sehen wir das aktuell leider häufiger. Falls es dir hilft: Wir haben eine kurze Übernahme-Checkliste + 2 geprüfte Fachpartner aus DE-BY (München/Augsburg), die angefangene Projekte kurzfristig übernehmen. Sag kurz Bescheid, dann schicke ich sie dir rüber!</div>
+                    </div>
+                    <div class="copy-box" style="margin-top:8px;">
+                        <div class="copy-label">2. Messenger Handshake (<a href="https://m.me/christian.bauer.dachau" target="_blank" style="color:#38bdf8;">https://m.me/christian.bauer.dachau</a>):</div>
+                        <div class="copy-text">Hi Christian, habe deinen Beitrag in der Gruppe zum Thema Ärger bei Enpal (4.900 €, 15 kWp, 10 kWh) gesehen. Hier wie versprochen der Link zum unabhängigen Angebots-Check (kWp/Speicher-Amortisationsrechner + regionale Meisterbetrieb-Checkliste) sowie die Kontaktdaten für DE-BY (München/Augsburg). Sollen wir kurz 5 Min. draufschauen, wo es gerade konkret hakt?</div>
+                    </div>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>
+                    <div class="lead-author">Elena Kovač</div>
+                    <div class="lead-sub">DE-BY (Metropolregion Nürnberg)</div>
+                    <span class="pill pill-comment">NESTED COMMENT (Depth 1)</span>
+                </td>
+                <td>
+                    <span class="intent-badge" style="background:#f43f5e22;color:#f43f5e;border:1px solid #f43f5e55;">
+                        COMPETITOR_CHURN_COMPLAINT
+                    </span>
+                    <div class="lead-vertical">Steuerberatung, Holding-Struktur &amp; B2B Finanzen</div>
+                    <div class="lead-scope">Scope: <strong>12 Mitarbeiter, 6 Mitarbeiter</strong></div>
+                    
+                </td>
+                <td>
+                    <div class="raw-quote">"Schließe mich an! Mir bitte auch eine Empfehlung per PN schicken. Haben exakt das gleiche Problem mit unserer Agentur-GmbH in Frankfurt (12 Mitarbeiter) und wollen zum Jahreswechsel das Mandat wechseln."</div>
+                    <div class="sig-row"><span class="sig-tag">urgent_replacement_needed</span> <span class="sig-tag">quantified_project_scope</span> <span class="sig-tag">verified_local_region</span></div>
+                </td>
+                <td class="num-col">
+                    <div class="score-pill">Intent: <strong>99/100</strong></div>
+                    <div class="urg-pill">Urgency: <strong>93/100</strong></div>
+                    <div class="deal-val">Deal: €10,100</div>
+                    <div class="cpl-val">CPL: €165</div>
+                </td>
+                <td>
+                    <div class="copy-box">
+                        <div class="copy-label">1. Public Comment Hook (Non-Spammy):</div>
+                        <div class="copy-text">@Elena Ärgerlich zu hören, dass es beim bisherigen Anbieter solche Verzögerungen gab – gerade bei 12 Mitarbeiter, 6 Mitarbeiter in DE-BY (Metropolregion Nürnberg) sehen wir das aktuell leider häufiger. Falls es dir hilft: Wir haben eine kurze Übernahme-Checkliste + 2 geprüfte Fachpartner aus DE-BY (Metropolregion Nürnberg), die angefangene Projekte kurzfristig übernehmen. Sag kurz Bescheid, dann schicke ich sie dir rüber!</div>
+                    </div>
+                    <div class="copy-box" style="margin-top:8px;">
+                        <div class="copy-label">2. Messenger Handshake (<a href="https://m.me/elena.kovac.agency" target="_blank" style="color:#38bdf8;">https://m.me/elena.kovac.agency</a>):</div>
+                        <div class="copy-text">Hi Elena, habe deinen Beitrag in der Gruppe zum Thema Ärger beim bisherigen Anbieter (12 Mitarbeiter, 6 Mitarbeiter) gesehen. Hier wie versprochen der Link zum Holding- &amp; GmbH-Steuervergleichs-Rechner 2026 inkl. DATEV-Schnittstellen-Checkliste sowie die Kontaktdaten für DE-BY (Metropolregion Nürnberg). Sollen wir kurz 5 Min. draufschauen, wo es gerade konkret hakt?</div>
+                    </div>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>
+                    <div class="lead-author">Stefan &amp; Julia Kähler</div>
+                    <div class="lead-sub">DE-NW (Rhein-Ruhr)</div>
+                    <span class="pill pill-op">GROUP POST OP</span>
+                </td>
+                <td>
+                    <span class="intent-badge" style="background:#10b98122;color:#10b981;border:1px solid #10b98155;">
+                        DIRECT_VENDOR_REQUEST
+                    </span>
+                    <div class="lead-vertical">Handwerk, Dachdecker, Fenster &amp; Kernsanierung</div>
+                    <div class="lead-scope">Scope: <strong>185 m²</strong></div>
+                    <div class="comp-alert">Churn From: <strong>Myhammer</strong></div>
+                </td>
+                <td>
+                    <div class="raw-quote">"Suche dringend einen seriösen Dachdecker / Zimmerer im Raum Köln / Düsseldorf (PLZ 50667) für komplette Dachsanierung inkl. Aufsparrendämmung (185 m² Dachfläche). Über Aroundhome und MyHammer kamen leider nur dubiose Subunternehmer ohne Meisterbrief. Wer hat echte Erfahrungen und kann eine Firma empfehlen?"</div>
+                    <div class="sig-row"><span class="sig-tag">explicit_suche_vendor</span> <span class="sig-tag">timeline_urgency</span> <span class="sig-tag">quantified_project_scope</span> <span class="sig-tag">verified_local_region</span></div>
+                </td>
+                <td class="num-col">
+                    <div class="score-pill">Intent: <strong>99/100</strong></div>
+                    <div class="urg-pill">Urgency: <strong>91/100</strong></div>
+                    <div class="deal-val">Deal: €20,200</div>
+                    <div class="cpl-val">CPL: €125</div>
+                </td>
+                <td>
+                    <div class="copy-box">
+                        <div class="copy-label">1. Public Comment Hook (Non-Spammy):</div>
+                        <div class="copy-text">@Stefan Für 185 m² in DE-NW (Rhein-Ruhr) lohnt sich vorab ein Blick auf die aktuellen Vergleichswerte, damit ihr nicht zu viel zahlt. Ich kann dir gerne unseren transparente Gewerke-Kalkulationstabelle (Festpreis-Check ohne versteckte Nachträge) + unsere Empfehlung aus DE-NW (Rhein-Ruhr) per PN schicken, wenn du magst?</div>
+                    </div>
+                    <div class="copy-box" style="margin-top:8px;">
+                        <div class="copy-label">2. Messenger Handshake (<a href="https://m.me/stefan.kaehler.koeln" target="_blank" style="color:#38bdf8;">https://m.me/stefan.kaehler.koeln</a>):</div>
+                        <div class="copy-text">Hi Stefan, zu deiner Suche in der Gruppe (Handwerk, Dachdecker, Fenster &amp; Kernsanierung, 185 m² in DE-NW (Rhein-Ruhr)): Hier ist der transparente Gewerke-Kalkulationstabelle (Festpreis-Check ohne versteckte Nachträge). Welche Postleitzahl genau und bis wann soll das Projekt stehen?</div>
+                    </div>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>
+                    <div class="lead-author">Janine Krüger</div>
+                    <div class="lead-sub">DE-BW (Stuttgart/Rhein-Neckar)</div>
+                    <span class="pill pill-comment">NESTED COMMENT (Depth 1)</span>
+                </td>
+                <td>
+                    <span class="intent-badge" style="background:#6366f122;color:#6366f1;border:1px solid #6366f155;">
+                        PIGGYBACK_COMMENT_BUYER
+                    </span>
+                    <div class="lead-vertical">Immobilienfinanzierung, Baufinanzierung &amp; Kapitalanlage</div>
+                    <div class="lead-scope">Scope: <strong>6 Wohneinheiten, 420 m²</strong></div>
+                    <div class="comp-alert">Churn From: <strong>Interhyp</strong></div>
+                </td>
+                <td>
+                    <div class="raw-quote">"Mir bitte auch gerne den Kontakt schicken! Suchen ebenfalls dringend eine Anschlussfinanzierung + Kernsanierungskredit (ca. 380k €) im Raum Hamburg, nachdem Dr. Klein unser Dossier verschleppt hat."</div>
+                    <div class="sig-row"><span class="sig-tag">mir_bitte_auch</span> <span class="sig-tag">timeline_urgency</span> <span class="sig-tag">quantified_project_scope</span> <span class="sig-tag">verified_local_region</span></div>
+                </td>
+                <td class="num-col">
+                    <div class="score-pill">Intent: <strong>99/100</strong></div>
+                    <div class="urg-pill">Urgency: <strong>89/100</strong></div>
+                    <div class="deal-val">Deal: €13,400</div>
+                    <div class="cpl-val">CPL: €155</div>
+                </td>
+                <td>
+                    <div class="copy-box">
+                        <div class="copy-label">1. Public Comment Hook (Non-Spammy):</div>
+                        <div class="copy-text">@Janine Ich schicke dir die Übersicht und den tagesaktuellen Zins- &amp; Tilgungs-Vergleich aus 450+ Banken (inkl. 100%-Finanzierungs-Prüfung) für DE-BW (Stuttgart/Rhein-Neckar) gleich ebenfalls per PN rüber (evtl. kurz in den &#x27;Nachrichtenanfragen&#x27;-Ordner schauen)!</div>
+                    </div>
+                    <div class="copy-box" style="margin-top:8px;">
+                        <div class="copy-label">2. Messenger Handshake (<a href="https://m.me/janine.krueger.hh" target="_blank" style="color:#38bdf8;">https://m.me/janine.krueger.hh</a>):</div>
+                        <div class="copy-text">Hi Janine, du hattest im Thread kommentiert, dass du ebenfalls nach einer Lösung im Bereich Immobilienfinanzierung, Baufinanzierung &amp; Kapitalanlage (6 Wohneinheiten, 420 m²) in DE-BW (Stuttgart/Rhein-Neckar) suchst. Hier ist der tagesaktuellen Zins- &amp; Tilgungs-Vergleich aus 450+ Banken (inkl. 100%-Finanzierungs-Prüfung) – suchst du noch für dieses Quartal?</div>
+                    </div>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>
+                    <div class="lead-author">Tobias Hartmann</div>
+                    <div class="lead-sub">DE-BY (Metropolregion Nürnberg)</div>
+                    <span class="pill pill-op">GROUP POST OP</span>
+                </td>
+                <td>
+                    <span class="intent-badge" style="background:#10b98122;color:#10b981;border:1px solid #10b98155;">
+                        DIRECT_VENDOR_REQUEST
+                    </span>
+                    <div class="lead-vertical">Steuerberatung, Holding-Struktur &amp; B2B Finanzen</div>
+                    <div class="lead-scope">Scope: <strong>6 Mitarbeiter</strong></div>
+                    
+                </td>
+                <td>
+                    <div class="raw-quote">"Kennt jemand einen guten Steuerberater (digital / DATEV), der sich wirklich mit Holding-Gründung, Einbringung eines bestehenden Einzelunternehmens (ca. 650k € Jahresumsatz, 6 Mitarbeiter) und E-Commerce / OSS Verfahren auskennt? Unser aktueller StB in Nürnberg ist komplett überlastet."</div>
+                    <div class="sig-row"><span class="sig-tag">kennt_jemand_recommendation</span> <span class="sig-tag">quantified_project_scope</span> <span class="sig-tag">verified_local_region</span></div>
+                </td>
+                <td class="num-col">
+                    <div class="score-pill">Intent: <strong>92/100</strong></div>
+                    <div class="urg-pill">Urgency: <strong>81/100</strong></div>
+                    <div class="deal-val">Deal: €9,800</div>
+                    <div class="cpl-val">CPL: €155</div>
+                </td>
+                <td>
+                    <div class="copy-box">
+                        <div class="copy-label">1. Public Comment Hook (Non-Spammy):</div>
+                        <div class="copy-text">@Tobias Für 6 Mitarbeiter in DE-BY (Metropolregion Nürnberg) lohnt sich vorab ein Blick auf die aktuellen Vergleichswerte, damit ihr nicht zu viel zahlt. Ich kann dir gerne unseren Holding- &amp; GmbH-Steuervergleichs-Rechner 2026 inkl. DATEV-Schnittstellen-Checkliste + unsere Empfehlung aus DE-BY (Metropolregion Nürnberg) per PN schicken, wenn du magst?</div>
+                    </div>
+                    <div class="copy-box" style="margin-top:8px;">
+                        <div class="copy-label">2. Messenger Handshake (<a href="https://m.me/tobias.hartmann.ecom" target="_blank" style="color:#38bdf8;">https://m.me/tobias.hartmann.ecom</a>):</div>
+                        <div class="copy-text">Hi Tobias, zu deiner Suche in der Gruppe (Steuerberatung, Holding-Struktur &amp; B2B Finanzen, 6 Mitarbeiter in DE-BY (Metropolregion Nürnberg)): Hier ist der Holding- &amp; GmbH-Steuervergleichs-Rechner 2026 inkl. DATEV-Schnittstellen-Checkliste. Welche Postleitzahl genau und bis wann soll das Projekt stehen?</div>
+                    </div>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>
+                    <div class="lead-author">Dr. Philipp Steinmetz</div>
+                    <div class="lead-sub">DE-BW (Stuttgart/Rhein-Neckar)</div>
+                    <span class="pill pill-op">GROUP POST OP</span>
+                </td>
+                <td>
+                    <span class="intent-badge" style="background:#10b98122;color:#10b981;border:1px solid #10b98155;">
+                        DIRECT_VENDOR_REQUEST
+                    </span>
+                    <div class="lead-vertical">Immobilienfinanzierung, Baufinanzierung &amp; Kapitalanlage</div>
+                    <div class="lead-scope">Scope: <strong>6 Wohneinheiten, 420 m²</strong></div>
+                    <div class="comp-alert">Churn From: <strong>Interhyp</strong></div>
+                </td>
+                <td>
+                    <div class="raw-quote">"Wer kann einen unabhängigen Finanzierungsvermittler für ein Mehrfamilienhaus (6 Wohneinheiten, Kaufpreis 1.150k €, 420 m² Wohnfläche) im Raum Stuttgart / Karlsruhe empfehlen? Bei Interhyp warten wir seit 3 Wochen auf eine vernünftige Strukturierung und der Notartermin steht im November an!"</div>
+                    <div class="sig-row"><span class="sig-tag">wer_kann_empfehlen</span> <span class="sig-tag">quantified_project_scope</span> <span class="sig-tag">verified_local_region</span></div>
+                </td>
+                <td class="num-col">
+                    <div class="score-pill">Intent: <strong>90/100</strong></div>
+                    <div class="urg-pill">Urgency: <strong>80/100</strong></div>
+                    <div class="deal-val">Deal: €13,000</div>
+                    <div class="cpl-val">CPL: €142</div>
+                </td>
+                <td>
+                    <div class="copy-box">
+                        <div class="copy-label">1. Public Comment Hook (Non-Spammy):</div>
+                        <div class="copy-text">@Dr. Für 6 Wohneinheiten, 420 m² in DE-BW (Stuttgart/Rhein-Neckar) lohnt sich vorab ein Blick auf die aktuellen Vergleichswerte, damit ihr nicht zu viel zahlt. Ich kann dir gerne unseren tagesaktuellen Zins- &amp; Tilgungs-Vergleich aus 450+ Banken (inkl. 100%-Finanzierungs-Prüfung) + unsere Empfehlung aus DE-BW (Stuttgart/Rhein-Neckar) per PN schicken, wenn du magst?</div>
+                    </div>
+                    <div class="copy-box" style="margin-top:8px;">
+                        <div class="copy-label">2. Messenger Handshake (<a href="https://m.me/philipp.steinmetz.stuttgart" target="_blank" style="color:#38bdf8;">https://m.me/philipp.steinmetz.stuttgart</a>):</div>
+                        <div class="copy-text">Hi Dr., zu deiner Suche in der Gruppe (Immobilienfinanzierung, Baufinanzierung &amp; Kapitalanlage, 6 Wohneinheiten, 420 m² in DE-BW (Stuttgart/Rhein-Neckar)): Hier ist der tagesaktuellen Zins- &amp; Tilgungs-Vergleich aus 450+ Banken (inkl. 100%-Finanzierungs-Prüfung). Welche Postleitzahl genau und bis wann soll das Projekt stehen?</div>
+                    </div>
+                </td>
+            </tr>
+            
+        </tbody>
+    </table>
+
+    <div class="spam-section">
+        <div style="font-weight:700;font-size:13px;margin-bottom:8px;color:#fda4af;">
+            Automatically Suppressed Vendor Self-Promo & Competitor Pitch Comments (2 Blocked)
+        </div>
+        
+            <div class="spam-card">
+                <strong>Blocked Vendor Spam (SolarProfi Süd GmbH):</strong>
+                <span>"Hallo Markus, schreib mir gerne eine PN! Wir sind ein Meisterbetrieb und bieten genau das an. Hier direkt kostenloses Erstgespräch bei uns buchen: calendly.com/solarprofi-sued"</span>
+                <code>Signals: vendor_dm_pitch, vendor_company_pitch, vendor_link_drop</code>
+            </div>
+            
+            <div class="spam-card">
+                <strong>Blocked Vendor Spam (Kanzlei-Marketing Bot):</strong>
+                <span>"Unsere Kanzlei hilft dir sofort beim Steuern sparen! Meld dich gerne bei mir, ich habe dir eine PN geschickt."</span>
+                <code>Signals: vendor_dm_pitch, vendor_company_pitch</code>
+            </div>
+            
+    </div>
+</body>
+</html>

@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>MVP #63 — TikTok Shop DE/EU Affiliate Sample ROI & Anti-Ghosting Shield</title>
+<style>
+    :root {
+        --bg: #090d16;
+        --panel: #111827;
+        --border: #1f2937;
+        --text: #f3f4f6;
+        --muted: #9ca3af;
+        --emerald: #10b981;
+        --amber: #f59e0b;
+        --rose: #f43f5e;
+        --cyan: #06b6d4;
+    }
+    * { box-sizing: border-box; }
+    body {
+        margin: 0;
+        padding: 24px;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.45;
+    }
+    .container { max-width: 1440px; margin: 0 auto; }
+    header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 16px;
+        padding: 20px 24px;
+        background: linear-gradient(135deg, #111827 0%, #1e1b4b 100%);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        margin-bottom: 20px;
+    }
+    h1 { margin: 0 0 6px 0; font-size: 1.45rem; }
+    h2 { margin: 24px 0 12px 0; font-size: 1.15rem; color: #e5e7eb; }
+    .subtitle { color: var(--muted); font-size: 0.9rem; margin: 0; }
+    .kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+        gap: 14px;
+        margin-bottom: 22px;
+    }
+    .kpi-card {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 16px;
+    }
+    .kpi-label { color: var(--muted); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.04em; }
+    .kpi-val { font-size: 1.55rem; font-weight: 700; margin-top: 6px; }
+    .emerald { color: var(--emerald); }
+    .amber { color: var(--amber); }
+    .rose { color: var(--rose); }
+    .muted { color: var(--muted); font-size: 0.82rem; }
+    .panel {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 18px;
+        margin-bottom: 22px;
+        overflow-x: auto;
+    }
+    table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+    th, td { padding: 11px 10px; text-align: left; border-bottom: 1px solid var(--border); vertical-align: top; }
+    th { color: var(--muted); font-weight: 600; font-size: 0.78rem; text-transform: uppercase; }
+    .pill {
+        display: inline-block;
+        padding: 3px 9px;
+        border-radius: 999px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+    .pill-emerald { background: rgba(16, 185, 129, 0.16); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.35); }
+    .pill-amber { background: rgba(245, 158, 11, 0.16); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.35); }
+    .pill-rose { background: rgba(244, 63, 94, 0.16); color: #fb7185; border: 1px solid rgba(244, 63, 94, 0.35); }
+    .pill-cyan { background: rgba(6, 182, 212, 0.16); color: #22d3ee; border: 1px solid rgba(6, 182, 212, 0.35); }
+    .calc-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 12px;
+        align-items: end;
+    }
+    label { display: block; font-size: 0.8rem; color: var(--muted); margin-bottom: 4px; }
+    input {
+        width: 100%;
+        padding: 8px 10px;
+        background: #030712;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        color: var(--text);
+        font-size: 0.9rem;
+    }
+    .filter-bar { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+    button {
+        background: #1f2937;
+        color: var(--text);
+        border: 1px solid #374151;
+        padding: 7px 13px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 0.83rem;
+    }
+    button.active { background: #2563eb; border-color: #3b82f6; }
+    .script-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+        gap: 14px;
+    }
+    .script-card {
+        background: #0b1120;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 14px;
+        font-size: 0.86rem;
+    }
+    .script-header { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 8px; }
+    .guardrail {
+        margin-top: 8px;
+        padding: 8px 10px;
+        border-radius: 6px;
+        background: rgba(244, 63, 94, 0.12);
+        border-left: 3px solid var(--rose);
+        color: #fda4af;
+        font-size: 0.79rem;
+    }
+</style>
+</head>
+<body>
+
+<!-- DACH CASHFLOW STUDIOS LAUNCH BAR -->
+<style>
+  #dcs-launch-bar {
+    position: sticky;
+    top: 0;
+    z-index: 99999;
+    background: linear-gradient(90deg, #0b1120 0%, #111827 50%, #0f172a 100%);
+    color: #f8fafc;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.35);
+    padding: 8px 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  }
+  #dcs-launch-bar .dcs-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+  }
+  #dcs-launch-bar .dcs-badge {
+    background: rgba(16, 185, 129, 0.18);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.03em;
+  }
+  #dcs-launch-bar a.dcs-nav {
+    color: #93c5fd;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 12.5px;
+  }
+  #dcs-launch-bar a.dcs-nav:hover {
+    text-decoration: underline;
+    color: #dbeafe;
+  }
+  #dcs-launch-bar .dcs-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  #dcs-launch-bar .dcs-btn {
+    padding: 5px 11px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s ease;
+  }
+  #dcs-launch-bar .dcs-btn-ghost {
+    background: rgba(255,255,255,0.08);
+    color: #e2e8f0;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  #dcs-launch-bar .dcs-btn-primary {
+    background: linear-gradient(135deg, #0ea5e9, #2563eb);
+    color: #ffffff;
+  }
+  #dcs-launch-bar .dcs-btn-emerald {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
+  }
+  @media print {
+    #dcs-launch-bar { display: none !important; }
+  }
+</style>
+<div id="dcs-launch-bar">
+  <div class="dcs-left">
+    <a href="/index.html" class="dcs-nav">← Alle 150 DACH Studios</a>
+    <span class="dcs-badge">MVP #063 VERIFIED</span>
+    <span style="color:#cbd5e1;font-size:12px;">Creator Economy, Video & Media Arbitrage</span>
+  </div>
+  <div class="dcs-actions">
+    <button onclick="window.print()" class="dcs-btn dcs-btn-ghost">🖨️ PDF / Dossier drucken</button>
+    <a href="#checkout-modal-49" target="_blank" rel="noopener" class="dcs-btn dcs-btn-primary">⚡ Musterschreiben & Voll-Dossier (€49)</a>
+    <a href="#checkout-modal-299" target="_blank" rel="noopener" class="dcs-btn dcs-btn-emerald">🛡️ B2B Umsetzung buchen (€299 / €1.490)</a>
+  </div>
+</div>
+
+<div class="container">
+    <header>
+        <div>
+            <h1>🛡️ TikTok Shop DE/EU Affiliate Sample-Ghosting Shield & GMV Script Engine (MVP #63)</h1>
+            <p class="subtitle">
+                Signal-Anker: <code>datamagnet/tiktok-shop-product-ranking</code> ($0.03/Event PPE · 463 Runs/30d · EchoTik/EchoSell Backend) ·
+                TikTok Shop DE 9% Plattformgebühr (seit 01/2026) + DHL Muster-Tracking + HWG/UWG-Skript-Generator
+            </p>
+        </div>
+        <div style="text-align:right">
+            <span class="pill pill-emerald">DACH Seller Shield v1.0</span><br>
+            <span class="muted">Stand: 2026-10-17 18:10:21</span>
+        </div>
+    </header>
+
+    <div class="kpi-grid">
+        <div class="kpi-card">
+            <div class="kpi-label">Geprüfte Sample-Anfragen</div>
+            <div class="kpi-val">7 Creator</div>
+            <div class="muted">4 Versand · 1 Open-Collab · 2 Blockiert</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">Verhindertes Sample-Ghosting</div>
+            <div class="kpi-val emerald">€21.40</div>
+            <div class="muted">Vorab blockierte Freebie-Anfragen (COGS + DHL)</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">Erwarteter 30d Affiliate GMV</div>
+            <div class="kpi-val emerald">€1675.43</div>
+            <div class="muted">Realisiert bisher: €842.60</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">Erwarteter Netto-Deckungsbeitrag</div>
+            <div class="kpi-val emerald">€627.52</div>
+            <div class="muted">Nach 9% TikTok-Fee, Creator-Prov., COGS & DHL</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">Aktive DHL-Eskalationen</div>
+            <div class="kpi-val amber">3 Sendungen</div>
+            <div class="muted">1x T+10 Sperr-/Rechnungsstufe</div>
+        </div>
+    </div>
+
+    <div class="panel">
+        <h2>🧮 Interaktiver TikTok Shop DE Sample Break-Even Rechner (9% Plattformgebühr + Affiliate-Provision)</h2>
+        <div class="calc-grid">
+            <div>
+                <label>Brutto-Verkaufspreis (UVP €)</label>
+                <input type="number" id="inpPrice" value="34.90" step="0.50" oninput="recalcBreakEven()"/>
+            </div>
+            <div>
+                <label>MwSt.-Satz (%)</label>
+                <input type="number" id="inpVat" value="19" step="1" oninput="recalcBreakEven()"/>
+            </div>
+            <div>
+                <label>Produkt-COGS Netto (€)</label>
+                <input type="number" id="inpCogs" value="5.80" step="0.20" oninput="recalcBreakEven()"/>
+            </div>
+            <div>
+                <label>DHL Versand + Pack Netto (€)</label>
+                <input type="number" id="inpDhl" value="5.40" step="0.20" oninput="recalcBreakEven()"/>
+            </div>
+            <div>
+                <label>TikTok Shop DE Gebühr (%)</label>
+                <input type="number" id="inpFee" value="9.0" step="0.5" oninput="recalcBreakEven()"/>
+            </div>
+            <div>
+                <label>Creator Affiliate-Provision (%)</label>
+                <input type="number" id="inpComm" value="15.0" step="1" oninput="recalcBreakEven()"/>
+            </div>
+            <div style="background:#030712;padding:10px 12px;border-radius:8px;border:1px solid var(--border)">
+                <div class="muted">Live Break-Even Schwelle:</div>
+                <div id="outBreakEven" style="font-weight:700;color:var(--emerald);font-size:1.05rem;">1 Sale (€34.90 GMV)</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel">
+        <h2>📦 SKU Unit Economics & Sample Break-Even Matrix</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>SKU / Produkt</th>
+                    <th>Brutto-UVP</th>
+                    <th>Netto-Erlös</th>
+                    <th>TikTok Fee</th>
+                    <th>Affiliate-Prov.</th>
+                    <th>Muster-Vollkosten (COGS+DHL)</th>
+                    <th>Deckungsbeitrag / Bestellung</th>
+                    <th>Break-Even je Gratis-Muster</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+        <tr>
+            <td><strong>SKU-GLOW-DE01</strong><br><span class="muted">DermaKlar Azelain 10% + Zink Barrier-Serum (50ml)</span></td>
+            <td>€34.90</td>
+            <td>€29.33</td>
+            <td>€3.14 <span class="muted">(9%)</span></td>
+            <td>€5.23</td>
+            <td><span class="pill pill-amber">€11.20</span></td>
+            <td><strong class="emerald">€13.98 (40.0%)</strong></td>
+            <td><strong>1 Sales</strong> <span class="muted">(€27.96 GMV)</span></td>
+        </tr>
+        
+        <tr>
+            <td><strong>SKU-MAG-DE02</strong><br><span class="muted">AlpenKraft Triple-Magnesium Bisglycinat Komplex (120 Kapseln)</span></td>
+            <td>€29.90</td>
+            <td>€27.94</td>
+            <td>€2.69 <span class="muted">(9%)</span></td>
+            <td>€5.38</td>
+            <td><span class="pill pill-amber">€10.20</span></td>
+            <td><strong class="emerald">€14.27 (47.7%)</strong></td>
+            <td><strong>1 Sales</strong> <span class="muted">(€21.37 GMV)</span></td>
+        </tr>
+        
+        <tr>
+            <td><strong>SKU-BREW-DE03</strong><br><span class="muted">BaristaWerk Edelstahl Espresso-Dosiertrichter &amp; WDT-Tool Set</span></td>
+            <td>€44.90</td>
+            <td>€37.73</td>
+            <td>€4.04 <span class="muted">(9%)</span></td>
+            <td>€6.29</td>
+            <td><span class="pill pill-amber">€14.30</span></td>
+            <td><strong class="emerald">€17.12 (38.1%)</strong></td>
+            <td><strong>1 Sales</strong> <span class="muted">(€37.51 GMV)</span></td>
+        </tr>
+        
+            </tbody>
+        </table>
+    </div>
+
+    <div class="panel">
+        <h2>🔍 Inbound Creator Sample-Requests & DHL Anti-Ghosting Eskalations-Cockpit</h2>
+        <div class="filter-bar">
+            <button class="active" onclick="filterCreators('ALL', this)">Alle Anfragen (7)</button>
+            <button onclick="filterCreators('APPROVE_PHYSICAL_SAMPLE', this)">✅ Muster-Freigabe (4)</button>
+            <button onclick="filterCreators('DIGITAL_COMMISSION_ONLY', this)">🟡 Nur Open-Collab (1)</button>
+            <button onclick="filterCreators('REJECT_GHOST_RISK', this)">🛑 Ghosting-Block (2)</button>
+        </div>
+        <table id="creatorTable">
+            <thead>
+                <tr>
+                    <th>Creator / Reichweite</th>
+                    <th>SKU</th>
+                    <th>Fulfillment-Quote</th>
+                    <th>Median Views & GPM</th>
+                    <th>DACH-Anteil & Dauer</th>
+                    <th>Shield-Score</th>
+                    <th>Entscheidung</th>
+                    <th>Erw. 30d GMV / DB</th>
+                    <th>DHL-Status & Auto-Follow-up (T+0/T+3/T+7/T+10)</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+        <tr data-decision="APPROVE_PHYSICAL_SAMPLE">
+            <td>
+                <strong>@lena.skincare.muc</strong><br>
+                <span class="muted">Lena Hartmann (München) · 48,500 Follower</span>
+            </td>
+            <td>SKU-GLOW-DE01</td>
+            <td><strong>91.7%</strong> <span class="muted">(22/24)</span></td>
+            <td>19,400 Views<br><span class="emerald">€21.40 GPM</span></td>
+            <td>88% DACH<br><span class="muted">Ø 34s Clip</span></td>
+            <td><strong>96.8/100</strong><br><span class="muted">Ghost-Risk: 6.2%</span></td>
+            <td><span class="pill pill-emerald">GRATIS-MUSTER FREIGEBEN (DHL)</span></td>
+            <td>
+                <strong>€452.11</strong> <span class="muted">(16.17x BE)</span><br>
+                <span class="muted">Netto-DB: €169.87</span>
+            </td>
+            <td>
+                <strong>✅ Video live (€842.60 GMV erzielt)</strong><br>
+                <span class="muted">Scale-Trigger: Spark-Ads-Code anfordern &amp; Retainer-Bonus anbieten.</span>
+            </td>
+        </tr>
+        
+        <tr data-decision="REJECT_GHOST_RISK">
+            <td>
+                <strong>@freebie.hunter.de</strong><br>
+                <span class="muted">Kevin S. (Unboxings) · 112,000 Follower</span>
+            </td>
+            <td>SKU-GLOW-DE01</td>
+            <td><strong>19.4%</strong> <span class="muted">(6/31)</span></td>
+            <td>1,850 Views<br><span class="emerald">€1.20 GPM</span></td>
+            <td>34% DACH<br><span class="muted">Ø 8s Clip</span></td>
+            <td><strong>4.6/100</strong><br><span class="muted">Ghost-Risk: 83.8%</span></td>
+            <td><span class="pill pill-rose">ABLEHNEN — GHOSTING / FREEBIE-GEFAHR</span></td>
+            <td>
+                <strong>€0.20</strong> <span class="muted">(0.01x BE)</span><br>
+                <span class="muted">Netto-DB: €-11.12</span>
+            </td>
+            <td>
+                <strong>🛡️ Versand gestoppt (€11.20 geschützt)</strong><br>
+                <span class="muted">Höfliche Absage im TikTok Seller Center.</span>
+            </td>
+        </tr>
+        
+        <tr data-decision="APPROVE_PHYSICAL_SAMPLE">
+            <td>
+                <strong>@fit.mit.lukas.nrw</strong><br>
+                <span class="muted">Lukas Kröger (Köln) · 29,800 Follower</span>
+            </td>
+            <td>SKU-MAG-DE02</td>
+            <td><strong>86.7%</strong> <span class="muted">(13/15)</span></td>
+            <td>14,200 Views<br><span class="emerald">€16.80 GPM</span></td>
+            <td>84% DACH<br><span class="muted">Ø 29s Clip</span></td>
+            <td><strong>92.2/100</strong><br><span class="muted">Ghost-Risk: 11.7%</span></td>
+            <td><span class="pill pill-emerald">GRATIS-MUSTER FREIGEBEN (DHL)</span></td>
+            <td>
+                <strong>€234.46</strong> <span class="muted">(10.97x BE)</span><br>
+                <span class="muted">Netto-DB: €101.71</span>
+            </td>
+            <td>
+                <strong>🎬 T+3d Hook-Briefing aktiv</strong><br>
+                <span class="muted">T+3 Auto-Nudge: &#x27;Hey! Paket kam vor 3 Tagen via DHL an – brauchst du noch den Bestseller-Hook?&#x27;</span>
+            </td>
+        </tr>
+        
+        <tr data-decision="DIGITAL_COMMISSION_ONLY">
+            <td>
+                <strong>@mia.daily.deals</strong><br>
+                <span class="muted">Mia V. (Berlin) · 19,400 Follower</span>
+            </td>
+            <td>SKU-MAG-DE02</td>
+            <td><strong>58.3%</strong> <span class="muted">(7/12)</span></td>
+            <td>6,800 Views<br><span class="emerald">€7.90 GPM</span></td>
+            <td>71% DACH<br><span class="muted">Ø 19s Clip</span></td>
+            <td><strong>57.6/100</strong><br><span class="muted">Ghost-Risk: 45.3%</span></td>
+            <td><span class="pill pill-amber">NUR OPEN-COLLAB / MUSTER-KAUF-REFUND</span></td>
+            <td>
+                <strong>€30.04</strong> <span class="muted">(1.41x BE)</span><br>
+                <span class="muted">Netto-DB: €4.14</span>
+            </td>
+            <td>
+                <strong>🛡️ Versand gestoppt (€10.20 geschützt)</strong><br>
+                <span class="muted">Open-Collab-Einladung mit Refund-nach-3-Sales senden.</span>
+            </td>
+        </tr>
+        
+        <tr data-decision="APPROVE_PHYSICAL_SAMPLE">
+            <td>
+                <strong>@kaffee.labor.hh</strong><br>
+                <span class="muted">Jonas &amp; Tim (Hamburg) · 64,200 Follower</span>
+            </td>
+            <td>SKU-BREW-DE03</td>
+            <td><strong>94.4%</strong> <span class="muted">(17/18)</span></td>
+            <td>26,500 Views<br><span class="emerald">€24.60 GPM</span></td>
+            <td>91% DACH<br><span class="muted">Ø 41s Clip</span></td>
+            <td><strong>98.0/100</strong><br><span class="muted">Ghost-Risk: 4.2%</span></td>
+            <td><span class="pill pill-emerald">GRATIS-MUSTER FREIGEBEN (DHL)</span></td>
+            <td>
+                <strong>€756.37</strong> <span class="muted">(20.16x BE)</span><br>
+                <span class="muted">Netto-DB: €274.03</span>
+            </td>
+            <td>
+                <strong>📦 Bereit für DHL-Versand (Freigabe erteilt)</strong><br>
+                <span class="muted">T+0 Versandbestätigung + Top-3 Skript-Briefing vorab senden.</span>
+            </td>
+        </tr>
+        
+        <tr data-decision="REJECT_GHOST_RISK">
+            <td>
+                <strong>@lifestyle.chloe99</strong><br>
+                <span class="muted">Chloé M. (Legacy Sample) · 83,000 Follower</span>
+            </td>
+            <td>SKU-BREW-DE03</td>
+            <td><strong>26.3%</strong> <span class="muted">(5/19)</span></td>
+            <td>2,400 Views<br><span class="emerald">€2.10 GPM</span></td>
+            <td>41% DACH<br><span class="muted">Ø 9s Clip</span></td>
+            <td><strong>11.0/100</strong><br><span class="muted">Ghost-Risk: 77.3%</span></td>
+            <td><span class="pill pill-rose">ABLEHNEN — GHOSTING / FREEBIE-GEFAHR</span></td>
+            <td>
+                <strong>€0.73</strong> <span class="muted">(0.02x BE)</span><br>
+                <span class="muted">Netto-DB: €-14.02</span>
+            </td>
+            <td>
+                <strong>🚨 T+11d GHOSTING-ALARM (Rechnungs-/Sperrstufe)</strong><br>
+                <span class="muted">T+10 Eskalation: Letzte Frist 48h für Video-Upload oder Rücksendelabel, sonst Sperrung auf DACH-Brand-Blacklist &amp; Wertberechnung (€44.90).</span>
+            </td>
+        </tr>
+        
+        <tr data-decision="APPROVE_PHYSICAL_SAMPLE">
+            <td>
+                <strong>@apothekerin.klara</strong><br>
+                <span class="muted">Klara W. (Frankfurt) · 37,100 Follower</span>
+            </td>
+            <td>SKU-GLOW-DE01</td>
+            <td><strong>85.7%</strong> <span class="muted">(12/14)</span></td>
+            <td>12,900 Views<br><span class="emerald">€17.50 GPM</span></td>
+            <td>89% DACH<br><span class="muted">Ø 32s Clip</span></td>
+            <td><strong>91.9/100</strong><br><span class="muted">Ghost-Risk: 11.4%</span></td>
+            <td><span class="pill pill-emerald">GRATIS-MUSTER FREIGEBEN (DHL)</span></td>
+            <td>
+                <strong>€232.49</strong> <span class="muted">(8.32x BE)</span><br>
+                <span class="muted">Netto-DB: €81.91</span>
+            </td>
+            <td>
+                <strong>⚠️ T+8d 14-Tage-Frist-Warnung</strong><br>
+                <span class="muted">T+7 Reminder: &#x27;Nur noch 7 Tage im TikTok Shop Sample-Fenster – bitte Video mit Produktlink posten.&#x27;</span>
+            </td>
+        </tr>
+        
+            </tbody>
+        </table>
+    </div>
+
+    <div class="panel">
+        <h2>🎬 Automatisch generierte DACH Shoppable Video Skripte (UWG § 5a + HWG/HCVO-konform)</h2>
+        <div class="script-grid">
+            
+            <div class="script-card">
+                <div class="script-header">
+                    <span class="pill pill-cyan">SKU-GLOW-DE01_S1</span>
+                    <strong>Angle 1: DACH Skeptiker-Test &amp; Preis-pro-Tag-Rechnung (High GPM)</strong>
+                    <span class="muted">28–35 Sek.</span>
+                </div>
+                <p><strong>UWG-Kennzeichnung:</strong> <code>Anzeige | TikTok Shop Produktlink unten links</code></p>
+                <p><strong>0–3s Hook:</strong> „Ich hab erst gedacht, DermaKlar Azelain 10% + Zink Barrier-Serum (50ml) für €34.90 ist wieder nur TikTok-Hype – bis ich die Rückseite gelesen habe…“</p>
+                <p><strong>4–22s Demo & Beweis:</strong> Zeige Nahaufnahme der Textur/Verpackung. Erkläre den Kernvorteil: Parfümfreie 10% Azelainsäure-Suspension mit 1% PCA-Zink, hergestellt in Bayern. Wichtig für DACH-Zuschauer: Pflegt zu Unreinheiten neigende Haut, verfeinert optisch das Porenbild und stärkt die Hautbarriere (KosmetikVO-konform). Rechne vor: Eine Packung reicht 60 Tage – das sind gerade mal €0.58 pro Tag statt teurer Einzelprodukte.</p>
+                <p><strong>23–30s TikTok Shop CTA:</strong> „Ich hab euch den offiziellen Marken-Shop unten im orangenen Einkaufswagen verlinkt – aktuell mit schnellem DHL-Versand direkt aus Deutschland.“</p>
+                <div class="guardrail">HWG-Sperre: Keine Heilversprechen wie &#x27;heilt Akne/Rosazea medizinisch&#x27; oder &#x27;ersetzt den Hautarzt&#x27; verwenden!</div>
+            </div>
+            
+            <div class="script-card">
+                <div class="script-header">
+                    <span class="pill pill-cyan">SKU-GLOW-DE01_S2</span>
+                    <strong>Angle 2: Problem-Agitation-Lösung (PAS) im Badezimmer/Alltag</strong>
+                    <span class="muted">24–30 Sek.</span>
+                </div>
+                <p><strong>UWG-Kennzeichnung:</strong> <code>Anzeige | Offizielle TikTok Shop Partnerschaft</code></p>
+                <p><strong>0–3s Hook:</strong> „Drei Fehler, die fast jeder in Deutschland bei Beauty &amp; Hautpflege (KosmetikVO) macht – und wie ich meine Routine in 10 Sekunden umgestellt habe.“</p>
+                <p><strong>4–22s Demo & Beweis:</strong> Split-Screen oder direkter Vorher/Alltags-Moment. Zeige DermaKlar Azelain 10% + Zink Barrier-Serum (50ml) im echten Einsatz (kein 7-Sekunden-Stummclip!). Hebe hervor: Parfümfreie 10% Azelainsäure-Suspension mit 1% PCA-Zink, hergestellt in Bayern (Pflegt zu Unreinheiten neigende Haut, verfeinert optisch das Porenbild und stärkt die Hautbarriere (KosmetikVO-konform)).</p>
+                <p><strong>23–30s TikTok Shop CTA:</strong> „Klickt unten links auf den TikTok Shop Button – ab 1 Bestellungen ist die Charge meist schnell vergriffen.“</p>
+                <div class="guardrail">HWG-Sperre: Keine Heilversprechen wie &#x27;heilt Akne/Rosazea medizinisch&#x27; oder &#x27;ersetzt den Hautarzt&#x27; verwenden!</div>
+            </div>
+            
+            <div class="script-card">
+                <div class="script-header">
+                    <span class="pill pill-cyan">SKU-GLOW-DE01_S3</span>
+                    <strong>Angle 3: Ehrliches DHL-Unboxing + Kommentar-Antwort (Reply-to-Comment)</strong>
+                    <span class="muted">22–28 Sek.</span>
+                </div>
+                <p><strong>UWG-Kennzeichnung:</strong> <code>Anzeige | Kostenloses Produktmuster + Provision</code></p>
+                <p><strong>0–3s Hook:</strong> „Antwort auf @Kommentar: Lohnt sich DermaKlar Azelain 10% + Zink Barrier-Serum (50ml) aus dem TikTok Shop wirklich oder bezahlt man nur den Namen?“</p>
+                <p><strong>4–22s Demo & Beweis:</strong> Öffne das echte DHL-Paket vor der Kamera (Audio-ASMR beim Aufreißen). Zeige Chargennummer/Qualitätssiegel: Parfümfreie 10% Azelainsäure-Suspension mit 1% PCA-Zink, hergestellt in Bayern. Nutze die zugelassene Formulierung: Pflegt zu Unreinheiten neigende Haut, verfeinert optisch das Porenbild und stärkt die Hautbarriere (KosmetikVO-konform).</p>
+                <p><strong>23–30s TikTok Shop CTA:</strong> „Den direkten Deal im deutschen TikTok Shop findet ihr unten am gelb-orangenen Warenkorb-Icon.“</p>
+                <div class="guardrail">HWG-Sperre: Keine Heilversprechen wie &#x27;heilt Akne/Rosazea medizinisch&#x27; oder &#x27;ersetzt den Hautarzt&#x27; verwenden!</div>
+            </div>
+            
+            <div class="script-card">
+                <div class="script-header">
+                    <span class="pill pill-cyan">SKU-MAG-DE02_S1</span>
+                    <strong>Angle 1: DACH Skeptiker-Test &amp; Preis-pro-Tag-Rechnung (High GPM)</strong>
+                    <span class="muted">28–35 Sek.</span>
+                </div>
+                <p><strong>UWG-Kennzeichnung:</strong> <code>Anzeige | TikTok Shop Produktlink unten links</code></p>
+                <p><strong>0–3s Hook:</strong> „Ich hab erst gedacht, AlpenKraft Triple-Magnesium Bisglycinat Komplex (120 Kapseln) für €29.90 ist wieder nur TikTok-Hype – bis ich die Rückseite gelesen habe…“</p>
+                <p><strong>4–22s Demo & Beweis:</strong> Zeige Nahaufnahme der Textur/Verpackung. Erkläre den Kernvorteil: Laborgeprüftes Magnesiumbisglycinat + Citrat + Malat ohne Magnesiumoxid-Füllstoff. Wichtig für DACH-Zuschauer: EFSA Health Claim (VO 432/2012): Magnesium trägt zur Verringerung von Müdigkeit und zu einer normalen Muskelfunktion bei. Rechne vor: Eine Packung reicht 60 Tage – das sind gerade mal €0.50 pro Tag statt teurer Einzelprodukte.</p>
+                <p><strong>23–30s TikTok Shop CTA:</strong> „Ich hab euch den offiziellen Marken-Shop unten im orangenen Einkaufswagen verlinkt – aktuell mit schnellem DHL-Versand direkt aus Deutschland.“</p>
+                <div class="guardrail">HCVO-Sperre: Keine Aussagen wie &#x27;beseitigt Schlafstörungen/Depressionen&#x27; oder &#x27;garantiert Tiefschlaf in 10 Minuten&#x27;!</div>
+            </div>
+            
+            <div class="script-card">
+                <div class="script-header">
+                    <span class="pill pill-cyan">SKU-MAG-DE02_S2</span>
+                    <strong>Angle 2: Problem-Agitation-Lösung (PAS) im Badezimmer/Alltag</strong>
+                    <span class="muted">24–30 Sek.</span>
+                </div>
+                <p><strong>UWG-Kennzeichnung:</strong> <code>Anzeige | Offizielle TikTok Shop Partnerschaft</code></p>
+                <p><strong>0–3s Hook:</strong> „Drei Fehler, die fast jeder in Deutschland bei Nahrungsergänzung (NEM / HCVO) macht – und wie ich meine Routine in 10 Sekunden umgestellt habe.“</p>
+                <p><strong>4–22s Demo & Beweis:</strong> Split-Screen oder direkter Vorher/Alltags-Moment. Zeige AlpenKraft Triple-Magnesium Bisglycinat Komplex (120 Kapseln) im echten Einsatz (kein 7-Sekunden-Stummclip!). Hebe hervor: Laborgeprüftes Magnesiumbisglycinat + Citrat + Malat ohne Magnesiumoxid-Füllstoff (EFSA Health Claim (VO 432/2012): Magnesium trägt zur Verringerung von Müdigkeit und zu einer normalen Muskelfunktion bei).</p>
+                <p><strong>23–30s TikTok Shop CTA:</strong> „Klickt unten links auf den TikTok Shop Button – ab 1 Bestellungen ist die Charge meist schnell vergriffen.“</p>
+                <div class="guardrail">HCVO-Sperre: Keine Aussagen wie &#x27;beseitigt Schlafstörungen/Depressionen&#x27; oder &#x27;garantiert Tiefschlaf in 10 Minuten&#x27;!</div>
+            </div>
+            
+            <div class="script-card">
+                <div class="script-header">
+                    <span class="pill pill-cyan">SKU-MAG-DE02_S3</span>
+                    <strong>Angle 3: Ehrliches DHL-Unboxing + Kommentar-Antwort (Reply-to-Comment)</strong>
+                    <span class="muted">22–28 Sek.</span>
+                </div>
+                <p><strong>UWG-Kennzeichnung:</strong> <code>Anzeige | Kostenloses Produktmuster + Provision</code></p>
+                <p><strong>0–3s Hook:</strong> „Antwort auf @Kommentar: Lohnt sich AlpenKraft Triple-Magnesium Bisglycinat Komplex (120 Kapseln) aus dem TikTok Shop wirklich oder bezahlt man nur den Namen?“</p>
+                <p><strong>4–22s Demo & Beweis:</strong> Öffne das echte DHL-Paket vor der Kamera (Audio-ASMR beim Aufreißen). Zeige Chargennummer/Qualitätssiegel: Laborgeprüftes Magnesiumbisglycinat + Citrat + Malat ohne Magnesiumoxid-Füllstoff. Nutze die zugelassene Formulierung: EFSA Health Claim (VO 432/2012): Magnesium trägt zur Verringerung von Müdigkeit und zu einer normalen Muskelfunktion bei.</p>
+                <p><strong>23–30s TikTok Shop CTA:</strong> „Den direkten Deal im deutschen TikTok Shop findet ihr unten am gelb-orangenen Warenkorb-Icon.“</p>
+                <div class="guardrail">HCVO-Sperre: Keine Aussagen wie &#x27;beseitigt Schlafstörungen/Depressionen&#x27; oder &#x27;garantiert Tiefschlaf in 10 Minuten&#x27;!</div>
+            </div>
+            
+            <div class="script-card">
+                <div class="script-header">
+                    <span class="pill pill-cyan">SKU-BREW-DE03_S1</span>
+                    <strong>Angle 1: DACH Skeptiker-Test &amp; Preis-pro-Tag-Rechnung (High GPM)</strong>
+                    <span class="muted">28–35 Sek.</span>
+                </div>
+                <p><strong>UWG-Kennzeichnung:</strong> <code>Anzeige | TikTok Shop Produktlink unten links</code></p>
+                <p><strong>0–3s Hook:</strong> „Ich hab erst gedacht, BaristaWerk Edelstahl Espresso-Dosiertrichter &amp; WDT-Tool Set für €44.90 ist wieder nur TikTok-Hype – bis ich die Rückseite gelesen habe…“</p>
+                <p><strong>4–22s Demo & Beweis:</strong> Zeige Nahaufnahme der Textur/Verpackung. Erkläre den Kernvorteil: CNC-gefräster 54mm/58mm Magnet-Dosiertrichter + 0,35mm Edelstahl-Nadeln gegen Channeling. Wichtig für DACH-Zuschauer: Verhindert Kaffeemehl-Streuverlust am Siebträger und sorgt für gleichmäßige Extraktion. Rechne vor: Eine Packung reicht 60 Tage – das sind gerade mal €0.75 pro Tag statt teurer Einzelprodukte.</p>
+                <p><strong>23–30s TikTok Shop CTA:</strong> „Ich hab euch den offiziellen Marken-Shop unten im orangenen Einkaufswagen verlinkt – aktuell mit schnellem DHL-Versand direkt aus Deutschland.“</p>
+                <div class="guardrail">UWG-Hinweis: &#x27;Anzeige&#x27; dauerhaft sichtbar einblenden; keine gefälschten UVP-Streichpreise nennen.</div>
+            </div>
+            
+            <div class="script-card">
+                <div class="script-header">
+                    <span class="pill pill-cyan">SKU-BREW-DE03_S2</span>
+                    <strong>Angle 2: Problem-Agitation-Lösung (PAS) im Badezimmer/Alltag</strong>
+                    <span class="muted">24–30 Sek.</span>
+                </div>
+                <p><strong>UWG-Kennzeichnung:</strong> <code>Anzeige | Offizielle TikTok Shop Partnerschaft</code></p>
+                <p><strong>0–3s Hook:</strong> „Drei Fehler, die fast jeder in Deutschland bei Küche &amp; Home-Barista macht – und wie ich meine Routine in 10 Sekunden umgestellt habe.“</p>
+                <p><strong>4–22s Demo & Beweis:</strong> Split-Screen oder direkter Vorher/Alltags-Moment. Zeige BaristaWerk Edelstahl Espresso-Dosiertrichter &amp; WDT-Tool Set im echten Einsatz (kein 7-Sekunden-Stummclip!). Hebe hervor: CNC-gefräster 54mm/58mm Magnet-Dosiertrichter + 0,35mm Edelstahl-Nadeln gegen Channeling (Verhindert Kaffeemehl-Streuverlust am Siebträger und sorgt für gleichmäßige Extraktion).</p>
+                <p><strong>23–30s TikTok Shop CTA:</strong> „Klickt unten links auf den TikTok Shop Button – ab 1 Bestellungen ist die Charge meist schnell vergriffen.“</p>
+                <div class="guardrail">UWG-Hinweis: &#x27;Anzeige&#x27; dauerhaft sichtbar einblenden; keine gefälschten UVP-Streichpreise nennen.</div>
+            </div>
+            
+            <div class="script-card">
+                <div class="script-header">
+                    <span class="pill pill-cyan">SKU-BREW-DE03_S3</span>
+                    <strong>Angle 3: Ehrliches DHL-Unboxing + Kommentar-Antwort (Reply-to-Comment)</strong>
+                    <span class="muted">22–28 Sek.</span>
+                </div>
+                <p><strong>UWG-Kennzeichnung:</strong> <code>Anzeige | Kostenloses Produktmuster + Provision</code></p>
+                <p><strong>0–3s Hook:</strong> „Antwort auf @Kommentar: Lohnt sich BaristaWerk Edelstahl Espresso-Dosiertrichter &amp; WDT-Tool Set aus dem TikTok Shop wirklich oder bezahlt man nur den Namen?“</p>
+                <p><strong>4–22s Demo & Beweis:</strong> Öffne das echte DHL-Paket vor der Kamera (Audio-ASMR beim Aufreißen). Zeige Chargennummer/Qualitätssiegel: CNC-gefräster 54mm/58mm Magnet-Dosiertrichter + 0,35mm Edelstahl-Nadeln gegen Channeling. Nutze die zugelassene Formulierung: Verhindert Kaffeemehl-Streuverlust am Siebträger und sorgt für gleichmäßige Extraktion.</p>
+                <p><strong>23–30s TikTok Shop CTA:</strong> „Den direkten Deal im deutschen TikTok Shop findet ihr unten am gelb-orangenen Warenkorb-Icon.“</p>
+                <div class="guardrail">UWG-Hinweis: &#x27;Anzeige&#x27; dauerhaft sichtbar einblenden; keine gefälschten UVP-Streichpreise nennen.</div>
+            </div>
+            
+        </div>
+    </div>
+</div>
+<script>
+function recalcBreakEven() {
+    const price = parseFloat(document.getElementById('inpPrice').value) || 0;
+    const vat = parseFloat(document.getElementById('inpVat').value) || 19;
+    const cogs = parseFloat(document.getElementById('inpCogs').value) || 0;
+    const dhl = parseFloat(document.getElementById('inpDhl').value) || 0;
+    const feePct = parseFloat(document.getElementById('inpFee').value) || 9;
+    const commPct = parseFloat(document.getElementById('inpComm').value) || 15;
+
+    const netRev = price / (1 + vat / 100.0);
+    const feeEur = price * (feePct / 100.0);
+    const commEur = price * (commPct / 100.0);
+    const retEur = netRev * 0.035;
+    const dbPerOrder = netRev - cogs - feeEur - commEur - retEur;
+    const sampleCost = cogs + dhl;
+
+    const el = document.getElementById('outBreakEven');
+    if (dbPerOrder <= 0) {
+        el.innerHTML = '<span style="color:#f43f5e">Negativer DB (€' + dbPerOrder.toFixed(2) + '/Order)</span>';
+        return;
+    }
+    const exactUnits = sampleCost / dbPerOrder;
+    const minOrders = Math.ceil(exactUnits);
+    const beGmv = exactUnits * price;
+    el.textContent = minOrders + ' Sales (€' + beGmv.toFixed(2) + ' GMV | DB €' + dbPerOrder.toFixed(2) + '/Sale)';
+}
+function filterCreators(decision, btn) {
+    document.querySelectorAll('.filter-bar button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('#creatorTable tbody tr').forEach(row => {
+        if (decision === 'ALL' || row.getAttribute('data-decision') === decision) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+}
+recalcBreakEven();
+</script>
+</body>
+</html>

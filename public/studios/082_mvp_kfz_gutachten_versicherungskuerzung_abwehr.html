@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MVP #82 — DACH Kfz-Gutachten & Versicherungs-Kürzungs-Abwehr Studio (§ 249 BGB)</title>
+<style>
+  :root {
+    --bg: #0b1020;
+    --panel: #131b33;
+    --panel-alt: #192342;
+    --border: #2a3966;
+    --text: #eef2ff;
+    --muted: #9fb0d9;
+    --accent: #38bdf8;
+    --emerald: #10b981;
+    --amber: #f59e0b;
+    --rose: #f43f5e;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+  }
+  header {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 20px 28px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 14px;
+  }
+  .badge {
+    background: rgba(56, 189, 248, 0.15);
+    color: var(--accent);
+    border: 1px solid rgba(56, 189, 248, 0.4);
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .container {
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 24px;
+  }
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .kpi-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 18px;
+  }
+  .kpi-label {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+  }
+  .kpi-value {
+    font-size: 26px;
+    font-weight: 700;
+    margin-top: 6px;
+  }
+  .kpi-sub {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1.05fr 1.35fr;
+    gap: 20px;
+  }
+  @media (max-width: 1024px) {
+    .grid-2 { grid-template-columns: 1fr; }
+  }
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+  .card h2 {
+    margin-top: 0;
+    font-size: 17px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 10px;
+    margin-bottom: 14px;
+  }
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+  label {
+    display: block;
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+  input, select {
+    width: 100%;
+    padding: 8px 10px;
+    background: var(--panel-alt);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    font-size: 13px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  th, td {
+    padding: 10px 8px;
+    border-bottom: 1px solid var(--border);
+    text-align: left;
+    vertical-align: top;
+  }
+  th {
+    color: var(--muted);
+    font-weight: 600;
+    font-size: 11px;
+    text-transform: uppercase;
+  }
+  .num { text-align: right; font-variant-numeric: tabular-nums; }
+  .pill-ok {
+    background: rgba(16, 185, 129, 0.18);
+    color: #34d399;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  textarea {
+    width: 100%;
+    min-height: 310px;
+    background: #090d1a;
+    color: #e2e8f0;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 12.5px;
+    line-height: 1.45;
+  }
+  .btn {
+    background: var(--accent);
+    color: #0b1020;
+    border: none;
+    padding: 9px 16px;
+    border-radius: 6px;
+    font-weight: 700;
+    cursor: pointer;
+    font-size: 13px;
+  }
+  .btn-secondary {
+    background: var(--panel-alt);
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+</style>
+</head>
+<body>
+
+<!-- DACH CASHFLOW STUDIOS LAUNCH BAR -->
+<style>
+  #dcs-launch-bar {
+    position: sticky;
+    top: 0;
+    z-index: 99999;
+    background: linear-gradient(90deg, #0b1120 0%, #111827 50%, #0f172a 100%);
+    color: #f8fafc;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.35);
+    padding: 8px 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  }
+  #dcs-launch-bar .dcs-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+  }
+  #dcs-launch-bar .dcs-badge {
+    background: rgba(16, 185, 129, 0.18);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.03em;
+  }
+  #dcs-launch-bar a.dcs-nav {
+    color: #93c5fd;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 12.5px;
+  }
+  #dcs-launch-bar a.dcs-nav:hover {
+    text-decoration: underline;
+    color: #dbeafe;
+  }
+  #dcs-launch-bar .dcs-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  #dcs-launch-bar .dcs-btn {
+    padding: 5px 11px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s ease;
+  }
+  #dcs-launch-bar .dcs-btn-ghost {
+    background: rgba(255,255,255,0.08);
+    color: #e2e8f0;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  #dcs-launch-bar .dcs-btn-primary {
+    background: linear-gradient(135deg, #0ea5e9, #2563eb);
+    color: #ffffff;
+  }
+  #dcs-launch-bar .dcs-btn-emerald {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
+  }
+  @media print {
+    #dcs-launch-bar { display: none !important; }
+  }
+</style>
+<div id="dcs-launch-bar">
+  <div class="dcs-left">
+    <a href="/index.html" class="dcs-nav">← Alle 150 DACH Studios</a>
+    <span class="dcs-badge">MVP #082 VERIFIED</span>
+    <span style="color:#cbd5e1;font-size:12px;">DACH LegalTech, Labor Law & Consumer Claims</span>
+  </div>
+  <div class="dcs-actions">
+    <button onclick="window.print()" class="dcs-btn dcs-btn-ghost">🖨️ PDF / Dossier drucken</button>
+    <a href="#checkout-modal-49" target="_blank" rel="noopener" class="dcs-btn dcs-btn-primary">⚡ Musterschreiben & Voll-Dossier (€49)</a>
+    <a href="#checkout-modal-299" target="_blank" rel="noopener" class="dcs-btn dcs-btn-emerald">🛡️ B2B Umsetzung buchen (€299 / €1.490)</a>
+  </div>
+</div>
+
+<header>
+  <div>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <span class="badge">MVP #82 · § 249 BGB</span>
+      <span class="badge">BGH VI ZR 53/09 · VI ZR 253/09 · VI ZR 40/18 · VI ZR 396/18</span>
+    </div>
+    <h1 style="margin:6px 0 0;font-size:21px;">DACH Kfz-Haftpflicht-Unfallgutachten & Versicherungs-Kürzungs-Abwehr Studio</h1>
+  </div>
+  <div style="display:flex;gap:10px;align-items:center;">
+    <label for="casePreset" style="margin:0;font-size:13px;">Prüfbericht-Fall laden:</label>
+    <select id="casePreset" style="width:320px;" onchange="loadPreset(this.value)"></select>
+  </div>
+</header>
+
+<div class="container">
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-label">Gutachten-Anspruch (Netto + Nebenpos.)</div>
+      <div class="kpi-value" id="kpiGutachten">0,00 €</div>
+      <div class="kpi-sub" id="kpiVehicleSub">-</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Versicherer / Prüfbericht Kürzung</div>
+      <div class="kpi-value" style="color:var(--rose);" id="kpiSlashed">0,00 €</div>
+      <div class="kpi-sub" id="kpiPrueferSub">-</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Durchsetzbare Nachforderung (§ 249 BGB)</div>
+      <div class="kpi-value" style="color:var(--emerald);" id="kpiRecoverable">0,00 €</div>
+      <div class="kpi-sub" id="kpiReversalSub">Abwehrquote: 100%</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Erstattungsfähige Anwaltsgebühr (1,3 RVG)</div>
+      <div class="kpi-value" style="color:var(--amber);" id="kpiRvg">0,00 €</div>
+      <div class="kpi-sub">100% Kostentragung Gegner (§ 249 BGB)</div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div>
+      <div class="card">
+        <h2>1. Fahrzeug, Werkstatttreue & OLG-Bezirk (BGH VI ZR 53/09)</h2>
+        <div class="form-row">
+          <div>
+            <label>Fahrzeug & Modell</label>
+            <input id="inpModel" oninput="recalc()">
+          </div>
+          <div>
+            <label>OLG-Bezirk (UPE/Verbringung/Pauschale)</label>
+            <select id="inpOlg" onchange="recalc()"></select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div>
+            <label>Fahrzeugalter bei Unfall (Monate)</label>
+            <input type="number" id="inpAgeMonths" oninput="recalc()">
+          </div>
+          <div>
+            <label>Laufleistung (km)</label>
+            <input type="number" id="inpMileage" oninput="recalc()">
+          </div>
+        </div>
+        <div class="form-row">
+          <div>
+            <label>Scheckheftgepflegt in Markenwerkstatt?</label>
+            <select id="inpScheckheft" onchange="recalc()">
+              <option value="1">Ja — Durchgehend Markenwerkstatt</option>
+              <option value="0">Nein — Freie Werkstatt / Lückenhaft</option>
+            </select>
+          </div>
+          <div>
+            <label>Entfernung Referenzwerkstatt (km)</label>
+            <input type="number" step="0.1" id="inpRefDist" oninput="recalc()">
+          </div>
+        </div>
+        <div class="form-row">
+          <div>
+            <label>Wiederbeschaffungswert (WBW netto €)</label>
+            <input type="number" id="inpWbw" oninput="recalc()">
+          </div>
+          <div>
+            <label>Sanden/Danner Fahrzeuggruppe (A–L)</label>
+            <select id="inpGroup" onchange="recalc()"></select>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>2. Prüfbericht-Kürzungen (ControlExpert / Carexpert / DEKRA)</h2>
+        <div class="form-row">
+          <div>
+            <label>Mechanik/Karosserie-Stunden (h)</label>
+            <input type="number" step="0.5" id="inpLaborHours" oninput="recalc()">
+          </div>
+          <div>
+            <label>Lackier-Stunden (h)</label>
+            <input type="number" step="0.5" id="inpPaintHours" oninput="recalc()">
+          </div>
+        </div>
+        <div class="form-row">
+          <div>
+            <label>Stundensatz Gutachten vs. Versicherer (€/h)</label>
+            <div style="display:flex;gap:6px;">
+              <input type="number" id="inpGutLaborRate" oninput="recalc()" title="Gutachten €/h">
+              <input type="number" id="inpInsLaborRate" oninput="recalc()" title="Versicherer €/h">
+            </div>
+          </div>
+          <div>
+            <label>Lackiersatz Gutachten vs. Versicherer (€/h)</label>
+            <div style="display:flex;gap:6px;">
+              <input type="number" id="inpGutPaintRate" oninput="recalc()" title="Gutachten €/h">
+              <input type="number" id="inpInsPaintRate" oninput="recalc()" title="Versicherer €/h">
+            </div>
+          </div>
+        </div>
+        <div class="form-row">
+          <div>
+            <label>Ersatzteile Basis (€) & UPE-Aufschlag (%)</label>
+            <div style="display:flex;gap:6px;">
+              <input type="number" id="inpPartsBase" oninput="recalc()">
+              <input type="number" id="inpUpePct" oninput="recalc()">
+            </div>
+          </div>
+          <div>
+            <label>Verbringungskosten Gutachten vs. gezahlt (€)</label>
+            <div style="display:flex;gap:6px;">
+              <input type="number" id="inpGutVerb" oninput="recalc()">
+              <input type="number" id="inpInsVerb" oninput="recalc()">
+            </div>
+          </div>
+        </div>
+        <div class="form-row">
+          <div>
+            <label>Beilackierung Gutachten vs. gezahlt (€)</label>
+            <div style="display:flex;gap:6px;">
+              <input type="number" id="inpGutBeilack" oninput="recalc()">
+              <input type="number" id="inpInsBeilack" oninput="recalc()">
+            </div>
+          </div>
+          <div>
+            <label>Nutzungsausfall-Tage vs. gezahlt (€)</label>
+            <div style="display:flex;gap:6px;">
+              <input type="number" id="inpNaDays" oninput="recalc()">
+              <input type="number" id="inpInsNaEur" oninput="recalc()">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="card">
+        <h2>3. Positionsweise Kürzungs-Widerlegung & BGH-Prüfung</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Position</th>
+              <th class="num">Gutachten</th>
+              <th class="num">Reguliert</th>
+              <th class="num">Nachforderung</th>
+              <th>BGH / OLG Rechtsgrundlage</th>
+            </tr>
+          </thead>
+          <tbody id="auditTableBody"></tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+          <h2 style="margin:0;border:none;padding:0;">4. BGH-Fundiertes Nachforderungsschreiben & Stellungnahme</h2>
+          <button class="btn" onclick="copyLetter()">Schreiben kopieren</button>
+        </div>
+        <textarea id="letterOutput" readonly></textarea>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const CASES = [{"case_id": "DE-KFZ-2026-001", "insurer_name": "HUK-COBURG Allgemeine Versicherung AG", "pruefdienstleister": "ControlExpert GmbH", "claim_number": "HUK-98-2026-441820", "olg_district": "OLG Düsseldorf", "settlement_mode": "fiktiv", "vehicle": {"make_model": "BMW 320d Touring M-Sport (G21)", "license_plate": "D-MW 3208", "first_registration_date": "2024-05-15", "accident_date": "2026-09-20", "mileage_km": 34200, "scheckheft_markenwerkstatt": true, "metallic_or_pearl_paint": true, "sanden_danner_base_group": "G", "wiederbeschaffungswert_netto_eur": 36500.0}, "labor_hours_mechanik_karosserie": 14.5, "paint_hours_lackierung": 8.0, "gutachten_labor_rate_eur": 210.0, "insurer_labor_rate_eur": 122.0, "gutachten_paint_rate_eur": 235.0, "insurer_paint_rate_eur": 135.0, "reference_workshop_name": "Karosserie & Lackierzentrum Rhein-Ruhr GmbH", "reference_workshop_distance_km": 24.8, "reference_workshop_has_insurer_special_tariffs": true, "spare_parts_base_eur": 2850.0, "gutachten_upe_percent": 15.0, "insurer_upe_percent": 0.0, "regionally_customary_upe_verbringung": true, "gutachten_verbringung_eur": 195.0, "insurer_verbringung_eur": 0.0, "gutachten_beilackierung_eur": 460.0, "insurer_beilackierung_eur": 0.0, "gutachten_nebenpositionen_eur": 240.0, "insurer_nebenpositionen_eur": 65.0, "gutachten_wertminderung_eur": 1650.0, "insurer_wertminderung_eur": 850.0, "repair_duration_days": 5, "insurer_accepted_days": 3, "insurer_paid_nutzungsausfall_eur": 150.0, "gutachten_unkostenpauschale_eur": 25.0, "insurer_unkostenpauschale_eur": 20.0}, {"case_id": "DE-KFZ-2026-002", "insurer_name": "Allianz Versicherungs-AG", "pruefdienstleister": "DEKRA Claims Services / Carexpert", "claim_number": "ALZ-KH-2026-883109", "olg_district": "OLG München", "settlement_mode": "fiktiv", "vehicle": {"make_model": "Mercedes-Benz E 300 de T-Modell AMG Line", "license_plate": "M-MB 3009", "first_registration_date": "2022-03-10", "accident_date": "2026-09-12", "mileage_km": 58400, "scheckheft_markenwerkstatt": true, "metallic_or_pearl_paint": true, "sanden_danner_base_group": "J", "wiederbeschaffungswert_netto_eur": 41000.0}, "labor_hours_mechanik_karosserie": 11.0, "paint_hours_lackierung": 6.5, "gutachten_labor_rate_eur": 220.0, "insurer_labor_rate_eur": 132.0, "gutachten_paint_rate_eur": 245.0, "insurer_paint_rate_eur": 148.0, "reference_workshop_name": "Auto-Service Südost Freie Meisterwerkstatt", "reference_workshop_distance_km": 16.2, "reference_workshop_has_insurer_special_tariffs": true, "spare_parts_base_eur": 2400.0, "gutachten_upe_percent": 18.0, "insurer_upe_percent": 0.0, "regionally_customary_upe_verbringung": true, "gutachten_verbringung_eur": 220.0, "insurer_verbringung_eur": 0.0, "gutachten_beilackierung_eur": 390.0, "insurer_beilackierung_eur": 0.0, "gutachten_nebenpositionen_eur": 210.0, "insurer_nebenpositionen_eur": 80.0, "gutachten_wertminderung_eur": 1250.0, "insurer_wertminderung_eur": 600.0, "repair_duration_days": 4, "insurer_accepted_days": 2, "insurer_paid_nutzungsausfall_eur": 130.0, "gutachten_unkostenpauschale_eur": 30.0, "insurer_unkostenpauschale_eur": 25.0}, {"case_id": "DE-KFZ-2026-003", "insurer_name": "VHV Allgemeine Versicherung AG", "pruefdienstleister": "ControlExpert GmbH", "claim_number": "VHV-2026-7719402", "olg_district": "KG Berlin", "settlement_mode": "fiktiv", "vehicle": {"make_model": "VW Golf VIII 1.5 eTSI Style", "license_plate": "B-VW 8150", "first_registration_date": "2025-11-01", "accident_date": "2026-09-25", "mileage_km": 11900, "scheckheft_markenwerkstatt": true, "metallic_or_pearl_paint": true, "sanden_danner_base_group": "E", "wiederbeschaffungswert_netto_eur": 24800.0}, "labor_hours_mechanik_karosserie": 9.0, "paint_hours_lackierung": 5.0, "gutachten_labor_rate_eur": 195.0, "insurer_labor_rate_eur": 115.0, "gutachten_paint_rate_eur": 215.0, "insurer_paint_rate_eur": 125.0, "reference_workshop_name": "Lack & Blech Spandau GmbH", "reference_workshop_distance_km": 22.4, "reference_workshop_has_insurer_special_tariffs": true, "spare_parts_base_eur": 1750.0, "gutachten_upe_percent": 12.0, "insurer_upe_percent": 0.0, "regionally_customary_upe_verbringung": true, "gutachten_verbringung_eur": 175.0, "insurer_verbringung_eur": 0.0, "gutachten_beilackierung_eur": 310.0, "insurer_beilackierung_eur": 0.0, "gutachten_nebenpositionen_eur": 165.0, "insurer_nebenpositionen_eur": 45.0, "gutachten_wertminderung_eur": 1400.0, "insurer_wertminderung_eur": 700.0, "repair_duration_days": 4, "insurer_accepted_days": 3, "insurer_paid_nutzungsausfall_eur": 114.0, "gutachten_unkostenpauschale_eur": 25.0, "insurer_unkostenpauschale_eur": 20.0}];
+const REPORTS = [{"case_id": "DE-KFZ-2026-001", "insurer_name": "HUK-COBURG Allgemeine Versicherung AG", "pruefdienstleister": "ControlExpert GmbH", "claim_number": "HUK-98-2026-441820", "olg_district": "OLG Düsseldorf", "settlement_mode": "fiktiv", "vehicle_summary": "BMW 320d Touring M-Sport (G21) (D-MW 3208)", "vehicle_age_months": 28, "markenwerkstatt_entitled": true, "markenwerkstatt_reasons": ["Fahrzeugalter bei Unfall (28 Monate) <= 36 Monate (3 Jahre): Verweisung auf freie Werkstatt nach BGH VI ZR 53/09 ('VW-Urteil') & VI ZR 253/09 generell unzumutbar.", "Fahrzeug wurde durchgehend in einer markengebundenen Fachwerkstatt scheckheftgepflegt (BGH VI ZR 53/09; BGH VI ZR 321/18): Anspruch auf Markenwerkstatt-Stundenverrechnungssätze auch bei Fahrzeugen > 3 Jahre.", "Benannte Referenzwerkstatt liegt 24.8 km entfernt (> 20 km Zumutbarkeitsgrenze): Keine 'mühelos und ohne Weiteres zugängliche' Werkstatt (BGH VI ZR 160/08; OLG München).", "Stundenverrechnungssätze der Referenzwerkstatt beruhen auf vertraglichen Sonderkonditionen mit der Versicherungswirtschaft (Partnerwerkstatt) und stehen auf dem freien Markt nicht jedermann offen (BGH VI ZR 337/09)."], "wertminderung": {"vehicle_age_months": 28, "zulassungsjahr_bucket": 3, "repair_cost_netto_eur": 9097.5, "wiederbeschaffungswert_netto_eur": 36500.0, "schadensquote_pct": 24.92, "ruhkopf_sahm_factor_xr": 3.0, "ruhkopf_sahm_eur": 1367.92, "bvsk_factor_pct": 9.0, "bvsk_eur": 818.77, "recommended_claim_eur": 1200.0, "eligible": true, "eligibility_reason_de": "Fahrzeug im 3. Zulassungsjahr (28 Mo., 34,200 km), Schadensquote 24.9% -> Ruhkopf/Sahm-Faktor X_r = 3% (MW = (36,500.00 € + 9,097.50 €) × 3% = 1,367.92 €)."}, "nutzungsausfall": {"base_group": "G", "vehicle_age_years": 2.33, "age_downgrade_steps": 0, "effective_group": "G", "daily_rate_eur": 59.0, "eligible_days": 5, "entitlement_eur": 295.0, "insurer_paid_eur": 150.0, "underpayment_eur": 145.0, "citation_de": "Sanden/Danner/Küppersbusch Gruppe G (59 €/Tag × 5 Tage = 295.00 €) ohne Altersabstufung (Fahrzeug <= 5 Jahre; BGH GSZ 1/86)"}, "line_audits": [{"position_code": "POS-01", "position_title": "Stundenverrechnungssätze (Mechanik/Karosserie & Lackierung)", "gutachten_eur": 4925.0, "insurer_paid_eur": 2849.0, "slashed_eur": 2076.0, "recoverable_eur": 2076.0, "reversal_rate_pct": 100.0, "is_cut_unlawful": true, "statutory_citations": ["§ 249 Abs. 2 S. 1 BGB", "BGH VI ZR 53/09 (VW-Urteil)", "BGH VI ZR 253/09", "BGH VI ZR 321/18", "BGH VI ZR 115/19"], "legal_reasoning_de": "Der Prüfbericht (ControlExpert GmbH) kürzt den Verrechnungssatz von 210.00 €/h (Lack: 235.00 €/h) auf 122.00 €/h (Lack: 135.00 €/h) unter Verweis auf 'Karosserie & Lackierzentrum Rhein-Ruhr GmbH' (24.8 km). Fahrzeugalter bei Unfall (28 Monate) <= 36 Monate (3 Jahre): Verweisung auf freie Werkstatt nach BGH VI ZR 53/09 ('VW-Urteil') & VI ZR 253/09 generell unzumutbar. Fahrzeug wurde durchgehend in einer markengebundenen Fachwerkstatt scheckheftgepflegt (BGH VI ZR 53/09; BGH VI ZR 321/18): Anspruch auf Markenwerkstatt-Stundenverrechnungssätze auch bei Fahrzeugen > 3 Jahre. Benannte Referenzwerkstatt liegt 24.8 km entfernt (> 20 km Zumutbarkeitsgrenze): Keine 'mühelos und ohne Weiteres zugängliche' Werkstatt (BGH VI ZR 160/08; OLG München). Stundenverrechnungssätze der Referenzwerkstatt beruhen auf vertraglichen Sonderkonditionen mit der Versicherungswirtschaft (Partnerwerkstatt) und stehen auf dem freien Markt nicht jedermann offen (BGH VI ZR 337/09)."}, {"position_code": "POS-02", "position_title": "UPE-Ersatzteilaufschlag (15% auf 2,850.00 € Ersatzteile)", "gutachten_eur": 427.5, "insurer_paid_eur": 0.0, "slashed_eur": 427.5, "recoverable_eur": 427.5, "reversal_rate_pct": 100.0, "is_cut_unlawful": true, "statutory_citations": ["BGH VI ZR 40/18", "BGH VI ZR 65/18", "OLG Düsseldorf, Urt. v. 16.06.2015 – I-1 U 151/14; BGH VI ZR 40/18"], "legal_reasoning_de": "Pauschale Streichung des regional üblichen UPE-Aufschlags (15%) im Bezirk des OLG Düsseldorf ist rechtswidrig. Nach BGH VI ZR 40/18 und VI ZR 65/18 sind UPE-Aufschläge auch bei fiktiver Abrechnung zu erstatten, wenn sie in regionalen markengebundenen Fachwerkstätten üblicherweise anfallen."}, {"position_code": "POS-03", "position_title": "Verbringungskosten zur Lackiererei", "gutachten_eur": 195.0, "insurer_paid_eur": 0.0, "slashed_eur": 195.0, "recoverable_eur": 195.0, "reversal_rate_pct": 100.0, "is_cut_unlawful": true, "statutory_citations": ["BGH VI ZR 40/18", "BGH VI ZR 65/18", "OLG Düsseldorf, Urt. v. 16.06.2015 – I-1 U 151/14; BGH VI ZR 40/18"], "legal_reasoning_de": "Verbringungskosten (195.00 €) sind im Bezirk OLG Düsseldorf auch bei fiktiver Abrechnung erstattungsfähig, da örtliche Markenwerkstätten regelmäßig über keine eigene Lackiererei verfügen und das Fahrzeug verbringen müssen."}, {"position_code": "POS-04", "position_title": "Beilackierungskosten / Farbtonangleichung angrenzender Bauteile", "gutachten_eur": 460.0, "insurer_paid_eur": 0.0, "slashed_eur": 460.0, "recoverable_eur": 460.0, "reversal_rate_pct": 100.0, "is_cut_unlawful": true, "statutory_citations": ["BGH VI ZR 396/18 (Urt. v. 17.09.2019)", "BGH VI ZR 494/18", "§ 287 ZPO"], "legal_reasoning_de": "Nach den Grundsatzurteilen des BGH vom 17.09.2019 (VI ZR 396/18 & VI ZR 494/18) sind Beilackierungskosten auch bei fiktiver Abrechnung erstattungsfähig, wenn nach dem Sachverständigengutachten eine überwiegende Wahrscheinlichkeit besteht, dass zur Vermeidung sichtbarer Farbtonunterschiede (Metallic-/Perleffektlack) angrenzende Karosserieteile beilackiert werden müssen."}, {"position_code": "POS-05", "position_title": "Systemdiagnose / Fehlerspeicher / ADAS-Kalibrierung / Probefahrt & Reinigung", "gutachten_eur": 240.0, "insurer_paid_eur": 65.0, "slashed_eur": 175.0, "recoverable_eur": 175.0, "reversal_rate_pct": 100.0, "is_cut_unlawful": true, "statutory_citations": ["§ 249 Abs. 2 S. 1 BGB", "BGH VI ZR 253/22 (Werkstattrisiko)", "Herstellervorgaben (OE-Reparaturleitfaden)"], "legal_reasoning_de": "Fehlerspeicherauslese, Sensor-/Kamera-Kalibrierung nach Herstellervorgabe sowie Funktionsprobefahrt sind zwingende Bestandteile einer sach- und fachgerechten Reparatur und dürfen nicht als 'Berechnungsposten der Grundarbeit' gestrichen werden."}, {"position_code": "POS-06", "position_title": "Merkantiler Minderwert (Wertminderung nach Ruhkopf/Sahm & BVSK)", "gutachten_eur": 1650.0, "insurer_paid_eur": 850.0, "slashed_eur": 800.0, "recoverable_eur": 800.0, "reversal_rate_pct": 100.0, "is_cut_unlawful": true, "statutory_citations": ["§ 251 Abs. 1 BGB", "BGH VI ZR 357/03", "Methode Ruhkopf/Sahm & BVSK-Minderwerttabelle"], "legal_reasoning_de": "Fahrzeug im 3. Zulassungsjahr (28 Mo., 34,200 km), Schadensquote 24.9% -> Ruhkopf/Sahm-Faktor X_r = 3% (MW = (36,500.00 € + 9,097.50 €) × 3% = 1,367.92 €). Der merkantile Minderwert ist eine unmittelbare Vermögenseinbuße (Offenbarungspflicht als Unfallwagen beim Weiterverkauf) und auch bei fiktiver Abrechnung ungekürzt und steuerneutral zu erstatten."}, {"position_code": "POS-07", "position_title": "Nutzungsausfallentschädigung (Sanden/Danner Gr. G: 59 €/Tag × 5 Tage)", "gutachten_eur": 295.0, "insurer_paid_eur": 150.0, "slashed_eur": 145.0, "recoverable_eur": 145.0, "reversal_rate_pct": 100.0, "is_cut_unlawful": true, "statutory_citations": ["§ 249 Abs. 2 S. 1 BGB", "BGH GSZ 1/86", "BGH VI ZR 248/07", "Tabelle Sanden/Danner/Küppersbusch"], "legal_reasoning_de": "Sanden/Danner/Küppersbusch Gruppe G (59 €/Tag × 5 Tage = 295.00 €) ohne Altersabstufung (Fahrzeug <= 5 Jahre; BGH GSZ 1/86)"}, {"position_code": "POS-08", "position_title": "Allgemeine Unkostenpauschale (OLG Düsseldorf)", "gutachten_eur": 25.0, "insurer_paid_eur": 20.0, "slashed_eur": 5.0, "recoverable_eur": 5.0, "reversal_rate_pct": 100.0, "is_cut_unlawful": true, "statutory_citations": ["§ 249 BGB", "§ 287 ZPO", "OLG Düsseldorf, Urt. v. 16.06.2015 – I-1 U 151/14; BGH VI ZR 40/18"], "legal_reasoning_de": "Im Bezirk des OLG Düsseldorf ist eine allgemeine Unkostenpauschale von 25.00 € ohne Einzelnachweis anerkannt."}], "total_gutachten_claim_eur": 11067.5, "total_insurer_paid_eur": 6784.0, "total_insurer_slashed_eur": 4283.5, "total_recoverable_nachforderung_eur": 4283.5, "overall_reversal_pct": 100.0, "rvg_lawyer_fee_recoverable_eur": 1054.1, "bagatellgrenze_exceeded": true, "nachforderungsschreiben_text": "An: HUK-COBURG Allgemeine Versicherung AG – Kraftfahrt-Haftpflichtschadenabteilung\nSchadennummer: HUK-98-2026-441820\nGeschädigtes Fahrzeug: BMW 320d Touring M-Sport (G21), amtl. Kennzeichen D-MW 3208\nUnfalldatum: 2026-09-20 | Gerichtsstand / OLG-Bezirk: OLG Düsseldorf\nAbrechnungsart: Fiktive Schadensabrechnung (§ 249 Abs. 2 S. 1 BGB)\n\nBETREFF: Zurückweisung Ihres Prüfberichts (ControlExpert GmbH) & Zahlungsaufforderung über 4,283.50 €\n\nSehr geehrte Damen und Herren,\n\nin vorbezeichneter Schadensangelegenheit weisen wir die auf Basis des automatisierten Prüfberichts der ControlExpert GmbH vorgenommenen Kürzungen in Höhe von insgesamt 4,283.50 € als mit der höchstrichterlichen Rechtsprechung des Bundesgerichtshofs (BGH, VI. Zivilsenat) unvereinbar zurück:\n\n1. Stundenverrechnungssätze (Mechanik/Karosserie & Lackierung) — Nachforderung: 2,076.00 € (Gutachten: 4,925.00 € | Reguliert: 2,849.00 €)\n   Rechtsgrundlage: § 249 Abs. 2 S. 1 BGB, BGH VI ZR 53/09 (VW-Urteil), BGH VI ZR 253/09, BGH VI ZR 321/18, BGH VI ZR 115/19\n   Begründung: Der Prüfbericht (ControlExpert GmbH) kürzt den Verrechnungssatz von 210.00 €/h (Lack: 235.00 €/h) auf 122.00 €/h (Lack: 135.00 €/h) unter Verweis auf 'Karosserie & Lackierzentrum Rhein-Ruhr GmbH' (24.8 km). Fahrzeugalter bei Unfall (28 Monate) <= 36 Monate (3 Jahre): Verweisung auf freie Werkstatt nach BGH VI ZR 53/09 ('VW-Urteil') & VI ZR 253/09 generell unzumutbar. Fahrzeug wurde durchgehend in einer markengebundenen Fachwerkstatt scheckheftgepflegt (BGH VI ZR 53/09; BGH VI ZR 321/18): Anspruch auf Markenwerkstatt-Stundenverrechnungssätze auch bei Fahrzeugen > 3 Jahre. Benannte Referenzwerkstatt liegt 24.8 km entfernt (> 20 km Zumutbarkeitsgrenze): Keine 'mühelos und ohne Weiteres zugängliche' Werkstatt (BGH VI ZR 160/08; OLG München). Stundenverrechnungssätze der Referenzwerkstatt beruhen auf vertraglichen Sonderkonditionen mit der Versicherungswirtschaft (Partnerwerkstatt) und stehen auf dem freien Markt nicht jedermann offen (BGH VI ZR 337/09).\n\n2. UPE-Ersatzteilaufschlag (15% auf 2,850.00 € Ersatzteile) — Nachforderung: 427.50 € (Gutachten: 427.50 € | Reguliert: 0.00 €)\n   Rechtsgrundlage: BGH VI ZR 40/18, BGH VI ZR 65/18, OLG Düsseldorf, Urt. v. 16.06.2015 – I-1 U 151/14; BGH VI ZR 40/18\n   Begründung: Pauschale Streichung des regional üblichen UPE-Aufschlags (15%) im Bezirk des OLG Düsseldorf ist rechtswidrig. Nach BGH VI ZR 40/18 und VI ZR 65/18 sind UPE-Aufschläge auch bei fiktiver Abrechnung zu erstatten, wenn sie in regionalen markengebundenen Fachwerkstätten üblicherweise anfallen.\n\n3. Verbringungskosten zur Lackiererei — Nachforderung: 195.00 € (Gutachten: 195.00 € | Reguliert: 0.00 €)\n   Rechtsgrundlage: BGH VI ZR 40/18, BGH VI ZR 65/18, OLG Düsseldorf, Urt. v. 16.06.2015 – I-1 U 151/14; BGH VI ZR 40/18\n   Begründung: Verbringungskosten (195.00 €) sind im Bezirk OLG Düsseldorf auch bei fiktiver Abrechnung erstattungsfähig, da örtliche Markenwerkstätten regelmäßig über keine eigene Lackiererei verfügen und das Fahrzeug verbringen müssen.\n\n4. Beilackierungskosten / Farbtonangleichung angrenzender Bauteile — Nachforderung: 460.00 € (Gutachten: 460.00 € | Reguliert: 0.00 €)\n   Rechtsgrundlage: BGH VI ZR 396/18 (Urt. v. 17.09.2019), BGH VI ZR 494/18, § 287 ZPO\n   Begründung: Nach den Grundsatzurteilen des BGH vom 17.09.2019 (VI ZR 396/18 & VI ZR 494/18) sind Beilackierungskosten auch bei fiktiver Abrechnung erstattungsfähig, wenn nach dem Sachverständigengutachten eine überwiegende Wahrscheinlichkeit besteht, dass zur Vermeidung sichtbarer Farbtonunterschiede (Metallic-/Perleffektlack) angrenzende Karosserieteile beilackiert werden müssen.\n\n5. Systemdiagnose / Fehlerspeicher / ADAS-Kalibrierung / Probefahrt & Reinigung — Nachforderung: 175.00 € (Gutachten: 240.00 € | Reguliert: 65.00 €)\n   Rechtsgrundlage: § 249 Abs. 2 S. 1 BGB, BGH VI ZR 253/22 (Werkstattrisiko), Herstellervorgaben (OE-Reparaturleitfaden)\n   Begründung: Fehlerspeicherauslese, Sensor-/Kamera-Kalibrierung nach Herstellervorgabe sowie Funktionsprobefahrt sind zwingende Bestandteile einer sach- und fachgerechten Reparatur und dürfen nicht als 'Berechnungsposten der Grundarbeit' gestrichen werden.\n\n6. Merkantiler Minderwert (Wertminderung nach Ruhkopf/Sahm & BVSK) — Nachforderung: 800.00 € (Gutachten: 1,650.00 € | Reguliert: 850.00 €)\n   Rechtsgrundlage: § 251 Abs. 1 BGB, BGH VI ZR 357/03, Methode Ruhkopf/Sahm & BVSK-Minderwerttabelle\n   Begründung: Fahrzeug im 3. Zulassungsjahr (28 Mo., 34,200 km), Schadensquote 24.9% -> Ruhkopf/Sahm-Faktor X_r = 3% (MW = (36,500.00 € + 9,097.50 €) × 3% = 1,367.92 €). Der merkantile Minderwert ist eine unmittelbare Vermögenseinbuße (Offenbarungspflicht als Unfallwagen beim Weiterverkauf) und auch bei fiktiver Abrechnung ungekürzt und steuerneutral zu erstatten.\n\n7. Nutzungsausfallentschädigung (Sanden/Danner Gr. G: 59 €/Tag × 5 Tage) — Nachforderung: 145.00 € (Gutachten: 295.00 € | Reguliert: 150.00 €)\n   Rechtsgrundlage: § 249 Abs. 2 S. 1 BGB, BGH GSZ 1/86, BGH VI ZR 248/07, Tabelle Sanden/Danner/Küppersbusch\n   Begründung: Sanden/Danner/Küppersbusch Gruppe G (59 €/Tag × 5 Tage = 295.00 €) ohne Altersabstufung (Fahrzeug <= 5 Jahre; BGH GSZ 1/86)\n\n8. Allgemeine Unkostenpauschale (OLG Düsseldorf) — Nachforderung: 5.00 € (Gutachten: 25.00 € | Reguliert: 20.00 €)\n   Rechtsgrundlage: § 249 BGB, § 287 ZPO, OLG Düsseldorf, Urt. v. 16.06.2015 – I-1 U 151/14; BGH VI ZR 40/18\n   Begründung: Im Bezirk des OLG Düsseldorf ist eine allgemeine Unkostenpauschale von 25.00 € ohne Einzelnachweis anerkannt.\n\nGESAMTNACHFORDERUNGSBETRAG: 4,283.50 €\n\nHinweis zur Kostentragungspflicht nach § 249 BGB (Rechtsanwalts- & Sachverständigenkosten):\nDa der Gesamtschaden oberhalb der Bagatellgrenze liegt, sind sowohl die Kosten der ergänzenden sachverständigen Stellungnahme als auch die gesetzlichen Rechtsanwaltsgebühren (Streitwert inkl. Nachforderung; 1,3 Geschäftsgebühr Nr. 2300 VV RVG = 1,054.10 € inkl. Auslagen & USt) vollumfänglich von Ihnen als eintrittspflichtigem Haftpflichtversicherer zu tragen.\n\nWir fordern Sie auf, den ausstehenden Differenzbetrag in Höhe von 4,283.50 € innerhalb von 10 Werktagen auf das bekannte Mandanten-/Geschädigtenkonto anzuweisen. Nach fruchtlosem Fristablauf wird ohne weitere Vorankündigung Klage erhoben (vgl. auch BGH VI ZR 115/19 zur Kostentragung nachträglicher Preissteigerungen bis zur letzten mündlichen Verhandlung).\n\nMit freundlichen Grüßen\nKfz-Sachverständigenbüro / Fachanwaltskanzlei für Verkehrsrecht"}, {"case_id": "DE-KFZ-2026-002", "insurer_name": "Allianz Versicherungs-AG", "pruefdienstleister": "DEKRA Claims Services / Carexpert", "claim_number": "ALZ-KH-2026-883109", "olg_district": "OLG München", "settlement_mode": "fiktiv", "vehicle_summary": "Mercedes-Benz E 300 de T-Modell AMG Line (M-MB 3009)", "vehicle_age_months": 54, "markenwerkstatt_entitled": true, "markenwerkstatt_reasons": ["Fahrzeug wurde durchgehend in einer markengebundenen Fachwerkstatt scheckheftgepflegt (BGH VI ZR 53/09; BGH VI ZR 321/18): Anspruch auf Markenwerkstatt-Stundenverrechnungssätze auch bei Fahrzeugen > 3 Jahre.", "Stundenverrechnungssätze der Referenzwerkstatt beruhen auf vertraglichen Sonderkonditionen mit der Versicherungswirtschaft (Partnerwerkstatt) und stehen auf dem freien Markt nicht jedermann offen (BGH VI ZR 337/09)."], "wertminderung": {"vehicle_age_months": 54, "zulassungsjahr_bucket": 5, "repair_cost_netto_eur": 7664.5, "wiederbeschaffungswert_netto_eur": 41000.0, "schadensquote_pct": 18.69, "ruhkopf_sahm_factor_xr": 3.0, "ruhkopf_sahm_eur": 1459.93, "bvsk_factor_pct": 5.5, "bvsk_eur": 421.55, "recommended_claim_eur": 1100.0, "eligible": true, "eligibility_reason_de": "Fahrzeug im 5. Zulassungsjahr (54 Mo., 58,400 km), Schadensquote 18.7% -> Ruhkopf/Sahm-Faktor X_r = 3% (MW = (41,000.00 € + 7,664.50 €) × 3% = 1,459.93 €)."}, "nutzungsausfall": {"base_group": "J", "vehicle_age_years": 4.5, "age_downgrade_steps": 0, "effective_group": "J", "daily_rate_eur": 79.0, "eligible_days": 4, "entitlement_eur": 316.0, "insurer_paid_eur": 130.0, "underpayment_eur": 186.0, "citation_de": "Sanden/Danner/Küppersbusch Gruppe J (79 €/Tag × 4 Tage = 316.00 €) ohne Altersabstufung (Fahrzeug <= 5 Jahre; BGH GSZ 1/86)"}, "line_audits": [{"position_code": "POS-01", "position_title": "Stundenverrechnungssätze (Mechanik/Karosserie & Lackierung)", "gutachten_eur": 4012.5, "insurer_paid_eur": 2414.0, "slashed_eur": 1598.5, "recoverable_eur": 1598.5, "reversal_rate_pct": 100.0, "is_cut_unlawful": true, "statutory_citations": ["§ 249 Abs. 2 S. 1 BGB", "BGH VI ZR 53/09 (VW-Urteil)", "BGH VI ZR 253/09", "BGH VI ZR 321/18", "BGH VI ZR 115/19"], "legal_reasoning_de": "Der Prüfbericht (DEKRA Claims Services / Carexpert) kürzt den Verrechnungssatz von 220.00 €/h (Lack: 245.00 €/h) auf 132.00 €/h (Lack: 148.00 €/h) unter Verweis auf 'Auto-Service Südost Freie Meisterwerkstatt' (16.2 km). Fahrzeug wurde durchgehend in einer markengebundenen Fachwerkstatt scheckheftgepflegt (BGH VI ZR 53/09; BGH VI ZR 321/18): Anspruch auf Markenwerkstatt-Stundenverrechnungssätze auch bei Fahrzeugen > 3 Jahre. Stundenverrechnungssätze der Referenzwerkstatt beruhen auf vertraglichen Sonderkonditionen mit der Versicherungswirtschaft (Partnerwerkstatt) und stehen auf dem freien Markt nicht jedermann offen (BGH VI ZR 337/09)."}, {"position_code": "POS-02", "position_title": "UPE-Ersatzteilaufschlag (18% auf 2,400.00 € Ersatzteile)", "gutachten_eur": 432.0, "insurer_paid_eur": 0.0, "slashed_eur": 432.0, "recoverable_eur": 432.0, "reversal_rate_pct": 100.0, "is_cut_unlawful": true, "statutory_citations": ["BGH VI ZR 40/18", "BGH VI ZR 65/18", "OLG München, Urt. v. 27.05.2016 – 10 U 579/15 (30 € Unkostenpauschale); BGH VI ZR 65/18"], "legal_reasoning_de": "Pauschale Streichung des regional üblichen UPE-Aufschlags (18%) im Bezirk des OLG München ist rechtswidrig. Nach BGH VI ZR 40/18 und VI ZR 65/18 sind UPE-Aufschläge auch bei fiktiver Abrechnung zu erstatten, wenn sie in regionalen markengebundenen Fachwerkstätten üblicherweise anfallen."}, {"position_code": "POS-03", "position_title": "Verbringungskosten zur Lackiererei", "gutachten_eur": 220.0, "insurer_paid_eur": 0.0, "slashed_eur": 220.0, "recoverable_eur": 220.0, "reversal_rate_pct": 100.0, "is_cut_unlawful": true, "statutory_citations": ["BGH VI ZR 40/18", "BGH VI ZR 65/18", "OLG München, Urt. v. 27.05.2016 – 10 U 579/15 (30 € Unkostenpauschale); BGH VI ZR 65/18"], "legal_reasoning_de": "Verbringungskosten (220.00 €) sind im Bezirk OLG München auch bei fiktiver Abrechnung erstattungsfähig, da örtliche Markenwerkstätten regelmäßig über keine eigene Lackiererei verfügen und das Fahrzeug verbringen müssen."}, {"position_code": "POS-04", "position_title": "Beilackierungskosten / Farbtonangleichung angrenzender Bauteile", "gutachten_eur": 390.0, "insurer_paid_eur": 0.0, "slashed_eur": 390.0, "recoverable_eur": 390.0, "reversal_rate_pct": 100.0, "is_cut_unlawful": true, "statutory_citations": ["BGH VI ZR 396/18 (Urt. v. 17.09.2019)", "BGH VI ZR 494/18", "§ 287 ZPO"], "legal_reasoning_de": "Nach den Grundsatzurteilen des BGH vom 17.09.2019 (VI ZR 396/18 & VI ZR 494/18) sind Beilackierungskosten auch bei fiktiver Abrechnung erstattungsfähig, wenn nach dem Sachverständigengutachten eine überwiegende Wahrscheinlichkeit besteht, dass zur Vermeidung sichtbarer Farbtonunterschiede (Metallic-/Perleffektlack) angrenzende Karosserieteile beilackiert werden müssen."}, {"position_code": "POS-05", "position_title": "Systemdiagnose / Fehlerspeicher / ADAS-Kalibrierung / Probefahrt & Reinigung", "gutachten_eur": 210.0, "insurer_paid_eur": 80.0, "slashed_eur": 130.0, "recoverable_eur": 130.0, "reversal_rate_pct": 100.0, "is_cut_unlawful": true, "statutory_citations": ["§ 249 Abs. 2 S. 1 BGB", "BGH VI ZR 253/22 (Werkstattrisiko)", "Herstellervorgaben (OE-Reparaturleitfaden)"], "legal_reasoning_de": "Fehlerspeicherauslese, Sensor-/Kamera-Kalibrierung nach Herstellervorgabe sowie Funktionsprobefahrt sind zwingende Bestandteile einer sach- und fachgerechten Reparatur und dürfen nicht als 'Berechnungsposten der Grundarbeit' gestrichen werden."}, {"position_code": "POS-06", "position_title": "Merkantiler Minderwert (Wertminderung nach Ruhkopf/Sahm & BVSK)", "gutachten_eur": 1250.0, "insurer_paid_eur": 600.0, "slashed_eur": 650.0, "recoverable_eur": 650.0, "reversal_rate_pct": 100.0, "is_cut_unlawful": true, "statutory_citations": ["§ 251 Abs. 1 BGB", "BGH VI ZR 357/03", "Methode Ruhkopf/Sahm & BVSK-Minderwerttabelle"], "legal_reasoning_de": "Fahrzeug im 5. Zulassungsjahr (54 Mo., 58,400 km), Schadensquote 18.7% -> Ruhkopf/Sahm-Faktor X_r = 3% (MW = (41,000.00 € + 7,664.50 €) × 3% = 1,459.93 €). Der merkantile Minderwert ist eine unmittelbare Vermögenseinbuße (Offenbarungspflicht als Unfallwagen beim Weiterverkauf) und auch bei fiktiver Abrechnung ungekürzt und steuerneutral zu erstatten."}, {"position_code": "POS-07", "position_title": "Nutzungsausfallentschädigung (Sanden/Danner Gr. J: 79 €/Tag × 4 Tage)", "gutachten_eur": 316.0, "insurer_paid_eur": 130.0, "slashed_eur": 186.0, "recoverable_eur": 186.0, "reversal_rate_pct": 100.0, "is_cut_unlawful": true, "statutory_citations": ["§ 249 Abs. 2 S. 1 BGB", "BGH GSZ 1/86", "BGH VI ZR 248/07", "Tabelle Sanden/Danner/Küppersbusch"], "legal_reasoning_de": "Sanden/Danner/Küppersbusch Gruppe J (79 €/Tag × 4 Tage = 316.00 €) ohne Altersabstufung (Fahrzeug <= 5 Jahre; BGH GSZ 1/86)"}, {"position_code": "POS-08", "position_title": "Allgemeine Unkostenpauschale (OLG München)", "gutachten_eur": 30.0, "insurer_paid_eur": 25.0, "slashed_eur": 5.0, "recoverable_eur": 5.0, "reversal_rate_pct": 100.0, "is_cut_unlawful": true, "statutory_citations": ["§ 249 BGB", "§ 287 ZPO", "OLG München, Urt. v. 27.05.2016 – 10 U 579/15 (30 € Unkostenpauschale); BGH VI ZR 65/18"], "legal_reasoning_de": "Im Bezirk des OLG München ist eine allgemeine Unkostenpauschale von 30.00 € ohne Einzelnachweis anerkannt."}], "total_gutachten_claim_eur": 9260.5, "total_insurer_paid_eur": 5649.0, "total_insurer_slashed_eur": 3611.5, "total_recoverable_nachforderung_eur": 3611.5, "overall_reversal_pct": 100.0, "rvg_lawyer_fee_recoverable_eur": 973.66, "bagatellgrenze_exceeded": true, "nachforderungsschreiben_text": "An: Allianz Versicherungs-AG – Kraftfahrt-Haftpflichtschadenabteilung\nSchadennummer: ALZ-KH-2026-883109\nGeschädigtes Fahrzeug: Mercedes-Benz E 300 de T-Modell AMG Line, amtl. Kennzeichen M-MB 3009\nUnfalldatum: 2026-09-12 | Gerichtsstand / OLG-Bezirk: OLG München\nAbrechnungsart: Fiktive Schadensabrechnung (§ 249 Abs. 2 S. 1 BGB)\n\nBETREFF: Zurückweisung Ihres Prüfberichts (DEKRA Claims Services / Carexpert) & Zahlungsaufforderung über 3,611.50 €\n\nSehr geehrte Damen und Herren,\n\nin vorbezeichneter Schadensangelegenheit weisen wir die auf Basis des automatisierten Prüfberichts der DEKRA Claims Services / Carexpert vorgenommenen Kürzungen in Höhe von insgesamt 3,611.50 € als mit der höchstrichterlichen Rechtsprechung des Bundesgerichtshofs (BGH, VI. Zivilsenat) unvereinbar zurück:\n\n1. Stundenverrechnungssätze (Mechanik/Karosserie & Lackierung) — Nachforderung: 1,598.50 € (Gutachten: 4,012.50 € | Reguliert: 2,414.00 €)\n   Rechtsgrundlage: § 249 Abs. 2 S. 1 BGB, BGH VI ZR 53/09 (VW-Urteil), BGH VI ZR 253/09, BGH VI ZR 321/18, BGH VI ZR 115/19\n   Begründung: Der Prüfbericht (DEKRA Claims Services / Carexpert) kürzt den Verrechnungssatz von 220.00 €/h (Lack: 245.00 €/h) auf 132.00 €/h (Lack: 148.00 €/h) unter Verweis auf 'Auto-Service Südost Freie Meisterwerkstatt' (16.2 km). Fahrzeug wurde durchgehend in einer markengebundenen Fachwerkstatt scheckheftgepflegt (BGH VI ZR 53/09; BGH VI ZR 321/18): Anspruch auf Markenwerkstatt-Stundenverrechnungssätze auch bei Fahrzeugen > 3 Jahre. Stundenverrechnungssätze der Referenzwerkstatt beruhen auf vertraglichen Sonderkonditionen mit der Versicherungswirtschaft (Partnerwerkstatt) und stehen auf dem freien Markt nicht jedermann offen (BGH VI ZR 337/09).\n\n2. UPE-Ersatzteilaufschlag (18% auf 2,400.00 € Ersatzteile) — Nachforderung: 432.00 € (Gutachten: 432.00 € | Reguliert: 0.00 €)\n   Rechtsgrundlage: BGH VI ZR 40/18, BGH VI ZR 65/18, OLG München, Urt. v. 27.05.2016 – 10 U 579/15 (30 € Unkostenpauschale); BGH VI ZR 65/18\n   Begründung: Pauschale Streichung des regional üblichen UPE-Aufschlags (18%) im Bezirk des OLG München ist rechtswidrig. Nach BGH VI ZR 40/18 und VI ZR 65/18 sind UPE-Aufschläge auch bei fiktiver Abrechnung zu erstatten, wenn sie in regionalen markengebundenen Fachwerkstätten üblicherweise anfallen.\n\n3. Verbringungskosten zur Lackiererei — Nachforderung: 220.00 € (Gutachten: 220.00 € | Reguliert: 0.00 €)\n   Rechtsgrundlage: BGH VI ZR 40/18, BGH VI ZR 65/18, OLG München, Urt. v. 27.05.2016 – 10 U 579/15 (30 € Unkostenpauschale); BGH VI ZR 65/18\n   Begründung: Verbringungskosten (220.00 €) sind im Bezirk OLG München auch bei fiktiver Abrechnung erstattungsfähig, da örtliche Markenwerkstätten regelmäßig über keine eigene Lackiererei verfügen und das Fahrzeug verbringen müssen.\n\n4. Beilackierungskosten / Farbtonangleichung angrenzender Bauteile — Nachforderung: 390.00 € (Gutachten: 390.00 € | Reguliert: 0.00 €)\n   Rechtsgrundlage: BGH VI ZR 396/18 (Urt. v. 17.09.2019), BGH VI ZR 494/18, § 287 ZPO\n   Begründung: Nach den Grundsatzurteilen des BGH vom 17.09.2019 (VI ZR 396/18 & VI ZR 494/18) sind Beilackierungskosten auch bei fiktiver Abrechnung erstattungsfähig, wenn nach dem Sachverständigengutachten eine überwiegende Wahrscheinlichkeit besteht, dass zur Vermeidung sichtbarer Farbtonunterschiede (Metallic-/Perleffektlack) angrenzende Karosserieteile beilackiert werden müssen.\n\n5. Systemdiagnose / Fehlerspeicher / ADAS-Kalibrierung / Probefahrt & Reinigung — Nachforderung: 130.00 € (Gutachten: 210.00 € | Reguliert: 80.00 €)\n   Rechtsgrundlage: § 249 Abs. 2 S. 1 BGB, BGH VI ZR 253/22 (Werkstattrisiko), Herstellervorgaben (OE-Reparaturleitfaden)\n   Begründung: Fehlerspeicherauslese, Sensor-/Kamera-Kalibrierung nach Herstellervorgabe sowie Funktionsprobefahrt sind zwingende Bestandteile einer sach- und fachgerechten Reparatur und dürfen nicht als 'Berechnungsposten der Grundarbeit' gestrichen werden.\n\n6. Merkantiler Minderwert (Wertminderung nach Ruhkopf/Sahm & BVSK) — Nachforderung: 650.00 € (Gutachten: 1,250.00 € | Reguliert: 600.00 €)\n   Rechtsgrundlage: § 251 Abs. 1 BGB, BGH VI ZR 357/03, Methode Ruhkopf/Sahm & BVSK-Minderwerttabelle\n   Begründung: Fahrzeug im 5. Zulassungsjahr (54 Mo., 58,400 km), Schadensquote 18.7% -> Ruhkopf/Sahm-Faktor X_r = 3% (MW = (41,000.00 € + 7,664.50 €) × 3% = 1,459.93 €). Der merkantile Minderwert ist eine unmittelbare Vermögenseinbuße (Offenbarungspflicht als Unfallwagen beim Weiterverkauf) und auch bei fiktiver Abrechnung ungekürzt und steuerneutral zu erstatten.\n\n7. Nutzungsausfallentschädigung (Sanden/Danner Gr. J: 79 €/Tag × 4 Tage) — Nachforderung: 186.00 € (Gutachten: 316.00 € | Reguliert: 130.00 €)\n   Rechtsgrundlage: § 249 Abs. 2 S. 1 BGB, BGH GSZ 1/86, BGH VI ZR 248/07, Tabelle Sanden/Danner/Küppersbusch\n   Begründung: Sanden/Danner/Küppersbusch Gruppe J (79 €/Tag × 4 Tage = 316.00 €) ohne Altersabstufung (Fahrzeug <= 5 Jahre; BGH GSZ 1/86)\n\n8. Allgemeine Unkostenpauschale (OLG München) — Nachforderung: 5.00 € (Gutachten: 30.00 € | Reguliert: 25.00 €)\n   Rechtsgrundlage: § 249 BGB, § 287 ZPO, OLG München, Urt. v. 27.05.2016 – 10 U 579/15 (30 € Unkostenpauschale); BGH VI ZR 65/18\n   Begründung: Im Bezirk des OLG München ist eine allgemeine Unkostenpauschale von 30.00 € ohne Einzelnachweis anerkannt.\n\nGESAMTNACHFORDERUNGSBETRAG: 3,611.50 €\n\nHinweis zur Kostentragungspflicht nach § 249 BGB (Rechtsanwalts- & Sachverständigenkosten):\nDa der Gesamtschaden oberhalb der Bagatellgrenze liegt, sind sowohl die Kosten der ergänzenden sachverständigen Stellungnahme als auch die gesetzlichen Rechtsanwaltsgebühren (Streitwert inkl. Nachforderung; 1,3 Geschäftsgebühr Nr. 2300 VV RVG = 973.66 € inkl. Auslagen & USt) vollumfänglich von Ihnen als eintrittspflichtigem Haftpflichtversicherer zu tragen.\n\nWir fordern Sie auf, den ausstehenden Differenzbetrag in Höhe von 3,611.50 € innerhalb von 10 Werktagen auf das bekannte Mandanten-/Geschädigtenkonto anzuweisen. Nach fruchtlosem Fristablauf wird ohne weitere Vorankündigung Klage erhoben (vgl. auch BGH VI ZR 115/19 zur Kostentragung nachträglicher Preissteigerungen bis zur letzten mündlichen Verhandlung).\n\nMit freundlichen Grüßen\nKfz-Sachverständigenbüro / Fachanwaltskanzlei für Verkehrsrecht"}, {"case_id": "DE-KFZ-2026-003", "insurer_name": "VHV Allgemeine Versicherung AG", "pruefdienstleister": "ControlExpert GmbH", "claim_number": "VHV-2026-7719402", "olg_district": "KG Berlin", "settlement_mode": "fiktiv", "vehicle_summary": "VW Golf VIII 1.5 eTSI Style (B-VW 8150)", "vehicle_age_months": 10, "markenwerkstatt_entitled": true, "markenwerkstatt_reasons": ["Fahrzeugalter bei Unfall (10 Monate) <= 36 Monate (3 Jahre): Verweisung auf freie Werkstatt nach BGH VI ZR 53/09 ('VW-Urteil') & VI ZR 253/09 generell unzumutbar.", "Fahrzeug wurde durchgehend in einer markengebundenen Fachwerkstatt scheckheftgepflegt (BGH VI ZR 53/09; BGH VI ZR 321/18): Anspruch auf Markenwerkstatt-Stundenverrechnungssätze auch bei Fahrzeugen > 3 Jahre.", "Benannte Referenzwerkstatt liegt 22.4 km entfernt (> 20 km Zumutbarkeitsgrenze): Keine 'mühelos und ohne Weiteres zugängliche' Werkstatt (BGH VI ZR 160/08; OLG München).", "Stundenverrechnungssätze der Referenzwerkstatt beruhen auf vertraglichen Sonderkonditionen mit der Versicherungswirtschaft (Partnerwerkstatt) und stehen auf dem freien Markt nicht jedermann offen (BGH VI ZR 337/09)."], "wertminderung": {"vehicle_age_months": 10, "zulassungsjahr_bucket": 1, "repair_cost_netto_eur": 5440.0, "wiederbeschaffungswert_netto_eur": 24800.0, "schadensquote_pct": 21.94, "ruhkopf_sahm_factor_xr": 5.0, "ruhkopf_sahm_eur": 1512.0, "bvsk_factor_pct": 15.4, "bvsk_eur": 837.76, "recommended_claim_eur": 1300.0, "eligible": true, "eligibility_reason_de": "Fahrzeug im 1. Zulassungsjahr (10 Mo., 11,900 km), Schadensquote 21.9% -> Ruhkopf/Sahm-Faktor X_r = 5% (MW = (24,800.00 € + 5,440.00 €) × 5% = 1,512.00 €)."}, "nutzungsausfall": {"base_group": "E", "vehicle_age_years": 0.83, "age_downgrade_steps": 0, "effective_group": "E", "daily_rate_eur": 43.0, "eligible_days": 4, "entitlement_eur": 172.0, "insurer_paid_eur": 114.0, "underpayment_eur": 58.0, "citation_de": "Sanden/Danner/Küppersbusch Gruppe E (43 €/Tag × 4 Tage = 172.00 €) ohne Altersabstufung (Fahrzeug <= 5 Jahre; BGH GSZ 1/86)"}, "line_audits": [{"position_code": "POS-01", "position_title": "Stundenverrechnungssätze (Mechanik/Karosserie & Lackierung)", "gutachten_eur": 2830.0, "insurer_paid_eur": 1660.0, "slashed_eur": 1170.0, "recoverable_eur": 1170.0, "reversal_rate_pct": 100.0, "is_cut_unlawful": true, "statutory_citations": ["§ 249 Abs. 2 S. 1 BGB", "BGH VI ZR 53/09 (VW-Urteil)", "BGH VI ZR 253/09", "BGH VI ZR 321/18", "BGH VI ZR 115/19"], "legal_reasoning_de": "Der Prüfbericht (ControlExpert GmbH) kürzt den Verrechnungssatz von 195.00 €/h (Lack: 215.00 €/h) auf 115.00 €/h (Lack: 125.00 €/h) unter Verweis auf 'Lack & Blech Spandau GmbH' (22.4 km). Fahrzeugalter bei Unfall (10 Monate) <= 36 Monate (3 Jahre): Verweisung auf freie Werkstatt nach BGH VI ZR 53/09 ('VW-Urteil') & VI ZR 253/09 generell unzumutbar. Fahrzeug wurde durchgehend in einer markengebundenen Fachwerkstatt scheckheftgepflegt (BGH VI ZR 53/09; BGH VI ZR 321/18): Anspruch auf Markenwerkstatt-Stundenverrechnungssätze auch bei Fahrzeugen > 3 Jahre. Benannte Referenzwerkstatt liegt 22.4 km entfernt (> 20 km Zumutbarkeitsgrenze): Keine 'mühelos und ohne Weiteres zugängliche' Werkstatt (BGH VI ZR 160/08; OLG München). Stundenverrechnungssätze der Referenzwerkstatt beruhen auf vertraglichen Sonderkonditionen mit der Versicherungswirtschaft (Partnerwerkstatt) und stehen auf dem freien Markt nicht jedermann offen (BGH VI ZR 337/09)."}, {"position_code": "POS-02", "position_title": "UPE-Ersatzteilaufschlag (12% auf 1,750.00 € Ersatzteile)", "gutachten_eur": 210.0, "insurer_paid_eur": 0.0, "slashed_eur": 210.0, "recoverable_eur": 210.0, "reversal_rate_pct": 100.0, "is_cut_unlawful": true, "statutory_citations": ["BGH VI ZR 40/18", "BGH VI ZR 65/18", "KG Berlin, Urt. v. 10.09.2015 – 22 U 18/14; BGH VI ZR 396/18"], "legal_reasoning_de": "Pauschale Streichung des regional üblichen UPE-Aufschlags (12%) im Bezirk des KG Berlin ist rechtswidrig. Nach BGH VI ZR 40/18 und VI ZR 65/18 sind UPE-Aufschläge auch bei fiktiver Abrechnung zu erstatten, wenn sie in regionalen markengebundenen Fachwerkstätten üblicherweise anfallen."}, {"position_code": "POS-03", "position_title": "Verbringungskosten zur Lackiererei", "gutachten_eur": 175.0, "insurer_paid_eur": 0.0, "slashed_eur": 175.0, "recoverable_eur": 175.0, "reversal_rate_pct": 100.0, "is_cut_unlawful": true, "statutory_citations": ["BGH VI ZR 40/18", "BGH VI ZR 65/18", "KG Berlin, Urt. v. 10.09.2015 – 22 U 18/14; BGH VI ZR 396/18"], "legal_reasoning_de": "Verbringungskosten (175.00 €) sind im Bezirk KG Berlin auch bei fiktiver Abrechnung erstattungsfähig, da örtliche Markenwerkstätten regelmäßig über keine eigene Lackiererei verfügen und das Fahrzeug verbringen müssen."}, {"position_code": "POS-04", "position_title": "Beilackierungskosten / Farbtonangleichung angrenzender Bauteile", "gutachten_eur": 310.0, "insurer_paid_eur": 0.0, "slashed_eur": 310.0, "recoverable_eur": 310.0, "reversal_rate_pct": 100.0, "is_cut_unlawful": true, "statutory_citations": ["BGH VI ZR 396/18 (Urt. v. 17.09.2019)", "BGH VI ZR 494/18", "§ 287 ZPO"], "legal_reasoning_de": "Nach den Grundsatzurteilen des BGH vom 17.09.2019 (VI ZR 396/18 & VI ZR 494/18) sind Beilackierungskosten auch bei fiktiver Abrechnung erstattungsfähig, wenn nach dem Sachverständigengutachten eine überwiegende Wahrscheinlichkeit besteht, dass zur Vermeidung sichtbarer Farbtonunterschiede (Metallic-/Perleffektlack) angrenzende Karosserieteile beilackiert werden müssen."}, {"position_code": "POS-05", "position_title": "Systemdiagnose / Fehlerspeicher / ADAS-Kalibrierung / Probefahrt & Reinigung", "gutachten_eur": 165.0, "insurer_paid_eur": 45.0, "slashed_eur": 120.0, "recoverable_eur": 120.0, "reversal_rate_pct": 100.0, "is_cut_unlawful": true, "statutory_citations": ["§ 249 Abs. 2 S. 1 BGB", "BGH VI ZR 253/22 (Werkstattrisiko)", "Herstellervorgaben (OE-Reparaturleitfaden)"], "legal_reasoning_de": "Fehlerspeicherauslese, Sensor-/Kamera-Kalibrierung nach Herstellervorgabe sowie Funktionsprobefahrt sind zwingende Bestandteile einer sach- und fachgerechten Reparatur und dürfen nicht als 'Berechnungsposten der Grundarbeit' gestrichen werden."}, {"position_code": "POS-06", "position_title": "Merkantiler Minderwert (Wertminderung nach Ruhkopf/Sahm & BVSK)", "gutachten_eur": 1400.0, "insurer_paid_eur": 700.0, "slashed_eur": 700.0, "recoverable_eur": 700.0, "reversal_rate_pct": 100.0, "is_cut_unlawful": true, "statutory_citations": ["§ 251 Abs. 1 BGB", "BGH VI ZR 357/03", "Methode Ruhkopf/Sahm & BVSK-Minderwerttabelle"], "legal_reasoning_de": "Fahrzeug im 1. Zulassungsjahr (10 Mo., 11,900 km), Schadensquote 21.9% -> Ruhkopf/Sahm-Faktor X_r = 5% (MW = (24,800.00 € + 5,440.00 €) × 5% = 1,512.00 €). Der merkantile Minderwert ist eine unmittelbare Vermögenseinbuße (Offenbarungspflicht als Unfallwagen beim Weiterverkauf) und auch bei fiktiver Abrechnung ungekürzt und steuerneutral zu erstatten."}, {"position_code": "POS-07", "position_title": "Nutzungsausfallentschädigung (Sanden/Danner Gr. E: 43 €/Tag × 4 Tage)", "gutachten_eur": 172.0, "insurer_paid_eur": 114.0, "slashed_eur": 58.0, "recoverable_eur": 58.0, "reversal_rate_pct": 100.0, "is_cut_unlawful": true, "statutory_citations": ["§ 249 Abs. 2 S. 1 BGB", "BGH GSZ 1/86", "BGH VI ZR 248/07", "Tabelle Sanden/Danner/Küppersbusch"], "legal_reasoning_de": "Sanden/Danner/Küppersbusch Gruppe E (43 €/Tag × 4 Tage = 172.00 €) ohne Altersabstufung (Fahrzeug <= 5 Jahre; BGH GSZ 1/86)"}, {"position_code": "POS-08", "position_title": "Allgemeine Unkostenpauschale (KG Berlin)", "gutachten_eur": 25.0, "insurer_paid_eur": 20.0, "slashed_eur": 5.0, "recoverable_eur": 5.0, "reversal_rate_pct": 100.0, "is_cut_unlawful": true, "statutory_citations": ["§ 249 BGB", "§ 287 ZPO", "KG Berlin, Urt. v. 10.09.2015 – 22 U 18/14; BGH VI ZR 396/18"], "legal_reasoning_de": "Im Bezirk des KG Berlin ist eine allgemeine Unkostenpauschale von 25.00 € ohne Einzelnachweis anerkannt."}], "total_gutachten_claim_eur": 7037.0, "total_insurer_paid_eur": 4289.0, "total_insurer_slashed_eur": 2748.0, "total_recoverable_nachforderung_eur": 2748.0, "overall_reversal_pct": 100.0, "rvg_lawyer_fee_recoverable_eur": 800.39, "bagatellgrenze_exceeded": true, "nachforderungsschreiben_text": "An: VHV Allgemeine Versicherung AG – Kraftfahrt-Haftpflichtschadenabteilung\nSchadennummer: VHV-2026-7719402\nGeschädigtes Fahrzeug: VW Golf VIII 1.5 eTSI Style, amtl. Kennzeichen B-VW 8150\nUnfalldatum: 2026-09-25 | Gerichtsstand / OLG-Bezirk: KG Berlin\nAbrechnungsart: Fiktive Schadensabrechnung (§ 249 Abs. 2 S. 1 BGB)\n\nBETREFF: Zurückweisung Ihres Prüfberichts (ControlExpert GmbH) & Zahlungsaufforderung über 2,748.00 €\n\nSehr geehrte Damen und Herren,\n\nin vorbezeichneter Schadensangelegenheit weisen wir die auf Basis des automatisierten Prüfberichts der ControlExpert GmbH vorgenommenen Kürzungen in Höhe von insgesamt 2,748.00 € als mit der höchstrichterlichen Rechtsprechung des Bundesgerichtshofs (BGH, VI. Zivilsenat) unvereinbar zurück:\n\n1. Stundenverrechnungssätze (Mechanik/Karosserie & Lackierung) — Nachforderung: 1,170.00 € (Gutachten: 2,830.00 € | Reguliert: 1,660.00 €)\n   Rechtsgrundlage: § 249 Abs. 2 S. 1 BGB, BGH VI ZR 53/09 (VW-Urteil), BGH VI ZR 253/09, BGH VI ZR 321/18, BGH VI ZR 115/19\n   Begründung: Der Prüfbericht (ControlExpert GmbH) kürzt den Verrechnungssatz von 195.00 €/h (Lack: 215.00 €/h) auf 115.00 €/h (Lack: 125.00 €/h) unter Verweis auf 'Lack & Blech Spandau GmbH' (22.4 km). Fahrzeugalter bei Unfall (10 Monate) <= 36 Monate (3 Jahre): Verweisung auf freie Werkstatt nach BGH VI ZR 53/09 ('VW-Urteil') & VI ZR 253/09 generell unzumutbar. Fahrzeug wurde durchgehend in einer markengebundenen Fachwerkstatt scheckheftgepflegt (BGH VI ZR 53/09; BGH VI ZR 321/18): Anspruch auf Markenwerkstatt-Stundenverrechnungssätze auch bei Fahrzeugen > 3 Jahre. Benannte Referenzwerkstatt liegt 22.4 km entfernt (> 20 km Zumutbarkeitsgrenze): Keine 'mühelos und ohne Weiteres zugängliche' Werkstatt (BGH VI ZR 160/08; OLG München). Stundenverrechnungssätze der Referenzwerkstatt beruhen auf vertraglichen Sonderkonditionen mit der Versicherungswirtschaft (Partnerwerkstatt) und stehen auf dem freien Markt nicht jedermann offen (BGH VI ZR 337/09).\n\n2. UPE-Ersatzteilaufschlag (12% auf 1,750.00 € Ersatzteile) — Nachforderung: 210.00 € (Gutachten: 210.00 € | Reguliert: 0.00 €)\n   Rechtsgrundlage: BGH VI ZR 40/18, BGH VI ZR 65/18, KG Berlin, Urt. v. 10.09.2015 – 22 U 18/14; BGH VI ZR 396/18\n   Begründung: Pauschale Streichung des regional üblichen UPE-Aufschlags (12%) im Bezirk des KG Berlin ist rechtswidrig. Nach BGH VI ZR 40/18 und VI ZR 65/18 sind UPE-Aufschläge auch bei fiktiver Abrechnung zu erstatten, wenn sie in regionalen markengebundenen Fachwerkstätten üblicherweise anfallen.\n\n3. Verbringungskosten zur Lackiererei — Nachforderung: 175.00 € (Gutachten: 175.00 € | Reguliert: 0.00 €)\n   Rechtsgrundlage: BGH VI ZR 40/18, BGH VI ZR 65/18, KG Berlin, Urt. v. 10.09.2015 – 22 U 18/14; BGH VI ZR 396/18\n   Begründung: Verbringungskosten (175.00 €) sind im Bezirk KG Berlin auch bei fiktiver Abrechnung erstattungsfähig, da örtliche Markenwerkstätten regelmäßig über keine eigene Lackiererei verfügen und das Fahrzeug verbringen müssen.\n\n4. Beilackierungskosten / Farbtonangleichung angrenzender Bauteile — Nachforderung: 310.00 € (Gutachten: 310.00 € | Reguliert: 0.00 €)\n   Rechtsgrundlage: BGH VI ZR 396/18 (Urt. v. 17.09.2019), BGH VI ZR 494/18, § 287 ZPO\n   Begründung: Nach den Grundsatzurteilen des BGH vom 17.09.2019 (VI ZR 396/18 & VI ZR 494/18) sind Beilackierungskosten auch bei fiktiver Abrechnung erstattungsfähig, wenn nach dem Sachverständigengutachten eine überwiegende Wahrscheinlichkeit besteht, dass zur Vermeidung sichtbarer Farbtonunterschiede (Metallic-/Perleffektlack) angrenzende Karosserieteile beilackiert werden müssen.\n\n5. Systemdiagnose / Fehlerspeicher / ADAS-Kalibrierung / Probefahrt & Reinigung — Nachforderung: 120.00 € (Gutachten: 165.00 € | Reguliert: 45.00 €)\n   Rechtsgrundlage: § 249 Abs. 2 S. 1 BGB, BGH VI ZR 253/22 (Werkstattrisiko), Herstellervorgaben (OE-Reparaturleitfaden)\n   Begründung: Fehlerspeicherauslese, Sensor-/Kamera-Kalibrierung nach Herstellervorgabe sowie Funktionsprobefahrt sind zwingende Bestandteile einer sach- und fachgerechten Reparatur und dürfen nicht als 'Berechnungsposten der Grundarbeit' gestrichen werden.\n\n6. Merkantiler Minderwert (Wertminderung nach Ruhkopf/Sahm & BVSK) — Nachforderung: 700.00 € (Gutachten: 1,400.00 € | Reguliert: 700.00 €)\n   Rechtsgrundlage: § 251 Abs. 1 BGB, BGH VI ZR 357/03, Methode Ruhkopf/Sahm & BVSK-Minderwerttabelle\n   Begründung: Fahrzeug im 1. Zulassungsjahr (10 Mo., 11,900 km), Schadensquote 21.9% -> Ruhkopf/Sahm-Faktor X_r = 5% (MW = (24,800.00 € + 5,440.00 €) × 5% = 1,512.00 €). Der merkantile Minderwert ist eine unmittelbare Vermögenseinbuße (Offenbarungspflicht als Unfallwagen beim Weiterverkauf) und auch bei fiktiver Abrechnung ungekürzt und steuerneutral zu erstatten.\n\n7. Nutzungsausfallentschädigung (Sanden/Danner Gr. E: 43 €/Tag × 4 Tage) — Nachforderung: 58.00 € (Gutachten: 172.00 € | Reguliert: 114.00 €)\n   Rechtsgrundlage: § 249 Abs. 2 S. 1 BGB, BGH GSZ 1/86, BGH VI ZR 248/07, Tabelle Sanden/Danner/Küppersbusch\n   Begründung: Sanden/Danner/Küppersbusch Gruppe E (43 €/Tag × 4 Tage = 172.00 €) ohne Altersabstufung (Fahrzeug <= 5 Jahre; BGH GSZ 1/86)\n\n8. Allgemeine Unkostenpauschale (KG Berlin) — Nachforderung: 5.00 € (Gutachten: 25.00 € | Reguliert: 20.00 €)\n   Rechtsgrundlage: § 249 BGB, § 287 ZPO, KG Berlin, Urt. v. 10.09.2015 – 22 U 18/14; BGH VI ZR 396/18\n   Begründung: Im Bezirk des KG Berlin ist eine allgemeine Unkostenpauschale von 25.00 € ohne Einzelnachweis anerkannt.\n\nGESAMTNACHFORDERUNGSBETRAG: 2,748.00 €\n\nHinweis zur Kostentragungspflicht nach § 249 BGB (Rechtsanwalts- & Sachverständigenkosten):\nDa der Gesamtschaden oberhalb der Bagatellgrenze liegt, sind sowohl die Kosten der ergänzenden sachverständigen Stellungnahme als auch die gesetzlichen Rechtsanwaltsgebühren (Streitwert inkl. Nachforderung; 1,3 Geschäftsgebühr Nr. 2300 VV RVG = 800.39 € inkl. Auslagen & USt) vollumfänglich von Ihnen als eintrittspflichtigem Haftpflichtversicherer zu tragen.\n\nWir fordern Sie auf, den ausstehenden Differenzbetrag in Höhe von 2,748.00 € innerhalb von 10 Werktagen auf das bekannte Mandanten-/Geschädigtenkonto anzuweisen. Nach fruchtlosem Fristablauf wird ohne weitere Vorankündigung Klage erhoben (vgl. auch BGH VI ZR 115/19 zur Kostentragung nachträglicher Preissteigerungen bis zur letzten mündlichen Verhandlung).\n\nMit freundlichen Grüßen\nKfz-Sachverständigenbüro / Fachanwaltskanzlei für Verkehrsrecht"}];
+const SANDEN = {"A": {"rate_eur": 23.0, "class_name": "Kleinstwagen", "examples": "Fiat Panda, Smart Fortwo, Renault Twingo, VW up!"}, "B": {"rate_eur": 29.0, "class_name": "Kleinwagen Basis", "examples": "Opel Corsa, Dacia Sandero, Hyundai i10"}, "C": {"rate_eur": 35.0, "class_name": "Kleinwagen / Kompaktbasis", "examples": "VW Polo, Ford Fiesta, Seat Ibiza"}, "D": {"rate_eur": 38.0, "class_name": "Untere Mittelklasse Basis", "examples": "Skoda Fabia Combi, VW Golf Basis, Mazda 2"}, "E": {"rate_eur": 43.0, "class_name": "Kompaktklasse", "examples": "VW Golf 1.5 TSI, Opel Astra, Ford Focus, Audi A3 Basis"}, "F": {"rate_eur": 50.0, "class_name": "Mittelklasse", "examples": "VW Passat, Skoda Octavia RS, Audi A4 Basis, Tiguan"}, "G": {"rate_eur": 59.0, "class_name": "Gehobene Mittelklasse", "examples": "BMW 320d/330i, Mercedes C 220d, Audi A4 Avant quattro"}, "H": {"rate_eur": 65.0, "class_name": "Obere Mittelklasse Basis", "examples": "Audi A6 40 TDI, BMW 520d, Volvo XC60, VW Touareg Basis"}, "J": {"rate_eur": 79.0, "class_name": "Obere Mittelklasse / Oberklasse-SUV", "examples": "BMW 540i xDrive, Mercedes E 300de, Audi Q7, Taycan Basis"}, "K": {"rate_eur": 119.0, "class_name": "Oberklasse", "examples": "Mercedes S 400d/500, BMW 740d, Audi A8, Porsche Cayenne S"}, "L": {"rate_eur": 175.0, "class_name": "Luxusklasse / Sportwagen", "examples": "Porsche 911 Carrera/GT3, Mercedes-AMG GT, Bentley Continental"}};
+const OLGS = {"OLG Düsseldorf": {"upe_fiktiv_recoverable": true, "verbringung_fiktiv_recoverable": true, "unkostenpauschale_eur": 25.0, "citation": "OLG Düsseldorf, Urt. v. 16.06.2015 – I-1 U 151/14; BGH VI ZR 40/18", "notes": "UPE-Aufschläge und Verbringungskosten bei fiktiver Abrechnung erstattungsfähig, wenn regional in Markenwerkstätten üblich."}, "OLG München": {"upe_fiktiv_recoverable": true, "verbringung_fiktiv_recoverable": true, "unkostenpauschale_eur": 30.0, "citation": "OLG München, Urt. v. 27.05.2016 – 10 U 579/15 (30 € Unkostenpauschale); BGH VI ZR 65/18", "notes": "OLG München erkennt 30,00 € allgemeine Unkostenpauschale sowie regional übliche UPE-/Verbringungskosten an."}, "OLG Hamm": {"upe_fiktiv_recoverable": true, "verbringung_fiktiv_recoverable": true, "unkostenpauschale_eur": 25.0, "citation": "OLG Hamm, Urt. v. 30.10.2012 – I-9 U 5/12; BGH VI ZR 40/18", "notes": "Erstattungsfähigkeit regional üblicher UPE-Aufschläge und Verbringungskosten bei fiktiver Abrechnung."}, "KG Berlin": {"upe_fiktiv_recoverable": true, "verbringung_fiktiv_recoverable": true, "unkostenpauschale_eur": 25.0, "citation": "KG Berlin, Urt. v. 10.09.2015 – 22 U 18/14; BGH VI ZR 396/18", "notes": "UPE-Aufschläge, Verbringungskosten und Beilackierungskosten bei regionaler Üblichkeit voll erstattungsfähig."}, "OLG Frankfurt": {"upe_fiktiv_recoverable": true, "verbringung_fiktiv_recoverable": true, "unkostenpauschale_eur": 25.0, "citation": "OLG Frankfurt a.M., Urt. v. 21.04.2016 – 22 U 28/14; BGH VI ZR 65/18", "notes": "Volle Erstattung regional üblicher UPE-Aufschläge und Lackierverbringungskosten bei fiktiver Abrechnung."}, "OLG Stuttgart": {"upe_fiktiv_recoverable": true, "verbringung_fiktiv_recoverable": true, "unkostenpauschale_eur": 25.0, "citation": "OLG Stuttgart, Urt. v. 18.02.2015 – 3 U 118/14; BGH VI ZR 40/18", "notes": "Regionale Markenwerkstatt-Üblichkeit begründet Erstattungspflicht nach § 249 Abs. 2 S. 1 BGB."}};
+const GROUP_ORDER = ["A","B","C","D","E","F","G","H","J","K","L"];
+
+function fmtEur(v) {
+  return v.toLocaleString("de-DE", {minimumFractionDigits: 2, maximumFractionDigits: 2}) + " €";
+}
+
+function init() {
+  const presetSel = document.getElementById("casePreset");
+  CASES.forEach((c, idx) => {
+    const opt = document.createElement("option");
+    opt.value = idx;
+    opt.textContent = c.case_id + " · " + c.insurer_name.split(" ")[0] + " · " + c.vehicle.make_model;
+    presetSel.appendChild(opt);
+  });
+
+  const olgSel = document.getElementById("inpOlg");
+  Object.keys(OLGS).forEach(k => {
+    const opt = document.createElement("option");
+    opt.value = k;
+    opt.textContent = k;
+    olgSel.appendChild(opt);
+  });
+
+  const grpSel = document.getElementById("inpGroup");
+  GROUP_ORDER.forEach(g => {
+    const opt = document.createElement("option");
+    opt.value = g;
+    opt.textContent = "Gruppe " + g + " (" + SANDEN[g].rate_eur + " €/Tag · " + SANDEN[g].class_name + ")";
+    grpSel.appendChild(opt);
+  });
+
+  loadPreset(0);
+}
+
+let currentCaseIdx = 0;
+
+function loadPreset(idx) {
+  currentCaseIdx = Number(idx);
+  const c = CASES[currentCaseIdx];
+  const r = REPORTS[currentCaseIdx];
+  document.getElementById("inpModel").value = c.vehicle.make_model;
+  document.getElementById("inpOlg").value = c.olg_district;
+  document.getElementById("inpAgeMonths").value = r.vehicle_age_months;
+  document.getElementById("inpMileage").value = c.vehicle.mileage_km;
+  document.getElementById("inpScheckheft").value = c.vehicle.scheckheft_markenwerkstatt ? "1" : "0";
+  document.getElementById("inpRefDist").value = c.reference_workshop_distance_km;
+  document.getElementById("inpWbw").value = c.vehicle.wiederbeschaffungswert_netto_eur;
+  document.getElementById("inpGroup").value = c.vehicle.sanden_danner_base_group;
+
+  document.getElementById("inpLaborHours").value = c.labor_hours_mechanik_karosserie;
+  document.getElementById("inpPaintHours").value = c.paint_hours_lackierung;
+  document.getElementById("inpGutLaborRate").value = c.gutachten_labor_rate_eur;
+  document.getElementById("inpInsLaborRate").value = c.insurer_labor_rate_eur;
+  document.getElementById("inpGutPaintRate").value = c.gutachten_paint_rate_eur;
+  document.getElementById("inpInsPaintRate").value = c.insurer_paint_rate_eur;
+  document.getElementById("inpPartsBase").value = c.spare_parts_base_eur;
+  document.getElementById("inpUpePct").value = c.gutachten_upe_percent;
+  document.getElementById("inpGutVerb").value = c.gutachten_verbringung_eur;
+  document.getElementById("inpInsVerb").value = c.insurer_verbringung_eur;
+  document.getElementById("inpGutBeilack").value = c.gutachten_beilackierung_eur;
+  document.getElementById("inpInsBeilack").value = c.insurer_beilackierung_eur;
+  document.getElementById("inpNaDays").value = c.repair_duration_days;
+  document.getElementById("inpInsNaEur").value = c.insurer_paid_nutzungsausfall_eur;
+
+  recalc();
+}
+
+function recalc() {
+  const c = CASES[currentCaseIdx];
+  const model = document.getElementById("inpModel").value;
+  const olg = document.getElementById("inpOlg").value;
+  const ageMo = Number(document.getElementById("inpAgeMonths").value) || 0;
+  const mileage = Number(document.getElementById("inpMileage").value) || 0;
+  const scheckheft = document.getElementById("inpScheckheft").value === "1";
+  const refDist = Number(document.getElementById("inpRefDist").value) || 0;
+  const wbw = Number(document.getElementById("inpWbw").value) || 0;
+  const baseGrp = document.getElementById("inpGroup").value;
+
+  const laborH = Number(document.getElementById("inpLaborHours").value) || 0;
+  const paintH = Number(document.getElementById("inpPaintHours").value) || 0;
+  const gutLaborR = Number(document.getElementById("inpGutLaborRate").value) || 0;
+  const insLaborR = Number(document.getElementById("inpInsLaborRate").value) || 0;
+  const gutPaintR = Number(document.getElementById("inpGutPaintRate").value) || 0;
+  const insPaintR = Number(document.getElementById("inpInsPaintRate").value) || 0;
+  const partsBase = Number(document.getElementById("inpPartsBase").value) || 0;
+  const upePct = Number(document.getElementById("inpUpePct").value) || 0;
+  const gutVerb = Number(document.getElementById("inpGutVerb").value) || 0;
+  const insVerb = Number(document.getElementById("inpInsVerb").value) || 0;
+  const gutBeilack = Number(document.getElementById("inpGutBeilack").value) || 0;
+  const insBeilack = Number(document.getElementById("inpInsBeilack").value) || 0;
+  const naDays = Number(document.getElementById("inpNaDays").value) || 0;
+  const insNaEur = Number(document.getElementById("inpInsNaEur").value) || 0;
+
+  const mwEntitled = (ageMo <= 36) || scheckheft || (refDist > 20.0);
+  const gutLabor = laborH * gutLaborR + paintH * gutPaintR;
+  const insLabor = laborH * insLaborR + paintH * insPaintR;
+  const recLabor = mwEntitled ? Math.max(0, gutLabor - insLabor) : 0;
+
+  const gutUpe = partsBase * (upePct / 100.0);
+  const recUpe = mwEntitled ? gutUpe : 0;
+  const recVerb = Math.max(0, gutVerb - insVerb);
+  const recBeilack = Math.max(0, gutBeilack - insBeilack);
+  const gutNeben = c.gutachten_nebenpositionen_eur;
+  const insNeben = c.insurer_nebenpositionen_eur;
+  const recNeben = Math.max(0, gutNeben - insNeben);
+
+  const totalRepairNetto = gutLabor + partsBase + gutUpe + gutVerb + gutBeilack + gutNeben;
+  const quote = wbw > 0 ? (totalRepairNetto / wbw) * 100.0 : 0;
+  let xr = 0;
+  if (ageMo <= 60 && mileage <= 100000 && quote >= 10) {
+    const row = ageMo <= 12 ? [5,6,7] : (ageMo <= 24 ? [4,5,6] : [3,4,5]);
+    xr = quote <= 30 ? row[0] : (quote <= 60 ? row[1] : row[2]);
+  }
+  const rsEur = ((wbw + totalRepairNetto) * xr) / 100.0;
+  const gutWm = Math.max(c.gutachten_wertminderung_eur, Math.round(rsEur / 50) * 50);
+  const insWm = c.insurer_wertminderung_eur;
+  const recWm = xr > 0 ? Math.max(0, gutWm - insWm) : 0;
+
+  const down = ageMo > 120 ? 2 : (ageMo > 60 ? 1 : 0);
+  const effIdx = Math.max(0, GROUP_ORDER.indexOf(baseGrp) - down);
+  const effGrp = GROUP_ORDER[effIdx];
+  const dailyRate = SANDEN[effGrp].rate_eur;
+  const gutNa = dailyRate * naDays;
+  const recNa = Math.max(0, gutNa - insNaEur);
+
+  const olgPausch = OLGS[olg].unkostenpauschale_eur;
+  const insPausch = c.insurer_unkostenpauschale_eur;
+  const recPausch = Math.max(0, olgPausch - insPausch);
+
+  const rows = [
+    ["Stundenverrechnungssätze (Mechanik & Lack)", gutLabor, insLabor, recLabor, "BGH VI ZR 53/09 · VI ZR 253/09"],
+    ["UPE-Ersatzteilaufschlag (" + upePct + "%)", gutUpe, 0, recUpe, "BGH VI ZR 40/18 · " + olg],
+    ["Verbringungskosten Lackiererei", gutVerb, insVerb, recVerb, "BGH VI ZR 65/18 · " + olg],
+    ["Beilackierung / Farbtonangleichung", gutBeilack, insBeilack, recBeilack, "BGH VI ZR 396/18 · § 287 ZPO"],
+    ["Diagnose / ADAS-Kalibrierung / Reinigung", gutNeben, insNeben, recNeben, "§ 249 Abs. 2 BGB · BGH VI ZR 253/22"],
+    ["Merkantiler Minderwert (Ruhkopf/Sahm X_r=" + xr + "%)", gutWm, insWm, recWm, "§ 251 Abs. 1 BGB · Ruhkopf/Sahm"],
+    ["Nutzungsausfall (Sanden/Danner Gr. " + effGrp + " · " + dailyRate + " €/T)", gutNa, insNaEur, recNa, "BGH GSZ 1/86 · VI ZR 248/07"],
+    ["Allgemeine Unkostenpauschale", olgPausch, insPausch, recPausch, olg + " · § 287 ZPO"]
+  ];
+
+  const tbody = document.getElementById("auditTableBody");
+  tbody.innerHTML = "";
+  let sumGut = partsBase, sumIns = partsBase, sumRec = 0;
+  rows.forEach(r => {
+    sumGut += r[1];
+    sumIns += r[2];
+    sumRec += r[3];
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td><strong>${r[0]}</strong></td>
+      <td class="num">${fmtEur(r[1])}</td>
+      <td class="num">${fmtEur(r[2])}</td>
+      <td class="num"><span class="pill-ok">+ ${fmtEur(r[3])}</span></td>
+      <td style="font-size:12px;color:var(--muted);">${r[4]}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  const sumSlash = Math.max(0, sumGut - sumIns);
+  document.getElementById("kpiGutachten").textContent = fmtEur(sumGut);
+  document.getElementById("kpiSlashed").textContent = "- " + fmtEur(sumSlash);
+  document.getElementById("kpiRecoverable").textContent = "+ " + fmtEur(sumRec);
+  document.getElementById("kpiVehicleSub").textContent = model + " (" + ageMo + " Mo. · " + mileage.toLocaleString("de-DE") + " km)";
+  document.getElementById("kpiPrueferSub").textContent = c.pruefdienstleister + " · " + c.insurer_name;
+  document.getElementById("kpiReversalSub").textContent = "Durchsetzungsquote: " + (sumSlash > 0 ? ((sumRec/sumSlash)*100).toFixed(1) : "100.0") + "%";
+  document.getElementById("kpiRvg").textContent = fmtEur(REPORTS[currentCaseIdx].rvg_lawyer_fee_recoverable_eur);
+
+  document.getElementById("letterOutput").value =
+    `An: ${c.insurer_name} — Schadennummer: ${c.claim_number}\n` +
+    `Fahrzeug: ${model} | Gerichtsstand: ${olg}\n` +
+    `BETREFF: Zurückweisung Ihres Prüfberichts (${c.pruefdienstleister}) & Nachforderung über ${fmtEur(sumRec)}\n\n` +
+    rows.filter(r => r[3] > 0).map((r, i) =>
+      `${i+1}. ${r[0]}: Nachforderung ${fmtEur(r[3])} (Gutachten ${fmtEur(r[1])} vs. reguliert ${fmtEur(r[2])}) — Rechtsgrundlage: ${r[4]}`
+    ).join("\n") +
+    `\n\nGESAMTNACHFORDERUNG: ${fmtEur(sumRec)}\n` +
+    `Fristsetzung: 10 Werktage nach § 249 Abs. 2 S. 1 BGB (inkl. Hinweis auf BGH VI ZR 115/19 zu Preissteigerungen).`;
+}
+
+function copyLetter() {
+  const el = document.getElementById("letterOutput");
+  el.select();
+  document.execCommand("copy");
+}
+
+window.addEventListener("DOMContentLoaded", init);
+</script>
+</body>
+</html>

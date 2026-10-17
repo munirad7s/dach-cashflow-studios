@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MVP #114 — DACH Hotel OTA-Provisions-Retter & Direktbuchungs-Arbitrage Studio</title>
+<style>
+  :root {
+    --bg: #0b1020;
+    --panel: #131b33;
+    --panel-alt: #182342;
+    --border: #263663;
+    --text: #eef2ff;
+    --muted: #9fb0d8;
+    --accent: #38bdf8;
+    --emerald: #10b981;
+    --amber: #f59e0b;
+    --rose: #f43f5e;
+    --indigo: #818cf8;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: radial-gradient(circle at top right, #172554 0%, var(--bg) 60%);
+    color: var(--text);
+    line-height: 1.55;
+    padding: 24px;
+  }
+  .container { max-width: 1440px; margin: 0 auto; }
+  .header {
+    background: linear-gradient(135deg, rgba(19,27,51,0.95), rgba(24,35,66,0.95));
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px;
+    margin-bottom: 24px;
+    box-shadow: 0 20px 45px rgba(0,0,0,0.45);
+  }
+  .badge-row { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 14px; }
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 5px 12px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+  }
+  .badge-legal { background: rgba(16,185,129,0.18); color: #34d399; border: 1px solid rgba(16,185,129,0.4); }
+  .badge-apify { background: rgba(56,189,248,0.18); color: #7dd3fc; border: 1px solid rgba(56,189,248,0.4); }
+  .badge-danger { background: rgba(244,63,94,0.18); color: #fda4af; border: 1px solid rgba(244,63,94,0.4); }
+  h1 { font-size: 28px; font-weight: 800; margin-bottom: 10px; color: #fff; }
+  .subtitle { color: var(--muted); font-size: 15px; max-width: 1120px; }
+
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .kpi-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+  }
+  .kpi-label { font-size: 12px; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+  .kpi-val { font-size: 28px; font-weight: 800; margin: 6px 0; }
+  .kpi-sub { font-size: 12px; color: var(--muted); }
+
+  .main-grid {
+    display: grid;
+    grid-template-columns: 1.25fr 1fr;
+    gap: 24px;
+    margin-bottom: 24px;
+  }
+  @media (max-width: 1100px) {
+    .main-grid { grid-template-columns: 1fr; }
+  }
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+  }
+  .card h2 { font-size: 18px; font-weight: 700; margin-bottom: 14px; color: #fff; display: flex; align-items: center; justify-content: space-between; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { padding: 11px 10px; text-align: left; border-bottom: 1px solid rgba(38,54,99,0.65); }
+  th { color: var(--muted); font-weight: 600; text-transform: uppercase; font-size: 11px; }
+  tr.hotel-row { cursor: pointer; transition: background 0.15s; }
+  tr.hotel-row:hover { background: rgba(56,189,248,0.1); }
+  tr.hotel-row.active { background: rgba(56,189,248,0.18); border-left: 3px solid var(--accent); }
+
+  .pill-leak {
+    background: rgba(244,63,94,0.2);
+    color: #fda4af;
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-weight: 700;
+    font-size: 11px;
+  }
+  .pill-win {
+    background: rgba(16,185,129,0.2);
+    color: #6ee7b7;
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-weight: 700;
+    font-size: 11px;
+  }
+
+  .sim-group { margin-bottom: 14px; }
+  .sim-group label { display: flex; justify-content: space-between; font-size: 13px; font-weight: 600; margin-bottom: 5px; color: var(--muted); }
+  .sim-group input[type=range] { width: 100%; accent-color: var(--accent); cursor: pointer; }
+  .sim-compare {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-top: 16px;
+  }
+  .sim-box {
+    background: var(--panel-alt);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+  }
+  .sim-box.bad { border-color: rgba(244,63,94,0.5); }
+  .sim-box.good { border-color: rgba(16,185,129,0.5); }
+  .sim-box h3 { font-size: 13px; text-transform: uppercase; margin-bottom: 8px; }
+
+  .leak-list { list-style: none; margin: 14px 0; }
+  .leak-list li {
+    background: rgba(244,63,94,0.1);
+    border-left: 3px solid var(--rose);
+    padding: 9px 12px;
+    border-radius: 6px;
+    margin-bottom: 8px;
+    font-size: 13px;
+  }
+  textarea.pitch-box {
+    width: 100%;
+    height: 225px;
+    background: #080d1a;
+    color: #e2e8f0;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+    font-family: 'JetBrains Mono', Consolas, monospace;
+    font-size: 12.5px;
+    line-height: 1.5;
+    resize: vertical;
+  }
+  .btn {
+    background: var(--accent);
+    color: #0b1020;
+    border: none;
+    padding: 9px 16px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+  }
+  .btn:hover { opacity: 0.92; }
+  .legal-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+    gap: 16px;
+    margin-top: 20px;
+  }
+  .legal-card {
+    background: var(--panel-alt);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+  }
+</style>
+</head>
+<body>
+
+<!-- DACH CASHFLOW STUDIOS LAUNCH BAR -->
+<style>
+  #dcs-launch-bar {
+    position: sticky;
+    top: 0;
+    z-index: 99999;
+    background: linear-gradient(90deg, #0b1120 0%, #111827 50%, #0f172a 100%);
+    color: #f8fafc;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.35);
+    padding: 8px 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  }
+  #dcs-launch-bar .dcs-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+  }
+  #dcs-launch-bar .dcs-badge {
+    background: rgba(16, 185, 129, 0.18);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.03em;
+  }
+  #dcs-launch-bar a.dcs-nav {
+    color: #93c5fd;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 12.5px;
+  }
+  #dcs-launch-bar a.dcs-nav:hover {
+    text-decoration: underline;
+    color: #dbeafe;
+  }
+  #dcs-launch-bar .dcs-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  #dcs-launch-bar .dcs-btn {
+    padding: 5px 11px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s ease;
+  }
+  #dcs-launch-bar .dcs-btn-ghost {
+    background: rgba(255,255,255,0.08);
+    color: #e2e8f0;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  #dcs-launch-bar .dcs-btn-primary {
+    background: linear-gradient(135deg, #0ea5e9, #2563eb);
+    color: #ffffff;
+  }
+  #dcs-launch-bar .dcs-btn-emerald {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
+  }
+  @media print {
+    #dcs-launch-bar { display: none !important; }
+  }
+</style>
+<div id="dcs-launch-bar">
+  <div class="dcs-left">
+    <a href="/index.html" class="dcs-nav">← Alle 150 DACH Studios</a>
+    <span class="dcs-badge">MVP #114 VERIFIED</span>
+    <span style="color:#cbd5e1;font-size:12px;">B2B SaaS, Lead-Intent Sniper & AI/MCP Infrastructure</span>
+  </div>
+  <div class="dcs-actions">
+    <button onclick="window.print()" class="dcs-btn dcs-btn-ghost">🖨️ PDF / Dossier drucken</button>
+    <a href="#checkout-modal-49" target="_blank" rel="noopener" class="dcs-btn dcs-btn-primary">⚡ Musterschreiben & Voll-Dossier (€49)</a>
+    <a href="#checkout-modal-299" target="_blank" rel="noopener" class="dcs-btn dcs-btn-emerald">🛡️ B2B Umsetzung buchen (€299 / €1.490)</a>
+  </div>
+</div>
+
+<div class="container">
+  <div class="header">
+    <div class="badge-row">
+      <span class="badge badge-legal">BGH KVR 54/20 &amp; EuGH C-264/23 Verified</span>
+      <span class="badge badge-legal">Art. 5 Abs. 3 EU DMA Gatekeeper Rule</span>
+      <span class="badge badge-apify">voyager/booking-scraper (2,068 MAU · 4.92M Runs)</span>
+      <span class="badge badge-apify">voyager/booking-reviews-scraper (748 MAU · 3.03M Runs)</span>
+      <span class="badge badge-danger">Reverse-Parity &amp; 15%–25% OTA Fee Auditor</span>
+    </div>
+    <h1>MVP #114 — DACH Hotel OTA-Provisions-Retter &amp; Direktbuchungs-Arbitrage Studio</h1>
+    <p class="subtitle">
+      Automatisiertes Preisparitäts-, Genius/Mobile-Stacking- &amp; OTA-Provisions-Audit für unabhängige DACH-Hotels, Aparthotels &amp; Ferienwohnungs-Verwaltungen.
+      Nutzt den Wegfall der Booking.com-Bestpreisklausel (<strong>BGH KVR 54/20</strong>, <strong>EuGH C-264/23</strong>, <strong>Art. 5 Abs. 3 DMA</strong>), um Direktbuchungen um 8%–12% günstiger anzubieten und gleichzeitig die Netto-Marge pro Zimmernacht um +6% bis +11% zu steigern.
+    </p>
+  </div>
+
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-label">Geprüftes DACH-Portfolio (6 Betriebe)</div>
+      <div class="kpi-val" style="color: var(--rose);">1,565,712 €</div>
+      <div class="kpi-sub">Jährlicher Booking.com / OTA Provisions-Abfluss (Ø 18.7% Fee)</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Reverse-Parity-Verstöße erkannt</div>
+      <div class="kpi-val" style="color: var(--amber);">6 / 6 Hotels</div>
+      <div class="kpi-sub">Hotel-Website ist TEURER als Booking.com Genius + Mobile Stacking!</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Rückholbarer Netto-Hotelgewinn / Jahr</div>
+      <div class="kpi-val" style="color: var(--emerald);">+941,576 €</div>
+      <div class="kpi-sub">Ø +156,929 €/Jahr Zusatz-Nettoertrag pro Hotel</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Apify Scraping Unit-Economics</div>
+      <div class="kpi-val" style="color: var(--accent);">$0.00125 – $0.005</div>
+      <div class="kpi-sub">pro Hotel-Audit via <code>voyager/booking-scraper</code> (99,9% SaaS Bruttomarge)</div>
+    </div>
+  </div>
+
+  <div class="main-grid">
+    <div class="card">
+      <h2>
+        <span>1. DACH Hotel &amp; FeWo Reverse-Parity Audit-Matrix</span>
+        <span style="font-size:12px; color:var(--muted);">Klick auf ein Hotel lädt Live-Simulator &amp; Pitch</span>
+      </h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Hotel / Betrieb</th>
+            <th>Zimmer</th>
+            <th>Website Direkt</th>
+            <th>Booking Mobile+Genius</th>
+            <th>Reverse-Parity Leck</th>
+            <th>OTA-Bleed / Jahr</th>
+            <th>Netto-Recovery / Jahr</th>
+          </tr>
+        </thead>
+        <tbody id="hotelTableBody"></tbody>
+      </table>
+
+      <h2 style="margin-top: 24px;"><span>2. Erkannte Umsatz- &amp; Paritäts-Lecks im gewählten Betrieb</span></h2>
+      <ul class="leak-list" id="leakList"></ul>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:16px; margin-bottom:8px;">
+        <span style="font-size:13px; font-weight:700; color:var(--muted);">Generierter Cold-Audit-Pitch (WhatsApp / E-Mail / Loom-Skript):</span>
+        <button class="btn" onclick="copyPitch()">Pitch kopieren</button>
+      </div>
+      <textarea id="pitchBox" class="pitch-box" readonly></textarea>
+    </div>
+
+    <div class="card">
+      <h2><span>3. Interaktiver BGH KVR 54/20 Direktbuchungs-Preis-Split Simulator</span></h2>
+      <p style="font-size:13px; color:var(--muted); margin-bottom:16px;">
+        Simuliere live für <strong id="simHotelName" style="color:#fff;"></strong>, wie sich das Abschalten von Genius+Mobile-Stacking und ein offizieller Direktbucher-Vorteilsrabatt (8%–12% unter Booking-BAR) auf Gast-Ersparnis und Hotel-Netto-Auszahlung auswirken:
+      </p>
+
+      <div class="sim-group">
+        <label><span>Zimmer / Einheiten &amp; Auslastung</span><span id="lblRoomsOcc"></span></label>
+        <input type="range" id="rngRooms" min="10" max="120" step="1" oninput="recalcSim()">
+      </div>
+      <div class="sim-group">
+        <label><span>Öffentlicher OTA Base-BAR Preis (€/Nacht)</span><span id="lblBar"></span></label>
+        <input type="range" id="rngBar" min="90" max="450" step="5" oninput="recalcSim()">
+      </div>
+      <div class="sim-group">
+        <label><span>Aktuelle Booking.com Gesamt-Provision (inkl. Preferred &amp; Payment)</span><span id="lblComm"></span></label>
+        <input type="range" id="rngComm" min="15" max="25" step="0.5" oninput="recalcSim()">
+      </div>
+      <div class="sim-group">
+        <label><span>Direktbucher-Rabatt auf eigener Website vs. OTA-BAR (Art. 5 Abs. 3 DMA)</span><span id="lblDirectDisc"></span></label>
+        <input type="range" id="rngDirectDisc" min="5" max="15" step="0.5" oninput="recalcSim()">
+      </div>
+      <div class="sim-group">
+        <label><span>Verlagerte OTA-Buchungen zu Direkt (Website + Google Free Links + Stammgäste)</span><span id="lblShift"></span></label>
+        <input type="range" id="rngShift" min="15" max="60" step="1" oninput="recalcSim()">
+      </div>
+
+      <div class="sim-compare">
+        <div class="sim-box bad">
+          <h3 style="color:var(--rose);">Status Quo (Booking Genius+Mobile Stacking)</h3>
+          <div style="font-size:13px; color:var(--muted);">Gast zahlt auf Booking Mobile:</div>
+          <div id="simOtaGuestPrice" style="font-size:22px; font-weight:800; margin-bottom:8px;"></div>
+          <div style="font-size:13px; color:var(--muted);">Abzgl. OTA-Provision pro Nacht:</div>
+          <div id="simOtaFeeNight" style="font-size:16px; font-weight:700; color:var(--rose); margin-bottom:8px;"></div>
+          <div style="font-size:13px; color:var(--muted);">Netto-Verbleib beim Hotel / Nacht:</div>
+          <div id="simOtaNetNight" style="font-size:22px; font-weight:800; color:#fda4af;"></div>
+        </div>
+
+        <div class="sim-box good">
+          <h3 style="color:var(--emerald);">Direktbuchungs-Split (BGH KVR 54/20)</h3>
+          <div style="font-size:13px; color:var(--muted);">Gast zahlt Direkt (VIP-Bestpreis):</div>
+          <div id="simDirectGuestPrice" style="font-size:22px; font-weight:800; margin-bottom:8px;"></div>
+          <div style="font-size:13px; color:var(--muted);">Gast spart gegenüber OTA-BAR:</div>
+          <div id="simGuestSavings" style="font-size:16px; font-weight:700; color:var(--accent); margin-bottom:8px;"></div>
+          <div style="font-size:13px; color:var(--muted);">Netto-Verbleib beim Hotel (nach 2,2% Stripe):</div>
+          <div id="simDirectNetNight" style="font-size:22px; font-weight:800; color:#6ee7b7;"></div>
+        </div>
+      </div>
+
+      <div style="margin-top:16px; background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.4); border-radius:12px; padding:16px;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <div style="font-size:12px; text-transform:uppercase; color:#6ee7b7; font-weight:700;">Netto-Mehrertrag pro verlagerter Nacht</div>
+            <div id="simGainPerNight" style="font-size:24px; font-weight:800; color:#fff;"></div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:12px; text-transform:uppercase; color:#6ee7b7; font-weight:700;">Jährlicher Netto-Gewinn-Turbo (inkl. Stammgäste)</div>
+            <div id="simAnnualRecovery" style="font-size:26px; font-weight:800; color:var(--emerald);"></div>
+          </div>
+        </div>
+        <div id="simRetainerRoi" style="font-size:12.5px; color:var(--muted); margin-top:8px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2><span>4. Juristisches Fundament (Kartellrecht &amp; EU Digital Markets Act) + Apify Live-Daten</span></h2>
+    <div class="legal-grid">
+      
+      <div class="legal-card">
+        <div style="font-size:12px; font-weight:700; color:var(--emerald); margin-bottom:4px;">BGH KVR 54/20 · 18.05.2021</div>
+        <div style="font-size:15px; font-weight:700; color:#fff; margin-bottom:6px;">Bundesgerichtshof (Kartellsenat)</div>
+        <p style="font-size:13px; color:var(--muted); margin-bottom:8px;">Enge Bestpreisklauseln von Booking.com verstoßen gegen Art. 101 Abs. 1 AEUV / § 1 GWB und sind keine notwendigen Nebenabreden (ancillary restraints).</p>
+        <p style="font-size:12.5px; color:#bae6fd;"><strong>Praxis-Hebel:</strong> Deutsche Hotels & Ferienwohnungs-Betreiber dürfen auf ihrer eigenen Website, per Telefon, E-Mail & WhatsApp jederzeit günstigere Zimmerpreise als auf Booking.com anbieten.</p>
+      </div>
+      
+      <div class="legal-card">
+        <div style="font-size:12px; font-weight:700; color:var(--emerald); margin-bottom:4px;">EuGH C-264/23 · 19.09.2024</div>
+        <div style="font-size:15px; font-weight:700; color:#fff; margin-bottom:6px;">Gerichtshof der Europäischen Union (EuGH)</div>
+        <p style="font-size:13px; color:var(--muted); margin-bottom:8px;">Sowohl weite als auch enge Bestpreisklauseln von Hotelbuchungsplattformen sind keine kartellrechtsfreien Nebenabreden i.S.v. Art. 101 Abs. 1 AEUV.</p>
+        <p style="font-size:12.5px; color:#bae6fd;"><strong>Praxis-Hebel:</strong> EU-weite Nichtigkeit aller historischen & aktuellen Paritätsklauseln; tausende DACH-Hotels machen zusätzlich rückwirkende Kartell-Schadensersatzansprüche geltend.</p>
+      </div>
+      
+      <div class="legal-card">
+        <div style="font-size:12px; font-weight:700; color:var(--emerald); margin-bottom:4px;">Art. 5 Abs. 3 DMA (VO (EU) 2022/1925) · 13.05.2024 / Compliance ab 14.11.2024</div>
+        <div style="font-size:15px; font-weight:700; color:#fff; margin-bottom:6px;">EU-Kommission (Digital Markets Act Gatekeeper Designation)</div>
+        <p style="font-size:13px; color:var(--muted); margin-bottom:8px;">Booking Holdings Inc. ist offizieller DMA-Gatekeeper; Art. 5 Abs. 3 DMA verbietet Gatekeepern strikt jegliche Preis- oder Konditionenparitätsklauseln.</p>
+        <p style="font-size:12.5px; color:#bae6fd;"><strong>Praxis-Hebel:</strong> Booking.com darf Hotels weder vertraglich noch technisch (Algorithmus-Strafen bei Direktpreis-Unterbietung im zulässigen Rahmen) daran hindern, Direktbuchern 8%–15% Rabatt + Gratis-Extras zu gewähren.</p>
+      </div>
+      
+    </div>
+  </div>
+</div>
+
+<script>
+const HOTELS = [{"property_id": "DE-MUC-01", "name": "Boutique Hotel Viktualienhof München", "city_region": "München-Altstadt", "country": "DE", "property_type": "Boutique-Hotel", "units_or_rooms": 42, "annual_booked_nights": 11651, "ota_booked_nights": 7457, "base_bar_rate_eur": 210.0, "direct_website_rate_eur": 199.0, "effective_booking_genius_mobile_rate_eur": 160.65, "reverse_parity_gap_eur": 38.35, "reverse_parity_violation": true, "ota_commission_pct": 18.5, "ota_commission_per_night_eur": 32.92, "hotel_net_after_ota_eur": 145.0, "recommended_ota_bar_rate_eur": 210.0, "recommended_direct_vip_rate_eur": 189.0, "guest_direct_savings_per_night_eur": 21.0, "hotel_direct_net_after_ibe_fee_eur": 184.84, "hotel_net_gain_per_shifted_night_eur": 39.84, "hotel_net_margin_uplift_pct": 27.5, "annual_ota_commission_bleed_eur": 245484.44, "shifted_nights_per_year": 2535, "annual_commission_saved_eur": 100994.4, "annual_google_free_links_bonus_eur": 23784.48, "annual_repeat_guest_inlay_bonus_eur": 26303.08, "total_annual_net_profit_recovery_eur": 151081.96, "recommended_saas_retainer_monthly_eur": 299, "hotel_roi_multiple": 42.1, "leakage_severity_score": 99, "detected_leaks": ["REVERSE-PARITY-FEHLER: Eigene Website (199 €) ist um +38.35 €/Nacht TEURER als Booking.com Mobile+Genius-Rate (160.65 €)!", "GENIUS+MOBILE-STACKING AKTIV: Genius (-15%) + Mobile (-10%) addieren sich unbemerkt und drücken den Netto-Auszahlbetrag auf 145.00 €/Nacht.", "GOOGLE HOTEL FREE BOOKING LINKS FEHLEN: Booking.com kauft Ihren eigenen Hotelnamen auf Google Maps/Search ein, weil kein 0%-Direktbuchungs-Feed geschaltet ist.", "UNBEANTWORTETE KRITISCHE BEWERTUNGEN: 19 Bewertungen (≤7.0) ohne Direkt-Antwort kosten ~4,2% Conversion-Rate."], "cold_pitch_subject": "Preis-Leck bei Boutique Hotel Viktualienhof München: Booking.com unterbietet Ihre eigene Website aktuell um 38.35 €/Nacht", "cold_pitch_message": "Hallo Team vom Boutique Hotel Viktualienhof München,\n\nbei unserem automatisierten Direktbuchungs-Audit für München-Altstadt ist uns eine kritische Tarif-Anomalie aufgefallen:\n• Ihre eigene Website zeigt aktuell 199.00 €/Nacht.\n• Auf Booking.com (Genius -15% + Mobile -10% Stacking) buchen Gäste dasselbe Zimmer für 160.65 € – und Sie zahlen darauf zusätzlich 18.5% Provision (Netto-Erlös nur 145.00 €).\n\nSeit dem BGH-Urteil (KVR 54/20), dem EuGH-Urteil (C-264/23) und Art. 5 Abs. 3 DMA sind sämtliche Bestpreisklauseln von Booking.com zu 100 % nichtig.\nWenn Sie das versehentliche Rate-Stacking stoppen und Direktbuchern auf Ihrer Website & Google Free Booking Links 189.00 € (-10% unter OTA-BAR) anbieten, spart der Gast 21.00 €/Nacht und Ihr Netto-Erlös steigt sofort um +39.84 €/Nacht (+27.5%).\n\nHochgerechnet auf Ihre ~7,457 OTA-Nächte/Jahr entspricht das einem rückholbaren Netto-Mehrertrag von 151,082 €/Jahr.\nSollen wir Ihnen den vollständigen 1-Seiten-Prüfbericht für Boutique Hotel Viktualienhof München kostenfrei zusenden?"}, {"property_id": "DE-GAP-02", "name": "Alpen-Chalet & Spa Zugspitzblick", "city_region": "Garmisch-Partenkirchen", "country": "DE", "property_type": "Alpen-Wellnesshotel", "units_or_rooms": 58, "annual_booked_nights": 15242, "ota_booked_nights": 8840, "base_bar_rate_eur": 265.0, "direct_website_rate_eur": 255.0, "effective_booking_genius_mobile_rate_eur": 202.72, "reverse_parity_gap_eur": 52.28, "reverse_parity_violation": true, "ota_commission_pct": 19.8, "ota_commission_per_night_eur": 44.45, "hotel_net_after_ota_eur": 180.07, "recommended_ota_bar_rate_eur": 265.0, "recommended_direct_vip_rate_eur": 238.5, "guest_direct_savings_per_night_eur": 26.5, "hotel_direct_net_after_ibe_fee_eur": 233.25, "hotel_net_gain_per_shifted_night_eur": 53.18, "hotel_net_margin_uplift_pct": 29.5, "annual_ota_commission_bleed_eur": 392938.0, "shifted_nights_per_year": 3094, "annual_commission_saved_eur": 164538.92, "annual_google_free_links_bonus_eur": 37598.26, "annual_repeat_guest_inlay_bonus_eur": 54104.54, "total_annual_net_profit_recovery_eur": 256241.72, "recommended_saas_retainer_monthly_eur": 399, "hotel_roi_multiple": 53.5, "leakage_severity_score": 99, "detected_leaks": ["REVERSE-PARITY-FEHLER: Eigene Website (255 €) ist um +52.28 €/Nacht TEURER als Booking.com Mobile+Genius-Rate (202.72 €)!", "GENIUS+MOBILE-STACKING AKTIV: Genius (-15%) + Mobile (-10%) addieren sich unbemerkt und drücken den Netto-Auszahlbetrag auf 180.07 €/Nacht.", "GOOGLE HOTEL FREE BOOKING LINKS FEHLEN: Booking.com kauft Ihren eigenen Hotelnamen auf Google Maps/Search ein, weil kein 0%-Direktbuchungs-Feed geschaltet ist.", "UNBEANTWORTETE KRITISCHE BEWERTUNGEN: 11 Bewertungen (≤7.0) ohne Direkt-Antwort kosten ~4,2% Conversion-Rate."], "cold_pitch_subject": "Preis-Leck bei Alpen-Chalet & Spa Zugspitzblick: Booking.com unterbietet Ihre eigene Website aktuell um 52.28 €/Nacht", "cold_pitch_message": "Hallo Team vom Alpen-Chalet & Spa Zugspitzblick,\n\nbei unserem automatisierten Direktbuchungs-Audit für Garmisch-Partenkirchen ist uns eine kritische Tarif-Anomalie aufgefallen:\n• Ihre eigene Website zeigt aktuell 255.00 €/Nacht.\n• Auf Booking.com (Genius -15% + Mobile -10% Stacking) buchen Gäste dasselbe Zimmer für 202.72 € – und Sie zahlen darauf zusätzlich 19.8% Provision (Netto-Erlös nur 180.07 €).\n\nSeit dem BGH-Urteil (KVR 54/20), dem EuGH-Urteil (C-264/23) und Art. 5 Abs. 3 DMA sind sämtliche Bestpreisklauseln von Booking.com zu 100 % nichtig.\nWenn Sie das versehentliche Rate-Stacking stoppen und Direktbuchern auf Ihrer Website & Google Free Booking Links 238.50 € (-10% unter OTA-BAR) anbieten, spart der Gast 26.50 €/Nacht und Ihr Netto-Erlös steigt sofort um +53.18 €/Nacht (+29.5%).\n\nHochgerechnet auf Ihre ~8,840 OTA-Nächte/Jahr entspricht das einem rückholbaren Netto-Mehrertrag von 256,242 €/Jahr.\nSollen wir Ihnen den vollständigen 1-Seiten-Prüfbericht für Alpen-Chalet & Spa Zugspitzblick kostenfrei zusenden?"}, {"property_id": "DE-SYL-03", "name": "Sylt Nordsee-Appartements & Dünen-Suiten (38 FeWos)", "city_region": "Westerland / Sylt", "country": "DE", "property_type": "FeWo-Verwaltung (Multi-Host)", "units_or_rooms": 38, "annual_booked_nights": 9432, "ota_booked_nights": 6319, "base_bar_rate_eur": 240.0, "direct_website_rate_eur": 235.0, "effective_booking_genius_mobile_rate_eur": 194.4, "reverse_parity_gap_eur": 40.6, "reverse_parity_violation": true, "ota_commission_pct": 17.5, "ota_commission_per_night_eur": 36.81, "hotel_net_after_ota_eur": 173.55, "recommended_ota_bar_rate_eur": 240.0, "recommended_direct_vip_rate_eur": 213.6, "guest_direct_savings_per_night_eur": 26.4, "hotel_direct_net_after_ibe_fee_eur": 208.9, "hotel_net_gain_per_shifted_night_eur": 35.35, "hotel_net_margin_uplift_pct": 20.4, "annual_ota_commission_bleed_eur": 232602.39, "shifted_nights_per_year": 2401, "annual_commission_saved_eur": 84875.35, "annual_google_free_links_bonus_eur": 17887.1, "annual_repeat_guest_inlay_bonus_eur": 37358.47, "total_annual_net_profit_recovery_eur": 140120.92, "recommended_saas_retainer_monthly_eur": 299, "hotel_roi_multiple": 39.1, "leakage_severity_score": 99, "detected_leaks": ["REVERSE-PARITY-FEHLER: Eigene Website (235 €) ist um +40.60 €/Nacht TEURER als Booking.com Mobile+Genius-Rate (194.40 €)!", "GENIUS+MOBILE-STACKING AKTIV: Genius (-10%) + Mobile (-10%) addieren sich unbemerkt und drücken den Netto-Auszahlbetrag auf 173.55 €/Nacht.", "GOOGLE HOTEL FREE BOOKING LINKS FEHLEN: Booking.com kauft Ihren eigenen Hotelnamen auf Google Maps/Search ein, weil kein 0%-Direktbuchungs-Feed geschaltet ist.", "UNBEANTWORTETE KRITISCHE BEWERTUNGEN: 24 Bewertungen (≤7.0) ohne Direkt-Antwort kosten ~4,2% Conversion-Rate."], "cold_pitch_subject": "Preis-Leck bei Sylt Nordsee-Appartements & Dünen-Suiten (38 FeWos): Booking.com unterbietet Ihre eigene Website aktuell um 40.60 €/Nacht", "cold_pitch_message": "Hallo Team vom Sylt Nordsee-Appartements & Dünen-Suiten (38 FeWos),\n\nbei unserem automatisierten Direktbuchungs-Audit für Westerland / Sylt ist uns eine kritische Tarif-Anomalie aufgefallen:\n• Ihre eigene Website zeigt aktuell 235.00 €/Nacht.\n• Auf Booking.com (Genius -10% + Mobile -10% Stacking) buchen Gäste dasselbe Zimmer für 194.40 € – und Sie zahlen darauf zusätzlich 17.5% Provision (Netto-Erlös nur 173.55 €).\n\nSeit dem BGH-Urteil (KVR 54/20), dem EuGH-Urteil (C-264/23) und Art. 5 Abs. 3 DMA sind sämtliche Bestpreisklauseln von Booking.com zu 100 % nichtig.\nWenn Sie das versehentliche Rate-Stacking stoppen und Direktbuchern auf Ihrer Website & Google Free Booking Links 213.60 € (-11% unter OTA-BAR) anbieten, spart der Gast 26.40 €/Nacht und Ihr Netto-Erlös steigt sofort um +35.35 €/Nacht (+20.4%).\n\nHochgerechnet auf Ihre ~6,319 OTA-Nächte/Jahr entspricht das einem rückholbaren Netto-Mehrertrag von 140,121 €/Jahr.\nSollen wir Ihnen den vollständigen 1-Seiten-Prüfbericht für Sylt Nordsee-Appartements & Dünen-Suiten (38 FeWos) kostenfrei zusenden?"}, {"property_id": "AT-VIE-04", "name": "Aparthotel Neubau-Quartier Wien", "city_region": "Wien-Neubau (1070)", "country": "AT", "property_type": "Aparthotel", "units_or_rooms": 48, "annual_booked_nights": 13841, "ota_booked_nights": 9827, "base_bar_rate_eur": 168.0, "direct_website_rate_eur": 165.0, "effective_booking_genius_mobile_rate_eur": 128.52, "reverse_parity_gap_eur": 36.48, "reverse_parity_violation": true, "ota_commission_pct": 20.5, "ota_commission_per_night_eur": 29.18, "hotel_net_after_ota_eur": 113.16, "recommended_ota_bar_rate_eur": 168.0, "recommended_direct_vip_rate_eur": 151.2, "guest_direct_savings_per_night_eur": 16.8, "hotel_direct_net_after_ibe_fee_eur": 147.87, "hotel_net_gain_per_shifted_night_eur": 34.71, "hotel_net_margin_uplift_pct": 30.7, "annual_ota_commission_bleed_eur": 286751.86, "shifted_nights_per_year": 3145, "annual_commission_saved_eur": 109162.95, "annual_google_free_links_bonus_eur": 0.0, "annual_repeat_guest_inlay_bonus_eur": 26315.98, "total_annual_net_profit_recovery_eur": 135478.93, "recommended_saas_retainer_monthly_eur": 299, "hotel_roi_multiple": 37.8, "leakage_severity_score": 88, "detected_leaks": ["REVERSE-PARITY-FEHLER: Eigene Website (165 €) ist um +36.48 €/Nacht TEURER als Booking.com Mobile+Genius-Rate (128.52 €)!", "GENIUS+MOBILE-STACKING AKTIV: Genius (-15%) + Mobile (-10%) addieren sich unbemerkt und drücken den Netto-Auszahlbetrag auf 113.16 €/Nacht.", "UNBEANTWORTETE KRITISCHE BEWERTUNGEN: 31 Bewertungen (≤7.0) ohne Direkt-Antwort kosten ~4,2% Conversion-Rate."], "cold_pitch_subject": "Preis-Leck bei Aparthotel Neubau-Quartier Wien: Booking.com unterbietet Ihre eigene Website aktuell um 36.48 €/Nacht", "cold_pitch_message": "Hallo Team vom Aparthotel Neubau-Quartier Wien,\n\nbei unserem automatisierten Direktbuchungs-Audit für Wien-Neubau (1070) ist uns eine kritische Tarif-Anomalie aufgefallen:\n• Ihre eigene Website zeigt aktuell 165.00 €/Nacht.\n• Auf Booking.com (Genius -15% + Mobile -10% Stacking) buchen Gäste dasselbe Zimmer für 128.52 € – und Sie zahlen darauf zusätzlich 20.5% Provision (Netto-Erlös nur 113.16 €).\n\nSeit dem BGH-Urteil (KVR 54/20), dem EuGH-Urteil (C-264/23) und Art. 5 Abs. 3 DMA sind sämtliche Bestpreisklauseln von Booking.com zu 100 % nichtig.\nWenn Sie das versehentliche Rate-Stacking stoppen und Direktbuchern auf Ihrer Website & Google Free Booking Links 151.20 € (-10% unter OTA-BAR) anbieten, spart der Gast 16.80 €/Nacht und Ihr Netto-Erlös steigt sofort um +34.71 €/Nacht (+30.7%).\n\nHochgerechnet auf Ihre ~9,827 OTA-Nächte/Jahr entspricht das einem rückholbaren Netto-Mehrertrag von 135,479 €/Jahr.\nSollen wir Ihnen den vollständigen 1-Seiten-Prüfbericht für Aparthotel Neubau-Quartier Wien kostenfrei zusenden?"}, {"property_id": "DE-BWW-05", "name": "Romantik-Landhotel Tannenmühle Schwarzwald", "city_region": "Baiersbronn / Schwarzwald", "country": "DE", "property_type": "Landhotel & Gastronomie", "units_or_rooms": 31, "annual_booked_nights": 7468, "ota_booked_nights": 4555, "base_bar_rate_eur": 185.0, "direct_website_rate_eur": 180.0, "effective_booking_genius_mobile_rate_eur": 141.53, "reverse_parity_gap_eur": 38.47, "reverse_parity_violation": true, "ota_commission_pct": 17.0, "ota_commission_per_night_eur": 26.65, "hotel_net_after_ota_eur": 130.09, "recommended_ota_bar_rate_eur": 185.0, "recommended_direct_vip_rate_eur": 167.43, "guest_direct_savings_per_night_eur": 17.57, "hotel_direct_net_after_ibe_fee_eur": 163.75, "hotel_net_gain_per_shifted_night_eur": 33.66, "hotel_net_margin_uplift_pct": 25.9, "annual_ota_commission_bleed_eur": 121390.75, "shifted_nights_per_year": 1594, "annual_commission_saved_eur": 53654.04, "annual_google_free_links_bonus_eur": 12252.24, "annual_repeat_guest_inlay_bonus_eur": 18099.35, "total_annual_net_profit_recovery_eur": 84005.63, "recommended_saas_retainer_monthly_eur": 299, "hotel_roi_multiple": 23.4, "leakage_severity_score": 99, "detected_leaks": ["REVERSE-PARITY-FEHLER: Eigene Website (180 €) ist um +38.47 €/Nacht TEURER als Booking.com Mobile+Genius-Rate (141.53 €)!", "GENIUS+MOBILE-STACKING AKTIV: Genius (-15%) + Mobile (-10%) addieren sich unbemerkt und drücken den Netto-Auszahlbetrag auf 130.09 €/Nacht.", "GOOGLE HOTEL FREE BOOKING LINKS FEHLEN: Booking.com kauft Ihren eigenen Hotelnamen auf Google Maps/Search ein, weil kein 0%-Direktbuchungs-Feed geschaltet ist.", "UNBEANTWORTETE KRITISCHE BEWERTUNGEN: 9 Bewertungen (≤7.0) ohne Direkt-Antwort kosten ~4,2% Conversion-Rate."], "cold_pitch_subject": "Preis-Leck bei Romantik-Landhotel Tannenmühle Schwarzwald: Booking.com unterbietet Ihre eigene Website aktuell um 38.47 €/Nacht", "cold_pitch_message": "Hallo Team vom Romantik-Landhotel Tannenmühle Schwarzwald,\n\nbei unserem automatisierten Direktbuchungs-Audit für Baiersbronn / Schwarzwald ist uns eine kritische Tarif-Anomalie aufgefallen:\n• Ihre eigene Website zeigt aktuell 180.00 €/Nacht.\n• Auf Booking.com (Genius -15% + Mobile -10% Stacking) buchen Gäste dasselbe Zimmer für 141.53 € – und Sie zahlen darauf zusätzlich 17.0% Provision (Netto-Erlös nur 130.09 €).\n\nSeit dem BGH-Urteil (KVR 54/20), dem EuGH-Urteil (C-264/23) und Art. 5 Abs. 3 DMA sind sämtliche Bestpreisklauseln von Booking.com zu 100 % nichtig.\nWenn Sie das versehentliche Rate-Stacking stoppen und Direktbuchern auf Ihrer Website & Google Free Booking Links 167.43 € (-10% unter OTA-BAR) anbieten, spart der Gast 17.57 €/Nacht und Ihr Netto-Erlös steigt sofort um +33.66 €/Nacht (+25.9%).\n\nHochgerechnet auf Ihre ~4,555 OTA-Nächte/Jahr entspricht das einem rückholbaren Netto-Mehrertrag von 84,006 €/Jahr.\nSollen wir Ihnen den vollständigen 1-Seiten-Prüfbericht für Romantik-Landhotel Tannenmühle Schwarzwald kostenfrei zusenden?"}, {"property_id": "CH-ZRH-06", "name": "Design-Aparthotel Seefeld-Bellevue Zürich", "city_region": "Zürich-Seefeld", "country": "CH", "property_type": "Boutique-Aparthotel", "units_or_rooms": 34, "annual_booked_nights": 9680, "ota_booked_nights": 6098, "base_bar_rate_eur": 295.0, "direct_website_rate_eur": 285.0, "effective_booking_genius_mobile_rate_eur": 225.68, "reverse_parity_gap_eur": 59.32, "reverse_parity_violation": true, "ota_commission_pct": 18.8, "ota_commission_per_night_eur": 46.99, "hotel_net_after_ota_eur": 202.95, "recommended_ota_bar_rate_eur": 295.0, "recommended_direct_vip_rate_eur": 265.5, "guest_direct_savings_per_night_eur": 29.5, "hotel_direct_net_after_ibe_fee_eur": 259.66, "hotel_net_gain_per_shifted_night_eur": 56.71, "hotel_net_margin_uplift_pct": 27.9, "annual_ota_commission_bleed_eur": 286545.02, "shifted_nights_per_year": 2012, "annual_commission_saved_eur": 114100.52, "annual_google_free_links_bonus_eur": 27674.48, "annual_repeat_guest_inlay_bonus_eur": 32871.85, "total_annual_net_profit_recovery_eur": 174646.85, "recommended_saas_retainer_monthly_eur": 299, "hotel_roi_multiple": 48.7, "leakage_severity_score": 99, "detected_leaks": ["REVERSE-PARITY-FEHLER: Eigene Website (285 €) ist um +59.32 €/Nacht TEURER als Booking.com Mobile+Genius-Rate (225.68 €)!", "GENIUS+MOBILE-STACKING AKTIV: Genius (-15%) + Mobile (-10%) addieren sich unbemerkt und drücken den Netto-Auszahlbetrag auf 202.95 €/Nacht.", "GOOGLE HOTEL FREE BOOKING LINKS FEHLEN: Booking.com kauft Ihren eigenen Hotelnamen auf Google Maps/Search ein, weil kein 0%-Direktbuchungs-Feed geschaltet ist.", "UNBEANTWORTETE KRITISCHE BEWERTUNGEN: 17 Bewertungen (≤7.0) ohne Direkt-Antwort kosten ~4,2% Conversion-Rate."], "cold_pitch_subject": "Preis-Leck bei Design-Aparthotel Seefeld-Bellevue Zürich: Booking.com unterbietet Ihre eigene Website aktuell um 59.32 €/Nacht", "cold_pitch_message": "Hallo Team vom Design-Aparthotel Seefeld-Bellevue Zürich,\n\nbei unserem automatisierten Direktbuchungs-Audit für Zürich-Seefeld ist uns eine kritische Tarif-Anomalie aufgefallen:\n• Ihre eigene Website zeigt aktuell 285.00 €/Nacht.\n• Auf Booking.com (Genius -15% + Mobile -10% Stacking) buchen Gäste dasselbe Zimmer für 225.68 € – und Sie zahlen darauf zusätzlich 18.8% Provision (Netto-Erlös nur 202.95 €).\n\nSeit dem BGH-Urteil (KVR 54/20), dem EuGH-Urteil (C-264/23) und Art. 5 Abs. 3 DMA sind sämtliche Bestpreisklauseln von Booking.com zu 100 % nichtig.\nWenn Sie das versehentliche Rate-Stacking stoppen und Direktbuchern auf Ihrer Website & Google Free Booking Links 265.50 € (-10% unter OTA-BAR) anbieten, spart der Gast 29.50 €/Nacht und Ihr Netto-Erlös steigt sofort um +56.71 €/Nacht (+27.9%).\n\nHochgerechnet auf Ihre ~6,098 OTA-Nächte/Jahr entspricht das einem rückholbaren Netto-Mehrertrag von 174,647 €/Jahr.\nSollen wir Ihnen den vollständigen 1-Seiten-Prüfbericht für Design-Aparthotel Seefeld-Bellevue Zürich kostenfrei zusenden?"}];
+const ACTORS = {"voyager/booking-scraper": {"actor_id": "oeiQgfg5fsmIJB7Cn", "username": "voyager", "name": "booking-scraper", "title": "Booking Scraper", "catalog_mau": 2068, "live_stats": {"totalBuilds": 770, "totalRuns": 4922263, "totalUsers": 9804, "totalUsers7Days": 455, "totalUsers30Days": 947, "totalUsers90Days": 1684, "runs30DaysTotal": 353983, "runs30DaysSucceeded": 349211, "reviewRating": 4.54, "reviewCount": 34, "bookmarkCount": 178}, "pricing": {"model": "PAY_PER_EVENT", "place_scraped_usd": {"FREE": 0.005, "BRONZE": 0.0039, "SILVER": 0.0029, "GOLD": 0.002, "PLATINUM": 0.0015, "DIAMOND": 0.00125}, "additional_details_scraped_usd": {"FREE": 0.005, "BRONZE": 0.002, "SILVER": 0.0015, "GOLD": 0.001, "PLATINUM": 0.00085, "DIAMOND": 0.00075}, "actor_start_usd": 5e-05}}, "voyager/booking-reviews-scraper": {"actor_id": "PbMHke3jW25J6hSOA", "username": "voyager", "name": "booking-reviews-scraper", "title": "Booking Reviews Scraper", "catalog_mau": 748, "live_stats": {"totalBuilds": 731, "totalRuns": 3030237, "totalUsers": 3938, "totalUsers7Days": 318, "totalUsers30Days": 537, "totalUsers90Days": 795, "runs30DaysTotal": 243015, "runs30DaysSucceeded": 242789, "reviewRating": 4.27, "reviewCount": 31, "bookmarkCount": 111}, "pricing": {"model": "PAY_PER_EVENT", "review_scraped_usd": {"FREE": 0.002, "BRONZE": 0.0019, "SILVER": 0.0015, "GOLD": 0.0009, "PLATINUM": 0.0005, "DIAMOND": 0.0003}, "actor_start_usd": 5e-05}}};
+const LEGAL = [{"case_id": "BGH KVR 54/20", "date": "18.05.2021", "court": "Bundesgerichtshof (Kartellsenat)", "ruling": "Enge Bestpreisklauseln von Booking.com verstoßen gegen Art. 101 Abs. 1 AEUV / § 1 GWB und sind keine notwendigen Nebenabreden (ancillary restraints).", "practical_impact": "Deutsche Hotels & Ferienwohnungs-Betreiber dürfen auf ihrer eigenen Website, per Telefon, E-Mail & WhatsApp jederzeit günstigere Zimmerpreise als auf Booking.com anbieten."}, {"case_id": "EuGH C-264/23", "date": "19.09.2024", "court": "Gerichtshof der Europäischen Union (EuGH)", "ruling": "Sowohl weite als auch enge Bestpreisklauseln von Hotelbuchungsplattformen sind keine kartellrechtsfreien Nebenabreden i.S.v. Art. 101 Abs. 1 AEUV.", "practical_impact": "EU-weite Nichtigkeit aller historischen & aktuellen Paritätsklauseln; tausende DACH-Hotels machen zusätzlich rückwirkende Kartell-Schadensersatzansprüche geltend."}, {"case_id": "Art. 5 Abs. 3 DMA (VO (EU) 2022/1925)", "date": "13.05.2024 / Compliance ab 14.11.2024", "court": "EU-Kommission (Digital Markets Act Gatekeeper Designation)", "ruling": "Booking Holdings Inc. ist offizieller DMA-Gatekeeper; Art. 5 Abs. 3 DMA verbietet Gatekeepern strikt jegliche Preis- oder Konditionenparitätsklauseln.", "practical_impact": "Booking.com darf Hotels weder vertraglich noch technisch (Algorithmus-Strafen bei Direktpreis-Unterbietung im zulässigen Rahmen) daran hindern, Direktbuchern 8%–15% Rabatt + Gratis-Extras zu gewähren."}];
+let selectedIdx = 0;
+
+function renderTable() {
+  const tbody = document.getElementById('hotelTableBody');
+  tbody.innerHTML = '';
+  HOTELS.forEach((h, idx) => {
+    const tr = document.createElement('tr');
+    tr.className = 'hotel-row' + (idx === selectedIdx ? ' active' : '');
+    tr.onclick = () => selectHotel(idx);
+    tr.innerHTML = `
+      <td><strong>${h.name}</strong><br><span style="color:var(--muted);font-size:11px;">${h.city_region} (${h.country}) · ${h.property_type}</span></td>
+      <td>${h.units_or_rooms}</td>
+      <td><strong>${h.direct_website_rate_eur.toFixed(2)} €</strong></td>
+      <td><strong style="color:var(--amber);">${h.effective_booking_genius_mobile_rate_eur.toFixed(2)} €</strong><br><span style="font-size:11px;color:var(--muted);">BAR: ${h.base_bar_rate_eur.toFixed(0)} €</span></td>
+      <td><span class="pill-leak">+${h.reverse_parity_gap_eur.toFixed(2)} € teurer</span></td>
+      <td style="color:var(--rose);font-weight:700;">${Math.round(h.annual_ota_commission_bleed_eur).toLocaleString('de-DE')} €</td>
+      <td><span class="pill-win">+${Math.round(h.total_annual_net_profit_recovery_eur).toLocaleString('de-DE')} €/J.</span></td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function selectHotel(idx) {
+  selectedIdx = idx;
+  renderTable();
+  const h = HOTELS[idx];
+  document.getElementById('simHotelName').textContent = h.name;
+  document.getElementById('rngRooms').value = h.units_or_rooms;
+  document.getElementById('rngBar').value = h.base_bar_rate_eur;
+  document.getElementById('rngComm').value = h.ota_commission_pct;
+  document.getElementById('rngDirectDisc').value = 10.0;
+  document.getElementById('rngShift').value = 34;
+
+  const leakList = document.getElementById('leakList');
+  leakList.innerHTML = '';
+  h.detected_leaks.forEach(l => {
+    const li = document.createElement('li');
+    li.textContent = l;
+    leakList.appendChild(li);
+  });
+  document.getElementById('pitchBox').value = `BETREFF: ${h.cold_pitch_subject}\n\n${h.cold_pitch_message}`;
+  recalcSim();
+}
+
+function recalcSim() {
+  const h = HOTELS[selectedIdx];
+  const rooms = parseFloat(document.getElementById('rngRooms').value);
+  const bar = parseFloat(document.getElementById('rngBar').value);
+  const commPct = parseFloat(document.getElementById('rngComm').value);
+  const directDiscPct = parseFloat(document.getElementById('rngDirectDisc').value);
+  const shiftPct = parseFloat(document.getElementById('rngShift').value);
+
+  document.getElementById('lblRoomsOcc').textContent = `${rooms} Einheiten`;
+  document.getElementById('lblBar').textContent = `${bar.toFixed(2)} €`;
+  document.getElementById('lblComm').textContent = `${commPct.toFixed(1)}$%`;
+  document.getElementById('lblDirectDisc').textContent = `-${directDiscPct.toFixed(1)}$% unter OTA-BAR`;
+  document.getElementById('lblShift').textContent = `${shiftPct.toFixed(0)}$% Shift zu Direkt`;
+
+  // Stacked Genius (-15%) + Mobile (-10%)
+  const stackedOtaRate = bar * 0.85 * 0.90;
+  const weightedOtaRate = 0.65 * stackedOtaRate + 0.35 * bar;
+  const otaFeeNight = weightedOtaRate * (commPct / 100.0);
+  const otaNetNight = weightedOtaRate - otaFeeNight;
+
+  const directVipRate = bar * (1.0 - directDiscPct / 100.0);
+  const guestSavings = bar - directVipRate;
+  const directNetNight = directVipRate * (1.0 - 0.022);
+  const gainPerNight = directNetNight - otaNetNight;
+  const gainPct = (gainPerNight / Math.max(otaNetNight, 1)) * 100.0;
+
+  const otaNightsPerYear = Math.round(rooms * 365 * 0.72 * 0.62);
+  const shiftedNights = Math.round(otaNightsPerYear * (shiftPct / 100.0));
+  const annualRecovery = Math.round(shiftedNights * gainPerNight + (otaNightsPerYear * 0.12 * otaFeeNight));
+
+  document.getElementById('simOtaGuestPrice').textContent = `${stackedOtaRate.toFixed(2)} € (Ø ${weightedOtaRate.toFixed(2)} €)`;
+  document.getElementById('simOtaFeeNight').textContent = `-${otaFeeNight.toFixed(2)} € (${commPct.toFixed(1)}$%)`;
+  document.getElementById('simOtaNetNight').textContent = `${otaNetNight.toFixed(2)} €`;
+
+  document.getElementById('simDirectGuestPrice').textContent = `${directVipRate.toFixed(2)} €`;
+  document.getElementById('simGuestSavings').textContent = `-${guestSavings.toFixed(2)} € (-${directDiscPct.toFixed(1)}$%)`;
+  document.getElementById('simDirectNetNight').textContent = `${directNetNight.toFixed(2)} €`;
+
+  document.getElementById('simGainPerNight').textContent = `+${gainPerNight.toFixed(2)} € (+${gainPct.toFixed(1)}$%)`;
+  document.getElementById('simAnnualRecovery').textContent = `+${annualRecovery.toLocaleString('de-DE')} € / Jahr`;
+
+  const retainer = rooms <= 25 ? 199 : (rooms <= 55 ? 299 : 399);
+  const roi = (annualRecovery / (retainer * 12)).toFixed(1);
+  document.getElementById('simRetainerRoi').textContent =
+    `Empfohlener B2B SaaS/Agency-Retainer: ${retainer} €/Monat (${retainer*12} €/Jahr) → ${roi}x Netto-ROI für den Hotelier bei ${shiftedNights.toLocaleString('de-DE')} verlagerten Nächten/Jahr.`;
+}
+
+function copyPitch() {
+  const box = document.getElementById('pitchBox');
+  box.select();
+  document.execCommand('copy');
+}
+
+selectHotel(0);
+</script>
+</body>
+</html>

@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DACH § 87 Abs. 1 Nr. 6 BetrVG & EU AI Act — IT-/KI-Betriebsvereinbarungs-Studio (MVP #108)</title>
+<style>
+  :root {
+    --bg: #0b1020;
+    --panel: #131b31;
+    --panel-alt: #18233f;
+    --border: #2a3963;
+    --text: #ecf1ff;
+    --muted: #9fb0d9;
+    --accent: #38bdf8;
+    --accent-2: #818cf8;
+    --danger: #f43f5e;
+    --warn: #f59e0b;
+    --ok: #10b981;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: radial-gradient(circle at top right, #172554 0%, var(--bg) 55%);
+    color: var(--text);
+    line-height: 1.5;
+  }
+  header {
+    padding: 24px 32px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(19, 27, 49, 0.9);
+    backdrop-filter: blur(8px);
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+  }
+  .brand h1 {
+    margin: 0;
+    font-size: 1.35rem;
+    letter-spacing: -0.02em;
+  }
+  .brand p {
+    margin: 4px 0 0;
+    color: var(--muted);
+    font-size: 0.88rem;
+  }
+  .badge-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .badge {
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 0.76rem;
+    font-weight: 600;
+    border: 1px solid var(--border);
+    background: var(--panel-alt);
+  }
+  .badge.crit { border-color: var(--danger); color: #fda4af; background: rgba(244,63,94,0.14); }
+  .badge.ai { border-color: var(--accent); color: #7dd3fc; background: rgba(56,189,248,0.14); }
+  .badge.ok { border-color: var(--ok); color: #6ee7b7; background: rgba(16,185,129,0.14); }
+
+  main {
+    max-width: 1480px;
+    margin: 0 auto;
+    padding: 24px 32px 64px;
+    display: grid;
+    grid-template-columns: 380px 1fr;
+    gap: 24px;
+  }
+  @media (max-width: 1080px) {
+    main { grid-template-columns: 1fr; }
+  }
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28);
+  }
+  .card h2 {
+    margin: 0 0 14px;
+    font-size: 1.05rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  label {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--muted);
+    margin-bottom: 4px;
+    margin-top: 10px;
+  }
+  input[type="text"], input[type="number"] {
+    width: 100%;
+    padding: 9px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: #0d1426;
+    color: var(--text);
+    font-size: 0.9rem;
+  }
+  .tool-selector {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 12px;
+  }
+  .tool-check {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--panel-alt);
+    cursor: pointer;
+    transition: border-color 0.15s;
+  }
+  .tool-check:hover {
+    border-color: var(--accent);
+  }
+  .tool-check input {
+    margin-top: 4px;
+  }
+  .tool-check-title {
+    font-size: 0.86rem;
+    font-weight: 600;
+  }
+  .tool-check-sub {
+    font-size: 0.75rem;
+    color: var(--muted);
+  }
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+  .kpi-box {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+  }
+  .kpi-label {
+    font-size: 0.76rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .kpi-val {
+    font-size: 1.55rem;
+    font-weight: 700;
+    margin-top: 6px;
+  }
+  .kpi-sub {
+    font-size: 0.76rem;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.84rem;
+  }
+  th, td {
+    text-align: left;
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  th {
+    color: var(--muted);
+    font-weight: 600;
+    background: rgba(13, 20, 38, 0.6);
+  }
+  .pill {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 0.72rem;
+    font-weight: 700;
+  }
+  .pill.CRITICAL { background: rgba(244,63,94,0.2); color: #fda4af; border: 1px solid var(--danger); }
+  .pill.HIGH { background: rgba(245,158,11,0.2); color: #fcd34d; border: 1px solid var(--warn); }
+  .pill.MEDIUM { background: rgba(56,189,248,0.2); color: #7dd3fc; border: 1px solid var(--accent); }
+  .bv-preview {
+    background: #090e1c;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px;
+    font-family: "JetBrains Mono", Consolas, monospace;
+    font-size: 0.82rem;
+    white-space: pre-wrap;
+    max-height: 620px;
+    overflow-y: auto;
+    color: #dbeafe;
+  }
+  .btn-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+  }
+  button {
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    color: #081024;
+    font-weight: 700;
+    border: none;
+    padding: 9px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.84rem;
+  }
+  button.secondary {
+    background: var(--panel-alt);
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+  .law-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+    gap: 12px;
+  }
+  .law-item {
+    background: var(--panel-alt);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px;
+  }
+  .law-item h3 {
+    margin: 0 0 6px;
+    font-size: 0.88rem;
+    color: var(--accent);
+  }
+  .law-item p {
+    margin: 4px 0;
+    font-size: 0.78rem;
+    color: var(--muted);
+  }
+</style>
+</head>
+<body>
+
+<!-- DACH CASHFLOW STUDIOS LAUNCH BAR -->
+<style>
+  #dcs-launch-bar {
+    position: sticky;
+    top: 0;
+    z-index: 99999;
+    background: linear-gradient(90deg, #0b1120 0%, #111827 50%, #0f172a 100%);
+    color: #f8fafc;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.35);
+    padding: 8px 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  }
+  #dcs-launch-bar .dcs-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+  }
+  #dcs-launch-bar .dcs-badge {
+    background: rgba(16, 185, 129, 0.18);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.03em;
+  }
+  #dcs-launch-bar a.dcs-nav {
+    color: #93c5fd;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 12.5px;
+  }
+  #dcs-launch-bar a.dcs-nav:hover {
+    text-decoration: underline;
+    color: #dbeafe;
+  }
+  #dcs-launch-bar .dcs-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  #dcs-launch-bar .dcs-btn {
+    padding: 5px 11px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s ease;
+  }
+  #dcs-launch-bar .dcs-btn-ghost {
+    background: rgba(255,255,255,0.08);
+    color: #e2e8f0;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  #dcs-launch-bar .dcs-btn-primary {
+    background: linear-gradient(135deg, #0ea5e9, #2563eb);
+    color: #ffffff;
+  }
+  #dcs-launch-bar .dcs-btn-emerald {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
+  }
+  @media print {
+    #dcs-launch-bar { display: none !important; }
+  }
+</style>
+<div id="dcs-launch-bar">
+  <div class="dcs-left">
+    <a href="/index.html" class="dcs-nav">← Alle 150 DACH Studios</a>
+    <span class="dcs-badge">MVP #108 VERIFIED</span>
+    <span style="color:#cbd5e1;font-size:12px;">DACH LegalTech, Labor Law & Consumer Claims</span>
+  </div>
+  <div class="dcs-actions">
+    <button onclick="window.print()" class="dcs-btn dcs-btn-ghost">🖨️ PDF / Dossier drucken</button>
+    <a href="#checkout-modal-49" target="_blank" rel="noopener" class="dcs-btn dcs-btn-primary">⚡ Musterschreiben & Voll-Dossier (€49)</a>
+    <a href="#checkout-modal-299" target="_blank" rel="noopener" class="dcs-btn dcs-btn-emerald">🛡️ B2B Umsetzung buchen (€299 / €1.490)</a>
+  </div>
+</div>
+
+<header>
+  <div class="brand">
+    <h1>§ 87 Abs. 1 Nr. 6 BetrVG & EU AI Act — IT-/KI-Betriebsvereinbarungs-Studio</h1>
+    <p>Deterministischer SaaS-Telemetrie-Auditor, § 80 Abs. 3 S. 2 BetrVG KI-Sachverständigen-Detektor & Rahmen-BV-Generator (MVP #108)</p>
+  </div>
+  <div class="badge-row">
+    <span class="badge crit">BAG 1 ABR 22/84 & 1 ABR 32/16 („Objektive Eignung“)</span>
+    <span class="badge ai">§ 80 Abs. 3 S. 2 BetrVG KI-Sachverständigen-Fiktion</span>
+    <span class="badge ok">Art. 4 & Annex III Nr. 4 EU AI Act + § 26 BDSG</span>
+  </div>
+</header>
+
+<main>
+  <aside>
+    <div class="card">
+      <h2>1. Unternehmens- & Betriebsrats-Parameter</h2>
+      <label for="companyInput">Arbeitgeberin (Unternehmensname)</label>
+      <input type="text" id="companyInput" value="Muster Mittelstand GmbH" oninput="recomputeStudio()">
+
+      <label for="brInput">Betriebsrat (Gremium / Standort)</label>
+      <input type="text" id="brInput" value="Betriebsrat der Muster Mittelstand GmbH (Standort München)" oninput="recomputeStudio()">
+
+      <label for="empInput">Wahlberechtigte Arbeitnehmer (§ 1 BetrVG >= 5)</label>
+      <input type="number" id="empInput" value="240" min="1" oninput="recomputeStudio()">
+    </div>
+
+    <div class="card">
+      <h2>2. Geplante / Aktive SaaS- & KI-Systeme</h2>
+      <div class="btn-row">
+        <button class="secondary" onclick="toggleAllTools(true)">Alle auswählen</button>
+        <button class="secondary" onclick="toggleAllTools(false)">Nur MS 365</button>
+      </div>
+      <div id="toolSelector" class="tool-selector"></div>
+    </div>
+  </aside>
+
+  <section>
+    <div class="kpi-grid" id="kpiGrid"></div>
+
+    <div class="card">
+      <h2>
+        <span>3. § 87 Abs. 1 Nr. 6 BetrVG Telemetrie- & Überwachungs-Risikomatrix</span>
+        <span class="badge crit" id="vectorCountBadge">0 Vektoren</span>
+      </h2>
+      <div style="overflow-x:auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>SaaS- / KI-System</th>
+              <th>Telemetrie- / KI-Feature</th>
+              <th>Erhobene Metadaten / Logs</th>
+              <th>Risiko</th>
+              <th>Zwingende BV-Schutzmaßnahme (Remediation)</th>
+            </tr>
+          </thead>
+          <tbody id="matrixBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>
+        <span>4. Unterschriftsreife IT- & KI-Rahmen-Betriebsvereinbarung inkl. Anlage 1</span>
+        <span class="badge ok">§ 77 Abs. 2 BetrVG Schriftform-Vorlage</span>
+      </h2>
+      <div class="btn-row">
+        <button onclick="copyBvText()">Betriebsvereinbarung in Zwischenablage kopieren</button>
+        <button class="secondary" onclick="downloadBvMarkdown()">Als Markdown (.md) herunterladen</button>
+      </div>
+      <div id="bvPreview" class="bv-preview"></div>
+    </div>
+
+    <div class="card">
+      <h2>5. Verifizierte Rechtsgrundlagen (BetrVG, BAG-Rechtsprechung, EU AI Act & BDSG)</h2>
+      <div id="lawGrid" class="law-grid"></div>
+    </div>
+  </section>
+</main>
+
+<script>
+const SAAS_CATALOG = [{"id": "ms365_copilot", "name": "Microsoft 365 & Copilot Enterprise (Teams / Viva Insights / Purview)", "vendor": "Microsoft Ireland Operations Ltd. / Microsoft Corp.", "category": "Workplace Productivity & GenAI Assistant", "hosting": "EU Data Boundary (Azure Frankfurt / Dublin) + US Subprocessors", "has_ai": true, "hr_selection_ai": false, "eu_ai_act_class": "General Purpose AI (GPAI) / Limited Risk (Art. 4 & Art. 50 EU AI Act)", "betrvg_triggers": ["§ 87 Abs. 1 Nr. 6 BetrVG (Zwingende Mitbestimmung: Purview Audit-Logs, Teams Präsenzstatus, Copilot Prompt-Historie)", "§ 80 Abs. 3 Satz 2 BetrVG (Gesetzliche Erforderlichkeitsfiktion für KI-Sachverständigen)", "§ 90 Abs. 1 Nr. 3 BetrVG (Planungsunterrichtung KI-Arbeitsverfahren)", "§ 96–98 BetrVG i.V.m. Art. 4 EU AI Act (KI-Kompetenzschulung / AI Literacy)"], "telemetry_vectors": [{"feature": "Microsoft Purview Unified Audit Log & Copilot Interaction History", "data_points": "User-ID, Zeitstempel jedes Prompts, Datei-Zugriffe, besuchte SharePoint-Seiten, KI-Antworten", "risk_level": "CRITICAL", "bag_assessment": "Unmittelbare objektive Eignung zur lückenlosen Leistungs- und Verhaltenskontrolle (BAG 1 ABR 20/21).", "mandatory_remediation": "Deaktivierung personenbezogener Admin-Einsicht in Prompt-Inhalte; automatische Löschfrist 30 Tage; Vier-Augen-Prinzip mit Betriebsrats-Freigabe bei Security-Incidents."}, {"feature": "Microsoft Viva Insights / M365 Usage Analytics & Productivity Score", "data_points": "E-Mail-Reaktionszeiten, Meeting-Stunden, Fokuszeit, Kamera-Nutzung, After-Hours-Aktivität", "risk_level": "CRITICAL", "bag_assessment": "Klassischer Leistungs-Score; Einzelauswertung ohne BV strikt rechtswidrig.", "mandatory_remediation": "Vollständige Deaktivierung auf Einzelpersonen-Ebene; Aggregation nur bei Mindestgruppengröße >= 15 Mitarbeitende ohne Rückschlussmöglichkeit."}, {"feature": "MS Teams Präsenzstatus ('Verfügbar', 'Abwesend', 'Zuletzt gesehen') & Call-Quality-Logs", "data_points": "Inaktivitäts-Timer (5 Min.), Anruf-Dauer, IP-Adresse, Endgerät, Meeting-Transkription", "risk_level": "HIGH", "bag_assessment": "Sekundengenaue Anwesenheits- und Arbeitszeitüberwachung möglich.", "mandatory_remediation": "Verbot der Nutzung des Teams-Status zur Arbeitszeit- oder Pausenkontrolle; KI-Meeting-Transkription nur nach aktivem Opt-in aller Teilnehmenden."}], "default_retention_days": 30, "recommended_kpis_banned": ["Prompts pro Mitarbeiter/Tag", "Teams-Inaktivitätsminuten", "Individueller Microsoft Productivity Score", "Reaktionszeit auf Chat-Nachrichten"]}, {"id": "chatgpt_claude_enterprise", "name": "ChatGPT Enterprise / Claude for Work (OpenAI / Anthropic)", "vendor": "OpenAI Ireland Ltd. / Anthropic Ireland Ltd.", "category": "Enterprise LLM & Coding/Knowledge Assistant", "hosting": "EU Data Residency Option / SOC2 Type II Cloud", "has_ai": true, "hr_selection_ai": false, "eu_ai_act_class": "General Purpose AI (GPAI) — Art. 4 & Art. 50 EU AI Act", "betrvg_triggers": ["§ 87 Abs. 1 Nr. 6 BetrVG (Workspace Analytics, Prompt-Volumen, Token-Verbrauch pro User)", "§ 80 Abs. 3 Satz 2 BetrVG (KI-Sachverständiger auf Arbeitgeberkosten)", "§ 90 Abs. 1 Nr. 3 BetrVG (Unterrichtung über KI-Einsatz)", "Art. 4 EU AI Act i.V.m. § 98 BetrVG (Verpflichtende KI-Schulung während der Arbeitszeit)"], "telemetry_vectors": [{"feature": "Enterprise Admin Console & Compliance API (Prompt/Completion Logs)", "data_points": "Klartext-Prompts, hochgeladene Dokumente, GPT-Nutzungshäufigkeit, Uhrzeiten pro User-Account", "risk_level": "CRITICAL", "bag_assessment": "Ermöglicht inhaltliche Kontrolle der Arbeitsweise und Fachkompetenz des Arbeitnehmers.", "mandatory_remediation": "Sperrung des Compliance-API-Volltextzugriffs für Vorgesetzte; automatische Workspace-History-Löschung nach 30 Tagen; Zero-Data-Retention für Modelltraining."}, {"feature": "Seat-Utilization & Active-User-Metriken (Nachrichten/Woche)", "data_points": "Anzahl gesendeter Prompts, genutzte Custom GPTs / Projects, letzter Login", "risk_level": "HIGH", "bag_assessment": "Vergleich der KI-Nutzungsintensität zwischen Beschäftigten (Ranking-Gefahr).", "mandatory_remediation": "Nutzungsprüfung ausschließlich zur Lizenzverwaltung nach 90 Tagen Inaktivität ohne Meldung an disziplinarische Vorgesetzte."}], "default_retention_days": 30, "recommended_kpis_banned": ["Token-/Prompt-Volumen-Ranking zwischen Mitarbeitenden", "Inhaltliche Auswertung von Such- und Prompt-Verläufen", "Automatisierte Code-Output-Bewertung ohne menschliches Review"]}, {"id": "personio_hr_ai", "name": "Personio HR Suite & AI Recruiting / Performance Module", "vendor": "Personio SE & Co. KG (München)", "category": "Core HR, Zeiterfassung, Bewerbermanagement & Performance", "hosting": "AWS eu-central-1 (Frankfurt am Main, Deutschland)", "has_ai": true, "hr_selection_ai": true, "eu_ai_act_class": "HIGH-RISK AI SYSTEM — Annex III Nr. 4 lit. a & b EU AI Act (Recruiting & Performance)", "betrvg_triggers": ["§ 87 Abs. 1 Nr. 6 BetrVG (Digitale Zeiterfassung, Krankenstands-Dashboards, Performance-Zyklen)", "§ 95 Abs. 2a BetrVG (Mitbestimmung bei KI-gestützten personellen Auswahlrichtlinien)", "§ 94 BetrVG (Personalfragebögen & Beurteilungsgrundsätze)", "§ 80 Abs. 3 Satz 2 BetrVG (Zwingender KI-Sachverständiger)", "Art. 14 & Art. 26 Abs. 7 EU AI Act (Human-in-the-Loop & Betriebsrats-Information bei Hochrisiko-KI)"], "telemetry_vectors": [{"feature": "AI CV-Parsing & Bewerber-Matching / Auto-Pre-Screening", "data_points": "Lebenslauf-Extraktion, Qualifikations-Score, Ablehnungsempfehlungen", "risk_level": "CRITICAL", "bag_assessment": "Algorithmische Vorauswahl unterfällt § 95 Abs. 2a BetrVG sowie Annex III Nr. 4 EU AI Act (Hochrisiko-KI).", "mandatory_remediation": "Kein automatischer Bewerberausschluss ohne menschliche Einzelprüfung (Art. 14 EU AI Act & Art. 22 DSGVO); Offenlegung der Gewichtungsfaktoren gegenüber dem Betriebsrat."}, {"feature": "Performance- & Feedback-Modul (360-Grad-Reviews / Zielerreichungs-Scores)", "data_points": "Numerische Leistungswerte, Kompetenz-Ratings, Historienvergleich", "risk_level": "CRITICAL", "bag_assessment": "Zentrale Leistungsüberwachung nach § 87 Abs. 1 Nr. 6 und Beurteilungsgrundsätze nach § 94 Abs. 2 BetrVG.", "mandatory_remediation": "Verbot von Forced-Ranking-Kurven und automatisierten Low-Performer-Listen; ausschließliche Nutzung für strukturierte Entwicklungsgespräche."}, {"feature": "Abwesenheits-, BEM- & Krankheits-Analyse-Reports", "data_points": "Krankheitstage, Mustererkennung (Montags-/Freitags-Fehlzeiten), BEM-Schwellenwerte", "risk_level": "HIGH", "bag_assessment": "Sensible Gesundheitsdaten nach § 26 Abs. 3 BDSG / Art. 9 DSGVO.", "mandatory_remediation": "Deaktivierung von Fehlzeiten-Muster-Reports; Zugriff ausschließlich für berechtigte HR-Sachbearbeiter zur gesetzlichen Entgeltfortzahlungs- und § 167 Abs. 2 SGB IX BEM-Prüfung."}], "default_retention_days": 90, "recommended_kpis_banned": ["Automatisierter Bewerber-Ablehnungs-Score ohne Human-in-the-Loop", "Abteilungsübergreifendes Krankenstands-Einzelranking", "Algorithmische Kündigungs- oder Abmahnungsempfehlung"]}, {"id": "jira_atlassian_intelligence", "name": "Atlassian Jira / Confluence Cloud & Atlassian Intelligence", "vendor": "Atlassian Pty Ltd. / Atlassian US Inc.", "category": "Agile Project Management, Issue Tracking & Dev-Telemetry", "hosting": "AWS EU-Central-1 (Data Residency Pinned: Germany/EU)", "has_ai": true, "hr_selection_ai": false, "eu_ai_act_class": "General Purpose AI / Task Allocation Risk Check (Annex III Nr. 4 lit. b EU AI Act)", "betrvg_triggers": ["§ 87 Abs. 1 Nr. 6 BetrVG (Story-Point-Velocity pro Entwickler, Ticket-Durchlaufzeiten, Bearbeitungs-Timestamps)", "§ 80 Abs. 3 Satz 2 BetrVG (KI-Sachverständiger für Atlassian Intelligence / Rovo)", "§ 90 Abs. 1 Nr. 3 BetrVG (KI-gestützte Arbeitsprozesse)"], "telemetry_vectors": [{"feature": "Individual Velocity, Story-Points-Burnup & Cycle-Time pro Assignee", "data_points": "Abgeschlossene Tickets pro Sprint, Statuswechsel-Timestamps, Reopen-Rate pro Entwickler", "risk_level": "CRITICAL", "bag_assessment": "Lückenlose quantitative und qualitative Leistungskontrolle jedes einzelnen Bearbeiters.", "mandatory_remediation": "Verbot personenbezogener JQL-Leistungsabfragen (Assignee-Filter für Management-Reports gesperrt); Sprint-Metriken ausschließlich auf Team-/Squad-Ebene."}, {"feature": "Worklog / Time-Tracking auf Ticket-Ebene", "data_points": "Gebuchte Minuten pro Sub-Task, Vergleich Schätzung vs. Ist-Aufwand pro Mitarbeiter", "risk_level": "HIGH", "bag_assessment": "Soll-/Ist-Leistungsvergleich auf Individualebene.", "mandatory_remediation": "Zeiterfassung auf Tickets nur aggregiert für Kundenfakturierung oder Projektbudgetierung; kein Abgleich mit der arbeitsvertraglichen Arbeitszeiterfassung."}, {"feature": "Atlassian Intelligence / Rovo AI Issue Summarization & Auto-Assignment", "data_points": "KI-Vorschläge zur Ticket-Zuweisung, Zusammenfassung von Kommentaren, Suchhistorie", "risk_level": "MEDIUM", "bag_assessment": "KI-gestützte Aufgabenverteilung berührt § 90 Abs. 1 Nr. 3 BetrVG und Annex III Nr. 4 lit. b EU AI Act.", "mandatory_remediation": "Keine vollautomatische Ticket-Zuweisung nach Leistungs-Scores; Zuweisung bleibt im Pull-Prinzip des Scrum-/Kanban-Teams."}], "default_retention_days": 180, "recommended_kpis_banned": ["Story Points / erledigte Tickets pro Entwickler", "Individuelle Bug-/Reopen-Quote", "Kommentar-Aktivitätszähler in Confluence"]}, {"id": "hubspot_breeze_ai", "name": "HubSpot CRM Enterprise & Breeze AI (Sales / Service Hub)", "vendor": "HubSpot Ireland Ltd. / HubSpot Inc.", "category": "CRM, Sales Engagement, Call Intelligence & Customer Support", "hosting": "HubSpot EU Data Center (AWS Frankfurt, Germany)", "has_ai": true, "hr_selection_ai": false, "eu_ai_act_class": "Workplace AI / Emotion & Sentiment Prohibition Check (Art. 5 Abs. 1 lit. f EU AI Act)", "betrvg_triggers": ["§ 87 Abs. 1 Nr. 6 BetrVG (Call-Recording, E-Mail-Tracking, Deal-Velocity, Ticket-SLA-Timer)", "§ 80 Abs. 3 Satz 2 BetrVG (KI-Sachverständiger für Breeze AI & Conversation Intelligence)", "Art. 5 Abs. 1 lit. f EU AI Act (Strikter Ausschluss von KI-Emotions-/Stimmungsanalyse bei Beschäftigten)"], "telemetry_vectors": [{"feature": "Conversation Intelligence (KI-Anrufaufzeichnung, Transkription & Talk-to-Listen-Ratio)", "data_points": "Audio-Mitschnitt, Sprechanteil in %, Sprechgeschwindigkeit, Sentiment-/Stimmungsanalyse", "risk_level": "CRITICAL", "bag_assessment": "Höchstintensiver Eingriff in das allgemeine Persönlichkeitsrecht; KI-Emotionserkennung am Arbeitsplatz ist nach Art. 5 Abs. 1 lit. f EU AI Act verboten.", "mandatory_remediation": "Vollständige Deaktivierung jeglicher Stimmungs-/Tonfall-/Emotionserkennung der Mitarbeitenden; Call-Recording nur zu Schulungszwecken nach ausdrücklicher beidseitiger Einwilligung (§ 201 StGB)."}, {"feature": "Sales Activity Leaderboards (Anrufe, gesendete E-Mails, gebuchte Meetings pro Tag)", "data_points": "Tägliche Aktivitätszähler, Sequenz-Antwortraten, Inaktivitätszeiten im CRM", "risk_level": "HIGH", "bag_assessment": "Dauerhafte Leistungs- und Verhaltenskontrolle des Vertriebsinnendienstes.", "mandatory_remediation": "Auswertung ausschließlich bezogen auf vereinbarte Quartals-/Jahres-Umsatzziele für provisionsrelevante Abrechnungen; Verbot von Echtzeit-Aktivitäts-Leaderboards (Anzahl Calls/Stunde)."}], "default_retention_days": 90, "recommended_kpis_banned": ["KI-Stimmungs-/Sentiment-Score des Vertriebsmitarbeiters (Verbot nach Art. 5 Abs. 1 lit. f EU AI Act)", "Anzahl ausgehender Calls pro Stunde", "Sprechanteil-Quote (Talk-to-Listen-Ratio) als Disziplinarmerkmal"]}, {"id": "slack_ai_enterprise", "name": "Slack Enterprise Grid & Slack AI", "vendor": "Salesforce.com Germany GmbH / Slack Technologies Limited", "category": "Enterprise Messaging, Huddles & Knowledge Search AI", "hosting": "AWS Frankfurt (EU Data Residency für Nachrichten & Dateien)", "has_ai": true, "hr_selection_ai": false, "eu_ai_act_class": "General Purpose AI (GPAI) — Art. 4 & Art. 50 EU AI Act", "betrvg_triggers": ["§ 87 Abs. 1 Nr. 6 BetrVG (Public/Private Channel Analytics, Online-Indikator, Slack AI Zusammenfassungen)", "§ 80 Abs. 3 Satz 2 BetrVG (KI-Sachverständiger für Slack AI)"], "telemetry_vectors": [{"feature": "Slack Member Analytics (Nachrichtenanzahl, Anteil Public vs. DM, aktive Tage/Stunden)", "data_points": "Gesendete Nachrichten pro User, gelesene Channels, Aktivitäts-Zeitfenster, Huddle-Minuten", "risk_level": "HIGH", "bag_assessment": "Objektive Eignung zur Kommunikations- und Anwesenheitsüberwachung.", "mandatory_remediation": "Deaktivierung des Member-Exports auf Einzelpersonen-Basis im Admin-Dashboard; Einsicht in Private Channels / DMs über Discovery-API technisch gesperrt."}, {"feature": "Slack AI Channel Recaps, Thread Summaries & Huddle Notes", "data_points": "KI-Zusammenfassungen von Diskussionen und Huddle-Gesprächen mit Namensnennung", "risk_level": "MEDIUM", "bag_assessment": "Automatisierte Protokollierung des Gesprächsverhaltens.", "mandatory_remediation": "Huddle-KI-Notizen nur bei sichtbarem Opt-in-Banner für alle Teilnehmenden; Verbot der Nutzung von KI-Zusammenfassungen zur Leistungsbeurteilung."}], "default_retention_days": 90, "recommended_kpis_banned": ["Gesendete Slack-Nachrichten pro Tag/Woche", "Anteil Direktnachrichten vs. öffentliche Channels", "Reaktionsgeschwindigkeit auf @mentions"]}];
+const LEGAL_AUTHORITIES = [{"norm": "§ 87 Abs. 1 Nr. 6 BetrVG", "title": "Zwingende Mitbestimmung bei technischen Überwachungseinrichtungen", "rule": "Erzwingbares Mitbestimmungsrecht des Betriebsrats bei Einführung und Anwendung von technischen Einrichtungen, die objektiv dazu geeignet sind, das Verhalten oder die Leistung der Arbeitnehmer zu überwachen.", "consequence": "Ohne unterzeichnete Betriebsvereinbarung (BV) oder Spruch der Einigungsstelle (§ 87 Abs. 2 BetrVG) ist der Betrieb rechtswidrig: Unterlassungsanspruch des Betriebsrats (§ 23 Abs. 3 BetrVG / allgemeiner Unterlassungsanspruch) & Beweisverwertungsverbot im Kündigungsschutzprozess."}, {"norm": "BAG 1 ABR 22/84, 1 ABR 7/15, 1 ABR 32/16, 1 ABR 20/21", "title": "Ständige BAG-Rechtsprechung zur 'Objektiven Eignung'", "rule": "Auf eine subjektive Überwachungsabsicht des Arbeitgebers kommt es nicht an. Sobald eine Software personenbezogene Zeitstempel, Logfiles, Ticket-Durchlaufzeiten, Anwesenheitsstatus oder KI-Prompt-Historien erhebt oder speichert, liegt objektive Überwachungseignung vor (abgegrenzt von rein formalen Listenabgleichen ohne Verhaltensbezug in BAG 1 ABR 32/16).", "consequence": "Jedes moderne Cloud-/SaaS-Tool (MS 365, Jira, HubSpot, Personio, Slack, ChatGPT Enterprise) fällt bereits durch Standard-Audit-Logs unter § 87 Abs. 1 Nr. 6 BetrVG."}, {"norm": "§ 80 Abs. 3 Satz 2 & Satz 3 BetrVG (Betriebsrätemodernisierungsgesetz)", "title": "Gesetzliche Erforderlichkeitsfiktion für KI-Sachverständige", "rule": "Muss der Betriebsrat zur Durchführung seiner Aufgaben die Einführung oder Anwendung von Künstlicher Intelligenz (KI) beurteilen, gilt die Hinzuziehung eines externen Sachverständigen kraft Gesetzes als erforderlich.", "consequence": "100 % Kostentragungspflicht des Arbeitgebers (§ 40 Abs. 1 BetrVG) für externe IT-/KI-Gutachter und Fachanwälte ohne langwierigen Streit über die Erforderlichkeit."}, {"norm": "§ 90 Abs. 1 Nr. 3 & § 95 Abs. 2a BetrVG", "title": "Unterrichtungs- und Beratungsrecht bei KI & personellen Auswahlrichtlinien", "rule": "Rechtzeitige Unterrichtung über die Planung des Einsatzes von Künstlicher Intelligenz (§ 90 Abs. 1 Nr. 3 BetrVG) sowie Mitbestimmung bei KI-gestützten personellen Auswahlrichtlinien im Recruiting, Matching oder Performance-Management (§ 95 Abs. 2a BetrVG).", "consequence": "Zwingende Vorlage einer Technischen Systembeschreibung inkl. Modell-Architektur, Scoring-Logik und Human-in-the-Loop-Garantien vor Go-Live."}, {"norm": "Art. 4, Art. 14, Art. 26 & Annex III Nr. 4 EU AI Act (VO (EU) 2024/1689)", "title": "KI-Kompetenzpflicht (AI Literacy) & Hochrisiko-KI im Beschäftigungskontext", "rule": "Seit 02.02.2025 verpflichtende KI-Kompetenzschulung (Art. 4 EU AI Act) für alle Anwender. KI-Systeme für Recruiting, Bewerberfilterung, Aufgabenverteilung oder Leistungsbewertung gelten nach Annex III Nr. 4 als Hochrisiko-KI.", "consequence": "Pflicht zur menschlichen Aufsicht (Human-in-the-Loop nach Art. 14), Unterrichtung der Arbeitnehmervertretung (Art. 26 Abs. 7) und Verbot von Emotionserkennung am Arbeitsplatz (Art. 5 Abs. 1 lit. f)."}, {"norm": "§ 26 BDSG i.V.m. Art. 88 DSGVO", "title": "Beschäftigtendatenschutz & Kollektivvereinbarungen", "rule": "Verarbeitung personenbezogener Beschäftigtendaten durch Kollektivvereinbarung (Betriebsvereinbarung) unter Wahrung von Transparenz, Zweckbindung, Löschfristen und Verbot unverhältnismäßiger Dauerüberwachung.", "consequence": "Die Betriebsvereinbarung dient als rechtssichere Rechtsgrundlage nach Art. 88 DSGVO / § 26 Abs. 4 BDSG, sofern Mindeststandards (Art. 88 Abs. 2 DSGVO) eingehalten werden."}];
+let currentBvMarkdown = "# RAHMEN-BETRIEBSVEREINBARUNG (IT- & KI-RAHMEN-BV)\n**über die Einführung, den Betrieb und die Weiterentwicklung von Cloud-/SaaS-Systemen sowie Systemen der Künstlichen Intelligenz (KI)**\ngemäß § 87 Abs. 1 Nr. 6, § 80 Abs. 3 Satz 2, § 90 Abs. 1 Nr. 3, § 94, § 95 Abs. 2a, §§ 96–98 BetrVG i.V.m. § 26 Abs. 4 BDSG, Art. 88 DSGVO und VO (EU) 2024/1689 (EU AI Act)\n\nZwischen der\n**Muster Mittelstand GmbH** (nachfolgend „Arbeitgeberin“)\nund dem\n**Betriebsrat der Muster Mittelstand GmbH (Standort München)** (nachfolgend „Betriebsrat“)\n\nStatus: Unterschriftsreifer Entwurf | Stand: 2026-10-17\n\n---\n\n## § 1 Gegenstand, Geltungsbereich und erfasste Systeme\n(1) Diese Rahmen-Betriebsvereinbarung gilt persönlich für alle Arbeitnehmerinnen und Arbeitnehmer im Sinne des § 5 Abs. 1 BetrVG (einschließlich Auszubildender und dual Studierender) der Muster Mittelstand GmbH.\n(2) Sachlich regelt sie die Einführung, Konfiguration, Änderung und Anwendung sämtlicher IT-, Cloud- und KI-Systeme, die nach der Rechtsprechung des Bundesarbeitsgerichts (u.a. BAG 1 ABR 22/84, 1 ABR 32/16, 1 ABR 20/21) objektiv geeignet sind, das Verhalten oder die Leistung der Beschäftigten zu überwachen (§ 87 Abs. 1 Nr. 6 BetrVG).\n(3) Bei Abschluss dieser Vereinbarung sind in **Anlage 1 (Positivliste & Technische Systembeschreibung)** insbesondere folgende Systeme freigegeben:\n**Microsoft 365 & Copilot Enterprise (Teams / Viva Insights / Purview), ChatGPT Enterprise / Claude for Work (OpenAI / Anthropic), Personio HR Suite & AI Recruiting / Performance Module, Atlassian Jira / Confluence Cloud & Atlassian Intelligence, HubSpot CRM Enterprise & Breeze AI (Sales / Service Hub), Slack Enterprise Grid & Slack AI**.\n\n## § 2 Ausschluss der Verhaltens- und Leistungskontrolle & Zweckbindung\n(1) **Verbot der Verhaltens- und Leistungskontrolle:** Die in Anlage 1 aufgeführten IT- und KI-Systeme dienen ausschließlich der Unterstützung der Arbeitsprozesse, der Kollaboration sowie der Informationsverarbeitung. Eine Nutzung von Systemprotokollen, Zeitstempeln, Anwesenheitsindikatoren, Ticket-Durchlaufzeiten, Nutzungsmetriken oder KI-Prompt-Verläufen zur individuellen oder vergleichenden Kontrolle von Leistung oder Verhalten der Beschäftigten ist **strikt untersagt**.\n(2) **Verbot von Profilbildung, Scoring und Emotionserkennung:** Es findet kein automatisiertes Profiling (Art. 22 DSGVO), kein Mitarbeiter-Ranking und keine KI-gestützte Emotions-, Stimm- oder Stimmungsanalyse am Arbeitsplatz statt (absolutes Verbot nach Art. 5 Abs. 1 lit. f EU AI Act).\n(3) **Zulässige Auswertungen:** Auswertungen von Betriebs- und Nutzungsdaten sind ausschließlich in vollständig anonymisierter oder aggregierter Form (Mindestgruppengröße: **N >= 15 Beschäftigte**, ohne Rückschlussmöglichkeit auf Einzelpersonen) zur Sicherstellung der IT-Sicherheit, Systemstabilität und Lizenzplanung zulässig.\n\n## § 3 Grundsatz der menschlichen Letztentscheidung („Human-in-the-Loop“, Art. 14 EU AI Act & § 95 Abs. 2a BetrVG)\n(1) KI-Ausgaben (Texte, Zusammenfassungen, Code, Bewerber-Scores, Ticket-Priorisierungen) sind statistische Assistenzvorschläge ohne Richtigkeitsgewähr.\n(2) Personalwirtschaftliche Maßnahmen (Einstellung, Ablehnung von Bewerbenden, Leistungsbeurteilung, Entgeltfindung, Abmahnung, Versetzung, Kündigung) dürfen **niemals** allein oder überwiegend auf der Ausgabe eines KI-Systems beruhen. Jede Entscheidung erfordert eine eigenständige inhaltliche Prüfung durch eine hierzu befugte natürliche Person.\n(3) Soweit KI-Funktionen im Recruiting oder Personalmanagement (z.B. Personio AI) eingesetzt werden, gelten diese als Auswahlrichtlinien nach **§ 95 Abs. 2a BetrVG** sowie als Hochrisiko-KI nach **Annex III Nr. 4 EU AI Act** und bedürfen vor Aktivierung der gesonderten Freigabe ihrer Bewertungs- und Gewichtungslogik in Anlage 1.\n\n## § 4 Datenschutz, KI-Trainingsschutz & Speicherfristen (§ 26 Abs. 4 BDSG / Art. 88 DSGVO)\n(1) **Kein Modelltraining mit Beschäftigtendaten:** Die Arbeitgeberin stellt vertraglich und technisch (Enterprise-Tenant-Konfiguration / Zero-Data-Retention) sicher, dass eingegebene Prompts, Dokumente, Quellcodes und Kommunikationsdaten nicht zum Training externer Basismodelle der Hersteller (Microsoft, OpenAI, Anthropic, Atlassian, HubSpot, Slack) verwendet werden.\n(2) **Speicherfristen & Löschkonzept:** Personenbezogene Sicherheits- und Audit-Logs sowie persönliche KI-Prompt-Historien werden spätestens nach Ablauf der in Anlage 1 definierten Frist (Regelfrist: **30 bis 90 Tage**) automatisiert gelöscht, sofern keine zwingende gesetzliche Aufbewahrungspflicht entgegensteht.\n(3) **Kein Eingeben sensibler Daten:** Besondere Kategorien personenbezogener Daten nach Art. 9 DSGVO / § 26 Abs. 3 BDSG (insb. Gesundheitsdaten, BEM-Daten, Schwerbehinderung, Gewerkschaftszugehörigkeit, Betriebsratsarbeit) dürfen nicht in externe generative KI-Systeme eingegeben werden.\n\n## § 5 Zugriffsrechte, Vier-Augen-Prinzip und Beweisverwertungsverbot\n(1) Disziplinarische Vorgesetzte erhalten **keinen** Zugriff auf Admin-Audit-Logs, Prompt-Verläufe, individuelle Ticket-Velocity-Berichte oder Kommunikationsmetriken.\n(2) Ein personenbezogener Zugriff auf Protokolldaten ist ausschließlich im konkreten, schriftlich dokumentierten Verdachtsfall einer erheblichen Straftat oder einer schwerwiegenden Pflichtverletzung (§ 26 Abs. 1 Satz 2 BDSG) oder bei einem kritischen IT-Sicherheitsvorfall nach dem **Vier-Augen-Prinzip** zulässig: Der Zugriff erfordert die vorherige Freigabe durch (a) die Datenschutzbeauftragte / den Datenschutzbeauftragten **und** (b) ein benanntes Mitglied des Betriebsrats.\n(3) **Beweisverwertungsverbot:** Informationen, Protokolle oder Auswertungen, die unter Verstoß gegen diese Betriebsvereinbarung oder ohne ordnungsgemäße Beteiligung des Betriebsrats gewonnen wurden, unterliegen einem umfassenden **betrieblichen und arbeitsgerichtlichen Verwendungs- und Beweisverwertungsverbot**. Auf sie dürfen weder Abmahnungen noch Kündigungen gestützt werden.\n\n## § 6 Qualifizierung & KI-Kompetenz (Art. 4 EU AI Act & §§ 96–98 BetrVG)\n(1) Zur Erfüllung der gesetzlichen Pflicht aus **Art. 4 EU AI Act (KI-Kompetenz / AI Literacy)** erhalten alle Beschäftigten vor oder unmittelbar bei Freischaltung von KI-Systemen eine praxisbezogene Schulung zu Funktionsweise, Grenzen (Halluzinationen, Bias), Datenschutz und Urheberrecht.\n(2) Die Schulungen finden während der regulären Arbeitszeit statt; sämtliche Kosten trägt die Arbeitgeberin.\n\n## § 7 Beteiligungsverfahren bei Updates, neuen KI-Features & Sachverständigenrecht (§ 80 Abs. 3 Satz 2, § 90 Abs. 1 Nr. 3 BetrVG)\n(1) **Frühzeitige Unterrichtung (§ 90 Abs. 1 Nr. 3 BetrVG):** Über geplante neue IT-Systeme, neue KI-Module oder wesentliche Funktions-Updates in bestehenden Cloud-Systemen (z.B. Aktivierung neuer Copilot-, Breeze- oder Atlassian-Intelligence-Features) unterrichtet die Arbeitgeberin den Betriebsrat mindestens **4 Wochen vor geplantem Rollout** unter Vorlage einer aktualisierten Technischen Systembeschreibung.\n(2) **Paritätischer IT-/KI-Ausschuss:** Es wird ein paritätischer IT-/KI-Ausschuss (je 2 Vertreter Arbeitgeberin und Betriebsrat) gebildet, der vierteljährlich sowie anlassbezogen neue Releases prüft und Anlage 1 fortschreibt.\n(3) **Sachverständigen-Klausel (§ 80 Abs. 3 Satz 2 BetrVG):** Die Parteien erkennen an, dass bei der Einführung oder wesentlichen Änderung von Systemen der Künstlichen Intelligenz die Hinzuziehung eines externen IT-/KI-Sachverständigen des Betriebsrats kraft Gesetzes (§ 80 Abs. 3 Satz 2 BetrVG) als erforderlich gilt. Für die laufende Prüfung vereinbaren die Parteien ein abrufbares jährliches Sachverständigen-Kontingent nach § 40 Abs. 1 BetrVG.\n\n## § 8 Konfliktlösung, Einigungsstelle und Schlussbestimmungen\n(1) Bei Meinungsverschiedenheiten über die Auslegung dieser Vereinbarung oder die Freigabe neuer Module in Anlage 1 entscheidet im Nichteinigungsfall die **Einigungsstelle gemäß § 76, § 87 Abs. 2 BetrVG**. Bis zum Spruch der Einigungsstelle bleibt das strittige Überwachungs- oder KI-Feature deaktiviert.\n(2) Diese Betriebsvereinbarung tritt mit Unterzeichnung in Kraft. Sie kann mit einer Frist von 6 Monaten zum Jahresende gekündigt werden. In den Angelegenheiten der erzwingbaren Mitbestimmung (§ 87 Abs. 1 Nr. 6, § 94, § 95 Abs. 2a, § 98 BetrVG) wirkt sie gemäß **§ 77 Abs. 6 BetrVG** nach, bis sie durch eine andere Abmachung ersetzt wird.\n\n---\n\n## ANLAGE 1: TECHNISCHE SYSTEMBESCHREIBUNG & POSITIVLISTE DER FREIGEGEBENEN SYSTEME\n\n### 1. Microsoft 365 & Copilot Enterprise (Teams / Viva Insights / Purview) (Microsoft Ireland Operations Ltd. / Microsoft Corp.)\n- **Kategorie & Hosting:** Workplace Productivity & GenAI Assistant | EU Data Boundary (Azure Frankfurt / Dublin) + US Subprocessors\n- **EU AI Act Klassifizierung:** General Purpose AI (GPAI) / Limited Risk (Art. 4 & Art. 50 EU AI Act)\n- **BetrVG-Rechtsgrundlagen:** § 87 Abs. 1 Nr. 6 BetrVG (Zwingende Mitbestimmung: Purview Audit-Logs, Teams Präsenzstatus, Copilot Prompt-Historie); § 80 Abs. 3 Satz 2 BetrVG (Gesetzliche Erforderlichkeitsfiktion für KI-Sachverständigen); § 90 Abs. 1 Nr. 3 BetrVG (Planungsunterrichtung KI-Arbeitsverfahren); § 96–98 BetrVG i.V.m. Art. 4 EU AI Act (KI-Kompetenzschulung / AI Literacy)\n- **Regulierte Telemetrie-Vektoren & Schutzmaßnahmen:** Microsoft Purview Unified Audit Log & Copilot Interaction History -> Maßnahme: Deaktivierung personenbezogener Admin-Einsicht in Prompt-Inhalte; automatische Löschfrist 30 Tage; Vier-Augen-Prinzip mit Betriebsrats-Freigabe bei Security-Incidents.; Microsoft Viva Insights / M365 Usage Analytics & Productivity Score -> Maßnahme: Vollständige Deaktivierung auf Einzelpersonen-Ebene; Aggregation nur bei Mindestgruppengröße >= 15 Mitarbeitende ohne Rückschlussmöglichkeit.; MS Teams Präsenzstatus ('Verfügbar', 'Abwesend', 'Zuletzt gesehen') & Call-Quality-Logs -> Maßnahme: Verbot der Nutzung des Teams-Status zur Arbeitszeit- oder Pausenkontrolle; KI-Meeting-Transkription nur nach aktivem Opt-in aller Teilnehmenden.\n- **Verbotene Leistungs-/Verhaltens-KPIs:** Prompts pro Mitarbeiter/Tag, Teams-Inaktivitätsminuten, Individueller Microsoft Productivity Score, Reaktionszeit auf Chat-Nachrichten\n- **Maximale Speicherfrist (Audit-/Prompt-Logs):** 30 Tage\n\n### 2. ChatGPT Enterprise / Claude for Work (OpenAI / Anthropic) (OpenAI Ireland Ltd. / Anthropic Ireland Ltd.)\n- **Kategorie & Hosting:** Enterprise LLM & Coding/Knowledge Assistant | EU Data Residency Option / SOC2 Type II Cloud\n- **EU AI Act Klassifizierung:** General Purpose AI (GPAI) — Art. 4 & Art. 50 EU AI Act\n- **BetrVG-Rechtsgrundlagen:** § 87 Abs. 1 Nr. 6 BetrVG (Workspace Analytics, Prompt-Volumen, Token-Verbrauch pro User); § 80 Abs. 3 Satz 2 BetrVG (KI-Sachverständiger auf Arbeitgeberkosten); § 90 Abs. 1 Nr. 3 BetrVG (Unterrichtung über KI-Einsatz); Art. 4 EU AI Act i.V.m. § 98 BetrVG (Verpflichtende KI-Schulung während der Arbeitszeit)\n- **Regulierte Telemetrie-Vektoren & Schutzmaßnahmen:** Enterprise Admin Console & Compliance API (Prompt/Completion Logs) -> Maßnahme: Sperrung des Compliance-API-Volltextzugriffs für Vorgesetzte; automatische Workspace-History-Löschung nach 30 Tagen; Zero-Data-Retention für Modelltraining.; Seat-Utilization & Active-User-Metriken (Nachrichten/Woche) -> Maßnahme: Nutzungsprüfung ausschließlich zur Lizenzverwaltung nach 90 Tagen Inaktivität ohne Meldung an disziplinarische Vorgesetzte.\n- **Verbotene Leistungs-/Verhaltens-KPIs:** Token-/Prompt-Volumen-Ranking zwischen Mitarbeitenden, Inhaltliche Auswertung von Such- und Prompt-Verläufen, Automatisierte Code-Output-Bewertung ohne menschliches Review\n- **Maximale Speicherfrist (Audit-/Prompt-Logs):** 30 Tage\n\n### 3. Personio HR Suite & AI Recruiting / Performance Module (Personio SE & Co. KG (München))\n- **Kategorie & Hosting:** Core HR, Zeiterfassung, Bewerbermanagement & Performance | AWS eu-central-1 (Frankfurt am Main, Deutschland)\n- **EU AI Act Klassifizierung:** HIGH-RISK AI SYSTEM — Annex III Nr. 4 lit. a & b EU AI Act (Recruiting & Performance)\n- **BetrVG-Rechtsgrundlagen:** § 87 Abs. 1 Nr. 6 BetrVG (Digitale Zeiterfassung, Krankenstands-Dashboards, Performance-Zyklen); § 95 Abs. 2a BetrVG (Mitbestimmung bei KI-gestützten personellen Auswahlrichtlinien); § 94 BetrVG (Personalfragebögen & Beurteilungsgrundsätze); § 80 Abs. 3 Satz 2 BetrVG (Zwingender KI-Sachverständiger); Art. 14 & Art. 26 Abs. 7 EU AI Act (Human-in-the-Loop & Betriebsrats-Information bei Hochrisiko-KI)\n- **Regulierte Telemetrie-Vektoren & Schutzmaßnahmen:** AI CV-Parsing & Bewerber-Matching / Auto-Pre-Screening -> Maßnahme: Kein automatischer Bewerberausschluss ohne menschliche Einzelprüfung (Art. 14 EU AI Act & Art. 22 DSGVO); Offenlegung der Gewichtungsfaktoren gegenüber dem Betriebsrat.; Performance- & Feedback-Modul (360-Grad-Reviews / Zielerreichungs-Scores) -> Maßnahme: Verbot von Forced-Ranking-Kurven und automatisierten Low-Performer-Listen; ausschließliche Nutzung für strukturierte Entwicklungsgespräche.; Abwesenheits-, BEM- & Krankheits-Analyse-Reports -> Maßnahme: Deaktivierung von Fehlzeiten-Muster-Reports; Zugriff ausschließlich für berechtigte HR-Sachbearbeiter zur gesetzlichen Entgeltfortzahlungs- und § 167 Abs. 2 SGB IX BEM-Prüfung.\n- **Verbotene Leistungs-/Verhaltens-KPIs:** Automatisierter Bewerber-Ablehnungs-Score ohne Human-in-the-Loop, Abteilungsübergreifendes Krankenstands-Einzelranking, Algorithmische Kündigungs- oder Abmahnungsempfehlung\n- **Maximale Speicherfrist (Audit-/Prompt-Logs):** 90 Tage\n\n### 4. Atlassian Jira / Confluence Cloud & Atlassian Intelligence (Atlassian Pty Ltd. / Atlassian US Inc.)\n- **Kategorie & Hosting:** Agile Project Management, Issue Tracking & Dev-Telemetry | AWS EU-Central-1 (Data Residency Pinned: Germany/EU)\n- **EU AI Act Klassifizierung:** General Purpose AI / Task Allocation Risk Check (Annex III Nr. 4 lit. b EU AI Act)\n- **BetrVG-Rechtsgrundlagen:** § 87 Abs. 1 Nr. 6 BetrVG (Story-Point-Velocity pro Entwickler, Ticket-Durchlaufzeiten, Bearbeitungs-Timestamps); § 80 Abs. 3 Satz 2 BetrVG (KI-Sachverständiger für Atlassian Intelligence / Rovo); § 90 Abs. 1 Nr. 3 BetrVG (KI-gestützte Arbeitsprozesse)\n- **Regulierte Telemetrie-Vektoren & Schutzmaßnahmen:** Individual Velocity, Story-Points-Burnup & Cycle-Time pro Assignee -> Maßnahme: Verbot personenbezogener JQL-Leistungsabfragen (Assignee-Filter für Management-Reports gesperrt); Sprint-Metriken ausschließlich auf Team-/Squad-Ebene.; Worklog / Time-Tracking auf Ticket-Ebene -> Maßnahme: Zeiterfassung auf Tickets nur aggregiert für Kundenfakturierung oder Projektbudgetierung; kein Abgleich mit der arbeitsvertraglichen Arbeitszeiterfassung.; Atlassian Intelligence / Rovo AI Issue Summarization & Auto-Assignment -> Maßnahme: Keine vollautomatische Ticket-Zuweisung nach Leistungs-Scores; Zuweisung bleibt im Pull-Prinzip des Scrum-/Kanban-Teams.\n- **Verbotene Leistungs-/Verhaltens-KPIs:** Story Points / erledigte Tickets pro Entwickler, Individuelle Bug-/Reopen-Quote, Kommentar-Aktivitätszähler in Confluence\n- **Maximale Speicherfrist (Audit-/Prompt-Logs):** 180 Tage\n\n### 5. HubSpot CRM Enterprise & Breeze AI (Sales / Service Hub) (HubSpot Ireland Ltd. / HubSpot Inc.)\n- **Kategorie & Hosting:** CRM, Sales Engagement, Call Intelligence & Customer Support | HubSpot EU Data Center (AWS Frankfurt, Germany)\n- **EU AI Act Klassifizierung:** Workplace AI / Emotion & Sentiment Prohibition Check (Art. 5 Abs. 1 lit. f EU AI Act)\n- **BetrVG-Rechtsgrundlagen:** § 87 Abs. 1 Nr. 6 BetrVG (Call-Recording, E-Mail-Tracking, Deal-Velocity, Ticket-SLA-Timer); § 80 Abs. 3 Satz 2 BetrVG (KI-Sachverständiger für Breeze AI & Conversation Intelligence); Art. 5 Abs. 1 lit. f EU AI Act (Strikter Ausschluss von KI-Emotions-/Stimmungsanalyse bei Beschäftigten)\n- **Regulierte Telemetrie-Vektoren & Schutzmaßnahmen:** Conversation Intelligence (KI-Anrufaufzeichnung, Transkription & Talk-to-Listen-Ratio) -> Maßnahme: Vollständige Deaktivierung jeglicher Stimmungs-/Tonfall-/Emotionserkennung der Mitarbeitenden; Call-Recording nur zu Schulungszwecken nach ausdrücklicher beidseitiger Einwilligung (§ 201 StGB).; Sales Activity Leaderboards (Anrufe, gesendete E-Mails, gebuchte Meetings pro Tag) -> Maßnahme: Auswertung ausschließlich bezogen auf vereinbarte Quartals-/Jahres-Umsatzziele für provisionsrelevante Abrechnungen; Verbot von Echtzeit-Aktivitäts-Leaderboards (Anzahl Calls/Stunde).\n- **Verbotene Leistungs-/Verhaltens-KPIs:** KI-Stimmungs-/Sentiment-Score des Vertriebsmitarbeiters (Verbot nach Art. 5 Abs. 1 lit. f EU AI Act), Anzahl ausgehender Calls pro Stunde, Sprechanteil-Quote (Talk-to-Listen-Ratio) als Disziplinarmerkmal\n- **Maximale Speicherfrist (Audit-/Prompt-Logs):** 90 Tage\n\n### 6. Slack Enterprise Grid & Slack AI (Salesforce.com Germany GmbH / Slack Technologies Limited)\n- **Kategorie & Hosting:** Enterprise Messaging, Huddles & Knowledge Search AI | AWS Frankfurt (EU Data Residency für Nachrichten & Dateien)\n- **EU AI Act Klassifizierung:** General Purpose AI (GPAI) — Art. 4 & Art. 50 EU AI Act\n- **BetrVG-Rechtsgrundlagen:** § 87 Abs. 1 Nr. 6 BetrVG (Public/Private Channel Analytics, Online-Indikator, Slack AI Zusammenfassungen); § 80 Abs. 3 Satz 2 BetrVG (KI-Sachverständiger für Slack AI)\n- **Regulierte Telemetrie-Vektoren & Schutzmaßnahmen:** Slack Member Analytics (Nachrichtenanzahl, Anteil Public vs. DM, aktive Tage/Stunden) -> Maßnahme: Deaktivierung des Member-Exports auf Einzelpersonen-Basis im Admin-Dashboard; Einsicht in Private Channels / DMs über Discovery-API technisch gesperrt.; Slack AI Channel Recaps, Thread Summaries & Huddle Notes -> Maßnahme: Huddle-KI-Notizen nur bei sichtbarem Opt-in-Banner für alle Teilnehmenden; Verbot der Nutzung von KI-Zusammenfassungen zur Leistungsbeurteilung.\n- **Verbotene Leistungs-/Verhaltens-KPIs:** Gesendete Slack-Nachrichten pro Tag/Woche, Anteil Direktnachrichten vs. öffentliche Channels, Reaktionsgeschwindigkeit auf @mentions\n- **Maximale Speicherfrist (Audit-/Prompt-Logs):** 90 Tage\n\n\n---\nOrt, Datum: _______________________\n\n___________________________________________\nFür die Geschäftsführung (Muster Mittelstand GmbH)\n\n___________________________________________\nFür den Betriebsrat (Betriebsrat der Muster Mittelstand GmbH (Standort München))\n";
+
+function initStudio() {
+  const container = document.getElementById("toolSelector");
+  container.innerHTML = "";
+  SAAS_CATALOG.forEach((tool) => {
+    const label = document.createElement("label");
+    label.className = "tool-check";
+    label.innerHTML = `
+      <input type="checkbox" class="tool-cb" value="${tool.id}" checked onchange="recomputeStudio()">
+      <div>
+        <div class="tool-check-title">${tool.name}</div>
+        <div class="tool-check-sub">${tool.eu_ai_act_class} · ${tool.telemetry_vectors.length} Telemetrie-Vektoren</div>
+      </div>
+    `;
+    container.appendChild(label);
+  });
+
+  const lawGrid = document.getElementById("lawGrid");
+  lawGrid.innerHTML = LEGAL_AUTHORITIES.map((law) => `
+    <div class="law-item">
+      <h3>${law.norm} — ${law.title}</h3>
+      <p><strong>Tatbestand:</strong> ${law.rule}</p>
+      <p><strong>Rechtsfolge:</strong> ${law.consequence}</p>
+    </div>
+  `).join("");
+
+  recomputeStudio();
+}
+
+function toggleAllTools(selectAll) {
+  const cbs = document.querySelectorAll(".tool-cb");
+  cbs.forEach((cb, idx) => {
+    cb.checked = selectAll ? true : (idx === 0);
+  });
+  recomputeStudio();
+}
+
+function recomputeStudio() {
+  const company = document.getElementById("companyInput").value.trim() || "Muster Mittelstand GmbH";
+  const br = document.getElementById("brInput").value.trim() || "Betriebsrat";
+  const empCount = parseInt(document.getElementById("empInput").value || "240", 10);
+
+  const selectedIds = Array.from(document.querySelectorAll(".tool-cb:checked")).map(cb => cb.value);
+  const selectedTools = SAAS_CATALOG.filter(t => selectedIds.includes(t.id));
+  const activeTools = selectedTools.length > 0 ? selectedTools : [SAAS_CATALOG[0]];
+
+  const aiTools = activeTools.filter(t => t.has_ai);
+  const highRiskTools = activeTools.filter(t => t.hr_selection_ai);
+  let totalVectors = 0;
+  let critVectors = 0;
+
+  const rowsHtml = [];
+  activeTools.forEach(tool => {
+    tool.telemetry_vectors.forEach(vec => {
+      totalVectors += 1;
+      if (vec.risk_level === "CRITICAL") critVectors += 1;
+      rowsHtml.push(`
+        <tr>
+          <td><strong>${tool.name}</strong><br><span style="color:var(--muted);font-size:0.75rem;">${tool.hosting}</span></td>
+          <td><strong>${vec.feature}</strong><br><span style="color:var(--muted);font-size:0.75rem;">${vec.bag_assessment}</span></td>
+          <td>${vec.data_points}</td>
+          <td><span class="pill ${vec.risk_level}">${vec.risk_level}</span></td>
+          <td>${vec.mandatory_remediation}</td>
+        </tr>
+      `);
+    });
+  });
+
+  document.getElementById("matrixBody").innerHTML = rowsHtml.join("");
+  document.getElementById("vectorCountBadge").textContent = `${totalVectors} Vektoren (${critVectors} CRITICAL)`;
+
+  const kpiGrid = document.getElementById("kpiGrid");
+  kpiGrid.innerHTML = `
+    <div class="kpi-box">
+      <div class="kpi-label">§ 87 Abs. 1 Nr. 6 BetrVG Status</div>
+      <div class="kpi-val" style="color:#fda4af;">ZWINGEND</div>
+      <div class="kpi-sub">${empCount >= 5 ? "Betriebsratspflichtig (>= 5 AN) · Unterlassungsanspruch ohne BV" : "Unter 5 AN Schwellenwert (§ 1 BetrVG)"}</div>
+    </div>
+    <div class="kpi-box">
+      <div class="kpi-label">§ 80 Abs. 3 S. 2 KI-Sachverständiger</div>
+      <div class="kpi-val" style="color:#7dd3fc;">${aiTools.length > 0 ? "GREIFT SOFORT" : "NICHT AKTIV"}</div>
+      <div class="kpi-sub">${aiTools.length} KI-Systeme aktiv · Gesetzliche Erforderlichkeitsfiktion (§ 40 BetrVG Kosten Arbeitgeber)</div>
+    </div>
+    <div class="kpi-box">
+      <div class="kpi-label">§ 95 Abs. 2a & Annex III EU AI Act</div>
+      <div class="kpi-val" style="color:${highRiskTools.length > 0 ? "#fcd34d" : "#6ee7b7"};">${highRiskTools.length > 0 ? "HOCHRISIKO-KI" : "GPAI / STANDARD"}</div>
+      <div class="kpi-sub">${highRiskTools.length > 0 ? "HR-Auswahlrichtlinien aktiv (Personio AI) · Art. 14 Human-in-the-Loop Pflicht" : "Keine automatisierte HR-Bewerberauswahl ausgewählt"}</div>
+    </div>
+    <div class="kpi-box">
+      <div class="kpi-label">Regulierte Telemetrie-Vektoren</div>
+      <div class="kpi-val">${totalVectors}</div>
+      <div class="kpi-sub">${critVectors} kritische Leistungs-/Verhaltens-Logs durch BV gesperrt</div>
+    </div>
+  `;
+
+  const today = new Date().toISOString().slice(0, 10);
+  const toolNames = activeTools.map(t => t.name).join(", ");
+  const annexBlocks = activeTools.map((t, i) => {
+    const vecStr = t.telemetry_vectors.map(v => `${v.feature} -> Maßnahme: ${v.mandatory_remediation}`).join("; ");
+    return `### ${i + 1}. ${t.name} (${t.vendor})
+- **Kategorie & Hosting:** ${t.category} | ${t.hosting}
+- **EU AI Act Klassifizierung:** ${t.eu_ai_act_class}
+- **BetrVG-Rechtsgrundlagen:** ${t.betrvg_triggers.join("; ")}
+- **Regulierte Telemetrie-Vektoren & Schutzmaßnahmen:** ${vecStr}
+- **Verbotene Leistungs-/Verhaltens-KPIs:** ${t.recommended_kpis_banned.join(", ")}
+- **Maximale Speicherfrist (Audit-/Prompt-Logs):** ${t.default_retention_days} Tage`;
+  }).join("\n\n");
+
+  currentBvMarkdown = `# RAHMEN-BETRIEBSVEREINBARUNG (IT- & KI-RAHMEN-BV)
+über die Einführung, den Betrieb und die Weiterentwicklung von Cloud-/SaaS-Systemen sowie Systemen der Künstlichen Intelligenz (KI)
+gemäß § 87 Abs. 1 Nr. 6, § 80 Abs. 3 Satz 2, § 90 Abs. 1 Nr. 3, § 94, § 95 Abs. 2a, §§ 96–98 BetrVG i.V.m. § 26 Abs. 4 BDSG, Art. 88 DSGVO und VO (EU) 2024/1689 (EU AI Act)
+
+Zwischen der ${company} („Arbeitgeberin“) und dem ${br} („Betriebsrat“)
+Stand: ${today} | Erfasste Systeme: ${toolNames}
+
+## § 1 Gegenstand, Geltungsbereich und erfasste Systeme
+Diese Rahmen-Betriebsvereinbarung gilt für alle Beschäftigten nach § 5 Abs. 1 BetrVG der ${company} und regelt sämtliche IT-, Cloud- und KI-Systeme mit objektiver Überwachungseignung nach § 87 Abs. 1 Nr. 6 BetrVG (BAG 1 ABR 22/84, 1 ABR 32/16, 1 ABR 20/21).
+
+## § 2 Ausschluss der Verhaltens- und Leistungskontrolle & Zweckbindung
+(1) Eine Nutzung von Systemprotokollen, Zeitstempeln, Anwesenheitsindikatoren, Ticket-Durchlaufzeiten oder KI-Prompt-Verläufen zur individuellen Leistungs- oder Verhaltenskontrolle ist strikt untersagt.
+(2) Kein automatisiertes Profiling (Art. 22 DSGVO) und keine KI-gestützte Emotions- oder Stimmungsanalyse am Arbeitsplatz (Art. 5 Abs. 1 lit. f EU AI Act).
+(3) Betriebsstatistiken nur anonymisiert/aggregiert ab Mindestgruppengröße N >= 15 Beschäftigte.
+
+## § 3 Grundsatz der menschlichen Letztentscheidung („Human-in-the-Loop“, Art. 14 EU AI Act & § 95 Abs. 2a BetrVG)
+Personalwirtschaftliche Entscheidungen dürfen niemals allein auf KI-Ausgaben beruhen. KI-Funktionen im Recruiting/Performance-Management unterliegen § 95 Abs. 2a BetrVG sowie Annex III Nr. 4 EU AI Act.
+
+## § 4 Datenschutz, KI-Trainingsschutz & Speicherfristen (§ 26 Abs. 4 BDSG / Art. 88 DSGVO)
+Kein Training externer KI-Basismodelle mit Unternehmens- oder Beschäftigtendaten (Zero-Data-Retention / Enterprise-Tenant). Automatische Löschung personenbezogener Audit- und Prompt-Logs gemäß Anlage 1 (30–180 Tage).
+
+## § 5 Zugriffsrechte, Vier-Augen-Prinzip und Beweisverwertungsverbot
+Kein Vorgesetztenzugriff auf Einzel-Telemetrie. Auswertung nur bei dokumentiertem Straftat-/Schwerstverstoß-Verdacht (§ 26 Abs. 1 S. 2 BDSG) im Vier-Augen-Prinzip (Datenschutzbeauftragter + Betriebsrat). Bei Verstößen gilt ein umfassendes arbeitsgerichtliches Beweisverwertungsverbot.
+
+## § 6 Qualifizierung & KI-Kompetenz (Art. 4 EU AI Act & §§ 96–98 BetrVG)
+Verpflichtende KI-Kompetenzschulung während der Arbeitszeit auf Kosten der Arbeitgeberin.
+
+## § 7 Beteiligungsverfahren, IT-/KI-Ausschuss & Sachverständiger (§ 80 Abs. 3 Satz 2, § 90 Abs. 1 Nr. 3 BetrVG)
+Unterrichtung mindestens 4 Wochen vor neuen KI-Features. Gesetzliche Erforderlichkeitsfiktion für externe KI-Sachverständige des Betriebsrats nach § 80 Abs. 3 Satz 2 BetrVG i.V.m. § 40 Abs. 1 BetrVG.
+
+## § 8 Einigungsstelle & Nachwirkung (§ 76, § 77 Abs. 6, § 87 Abs. 2 BetrVG)
+Bei Nichteinigung über neue KI-/Telemetrie-Module entscheidet die Einigungsstelle; bis dahin bleibt das Feature deaktiviert. Zwingende Nachwirkung nach § 77 Abs. 6 BetrVG.
+
+---
+## ANLAGE 1: TECHNISCHE SYSTEMBESCHREIBUNG & POSITIVLISTE
+
+${annexBlocks}
+`;
+
+  document.getElementById("bvPreview").textContent = currentBvMarkdown;
+}
+
+function copyBvText() {
+  navigator.clipboard.writeText(currentBvMarkdown);
+}
+
+function downloadBvMarkdown() {
+  const blob = new Blob([currentBvMarkdown], { type: "text/markdown;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "IT_KI_Rahmen_Betriebsvereinbarung_BetrVG87.md";
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+window.addEventListener("DOMContentLoaded", initStudio);
+</script>
+</body>
+</html>

@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="de" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MVP #25 — Dual-Agent DM Setter Simulator & Closer Handoff Dashboard</title>
+  <style>
+    :root {
+      --bg: #0b0f19;
+      --panel: #111827;
+      --panel-alt: #1e293b;
+      --border: #334155;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --accent: #10b981;
+      --accent-glow: rgba(16, 185, 129, 0.2);
+      --purple: #8b5cf6;
+      --amber: #f59e0b;
+      --rose: #f43f5e;
+      --sky: #0ea5e9;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      padding: 24px;
+    }
+    .container { max-width: 1440px; margin: 0 auto; }
+    header {
+      display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center;
+      gap: 16px; padding-bottom: 20px; border-bottom: 1px solid var(--border); margin-bottom: 24px;
+    }
+    .badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 4px 10px; border-radius: 999px; font-size: 12px; font-weight: 600;
+      background: var(--accent-glow); color: var(--accent); border: 1px solid rgba(16, 185, 129, 0.4);
+    }
+    h1 { font-size: 24px; font-weight: 700; letter-spacing: -0.02em; }
+    .subtitle { color: var(--muted); font-size: 14px; margin-top: 4px; }
+    .kpi-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 14px; margin-bottom: 24px;
+    }
+    .kpi-card {
+      background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 16px;
+    }
+    .kpi-label { font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); }
+    .kpi-val { font-size: 24px; font-weight: 700; margin-top: 4px; color: var(--text); }
+    .kpi-sub { font-size: 12px; color: var(--accent); margin-top: 4px; }
+    .layout-grid {
+      display: grid; grid-template-columns: 1.15fr 1fr 0.95fr; gap: 18px;
+    }
+    @media (max-width: 1150px) {
+      .layout-grid { grid-template-columns: 1fr; }
+    }
+    .panel {
+      background: var(--panel); border: 1px solid var(--border); border-radius: 14px;
+      padding: 18px; display: flex; flex-direction: column; gap: 14px;
+    }
+    .panel-title {
+      font-size: 15px; font-weight: 700; display: flex; justify-content: space-between; align-items: center;
+      border-bottom: 1px solid var(--border); padding-bottom: 10px;
+    }
+    .scenario-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+    .tab-btn {
+      background: var(--panel-alt); color: var(--text); border: 1px solid var(--border);
+      padding: 7px 12px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer;
+    }
+    .tab-btn.active {
+      background: var(--accent); color: #052e16; border-color: var(--accent);
+    }
+    .chat-box {
+      display: flex; flex-direction: column; gap: 12px; max-height: 540px; overflow-y: auto;
+      padding: 12px; background: #080c14; border-radius: 10px; border: 1px solid #1e293b;
+    }
+    .msg {
+      max-width: 85%; padding: 10px 14px; border-radius: 14px; font-size: 13.5px; position: relative;
+    }
+    .msg-lead {
+      align-self: flex-start; background: #1e293b; color: #f1f5f9; border-bottom-left-radius: 4px;
+    }
+    .msg-ai {
+      align-self: flex-end; background: linear-gradient(135deg, #059669, #047857);
+      color: #ffffff; border-bottom-right-radius: 4px;
+    }
+    .msg-meta {
+      font-size: 11px; opacity: 0.82; margin-top: 6px; display: flex; gap: 8px; flex-wrap: wrap;
+    }
+    .stage-pill {
+      font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 6px;
+      background: rgba(139, 92, 246, 0.2); color: #c4b5fd; border: 1px solid rgba(139, 92, 246, 0.4);
+    }
+    .analyst-card {
+      background: #0d1322; border: 1px solid var(--border); border-radius: 10px; padding: 12px; font-size: 13px;
+    }
+    .bant-bar-wrap { margin-top: 6px; }
+    .bant-row { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 3px; }
+    .progress { height: 7px; background: #1e293b; border-radius: 999px; overflow: hidden; margin-bottom: 8px; }
+    .progress-fill { height: 100%; background: linear-gradient(90deg, #10b981, #3b82f6); }
+    .dossier-box {
+      background: linear-gradient(180deg, rgba(16, 185, 129, 0.08), rgba(15, 23, 42, 0.9));
+      border: 1px solid rgba(16, 185, 129, 0.4); border-radius: 12px; padding: 14px; font-size: 13px;
+    }
+    .tip-list { padding-left: 18px; margin-top: 8px; color: #cbd5e1; }
+    .tip-list li { margin-bottom: 6px; }
+    .live-input-row { display: flex; gap: 8px; margin-top: 8px; }
+    .live-input {
+      flex: 1; background: #0f172a; border: 1px solid var(--border); color: var(--text);
+      padding: 9px 12px; border-radius: 8px; font-size: 13px;
+    }
+    .btn-send {
+      background: var(--accent); color: #052e16; border: none; padding: 9px 14px;
+      border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer;
+    }
+    table { width: 100%; border-collapse: collapse; font-size: 12.5px; margin-top: 8px; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); }
+    th { color: var(--muted); font-weight: 600; }
+  </style>
+</head>
+<body>
+
+<!-- DACH CASHFLOW STUDIOS LAUNCH BAR -->
+<style>
+  #dcs-launch-bar {
+    position: sticky;
+    top: 0;
+    z-index: 99999;
+    background: linear-gradient(90deg, #0b1120 0%, #111827 50%, #0f172a 100%);
+    color: #f8fafc;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.35);
+    padding: 8px 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  }
+  #dcs-launch-bar .dcs-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+  }
+  #dcs-launch-bar .dcs-badge {
+    background: rgba(16, 185, 129, 0.18);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.03em;
+  }
+  #dcs-launch-bar a.dcs-nav {
+    color: #93c5fd;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 12.5px;
+  }
+  #dcs-launch-bar a.dcs-nav:hover {
+    text-decoration: underline;
+    color: #dbeafe;
+  }
+  #dcs-launch-bar .dcs-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  #dcs-launch-bar .dcs-btn {
+    padding: 5px 11px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s ease;
+  }
+  #dcs-launch-bar .dcs-btn-ghost {
+    background: rgba(255,255,255,0.08);
+    color: #e2e8f0;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  #dcs-launch-bar .dcs-btn-primary {
+    background: linear-gradient(135deg, #0ea5e9, #2563eb);
+    color: #ffffff;
+  }
+  #dcs-launch-bar .dcs-btn-emerald {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
+  }
+  @media print {
+    #dcs-launch-bar { display: none !important; }
+  }
+</style>
+<div id="dcs-launch-bar">
+  <div class="dcs-left">
+    <a href="/index.html" class="dcs-nav">← Alle 150 DACH Studios</a>
+    <span class="dcs-badge">MVP #025 VERIFIED</span>
+    <span style="color:#cbd5e1;font-size:12px;">Creator Economy, Video & Media Arbitrage</span>
+  </div>
+  <div class="dcs-actions">
+    <button onclick="window.print()" class="dcs-btn dcs-btn-ghost">🖨️ PDF / Dossier drucken</button>
+    <a href="#checkout-modal-49" target="_blank" rel="noopener" class="dcs-btn dcs-btn-primary">⚡ Musterschreiben & Voll-Dossier (€49)</a>
+    <a href="#checkout-modal-299" target="_blank" rel="noopener" class="dcs-btn dcs-btn-emerald">🛡️ B2B Umsetzung buchen (€299 / €1.490)</a>
+  </div>
+</div>
+
+  <div class="container">
+    <header>
+      <div>
+        <span class="badge">MVP #25 · Verified Dual-Agent Architecture</span>
+        <h1>Dual-Agent Instagram / WhatsApp Sales Setter & Closer Handoff</h1>
+        <p class="subtitle">AnalystAgent (State Machine + BANT + Objection Classifier) + WriterAgent (Lowercase Voice + 18–47s Human Delay + 2-Slot In-Chat Booking)</p>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:13px;color:var(--muted)">Benchmarks: <b>ai-dm-setter</b> ($27,892/30d) & <b>dm-champ</b> ($14,394/30d)</div>
+        <div style="font-size:12px;color:var(--accent)">All 6 State Machine Stages & 4 Objection Classes Active</div>
+      </div>
+    </header>
+
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label">ai-dm-setter (TrustMRR Verified)</div>
+        <div class="kpi-val">$27,892 <span style="font-size:13px;color:var(--muted)">/ 30d</span></div>
+        <div class="kpi-sub">+66.8% MoM · 29 Subs (~$719/mo) · 90% Margin</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Revenue Per Visitor (ai-dm-setter)</div>
+        <div class="kpi-val">$23.86 <span style="font-size:13px;color:var(--muted)">/ visitor</span></div>
+        <div class="kpi-sub">1,169 visitors -> $20,856 MRR</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">DM Champ (White-Label Reseller)</div>
+        <div class="kpi-val">$14,394 <span style="font-size:13px;color:var(--muted)">/ 30d</span></div>
+        <div class="kpi-sub">+105.6% MoM · $97 / $297 / $497 Plans</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Credit Markup Spread</div>
+        <div class="kpi-val">0.25 Cr <span style="font-size:13px;color:var(--muted)">/ AI Action</span></div>
+        <div class="kpi-sub">$0.10/Credit Base -> 3x-5x Agency Stripe Markup</div>
+      </div>
+    </div>
+
+    <div class="scenario-tabs" id="scenarioTabs"></div>
+
+    <div class="layout-grid">
+      <!-- Column 1: Live DM Thread & Simulator -->
+      <div class="panel">
+        <div class="panel-title">
+          <span id="chatHeaderTitle">1. Instagram / WhatsApp DM Stream</span>
+          <span class="stage-pill" id="currentStageBadge">BOOKED</span>
+        </div>
+        <div class="chat-box" id="chatBox"></div>
+        <div class="live-input-row">
+          <input type="text" id="customLeadInput" class="live-input" placeholder="Teste eine eigene Lead-Nachricht (z.B. 'Ist mir zu teuer, habe keine Zeit')..." />
+          <button class="btn-send" onclick="simulateCustomTurn()">Senden</button>
+        </div>
+      </div>
+
+      <!-- Column 2: AnalystAgent Telemetry -->
+      <div class="panel">
+        <div class="panel-title">
+          <span>2. AnalystAgent State & BANT Telemetry</span>
+          <span style="font-size:12px;color:var(--muted)">Turn-by-Turn Inspection</span>
+        </div>
+        <div id="analystInspector"></div>
+      </div>
+
+      <!-- Column 3: Closer Pre-Call Dossier & DM Champ Economics -->
+      <div class="panel">
+        <div class="panel-title">
+          <span>3. Closer Pre-Call Dossier & Unit Economics</span>
+          <span style="font-size:12px;color:var(--accent)">iClosed / GHL Sync</span>
+        </div>
+        <div id="dossierInspector"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const REPORT = {"mvp_id": "MVP_25_DUAL_AGENT_DM_SETTER", "generated_at": "2026-10-17T12:27:48.876931+00:00", "competitive_teardown": {"ai_dm_setter": {"slug": "ai-dm-setter", "country": "FR", "verified_revenue_30d_usd": 27892, "mom_growth_pct": 66.8, "mrr_usd": 20856, "active_subscriptions": 29, "arpu_usd": 719.17, "profit_margin_pct": 90.0, "visitors_30d": 1169, "revenue_per_visitor_usd": 23.86, "all_time_revenue_usd": 177773, "tech_stack": ["Next.js", "React", "TypeScript", "Node.js", "Supabase", "PostgreSQL", "Stripe", "Anthropic", "OpenAI", "LangChain"], "why_719_mo_works": ["Dual-AI Architecture: Analyst Agent (reads intent, stage, BANT, objections) + Writer Agent (writes 1-2 lowercase sentences in founder's exact voice).", "Human Typing & Reading Delays (18-47s): Avoids instant robotic replies that scream 'ManyChat bot' and destroy high-ticket trust.", "In-Chat 2-Slot Proposal ('Passt dir Donnerstag 14:00 oder 16:30 Uhr?') instead of dropping a cold Calendly link on message #1.", "Closer Pre-Call Dossier synced straight into Calendly, iClosed, or GoHighLevel.", "Certified Meta Business Partner + EU hosting + GDPR-ready."]}, "dm_champ": {"slug": "dm-champ", "website": "https://dmchamp.com/", "founder": "Sohaib Ahmad (NL)", "verified_revenue_30d_usd": 14394, "mom_growth_pct": 105.6, "mrr_usd": 13868, "active_subscriptions": 49, "all_time_revenue_usd": 215129, "estimated_users": 3000, "channels_supported": 14, "channel_list": ["WhatsApp (Cloud API + WhatsApp Web)", "Instagram DMs", "Facebook Messenger", "Telegram", "LINE", "Viber", "SMS (Twilio)", "Email", "Web Chat Widget"], "pricing_tiers": {"business": {"monthly_usd": 97, "yearly_total_usd": 582, "yearly_effective_monthly_usd": 48.5, "included_ai_credits": 250, "estimated_ai_replies": 500, "seats": 3, "sub_accounts": 1, "white_label": false}, "agency": {"monthly_usd": 297, "yearly_total_usd": 1782, "yearly_effective_monthly_usd": 148.5, "included_ai_credits": 1000, "estimated_ai_replies": 2000, "seats": 10, "included_client_sub_accounts": 10, "extra_client_sub_account_monthly_usd": 27, "white_label": true, "byok_supported": true}, "agency_unlimited": {"monthly_usd": 497, "yearly_total_usd": 2982, "yearly_effective_monthly_usd": 248.5, "included_ai_credits": 2500, "estimated_ai_replies": 5000, "seats": "Unlimited", "included_client_sub_accounts": "Unlimited (breakeven vs Agency at ~18 clients)", "white_label": true, "byok_supported": true, "priority_support": true}}, "credit_economics_and_markups": {"max_model_credits_per_action": 0.25, "mini_model_credits_per_action": 0.15, "average_full_turn_credits": 0.5, "platform_topup_price_per_credit_usd": 0.1, "cost_per_ai_reply_on_topup_usd": 0.025, "typical_agency_client_retainer_usd": "200 - 500+/mo per client", "stripe_rebilling": "Agencies connect their own Stripe, set custom per-credit & package prices, auto-recharge on empty credits, and keep 100% of the spread.", "byok_mode": "Agency plans can connect own OpenAI/Anthropic keys -> 0 platform AI credit burn (only WhatsApp proxy/carrier fees apply)."}, "agency_white_label_features": ["Custom domain with auto-SSL (e.g., app.youragency.com)", "Custom logo, favicon, brand colors, app name in browser tabs & system emails", "Custom SEO meta tags + custom Terms & Privacy URLs", "Hide Help menu, API Reference, and Changelog from client view for zero brand leakage", "Self-serve client signup on agency domain + 1-click Snapshot cloning onto new clients", "Assist Mode (log into client sub-accounts without needing their password)", "Push agents, FAQs, and broadcasts across client sub-accounts", "Built-in EU AI Act Article 50 transparency toggle (on by default for EU compliance)"]}}, "state_machine_stages": ["HOOK_REPLY", "PAIN_DISCOVERY", "BUDGET_QUALIFICATION", "OBJECTION_HANDLING", "SLOT_PROPOSAL", "BOOKED"], "supported_objection_classes": ["price", "time", "spouse_partner", "skepticism"], "simulations": [{"lead_handle": "@marcus.fitcoach", "lead_name": "Marcus", "channel": "Instagram DM", "final_stage": "BOOKED", "final_bant_score": 94, "objections_handled": ["skepticism"], "booked_slot": "Donnerstag 14:00 Uhr", "unit_economics": {"dmchamp_credits_used_max": 1.25, "dmchamp_credits_used_mini": 0.75, "platform_credit_cost_usd": 0.125, "agency_resell_charge_usd": 0.4375, "estimated_llm_api_cost_usd": 0.021}, "turns": [{"turn": 1, "lead_message": "yo lukas, hab dein reel zum ki-setter gesehen – schick mal infos („SETTER“)", "analyst": {"turn_index": 1, "previous_stage": "HOOK_REPLY", "detected_stage": "PAIN_DISCOVERY", "bant_score": 32, "bant_breakdown": {"budget": 0, "authority": 0, "need": 22, "timeline": 10, "detected_pain": "Menschlicher Setter zu teuer / unzuverlässig am Wochenende", "monthly_revenue_est": "Unbekannt", "decision_maker": "Unbekannt", "urgency_cue": "Standard"}, "detected_objection": null, "objection_confidence": 0.0, "micro_goal": "validate_hook_and_ask_current_dm_bottleneck", "intent_summary": "Lead reagiert auf Story/Reel-Triggerwort; Öffnung für Diagnose-Frage.", "should_propose_slots": false, "should_finalize_booking": false, "selected_slot": null}, "writer": {"turn_index": 1, "stage": "PAIN_DISCOVERY", "micro_goal": "validate_hook_and_ask_current_dm_bottleneck", "dm_text": "hey marcus, stark dass du auf die story reagierst 🙌. kurze frage dazu: wie viele warme dms bleiben bei euch aktuell liegen, weil keiner unter 5 min antwortet?", "sentence_count": 2, "is_lowercase_friendly": true, "reading_delay_sec": 10, "typing_delay_sec": 33, "total_human_delay_sec": 43, "proposed_slots": [], "credit_cost_max": 0.25, "credit_cost_mini": 0.15}}, {"turn": 2, "lead_message": "wir kriegen am tag locker 35-45 dms auf insta, aber mein setter antwortet abends oft erst nach 4 stunden und die leads sind dann kalt", "analyst": {"turn_index": 3, "previous_stage": "PAIN_DISCOVERY", "detected_stage": "BUDGET_QUALIFICATION", "bant_score": 59, "bant_breakdown": {"budget": 0, "authority": 18, "need": 23, "timeline": 18, "detected_pain": "Menschlicher Setter zu teuer / unzuverlässig am Wochenende", "monthly_revenue_est": "Unbekannt", "decision_maker": "Unbekannt", "urgency_cue": "Standard"}, "detected_objection": null, "objection_confidence": 0.0, "micro_goal": "empathize_with_pain_and_qualify_monthly_revenue_and_authority", "intent_summary": "Lead legt konkreten Engpass offen; jetzt Umsatzvolumen & Entscheidungsrolle prüfen.", "should_propose_slots": false, "should_finalize_booking": false, "selected_slot": null}, "writer": {"turn_index": 3, "stage": "BUDGET_QUALIFICATION", "micro_goal": "empathize_with_pain_and_qualify_monthly_revenue_and_authority", "dm_text": "macht total sinn, genau da verlieren die meisten coaches 30-40% ihrer calls. hand aufs herz: wo steht ihr gerade ungefähr beim monatsumsatz und entscheidest du das bei euch alleine?", "sentence_count": 2, "is_lowercase_friendly": true, "reading_delay_sec": 14, "typing_delay_sec": 33, "total_human_delay_sec": 47, "proposed_slots": [], "credit_cost_max": 0.25, "credit_cost_mini": 0.15}}, {"turn": 3, "lead_message": "machen aktuell so 28k im monat, bin alleiniger inhaber. aber ganz ehrlich: ich hab schon alles probiert mit manychat und bots wirken künstlich, hab angst mir die brand zu verbrennen", "analyst": {"turn_index": 5, "previous_stage": "BUDGET_QUALIFICATION", "detected_stage": "OBJECTION_HANDLING", "bant_score": 92, "bant_breakdown": {"budget": 22, "authority": 24, "need": 23, "timeline": 23, "detected_pain": "Menschlicher Setter zu teuer / unzuverlässig am Wochenende", "monthly_revenue_est": "~28.000 €/Monat", "decision_maker": "Alleinentwickler / Solo-Founder (100% Entscheidungsgewalt)", "urgency_cue": "Sofortiger Bedarf (diese Woche)"}, "detected_objection": "skepticism", "objection_confidence": 0.92, "micro_goal": "reframe_skepticism_objection_and_keep_momentum", "intent_summary": "Lead ist BANT-qualifiziert, äußert aber Einwand (skepticism).", "should_propose_slots": false, "should_finalize_booking": false, "selected_slot": null}, "writer": {"turn_index": 5, "stage": "OBJECTION_HANDLING", "micro_goal": "reframe_skepticism_objection_and_keep_momentum", "dm_text": "hand aufs herz, diese 0815-manychat-bots hasse ich selbst auch weil jeder sofort merkt dass es ein bot ist. deshalb trennen wir analyst + writer in deinem exakten sprachstil mit echtem tipp-delay – willst du es live an euren echten dms sehen?", "sentence_count": 2, "is_lowercase_friendly": true, "reading_delay_sec": 14, "typing_delay_sec": 33, "total_human_delay_sec": 47, "proposed_slots": [], "credit_cost_max": 0.25, "credit_cost_mini": 0.15}}, {"turn": 4, "lead_message": "okay krass, wenn man das echt nicht vom menschen unterscheidet, klingt das spannend. lass gerne mal schauen", "analyst": {"turn_index": 7, "previous_stage": "OBJECTION_HANDLING", "detected_stage": "SLOT_PROPOSAL", "bant_score": 92, "bant_breakdown": {"budget": 22, "authority": 24, "need": 23, "timeline": 23, "detected_pain": "Menschlicher Setter zu teuer / unzuverlässig am Wochenende", "monthly_revenue_est": "~28.000 €/Monat", "decision_maker": "Alleinentwickler / Solo-Founder (100% Entscheidungsgewalt)", "urgency_cue": "Sofortiger Bedarf (diese Woche)"}, "detected_objection": null, "objection_confidence": 0.0, "micro_goal": "acknowledge_objection_resolution_and_offer_two_concrete_slots", "intent_summary": "Einwand erfolgreich entschärft; Brücke zu 2 konkreten Termin-Slots schlagen.", "should_propose_slots": true, "should_finalize_booking": false, "selected_slot": null}, "writer": {"turn_index": 7, "stage": "SLOT_PROPOSAL", "micro_goal": "acknowledge_objection_resolution_and_offer_two_concrete_slots", "dm_text": "mega, dann lass uns da kurz 15 min draufschauen und ich zeig dir den dual-agent live an deinem account. passt dir donnerstag 14:00 uhr oder donnerstag 16:30 uhr besser?", "sentence_count": 2, "is_lowercase_friendly": true, "reading_delay_sec": 12, "typing_delay_sec": 33, "total_human_delay_sec": 45, "proposed_slots": ["Donnerstag 14:00 Uhr", "Donnerstag 16:30 Uhr"], "credit_cost_max": 0.25, "credit_cost_mini": 0.15}}, {"turn": 5, "lead_message": "donnerstag 14:00 uhr passt mir super, trag mich da gerne ein!", "analyst": {"turn_index": 9, "previous_stage": "SLOT_PROPOSAL", "detected_stage": "BOOKED", "bant_score": 94, "bant_breakdown": {"budget": 22, "authority": 24, "need": 23, "timeline": 25, "detected_pain": "Menschlicher Setter zu teuer / unzuverlässig am Wochenende", "monthly_revenue_est": "~28.000 €/Monat", "decision_maker": "Alleinentwickler / Solo-Founder (100% Entscheidungsgewalt)", "urgency_cue": "Sofortiger Bedarf (diese Woche)"}, "detected_objection": null, "objection_confidence": 0.0, "micro_goal": "confirm_booked_slot_and_trigger_closer_pre_call_dossier", "intent_summary": "Lead wählt konkreten Slot (Donnerstag 14:00 Uhr); Termin einbuchen & Dossier erstellen.", "should_propose_slots": false, "should_finalize_booking": true, "selected_slot": "Donnerstag 14:00 Uhr"}, "writer": {"turn_index": 9, "stage": "BOOKED", "micro_goal": "confirm_booked_slot_and_trigger_closer_pre_call_dossier", "dm_text": "perfekt, hab dir donnerstag 14:00 uhr direkt fest eingetragen und die kalender-einladung ist raus 🔥. ich schick meinem closer-team schon dein kurzes briefing rüber, bis donnerstag!", "sentence_count": 2, "is_lowercase_friendly": true, "reading_delay_sec": 10, "typing_delay_sec": 33, "total_human_delay_sec": 43, "proposed_slots": ["Donnerstag 14:00 Uhr"], "credit_cost_max": 0.25, "credit_cost_mini": 0.15}}], "closer_pre_call_dossier": {"lead_handle": "@marcus.fitcoach", "lead_channel": "Instagram DM", "booked_slot": "Donnerstag 14:00 Uhr", "calendar_provider": "iClosed + GoHighLevel", "final_bant_score": 94, "bant_breakdown": {"budget": 22, "authority": 24, "need": 23, "timeline": 25}, "core_pain_point": "Menschlicher Setter zu teuer / unzuverlässig am Wochenende", "current_revenue_state": "~28.000 €/Monat", "objections_overcome": ["skepticism"], "closer_battlecard_tips": ["Opener im Call: Direkt auf 'Menschlicher Setter zu teuer / unzuverlässig am Wochenende' Bezug nehmen – keine Standard-Vorstellungsrunde.", "Umsatz-Anker: Lead liegt bei ~28.000 €/Monat. ROI-Rechnung mit 2 zusätzlichen High-Ticket-Abschlüssen/Monat (+9000 €) aufmachen.", "Skepsis gegenüber Standard-Bots: Live-Screen-Share des Analyst+Writer-Logs zeigen, keine Folien-Präsentation!"], "estimated_deal_value_eur": 4500, "transcript_turns": 5}, "scenario_title": "High-Ticket Fitness Coach (Skepticism Objection -> Booked)"}, {"lead_handle": "@sarah_b2b_consulting", "lead_name": "Sarah", "channel": "WhatsApp Business", "final_stage": "BOOKED", "final_bant_score": 94, "objections_handled": ["price"], "booked_slot": "Donnerstag 16:30 Uhr", "unit_economics": {"dmchamp_credits_used_max": 1.25, "dmchamp_credits_used_mini": 0.75, "platform_credit_cost_usd": 0.125, "agency_resell_charge_usd": 0.4375, "estimated_llm_api_cost_usd": 0.021}, "turns": [{"turn": 1, "lead_message": "Hey Lukas, komme über deine Story zum Thema WhatsApp Qualifizierung.", "analyst": {"turn_index": 1, "previous_stage": "HOOK_REPLY", "detected_stage": "PAIN_DISCOVERY", "bant_score": 22, "bant_breakdown": {"budget": 0, "authority": 0, "need": 12, "timeline": 10, "detected_pain": "Unbekannt", "monthly_revenue_est": "Unbekannt", "decision_maker": "Unbekannt", "urgency_cue": "Standard"}, "detected_objection": null, "objection_confidence": 0.0, "micro_goal": "validate_hook_and_ask_current_dm_bottleneck", "intent_summary": "Lead reagiert auf Story/Reel-Triggerwort; Öffnung für Diagnose-Frage.", "should_propose_slots": false, "should_finalize_booking": false, "selected_slot": null}, "writer": {"turn_index": 1, "stage": "PAIN_DISCOVERY", "micro_goal": "validate_hook_and_ask_current_dm_bottleneck", "dm_text": "hey sarah, stark dass du auf die story reagierst 🙌. kurze frage dazu: wie viele warme dms bleiben bei euch aktuell liegen, weil keiner unter 5 min antwortet?", "sentence_count": 2, "is_lowercase_friendly": true, "reading_delay_sec": 9, "typing_delay_sec": 33, "total_human_delay_sec": 42, "proposed_slots": [], "credit_cost_max": 0.25, "credit_cost_mini": 0.15}}, {"turn": 2, "lead_message": "Unser Hauptproblem ist, dass wir viel zu spät auf warme Anfragen antworten und unqualifizierte Leute im Kalender landen.", "analyst": {"turn_index": 3, "previous_stage": "PAIN_DISCOVERY", "detected_stage": "BUDGET_QUALIFICATION", "bant_score": 59, "bant_breakdown": {"budget": 0, "authority": 18, "need": 23, "timeline": 18, "detected_pain": "Hohes DM-Volumen ohne strukturierten Qualifizierungs-Flow", "monthly_revenue_est": "Unbekannt", "decision_maker": "Unbekannt", "urgency_cue": "Standard"}, "detected_objection": null, "objection_confidence": 0.0, "micro_goal": "empathize_with_pain_and_qualify_monthly_revenue_and_authority", "intent_summary": "Lead legt konkreten Engpass offen; jetzt Umsatzvolumen & Entscheidungsrolle prüfen.", "should_propose_slots": false, "should_finalize_booking": false, "selected_slot": null}, "writer": {"turn_index": 3, "stage": "BUDGET_QUALIFICATION", "micro_goal": "empathize_with_pain_and_qualify_monthly_revenue_and_authority", "dm_text": "macht total sinn, genau da verlieren die meisten coaches 30-40% ihrer calls. hand aufs herz: wo steht ihr gerade ungefähr beim monatsumsatz und entscheidest du das bei euch alleine?", "sentence_count": 2, "is_lowercase_friendly": true, "reading_delay_sec": 13, "typing_delay_sec": 33, "total_human_delay_sec": 46, "proposed_slots": [], "credit_cost_max": 0.25, "credit_cost_mini": 0.15}}, {"turn": 3, "lead_message": "Wir liegen bei 35k Umsatz/Monat und ich entscheide das alleine, aber unser Budget ist gerade etwas knapp und gute KI-Lösungen sind meistens viel zu teuer.", "analyst": {"turn_index": 5, "previous_stage": "BUDGET_QUALIFICATION", "detected_stage": "OBJECTION_HANDLING", "bant_score": 87, "bant_breakdown": {"budget": 22, "authority": 24, "need": 23, "timeline": 18, "detected_pain": "Hohes DM-Volumen ohne strukturierten Qualifizierungs-Flow", "monthly_revenue_est": "~35.000 €/Monat", "decision_maker": "Alleinentwickler / Solo-Founder (100% Entscheidungsgewalt)", "urgency_cue": "Standard"}, "detected_objection": "price", "objection_confidence": 0.92, "micro_goal": "reframe_price_objection_and_keep_momentum", "intent_summary": "Lead ist BANT-qualifiziert, äußert aber Einwand (price).", "should_propose_slots": false, "should_finalize_booking": false, "selected_slot": null}, "writer": {"turn_index": 5, "stage": "OBJECTION_HANDLING", "micro_goal": "reframe_price_objection_and_keep_momentum", "dm_text": "versteh ich voll, niemand will blind budget verbrennen – unser dual-agent kostet aber nur einen bruchteil von einem vollzeit-setter und bringt meistens schon in woche 1 zwei extra-abschlüsse. wenn du siehst dass sich das ab monat 1 selbst trägt, wäre das spannend?", "sentence_count": 2, "is_lowercase_friendly": true, "reading_delay_sec": 14, "typing_delay_sec": 33, "total_human_delay_sec": 47, "proposed_slots": [], "credit_cost_max": 0.25, "credit_cost_mini": 0.15}}, {"turn": 4, "lead_message": "Stimmt, wenn es uns auch nur 2 extra Abschlüsse im Monat bringt, ist der ROI natürlich ein No-Brainer.", "analyst": {"turn_index": 7, "previous_stage": "OBJECTION_HANDLING", "detected_stage": "SLOT_PROPOSAL", "bant_score": 89, "bant_breakdown": {"budget": 22, "authority": 24, "need": 23, "timeline": 20, "detected_pain": "Hohes DM-Volumen ohne strukturierten Qualifizierungs-Flow", "monthly_revenue_est": "~35.000 €/Monat", "decision_maker": "Alleinentwickler / Solo-Founder (100% Entscheidungsgewalt)", "urgency_cue": "Standard"}, "detected_objection": null, "objection_confidence": 0.0, "micro_goal": "acknowledge_objection_resolution_and_offer_two_concrete_slots", "intent_summary": "Einwand erfolgreich entschärft; Brücke zu 2 konkreten Termin-Slots schlagen.", "should_propose_slots": true, "should_finalize_booking": false, "selected_slot": null}, "writer": {"turn_index": 7, "stage": "SLOT_PROPOSAL", "micro_goal": "acknowledge_objection_resolution_and_offer_two_concrete_slots", "dm_text": "mega, dann lass uns da kurz 15 min draufschauen und ich zeig dir den dual-agent live an deinem account. passt dir donnerstag 14:00 uhr oder donnerstag 16:30 uhr besser?", "sentence_count": 2, "is_lowercase_friendly": true, "reading_delay_sec": 13, "typing_delay_sec": 33, "total_human_delay_sec": 46, "proposed_slots": ["Donnerstag 14:00 Uhr", "Donnerstag 16:30 Uhr"], "credit_cost_max": 0.25, "credit_cost_mini": 0.15}}, {"turn": 5, "lead_message": "Nehmen wir Donnerstag 16:30 Uhr, das passt perfekt.", "analyst": {"turn_index": 9, "previous_stage": "SLOT_PROPOSAL", "detected_stage": "BOOKED", "bant_score": 94, "bant_breakdown": {"budget": 22, "authority": 24, "need": 23, "timeline": 25, "detected_pain": "Hohes DM-Volumen ohne strukturierten Qualifizierungs-Flow", "monthly_revenue_est": "~35.000 €/Monat", "decision_maker": "Alleinentwickler / Solo-Founder (100% Entscheidungsgewalt)", "urgency_cue": "Sofortiger Bedarf (diese Woche)"}, "detected_objection": null, "objection_confidence": 0.0, "micro_goal": "confirm_booked_slot_and_trigger_closer_pre_call_dossier", "intent_summary": "Lead wählt konkreten Slot (Donnerstag 16:30 Uhr); Termin einbuchen & Dossier erstellen.", "should_propose_slots": false, "should_finalize_booking": true, "selected_slot": "Donnerstag 16:30 Uhr"}, "writer": {"turn_index": 9, "stage": "BOOKED", "micro_goal": "confirm_booked_slot_and_trigger_closer_pre_call_dossier", "dm_text": "perfekt, hab dir donnerstag 16:30 uhr direkt fest eingetragen und die kalender-einladung ist raus 🔥. ich schick meinem closer-team schon dein kurzes briefing rüber, bis donnerstag!", "sentence_count": 2, "is_lowercase_friendly": true, "reading_delay_sec": 8, "typing_delay_sec": 33, "total_human_delay_sec": 41, "proposed_slots": ["Donnerstag 16:30 Uhr"], "credit_cost_max": 0.25, "credit_cost_mini": 0.15}}], "closer_pre_call_dossier": {"lead_handle": "@sarah_b2b_consulting", "lead_channel": "WhatsApp Business", "booked_slot": "Donnerstag 16:30 Uhr", "calendar_provider": "iClosed + GoHighLevel", "final_bant_score": 94, "bant_breakdown": {"budget": 22, "authority": 24, "need": 23, "timeline": 25}, "core_pain_point": "Hohes DM-Volumen ohne strukturierten Qualifizierungs-Flow", "current_revenue_state": "~35.000 €/Monat", "objections_overcome": ["price"], "closer_battlecard_tips": ["Opener im Call: Direkt auf 'Hohes DM-Volumen ohne strukturierten Qualifizierungs-Flow' Bezug nehmen – keine Standard-Vorstellungsrunde.", "Umsatz-Anker: Lead liegt bei ~35.000 €/Monat. ROI-Rechnung mit 2 zusätzlichen High-Ticket-Abschlüssen/Monat (+9000 €) aufmachen.", "Preis-Sensitivität im Chat erkannt: Kosten eines menschlichen Vollzeit-Setters (2.500€+ Fixum + Provision) gegen die Flatrate spiegeln."], "estimated_deal_value_eur": 4500, "transcript_turns": 5}, "scenario_title": "B2B Recruiting Agency (Price Objection -> Booked)"}, {"lead_handle": "@david.immo.invest", "lead_name": "David", "channel": "Instagram DM", "final_stage": "BOOKED", "final_bant_score": 94, "objections_handled": ["time"], "booked_slot": "Donnerstag 16:30 Uhr", "unit_economics": {"dmchamp_credits_used_max": 1.25, "dmchamp_credits_used_mini": 0.75, "platform_credit_cost_usd": 0.125, "agency_resell_charge_usd": 0.4375, "estimated_llm_api_cost_usd": 0.021}, "turns": [{"turn": 1, "lead_message": "hi, hab eben dein video gesehen. wie läuft das mit dem dual-agent?", "analyst": {"turn_index": 1, "previous_stage": "HOOK_REPLY", "detected_stage": "PAIN_DISCOVERY", "bant_score": 22, "bant_breakdown": {"budget": 0, "authority": 0, "need": 12, "timeline": 10, "detected_pain": "Unbekannt", "monthly_revenue_est": "Unbekannt", "decision_maker": "Unbekannt", "urgency_cue": "Standard"}, "detected_objection": null, "objection_confidence": 0.0, "micro_goal": "validate_hook_and_ask_current_dm_bottleneck", "intent_summary": "Lead reagiert auf Story/Reel-Triggerwort; Öffnung für Diagnose-Frage.", "should_propose_slots": false, "should_finalize_booking": false, "selected_slot": null}, "writer": {"turn_index": 1, "stage": "PAIN_DISCOVERY", "micro_goal": "validate_hook_and_ask_current_dm_bottleneck", "dm_text": "hey david, stark dass du auf die story reagierst 🙌. kurze frage dazu: wie viele warme dms bleiben bei euch aktuell liegen, weil keiner unter 5 min antwortet?", "sentence_count": 2, "is_lowercase_friendly": true, "reading_delay_sec": 10, "typing_delay_sec": 33, "total_human_delay_sec": 43, "proposed_slots": [], "credit_cost_max": 0.25, "credit_cost_mini": 0.15}}, {"turn": 2, "lead_message": "wir verlieren jede woche locker 5-8 calls, weil niemand die story-replies schnell genug nachfasst.", "analyst": {"turn_index": 3, "previous_stage": "PAIN_DISCOVERY", "detected_stage": "BUDGET_QUALIFICATION", "bant_score": 64, "bant_breakdown": {"budget": 0, "authority": 18, "need": 23, "timeline": 23, "detected_pain": "Warme Inbound-DMs kühlen ab, weil Follow-up >4h dauert", "monthly_revenue_est": "Unbekannt", "decision_maker": "Unbekannt", "urgency_cue": "Sofortiger Bedarf (diese Woche)"}, "detected_objection": null, "objection_confidence": 0.0, "micro_goal": "empathize_with_pain_and_qualify_monthly_revenue_and_authority", "intent_summary": "Lead legt konkreten Engpass offen; jetzt Umsatzvolumen & Entscheidungsrolle prüfen.", "should_propose_slots": false, "should_finalize_booking": false, "selected_slot": null}, "writer": {"turn_index": 3, "stage": "BUDGET_QUALIFICATION", "micro_goal": "empathize_with_pain_and_qualify_monthly_revenue_and_authority", "dm_text": "macht total sinn, genau da verlieren die meisten coaches 30-40% ihrer calls. hand aufs herz: wo steht ihr gerade ungefähr beim monatsumsatz und entscheidest du das bei euch alleine?", "sentence_count": 2, "is_lowercase_friendly": true, "reading_delay_sec": 11, "typing_delay_sec": 33, "total_human_delay_sec": 44, "proposed_slots": [], "credit_cost_max": 0.25, "credit_cost_mini": 0.15}}, {"turn": 3, "lead_message": "wir machen 45k im monat, aber ich hab aktuell überhaupt keine zeit für ein langes setup und muss das auch mit meinem geschäftspartner abstimmen.", "analyst": {"turn_index": 5, "previous_stage": "BUDGET_QUALIFICATION", "detected_stage": "OBJECTION_HANDLING", "bant_score": 90, "bant_breakdown": {"budget": 22, "authority": 22, "need": 23, "timeline": 23, "detected_pain": "Warme Inbound-DMs kühlen ab, weil Follow-up >4h dauert", "monthly_revenue_est": "~45.000 €/Monat", "decision_maker": "Co-Founder / Partner-Abstimmung", "urgency_cue": "Sofortiger Bedarf (diese Woche)"}, "detected_objection": "time", "objection_confidence": 0.8, "micro_goal": "reframe_time_objection_and_keep_momentum", "intent_summary": "Lead ist BANT-qualifiziert, äußert aber Einwand (time).", "should_propose_slots": false, "should_finalize_booking": false, "selected_slot": null}, "writer": {"turn_index": 5, "stage": "OBJECTION_HANDLING", "micro_goal": "reframe_time_objection_and_keep_momentum", "dm_text": "gerade wenn bei dir land unter ist, frisst das manuelle dms-tippen doch am meisten energie. wir richten den kompletten setter in unter 60 min aus deinen bisherigen chats ein, ohne dass du skripte bauen musst – klingt das fair?", "sentence_count": 2, "is_lowercase_friendly": true, "reading_delay_sec": 14, "typing_delay_sec": 33, "total_human_delay_sec": 47, "proposed_slots": [], "credit_cost_max": 0.25, "credit_cost_mini": 0.15}}, {"turn": 4, "lead_message": "alles klar, unter 60 min setup klingt machbar und mein partner kommt einfach mit in den call.", "analyst": {"turn_index": 7, "previous_stage": "OBJECTION_HANDLING", "detected_stage": "SLOT_PROPOSAL", "bant_score": 90, "bant_breakdown": {"budget": 22, "authority": 22, "need": 23, "timeline": 23, "detected_pain": "Warme Inbound-DMs kühlen ab, weil Follow-up >4h dauert", "monthly_revenue_est": "~45.000 €/Monat", "decision_maker": "Co-Founder / Partner-Abstimmung", "urgency_cue": "Sofortiger Bedarf (diese Woche)"}, "detected_objection": null, "objection_confidence": 0.0, "micro_goal": "acknowledge_objection_resolution_and_offer_two_concrete_slots", "intent_summary": "Einwand erfolgreich entschärft; Brücke zu 2 konkreten Termin-Slots schlagen.", "should_propose_slots": true, "should_finalize_booking": false, "selected_slot": null}, "writer": {"turn_index": 7, "stage": "SLOT_PROPOSAL", "micro_goal": "acknowledge_objection_resolution_and_offer_two_concrete_slots", "dm_text": "mega, dann lass uns da kurz 15 min draufschauen und ich zeig dir den dual-agent live an deinem account. passt dir donnerstag 14:00 uhr oder donnerstag 16:30 uhr besser?", "sentence_count": 2, "is_lowercase_friendly": true, "reading_delay_sec": 12, "typing_delay_sec": 33, "total_human_delay_sec": 45, "proposed_slots": ["Donnerstag 14:00 Uhr", "Donnerstag 16:30 Uhr"], "credit_cost_max": 0.25, "credit_cost_mini": 0.15}}, {"turn": 5, "lead_message": "freitag 11:00 uhr oder donnerstag 16:30 uhr – lass uns donnerstag 16:30 uhr machen!", "analyst": {"turn_index": 9, "previous_stage": "SLOT_PROPOSAL", "detected_stage": "BOOKED", "bant_score": 94, "bant_breakdown": {"budget": 22, "authority": 24, "need": 23, "timeline": 25, "detected_pain": "Warme Inbound-DMs kühlen ab, weil Follow-up >4h dauert", "monthly_revenue_est": "~45.000 €/Monat", "decision_maker": "Co-Founder / Partner-Abstimmung", "urgency_cue": "Sofortiger Bedarf (diese Woche)"}, "detected_objection": null, "objection_confidence": 0.0, "micro_goal": "confirm_booked_slot_and_trigger_closer_pre_call_dossier", "intent_summary": "Lead wählt konkreten Slot (Donnerstag 16:30 Uhr); Termin einbuchen & Dossier erstellen.", "should_propose_slots": false, "should_finalize_booking": true, "selected_slot": "Donnerstag 16:30 Uhr"}, "writer": {"turn_index": 9, "stage": "BOOKED", "micro_goal": "confirm_booked_slot_and_trigger_closer_pre_call_dossier", "dm_text": "perfekt, hab dir donnerstag 16:30 uhr direkt fest eingetragen und die kalender-einladung ist raus 🔥. ich schick meinem closer-team schon dein kurzes briefing rüber, bis donnerstag!", "sentence_count": 2, "is_lowercase_friendly": true, "reading_delay_sec": 11, "typing_delay_sec": 33, "total_human_delay_sec": 44, "proposed_slots": ["Donnerstag 16:30 Uhr"], "credit_cost_max": 0.25, "credit_cost_mini": 0.15}}], "closer_pre_call_dossier": {"lead_handle": "@david.immo.invest", "lead_channel": "Instagram DM", "booked_slot": "Donnerstag 16:30 Uhr", "calendar_provider": "iClosed + GoHighLevel", "final_bant_score": 94, "bant_breakdown": {"budget": 22, "authority": 24, "need": 23, "timeline": 25}, "core_pain_point": "Warme Inbound-DMs kühlen ab, weil Follow-up >4h dauert", "current_revenue_state": "~45.000 €/Monat", "objections_overcome": ["time"], "closer_battlecard_tips": ["Opener im Call: Direkt auf 'Warme Inbound-DMs kühlen ab, weil Follow-up >4h dauert' Bezug nehmen – keine Standard-Vorstellungsrunde.", "Umsatz-Anker: Lead liegt bei ~45.000 €/Monat. ROI-Rechnung mit 2 zusätzlichen High-Ticket-Abschlüssen/Monat (+9000 €) aufmachen.", "Zeitmangel-Trigger: Done-For-You Voice-Onboarding in <60 Minuten betonen."], "estimated_deal_value_eur": 4500, "transcript_turns": 5}, "scenario_title": "Real Estate Coaching (Time + Partner Objections -> Booked)"}]};
+    let activeScenarioIdx = 0;
+
+    function renderTabs() {
+      const wrap = document.getElementById('scenarioTabs');
+      wrap.innerHTML = '';
+      REPORT.simulations.forEach((sim, idx) => {
+        const btn = document.createElement('button');
+        btn.className = 'tab-btn' + (idx === activeScenarioIdx ? ' active' : '');
+        btn.textContent = `${sim.lead_handle} (${sim.channel}) — BANT ${sim.final_bant_score}/100`;
+        btn.onclick = () => { activeScenarioIdx = idx; renderAll(); };
+        wrap.appendChild(btn);
+      });
+    }
+
+    function renderAll() {
+      renderTabs();
+      const sim = REPORT.simulations[activeScenarioIdx];
+      document.getElementById('chatHeaderTitle').textContent = `${sim.lead_handle} · ${sim.channel}`;
+      document.getElementById('currentStageBadge').textContent = sim.final_stage;
+
+      const chatBox = document.getElementById('chatBox');
+      chatBox.innerHTML = '';
+      sim.turns.forEach((t) => {
+        const leadDiv = document.createElement('div');
+        leadDiv.className = 'msg msg-lead';
+        leadDiv.innerHTML = `<div><b>Lead (Turn #${t.turn}):</b> ${t.lead_message}</div>`;
+        chatBox.appendChild(leadDiv);
+
+        const aiDiv = document.createElement('div');
+        aiDiv.className = 'msg msg-ai';
+        const objTag = t.analyst.detected_objection ? `<span style="background:#be123c;padding:1px 6px;border-radius:4px">Obj: ${t.analyst.detected_objection}</span>` : '';
+        aiDiv.innerHTML = `
+          <div>${t.writer.dm_text}</div>
+          <div class="msg-meta">
+            <span>Stage: <b>${t.analyst.detected_stage}</b></span>
+            <span>Delay: <b>${t.writer.total_human_delay_sec}s</b> (Read ${t.writer.reading_delay_sec}s + Type ${t.writer.typing_delay_sec}s)</span>
+            <span>BANT: <b>${t.analyst.bant_score}/100</b></span>
+            ${objTag}
+          </div>
+        `;
+        chatBox.appendChild(aiDiv);
+      });
+
+      const lastTurn = sim.turns[sim.turns.length - 1];
+      const b = lastTurn.analyst.bant_breakdown;
+      const analystDiv = document.getElementById('analystInspector');
+      analystDiv.innerHTML = `
+        <div class="analyst-card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <b>Total BANT Qualification Score</b>
+            <span style="font-size:18px;font-weight:800;color:var(--accent)">${sim.final_bant_score} / 100</span>
+          </div>
+          <div class="bant-bar-wrap">
+            <div class="bant-row"><span>Budget (${b.monthly_revenue_est})</span><span>${b.budget}/25</span></div>
+            <div class="progress"><div class="progress-fill" style="width:${(b.budget/25)*100}%"></div></div>
+            <div class="bant-row"><span>Authority (${b.decision_maker})</span><span>${b.authority}/25</span></div>
+            <div class="progress"><div class="progress-fill" style="width:${(b.authority/25)*100}%"></div></div>
+            <div class="bant-row"><span>Need (${b.detected_pain})</span><span>${b.need}/25</span></div>
+            <div class="progress"><div class="progress-fill" style="width:${(b.need/25)*100}%"></div></div>
+            <div class="bant-row"><span>Timeline (${b.urgency_cue})</span><span>${b.timeline}/25</span></div>
+            <div class="progress"><div class="progress-fill" style="width:${(b.timeline/25)*100}%"></div></div>
+          </div>
+        </div>
+        <div class="analyst-card" style="margin-top:10px">
+          <b>State Machine Trajectory</b>
+          <table>
+            <thead><tr><th>Turn</th><th>Transition</th><th>Objection</th><th>Human Delay</th></tr></thead>
+            <tbody>
+              ${sim.turns.map(t => `
+                <tr>
+                  <td>#${t.turn}</td>
+                  <td>${t.analyst.previous_stage} → <b>${t.analyst.detected_stage}</b></td>
+                  <td>${t.analyst.detected_objection || '—'}</td>
+                  <td>${t.writer.total_human_delay_sec}s</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      `;
+
+      const d = sim.closer_pre_call_dossier;
+      const u = sim.unit_economics;
+      const dossierDiv = document.getElementById('dossierInspector');
+      dossierDiv.innerHTML = `
+        <div class="dossier-box">
+          <div style="font-size:14px;font-weight:700;color:var(--accent);margin-bottom:6px">
+            ✅ Closer Pre-Call Briefing (${d.calendar_provider})
+          </div>
+          <div><b>Booked Slot:</b> ${d.booked_slot}</div>
+          <div><b>Core Pain:</b> ${d.core_pain_point}</div>
+          <div><b>Current Revenue:</b> ${d.current_revenue_state}</div>
+          <div><b>Objections Overcome:</b> ${d.objections_overcome.join(', ') || 'Keine'}</div>
+          <div><b>Est. Deal Value:</b> €${d.estimated_deal_value_eur.toLocaleString()}</div>
+          <div style="margin-top:8px;font-weight:600">Closer Battlecard Tips:</div>
+          <ul class="tip-list">
+            ${d.closer_battlecard_tips.map(tip => `<li>${tip}</li>`).join('')}
+          </ul>
+        </div>
+        <div class="analyst-card" style="margin-top:10px">
+          <b>Unit Economics (DM Champ vs BYOK)</b>
+          <table>
+            <tr><td>DM Champ Credits (Max @ 0.25/turn)</td><td><b>${u.dmchamp_credits_used_max} Cr</b> ($${u.platform_credit_cost_usd})</td></tr>
+            <tr><td>DM Champ Credits (Mini @ 0.15/turn)</td><td><b>${u.dmchamp_credits_used_mini} Cr</b></td></tr>
+            <tr><td>Agency Stripe Rebill (@ $0.35/Cr)</td><td><b>$${u.agency_resell_charge_usd}</b></td></tr>
+            <tr><td>Direct LLM Cost (BYOK Dual-Agent)</td><td><b>$${u.estimated_llm_api_cost_usd}</b> (~99% Margin)</td></tr>
+          </table>
+        </div>
+      `;
+    }
+
+    function simulateCustomTurn() {
+      const input = document.getElementById('customLeadInput');
+      const text = input.value.trim();
+      if (!text) return;
+      const lower = text.toLowerCase();
+      let obj = null;
+      if (lower.includes('teuer') || lower.includes('preis') || lower.includes('budget')) obj = 'price';
+      else if (lower.includes('zeit') || lower.includes('stress')) obj = 'time';
+      else if (lower.includes('partner') || lower.includes('frau')) obj = 'spouse_partner';
+      else if (lower.includes('skeptisch') || lower.includes('bot')) obj = 'skepticism';
+
+      const reply = obj === 'price'
+        ? 'versteh ich voll, niemand will blind budget verbrennen – unser dual-agent kostet aber nur einen bruchteil von einem vollzeit-setter. passt dir donnerstag 14:00 uhr oder donnerstag 16:30 uhr für 15 min?'
+        : 'macht total sinn! lass uns da kurz 15 min live draufschauen – passt dir donnerstag 14:00 uhr oder donnerstag 16:30 uhr besser?';
+
+      const sim = REPORT.simulations[activeScenarioIdx];
+      sim.turns.push({
+        turn: sim.turns.length + 1,
+        lead_message: text,
+        analyst: {
+          previous_stage: sim.final_stage,
+          detected_stage: obj ? 'OBJECTION_HANDLING' : 'SLOT_PROPOSAL',
+          bant_score: Math.min(100, sim.final_bant_score + 4),
+          bant_breakdown: sim.turns[sim.turns.length - 1].analyst.bant_breakdown,
+          detected_objection: obj
+        },
+        writer: {
+          dm_text: reply,
+          reading_delay_sec: 9,
+          typing_delay_sec: 22,
+          total_human_delay_sec: 31
+        }
+      });
+      input.value = '';
+      renderAll();
+    }
+
+    renderAll();
+  </script>
+</body>
+</html>

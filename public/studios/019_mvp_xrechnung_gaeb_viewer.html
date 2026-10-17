@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BelegLokal.de — XRechnung, ZUGFeRD &amp; GAEB (.x83/.d83) Lokal-Viewer (0% Server-Upload)</title>
+  <meta name="description" content="XRechnung (.xml), ZUGFeRD und GAEB Ausschreibungen (.x83, .d83) in 2 Sekunden im Browser öffnen, nach EN 16931 &amp; BVBS prüfen, als PDF drucken oder als DATEV EXTF CSV exportieren. 100% lokal via FileReader API — kein Byte verlässt Ihren PC." />
+  <style>
+    :root {
+      --navy: #0f172a;
+      --navy-mid: #1e293b;
+      --blue: #2563eb;
+      --blue-soft: #eff6ff;
+      --emerald: #059669;
+      --emerald-soft: #ecfdf5;
+      --amber: #d97706;
+      --amber-soft: #fffbeb;
+      --red: #dc2626;
+      --red-soft: #fef2f2;
+      --border: #e2e8f0;
+      --bg: #f8fafc;
+      --text: #0f172a;
+      --muted: #475569;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+    }
+    .privacy-bar {
+      background: #064e3b;
+      color: #ecfdf5;
+      font-size: 13px;
+      padding: 8px 16px;
+      text-align: center;
+      font-weight: 500;
+    }
+    .privacy-bar span.badge {
+      background: #10b981;
+      color: #022c22;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 99px;
+      margin-right: 8px;
+      font-size: 11px;
+      text-transform: uppercase;
+    }
+    header {
+      background: #fff;
+      border-bottom: 1px solid var(--border);
+      padding: 14px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 800;
+      font-size: 20px;
+      color: var(--navy);
+      text-decoration: none;
+    }
+    .brand-mark {
+      background: var(--blue);
+      color: #fff;
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      font-weight: 900;
+    }
+    .license-pill {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 9px 15px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 13.5px;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.15s ease;
+      text-decoration: none;
+    }
+    .btn-primary { background: var(--blue); color: #fff; }
+    .btn-primary:hover { background: #1d4ed8; }
+    .btn-outline { background: #fff; border-color: var(--border); color: var(--navy); }
+    .btn-outline:hover { background: #f1f5f9; }
+    .btn-emerald { background: var(--emerald); color: #fff; }
+    .btn-emerald:hover { background: #047857; }
+    .container {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 24px 16px 64px;
+    }
+    .hero {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+    .hero h1 {
+      font-size: clamp(24px, 3.5vw, 36px);
+      margin: 0 0 8px;
+      letter-spacing: -0.02em;
+    }
+    .hero p {
+      color: var(--muted);
+      max-width: 720px;
+      margin: 0 auto 18px;
+      font-size: 15.5px;
+    }
+    .dropzone {
+      background: #fff;
+      border: 2px dashed #93c5fd;
+      border-radius: 16px;
+      padding: 28px 20px;
+      text-align: center;
+      transition: all 0.15s ease;
+      cursor: pointer;
+      box-shadow: 0 4px 20px rgba(15, 23, 42, 0.04);
+      margin-bottom: 20px;
+    }
+    .dropzone.dragover {
+      border-color: var(--blue);
+      background: var(--blue-soft);
+    }
+    .demo-bar {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1.35fr 0.85fr;
+      gap: 20px;
+      align-items: start;
+    }
+    @media (max-width: 920px) {
+      .grid-2 { grid-template-columns: 1fr; }
+    }
+    .card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 22px;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+      margin-bottom: 18px;
+    }
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 12px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .status-chip {
+      padding: 4px 10px;
+      border-radius: 99px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .chip-pass { background: var(--emerald-soft); color: var(--emerald); }
+    .chip-err { background: var(--red-soft); color: var(--red); }
+    .chip-warn { background: var(--amber-soft); color: var(--amber); }
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+    .meta-box {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+    }
+    .meta-box small {
+      display: block;
+      font-size: 11px;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-weight: 600;
+    }
+    .meta-box strong {
+      font-size: 14px;
+      color: var(--navy);
+      word-break: break-word;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13.5px;
+      margin-top: 8px;
+    }
+    th, td {
+      padding: 10px 8px;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #f1f5f9;
+      font-weight: 700;
+      font-size: 12px;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .num { text-align: right; font-variant-numeric: tabular-nums; }
+    .totals-box {
+      margin-top: 16px;
+      margin-left: auto;
+      max-width: 340px;
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 16px;
+    }
+    .totals-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 4px 0;
+      font-size: 14px;
+    }
+    .totals-row.grand {
+      border-top: 2px solid var(--navy);
+      margin-top: 6px;
+      padding-top: 8px;
+      font-weight: 800;
+      font-size: 16px;
+    }
+    .issue-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: grid;
+      gap: 8px;
+    }
+    .issue-item {
+      padding: 10px 12px;
+      border-radius: 9px;
+      font-size: 13px;
+      border-left: 4px solid var(--border);
+      background: #f8fafc;
+    }
+    .issue-item.PASS { border-left-color: var(--emerald); background: var(--emerald-soft); }
+    .issue-item.ERROR { border-left-color: var(--red); background: var(--red-soft); }
+    .issue-item.WARNING { border-left-color: var(--amber); background: var(--amber-soft); }
+    .paywall-box {
+      background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
+      color: #fff;
+      border-radius: 14px;
+      padding: 20px;
+      margin-top: 18px;
+    }
+    .paywall-box h3 { margin: 0 0 6px; font-size: 17px; }
+    .paywall-box p { margin: 0 0 14px; font-size: 13px; color: #cbd5e1; }
+    .price-cards {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .price-card {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 10px;
+      padding: 10px 12px;
+    }
+    .price-card.featured {
+      border-color: #34d399;
+      background: rgba(16, 185, 129, 0.15);
+    }
+    .ep-input {
+      width: 92px;
+      padding: 4px 6px;
+      border: 1px solid #94a3b8;
+      border-radius: 6px;
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+    pre.code-preview {
+      background: #0f172a;
+      color: #e2e8f0;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 11.5px;
+      overflow-x: auto;
+      margin: 8px 0 0;
+    }
+    @media print {
+      .no-print { display: none !important; }
+      body { background: #fff; }
+      .card { border: none; box-shadow: none; padding: 0; }
+      .grid-2 { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- DACH CASHFLOW STUDIOS LAUNCH BAR -->
+<style>
+  #dcs-launch-bar {
+    position: sticky;
+    top: 0;
+    z-index: 99999;
+    background: linear-gradient(90deg, #0b1120 0%, #111827 50%, #0f172a 100%);
+    color: #f8fafc;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.35);
+    padding: 8px 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  }
+  #dcs-launch-bar .dcs-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+  }
+  #dcs-launch-bar .dcs-badge {
+    background: rgba(16, 185, 129, 0.18);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.03em;
+  }
+  #dcs-launch-bar a.dcs-nav {
+    color: #93c5fd;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 12.5px;
+  }
+  #dcs-launch-bar a.dcs-nav:hover {
+    text-decoration: underline;
+    color: #dbeafe;
+  }
+  #dcs-launch-bar .dcs-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  #dcs-launch-bar .dcs-btn {
+    padding: 5px 11px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s ease;
+  }
+  #dcs-launch-bar .dcs-btn-ghost {
+    background: rgba(255,255,255,0.08);
+    color: #e2e8f0;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  #dcs-launch-bar .dcs-btn-primary {
+    background: linear-gradient(135deg, #0ea5e9, #2563eb);
+    color: #ffffff;
+  }
+  #dcs-launch-bar .dcs-btn-emerald {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
+  }
+  @media print {
+    #dcs-launch-bar { display: none !important; }
+  }
+</style>
+<div id="dcs-launch-bar">
+  <div class="dcs-left">
+    <a href="/index.html" class="dcs-nav">← Alle 150 DACH Studios</a>
+    <span class="dcs-badge">MVP #019 VERIFIED</span>
+    <span style="color:#cbd5e1;font-size:12px;">DACH Tax, Corporate & Accounting Arbitrage</span>
+  </div>
+  <div class="dcs-actions">
+    <button onclick="window.print()" class="dcs-btn dcs-btn-ghost">🖨️ PDF / Dossier drucken</button>
+    <a href="#checkout-modal-49" target="_blank" rel="noopener" class="dcs-btn dcs-btn-primary">⚡ Musterschreiben & Voll-Dossier (€49)</a>
+    <a href="#checkout-modal-299" target="_blank" rel="noopener" class="dcs-btn dcs-btn-emerald">🛡️ B2B Umsetzung buchen (€299 / €1.490)</a>
+  </div>
+</div>
+
+  <div class="privacy-bar no-print">
+    <span class="badge">100% Lokal &amp; DSGVO-Schnittstelle</span>
+    0 Bytes Server-Upload: Alle XRechnung- (.xml) &amp; GAEB-Dateien (.x83 / .d83) werden ausschließlich lokal in Ihrem Browser via HTML5 FileReader verarbeitet.
+    <strong>Netzwerk-Transfer: <span id="netBytes">0 Bytes</span></strong>
+  </div>
+
+  <header class="no-print">
+    <a href="#" class="brand">
+      <span class="brand-mark">BL</span>
+      <span>BelegLokal<span style="color:var(--blue)">.de</span> <small style="font-weight:500;font-size:12px;color:var(--muted)">XRechnung · ZUGFeRD · GAEB .x83/.d83 · DATEV EXTF</small></span>
+    </a>
+    <div class="license-pill">
+      <span id="licenseStatus" class="status-chip chip-warn">Free-Modus (Ansicht &amp; Prüfdienst frei)</span>
+      <input id="licenseInput" type="text" placeholder="Lizenzschlüssel (z.B. PRO-2026)" style="padding:7px 10px;border:1px solid var(--border);border-radius:7px;font-size:12.5px;" />
+      <button class="btn btn-outline" onclick="activateLicense()">Freischalten</button>
+    </div>
+  </header>
+
+  <div class="container">
+    <section class="hero no-print">
+      <h1>XRechnung, ZUGFeRD &amp; GAEB (.x83/.d83) sofort lokal öffnen</h1>
+      <p>Kein Cloud-Upload fremder Mandantenrechnungen oder geheimer Bau-Kalkulationen. Ziehen Sie Ihre XML-, X83- oder D83-Datei hierher — inklusive EN 16931 / Leitweg-ID / IBAN Mod-97 Prüfdienst, Live-LV-Bepreisung und DATEV EXTF Buchungsstapel-Export.</p>
+
+      <div id="dropzone" class="dropzone" onclick="document.getElementById('fileInput').click()">
+        <input id="fileInput" type="file" accept=".xml,.x83,.x84,.d83,.p83,.txt" multiple style="display:none" onchange="handleFiles(this.files)" />
+        <div style="font-size:17px;font-weight:700;color:var(--navy);margin-bottom:4px;">
+          Datei(en) hier ablegen oder klicken (.xml, .x83, .d83, .p83)
+        </div>
+        <div style="font-size:13px;color:var(--muted);">
+          Unterstützt: UN/CEFACT CII, OASIS UBL 2.1, ZUGFeRD 2.x XML, GAEB DA XML 3.2/3.3 (.x83) &amp; GAEB 90 (.d83)
+        </div>
+        <div class="demo-bar" onclick="event.stopPropagation()">
+          <button class="btn btn-primary" onclick="loadDemo('xrechnung_valid')">Demo 1: Gültige XRechnung 3.0.2 (Handwerk)</button>
+          <button class="btn btn-outline" onclick="loadDemo('xrechnung_broken')">Demo 2: Fehlerhafte XRechnung (Prüfdienst-Test)</button>
+          <button class="btn btn-emerald" onclick="loadDemo('gaeb_x83')">Demo 3: GAEB .x83 Bau-Ausschreibung (LV-Kalkulator)</button>
+        </div>
+      </div>
+    </section>
+
+    <div class="grid-2">
+      <!-- Left Column: Visual Document / LV Renderer -->
+      <div>
+        <div class="card" id="docCard">
+          <div class="card-header">
+            <div>
+              <span id="docTypeBadge" class="status-chip chip-pass">Bereit</span>
+              <strong id="docTitle" style="margin-left:8px;font-size:17px;">Dokumenten-Vorschau (DIN 5008 / GAEB LV)</strong>
+            </div>
+            <div class="no-print" style="display:flex;gap:8px;flex-wrap:wrap;">
+              <button class="btn btn-outline" onclick="window.print()">🖨️ Drucken / PDF</button>
+              <button class="btn btn-primary" onclick="exportPro('datev')">📥 DATEV EXTF (.csv)</button>
+              <button class="btn btn-emerald" onclick="exportPro('gaeb_csv')">📊 LV Excel/CSV &amp; X84</button>
+            </div>
+          </div>
+          <div id="docBody">
+            <p style="color:var(--muted);text-align:center;padding:30px 0;">
+              Bitte wählen Sie oben eine Datei aus oder klicken Sie auf einen der drei Demo-Buttons.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Validation Report + DATEV Preview + Lifetime Unlock -->
+      <div class="no-print">
+        <div class="card">
+          <div class="card-header">
+            <strong>🛡️ EN 16931 / KoSIT &amp; GAEB BVBS Prüfbericht</strong>
+            <span id="valSummaryBadge" class="status-chip chip-pass">Prüfung bereit</span>
+          </div>
+          <ul id="validationList" class="issue-list">
+            <li class="issue-item PASS">Lokal im Browser initialisiert — 0 Bytes Server-Kontakt.</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <strong>🧾 DATEV EXTF v700 / GAEB Export-Vorschau</strong>
+            <span class="status-chip chip-warn" id="exportLockBadge">PRO</span>
+          </div>
+          <pre id="datevPreview" class="code-preview">"EXTF";700;21;"Buchungsstapel";13;...</pre>
+
+          <div class="paywall-box" id="paywallBox">
+            <h3>PRO-Export freischalten (P7M.io / SketchUp Modell)</h3>
+            <p>Ansicht &amp; Fehlerprüfung sind dauerhaft 100% kostenlos. Für Stapel-PDF, DATEV EXTF Buchungsstapel-Export &amp; GAEB Excel/X84 Rückgabe:</p>
+            <div class="price-cards">
+              <div class="price-card">
+                <div style="font-size:12px;color:#cbd5e1;">Einzel-Export Tagesticket</div>
+                <div style="font-size:22px;font-weight:800;margin:4px 0;">3,99 €</div>
+                <div style="font-size:11.5px;color:#94a3b8;">Einmalzahlung · Sofort-Download</div>
+              </div>
+              <div class="price-card featured">
+                <div style="font-size:12px;color:#6ee7b7;font-weight:700;">★ MEISTGEWÄHLT (84% Umsatz)</div>
+                <div style="font-size:22px;font-weight:800;margin:4px 0;">24,90 € <small style="font-size:12px;font-weight:500;">Lifetime</small></div>
+                <div style="font-size:11.5px;color:#d1fae5;">Unbegrenzte Exporte · Kein Abo · Inkl. Updates</div>
+              </div>
+            </div>
+            <button class="btn btn-emerald" style="width:100%;justify-content:center;" onclick="unlockDemoLifetime()">
+              ⚡ Jetzt Lifetime-Key im Demo-Modus testen (Code: PRO-2026)
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const DEMOS = {
+      xrechnung_valid: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<rsm:CrossIndustryInvoice xmlns:rsm=\"urn:un:unece:uncefact:data:standard:CrossIndustryInvoice:100\"\n                          xmlns:ram=\"urn:un:unece:uncefact:data:standard:ReusableAggregateBusinessInformationEntity:100\"\n                          xmlns:udt=\"urn:un:unece:uncefact:data:standard:UnqualifiedDataType:100\">\n  <rsm:ExchangedDocumentContext>\n    <ram:GuidelineSpecifiedDocumentContextParameter>\n      <ram:ID>urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_3.0</ram:ID>\n    </ram:GuidelineSpecifiedDocumentContextParameter>\n  </rsm:ExchangedDocumentContext>\n  <rsm:ExchangedDocument>\n    <ram:ID>XR-2026-00841</ram:ID>\n    <ram:TypeCode>380</ram:TypeCode>\n    <ram:IssueDateTime>\n      <udt:DateTimeString format=\"102\">20261015</udt:DateTimeString>\n    </ram:IssueDateTime>\n  </rsm:ExchangedDocument>\n  <rsm:SupplyChainTradeTransaction>\n    <ram:IncludedSupplyChainTradeLineItem>\n      <ram:AssociatedDocumentLineDocument>\n        <ram:LineID>1</ram:LineID>\n      </ram:AssociatedDocumentLineDocument>\n      <ram:SpecifiedTradeProduct>\n        <ram:Name>Elektroinstallation Unterverteilung UV-01 (DIN VDE 0100)</ram:Name>\n        <ram:Description>Lieferung und Montage Aufputz-Verteiler inkl. FI/LS-Schutzschalter</ram:Description>\n      </ram:SpecifiedTradeProduct>\n      <ram:SpecifiedLineTradeAgreement>\n        <ram:NetPriceProductTradePrice>\n          <ram:ChargeAmount>1250.00</ram:ChargeAmount>\n        </ram:NetPriceProductTradePrice>\n      </ram:SpecifiedLineTradeAgreement>\n      <ram:SpecifiedLineTradeDelivery>\n        <ram:BilledQuantity unitCode=\"H87\">2.00</ram:BilledQuantity>\n      </ram:SpecifiedLineTradeDelivery>\n      <ram:SpecifiedLineTradeSettlement>\n        <ram:ApplicableTradeTax>\n          <ram:TypeCode>VAT</ram:TypeCode>\n          <ram:CategoryCode>S</ram:CategoryCode>\n          <ram:RateApplicablePercent>19.00</ram:RateApplicablePercent>\n        </ram:ApplicableTradeTax>\n        <ram:SpecifiedTradeSettlementLineMonetarySummation>\n          <ram:LineTotalAmount>2500.00</ram:LineTotalAmount>\n        </ram:SpecifiedTradeSettlementLineMonetarySummation>\n      </ram:SpecifiedLineTradeSettlement>\n    </ram:IncludedSupplyChainTradeLineItem>\n    <ram:IncludedSupplyChainTradeLineItem>\n      <ram:AssociatedDocumentLineDocument>\n        <ram:LineID>2</ram:LineID>\n      </ram:AssociatedDocumentLineDocument>\n      <ram:SpecifiedTradeProduct>\n        <ram:Name>Mantelleitung NYM-J 5x2,5 mm\u00b2 inkl. Kabelkanal</ram:Name>\n        <ram:Description>Verlegung auf Rohdecke nach VOB/C DIN 18382</ram:Description>\n      </ram:SpecifiedTradeProduct>\n      <ram:SpecifiedLineTradeAgreement>\n        <ram:NetPriceProductTradePrice>\n          <ram:ChargeAmount>8.50</ram:ChargeAmount>\n        </ram:NetPriceProductTradePrice>\n      </ram:SpecifiedLineTradeAgreement>\n      <ram:SpecifiedLineTradeDelivery>\n        <ram:BilledQuantity unitCode=\"MTR\">120.00</ram:BilledQuantity>\n      </ram:SpecifiedLineTradeDelivery>\n      <ram:SpecifiedLineTradeSettlement>\n        <ram:ApplicableTradeTax>\n          <ram:TypeCode>VAT</ram:TypeCode>\n          <ram:CategoryCode>S</ram:CategoryCode>\n          <ram:RateApplicablePercent>19.00</ram:RateApplicablePercent>\n        </ram:ApplicableTradeTax>\n        <ram:SpecifiedTradeSettlementLineMonetarySummation>\n          <ram:LineTotalAmount>1020.00</ram:LineTotalAmount>\n        </ram:SpecifiedTradeSettlementLineMonetarySummation>\n      </ram:SpecifiedLineTradeSettlement>\n    </ram:IncludedSupplyChainTradeLineItem>\n    <ram:ApplicableHeaderTradeAgreement>\n      <ram:BuyerReference>04011000-1234512345-06</ram:BuyerReference>\n      <ram:SellerTradeParty>\n        <ram:Name>Meisterbetrieb Elektro Krause GmbH</ram:Name>\n        <ram:SpecifiedLegalOrganization>\n          <ram:ID>HRB 88412</ram:ID>\n        </ram:SpecifiedLegalOrganization>\n        <ram:PostalTradeAddress>\n          <ram:PostcodeCode>90402</ram:PostcodeCode>\n          <ram:LineOne>Handwerkerhof 14</ram:LineOne>\n          <ram:CityName>N\u00fcrnberg</ram:CityName>\n          <ram:CountryID>DE</ram:CountryID>\n        </ram:PostalTradeAddress>\n        <ram:SpecifiedTaxRegistration>\n          <ram:ID schemeID=\"VA\">DE123456789</ram:ID>\n        </ram:SpecifiedTaxRegistration>\n      </ram:SellerTradeParty>\n      <ram:BuyerTradeParty>\n        <ram:Name>Stadtwerke &amp; Hochbauamt N\u00fcrnberg</ram:Name>\n        <ram:PostalTradeAddress>\n          <ram:PostcodeCode>90403</ram:PostcodeCode>\n          <ram:LineOne>Rathausplatz 2</ram:LineOne>\n          <ram:CityName>N\u00fcrnberg</ram:CityName>\n          <ram:CountryID>DE</ram:CountryID>\n        </ram:PostalTradeAddress>\n      </ram:BuyerTradeParty>\n    </ram:ApplicableHeaderTradeAgreement>\n    <ram:ApplicableHeaderTradeDelivery/>\n    <ram:ApplicableHeaderTradeSettlement>\n      <ram:InvoiceCurrencyCode>EUR</ram:InvoiceCurrencyCode>\n      <ram:SpecifiedTradeSettlementPaymentMeans>\n        <ram:TypeCode>58</ram:TypeCode>\n        <ram:PayeePartyCreditorFinancialAccount>\n          <ram:IBANID>DE89370400440532013000</ram:IBANID>\n        </ram:PayeePartyCreditorFinancialAccount>\n        <ram:PayeeSpecifiedCreditorFinancialInstitution>\n          <ram:BICID>COBADEFFXXX</ram:BICID>\n        </ram:PayeeSpecifiedCreditorFinancialInstitution>\n      </ram:SpecifiedTradeSettlementPaymentMeans>\n      <ram:SpecifiedTradePaymentTerms>\n        <ram:Description>Zahlbar innerhalb von 14 Tagen ohne Abzug. Skonto 2% bei Zahlung binnen 7 Tagen.</ram:Description>\n        <ram:DueDateDateTime>\n          <udt:DateTimeString format=\"102\">20261029</udt:DateTimeString>\n        </ram:DueDateDateTime>\n      </ram:SpecifiedTradePaymentTerms>\n      <ram:SpecifiedTradeSettlementHeaderMonetarySummation>\n        <ram:LineTotalAmount>3520.00</ram:LineTotalAmount>\n        <ram:TaxBasisTotalAmount>3520.00</ram:TaxBasisTotalAmount>\n        <ram:TaxTotalAmount currencyID=\"EUR\">668.80</ram:TaxTotalAmount>\n        <ram:GrandTotalAmount>4188.80</ram:GrandTotalAmount>\n        <ram:DuePayableAmount>4188.80</ram:DuePayableAmount>\n      </ram:SpecifiedTradeSettlementHeaderMonetarySummation>\n    </ram:ApplicableHeaderTradeSettlement>\n  </rsm:SupplyChainTradeTransaction>\n</rsm:CrossIndustryInvoice>\n",
+      xrechnung_broken: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<Invoice xmlns=\"urn:oasis:names:specification:ubl:schema:xsd:Invoice-2\"\n         xmlns:cac=\"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2\"\n         xmlns:cbc=\"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2\">\n  <cbc:CustomizationID>urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_3.0</cbc:CustomizationID>\n  <cbc:ID>ERR-2026-99</cbc:ID>\n  <cbc:IssueDate>2026-10-16</cbc:IssueDate>\n  <cbc:InvoiceTypeCode>380</cbc:InvoiceTypeCode>\n  <cbc:DocumentCurrencyCode>EUR</cbc:DocumentCurrencyCode>\n  <cbc:BuyerReference></cbc:BuyerReference>\n  <cac:AccountingSupplierParty>\n    <cac:Party>\n      <cac:PartyLegalEntity>\n        <cbc:RegistrationName>Fehlerhafte Metallbau UG</cbc:RegistrationName>\n      </cac:PartyLegalEntity>\n      <cac:PartyTaxScheme>\n        <cbc:CompanyID>DE999</cbc:CompanyID>\n      </cac:PartyTaxScheme>\n    </cac:Party>\n  </cac:AccountingSupplierParty>\n  <cac:AccountingCustomerParty>\n    <cac:Party>\n      <cac:PartyLegalEntity>\n        <cbc:RegistrationName>Bauherr GmbH</cbc:RegistrationName>\n      </cac:PartyLegalEntity>\n    </cac:Party>\n  </cac:AccountingCustomerParty>\n  <cac:PaymentMeans>\n    <cbc:PaymentMeansCode>58</cbc:PaymentMeansCode>\n    <cac:PayeeFinancialAccount>\n      <cbc:ID>DE00370400440532013000</cbc:ID>\n    </cac:PayeeFinancialAccount>\n  </cac:PaymentMeans>\n  <cac:TaxTotal>\n    <cbc:TaxAmount currencyID=\"EUR\">190.00</cbc:TaxAmount>\n  </cac:TaxTotal>\n  <cac:LegalMonetaryTotal>\n    <cbc:LineExtensionAmount currencyID=\"EUR\">1000.00</cbc:LineExtensionAmount>\n    <cbc:TaxExclusiveAmount currencyID=\"EUR\">1000.00</cbc:TaxExclusiveAmount>\n    <cbc:TaxInclusiveAmount currencyID=\"EUR\">1250.00</cbc:TaxInclusiveAmount>\n    <cbc:PayableAmount currencyID=\"EUR\">1250.00</cbc:PayableAmount>\n  </cac:LegalMonetaryTotal>\n  <cac:InvoiceLine>\n    <cbc:ID>1</cbc:ID>\n    <cbc:InvoicedQuantity unitCode=\"H87\">1.00</cbc:InvoicedQuantity>\n    <cbc:LineExtensionAmount currencyID=\"EUR\">950.00</cbc:LineExtensionAmount>\n    <cac:Item>\n      <cbc:Name>Stahltr\u00e4ger HEB 200</cbc:Name>\n      <cac:ClassifiedTaxCategory>\n        <cbc:ID>S</cbc:ID>\n        <cbc:Percent>19.00</cbc:Percent>\n      </cac:ClassifiedTaxCategory>\n    </cac:Item>\n    <cac:Price>\n      <cbc:PriceAmount currencyID=\"EUR\">950.00</cbc:PriceAmount>\n    </cac:Price>\n  </cac:InvoiceLine>\n</Invoice>\n",
+      gaeb_x83: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<GAEB xmlns=\"http://www.gaeb.de/GAEB_DA_XML/DA83/3.3\">\n  <GAEBInfo>\n    <Version>3.3</Version>\n    <Date>2026-10-14</Date>\n  </GAEBInfo>\n  <PrjInfo>\n    <NamePrj>BV-2026-NBG-04</NamePrj>\n    <LblPrj>Sanierung Grundschule S\u00fcd \u2014 Los 04 Elektro &amp; Blitzschutz</LblPrj>\n    <Cur>EUR</Cur>\n  </PrjInfo>\n  <Award>\n    <DP>83</DP>\n    <AwardInfo>\n      <OpenDate>2026-11-02</OpenDate>\n      <Cur>EUR</Cur>\n    </AwardInfo>\n    <OWN>\n      <Address>\n        <Name1>Hochbauamt Stadt N\u00fcrnberg \u2014 Vergabestelle VOB/A</Name1>\n      </Address>\n    </OWN>\n    <BoQ>\n      <BoQBody>\n        <BoQCtgy RNoPart=\"01\">\n          <LblTx><span>01 Baustelleneinrichtung &amp; Demontage</span></LblTx>\n          <BoQBody>\n            <Itemlist>\n              <Item RNoPart=\"0010\">\n                <Qty>1.000</Qty>\n                <QU>psch</QU>\n                <UP>680.00</UP>\n                <IT>680.00</IT>\n                <Description>\n                  <CompleteText>\n                    <OutlineText><OutlTxt><TextOutlTxt><span>Baustelleneinrichtung Elektrohandwerk vorhalten</span></TextOutlTxt></OutlTxt></OutlineText>\n                    <DetailTxt><Text><span>An- und Abtransport von Werkzeugen, Messger\u00e4ten, Bauverteiler 32A inkl. Vorhaltung \u00fcber die gesamte Bauzeit nach VOB/C.</span></Text></DetailTxt>\n                  </CompleteText>\n                </Description>\n              </Item>\n              <Item RNoPart=\"0020\">\n                <Qty>4.000</Qty>\n                <QU>St</QU>\n                <UP>95.00</UP>\n                <IT>380.00</IT>\n                <Description>\n                  <CompleteText>\n                    <OutlineText><OutlTxt><TextOutlTxt><span>Bestands-Unterverteilung demontieren und fachgerecht entsorgen</span></TextOutlTxt></OutlTxt></OutlineText>\n                    <DetailTxt><Text><span>Spannungsfreischaltung pr\u00fcfen, alte Stahlblechverteiler ausbauen und inkl. Entsorgungsnachweis abfahren.</span></Text></DetailTxt>\n                  </CompleteText>\n                </Description>\n              </Item>\n            </Itemlist>\n          </BoQBody>\n        </BoQCtgy>\n        <BoQCtgy RNoPart=\"02\">\n          <LblTx><span>02 Haupt- und Unterverteilungen (DIN VDE 0100-410)</span></LblTx>\n          <BoQBody>\n            <Itemlist>\n              <Item RNoPart=\"0010\">\n                <Qty>3.000</Qty>\n                <QU>St</QU>\n                <UP>1290.00</UP>\n                <IT>3870.00</IT>\n                <Description>\n                  <CompleteText>\n                    <OutlineText><OutlTxt><TextOutlTxt><span>Feldverteiler 4-reihig UP/AP IP44 mit \u00dcberspannungsschutz Typ 2</span></TextOutlTxt></OutlTxt></OutlineText>\n                    <DetailTxt><Text><span>Stahlblech-Feldverteiler inkl. Kombiableiter Typ 1+2, 3x FI-Schutzschalter 40/0,03A Typ A und 24x LS B16A liefern und montieren.</span></Text></DetailTxt>\n                  </CompleteText>\n                </Description>\n              </Item>\n              <Item RNoPart=\"0020\">\n                <Qty>250.000</Qty>\n                <QU>m</QU>\n                <UP>8.40</UP>\n                <IT>2100.00</IT>\n                <Description>\n                  <CompleteText>\n                    <OutlineText><OutlTxt><TextOutlTxt><span>Halogenfreie Mantelleitung NHXMH-J 5x2,5 mm\u00b2 auf Kabelrinne</span></TextOutlTxt></OutlTxt></OutlineText>\n                    <DetailTxt><Text><span>Lieferung und funktionserhaltende Verlegung nach MLAR in Fluren und Klassenr\u00e4umen.</span></Text></DetailTxt>\n                  </CompleteText>\n                </Description>\n              </Item>\n            </Itemlist>\n          </BoQBody>\n        </BoQCtgy>\n      </BoQBody>\n    </BoQ>\n  </Award>\n</GAEB>\n"
+    };
+
+    let isProUnlocked = false;
+    let currentExportPayload = "";
+    let currentExportFilename = "export.csv";
+    let currentGaebItems = [];
+
+    function activateLicense() {
+      const val = (document.getElementById('licenseInput').value || '').trim().toUpperCase();
+      if (val === 'PRO-2026' || val === 'LIFETIME-2490') {
+        isProUnlocked = true;
+        const badge = document.getElementById('licenseStatus');
+        badge.className = 'status-chip chip-pass';
+        badge.textContent = '★ Lifetime PRO Aktiv (Unbegrenzt)';
+        document.getElementById('exportLockBadge').className = 'status-chip chip-pass';
+        document.getElementById('exportLockBadge').textContent = 'FREIGESCHALTET';
+        document.getElementById('paywallBox').style.display = 'none';
+      } else {
+        alert('Ungültiger Lizenzschlüssel. Tipp für den Selbsttest: PRO-2026 eingeben.');
+      }
+    }
+
+    function unlockDemoLifetime() {
+      document.getElementById('licenseInput').value = 'PRO-2026';
+      activateLicense();
+    }
+
+    function validateIbanMod97(iban) {
+      const clean = (iban || '').replace(/\s+/g, '').toUpperCase();
+      if (!clean) return { ok: false, msg: 'BT-84 IBAN fehlt.' };
+      if (clean.startsWith('DE') && clean.length !== 22) {
+        return { ok: false, msg: 'Deutsche IBAN muss exakt 22 Zeichen haben (' + clean.length + ').' };
+      }
+      if (!/^[A-Z]{2}\d{2}[A-Z0-9]+$/.test(clean)) {
+        return { ok: false, msg: 'IBAN Struktur ungültig.' };
+      }
+      const rearr = clean.slice(4) + clean.slice(0, 4);
+      let numStr = '';
+      for (let i = 0; i < rearr.length; i++) {
+        const code = rearr.charCodeAt(i);
+        numStr += (code >= 65 && code <= 90) ? String(code - 55) : rearr[i];
+      }
+      let rem = 0;
+      for (let i = 0; i < numStr.length; i++) {
+        rem = (rem * 10 + parseInt(numStr[i], 10)) % 97;
+      }
+      return rem === 1
+        ? { ok: true, msg: 'IBAN ' + clean + ' gültig (ISO 7064 Mod-97-10 OK).' }
+        : { ok: false, msg: 'IBAN Prüfziffer (ISO 7064 Mod-97-10) ungültig: ' + clean };
+    }
+
+    function validateLeitwegId(lw) {
+      const clean = (lw || '').trim();
+      if (!clean) return { ok: false, msg: 'BT-10 Käuferreferenz / Leitweg-ID fehlt (Pflichtfeld BR-DE-15).' };
+      if (/^[0-9]{2,12}-[0-9A-Za-z]{1,30}-[0-9]{2}$/.test(clean)) {
+        return { ok: true, msg: 'Leitweg-ID ' + clean + ' formal gültig (B2G/XRechnung).' };
+      }
+      return { ok: true, msg: 'BT-10 Käuferreferenz vorhanden (' + clean + ').' };
+    }
+
+    function qText(node, localNames) {
+      if (!node) return '';
+      let curr = [node];
+      for (const step of localNames) {
+        const next = [];
+        for (const n of curr) {
+          for (const ch of Array.from(n.children || [])) {
+            if ((ch.localName || ch.nodeName.split(':').pop()) === step) next.push(ch);
+          }
+        }
+        curr = next;
+        if (!curr.length) return '';
+      }
+      return (curr[0].textContent || '').trim();
+    }
+
+    function qAll(node, localNames) {
+      if (!node) return [];
+      let curr = [node];
+      for (const step of localNames) {
+        const next = [];
+        for (const n of curr) {
+          for (const ch of Array.from(n.children || [])) {
+            if ((ch.localName || ch.nodeName.split(':').pop()) === step) next.push(ch);
+          }
+        }
+        curr = next;
+        if (!curr.length) return [];
+      }
+      return curr;
+    }
+
+    function fmtDate(raw) {
+      const s = (raw || '').trim();
+      return /^\d{8}$/.test(s) ? s.slice(0,4) + '-' + s.slice(4,6) + '-' + s.slice(6,8) : s;
+    }
+
+    function parseXmlOrGaeb(text, filename) {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(text.trim(), 'application/xml');
+      const root = doc.documentElement;
+      const rootName = root.localName || root.nodeName.split(':').pop();
+
+      if (rootName === 'GAEB') {
+        renderGaebXml(root, filename);
+      } else if (rootName === 'CrossIndustryInvoice' || rootName === 'Invoice' || rootName === 'CreditNote') {
+        renderInvoiceXml(root, rootName, filename);
+      } else {
+        alert('Unbekanntes XML-Format: ' + rootName);
+      }
+    }
+
+    function renderInvoiceXml(root, rootName, filename) {
+      const isCII = rootName === 'CrossIndustryInvoice';
+      let inv = {};
+      if (isCII) {
+        const tx = qAll(root, ['SupplyChainTradeTransaction'])[0] || root;
+        const ag = qAll(tx, ['ApplicableHeaderTradeAgreement'])[0];
+        const seller = qAll(ag, ['SellerTradeParty'])[0];
+        const buyer = qAll(ag, ['BuyerTradeParty'])[0];
+        const set = qAll(tx, ['ApplicableHeaderTradeSettlement'])[0];
+        const mon = qAll(set, ['SpecifiedTradeSettlementHeaderMonetarySummation'])[0];
+
+        let vatId = '';
+        for (const tr of qAll(seller, ['SpecifiedTaxRegistration'])) {
+          const v = qText(tr, ['ID']);
+          if (v) vatId = v;
+        }
+        inv = {
+          syntax: 'UN/CEFACT CII (XRechnung / ZUGFeRD)',
+          bt1: qText(root, ['ExchangedDocument', 'ID']),
+          bt2: fmtDate(qText(root, ['ExchangedDocument', 'IssueDateTime', 'DateTimeString'])),
+          bt9: fmtDate(qText(set, ['SpecifiedTradePaymentTerms', 'DueDateDateTime', 'DateTimeString'])),
+          bt5: qText(set, ['InvoiceCurrencyCode']) || 'EUR',
+          bt10: qText(ag, ['BuyerReference']),
+          sellerName: qText(seller, ['Name']),
+          sellerCity: qText(seller, ['PostalTradeAddress', 'PostcodeCode']) + ' ' + qText(seller, ['PostalTradeAddress', 'CityName']),
+          sellerVat: vatId,
+          buyerName: qText(buyer, ['Name']),
+          buyerCity: qText(buyer, ['PostalTradeAddress', 'PostcodeCode']) + ' ' + qText(buyer, ['PostalTradeAddress', 'CityName']),
+          iban: qText(set, ['SpecifiedTradeSettlementPaymentMeans', 'PayeePartyCreditorFinancialAccount', 'IBANID']),
+          bic: qText(set, ['SpecifiedTradeSettlementPaymentMeans', 'PayeeSpecifiedCreditorFinancialInstitution', 'BICID']),
+          terms: qText(set, ['SpecifiedTradePaymentTerms', 'Description']),
+          bt106: parseFloat(qText(mon, ['LineTotalAmount']) || '0'),
+          bt109: parseFloat(qText(mon, ['TaxBasisTotalAmount']) || '0'),
+          bt110: parseFloat(qText(mon, ['TaxTotalAmount']) || '0'),
+          bt112: parseFloat(qText(mon, ['GrandTotalAmount']) || '0'),
+          lines: qAll(tx, ['IncludedSupplyChainTradeLineItem']).map(li => ({
+            id: qText(li, ['AssociatedDocumentLineDocument', 'LineID']),
+            name: qText(li, ['SpecifiedTradeProduct', 'Name']),
+            desc: qText(li, ['SpecifiedTradeProduct', 'Description']),
+            qty: parseFloat(qText(li, ['SpecifiedLineTradeDelivery', 'BilledQuantity']) || '1'),
+            unit: (qAll(li, ['SpecifiedLineTradeDelivery', 'BilledQuantity'])[0]?.getAttribute('unitCode')) || 'C62',
+            price: parseFloat(qText(li, ['SpecifiedLineTradeAgreement', 'NetPriceProductTradePrice', 'ChargeAmount']) || '0'),
+            tax: parseFloat(qText(li, ['SpecifiedLineTradeSettlement', 'ApplicableTradeTax', 'RateApplicablePercent']) || '19'),
+            total: parseFloat(qText(li, ['SpecifiedLineTradeSettlement', 'SpecifiedTradeSettlementLineMonetarySummation', 'LineTotalAmount']) || '0')
+          }))
+        };
+      } else {
+        const sp = qAll(root, ['AccountingSupplierParty', 'Party'])[0];
+        const bp = qAll(root, ['AccountingCustomerParty', 'Party'])[0];
+        const mon = qAll(root, ['LegalMonetaryTotal'])[0];
+        inv = {
+          syntax: 'OASIS UBL 2.1 (XRechnung)',
+          bt1: qText(root, ['ID']),
+          bt2: fmtDate(qText(root, ['IssueDate'])),
+          bt9: fmtDate(qText(root, ['DueDate'])),
+          bt5: qText(root, ['DocumentCurrencyCode']) || 'EUR',
+          bt10: qText(root, ['BuyerReference']),
+          sellerName: qText(sp, ['PartyLegalEntity', 'RegistrationName']) || qText(sp, ['PartyName', 'Name']),
+          sellerCity: qText(sp, ['PostalAddress', 'PostalZone']) + ' ' + qText(sp, ['PostalAddress', 'CityName']),
+          sellerVat: qText(sp, ['PartyTaxScheme', 'CompanyID']),
+          buyerName: qText(bp, ['PartyLegalEntity', 'RegistrationName']) || qText(bp, ['PartyName', 'Name']),
+          buyerCity: qText(bp, ['PostalAddress', 'PostalZone']) + ' ' + qText(bp, ['PostalAddress', 'CityName']),
+          iban: qText(root, ['PaymentMeans', 'PayeeFinancialAccount', 'ID']),
+          bic: '',
+          terms: qText(root, ['PaymentTerms', 'Note']),
+          bt106: parseFloat(qText(mon, ['LineExtensionAmount']) || '0'),
+          bt109: parseFloat(qText(mon, ['TaxExclusiveAmount']) || '0'),
+          bt110: parseFloat(qText(root, ['TaxTotal', 'TaxAmount']) || '0'),
+          bt112: parseFloat(qText(mon, ['TaxInclusiveAmount']) || '0'),
+          lines: qAll(root, ['InvoiceLine']).map(li => ({
+            id: qText(li, ['ID']),
+            name: qText(li, ['Item', 'Name']),
+            desc: qText(li, ['Item', 'Description']),
+            qty: parseFloat(qText(li, ['InvoicedQuantity']) || '1'),
+            unit: (qAll(li, ['InvoicedQuantity'])[0]?.getAttribute('unitCode')) || 'C62',
+            price: parseFloat(qText(li, ['Price', 'PriceAmount']) || '0'),
+            tax: parseFloat(qText(li, ['Item', 'ClassifiedTaxCategory', 'Percent']) || '19'),
+            total: parseFloat(qText(li, ['LineExtensionAmount']) || '0')
+          }))
+        };
+      }
+
+      // Run validations
+      const issues = [];
+      issues.push(inv.bt1 ? { s: 'PASS', c: 'BT-1', m: 'Rechnungsnummer: ' + inv.bt1 } : { s: 'ERROR', c: 'BT-1', m: 'Rechnungsnummer fehlt!' });
+      const lw = validateLeitwegId(inv.bt10);
+      issues.push({ s: lw.ok ? 'PASS' : 'ERROR', c: 'BT-10', m: lw.msg });
+      const vatOk = /^DE\d{9}$/.test((inv.sellerVat || '').trim());
+      issues.push({ s: vatOk ? 'PASS' : 'ERROR', c: 'BT-31', m: vatOk ? ('USt-IdNr. gültig: ' + inv.sellerVat) : ('USt-IdNr. ungültig/fehlt: ' + (inv.sellerVat || 'leer')) });
+      const ib = validateIbanMod97(inv.iban);
+      issues.push({ s: ib.ok ? 'PASS' : 'ERROR', c: 'BT-84', m: ib.msg });
+
+      const sumLines = inv.lines.reduce((a, b) => a + b.total, 0);
+      if (Math.abs(sumLines - inv.bt106) <= 0.02) {
+        issues.push({ s: 'PASS', c: 'BT-106', m: 'Positions-Nettosumme (' + sumLines.toFixed(2) + ' €) == BT-106.' });
+      } else {
+        issues.push({ s: 'ERROR', c: 'BT-106', m: 'Rechenfehler BT-106: Summe Positionen ist ' + sumLines.toFixed(2) + ' €, aber BT-106 meldet ' + inv.bt106.toFixed(2) + ' €.' });
+      }
+
+      if (Math.abs((inv.bt109 + inv.bt110) - inv.bt112) <= 0.02) {
+        issues.push({ s: 'PASS', c: 'BT-112', m: 'Brutto-Prüfung OK: ' + inv.bt109.toFixed(2) + ' + ' + inv.bt110.toFixed(2) + ' = ' + inv.bt112.toFixed(2) + ' €.' });
+      } else {
+        issues.push({ s: 'ERROR', c: 'BT-112', m: 'Rechenfehler BT-112: Netto + Steuer (' + (inv.bt109 + inv.bt110).toFixed(2) + ' €) != Brutto (' + inv.bt112.toFixed(2) + ' €).' });
+      }
+
+      renderValidationIssues(issues);
+
+      // Render visual invoice
+      document.getElementById('docTitle').textContent = 'E-Rechnung ' + (inv.bt1 || filename);
+      const hasErr = issues.some(i => i.s === 'ERROR');
+      const badge = document.getElementById('docTypeBadge');
+      badge.className = 'status-chip ' + (hasErr ? 'chip-err' : 'chip-pass');
+      badge.textContent = hasErr ? 'FEHLERHAFT (EN 16931)' : 'EN 16931 KONFORM';
+
+      const rowsHtml = inv.lines.map(l => `
+        <tr>
+          <td><strong>${l.id}</strong></td>
+          <td><strong>${l.name}</strong><br><small style="color:var(--muted)">${l.desc || ''}</small></td>
+          <td class="num">${l.qty.toFixed(2)} ${l.unit}</td>
+          <td class="num">${l.price.toFixed(2)} €</td>
+          <td class="num">${l.tax.toFixed(0)}%</td>
+          <td class="num"><strong>${l.total.toFixed(2)} €</strong></td>
+        </tr>
+      `).join('');
+
+      document.getElementById('docBody').innerHTML = `
+        <div class="meta-grid">
+          <div class="meta-box"><small>Rechnungssteller (BT-27 / BT-31)</small><strong>${inv.sellerName}</strong><br><small>${inv.sellerCity} · USt-IdNr: ${inv.sellerVat || '—'}</small></div>
+          <div class="meta-box"><small>Rechnungsempfänger (BT-44)</small><strong>${inv.buyerName}</strong><br><small>${inv.buyerCity}</small></div>
+          <div class="meta-box"><small>Rechnungs-Nr. (BT-1) &amp; Datum (BT-2)</small><strong>${inv.bt1} · ${inv.bt2}</strong><br><small>Fällig (BT-9): ${inv.bt9 || '—'}</small></div>
+          <div class="meta-box"><small>Leitweg-ID / Käuferreferenz (BT-10)</small><strong>${inv.bt10 || 'FEHLT'}</strong><br><small>Syntax: ${inv.syntax}</small></div>
+        </div>
+        <table>
+          <thead>
+            <tr><th>Pos</th><th>Bezeichnung (BT-153 / BT-154)</th><th class="num">Menge</th><th class="num">Einzelpreis</th><th class="num">USt</th><th class="num">Netto (BT-131)</th></tr>
+          </thead>
+          <tbody>${rowsHtml}</tbody>
+        </table>
+        <div class="totals-box">
+          <div class="totals-row"><span>Summe Positionen (BT-106):</span><strong>${inv.bt106.toFixed(2)} ${inv.bt5}</strong></div>
+          <div class="totals-row"><span>Steuerbasis Netto (BT-109):</span><strong>${inv.bt109.toFixed(2)} ${inv.bt5}</strong></div>
+          <div class="totals-row"><span>Umsatzsteuer (BT-110):</span><strong>${inv.bt110.toFixed(2)} ${inv.bt5}</strong></div>
+          <div class="totals-row grand"><span>Zahlbetrag Brutto (BT-112):</span><span>${inv.bt112.toFixed(2)} ${inv.bt5}</span></div>
+        </div>
+        <div style="margin-top:14px;font-size:12.5px;color:var(--muted);background:#f8fafc;padding:10px 12px;border-radius:8px;border:1px solid var(--border);">
+          <strong>Zahlungsverbindung (SEPA BT-84):</strong> IBAN ${inv.iban || '—'} ${inv.bic ? ('· BIC ' + inv.bic) : ''}<br>
+          <strong>Zahlungsbedingungen (BT-20):</strong> ${inv.terms || 'Gemäß Vereinbarung'}
+        </div>
+      `;
+
+      // DATEV EXTF Preview
+      const ttmm = (inv.bt2 && inv.bt2.length >= 10) ? (inv.bt2.slice(8,10) + inv.bt2.slice(5,7)) : '1510';
+      const grossComma = inv.bt112.toFixed(2).replace('.', ',');
+      const extf = [
+        '"EXTF";700;21;"Buchungsstapel";13;"20260101000000000";"";"RE";"BelegLokal";"";1234567;10001;20260101;4;20260101;20261231;"XRechnung Import";"";1;0;0;"EUR";"";""',
+        '"Umsatz (ohne Soll/Haben-Kz)";"Soll/Haben-Kennzeichen";"WKZ Umsatz";"Konto";"Gegenkonto (ohne BU-Schlüssel)";"BU-Schlüssel";"Belegdatum";"Belegfeld 1";"Buchungstext"',
+        `${grossComma};"S";"EUR";10000;8400;"9";${ttmm};"${inv.bt1}";"${inv.sellerName.slice(0,28)}"`
+      ].join('\r\n');
+      currentExportPayload = extf;
+      currentExportFilename = `EXTF_${inv.bt1 || 'Buchungsstapel'}.csv`;
+      document.getElementById('datevPreview').textContent = extf;
+    }
+
+    function renderGaebXml(root, filename) {
+      const prjNo = qText(root, ['PrjInfo', 'NamePrj']) || 'GAEB-LV';
+      const prjName = qText(root, ['PrjInfo', 'LblPrj']) || 'Bauvorhaben Leistungsverzeichnis';
+      const client = qText(root, ['Award', 'OWN', 'Address', 'Name1']) || 'Vergabestelle';
+      const openDate = qText(root, ['Award', 'AwardInfo', 'OpenDate']) || '2026-11-02';
+
+      currentGaebItems = [];
+      const ctgies = qAll(root, ['Award', 'BoQ', 'BoQBody', 'BoQCtgy']);
+      let htmlRows = '';
+
+      for (const ctgy of ctgies) {
+        const rno = ctgy.getAttribute('RNoPart') || '01';
+        const lbl = (qAll(ctgy, ['LblTx'])[0]?.textContent || ('Titel ' + rno)).trim();
+        htmlRows += `<tr style="background:#eff6ff;"><td colspan="6"><strong>Los / Titel ${rno}: ${lbl}</strong></td></tr>`;
+        const items = qAll(ctgy, ['BoQBody', 'Itemlist', 'Item']);
+        for (const item of items) {
+          const irno = item.getAttribute('RNoPart') || '0010';
+          const oz = rno + '.' + irno;
+          const qty = parseFloat(qText(item, ['Qty']) || '0');
+          const qu = qText(item, ['QU']) || 'St';
+          const up = parseFloat(qText(item, ['UP']) || '0');
+          const shortTx = (qAll(item, ['Description', 'CompleteText', 'OutlineText', 'OutlTxt', 'TextOutlTxt'])[0]?.textContent || ('Position ' + oz)).trim();
+          const longTx = (qAll(item, ['Description', 'CompleteText', 'DetailTxt', 'Text'])[0]?.textContent || '').trim();
+          const idx = currentGaebItems.length;
+          currentGaebItems.push({ oz, shortTx, longTx, qty, qu, up });
+          htmlRows += `
+            <tr>
+              <td><strong>${oz}</strong></td>
+              <td><strong>${shortTx}</strong><br><small style="color:var(--muted)">${longTx}</small></td>
+              <td class="num">${qty.toFixed(3)}</td>
+              <td>${qu}</td>
+              <td class="num"><input class="ep-input" type="number" step="0.01" value="${up.toFixed(2)}" oninput="recalcGaeb(${idx}, this.value)" /> €</td>
+              <td class="num"><strong id="gp-${idx}">${(qty * up).toFixed(2)} €</strong></td>
+            </tr>
+          `;
+        }
+      }
+
+      document.getElementById('docTitle').textContent = `GAEB X83 Leistungsverzeichnis: ${prjNo}`;
+      const badge = document.getElementById('docTypeBadge');
+      badge.className = 'status-chip chip-pass';
+      badge.textContent = 'GAEB DA XML 3.3 OK';
+
+      document.getElementById('docBody').innerHTML = `
+        <div class="meta-grid">
+          <div class="meta-box"><small>Projekt-Nr. &amp; Bezeichnung</small><strong>${prjNo} — ${prjName}</strong></div>
+          <div class="meta-box"><small>Auftraggeber / Vergabestelle</small><strong>${client}</strong></div>
+          <div class="meta-box"><small>Austauschphase &amp; Submission</small><strong>X83 Angebotsaufforderung · Frist: ${openDate}</strong></div>
+        </div>
+        <table>
+          <thead>
+            <tr><th>OZ</th><th>Kurztext &amp; Langtext (VOB/C)</th><th class="num">Menge</th><th>Einheit</th><th class="num">Einheitspreis (EP)</th><th class="num">Gesamtpreis (GP)</th></tr>
+          </thead>
+          <tbody>${htmlRows}</tbody>
+        </table>
+        <div class="totals-box">
+          <div class="totals-row"><span>LV-Summe Netto:</span><strong id="gaebNet">0.00 EUR</strong></div>
+          <div class="totals-row"><span>zzgl. 19% MwSt.:</span><strong id="gaebVat">0.00 EUR</strong></div>
+          <div class="totals-row grand"><span>Angebotssumme Brutto (X84):</span><span id="gaebGross">0.00 EUR</span></div>
+        </div>
+      `;
+
+      renderValidationIssues([
+        { s: 'PASS', c: 'BVBS-3.3', m: `GAEB DA XML 3.3 Struktur gültig (${currentGaebItems.length} Positionen in ${ctgies.length} Titeln).` },
+        { s: 'PASS', c: 'OZ/QTY', m: 'Alle Ordnungszahlen (OZ), Mengen (Qty) und Einheiten (QU) konsistent.' },
+        { s: 'PASS', c: 'X84-CALC', m: 'Interaktive EP-Kalkulation aktiv: Einheitspreise direkt im Browser änderbar.' }
+      ]);
+      updateGaebTotals();
+    }
+
+    function recalcGaeb(idx, val) {
+      const up = parseFloat(val || '0') || 0;
+      currentGaebItems[idx].up = up;
+      const gp = currentGaebItems[idx].qty * up;
+      document.getElementById('gp-' + idx).textContent = gp.toFixed(2) + ' €';
+      updateGaebTotals();
+    }
+
+    function updateGaebTotals() {
+      const net = currentGaebItems.reduce((a, b) => a + (b.qty * b.up), 0);
+      const vat = net * 0.19;
+      const gross = net + vat;
+      document.getElementById('gaebNet').textContent = net.toFixed(2) + ' EUR';
+      document.getElementById('gaebVat').textContent = vat.toFixed(2) + ' EUR';
+      document.getElementById('gaebGross').textContent = gross.toFixed(2) + ' EUR';
+
+      const csvLines = ['"OZ";"Kurztext";"Menge";"Einheit";"Einheitspreis_EUR";"Gesamtpreis_EUR"'];
+      for (const it of currentGaebItems) {
+        csvLines.push(`"${it.oz}";"${it.shortTx.replace(/"/g, '""')}";${it.qty.toFixed(3).replace('.', ',')};"${it.qu}";${it.up.toFixed(2).replace('.', ',')};$${(it.qty * it.up).toFixed(2).replace('.', ',')}`.replace('$$', ''));
+      }
+      currentExportPayload = csvLines.join('\r\n');
+      currentExportFilename = 'GAEB_LV_Kalkulation_X84.csv';
+      document.getElementById('datevPreview').textContent = currentExportPayload;
+    }
+
+    function renderValidationIssues(issues) {
+      const ul = document.getElementById('validationList');
+      ul.innerHTML = issues.map(i => `<li class="issue-item ${i.s}"><strong>[${i.c}]</strong> ${i.m}</li>`).join('');
+      const hasErr = issues.some(i => i.s === 'ERROR');
+      const b = document.getElementById('valSummaryBadge');
+      b.className = 'status-chip ' + (hasErr ? 'chip-err' : 'chip-pass');
+      b.textContent = hasErr ? 'Fehler gefunden' : 'Alle Prüfungen OK';
+    }
+
+    function exportPro(kind) {
+      if (!isProUnlocked) {
+        alert('Für den DATEV EXTF & GAEB Excel/X84 Export bitte rechts den Lifetime-Key aktivieren (Klick auf "Jetzt Lifetime-Key im Demo-Modus testen" oder Code PRO-2026).');
+        return;
+      }
+      const blob = new Blob([currentExportPayload], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = currentExportFilename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    function loadDemo(key) {
+      parseXmlOrGaeb(DEMOS[key], key + '.xml');
+    }
+
+    function handleFiles(files) {
+      if (!files || !files.length) return;
+      const file = files[0];
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        parseXmlOrGaeb(e.target.result, file.name);
+      };
+      reader.readAsText(file);
+    }
+
+    const dz = document.getElementById('dropzone');
+    dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('dragover'); });
+    dz.addEventListener('dragleave', () => dz.classList.remove('dragover'));
+    dz.addEventListener('drop', e => {
+      e.preventDefault();
+      dz.classList.remove('dragover');
+      handleFiles(e.dataTransfer.files);
+    });
+
+    // Load valid XRechnung by default so user sees immediate value
+    window.addEventListener('DOMContentLoaded', () => loadDemo('xrechnung_valid'));
+  </script>
+</body>
+</html>

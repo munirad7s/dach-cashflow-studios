@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <title>MVP #72 — YouTube Creator Email Bypass & CPV Sponsorship Valuation Cockpit</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card: #1e293b;
+      --panel: #0f172a;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --border: #334155;
+      --accent: #38bdf8;
+      --ok: #10b981;
+      --warn: #f59e0b;
+      --danger: #ef4444;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 28px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+    }
+    .header-banner {
+      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+    .header-banner h1 { margin: 0 0 8px 0; font-size: 24px; color: var(--accent); }
+    .header-banner p { margin: 0; color: var(--muted); font-size: 14px; }
+    .kpi-strip {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+    .kpi-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px;
+    }
+    .kpi-card .k-title { font-size: 12px; text-transform: uppercase; color: var(--muted); letter-spacing: 0.05em; }
+    .kpi-card .k-num { font-size: 24px; font-weight: 700; margin-top: 6px; }
+    .kpi-card .k-sub { font-size: 12px; color: var(--muted); margin-top: 4px; }
+    .creator-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    .creator-card.zombie-border {
+      border: 2px solid var(--danger);
+    }
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+      margin-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 14px;
+    }
+    .card-header h2 { margin: 0 0 8px 0; font-size: 19px; }
+    .handle { color: var(--accent); font-weight: 500; font-size: 15px; }
+    .meta-row { display: flex; flex-wrap: wrap; gap: 8px; }
+    .pill {
+      background: #334155;
+      color: #e2e8f0;
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .pill-danger { background: rgba(239, 68, 68, 0.2); color: #fca5a5; border: 1px solid #ef4444; }
+    .pill-ok { background: rgba(16, 185, 129, 0.2); color: #6ee7b7; border: 1px solid #10b981; }
+    .pill-agency { background: rgba(56, 189, 248, 0.2); color: #7dd3fc; border: 1px solid #38bdf8; }
+    .pill-direct { background: rgba(168, 85, 247, 0.2); color: #d8b4fe; border: 1px solid #a855f7; }
+    .verdict-box {
+      border: 2px solid;
+      border-radius: 8px;
+      padding: 8px 14px;
+      text-align: right;
+      min-width: 240px;
+    }
+    .verdict-label { font-size: 10px; letter-spacing: 0.08em; opacity: 0.85; }
+    .verdict-val { font-size: 13px; font-weight: 800; margin-top: 2px; }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1.15fr 1fr;
+      gap: 16px;
+    }
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px;
+    }
+    .panel h3 { margin: 0 0 10px 0; font-size: 14px; color: var(--accent); }
+    .primary-contact { margin: 0 0 6px 0; font-size: 14px; }
+    .sub-contact { margin: 0 0 12px 0; font-size: 12px; color: var(--muted); }
+    .role-tag { color: #cbd5e1; font-size: 12px; }
+    .layer-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+    .layer-table th, .layer-table td {
+      border-bottom: 1px solid var(--border);
+      padding: 6px 8px;
+      text-align: left;
+      vertical-align: top;
+    }
+    .layer-table th { color: var(--muted); font-weight: 600; }
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+    .metric-box {
+      background: #1e293b;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 8px 10px;
+    }
+    .m-label { display: block; font-size: 11px; color: var(--muted); }
+    .m-val { display: block; font-size: 15px; font-weight: 700; margin-top: 2px; }
+    .m-val.ok { color: var(--ok); }
+    .m-val.warn { color: var(--warn); }
+    .m-val.danger { color: var(--danger); }
+    .diagnosis-line { font-size: 12px; margin: 12px 0 0 0; color: #e2e8f0; }
+    .offer-drawer {
+      margin-top: 14px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 14px;
+    }
+    .offer-drawer summary {
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 13px;
+      color: var(--accent);
+    }
+    .offer-pre {
+      margin: 12px 0 0 0;
+      white-space: pre-wrap;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 12px;
+      color: #e2e8f0;
+      background: #090d16;
+      padding: 12px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+    }
+  </style>
+</head>
+<body>
+
+<!-- DACH CASHFLOW STUDIOS LAUNCH BAR -->
+<style>
+  #dcs-launch-bar {
+    position: sticky;
+    top: 0;
+    z-index: 99999;
+    background: linear-gradient(90deg, #0b1120 0%, #111827 50%, #0f172a 100%);
+    color: #f8fafc;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.35);
+    padding: 8px 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  }
+  #dcs-launch-bar .dcs-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+  }
+  #dcs-launch-bar .dcs-badge {
+    background: rgba(16, 185, 129, 0.18);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.03em;
+  }
+  #dcs-launch-bar a.dcs-nav {
+    color: #93c5fd;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 12.5px;
+  }
+  #dcs-launch-bar a.dcs-nav:hover {
+    text-decoration: underline;
+    color: #dbeafe;
+  }
+  #dcs-launch-bar .dcs-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  #dcs-launch-bar .dcs-btn {
+    padding: 5px 11px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s ease;
+  }
+  #dcs-launch-bar .dcs-btn-ghost {
+    background: rgba(255,255,255,0.08);
+    color: #e2e8f0;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  #dcs-launch-bar .dcs-btn-primary {
+    background: linear-gradient(135deg, #0ea5e9, #2563eb);
+    color: #ffffff;
+  }
+  #dcs-launch-bar .dcs-btn-emerald {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
+  }
+  @media print {
+    #dcs-launch-bar { display: none !important; }
+  }
+</style>
+<div id="dcs-launch-bar">
+  <div class="dcs-left">
+    <a href="/index.html" class="dcs-nav">← Alle 150 DACH Studios</a>
+    <span class="dcs-badge">MVP #072 VERIFIED</span>
+    <span style="color:#cbd5e1;font-size:12px;">DACH Tax, Corporate & Accounting Arbitrage</span>
+  </div>
+  <div class="dcs-actions">
+    <button onclick="window.print()" class="dcs-btn dcs-btn-ghost">🖨️ PDF / Dossier drucken</button>
+    <a href="#checkout-modal-49" target="_blank" rel="noopener" class="dcs-btn dcs-btn-primary">⚡ Musterschreiben & Voll-Dossier (€49)</a>
+    <a href="#checkout-modal-299" target="_blank" rel="noopener" class="dcs-btn dcs-btn-emerald">🛡️ B2B Umsetzung buchen (€299 / €1.490)</a>
+  </div>
+</div>
+
+  <div class="header-banner">
+    <h1>MVP #72 — YouTube/Social Creator Link-in-Bio & § 5 DDG Impressum Email Bypass + CPV Sponsorship Valuation Engine</h1>
+    <p>
+      Replaces <code>dataovercoffee/Youtube-Channel-Business-Email-Scraper</code> ($0.12–$0.40/email, 25.58% fail/abort rate)
+      &amp; <code>danny.hub/all-in-social-media-email</code> (99.86% timeout/fail rate) with a 0% reCAPTCHA 4-Layer Resolver + Outlier-Trimmed CPV Pricing Desk.
+    </p>
+  </div>
+
+  <div class="kpi-strip">
+    <div class="kpi-card">
+      <div class="k-title">Captcha-Free Email Resolution</div>
+      <div class="k-num" style="color: var(--ok);">6/6 (100%)</div>
+      <div class="k-sub">0 YouTube reCAPTCHA Enterprise solves needed</div>
+    </div>
+    <div class="kpi-card">
+      <div class="k-title">Zombie Channels Flagged</div>
+      <div class="k-num" style="color: var(--danger);">2 / 6</div>
+      <div class="k-sub">View-to-Sub ratio &lt; 2.5% threshold</div>
+    </div>
+    <div class="kpi-card">
+      <div class="k-title">Creator Quoted Mid-Roll Total</div>
+      <div class="k-num">12,650.00 €</div>
+      <div class="k-sub">Inflated by viral outliers &amp; legacy subs</div>
+    </div>
+    <div class="kpi-card">
+      <div class="k-title">Fair-Value Trimmed CPV Total</div>
+      <div class="k-num" style="color: var(--ok);">6,454.02 €</div>
+      <div class="k-sub">Net Negotiation Savings: <strong>6,195.98 €</strong></div>
+    </div>
+  </div>
+
+  
+        <div class="creator-card ">
+          <div class="card-header">
+            <div>
+              <h2>FinanzArchitekt — Steuern, Holding &amp; ETFs <span class="handle">@FinanzArchitektDE</span></h2>
+              <div class="meta-row">
+                <span class="pill">FinTech / B2B SaaS / Steuern</span>
+                <span class="pill">DE</span>
+                <span class="pill pill-ok">ORGANIC (28.63% View/Sub)</span>
+                <span class="pill pill-agency">FLOW Finance &amp; B2B Creator Management</span>
+              </div>
+            </div>
+            <div class="verdict-box" style="border-color: #f59e0b; color: #f59e0b;">
+              <div class="verdict-label">DEAL VERDICT</div>
+              <div class="verdict-val">COUNTER_OFFER_REQUIRED_OVERPRICED</div>
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div class="panel">
+              <h3>1. Captcha-Free 4-Layer Email & § 5 DDG Resolution</h3>
+              <p class="primary-contact">
+                <strong>Primary Verified Email:</strong> <code>finanzarchitekt@flow-agency.de</code>
+                <span class="role-tag">(Talent Agency Manager (FLOW Finance &amp; B2B Creator Management))</span>
+              </p>
+              <p class="sub-contact">
+                <strong>Winning Layer:</strong> <code>L4_AGENCY_GRAPH</code>
+                &bull; <strong>Confidence:</strong> 99%
+                &bull; <strong>Backup Emails:</strong> <code>office@finanzarchitekt.de</code>
+              </p>
+              <table class="layer-table">
+                <thead>
+                  <tr><th>Layer</th><th>Status</th><th>Extracted Emails</th><th>Provenance / § 5 DDG Evidence</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td><code>L1_DESCRIPTION_REGEX</code></td><td><strong>⚪PASS</strong></td><td><code>—</code></td><td>No direct email in description text (creator uses Link-in-Bio / Impressum redirect)</td></tr><tr><td><code>L2_LINK_IN_BIO_JSON</code></td><td><strong>✅ HIT</strong></td><td><code>finanzarchitekt@flow-agency.de</code></td><td>Parsed Linktree (__NEXT_DATA__) JSON state (__NEXT_DATA__ / hydration tree) -&gt; 1 contact email(s)</td></tr><tr><td><code>L3_DDG_IMPRESSUM</code></td><td><strong>✅ HIT</strong></td><td><code>finanzarchitekt@flow-agency.de, office@finanzarchitekt.de</code></td><td>§ 5 DDG Impressum verified (FinanzArchitekt Media GmbH, USt-IdNr: DE349812764)</td></tr><tr><td><code>L4_AGENCY_GRAPH</code></td><td><strong>✅ HIT</strong></td><td><code>finanzarchitekt@flow-agency.de</code></td><td>Matched FLOW Finance &amp; B2B Creator Management (Specialized DACH FinTech &amp; B2B Roster, 15% agency fee baked in)</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="panel">
+              <h3>2. Outlier-Trimmed CPV Sponsorship Valuation (Last 12 Long-Form)</h3>
+              <div class="metrics-grid">
+                <div class="metric-box">
+                  <span class="m-label">Subscribers</span>
+                  <span class="m-val">142,000</span>
+                </div>
+                <div class="metric-box">
+                  <span class="m-label">Raw Mean Views (Inflated)</span>
+                  <span class="m-val warn">51,333 <small>(+26.3%)</small></span>
+                </div>
+                <div class="metric-box">
+                  <span class="m-label">Trimmed Median (Middle 10)</span>
+                  <span class="m-val ok">40,650</span>
+                </div>
+                <div class="metric-box">
+                  <span class="m-label">Dropped Min / Max Outliers</span>
+                  <span class="m-val">14,200 / 195,000</span>
+                </div>
+                <div class="metric-box">
+                  <span class="m-label">Creator Quoted 60s Mid-Roll</span>
+                  <span class="m-val">2,400.00 € <small>(59.0 € TKP)</small></span>
+                </div>
+                <div class="metric-box">
+                  <span class="m-label">Fair-Value 60s Mid-Roll</span>
+                  <span class="m-val ok">2,107.30 € <small>(51.8 € TKP)</small></span>
+                </div>
+                <div class="metric-box">
+                  <span class="m-label">Fair Dedicated Video</span>
+                  <span class="m-val">4,952.16 €</span>
+                </div>
+                <div class="metric-box">
+                  <span class="m-label">Overpay / Savings Delta</span>
+                  <span class="m-val danger">+292.70 € (+13.9%)</span>
+                </div>
+              </div>
+              <p class="diagnosis-line"><strong>Audience Health Diagnosis:</strong> HIGH-VELOCITY CREATOR (28.63% active view-to-sub ratio)</p>
+            </div>
+          </div>
+
+          <details class="offer-drawer">
+            <summary>📄 View Negotiation-Ready German DACH Sponsorship Offer (Base + CPV Performance Bonus Tiers)</summary>
+            <pre class="offer-pre">An: finanzarchitekt@flow-agency.de
+Betreff: Kooperationsanfrage Q4/Q1 — FinanzArchitekt — Steuern, Holding &amp; ETFs (@FinanzArchitektDE) x Performance Sponsorship
+
+Liebes Team von FLOW Finance &amp; B2B Creator Management (Management FinanzArchitekt — Steuern, Holding &amp; ETFs),
+
+wir verfolgen die Long-Form-Inhalte auf FinanzArchitekt — Steuern, Holding &amp; ETFs im Bereich FinTech / B2B SaaS / Steuern intensiv. Auf Basis Eurer bereinigten Median-Reichweite der letzten 12 Long-Form-Videos (Trimmed Median ohne Min/Max-Ausreißer: 40,650 organische Views; Roh-Mittelwert inkl. Viral-Spike: 51,333 Views) möchten wir Euch folgendes sofort buchbares Kooperationsangebot unterbreiten:
+
+OPTION A — Fair-Value Fixpreis (60s Integrated Mid-Roll):
+  • Vergütung: 2,107.30 € netto (entspricht 51.84 € Ziel-TKP; Max-Guardrail: 55.00 € TKP)
+  • Platzierung: 60–75 Sek. native Integration im ersten Drittel + Pinned Comment &amp; Top-Link in der Beschreibung
+
+OPTION B — Hybrid Performance-Deal (Base + CPV Upside bei Viral-Performance):
+  • Garantierter Sockelbetrag (Base Fee): 1,580.48 € netto
+  • Performance-Bonus: +33.70 € pro 1.000 organische Views ab 32,500 Views (30-Tage-Fenster)
+  • Maximaler Performance-Bonus (Cap bei 65,000 Views): +1,095.25 € (Gesamt-Payout bis zu 2,675.73 € netto)
+
+OPTION C — Dedicated Full-Video Deep-Dive (8–12 Min.):
+  • Vergütung: 4,952.16 € netto
+
+Rechtliches &amp; Abwicklung (DACH Compliance):
+  • Vertragspartner lt. § 5 DDG Impressum: FinanzArchitekt Media GmbH (USt-IdNr.: DE349812764)
+  • Transparente Werbekennzeichnung gem. § 5a UWG / § 22 MStV (&quot;Werbung&quot; / Paid Partnership Toggle)
+  • Zahlungsziel: 14 Tage netto nach Livegang und Rechnungsstellung.
+
+Lasst uns gerne wissen, ob Option A oder Option B besser in Euren Redaktionsplan passt.
+Beste Grüße
+Creator Partnerships &amp; CPV Valuation Desk</pre>
+          </details>
+        </div>
+        
+        <div class="creator-card ">
+          <div class="card-header">
+            <div>
+              <h2>KI Werkstatt — Local LLMs, Agents &amp; Coding <span class="handle">@KIWerkstattBerlin</span></h2>
+              <div class="meta-row">
+                <span class="pill">Tech / AI / Coding / Productivity</span>
+                <span class="pill">DE</span>
+                <span class="pill pill-ok">ORGANIC (34.01% View/Sub)</span>
+                <span class="pill pill-direct">Direct Creator (0% Agency Markup)</span>
+              </div>
+            </div>
+            <div class="verdict-box" style="border-color: #10b981; color: #10b981;">
+              <div class="verdict-label">DEAL VERDICT</div>
+              <div class="verdict-val">STRONG_BUY_BELOW_FAIR_VALUE</div>
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div class="panel">
+              <h3>1. Captcha-Free 4-Layer Email & § 5 DDG Resolution</h3>
+              <p class="primary-contact">
+                <strong>Primary Verified Email:</strong> <code>kooperation@ki-werkstatt.de</code>
+                <span class="role-tag">(§ 5 DDG Impressum Commercial Contact)</span>
+              </p>
+              <p class="sub-contact">
+                <strong>Winning Layer:</strong> <code>L3_DDG_IMPRESSUM</code>
+                &bull; <strong>Confidence:</strong> 98%
+                &bull; <strong>Backup Emails:</strong> <code>none</code>
+              </p>
+              <table class="layer-table">
+                <thead>
+                  <tr><th>Layer</th><th>Status</th><th>Extracted Emails</th><th>Provenance / § 5 DDG Evidence</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td><code>L1_DESCRIPTION_REGEX</code></td><td><strong>✅ HIT</strong></td><td><code>kooperation@ki-werkstatt.de</code></td><td>Extracted 1 email(s) from Channel About + 1 Video Descriptions</td></tr><tr><td><code>L2_LINK_IN_BIO_JSON</code></td><td><strong>⚪PASS</strong></td><td><code>—</code></td><td>Scanned Wonderlink.de state; no mailto action block (found Impressum link: True)</td></tr><tr><td><code>L3_DDG_IMPRESSUM</code></td><td><strong>✅ HIT</strong></td><td><code>kooperation@ki-werkstatt.de</code></td><td>§ 5 DDG Impressum verified (KI Werkstatt UG (haftungsbeschränkt), USt-IdNr: DE358192041)</td></tr><tr><td><code>L4_AGENCY_GRAPH</code></td><td><strong>⚪PASS</strong></td><td><code>—</code></td><td>Direct Creator Self-Managed (Inhouse Management / No external roster agency fee)</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="panel">
+              <h3>2. Outlier-Trimmed CPV Sponsorship Valuation (Last 12 Long-Form)</h3>
+              <div class="metrics-grid">
+                <div class="metric-box">
+                  <span class="m-label">Subscribers</span>
+                  <span class="m-val">88,500</span>
+                </div>
+                <div class="metric-box">
+                  <span class="m-label">Raw Mean Views (Inflated)</span>
+                  <span class="m-val warn">33,158 <small>(+10.2%)</small></span>
+                </div>
+                <div class="metric-box">
+                  <span class="m-label">Trimmed Median (Middle 10)</span>
+                  <span class="m-val ok">30,100</span>
+                </div>
+                <div class="metric-box">
+                  <span class="m-label">Dropped Min / Max Outliers</span>
+                  <span class="m-val">11,500 / 84,000</span>
+                </div>
+                <div class="metric-box">
+                  <span class="m-label">Creator Quoted 60s Mid-Roll</span>
+                  <span class="m-val">1,150.00 € <small>(38.2 € TKP)</small></span>
+                </div>
+                <div class="metric-box">
+                  <span class="m-label">Fair-Value 60s Mid-Roll</span>
+                  <span class="m-val ok">1,365.34 € <small>(45.4 € TKP)</small></span>
+                </div>
+                <div class="metric-box">
+                  <span class="m-label">Fair Dedicated Video</span>
+                  <span class="m-val">3,072.01 €</span>
+                </div>
+                <div class="metric-box">
+                  <span class="m-label">Overpay / Savings Delta</span>
+                  <span class="m-val ok">-215.34 € (-15.8%)</span>
+                </div>
+              </div>
+              <p class="diagnosis-line"><strong>Audience Health Diagnosis:</strong> HIGH-VELOCITY CREATOR (34.01% active view-to-sub ratio)</p>
+            </div>
+          </div>
+
+          <details class="offer-drawer">
+            <summary>📄 View Negotiation-Ready German DACH Sponsorship Offer (Base + CPV Performance Bonus Tiers)</summary>
+            <pre class="offer-pre">An: kooperation@ki-werkstatt.de
+Betreff: Kooperationsanfrage Q4/Q1 — KI Werkstatt — Local LLMs, Agents &amp; Coding (@KIWerkstattBerlin) x Performance Sponsorship
+
+Hallo Dr. Jonas Richter-Team,
+
+wir verfolgen die Long-Form-Inhalte auf KI Werkstatt — Local LLMs, Agents &amp; Coding im Bereich Tech / AI / Coding / Productivity intensiv. Auf Basis Eurer bereinigten Median-Reichweite der letzten 12 Long-Form-Videos (Trimmed Median ohne Min/Max-Ausreißer: 30,100 organische Views; Roh-Mittelwert inkl. Viral-Spike: 33,158 Views) möchten wir Euch folgendes sofort buchbares Kooperationsangebot unterbreiten:
+
+OPTION A — Fair-Value Fixpreis (60s Integrated Mid-Roll):
+  • Vergütung: 1,365.34 € netto (entspricht 45.36 € Ziel-TKP; Max-Guardrail: 52.00 € TKP)
+  • Platzierung: 60–75 Sek. native Integration im ersten Drittel + Pinned Comment &amp; Top-Link in der Beschreibung
+
+OPTION B — Hybrid Performance-Deal (Base + CPV Upside bei Viral-Performance):
+  • Garantierter Sockelbetrag (Base Fee): 1,024.00 € netto
+  • Performance-Bonus: +29.48 € pro 1.000 organische Views ab 24,100 Views (30-Tage-Fenster)
+  • Maximaler Performance-Bonus (Cap bei 48,200 Views): +710.47 € (Gesamt-Payout bis zu 1,734.47 € netto)
+
+OPTION C — Dedicated Full-Video Deep-Dive (8–12 Min.):
+  • Vergütung: 3,072.01 € netto
+
+Rechtliches &amp; Abwicklung (DACH Compliance):
+  • Vertragspartner lt. § 5 DDG Impressum: KI Werkstatt UG (haftungsbeschränkt) (USt-IdNr.: DE358192041)
+  • Transparente Werbekennzeichnung gem. § 5a UWG / § 22 MStV (&quot;Werbung&quot; / Paid Partnership Toggle)
+  • Zahlungsziel: 14 Tage netto nach Livegang und Rechnungsstellung.
+
+Lasst uns gerne wissen, ob Option A oder Option B besser in Euren Redaktionsplan passt.
+Beste Grüße
+Creator Partnerships &amp; CPV Valuation Desk</pre>
+          </details>
+        </div>
+        
+        <div class="creator-card zombie-border">
+          <div class="card-header">
+            <div>
+              <h2>MegaLifestyle TV — Challenges, Vlogs &amp; Gadgets <span class="handle">@MegaLifestyleDaily</span></h2>
+              <div class="meta-row">
+                <span class="pill">Gaming / Entertainment / Lifestyle</span>
+                <span class="pill">DE</span>
+                <span class="pill pill-danger">ZOMBIE CHANNEL (1.08% View/Sub)</span>
+                <span class="pill pill-agency">All-In Artist Management GmbH</span>
+              </div>
+            </div>
+            <div class="verdict-box" style="border-color: #ef4444; color: #ef4444;">
+              <div class="verdict-label">DEAL VERDICT</div>
+              <div class="verdict-val">REJECT_OR_HARD_RENEGOTIATE_ZOMBIE</div>
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div class="panel">
+              <h3>1. Captcha-Free 4-Layer Email & § 5 DDG Resolution</h3>
+              <p class="primary-contact">
+                <strong>Primary Verified Email:</strong> <code>megalifestyle@all-in-artist.de</code>
+                <span class="role-tag">(Talent Agency Manager (All-In Artist Management GmbH))</span>
+              </p>
+              <p class="sub-contact">
+                <strong>Winning Layer:</strong> <code>L4_AGENCY_GRAPH</code>
+                &bull; <strong>Confidence:</strong> 99%
+                &bull; <strong>Backup Emails:</strong> <code>none</code>
+              </p>
+              <table class="layer-table">
+                <thead>
+                  <tr><th>Layer</th><th>Status</th><th>Extracted Emails</th><th>Provenance / § 5 DDG Evidence</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td><code>L1_DESCRIPTION_REGEX</code></td><td><strong>⚪PASS</strong></td><td><code>—</code></td><td>No direct email in description text (creator uses Link-in-Bio / Impressum redirect)</td></tr><tr><td><code>L2_LINK_IN_BIO_JSON</code></td><td><strong>✅ HIT</strong></td><td><code>megalifestyle@all-in-artist.de</code></td><td>Parsed Beacons.ai Hydration State JSON state (__NEXT_DATA__ / hydration tree) -&gt; 1 contact email(s)</td></tr><tr><td><code>L3_DDG_IMPRESSUM</code></td><td><strong>✅ HIT</strong></td><td><code>megalifestyle@all-in-artist.de</code></td><td>§ 5 DDG Impressum verified (All-In Artist Management GmbH, USt-IdNr: DE310492817)</td></tr><tr><td><code>L4_AGENCY_GRAPH</code></td><td><strong>✅ HIT</strong></td><td><code>megalifestyle@all-in-artist.de</code></td><td>Matched All-In Artist Management GmbH (Tier-1 DACH Entertainment &amp; Lifestyle, 20% agency fee baked in)</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="panel">
+              <h3>2. Outlier-Trimmed CPV Sponsorship Valuation (Last 12 Long-Form)</h3>
+              <div class="metrics-grid">
+                <div class="metric-box">
+                  <span class="m-label">Subscribers</span>
+                  <span class="m-val">485,000</span>
+                </div>
+                <div class="metric-box">
+                  <span class="m-label">Raw Mean Views (Inflated)</span>
+                  <span class="m-val warn">10,292 <small>(+96.0%)</small></span>
+                </div>
+                <div class="metric-box">
+                  <span class="m-label">Trimmed Median (Middle 10)</span>
+                  <span class="m-val ok">5,250</span>
+                </div>
+                <div class="metric-box">
+                  <span class="m-label">Dropped Min / Max Outliers</span>
+                  <span class="m-val">2,900 / 68,000</span>
+                </div>
+                <div class="metric-box">
+                  <span class="m-label">Creator Quoted 60s Mid-Roll</span>
+                  <span class="m-val">3,800.00 € <small>(723.8 € TKP)</small></span>
+                </div>
+                <div class="metric-box">
+                  <span class="m-label">Fair-Value 60s Mid-Roll</span>
+                  <span class="m-val ok">131.25 € <small>(25.0 € TKP)</small></span>
+                </div>
+                <div class="metric-box">
+                  <span class="m-label">Fair Dedicated Video</span>
+                  <span class="m-val">255.94 €</span>
+                </div>
+                <div class="metric-box">
+                  <span class="m-label">Overpay / Savings Delta</span>
+                  <span class="m-val danger">+3,668.75 € (+2795.2%)</span>
+                </div>
+              </div>
+              <p class="diagnosis-line"><strong>Audience Health Diagnosis:</strong> DEAD-SUBSCRIBER ZOMBIE CHANNEL (1.08% &lt; 2.5% threshold): 485,000 subs only generate 5,250 trimmed median views.</p>
+            </div>
+          </div>
+
+          <details class="offer-drawer">
+            <summary>📄 View Negotiation-Ready German DACH Sponsorship Offer (Base + CPV Performance Bonus Tiers)</summary>
+            <pre class="offer-pre">An: megalifestyle@all-in-artist.de
+Betreff: Kooperationsanfrage Q4/Q1 — MegaLifestyle TV — Challenges, Vlogs &amp; Gadgets (@MegaLifestyleDaily) x Performance Sponsorship
+
+Liebes Team von All-In Artist Management GmbH (Management MegaLifestyle TV — Challenges, Vlogs &amp; Gadgets),
+
+wir verfolgen die Long-Form-Inhalte auf MegaLifestyle TV — Challenges, Vlogs &amp; Gadgets im Bereich Gaming / Entertainment / Lifestyle intensiv. Auf Basis Eurer bereinigten Median-Reichweite der letzten 12 Long-Form-Videos (Trimmed Median ohne Min/Max-Ausreißer: 5,250 organische Views; Roh-Mittelwert inkl. Viral-Spike: 10,292 Views) möchten wir Euch folgendes sofort buchbares Kooperationsangebot unterbreiten:
+
+[HINWEIS ZUR KALKULATION]: Da das Verhältnis von organischen Views (Trimmed Median: 5,250 Views) zur Abonnentenbasis (485,000 Subs) aktuell bei 1.08% liegt (&lt; 2,5% Aktivitäts-Benchmark), kalkulieren wir strikt auf Basis der real erzielten Median-Reichweite der letzten 10 bereinigten Long-Form-Uploads statt auf Basis des Roh-Durchschnitts (10,292 Views).
+
+OPTION A — Fair-Value Fixpreis (60s Integrated Mid-Roll):
+  • Vergütung: 131.25 € netto (entspricht 25.00 € Ziel-TKP; Max-Guardrail: 32.00 € TKP)
+  • Platzierung: 60–75 Sek. native Integration im ersten Drittel + Pinned Comment &amp; Top-Link in der Beschreibung
+
+OPTION B — Hybrid Performance-Deal (Base + CPV Upside bei Viral-Performance):
+  • Garantierter Sockelbetrag (Base Fee): 98.44 € netto
+  • Performance-Bonus: +16.25 € pro 1.000 organische Views ab 4,200 Views (30-Tage-Fenster)
+  • Maximaler Performance-Bonus (Cap bei 8,400 Views): +68.25 € (Gesamt-Payout bis zu 166.69 € netto)
+
+OPTION C — Dedicated Full-Video Deep-Dive (8–12 Min.):
+  • Vergütung: 255.94 € netto
+
+Rechtliches &amp; Abwicklung (DACH Compliance):
+  • Vertragspartner lt. § 5 DDG Impressum: All-In Artist Management GmbH (USt-IdNr.: DE310492817)
+  • Transparente Werbekennzeichnung gem. § 5a UWG / § 22 MStV (&quot;Werbung&quot; / Paid Partnership Toggle)
+  • Zahlungsziel: 14 Tage netto nach Livegang und Rechnungsstellung.
+
+Lasst uns gerne wissen, ob Option A oder Option B besser in Euren Redaktionsplan passt.
+Beste Grüße
+Creator Partnerships &amp; CPV Valuation Desk</pre>
+          </details>
+        </div>
+        
+        <div class="creator-card ">
+          <div class="card-header">
+            <div>
+              <h2>E-Com Skalierung — D2C Brands, Meta Ads &amp; Logistik <span class="handle">@EcomSkalierungDE</span></h2>
+              <div class="meta-row">
+                <span class="pill">E-Commerce / Dropshipping / Marketing</span>
+                <span class="pill">AT</span>
+                <span class="pill pill-ok">ORGANIC (30.23% View/Sub)</span>
+                <span class="pill pill-agency">Pulse Advertising &amp; Talent Management GmbH</span>
+              </div>
+            </div>
+            <div class="verdict-box" style="border-color: #3b82f6; color: #3b82f6;">
+              <div class="verdict-label">DEAL VERDICT</div>
+              <div class="verdict-val">ACCEPTABLE_WITHIN_GUARDRAIL</div>
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div class="panel">
+              <h3>1. Captcha-Free 4-Layer Email & § 5 DDG Resolution</h3>
+              <p class="primary-contact">
+                <strong>Primary Verified Email:</strong> <code>d2c-team@pulse-agency.de</code>
+                <span class="role-tag">(Talent Agency Manager (Pulse Advertising &amp; Talent Management GmbH))</span>
+              </p>
+              <p class="sub-contact">
+                <strong>Winning Layer:</strong> <code>L4_AGENCY_GRAPH</code>
+                &bull; <strong>Confidence:</strong> 99%
+                &bull; <strong>Backup Emails:</strong> <code>partner@ecom-skalierung.at</code>
+              </p>
+              <table class="layer-table">
+                <thead>
+                  <tr><th>Layer</th><th>Status</th><th>Extracted Emails</th><th>Provenance / § 5 DDG Evidence</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td><code>L1_DESCRIPTION_REGEX</code></td><td><strong>⚪PASS</strong></td><td><code>—</code></td><td>No direct email in description text (creator uses Link-in-Bio / Impressum redirect)</td></tr><tr><td><code>L2_LINK_IN_BIO_JSON</code></td><td><strong>✅ HIT</strong></td><td><code>d2c-team@pulse-agency.de, partner@ecom-skalierung.at</code></td><td>Parsed Stan.store Page Props JSON state (__NEXT_DATA__ / hydration tree) -&gt; 2 contact email(s)</td></tr><tr><td><code>L3_DDG_IMPRESSUM</code></td><td><strong>✅ HIT</strong></td><td><code>partner@ecom-skalierung.at, d2c-team@pulse-agency.de</code></td><td>§ 5 DDG Impressum verified (Ecom Skalierung Media GmbH, USt-IdNr: ATU78419203)</td></tr><tr><td><code>L4_AGENCY_GRAPH</code></td><td><strong>✅ HIT</strong></td><td><code>d2c-team@pulse-agency.de</code></td><td>Matched Pulse Advertising &amp; Talent Management GmbH (Tier-1 Social &amp; Creator Performance Agency, 20% agency fee baked in)</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="panel">
+              <h3>2. Outlier-Trimmed CPV Sponsorship Valuation (Last 12 Long-Form)</h3>
+              <div class="metrics-grid">
+                <div class="metric-box">
+                  <span class="m-label">Subscribers</span>
+                  <span class="m-val">64,000</span>
+                </div>
+                <div class="metric-box">
+                  <span class="m-label">Raw Mean Views (Inflated)</span>
+                  <span class="m-val warn">21,867 <small>(+13.0%)</small></span>
+                </div>
+                <div class="metric-box">
+                  <span class="m-label">Trimmed Median (Middle 10)</span>
+                  <span class="m-val ok">19,350</span>
+                </div>
+                <div class="metric-box">
+                  <span class="m-label">Dropped Min / Max Outliers</span>
+                  <span class="m-val">9,400 / 59,000</span>
+                </div>
+                <div class="metric-box">
+                  <span class="m-label">Creator Quoted 60s Mid-Roll</span>
+                  <span class="m-val">1,050.00 € <small>(54.3 € TKP)</small></span>
+                </div>
+                <div class="metric-box">
+                  <span class="m-label">Fair-Value 60s Mid-Roll</span>
+                  <span class="m-val ok">940.41 € <small>(48.6 € TKP)</small></span>
+                </div>
+                <div class="metric-box">
+                  <span class="m-label">Fair Dedicated Video</span>
+                  <span class="m-val">2,162.94 €</span>
+                </div>
+                <div class="metric-box">
+                  <span class="m-label">Overpay / Savings Delta</span>
+                  <span class="m-val danger">+109.59 € (+11.7%)</span>
+                </div>
+              </div>
+              <p class="diagnosis-line"><strong>Audience Health Diagnosis:</strong> HIGH-VELOCITY CREATOR (30.23% active view-to-sub ratio)</p>
+            </div>
+          </div>
+
+          <details class="offer-drawer">
+            <summary>📄 View Negotiation-Ready German DACH Sponsorship Offer (Base + CPV Performance Bonus Tiers)</summary>
+            <pre class="offer-pre">An: d2c-team@pulse-agency.de
+Betreff: Kooperationsanfrage Q4/Q1 — E-Com Skalierung — D2C Brands, Meta Ads &amp; Logistik (@EcomSkalierungDE) x Performance Sponsorship
+
+Liebes Team von Pulse Advertising &amp; Talent Management GmbH (Management E-Com Skalierung — D2C Brands, Meta Ads &amp; Logistik),
+
+wir verfolgen die Long-Form-Inhalte auf E-Com Skalierung — D2C Brands, Meta Ads &amp; Logistik im Bereich E-Commerce / Dropshipping / Marketing intensiv. Auf Basis Eurer bereinigten Median-Reichweite der letzten 12 Long-Form-Videos (Trimmed Median ohne Min/Max-Ausreißer: 19,350 organische Views; Roh-Mittelwert inkl. Viral-Spike: 21,867 Views) möchten wir Euch folgendes sofort buchbares Kooperationsangebot unterbreiten:
+
+OPTION A — Fair-Value Fixpreis (60s Integrated Mid-Roll):
+  • Vergütung: 940.41 € netto (entspricht 48.60 € Ziel-TKP; Max-Guardrail: 55.00 € TKP)
+  • Platzierung: 60–75 Sek. native Integration im ersten Drittel + Pinned Comment &amp; Top-Link in der Beschreibung
+
+OPTION B — Hybrid Performance-Deal (Base + CPV Upside bei Viral-Performance):
+  • Garantierter Sockelbetrag (Base Fee): 705.31 € netto
+  • Performance-Bonus: +31.59 € pro 1.000 organische Views ab 15,500 Views (30-Tage-Fenster)
+  • Maximaler Performance-Bonus (Cap bei 31,000 Views): +489.64 € (Gesamt-Payout bis zu 1,194.95 € netto)
+
+OPTION C — Dedicated Full-Video Deep-Dive (8–12 Min.):
+  • Vergütung: 2,162.94 € netto
+
+Rechtliches &amp; Abwicklung (DACH Compliance):
+  • Vertragspartner lt. § 5 DDG Impressum: Ecom Skalierung Media GmbH (USt-IdNr.: ATU78419203)
+  • Transparente Werbekennzeichnung gem. § 5a UWG / § 22 MStV (&quot;Werbung&quot; / Paid Partnership Toggle)
+  • Zahlungsziel: 14 Tage netto nach Livegang und Rechnungsstellung.
+
+Lasst uns gerne wissen, ob Option A oder Option B besser in Euren Redaktionsplan passt.
+Beste Grüße
+Creator Partnerships &amp; CPV Valuation Desk</pre>
+          </details>
+        </div>
+        
+        <div class="creator-card ">
+          <div class="card-header">
+            <div>
+              <h2>Performance Labor — Blutbild, Schlaf &amp; Longevity <span class="handle">@PerformanceLabor</span></h2>
+              <div class="meta-row">
+                <span class="pill">Fitness / Health / Biohacking</span>
+                <span class="pill">DE</span>
+                <span class="pill pill-ok">ORGANIC (24.48% View/Sub)</span>
+                <span class="pill pill-agency">newbase GmbH (Berlin/Köln)</span>
+              </div>
+            </div>
+            <div class="verdict-box" style="border-color: #f59e0b; color: #f59e0b;">
+              <div class="verdict-label">DEAL VERDICT</div>
+              <div class="verdict-val">COUNTER_OFFER_REQUIRED_OVERPRICED</div>
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div class="panel">
+              <h3>1. Captcha-Free 4-Layer Email & § 5 DDG Resolution</h3>
+              <p class="primary-contact">
+                <strong>Primary Verified Email:</strong> <code>performancelabor@newbase.de</code>
+                <span class="role-tag">(Talent Agency Manager (newbase GmbH (Berlin/Köln)))</span>
+              </p>
+              <p class="sub-contact">
+                <strong>Winning Layer:</strong> <code>L4_AGENCY_GRAPH</code>
+                &bull; <strong>Confidence:</strong> 99%
+                &bull; <strong>Backup Emails:</strong> <code>info@performancelabor.de</code>
+              </p>
+              <table class="layer-table">
+                <thead>
+                  <tr><th>Layer</th><th>Status</th><th>Extracted Emails</th><th>Provenance / § 5 DDG Evidence</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td><code>L1_DESCRIPTION_REGEX</code></td><td><strong>⚪PASS</strong></td><td><code>—</code></td><td>No direct email in description text (creator uses Link-in-Bio / Impressum redirect)</td></tr><tr><td><code>L2_LINK_IN_BIO_JSON</code></td><td><strong>✅ HIT</strong></td><td><code>performancelabor@newbase.de</code></td><td>Parsed Wonderlink.de JSON State JSON state (__NEXT_DATA__ / hydration tree) -&gt; 1 contact email(s)</td></tr><tr><td><code>L3_DDG_IMPRESSUM</code></td><td><strong>✅ HIT</strong></td><td><code>performancelabor@newbase.de, info@performancelabor.de</code></td><td>§ 5 DDG Impressum verified (Performance Labor Health GmbH, USt-IdNr: DE331094825)</td></tr><tr><td><code>L4_AGENCY_GRAPH</code></td><td><strong>✅ HIT</strong></td><td><code>performancelabor@newbase.de</code></td><td>Matched newbase GmbH (Berlin/Köln) (Tier-1 DACH Creator Management, 20% agency fee baked in)</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="panel">
+              <h3>2. Outlier-Trimmed CPV Sponsorship Valuation (Last 12 Long-Form)</h3>
+              <div class="metrics-grid">
+                <div class="metric-box">
+                  <span class="m-label">Subscribers</span>
+                  <span class="m-val">210,000</span>
+                </div>
+                <div class="metric-box">
+                  <span class="m-label">Raw Mean Views (Inflated)</span>
+                  <span class="m-val warn">58,517 <small>(+13.8%)</small></span>
+                </div>
+                <div class="metric-box">
+                  <span class="m-label">Trimmed Median (Middle 10)</span>
+                  <span class="m-val ok">51,400</span>
+                </div>
+                <div class="metric-box">
+                  <span class="m-label">Dropped Min / Max Outliers</span>
+                  <span class="m-val">22,100 / 168,000</span>
+                </div>
+                <div class="metric-box">
+                  <span class="m-label">Creator Quoted 60s Mid-Roll</span>
+                  <span class="m-val">2,350.00 € <small>(45.7 € TKP)</small></span>
+                </div>
+                <div class="metric-box">
+                  <span class="m-label">Fair-Value 60s Mid-Roll</span>
+                  <span class="m-val ok">1,747.60 € <small>(34.0 € TKP)</small></span>
+                </div>
+                <div class="metric-box">
+                  <span class="m-label">Fair Dedicated Video</span>
+                  <span class="m-val">3,669.96 €</span>
+                </div>
+                <div class="metric-box">
+                  <span class="m-label">Overpay / Savings Delta</span>
+                  <span class="m-val danger">+602.40 € (+34.5%)</span>
+                </div>
+              </div>
+              <p class="diagnosis-line"><strong>Audience Health Diagnosis:</strong> HIGH-VELOCITY CREATOR (24.48% active view-to-sub ratio)</p>
+            </div>
+          </div>
+
+          <details class="offer-drawer">
+            <summary>📄 View Negotiation-Ready German DACH Sponsorship Offer (Base + CPV Performance Bonus Tiers)</summary>
+            <pre class="offer-pre">An: performancelabor@newbase.de
+Betreff: Kooperationsanfrage Q4/Q1 — Performance Labor — Blutbild, Schlaf &amp; Longevity (@PerformanceLabor) x Performance Sponsorship
+
+Liebes Team von newbase GmbH (Berlin/Köln) (Management Performance Labor — Blutbild, Schlaf &amp; Longevity),
+
+wir verfolgen die Long-Form-Inhalte auf Performance Labor — Blutbild, Schlaf &amp; Longevity im Bereich Fitness / Health / Biohacking intensiv. Auf Basis Eurer bereinigten Median-Reichweite der letzten 12 Long-Form-Videos (Trimmed Median ohne Min/Max-Ausreißer: 51,400 organische Views; Roh-Mittelwert inkl. Viral-Spike: 58,517 Views) möchten wir Euch folgendes sofort buchbares Kooperationsangebot unterbreiten:
+
+OPTION A — Fair-Value Fixpreis (60s Integrated Mid-Roll):
+  • Vergütung: 1,747.60 € netto (entspricht 34.00 € Ziel-TKP; Max-Guardrail: 42.00 € TKP)
+  • Platzierung: 60–75 Sek. native Integration im ersten Drittel + Pinned Comment &amp; Top-Link in der Beschreibung
+
+OPTION B — Hybrid Performance-Deal (Base + CPV Upside bei Viral-Performance):
+  • Garantierter Sockelbetrag (Base Fee): 1,310.70 € netto
+  • Performance-Bonus: +22.10 € pro 1.000 organische Views ab 41,100 Views (30-Tage-Fenster)
+  • Maximaler Performance-Bonus (Cap bei 82,200 Views): +908.31 € (Gesamt-Payout bis zu 2,219.01 € netto)
+
+OPTION C — Dedicated Full-Video Deep-Dive (8–12 Min.):
+  • Vergütung: 3,669.96 € netto
+
+Rechtliches &amp; Abwicklung (DACH Compliance):
+  • Vertragspartner lt. § 5 DDG Impressum: Performance Labor Health GmbH (USt-IdNr.: DE331094825)
+  • Transparente Werbekennzeichnung gem. § 5a UWG / § 22 MStV (&quot;Werbung&quot; / Paid Partnership Toggle)
+  • Zahlungsziel: 14 Tage netto nach Livegang und Rechnungsstellung.
+
+Lasst uns gerne wissen, ob Option A oder Option B besser in Euren Redaktionsplan passt.
+Beste Grüße
+Creator Partnerships &amp; CPV Valuation Desk</pre>
+          </details>
+        </div>
+        
+        <div class="creator-card zombie-border">
+          <div class="card-header">
+            <div>
+              <h2>HardwareArena — Gaming PCs &amp; Monitor Reviews <span class="handle">@HardwareArenaDE</span></h2>
+              <div class="meta-row">
+                <span class="pill">Tech / AI / Coding / Productivity</span>
+                <span class="pill">DE</span>
+                <span class="pill pill-danger">ZOMBIE CHANNEL (1.86% View/Sub)</span>
+                <span class="pill pill-agency">Ciberdime GmbH (Gaming &amp; Tech Creators)</span>
+              </div>
+            </div>
+            <div class="verdict-box" style="border-color: #ef4444; color: #ef4444;">
+              <div class="verdict-label">DEAL VERDICT</div>
+              <div class="verdict-val">REJECT_OR_HARD_RENEGOTIATE_ZOMBIE</div>
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div class="panel">
+              <h3>1. Captcha-Free 4-Layer Email & § 5 DDG Resolution</h3>
+              <p class="primary-contact">
+                <strong>Primary Verified Email:</strong> <code>hardwarearena@ciberdime.com</code>
+                <span class="role-tag">(Talent Agency Manager (Ciberdime GmbH (Gaming &amp; Tech Creators)))</span>
+              </p>
+              <p class="sub-contact">
+                <strong>Winning Layer:</strong> <code>L4_AGENCY_GRAPH</code>
+                &bull; <strong>Confidence:</strong> 99%
+                &bull; <strong>Backup Emails:</strong> <code>none</code>
+              </p>
+              <table class="layer-table">
+                <thead>
+                  <tr><th>Layer</th><th>Status</th><th>Extracted Emails</th><th>Provenance / § 5 DDG Evidence</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td><code>L1_DESCRIPTION_REGEX</code></td><td><strong>✅ HIT</strong></td><td><code>hardwarearena@ciberdime.com</code></td><td>Extracted 1 email(s) from Channel About + 1 Video Descriptions</td></tr><tr><td><code>L2_LINK_IN_BIO_JSON</code></td><td><strong>✅ HIT</strong></td><td><code>hardwarearena@ciberdime.com</code></td><td>Parsed Linktree (__NEXT_DATA__) JSON state (__NEXT_DATA__ / hydration tree) -&gt; 1 contact email(s)</td></tr><tr><td><code>L3_DDG_IMPRESSUM</code></td><td><strong>✅ HIT</strong></td><td><code>hardwarearena@ciberdime.com</code></td><td>§ 5 DDG Impressum verified (HardwareArena Media GbR, USt-IdNr: DE298401923)</td></tr><tr><td><code>L4_AGENCY_GRAPH</code></td><td><strong>✅ HIT</strong></td><td><code>hardwarearena@ciberdime.com</code></td><td>Matched Ciberdime GmbH (Gaming &amp; Tech Creators) (Specialized DACH Tech/Gaming Roster, 18% agency fee baked in)</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="panel">
+              <h3>2. Outlier-Trimmed CPV Sponsorship Valuation (Last 12 Long-Form)</h3>
+              <div class="metrics-grid">
+                <div class="metric-box">
+                  <span class="m-label">Subscribers</span>
+                  <span class="m-val">260,000</span>
+                </div>
+                <div class="metric-box">
+                  <span class="m-label">Raw Mean Views (Inflated)</span>
+                  <span class="m-val warn">7,638 <small>(+58.3%)</small></span>
+                </div>
+                <div class="metric-box">
+                  <span class="m-label">Trimmed Median (Middle 10)</span>
+                  <span class="m-val ok">4,825</span>
+                </div>
+                <div class="metric-box">
+                  <span class="m-label">Dropped Min / Max Outliers</span>
+                  <span class="m-val">2,600 / 41,000</span>
+                </div>
+                <div class="metric-box">
+                  <span class="m-label">Creator Quoted 60s Mid-Roll</span>
+                  <span class="m-val">1,900.00 € <small>(393.8 € TKP)</small></span>
+                </div>
+                <div class="metric-box">
+                  <span class="m-label">Fair-Value 60s Mid-Roll</span>
+                  <span class="m-val ok">162.12 € <small>(33.6 € TKP)</small></span>
+                </div>
+                <div class="metric-box">
+                  <span class="m-label">Fair Dedicated Video</span>
+                  <span class="m-val">364.77 €</span>
+                </div>
+                <div class="metric-box">
+                  <span class="m-label">Overpay / Savings Delta</span>
+                  <span class="m-val danger">+1,737.88 € (+1072.0%)</span>
+                </div>
+              </div>
+              <p class="diagnosis-line"><strong>Audience Health Diagnosis:</strong> DEAD-SUBSCRIBER ZOMBIE CHANNEL (1.86% &lt; 2.5% threshold): 260,000 subs only generate 4,825 trimmed median views.</p>
+            </div>
+          </div>
+
+          <details class="offer-drawer">
+            <summary>📄 View Negotiation-Ready German DACH Sponsorship Offer (Base + CPV Performance Bonus Tiers)</summary>
+            <pre class="offer-pre">An: hardwarearena@ciberdime.com
+Betreff: Kooperationsanfrage Q4/Q1 — HardwareArena — Gaming PCs &amp; Monitor Reviews (@HardwareArenaDE) x Performance Sponsorship
+
+Liebes Team von Ciberdime GmbH (Gaming &amp; Tech Creators) (Management HardwareArena — Gaming PCs &amp; Monitor Reviews),
+
+wir verfolgen die Long-Form-Inhalte auf HardwareArena — Gaming PCs &amp; Monitor Reviews im Bereich Tech / AI / Coding / Productivity intensiv. Auf Basis Eurer bereinigten Median-Reichweite der letzten 12 Long-Form-Videos (Trimmed Median ohne Min/Max-Ausreißer: 4,825 organische Views; Roh-Mittelwert inkl. Viral-Spike: 7,638 Views) möchten wir Euch folgendes sofort buchbares Kooperationsangebot unterbreiten:
+
+[HINWEIS ZUR KALKULATION]: Da das Verhältnis von organischen Views (Trimmed Median: 4,825 Views) zur Abonnentenbasis (260,000 Subs) aktuell bei 1.86% liegt (&lt; 2,5% Aktivitäts-Benchmark), kalkulieren wir strikt auf Basis der real erzielten Median-Reichweite der letzten 10 bereinigten Long-Form-Uploads statt auf Basis des Roh-Durchschnitts (7,638 Views).
+
+OPTION A — Fair-Value Fixpreis (60s Integrated Mid-Roll):
+  • Vergütung: 162.12 € netto (entspricht 33.60 € Ziel-TKP; Max-Guardrail: 52.00 € TKP)
+  • Platzierung: 60–75 Sek. native Integration im ersten Drittel + Pinned Comment &amp; Top-Link in der Beschreibung
+
+OPTION B — Hybrid Performance-Deal (Base + CPV Upside bei Viral-Performance):
+  • Garantierter Sockelbetrag (Base Fee): 121.59 € netto
+  • Performance-Bonus: +21.84 € pro 1.000 organische Views ab 3,900 Views (30-Tage-Fenster)
+  • Maximaler Performance-Bonus (Cap bei 7,700 Views): +82.99 € (Gesamt-Payout bis zu 204.58 € netto)
+
+OPTION C — Dedicated Full-Video Deep-Dive (8–12 Min.):
+  • Vergütung: 364.77 € netto
+
+Rechtliches &amp; Abwicklung (DACH Compliance):
+  • Vertragspartner lt. § 5 DDG Impressum: HardwareArena Media GbR (USt-IdNr.: DE298401923)
+  • Transparente Werbekennzeichnung gem. § 5a UWG / § 22 MStV (&quot;Werbung&quot; / Paid Partnership Toggle)
+  • Zahlungsziel: 14 Tage netto nach Livegang und Rechnungsstellung.
+
+Lasst uns gerne wissen, ob Option A oder Option B besser in Euren Redaktionsplan passt.
+Beste Grüße
+Creator Partnerships &amp; CPV Valuation Desk</pre>
+          </details>
+        </div>
+        
+</body>
+</html>

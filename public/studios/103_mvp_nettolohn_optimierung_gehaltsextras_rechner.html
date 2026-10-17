@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MVP #103 — DACH Netto-Lohnoptimierungs- & Gehaltsextras-Baukasten Studio</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --panel: #131b31;
+      --panel-alt: #182340;
+      --border: #28365c;
+      --text: #eef2ff;
+      --muted: #9eb0d9;
+      --accent: #38bdf8;
+      --emerald: #10b981;
+      --amber: #f59e0b;
+      --rose: #f43f5e;
+      --purple: #a855f7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+    }
+    header {
+      background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 24px 32px;
+    }
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .badge {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(56, 189, 248, 0.14);
+      color: var(--accent);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+    }
+    .badge.emerald {
+      background: rgba(16, 185, 129, 0.14);
+      color: var(--emerald);
+      border-color: rgba(16, 185, 129, 0.35);
+    }
+    .badge.amber {
+      background: rgba(245, 158, 11, 0.14);
+      color: var(--amber);
+      border-color: rgba(245, 158, 11, 0.35);
+    }
+    h1 {
+      margin: 0 0 8px 0;
+      font-size: 24px;
+      font-weight: 800;
+    }
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      max-width: 980px;
+    }
+    .container {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 24px 32px 64px;
+    }
+    .preset-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 20px;
+      align-items: center;
+    }
+    .preset-btn {
+      background: var(--panel);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .preset-btn:hover, .preset-btn.active {
+      background: rgba(56, 189, 248, 0.16);
+      border-color: var(--accent);
+      color: #fff;
+    }
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .kpi-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px 20px;
+    }
+    .kpi-card.highlight-rose {
+      border-left: 4px solid var(--rose);
+    }
+    .kpi-card.highlight-emerald {
+      border-left: 4px solid var(--emerald);
+    }
+    .kpi-card.highlight-accent {
+      border-left: 4px solid var(--accent);
+    }
+    .kpi-card.highlight-amber {
+      border-left: 4px solid var(--amber);
+    }
+    .kpi-label {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+    .kpi-value {
+      font-size: 26px;
+      font-weight: 800;
+      margin-bottom: 4px;
+    }
+    .kpi-sub {
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .main-grid {
+      display: grid;
+      grid-template-columns: 380px 1fr;
+      gap: 24px;
+    }
+    @media (max-width: 1100px) {
+      .main-grid { grid-template-columns: 1fr; }
+    }
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    .panel h2 {
+      margin: 0 0 14px 0;
+      font-size: 16px;
+      font-weight: 700;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .control-group {
+      margin-bottom: 14px;
+    }
+    .control-group label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 5px;
+    }
+    .control-group input[type="range"],
+    .control-group select {
+      width: 100%;
+      accent-color: var(--accent);
+    }
+    .control-group select {
+      background: var(--panel-alt);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 8px 10px;
+      border-radius: 6px;
+      font-size: 13px;
+    }
+    .compliance-box {
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin-bottom: 18px;
+      font-size: 13px;
+    }
+    .compliance-box.ok {
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.4);
+      color: #d1fae5;
+    }
+    .compliance-box.err {
+      background: rgba(244, 63, 94, 0.15);
+      border: 1px solid rgba(244, 63, 94, 0.5);
+      color: #ffe4e6;
+    }
+    .module-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    .module-table th, .module-table td {
+      padding: 10px 8px;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+      vertical-align: top;
+    }
+    .module-table th {
+      color: var(--muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .tag-free {
+      display: inline-block;
+      padding: 2px 7px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 700;
+      background: rgba(16, 185, 129, 0.18);
+      color: var(--emerald);
+    }
+    .tag-pauschal {
+      display: inline-block;
+      padding: 2px 7px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 700;
+      background: rgba(56, 189, 248, 0.18);
+      color: var(--accent);
+    }
+    .bar-compare {
+      margin: 14px 0;
+    }
+    .bar-row {
+      margin-bottom: 12px;
+    }
+    .bar-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      margin-bottom: 4px;
+    }
+    .bar-track {
+      height: 22px;
+      background: #0b1020;
+      border-radius: 6px;
+      overflow: hidden;
+      display: flex;
+      border: 1px solid var(--border);
+    }
+    .bar-seg-net { background: var(--emerald); height: 100%; }
+    .bar-seg-tax { background: var(--rose); height: 100%; }
+    .bar-seg-pauschal { background: var(--amber); height: 100%; }
+    textarea.contract-out {
+      width: 100%;
+      min-height: 290px;
+      background: #090d1a;
+      color: #dbeafe;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px;
+      font-family: 'JetBrains Mono', Consolas, monospace;
+      font-size: 12px;
+      line-height: 1.45;
+    }
+    .small-muted {
+      font-size: 11px;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+
+<!-- DACH CASHFLOW STUDIOS LAUNCH BAR -->
+<style>
+  #dcs-launch-bar {
+    position: sticky;
+    top: 0;
+    z-index: 99999;
+    background: linear-gradient(90deg, #0b1120 0%, #111827 50%, #0f172a 100%);
+    color: #f8fafc;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.35);
+    padding: 8px 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  }
+  #dcs-launch-bar .dcs-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+  }
+  #dcs-launch-bar .dcs-badge {
+    background: rgba(16, 185, 129, 0.18);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.03em;
+  }
+  #dcs-launch-bar a.dcs-nav {
+    color: #93c5fd;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 12.5px;
+  }
+  #dcs-launch-bar a.dcs-nav:hover {
+    text-decoration: underline;
+    color: #dbeafe;
+  }
+  #dcs-launch-bar .dcs-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  #dcs-launch-bar .dcs-btn {
+    padding: 5px 11px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s ease;
+  }
+  #dcs-launch-bar .dcs-btn-ghost {
+    background: rgba(255,255,255,0.08);
+    color: #e2e8f0;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  #dcs-launch-bar .dcs-btn-primary {
+    background: linear-gradient(135deg, #0ea5e9, #2563eb);
+    color: #ffffff;
+  }
+  #dcs-launch-bar .dcs-btn-emerald {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
+  }
+  @media print {
+    #dcs-launch-bar { display: none !important; }
+  }
+</style>
+<div id="dcs-launch-bar">
+  <div class="dcs-left">
+    <a href="/index.html" class="dcs-nav">← Alle 150 DACH Studios</a>
+    <span class="dcs-badge">MVP #103 VERIFIED</span>
+    <span style="color:#cbd5e1;font-size:12px;">DACH Tax, Corporate & Accounting Arbitrage</span>
+  </div>
+  <div class="dcs-actions">
+    <button onclick="window.print()" class="dcs-btn dcs-btn-ghost">🖨️ PDF / Dossier drucken</button>
+    <a href="#checkout-modal-49" target="_blank" rel="noopener" class="dcs-btn dcs-btn-primary">⚡ Musterschreiben & Voll-Dossier (€49)</a>
+    <a href="#checkout-modal-299" target="_blank" rel="noopener" class="dcs-btn dcs-btn-emerald">🛡️ B2B Umsetzung buchen (€299 / €1.490)</a>
+  </div>
+</div>
+
+  <header>
+    <div class="badge-row">
+      <span class="badge">MVP #103 · DACH Payroll Tax Arbitrage</span>
+      <span class="badge emerald">§ 8 Abs. 2 S. 11 & S. 6 EStG · § 3 Nr. 15/33/34/37/45 EStG</span>
+      <span class="badge amber">§ 40 Abs. 2 S. 1 Nr. 3 & 5 EStG · § 1 Abs. 1 SvEV (0 % SV!)</span>
+    </div>
+    <h1>DACH Netto-Lohnoptimierungs- & Gehaltsextras-Baukasten Studio</h1>
+    <p class="subtitle">
+      Deterministische Gegenüberstellung: <strong>Reguläre Bruttolohnerhöhung</strong> (~48,5 %–53 % Abgabenkeil aus Lohnsteuer + AN/AG-Sozialversicherung)
+      vs. <strong>10 kombinierbare steuer- und sozialversicherungsfreie / pauschalbesteuerte Gehaltsextras</strong> inklusive
+      <code>§ 8 Abs. 4 EStG Zusätzlichkeitserfordernis</code>-Guard, DATEV LODAS/LuG Lohnarten-Mapping & Arbeitsvertrags-Ergänzungsvereinbarung.
+    </p>
+  </header>
+
+  <div class="container">
+    <div class="preset-bar">
+      <span style="font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;">Referenz-Szenarien:</span>
+      <button class="preset-btn active" onclick="loadScenario(0)" id="preset-0">
+        Szenario A: 250 €/Mo Brutto vs. 250 €/Mo Netto-Baukasten (StKl. I Benchmark)
+      </button>
+      <button class="preset-btn" onclick="loadScenario(1)" id="preset-1">
+        Szenario B: Familien-Paket inkl. 350 €/Mo Kita (§ 3 Nr. 33 EStG, 2026)
+      </button>
+      <button class="preset-btn" onclick="loadScenario(2)" id="preset-2">
+        Szenario C: Voll-Ausbau alle 10 Bausteine inkl. Dienstrad (§ 3 Nr. 37 EStG)
+      </button>
+    </div>
+
+    <div class="kpi-grid">
+      <div class="kpi-card highlight-rose">
+        <div class="kpi-label">Reguläre Bruttolohnerhöhung (<span id="kpi-gross-mo">250</span> €/Mo)</div>
+        <div class="kpi-value" id="kpi-reg-net">1.440,00 € <span style="font-size:14px;font-weight:500;">Netto/Jahr</span></div>
+        <div class="kpi-sub">
+          AG-Gesamtkosten: <strong id="kpi-reg-ag">3.630,00 €/Jahr</strong> ·
+          Abgabenkeil verloren: <strong style="color:var(--rose);" id="kpi-reg-wedge">2.190,00 €/Jahr</strong>
+          (<span id="kpi-reg-eff">39,67</span> % Effizienz)
+        </div>
+      </div>
+
+      <div class="kpi-card highlight-emerald">
+        <div class="kpi-label">Netto-Baukasten (<span id="kpi-active-count">5</span> aktive Bausteine)</div>
+        <div class="kpi-value" style="color:var(--emerald);" id="kpi-opt-net">3.000,00 € <span style="font-size:14px;font-weight:500;">Netto/Jahr</span></div>
+        <div class="kpi-sub">
+          AG-Gesamtkosten: <strong id="kpi-opt-ag">3.348,00 €/Jahr</strong> ·
+          Pauschalsteuer: <strong id="kpi-opt-tax">348,00 €/Jahr</strong> · SV: <strong>0,00 €</strong>
+          (<span id="kpi-opt-eff">89,61</span> % Effizienz)
+        </div>
+      </div>
+
+      <div class="kpi-card highlight-accent">
+        <div class="kpi-label">Arbeitnehmer Netto-Mehrwert p.a.</div>
+        <div class="kpi-value" style="color:var(--accent);" id="kpi-net-gain">+1.560,00 € <span style="font-size:14px;font-weight:500;">/ Jahr</span></div>
+        <div class="kpi-sub">
+          Monatliches Netto: <strong id="kpi-opt-net-mo">250,00 €/Mo</strong> statt <strong id="kpi-reg-net-mo">120,00 €/Mo</strong>
+          bei klassischer Lohnerhöhung
+        </div>
+      </div>
+
+      <div class="kpi-card highlight-amber">
+        <div class="kpi-label">GmbH-Ersparnis (bei gleichem AN-Netto)</div>
+        <div class="kpi-value" style="color:var(--amber);" id="kpi-ag-save">4.214,50 € <span style="font-size:14px;font-weight:500;">/ Jahr je MA</span></div>
+        <div class="kpi-sub">
+          Bei 10 Mitarbeitern: <strong id="kpi-ag-save-10">42.145,00 €/Jahr</strong> Lohnnebenkosten gespart +
+          <strong>4.500 €/Jahr</strong> Benefit-SaaS-Gebühren gespart
+        </div>
+      </div>
+    </div>
+
+    <div class="main-grid">
+      <div>
+        <div class="panel">
+          <h2>1. Parameter & Steuer-/SV-Sätze</h2>
+          <div class="control-group">
+            <label><span>Veranlagungsjahr (SvEV-Werte)</span><span id="lbl-year">2025</span></label>
+            <select id="sel-year" onchange="recalc()">
+              <option value="2025">2025 (Essenszuschuss max. 7,50 €/Tag = 112,50 €/Mo)</option>
+              <option value="2026">2026 (Essenszuschuss max. 7,67 €/Tag = 115,05 €/Mo)</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label><span>Geplante Bruttolohnerhöhung (€/Monat)</span><span id="lbl-raise">250 €</span></label>
+            <input type="range" id="rng-raise" min="100" max="1000" step="25" value="250" oninput="recalc()" />
+          </div>
+          <div class="control-group">
+            <label><span>Grenzsteuersatz AN inkl. SolZ/KiSt (%)</span><span id="lbl-tax">31,5 %</span></label>
+            <input type="range" id="rng-tax" min="20" max="44" step="0.5" value="31.5" oninput="recalc()" />
+          </div>
+          <div class="control-group">
+            <label><span>AN-Sozialabgaben KV/PV/RV/AV (%)</span><span id="lbl-ansv">20,5 %</span></label>
+            <input type="range" id="rng-ansv" min="17" max="22" step="0.25" value="20.5" oninput="recalc()" />
+          </div>
+          <div class="control-group">
+            <label><span>AG-Sozialabgaben inkl. U1/U2/BG (%)</span><span id="lbl-agsv">21,0 %</span></label>
+            <input type="range" id="rng-agsv" min="19" max="23" step="0.2" value="21.0" oninput="recalc()" />
+          </div>
+          <div class="control-group">
+            <label style="cursor:pointer;align-items:center;">
+              <span>§ 8 Abs. 4 EStG Test: Schädliche Gehaltsumwandlung simulieren?</span>
+              <input type="checkbox" id="chk-umwandlung" onchange="recalc()" />
+            </label>
+            <div class="small-muted">
+              Prüft den Compliance-Guard: Wenn bestehendes Bruttogehalt zugunsten der Extras gekürzt wird, entfällt die Steuerfreiheit!
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h2>2. Effizienz-Vergleich (Wohin fließt das Arbeitgeber-Budget?)</h2>
+          <div class="bar-compare">
+            <div class="bar-row">
+              <div class="bar-header">
+                <span><strong>Reguläre Bruttolohnerhöhung</strong></span>
+                <span id="bar-reg-lbl">39,7 % Netto beim Mitarbeiter / 60,3 % Finanzamt & SV</span>
+              </div>
+              <div class="bar-track">
+                <div class="bar-seg-net" id="bar-reg-net" style="width: 39.7%;"></div>
+                <div class="bar-seg-tax" id="bar-reg-tax" style="width: 60.3%;"></div>
+              </div>
+            </div>
+            <div class="bar-row">
+              <div class="bar-header">
+                <span><strong>Netto-Lohnoptimierungs-Baukasten</strong></span>
+                <span id="bar-opt-lbl">89,6 % Netto beim Mitarbeiter / 10,4 % Pauschalsteuer (0 % SV)</span>
+              </div>
+              <div class="bar-track">
+                <div class="bar-seg-net" id="bar-opt-net" style="width: 89.6%;"></div>
+                <div class="bar-seg-pauschal" id="bar-opt-tax" style="width: 10.4%;"></div>
+              </div>
+            </div>
+          </div>
+          <div class="small-muted">
+            Grün = Echtes Netto beim Arbeitnehmer · Rot = Reguläre Lohnsteuer + Sozialversicherung · Gelb = 25 % AG-Pauschalsteuer nach § 40 Abs. 2 EStG (0 % SV nach § 1 Abs. 1 SvEV).
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div id="compliance-banner" class="compliance-box ok">
+          <strong>§ 8 Abs. 4 EStG & SvEV Compliance-Prüfung bestanden:</strong> Alle ausgewählten Bausteine werden zusätzlich zum ohnehin geschuldeten Arbeitslohn gewährt und halten die gesetzlichen Freigrenzen/Freibeträge ein.
+        </div>
+
+        <div class="panel">
+          <h2>
+            <span>3. Die 10 gesetzlichen Netto-Bausteine (EStG + SvEV + DATEV-Lohnarten)</span>
+            <span class="small-muted">Beträge monatlich anpassbar</span>
+          </h2>
+          <table class="module-table">
+            <thead>
+              <tr>
+                <th>Aktiv</th>
+                <th>Baustein & Rechtsgrundlage</th>
+                <th>Steuer / SV</th>
+                <th>Monat (€)</th>
+                <th>Jahr Netto (€)</th>
+                <th>AG-Kosten/Jahr</th>
+                <th>DATEV LODAS / LuG</th>
+              </tr>
+            </thead>
+            <tbody id="modules-tbody"></tbody>
+          </table>
+        </div>
+
+        <div class="panel">
+          <h2>
+            <span>4. Automatisch generierte Ergänzungsvereinbarung zum Arbeitsvertrag (§ 8 Abs. 4 EStG-sicher)</span>
+            <button class="preset-btn" onclick="copyContract()" style="padding:5px 10px;font-size:12px;">In Zwischenablage kopieren</button>
+          </h2>
+          <textarea class="contract-out" id="contract-text" readonly>ERGÄNZUNGSVEREINBARUNG ZUM ARBEITSVERTRAG (NETTO-LOHNOPTIMIERUNG / GEHALTSEXTRAS)
+==================================================================================
+Zwischen der [Muster GmbH, Musterstraße 1, 80331 München] – nachfolgend „Arbeitgeber“ –
+und [Vorname Nachname, Arbeitnehmer/in] – nachfolgend „Arbeitnehmer“ –
+
+§ 1 Grundsatz der Zusätzlichkeit (§ 8 Abs. 4 EStG)
+---------------------------------------------------
+1. Sämtliche in dieser Vereinbarung geregelten steuerfreien oder pauschal besteuerten
+   Arbeitgeberleistungen werden ausdrücklich ZUSÄTZLICH zum ohnehin geschuldeten
+   Arbeitslohn im Sinne des § 8 Abs. 4 EStG gewährt.
+2. Eine Gehaltsumwandlung (Verzicht auf arbeits- oder tarifvertraglich geschuldeten
+   Barlohn zugunsten dieser Zusatzleistungen) findet ausdrücklich NICHT statt.
+
+§ 2 Gewährte Gehaltsextras & Rechtsgrundlagen
+---------------------------------------------
+1. Steuerfreier Sachbezug (§ 8 Abs. 2 S. 11 EStG)
+   - Rechtsgrundlage: § 8 Abs. 2 Satz 11 EStG i.V.m. § 8 Abs. 1 Satz 3 EStG & § 2 Abs. 1 Nr. 10 ZAG
+   - Höhe: 50.00 € / Monat (600.00 € / Jahr)
+   - DATEV-Buchungshinweis: StLA 247 (Sachbezug steuer-/SV-frei § 8 Abs. 2 S. 11 EStG)
+2. Digitaler Essenszuschuss / Restaurantschecks (2025: 7.50 €/Tag × 15 Tage)
+   - Rechtsgrundlage: § 8 Abs. 2 Satz 6 EStG i.V.m. § 2 Abs. 1 SvEV (4.40 € Sachbezugswert 2025) & R 8.1 Abs. 7 Nr. 4 LStR (+ 3.10 € steuerfrei)
+   - Höhe: 112.50 € / Monat (1,350.00 € / Jahr)
+   - DATEV-Buchungshinweis: StLA 165 (Mahlzeiten pausch. St. 25%) + StLA 248 (AG-Zuschuss 3,10 € stfr.)
+3. Erholungsbeihilfe (§ 40 Abs. 2 S. 1 Nr. 3 EStG — Familie)
+   - Rechtsgrundlage: § 40 Abs. 2 Satz 1 Nr. 3 EStG (156 € AN + 104 € Ehegatte + 52 € je Kind)
+   - Höhe: 13.00 € / Monat (156.00 € / Jahr)
+   - DATEV-Buchungshinweis: StLA 163 (Erholungsbeihilfe pausch. versteuert 25 %)
+4. Internetpauschale (§ 40 Abs. 2 S. 1 Nr. 5 S. 2 EStG)
+   - Rechtsgrundlage: § 40 Abs. 2 Satz 1 Nr. 5 Satz 2 EStG i.V.m. R 40.2 Abs. 5 LStR
+   - Höhe: 50.00 € / Monat (600.00 € / Jahr)
+   - DATEV-Buchungshinweis: StLA 168 (Internetpauschale 25 % pausch. St. § 40 Abs. 2 Nr. 5 EStG)
+5. Jobticket / Deutschlandticket (§ 3 Nr. 15 EStG)
+   - Rechtsgrundlage: § 3 Nr. 15 EStG (ÖPNV-Zuschuss im Linienverkehr)
+   - Höhe: 24.50 € / Monat (294.00 € / Jahr)
+   - DATEV-Buchungshinweis: StLA 238 (Fahrtkostenzuschuss ÖPNV § 3 Nr. 15 EStG mit LStB-Ausweis Zeile 17)
+
+§ 3 Mitwirkungs- und Nachweispflichten für das Lohnkonto (§ 4 Abs. 2 Nr. 4 EStG)
+---------------------------------------------------------------------------------
+1. Sachbezugskarte (§ 8 Abs. 2 S. 11 EStG): Die Einlösung erfolgt ausschließlich
+   über ein nach § 2 Abs. 1 Nr. 10 ZAG zugelassenes Zahlungsinstrument ohne
+   Barauszahlungsfunktion. Die monatliche Freigrenze von 50,00 € darf nicht überschritten werden.
+2. Kindergartenzuschuss (§ 3 Nr. 33 EStG): Der Arbeitnehmer reicht den Original-Gebührenbescheid
+   des Kindergartens / der Kita für das nicht schulpflichtige Kind zum Lohnkonto ein und
+   meldet Änderungen der Betreuungskosten unverzüglich.
+3. Essenszuschuss (§ 8 Abs. 2 S. 6 EStG i.V.m. R 8.1 Abs. 7 Nr. 4 LStR): Die Gewährung erfolgt
+   für maximal 15 Arbeitstage pro Kalendermonat ausschließlich zum unmittelbaren Verzehr.
+4. Erholungsbeihilfe (§ 40 Abs. 2 S. 1 Nr. 3 EStG) & Internetpauschale (§ 40 Abs. 2 S. 1 Nr. 5 EStG):
+   Der Arbeitnehmer bestätigt schriftlich die zweckentsprechende Verwendung im zeitlichen
+   Zusammenhang mit einem Erholungsurlaub sowie die Höhe seiner laufenden privaten Internetkosten.
+
+Gesamter Netto-Mehrwert für den Arbeitnehmer: 250.00 € / Monat (3,000.00 € / Jahr)
+Gesamtaufwand Arbeitgeber inkl. Pauschalsteuer: 282.25 € / Monat (3,387.00 € / Jahr)
+
+Ort, Datum: ______________________
+Unterschrift Arbeitgeber: ______________________   Unterschrift Arbeitnehmer: ______________________</textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const SCENARIOS = [{"scenario_id": "single_250_benchmark_2025", "scenario_title": "Szenario A: 250 €/Monat Bruttolohnerhöhung vs. 250 €/Monat Netto-Baukasten (StKl. I, Single)", "tax_year": 2025, "steuerklasse": "I", "current_gross_monthly_eur": 4200.0, "target_raise_gross_monthly_eur": 250.0, "marginal_income_tax_rate_pct": 31.5, "employee_sv_rate_pct": 20.5, "employer_sv_rate_pct": 21.0, "regular_raise_gross_annual_eur": 3000.0, "regular_raise_employer_sv_annual_eur": 630.0, "regular_raise_employer_total_cost_annual_eur": 3630.0, "regular_raise_employee_tax_annual_eur": 945.0, "regular_raise_employee_sv_annual_eur": 615.0, "regular_raise_employee_net_annual_eur": 1440.0, "regular_raise_employee_net_monthly_eur": 120.0, "regular_raise_wedge_lost_annual_eur": 2190.0, "regular_raise_efficiency_pct": 39.67, "equivalent_gross_raise_for_baukasten_net_annual_eur": 6250.0, "equivalent_gross_raise_employer_cost_annual_eur": 7562.5, "baukasten_employee_net_monthly_eur": 250.0, "baukasten_employee_net_annual_eur": 3000.0, "baukasten_pauschal_tax_total_annual_eur": 387.0, "baukasten_sv_total_annual_eur": 0.0, "baukasten_employer_total_cost_annual_eur": 3387.0, "baukasten_employer_total_cost_monthly_eur": 282.25, "baukasten_efficiency_pct": 88.57, "employee_net_gain_vs_regular_raise_annual_eur": 1560.0, "employer_cost_saving_vs_equivalent_gross_annual_eur": 4175.5, "employer_cost_saving_per_10_employees_annual_eur": 41755.0, "saas_consultant_fee_saved_annual_eur": 4500.0, "compliance_passed": true, "compliance_warnings": [], "modules": [{"module_id": "sachbezug_50", "code_number": 1, "name": "Steuerfreier Sachbezug (§ 8 Abs. 2 S. 11 EStG)", "legal_basis": "§ 8 Abs. 2 Satz 11 EStG i.V.m. § 8 Abs. 1 Satz 3 EStG & § 2 Abs. 1 Nr. 10 ZAG", "enabled": true, "employee_net_monthly_eur": 50.0, "employee_net_annual_eur": 600.0, "pauschal_lohnsteuer_annual_eur": 0.0, "solz_on_pauschal_annual_eur": 0.0, "sv_employer_annual_eur": 0.0, "sv_employee_annual_eur": 0.0, "employer_total_cost_annual_eur": 600.0, "employer_total_cost_monthly_eur": 50.0, "net_to_cost_efficiency_pct": 100.0, "datev_lohnart_lodas": "StLA 247 (Sachbezug steuer-/SV-frei § 8 Abs. 2 S. 11 EStG)", "datev_lohnart_lug": "LA 860 / 861 (Freigrenze Sachbezug 50 EUR)", "compliance_status": "COMPLIANT_OK", "compliance_note": "STRENGE FREIGRENZE 50,00 €/Monat: Schon 50,01 € macht den gesamten Monatsbetrag steuer- und SV-pflichtig! Keine Barauszahlung, nur ZAG-konforme Closed-Loop-/Region-Karte (§ 2 Abs. 1 Nr. 10 ZAG). Kein Ansparen über mehrere Monate."}, {"module_id": "kindergarten_3_33", "code_number": 2, "name": "Kindergartenzuschuss (§ 3 Nr. 33 EStG — unbegrenzt)", "legal_basis": "§ 3 Nr. 33 EStG i.V.m. R 3.33 LStR", "enabled": false, "employee_net_monthly_eur": 0.0, "employee_net_annual_eur": 0.0, "pauschal_lohnsteuer_annual_eur": 0.0, "solz_on_pauschal_annual_eur": 0.0, "sv_employer_annual_eur": 0.0, "sv_employee_annual_eur": 0.0, "employer_total_cost_annual_eur": 0.0, "employer_total_cost_monthly_eur": 0.0, "net_to_cost_efficiency_pct": 100.0, "datev_lohnart_lodas": "StLA 230 (Kindergartenzuschuss § 3 Nr. 33 EStG)", "datev_lohnart_lug": "LA 855 (Kindergartenzuschuss steuer-/SV-frei)", "compliance_status": "COMPLIANT_OK", "compliance_note": "Gilt für noch nicht schulpflichtige Kinder (Krippe, Kita, Tagesmutter inkl. Verpflegung) bis zur Einschulung. Zwingend Original-Gebührenbescheid/Rechnung der Einrichtung im Lohnkonto aufbewahren!"}, {"module_id": "essenszuschuss_svev", "code_number": 3, "name": "Digitaler Essenszuschuss / Restaurantschecks (2025: 7.50 €/Tag × 15 Tage)", "legal_basis": "§ 8 Abs. 2 Satz 6 EStG i.V.m. § 2 Abs. 1 SvEV (4.40 € Sachbezugswert 2025) & R 8.1 Abs. 7 Nr. 4 LStR (+ 3.10 € steuerfrei)", "enabled": true, "employee_net_monthly_eur": 112.5, "employee_net_annual_eur": 1350.0, "pauschal_lohnsteuer_annual_eur": 198.0, "solz_on_pauschal_annual_eur": 0.0, "sv_employer_annual_eur": 0.0, "sv_employee_annual_eur": 0.0, "employer_total_cost_annual_eur": 1548.0, "employer_total_cost_monthly_eur": 129.0, "net_to_cost_efficiency_pct": 87.21, "datev_lohnart_lodas": "StLA 165 (Mahlzeiten pausch. St. 25%) + StLA 248 (AG-Zuschuss 3,10 € stfr.)", "datev_lohnart_lug": "LA 273 (Sachbezug Verpflegung pausch.) + LA 865 (Essenszuschuss stfr.)", "compliance_status": "COMPLIANT_OK", "compliance_note": "15-Mahlzeiten-Regel (R 8.1 Abs. 7 Nr. 4 Buchst. a LStR): Bis zu 15 Zuschüsse/Monat à 7.50 € (4.40 € pauschal mit 25 % versteuert + 3.10 € komplett steuerfrei) ohne Einzelnachweis von Abwesenheitstagen zulässig."}, {"module_id": "erholungsbeihilfe_40_2_3", "code_number": 4, "name": "Erholungsbeihilfe (§ 40 Abs. 2 S. 1 Nr. 3 EStG — Familie)", "legal_basis": "§ 40 Abs. 2 Satz 1 Nr. 3 EStG (156 € AN + 104 € Ehegatte + 52 € je Kind)", "enabled": true, "employee_net_monthly_eur": 13.0, "employee_net_annual_eur": 156.0, "pauschal_lohnsteuer_annual_eur": 39.0, "solz_on_pauschal_annual_eur": 0.0, "sv_employer_annual_eur": 0.0, "sv_employee_annual_eur": 0.0, "employer_total_cost_annual_eur": 195.0, "employer_total_cost_monthly_eur": 16.25, "net_to_cost_efficiency_pct": 80.0, "datev_lohnart_lodas": "StLA 163 (Erholungsbeihilfe pausch. versteuert 25 %)", "datev_lohnart_lug": "LA 350 (Erholungsbeihilfe 25 % Pauschalsteuer, SV-frei)", "compliance_status": "COMPLIANT_OK", "compliance_note": "FREIGRENZE (156 € AN / 104 € Ehepartner / 52 € je Kind p.a.): Auszahlung muss im zeitlichen Zusammenhang (innerhalb von 3 Monaten vor/nach) mit einem Erholungsurlaub von mind. 5 Tagen stehen!"}, {"module_id": "internetpauschale_40_2_5", "code_number": 5, "name": "Internetpauschale (§ 40 Abs. 2 S. 1 Nr. 5 S. 2 EStG)", "legal_basis": "§ 40 Abs. 2 Satz 1 Nr. 5 Satz 2 EStG i.V.m. R 40.2 Abs. 5 LStR", "enabled": true, "employee_net_monthly_eur": 50.0, "employee_net_annual_eur": 600.0, "pauschal_lohnsteuer_annual_eur": 150.0, "solz_on_pauschal_annual_eur": 0.0, "sv_employer_annual_eur": 0.0, "sv_employee_annual_eur": 0.0, "employer_total_cost_annual_eur": 750.0, "employer_total_cost_monthly_eur": 62.5, "net_to_cost_efficiency_pct": 80.0, "datev_lohnart_lodas": "StLA 168 (Internetpauschale 25 % pausch. St. § 40 Abs. 2 Nr. 5 EStG)", "datev_lohnart_lug": "LA 354 (Internetzuschuss pauschal versteuert)", "compliance_status": "COMPLIANT_OK", "compliance_note": "Vereinfachungsregelung R 40.2 Abs. 5 LStR: Bis zu 50,00 €/Monat ohne Einzelnachweis der monatlichen Rechnungen, sofern der Arbeitnehmer einmalig schriftlich erklärt, dass ihm für den privaten Internetzugang mindestens dieser Betrag entsteht."}, {"module_id": "it_telekommunikation_3_45", "code_number": 6, "name": "Betriebliches Smartphone / iPad / Laptop zur Privatnutzung (§ 3 Nr. 45 EStG)", "legal_basis": "§ 3 Nr. 45 EStG i.V.m. R 3.45 LStR", "enabled": false, "employee_net_monthly_eur": 0.0, "employee_net_annual_eur": 0.0, "pauschal_lohnsteuer_annual_eur": 0.0, "solz_on_pauschal_annual_eur": 0.0, "sv_employer_annual_eur": 0.0, "sv_employee_annual_eur": 0.0, "employer_total_cost_annual_eur": 0.0, "employer_total_cost_monthly_eur": 0.0, "net_to_cost_efficiency_pct": 100.0, "datev_lohnart_lodas": "StLA 890 (Statistische Dokumentation § 3 Nr. 45 EStG — 0 € Steuer/SV)", "datev_lohnart_lug": "Keine Abrechnungs-LA erforderlich (Überlassungsvertrag im Lohnkonto)", "compliance_status": "COMPLIANT_OK", "compliance_note": "WICHTIG: Das wirtschaftliche Eigentum am Gerät (Smartphone/Tablet/Notebook) und der Mobilfunkvertrag müssen beim Arbeitgeber liegen (Überlassung, keine Schenkung!). Für Schenkung/Übereignung gilt stattdessen § 40 Abs. 2 S. 1 Nr. 5 S. 1 EStG (25 % Pauschalsteuer)."}, {"module_id": "gesundheitsfoerderung_3_34", "code_number": 7, "name": "Betriebliche Gesundheitsförderung (§ 3 Nr. 34 EStG — bis 600 €/Jahr)", "legal_basis": "§ 3 Nr. 34 EStG i.V.m. §§ 20, 20b SGB V (Zentrale Prüfstelle Prävention)", "enabled": false, "employee_net_monthly_eur": 0.0, "employee_net_annual_eur": 0.0, "pauschal_lohnsteuer_annual_eur": 0.0, "solz_on_pauschal_annual_eur": 0.0, "sv_employer_annual_eur": 0.0, "sv_employee_annual_eur": 0.0, "employer_total_cost_annual_eur": 0.0, "employer_total_cost_monthly_eur": 0.0, "net_to_cost_efficiency_pct": 100.0, "datev_lohnart_lodas": "StLA 234 (Gesundheitsförderung § 3 Nr. 34 EStG stfr.)", "datev_lohnart_lug": "LA 858 (Präventionsleistung § 3 Nr. 34 EStG)", "compliance_status": "COMPLIANT_OK", "compliance_note": "FREIBETRAG 600,00 €/Kalenderjahr: Nur für nach § 20 SGB V zertifizierte Präventionskurse (Rückenschule, Stressbewältigung, Yoga, Ernährungsberatung). Reine Fitnessstudio-Mitgliedschaftsbeiträge ohne § 20 SGB V-Zertifikat fallen NICHT unter § 3 Nr. 34 EStG (dafür § 8 Abs. 2 S. 11 EStG nutzen)."}, {"module_id": "deutschlandticket_3_15", "code_number": 8, "name": "Jobticket / Deutschlandticket (§ 3 Nr. 15 EStG)", "legal_basis": "§ 3 Nr. 15 EStG (ÖPNV-Zuschuss im Linienverkehr)", "enabled": true, "employee_net_monthly_eur": 24.5, "employee_net_annual_eur": 294.0, "pauschal_lohnsteuer_annual_eur": 0.0, "solz_on_pauschal_annual_eur": 0.0, "sv_employer_annual_eur": 0.0, "sv_employee_annual_eur": 0.0, "employer_total_cost_annual_eur": 294.0, "employer_total_cost_monthly_eur": 24.5, "net_to_cost_efficiency_pct": 100.0, "datev_lohnart_lodas": "StLA 238 (Fahrtkostenzuschuss ÖPNV § 3 Nr. 15 EStG mit LStB-Ausweis Zeile 17)", "datev_lohnart_lug": "LA 851 (Jobticket / ÖPNV steuerfrei § 3 Nr. 15 EStG)", "compliance_status": "COMPLIANT_OK", "compliance_note": "Zusätzlich zum ohnehin geschuldeten Arbeitslohn (§ 8 Abs. 4 EStG). Pflichtausweis in Zeile 17 der elektronischen Lohnsteuerbescheinigung, da der Zuschuss auf die Entfernungspauschale des AN angerechnet wird."}, {"module_id": "dienstrad_3_37", "code_number": 9, "name": "Dienstrad / E-Bike zur Privatnutzung (§ 3 Nr. 37 EStG)", "legal_basis": "§ 3 Nr. 37 EStG (Überlassung eines betrieblichen Fahrrads/Pedelecs bis 25 km/h)", "enabled": false, "employee_net_monthly_eur": 0.0, "employee_net_annual_eur": 0.0, "pauschal_lohnsteuer_annual_eur": 0.0, "solz_on_pauschal_annual_eur": 0.0, "sv_employer_annual_eur": 0.0, "sv_employee_annual_eur": 0.0, "employer_total_cost_annual_eur": 0.0, "employer_total_cost_monthly_eur": 0.0, "net_to_cost_efficiency_pct": 100.0, "datev_lohnart_lodas": "StLA 891 (Dienstrad § 3 Nr. 37 EStG zusätzlich — 0 € geldwerter Vorteil)", "datev_lohnart_lug": "Statistische Dokumentation Dienstrad § 3 Nr. 37 EStG", "compliance_status": "COMPLIANT_OK", "compliance_note": "Wird das Dienstrad/Pedelec (kein S-Pedelec > 25 km/h) ZUSÄTZLICH zum ohnehin geschuldeten Arbeitslohn überlassen, beträgt der geldwerte Vorteil 0,00 € (komplett steuer- und SV-frei nach § 3 Nr. 37 EStG)."}, {"module_id": "aufmerksamkeiten_19_1a", "code_number": 10, "name": "Persönliche Aufmerksamkeiten & Verpflegungsmehraufwand (R 19.6 LStR / § 3 Nr. 16 EStG)", "legal_basis": "R 19.6 Abs. 1 LStR (60 € je persönlichem Anlass) & § 3 Nr. 16 i.V.m. § 9 Abs. 4a EStG (14 €/28 € VMA)", "enabled": false, "employee_net_monthly_eur": 0.0, "employee_net_annual_eur": 0.0, "pauschal_lohnsteuer_annual_eur": 0.0, "solz_on_pauschal_annual_eur": 0.0, "sv_employer_annual_eur": 0.0, "sv_employee_annual_eur": 0.0, "employer_total_cost_annual_eur": 0.0, "employer_total_cost_monthly_eur": 0.0, "net_to_cost_efficiency_pct": 100.0, "datev_lohnart_lodas": "StLA 249 (Aufmerksamkeit R 19.6 LStR) / StLA 220 (Reisekosten VMA § 3 Nr. 16 EStG)", "datev_lohnart_lug": "LA 862 (Aufmerksamkeiten bis 60 EUR) / LA 840 (Verpflegungsmehraufwand stfr.)", "compliance_status": "COMPLIANT_OK", "compliance_note": "Aufmerksamkeiten bis 60,00 € inkl. USt. (Freigrenze!) sind zusätzlich zum 50-€-Sachbezug möglich, aber NUR zu einem besonderen persönlichen Ereignis (Geburtstag, Hochzeit, Geburt eines Kindes, Firmenjubiläum — NICHT Weihnachten!). Verpflegungsmehraufwand (14 € ab > 8h Auswärtstätigkeit, 28 € bei 24h) erfordert Reisekostenabrechnung."}]}, {"scenario_id": "family_kita_baukasten_2026", "scenario_title": "Szenario B: Familien-Paket inkl. § 3 Nr. 33 Kita-Zuschuss & Erholungsbeihilfe (Verheiratet, 2 Kinder, 2026)", "tax_year": 2026, "steuerklasse": "III/IV", "current_gross_monthly_eur": 5000.0, "target_raise_gross_monthly_eur": 500.0, "marginal_income_tax_rate_pct": 30.0, "employee_sv_rate_pct": 20.25, "employer_sv_rate_pct": 21.0, "regular_raise_gross_annual_eur": 6000.0, "regular_raise_employer_sv_annual_eur": 1260.0, "regular_raise_employer_total_cost_annual_eur": 7260.0, "regular_raise_employee_tax_annual_eur": 1800.0, "regular_raise_employee_sv_annual_eur": 1215.0, "regular_raise_employee_net_annual_eur": 2985.0, "regular_raise_employee_net_monthly_eur": 248.75, "regular_raise_wedge_lost_annual_eur": 4275.0, "regular_raise_efficiency_pct": 41.12, "equivalent_gross_raise_for_baukasten_net_annual_eur": 18051.38, "equivalent_gross_raise_employer_cost_annual_eur": 21842.17, "baukasten_employee_net_monthly_eur": 748.38, "baukasten_employee_net_annual_eur": 8980.56, "baukasten_pauschal_tax_total_annual_eur": 471.2, "baukasten_sv_total_annual_eur": 0.0, "baukasten_employer_total_cost_annual_eur": 9451.76, "baukasten_employer_total_cost_monthly_eur": 787.65, "baukasten_efficiency_pct": 95.01, "employee_net_gain_vs_regular_raise_annual_eur": 5995.56, "employer_cost_saving_vs_equivalent_gross_annual_eur": 12390.41, "employer_cost_saving_per_10_employees_annual_eur": 123904.1, "saas_consultant_fee_saved_annual_eur": 4500.0, "compliance_passed": true, "compliance_warnings": [], "modules": [{"module_id": "sachbezug_50", "code_number": 1, "name": "Steuerfreier Sachbezug (§ 8 Abs. 2 S. 11 EStG)", "legal_basis": "§ 8 Abs. 2 Satz 11 EStG i.V.m. § 8 Abs. 1 Satz 3 EStG & § 2 Abs. 1 Nr. 10 ZAG", "enabled": true, "employee_net_monthly_eur": 50.0, "employee_net_annual_eur": 600.0, "pauschal_lohnsteuer_annual_eur": 0.0, "solz_on_pauschal_annual_eur": 0.0, "sv_employer_annual_eur": 0.0, "sv_employee_annual_eur": 0.0, "employer_total_cost_annual_eur": 600.0, "employer_total_cost_monthly_eur": 50.0, "net_to_cost_efficiency_pct": 100.0, "datev_lohnart_lodas": "StLA 247 (Sachbezug steuer-/SV-frei § 8 Abs. 2 S. 11 EStG)", "datev_lohnart_lug": "LA 860 / 861 (Freigrenze Sachbezug 50 EUR)", "compliance_status": "COMPLIANT_OK", "compliance_note": "STRENGE FREIGRENZE 50,00 €/Monat: Schon 50,01 € macht den gesamten Monatsbetrag steuer- und SV-pflichtig! Keine Barauszahlung, nur ZAG-konforme Closed-Loop-/Region-Karte (§ 2 Abs. 1 Nr. 10 ZAG). Kein Ansparen über mehrere Monate."}, {"module_id": "kindergarten_3_33", "code_number": 2, "name": "Kindergartenzuschuss (§ 3 Nr. 33 EStG — unbegrenzt)", "legal_basis": "§ 3 Nr. 33 EStG i.V.m. R 3.33 LStR", "enabled": true, "employee_net_monthly_eur": 350.0, "employee_net_annual_eur": 4200.0, "pauschal_lohnsteuer_annual_eur": 0.0, "solz_on_pauschal_annual_eur": 0.0, "sv_employer_annual_eur": 0.0, "sv_employee_annual_eur": 0.0, "employer_total_cost_annual_eur": 4200.0, "employer_total_cost_monthly_eur": 350.0, "net_to_cost_efficiency_pct": 100.0, "datev_lohnart_lodas": "StLA 230 (Kindergartenzuschuss § 3 Nr. 33 EStG)", "datev_lohnart_lug": "LA 855 (Kindergartenzuschuss steuer-/SV-frei)", "compliance_status": "COMPLIANT_OK", "compliance_note": "Gilt für noch nicht schulpflichtige Kinder (Krippe, Kita, Tagesmutter inkl. Verpflegung) bis zur Einschulung. Zwingend Original-Gebührenbescheid/Rechnung der Einrichtung im Lohnkonto aufbewahren!"}, {"module_id": "essenszuschuss_svev", "code_number": 3, "name": "Digitaler Essenszuschuss / Restaurantschecks (2026: 7.67 €/Tag × 15 Tage)", "legal_basis": "§ 8 Abs. 2 Satz 6 EStG i.V.m. § 2 Abs. 1 SvEV (4.57 € Sachbezugswert 2026) & R 8.1 Abs. 7 Nr. 4 LStR (+ 3.10 € steuerfrei)", "enabled": true, "employee_net_monthly_eur": 115.05, "employee_net_annual_eur": 1380.6, "pauschal_lohnsteuer_annual_eur": 205.65, "solz_on_pauschal_annual_eur": 11.31, "sv_employer_annual_eur": 0.0, "sv_employee_annual_eur": 0.0, "employer_total_cost_annual_eur": 1597.56, "employer_total_cost_monthly_eur": 133.13, "net_to_cost_efficiency_pct": 86.42, "datev_lohnart_lodas": "StLA 165 (Mahlzeiten pausch. St. 25%) + StLA 248 (AG-Zuschuss 3,10 € stfr.)", "datev_lohnart_lug": "LA 273 (Sachbezug Verpflegung pausch.) + LA 865 (Essenszuschuss stfr.)", "compliance_status": "COMPLIANT_OK", "compliance_note": "15-Mahlzeiten-Regel (R 8.1 Abs. 7 Nr. 4 Buchst. a LStR): Bis zu 15 Zuschüsse/Monat à 7.67 € (4.57 € pauschal mit 25 % versteuert + 3.10 € komplett steuerfrei) ohne Einzelnachweis von Abwesenheitstagen zulässig."}, {"module_id": "erholungsbeihilfe_40_2_3", "code_number": 4, "name": "Erholungsbeihilfe (§ 40 Abs. 2 S. 1 Nr. 3 EStG — Familie)", "legal_basis": "§ 40 Abs. 2 Satz 1 Nr. 3 EStG (156 € AN + 104 € Ehegatte + 52 € je Kind)", "enabled": true, "employee_net_monthly_eur": 30.33, "employee_net_annual_eur": 363.96, "pauschal_lohnsteuer_annual_eur": 90.99, "solz_on_pauschal_annual_eur": 5.0, "sv_employer_annual_eur": 0.0, "sv_employee_annual_eur": 0.0, "employer_total_cost_annual_eur": 459.95, "employer_total_cost_monthly_eur": 38.33, "net_to_cost_efficiency_pct": 79.13, "datev_lohnart_lodas": "StLA 163 (Erholungsbeihilfe pausch. versteuert 25 %)", "datev_lohnart_lug": "LA 350 (Erholungsbeihilfe 25 % Pauschalsteuer, SV-frei)", "compliance_status": "COMPLIANT_OK", "compliance_note": "FREIGRENZE (156 € AN / 104 € Ehepartner / 52 € je Kind p.a.): Auszahlung muss im zeitlichen Zusammenhang (innerhalb von 3 Monaten vor/nach) mit einem Erholungsurlaub von mind. 5 Tagen stehen!"}, {"module_id": "internetpauschale_40_2_5", "code_number": 5, "name": "Internetpauschale (§ 40 Abs. 2 S. 1 Nr. 5 S. 2 EStG)", "legal_basis": "§ 40 Abs. 2 Satz 1 Nr. 5 Satz 2 EStG i.V.m. R 40.2 Abs. 5 LStR", "enabled": true, "employee_net_monthly_eur": 50.0, "employee_net_annual_eur": 600.0, "pauschal_lohnsteuer_annual_eur": 150.0, "solz_on_pauschal_annual_eur": 8.25, "sv_employer_annual_eur": 0.0, "sv_employee_annual_eur": 0.0, "employer_total_cost_annual_eur": 758.25, "employer_total_cost_monthly_eur": 63.19, "net_to_cost_efficiency_pct": 79.13, "datev_lohnart_lodas": "StLA 168 (Internetpauschale 25 % pausch. St. § 40 Abs. 2 Nr. 5 EStG)", "datev_lohnart_lug": "LA 354 (Internetzuschuss pauschal versteuert)", "compliance_status": "COMPLIANT_OK", "compliance_note": "Vereinfachungsregelung R 40.2 Abs. 5 LStR: Bis zu 50,00 €/Monat ohne Einzelnachweis der monatlichen Rechnungen, sofern der Arbeitnehmer einmalig schriftlich erklärt, dass ihm für den privaten Internetzugang mindestens dieser Betrag entsteht."}, {"module_id": "it_telekommunikation_3_45", "code_number": 6, "name": "Betriebliches Smartphone / iPad / Laptop zur Privatnutzung (§ 3 Nr. 45 EStG)", "legal_basis": "§ 3 Nr. 45 EStG i.V.m. R 3.45 LStR", "enabled": true, "employee_net_monthly_eur": 45.0, "employee_net_annual_eur": 540.0, "pauschal_lohnsteuer_annual_eur": 0.0, "solz_on_pauschal_annual_eur": 0.0, "sv_employer_annual_eur": 0.0, "sv_employee_annual_eur": 0.0, "employer_total_cost_annual_eur": 540.0, "employer_total_cost_monthly_eur": 45.0, "net_to_cost_efficiency_pct": 100.0, "datev_lohnart_lodas": "StLA 890 (Statistische Dokumentation § 3 Nr. 45 EStG — 0 € Steuer/SV)", "datev_lohnart_lug": "Keine Abrechnungs-LA erforderlich (Überlassungsvertrag im Lohnkonto)", "compliance_status": "COMPLIANT_OK", "compliance_note": "WICHTIG: Das wirtschaftliche Eigentum am Gerät (Smartphone/Tablet/Notebook) und der Mobilfunkvertrag müssen beim Arbeitgeber liegen (Überlassung, keine Schenkung!). Für Schenkung/Übereignung gilt stattdessen § 40 Abs. 2 S. 1 Nr. 5 S. 1 EStG (25 % Pauschalsteuer)."}, {"module_id": "gesundheitsfoerderung_3_34", "code_number": 7, "name": "Betriebliche Gesundheitsförderung (§ 3 Nr. 34 EStG — bis 600 €/Jahr)", "legal_basis": "§ 3 Nr. 34 EStG i.V.m. §§ 20, 20b SGB V (Zentrale Prüfstelle Prävention)", "enabled": true, "employee_net_monthly_eur": 50.0, "employee_net_annual_eur": 600.0, "pauschal_lohnsteuer_annual_eur": 0.0, "solz_on_pauschal_annual_eur": 0.0, "sv_employer_annual_eur": 0.0, "sv_employee_annual_eur": 0.0, "employer_total_cost_annual_eur": 600.0, "employer_total_cost_monthly_eur": 50.0, "net_to_cost_efficiency_pct": 100.0, "datev_lohnart_lodas": "StLA 234 (Gesundheitsförderung § 3 Nr. 34 EStG stfr.)", "datev_lohnart_lug": "LA 858 (Präventionsleistung § 3 Nr. 34 EStG)", "compliance_status": "COMPLIANT_OK", "compliance_note": "FREIBETRAG 600,00 €/Kalenderjahr: Nur für nach § 20 SGB V zertifizierte Präventionskurse (Rückenschule, Stressbewältigung, Yoga, Ernährungsberatung). Reine Fitnessstudio-Mitgliedschaftsbeiträge ohne § 20 SGB V-Zertifikat fallen NICHT unter § 3 Nr. 34 EStG (dafür § 8 Abs. 2 S. 11 EStG nutzen)."}, {"module_id": "deutschlandticket_3_15", "code_number": 8, "name": "Jobticket / Deutschlandticket (§ 3 Nr. 15 EStG)", "legal_basis": "§ 3 Nr. 15 EStG (ÖPNV-Zuschuss im Linienverkehr)", "enabled": true, "employee_net_monthly_eur": 58.0, "employee_net_annual_eur": 696.0, "pauschal_lohnsteuer_annual_eur": 0.0, "solz_on_pauschal_annual_eur": 0.0, "sv_employer_annual_eur": 0.0, "sv_employee_annual_eur": 0.0, "employer_total_cost_annual_eur": 696.0, "employer_total_cost_monthly_eur": 58.0, "net_to_cost_efficiency_pct": 100.0, "datev_lohnart_lodas": "StLA 238 (Fahrtkostenzuschuss ÖPNV § 3 Nr. 15 EStG mit LStB-Ausweis Zeile 17)", "datev_lohnart_lug": "LA 851 (Jobticket / ÖPNV steuerfrei § 3 Nr. 15 EStG)", "compliance_status": "COMPLIANT_OK", "compliance_note": "Zusätzlich zum ohnehin geschuldeten Arbeitslohn (§ 8 Abs. 4 EStG). Pflichtausweis in Zeile 17 der elektronischen Lohnsteuerbescheinigung, da der Zuschuss auf die Entfernungspauschale des AN angerechnet wird."}, {"module_id": "dienstrad_3_37", "code_number": 9, "name": "Dienstrad / E-Bike zur Privatnutzung (§ 3 Nr. 37 EStG)", "legal_basis": "§ 3 Nr. 37 EStG (Überlassung eines betrieblichen Fahrrads/Pedelecs bis 25 km/h)", "enabled": false, "employee_net_monthly_eur": 0.0, "employee_net_annual_eur": 0.0, "pauschal_lohnsteuer_annual_eur": 0.0, "solz_on_pauschal_annual_eur": 0.0, "sv_employer_annual_eur": 0.0, "sv_employee_annual_eur": 0.0, "employer_total_cost_annual_eur": 0.0, "employer_total_cost_monthly_eur": 0.0, "net_to_cost_efficiency_pct": 100.0, "datev_lohnart_lodas": "StLA 891 (Dienstrad § 3 Nr. 37 EStG zusätzlich — 0 € geldwerter Vorteil)", "datev_lohnart_lug": "Statistische Dokumentation Dienstrad § 3 Nr. 37 EStG", "compliance_status": "COMPLIANT_OK", "compliance_note": "Wird das Dienstrad/Pedelec (kein S-Pedelec > 25 km/h) ZUSÄTZLICH zum ohnehin geschuldeten Arbeitslohn überlassen, beträgt der geldwerte Vorteil 0,00 € (komplett steuer- und SV-frei nach § 3 Nr. 37 EStG)."}, {"module_id": "aufmerksamkeiten_19_1a", "code_number": 10, "name": "Persönliche Aufmerksamkeiten & Verpflegungsmehraufwand (R 19.6 LStR / § 3 Nr. 16 EStG)", "legal_basis": "R 19.6 Abs. 1 LStR (60 € je persönlichem Anlass) & § 3 Nr. 16 i.V.m. § 9 Abs. 4a EStG (14 €/28 € VMA)", "enabled": false, "employee_net_monthly_eur": 0.0, "employee_net_annual_eur": 0.0, "pauschal_lohnsteuer_annual_eur": 0.0, "solz_on_pauschal_annual_eur": 0.0, "sv_employer_annual_eur": 0.0, "sv_employee_annual_eur": 0.0, "employer_total_cost_annual_eur": 0.0, "employer_total_cost_monthly_eur": 0.0, "net_to_cost_efficiency_pct": 100.0, "datev_lohnart_lodas": "StLA 249 (Aufmerksamkeit R 19.6 LStR) / StLA 220 (Reisekosten VMA § 3 Nr. 16 EStG)", "datev_lohnart_lug": "LA 862 (Aufmerksamkeiten bis 60 EUR) / LA 840 (Verpflegungsmehraufwand stfr.)", "compliance_status": "COMPLIANT_OK", "compliance_note": "Aufmerksamkeiten bis 60,00 € inkl. USt. (Freigrenze!) sind zusätzlich zum 50-€-Sachbezug möglich, aber NUR zu einem besonderen persönlichen Ereignis (Geburtstag, Hochzeit, Geburt eines Kindes, Firmenjubiläum — NICHT Weihnachten!). Verpflegungsmehraufwand (14 € ab > 8h Auswärtstätigkeit, 28 € bei 24h) erfordert Reisekostenabrechnung."}]}, {"scenario_id": "full_10_modules_2026", "scenario_title": "Szenario C: Voll-Ausbau aller 10 EStG/SvEV-Bausteine inkl. Dienstrad § 3 Nr. 37 EStG (2026)", "tax_year": 2026, "steuerklasse": "I", "current_gross_monthly_eur": 5800.0, "target_raise_gross_monthly_eur": 650.0, "marginal_income_tax_rate_pct": 34.0, "employee_sv_rate_pct": 19.5, "employer_sv_rate_pct": 20.8, "regular_raise_gross_annual_eur": 7800.0, "regular_raise_employer_sv_annual_eur": 1622.4, "regular_raise_employer_total_cost_annual_eur": 9422.4, "regular_raise_employee_tax_annual_eur": 2652.0, "regular_raise_employee_sv_annual_eur": 1521.0, "regular_raise_employee_net_annual_eur": 3627.0, "regular_raise_employee_net_monthly_eur": 302.25, "regular_raise_wedge_lost_annual_eur": 5795.4, "regular_raise_efficiency_pct": 38.49, "equivalent_gross_raise_for_baukasten_net_annual_eur": 21713.03, "equivalent_gross_raise_employer_cost_annual_eur": 26229.34, "baukasten_employee_net_monthly_eur": 841.38, "baukasten_employee_net_annual_eur": 10096.56, "baukasten_pauschal_tax_total_annual_eur": 471.2, "baukasten_sv_total_annual_eur": 0.0, "baukasten_employer_total_cost_annual_eur": 10567.76, "baukasten_employer_total_cost_monthly_eur": 880.65, "baukasten_efficiency_pct": 95.54, "employee_net_gain_vs_regular_raise_annual_eur": 6469.56, "employer_cost_saving_vs_equivalent_gross_annual_eur": 15661.58, "employer_cost_saving_per_10_employees_annual_eur": 156615.8, "saas_consultant_fee_saved_annual_eur": 4500.0, "compliance_passed": true, "compliance_warnings": [], "modules": [{"module_id": "sachbezug_50", "code_number": 1, "name": "Steuerfreier Sachbezug (§ 8 Abs. 2 S. 11 EStG)", "legal_basis": "§ 8 Abs. 2 Satz 11 EStG i.V.m. § 8 Abs. 1 Satz 3 EStG & § 2 Abs. 1 Nr. 10 ZAG", "enabled": true, "employee_net_monthly_eur": 50.0, "employee_net_annual_eur": 600.0, "pauschal_lohnsteuer_annual_eur": 0.0, "solz_on_pauschal_annual_eur": 0.0, "sv_employer_annual_eur": 0.0, "sv_employee_annual_eur": 0.0, "employer_total_cost_annual_eur": 600.0, "employer_total_cost_monthly_eur": 50.0, "net_to_cost_efficiency_pct": 100.0, "datev_lohnart_lodas": "StLA 247 (Sachbezug steuer-/SV-frei § 8 Abs. 2 S. 11 EStG)", "datev_lohnart_lug": "LA 860 / 861 (Freigrenze Sachbezug 50 EUR)", "compliance_status": "COMPLIANT_OK", "compliance_note": "STRENGE FREIGRENZE 50,00 €/Monat: Schon 50,01 € macht den gesamten Monatsbetrag steuer- und SV-pflichtig! Keine Barauszahlung, nur ZAG-konforme Closed-Loop-/Region-Karte (§ 2 Abs. 1 Nr. 10 ZAG). Kein Ansparen über mehrere Monate."}, {"module_id": "kindergarten_3_33", "code_number": 2, "name": "Kindergartenzuschuss (§ 3 Nr. 33 EStG — unbegrenzt)", "legal_basis": "§ 3 Nr. 33 EStG i.V.m. R 3.33 LStR", "enabled": true, "employee_net_monthly_eur": 350.0, "employee_net_annual_eur": 4200.0, "pauschal_lohnsteuer_annual_eur": 0.0, "solz_on_pauschal_annual_eur": 0.0, "sv_employer_annual_eur": 0.0, "sv_employee_annual_eur": 0.0, "employer_total_cost_annual_eur": 4200.0, "employer_total_cost_monthly_eur": 350.0, "net_to_cost_efficiency_pct": 100.0, "datev_lohnart_lodas": "StLA 230 (Kindergartenzuschuss § 3 Nr. 33 EStG)", "datev_lohnart_lug": "LA 855 (Kindergartenzuschuss steuer-/SV-frei)", "compliance_status": "COMPLIANT_OK", "compliance_note": "Gilt für noch nicht schulpflichtige Kinder (Krippe, Kita, Tagesmutter inkl. Verpflegung) bis zur Einschulung. Zwingend Original-Gebührenbescheid/Rechnung der Einrichtung im Lohnkonto aufbewahren!"}, {"module_id": "essenszuschuss_svev", "code_number": 3, "name": "Digitaler Essenszuschuss / Restaurantschecks (2026: 7.67 €/Tag × 15 Tage)", "legal_basis": "§ 8 Abs. 2 Satz 6 EStG i.V.m. § 2 Abs. 1 SvEV (4.57 € Sachbezugswert 2026) & R 8.1 Abs. 7 Nr. 4 LStR (+ 3.10 € steuerfrei)", "enabled": true, "employee_net_monthly_eur": 115.05, "employee_net_annual_eur": 1380.6, "pauschal_lohnsteuer_annual_eur": 205.65, "solz_on_pauschal_annual_eur": 11.31, "sv_employer_annual_eur": 0.0, "sv_employee_annual_eur": 0.0, "employer_total_cost_annual_eur": 1597.56, "employer_total_cost_monthly_eur": 133.13, "net_to_cost_efficiency_pct": 86.42, "datev_lohnart_lodas": "StLA 165 (Mahlzeiten pausch. St. 25%) + StLA 248 (AG-Zuschuss 3,10 € stfr.)", "datev_lohnart_lug": "LA 273 (Sachbezug Verpflegung pausch.) + LA 865 (Essenszuschuss stfr.)", "compliance_status": "COMPLIANT_OK", "compliance_note": "15-Mahlzeiten-Regel (R 8.1 Abs. 7 Nr. 4 Buchst. a LStR): Bis zu 15 Zuschüsse/Monat à 7.67 € (4.57 € pauschal mit 25 % versteuert + 3.10 € komplett steuerfrei) ohne Einzelnachweis von Abwesenheitstagen zulässig."}, {"module_id": "erholungsbeihilfe_40_2_3", "code_number": 4, "name": "Erholungsbeihilfe (§ 40 Abs. 2 S. 1 Nr. 3 EStG — Familie)", "legal_basis": "§ 40 Abs. 2 Satz 1 Nr. 3 EStG (156 € AN + 104 € Ehegatte + 52 € je Kind)", "enabled": true, "employee_net_monthly_eur": 30.33, "employee_net_annual_eur": 363.96, "pauschal_lohnsteuer_annual_eur": 90.99, "solz_on_pauschal_annual_eur": 5.0, "sv_employer_annual_eur": 0.0, "sv_employee_annual_eur": 0.0, "employer_total_cost_annual_eur": 459.95, "employer_total_cost_monthly_eur": 38.33, "net_to_cost_efficiency_pct": 79.13, "datev_lohnart_lodas": "StLA 163 (Erholungsbeihilfe pausch. versteuert 25 %)", "datev_lohnart_lug": "LA 350 (Erholungsbeihilfe 25 % Pauschalsteuer, SV-frei)", "compliance_status": "COMPLIANT_OK", "compliance_note": "FREIGRENZE (156 € AN / 104 € Ehepartner / 52 € je Kind p.a.): Auszahlung muss im zeitlichen Zusammenhang (innerhalb von 3 Monaten vor/nach) mit einem Erholungsurlaub von mind. 5 Tagen stehen!"}, {"module_id": "internetpauschale_40_2_5", "code_number": 5, "name": "Internetpauschale (§ 40 Abs. 2 S. 1 Nr. 5 S. 2 EStG)", "legal_basis": "§ 40 Abs. 2 Satz 1 Nr. 5 Satz 2 EStG i.V.m. R 40.2 Abs. 5 LStR", "enabled": true, "employee_net_monthly_eur": 50.0, "employee_net_annual_eur": 600.0, "pauschal_lohnsteuer_annual_eur": 150.0, "solz_on_pauschal_annual_eur": 8.25, "sv_employer_annual_eur": 0.0, "sv_employee_annual_eur": 0.0, "employer_total_cost_annual_eur": 758.25, "employer_total_cost_monthly_eur": 63.19, "net_to_cost_efficiency_pct": 79.13, "datev_lohnart_lodas": "StLA 168 (Internetpauschale 25 % pausch. St. § 40 Abs. 2 Nr. 5 EStG)", "datev_lohnart_lug": "LA 354 (Internetzuschuss pauschal versteuert)", "compliance_status": "COMPLIANT_OK", "compliance_note": "Vereinfachungsregelung R 40.2 Abs. 5 LStR: Bis zu 50,00 €/Monat ohne Einzelnachweis der monatlichen Rechnungen, sofern der Arbeitnehmer einmalig schriftlich erklärt, dass ihm für den privaten Internetzugang mindestens dieser Betrag entsteht."}, {"module_id": "it_telekommunikation_3_45", "code_number": 6, "name": "Betriebliches Smartphone / iPad / Laptop zur Privatnutzung (§ 3 Nr. 45 EStG)", "legal_basis": "§ 3 Nr. 45 EStG i.V.m. R 3.45 LStR", "enabled": true, "employee_net_monthly_eur": 45.0, "employee_net_annual_eur": 540.0, "pauschal_lohnsteuer_annual_eur": 0.0, "solz_on_pauschal_annual_eur": 0.0, "sv_employer_annual_eur": 0.0, "sv_employee_annual_eur": 0.0, "employer_total_cost_annual_eur": 540.0, "employer_total_cost_monthly_eur": 45.0, "net_to_cost_efficiency_pct": 100.0, "datev_lohnart_lodas": "StLA 890 (Statistische Dokumentation § 3 Nr. 45 EStG — 0 € Steuer/SV)", "datev_lohnart_lug": "Keine Abrechnungs-LA erforderlich (Überlassungsvertrag im Lohnkonto)", "compliance_status": "COMPLIANT_OK", "compliance_note": "WICHTIG: Das wirtschaftliche Eigentum am Gerät (Smartphone/Tablet/Notebook) und der Mobilfunkvertrag müssen beim Arbeitgeber liegen (Überlassung, keine Schenkung!). Für Schenkung/Übereignung gilt stattdessen § 40 Abs. 2 S. 1 Nr. 5 S. 1 EStG (25 % Pauschalsteuer)."}, {"module_id": "gesundheitsfoerderung_3_34", "code_number": 7, "name": "Betriebliche Gesundheitsförderung (§ 3 Nr. 34 EStG — bis 600 €/Jahr)", "legal_basis": "§ 3 Nr. 34 EStG i.V.m. §§ 20, 20b SGB V (Zentrale Prüfstelle Prävention)", "enabled": true, "employee_net_monthly_eur": 50.0, "employee_net_annual_eur": 600.0, "pauschal_lohnsteuer_annual_eur": 0.0, "solz_on_pauschal_annual_eur": 0.0, "sv_employer_annual_eur": 0.0, "sv_employee_annual_eur": 0.0, "employer_total_cost_annual_eur": 600.0, "employer_total_cost_monthly_eur": 50.0, "net_to_cost_efficiency_pct": 100.0, "datev_lohnart_lodas": "StLA 234 (Gesundheitsförderung § 3 Nr. 34 EStG stfr.)", "datev_lohnart_lug": "LA 858 (Präventionsleistung § 3 Nr. 34 EStG)", "compliance_status": "COMPLIANT_OK", "compliance_note": "FREIBETRAG 600,00 €/Kalenderjahr: Nur für nach § 20 SGB V zertifizierte Präventionskurse (Rückenschule, Stressbewältigung, Yoga, Ernährungsberatung). Reine Fitnessstudio-Mitgliedschaftsbeiträge ohne § 20 SGB V-Zertifikat fallen NICHT unter § 3 Nr. 34 EStG (dafür § 8 Abs. 2 S. 11 EStG nutzen)."}, {"module_id": "deutschlandticket_3_15", "code_number": 8, "name": "Jobticket / Deutschlandticket (§ 3 Nr. 15 EStG)", "legal_basis": "§ 3 Nr. 15 EStG (ÖPNV-Zuschuss im Linienverkehr)", "enabled": true, "employee_net_monthly_eur": 58.0, "employee_net_annual_eur": 696.0, "pauschal_lohnsteuer_annual_eur": 0.0, "solz_on_pauschal_annual_eur": 0.0, "sv_employer_annual_eur": 0.0, "sv_employee_annual_eur": 0.0, "employer_total_cost_annual_eur": 696.0, "employer_total_cost_monthly_eur": 58.0, "net_to_cost_efficiency_pct": 100.0, "datev_lohnart_lodas": "StLA 238 (Fahrtkostenzuschuss ÖPNV § 3 Nr. 15 EStG mit LStB-Ausweis Zeile 17)", "datev_lohnart_lug": "LA 851 (Jobticket / ÖPNV steuerfrei § 3 Nr. 15 EStG)", "compliance_status": "COMPLIANT_OK", "compliance_note": "Zusätzlich zum ohnehin geschuldeten Arbeitslohn (§ 8 Abs. 4 EStG). Pflichtausweis in Zeile 17 der elektronischen Lohnsteuerbescheinigung, da der Zuschuss auf die Entfernungspauschale des AN angerechnet wird."}, {"module_id": "dienstrad_3_37", "code_number": 9, "name": "Dienstrad / E-Bike zur Privatnutzung (§ 3 Nr. 37 EStG)", "legal_basis": "§ 3 Nr. 37 EStG (Überlassung eines betrieblichen Fahrrads/Pedelecs bis 25 km/h)", "enabled": true, "employee_net_monthly_eur": 65.0, "employee_net_annual_eur": 780.0, "pauschal_lohnsteuer_annual_eur": 0.0, "solz_on_pauschal_annual_eur": 0.0, "sv_employer_annual_eur": 0.0, "sv_employee_annual_eur": 0.0, "employer_total_cost_annual_eur": 780.0, "employer_total_cost_monthly_eur": 65.0, "net_to_cost_efficiency_pct": 100.0, "datev_lohnart_lodas": "StLA 891 (Dienstrad § 3 Nr. 37 EStG zusätzlich — 0 € geldwerter Vorteil)", "datev_lohnart_lug": "Statistische Dokumentation Dienstrad § 3 Nr. 37 EStG", "compliance_status": "COMPLIANT_OK", "compliance_note": "Wird das Dienstrad/Pedelec (kein S-Pedelec > 25 km/h) ZUSÄTZLICH zum ohnehin geschuldeten Arbeitslohn überlassen, beträgt der geldwerte Vorteil 0,00 € (komplett steuer- und SV-frei nach § 3 Nr. 37 EStG)."}, {"module_id": "aufmerksamkeiten_19_1a", "code_number": 10, "name": "Persönliche Aufmerksamkeiten & Verpflegungsmehraufwand (R 19.6 LStR / § 3 Nr. 16 EStG)", "legal_basis": "R 19.6 Abs. 1 LStR (60 € je persönlichem Anlass) & § 3 Nr. 16 i.V.m. § 9 Abs. 4a EStG (14 €/28 € VMA)", "enabled": true, "employee_net_monthly_eur": 28.0, "employee_net_annual_eur": 336.0, "pauschal_lohnsteuer_annual_eur": 0.0, "solz_on_pauschal_annual_eur": 0.0, "sv_employer_annual_eur": 0.0, "sv_employee_annual_eur": 0.0, "employer_total_cost_annual_eur": 336.0, "employer_total_cost_monthly_eur": 28.0, "net_to_cost_efficiency_pct": 100.0, "datev_lohnart_lodas": "StLA 249 (Aufmerksamkeit R 19.6 LStR) / StLA 220 (Reisekosten VMA § 3 Nr. 16 EStG)", "datev_lohnart_lug": "LA 862 (Aufmerksamkeiten bis 60 EUR) / LA 840 (Verpflegungsmehraufwand stfr.)", "compliance_status": "COMPLIANT_OK", "compliance_note": "Aufmerksamkeiten bis 60,00 € inkl. USt. (Freigrenze!) sind zusätzlich zum 50-€-Sachbezug möglich, aber NUR zu einem besonderen persönlichen Ereignis (Geburtstag, Hochzeit, Geburt eines Kindes, Firmenjubiläum — NICHT Weihnachten!). Verpflegungsmehraufwand (14 € ab > 8h Auswärtstätigkeit, 28 € bei 24h) erfordert Reisekostenabrechnung."}]}];
+    const SPECS_2025 = [{"module_id": "sachbezug_50", "code_number": 1, "name": "Steuerfreier Sachbezug (§ 8 Abs. 2 S. 11 EStG)", "legal_basis": "§ 8 Abs. 2 Satz 11 EStG i.V.m. § 8 Abs. 1 Satz 3 EStG & § 2 Abs. 1 Nr. 10 ZAG", "svev_basis": "§ 1 Abs. 1 Satz 1 Nr. 1 SvEV (100 % SV-frei)", "category": "100_STEUER_SV_FREI", "max_monthly_eur": 50.0, "max_annual_eur": 600.0, "default_monthly_eur": 50.0, "pauschal_tax_rate": 0.0, "taxable_portion_ratio": 0.0, "zusaetzlichkeit_required": true, "freigrenze_warning": "STRENGE FREIGRENZE 50,00 €/Monat: Schon 50,01 € macht den gesamten Monatsbetrag steuer- und SV-pflichtig! Keine Barauszahlung, nur ZAG-konforme Closed-Loop-/Region-Karte (§ 2 Abs. 1 Nr. 10 ZAG). Kein Ansparen über mehrere Monate.", "datev_lohnart_lodas": "StLA 247 (Sachbezug steuer-/SV-frei § 8 Abs. 2 S. 11 EStG)", "datev_lohnart_lug": "LA 860 / 861 (Freigrenze Sachbezug 50 EUR)", "audit_proof_requirement": "Kartenvertrag nach § 2 Abs. 1 Nr. 10 ZAG + monatlicher Ladebeleg <= 50,00 € zum Lohnkonto.", "description": "Monatlicher Sachbezugsgutschein / Tank- oder Regionalkarte bis exakt 50,00 € Brutto = Netto."}, {"module_id": "kindergarten_3_33", "code_number": 2, "name": "Kindergartenzuschuss (§ 3 Nr. 33 EStG — unbegrenzt)", "legal_basis": "§ 3 Nr. 33 EStG i.V.m. R 3.33 LStR", "svev_basis": "§ 1 Abs. 1 Satz 1 Nr. 1 SvEV (100 % SV-frei)", "category": "100_STEUER_SV_FREI", "max_monthly_eur": 1200.0, "max_annual_eur": 14400.0, "default_monthly_eur": 350.0, "pauschal_tax_rate": 0.0, "taxable_portion_ratio": 0.0, "zusaetzlichkeit_required": true, "freigrenze_warning": "Gilt für noch nicht schulpflichtige Kinder (Krippe, Kita, Tagesmutter inkl. Verpflegung) bis zur Einschulung. Zwingend Original-Gebührenbescheid/Rechnung der Einrichtung im Lohnkonto aufbewahren!", "datev_lohnart_lodas": "StLA 230 (Kindergartenzuschuss § 3 Nr. 33 EStG)", "datev_lohnart_lug": "LA 855 (Kindergartenzuschuss steuer-/SV-frei)", "audit_proof_requirement": "Original-Gebührenbescheid oder Beitragsrechnung der Kita/Tagesmutter im Lohnkonto (R 3.33 Abs. 4 S. 2 LStR).", "description": "Erstattung der tatsächlichen Betreuungs- und Verpflegungskosten für nicht schulpflichtige Kinder ohne gesetzliche Obergrenze."}, {"module_id": "essenszuschuss_svev", "code_number": 3, "name": "Digitaler Essenszuschuss / Restaurantschecks (2025: 7.50 €/Tag × 15 Tage)", "legal_basis": "§ 8 Abs. 2 Satz 6 EStG i.V.m. § 2 Abs. 1 SvEV (4.40 € Sachbezugswert 2025) & R 8.1 Abs. 7 Nr. 4 LStR (+ 3.10 € steuerfrei)", "svev_basis": "§ 1 Abs. 1 Satz 1 Nr. 3 SvEV (0 % SV bei 25 % Pauschalversteuerung nach § 40 Abs. 2 S. 1 Nr. 1 EStG)", "category": "25_PAUSCHAL_0_SV", "max_monthly_eur": 112.5, "max_annual_eur": 1350.0, "default_monthly_eur": 112.5, "pauschal_tax_rate": 0.25, "taxable_portion_ratio": 0.5866666666666667, "zusaetzlichkeit_required": true, "freigrenze_warning": "15-Mahlzeiten-Regel (R 8.1 Abs. 7 Nr. 4 Buchst. a LStR): Bis zu 15 Zuschüsse/Monat à 7.50 € (4.40 € pauschal mit 25 % versteuert + 3.10 € komplett steuerfrei) ohne Einzelnachweis von Abwesenheitstagen zulässig.", "datev_lohnart_lodas": "StLA 165 (Mahlzeiten pausch. St. 25%) + StLA 248 (AG-Zuschuss 3,10 € stfr.)", "datev_lohnart_lug": "LA 273 (Sachbezug Verpflegung pausch.) + LA 865 (Essenszuschuss stfr.)", "audit_proof_requirement": "Digitale Belegprüfung (keine Einlösung an Nicht-Arbeitstagen, nur unmittelbarer Verzehr) im Lohnkonto.", "description": "Arbeitstäglicher Essenszuschuss für 15 Arbeitstage/Monat: 4.40 € mit 25 % Pauschalsteuer + 3.10 € komplett steuerfrei."}, {"module_id": "erholungsbeihilfe_40_2_3", "code_number": 4, "name": "Erholungsbeihilfe (§ 40 Abs. 2 S. 1 Nr. 3 EStG — Familie)", "legal_basis": "§ 40 Abs. 2 Satz 1 Nr. 3 EStG (156 € AN + 104 € Ehegatte + 52 € je Kind)", "svev_basis": "§ 1 Abs. 1 Satz 1 Nr. 3 SvEV (100 % SV-frei bei 25 % Pauschalsteuer)", "category": "25_PAUSCHAL_0_SV", "max_monthly_eur": 30.33, "max_annual_eur": 364.0, "default_monthly_eur": 30.33, "pauschal_tax_rate": 0.25, "taxable_portion_ratio": 1.0, "zusaetzlichkeit_required": false, "freigrenze_warning": "FREIGRENZE (156 € AN / 104 € Ehepartner / 52 € je Kind p.a.): Auszahlung muss im zeitlichen Zusammenhang (innerhalb von 3 Monaten vor/nach) mit einem Erholungsurlaub von mind. 5 Tagen stehen!", "datev_lohnart_lodas": "StLA 163 (Erholungsbeihilfe pausch. versteuert 25 %)", "datev_lohnart_lug": "LA 350 (Erholungsbeihilfe 25 % Pauschalsteuer, SV-frei)", "audit_proof_requirement": "Urlaubsantrag (> 5 zusammenhängende Urlaubstage) + schriftliche Zweckbestätigung des Arbeitnehmers.", "description": "Jährliche Urlaubs-Barzuwendung (Brutto für Netto für den Mitarbeiter, AG übernimmt 25 % Pauschalsteuer, 0 % SV)."}, {"module_id": "internetpauschale_40_2_5", "code_number": 5, "name": "Internetpauschale (§ 40 Abs. 2 S. 1 Nr. 5 S. 2 EStG)", "legal_basis": "§ 40 Abs. 2 Satz 1 Nr. 5 Satz 2 EStG i.V.m. R 40.2 Abs. 5 LStR", "svev_basis": "§ 1 Abs. 1 Satz 1 Nr. 3 SvEV (100 % SV-frei bei 25 % Pauschalsteuer)", "category": "25_PAUSCHAL_0_SV", "max_monthly_eur": 50.0, "max_annual_eur": 600.0, "default_monthly_eur": 50.0, "pauschal_tax_rate": 0.25, "taxable_portion_ratio": 1.0, "zusaetzlichkeit_required": true, "freigrenze_warning": "Vereinfachungsregelung R 40.2 Abs. 5 LStR: Bis zu 50,00 €/Monat ohne Einzelnachweis der monatlichen Rechnungen, sofern der Arbeitnehmer einmalig schriftlich erklärt, dass ihm für den privaten Internetzugang mindestens dieser Betrag entsteht.", "datev_lohnart_lodas": "StLA 168 (Internetpauschale 25 % pausch. St. § 40 Abs. 2 Nr. 5 EStG)", "datev_lohnart_lug": "LA 354 (Internetzuschuss pauschal versteuert)", "audit_proof_requirement": "Einmalige Erklärung des Arbeitnehmers über tatsächliche Internetkosten (DSL/Glasfaser/WLAN) im Lohnkonto.", "description": "Zuschuss zu den laufenden Kosten des privaten Internetanschlusses bis 50 €/Monat mit 25 % Pauschalsteuer & 0 % SV."}, {"module_id": "it_telekommunikation_3_45", "code_number": 6, "name": "Betriebliches Smartphone / iPad / Laptop zur Privatnutzung (§ 3 Nr. 45 EStG)", "legal_basis": "§ 3 Nr. 45 EStG i.V.m. R 3.45 LStR", "svev_basis": "§ 1 Abs. 1 Satz 1 Nr. 1 SvEV (100 % SV-frei)", "category": "100_STEUER_SV_FREI", "max_monthly_eur": 65.0, "max_annual_eur": 780.0, "default_monthly_eur": 45.0, "pauschal_tax_rate": 0.0, "taxable_portion_ratio": 0.0, "zusaetzlichkeit_required": false, "freigrenze_warning": "WICHTIG: Das wirtschaftliche Eigentum am Gerät (Smartphone/Tablet/Notebook) und der Mobilfunkvertrag müssen beim Arbeitgeber liegen (Überlassung, keine Schenkung!). Für Schenkung/Übereignung gilt stattdessen § 40 Abs. 2 S. 1 Nr. 5 S. 1 EStG (25 % Pauschalsteuer).", "datev_lohnart_lodas": "StLA 890 (Statistische Dokumentation § 3 Nr. 45 EStG — 0 € Steuer/SV)", "datev_lohnart_lug": "Keine Abrechnungs-LA erforderlich (Überlassungsvertrag im Lohnkonto)", "audit_proof_requirement": "Geräte-Überlassungsvertrag zwischen GmbH und Arbeitnehmer (Eigentum verbleibt bei GmbH).", "description": "100 % steuer- und SV-freie private Mitbenutzung von Firmen-Smartphone, Tablet, Laptop inkl. Mobilfunktarif."}, {"module_id": "gesundheitsfoerderung_3_34", "code_number": 7, "name": "Betriebliche Gesundheitsförderung (§ 3 Nr. 34 EStG — bis 600 €/Jahr)", "legal_basis": "§ 3 Nr. 34 EStG i.V.m. §§ 20, 20b SGB V (Zentrale Prüfstelle Prävention)", "svev_basis": "§ 1 Abs. 1 Satz 1 Nr. 1 SvEV (100 % SV-frei)", "category": "100_STEUER_SV_FREI", "max_monthly_eur": 50.0, "max_annual_eur": 600.0, "default_monthly_eur": 50.0, "pauschal_tax_rate": 0.0, "taxable_portion_ratio": 0.0, "zusaetzlichkeit_required": true, "freigrenze_warning": "FREIBETRAG 600,00 €/Kalenderjahr: Nur für nach § 20 SGB V zertifizierte Präventionskurse (Rückenschule, Stressbewältigung, Yoga, Ernährungsberatung). Reine Fitnessstudio-Mitgliedschaftsbeiträge ohne § 20 SGB V-Zertifikat fallen NICHT unter § 3 Nr. 34 EStG (dafür § 8 Abs. 2 S. 11 EStG nutzen).", "datev_lohnart_lodas": "StLA 234 (Gesundheitsförderung § 3 Nr. 34 EStG stfr.)", "datev_lohnart_lug": "LA 858 (Präventionsleistung § 3 Nr. 34 EStG)", "audit_proof_requirement": "Zertifikat der Zentralen Prüfstelle Prävention (§ 20 SGB V) + Teilnahmebescheinigung.", "description": "Erstattung zertifizierter Gesundheits- und Präventionskurse bis zum Jahresfreibetrag von 600,00 € (50,00 €/Monat)."}, {"module_id": "deutschlandticket_3_15", "code_number": 8, "name": "Jobticket / Deutschlandticket (§ 3 Nr. 15 EStG)", "legal_basis": "§ 3 Nr. 15 EStG (ÖPNV-Zuschuss im Linienverkehr)", "svev_basis": "§ 1 Abs. 1 Satz 1 Nr. 1 SvEV (100 % SV-frei)", "category": "100_STEUER_SV_FREI", "max_monthly_eur": 58.0, "max_annual_eur": 696.0, "default_monthly_eur": 58.0, "pauschal_tax_rate": 0.0, "taxable_portion_ratio": 0.0, "zusaetzlichkeit_required": true, "freigrenze_warning": "Zusätzlich zum ohnehin geschuldeten Arbeitslohn (§ 8 Abs. 4 EStG). Pflichtausweis in Zeile 17 der elektronischen Lohnsteuerbescheinigung, da der Zuschuss auf die Entfernungspauschale des AN angerechnet wird.", "datev_lohnart_lodas": "StLA 238 (Fahrtkostenzuschuss ÖPNV § 3 Nr. 15 EStG mit LStB-Ausweis Zeile 17)", "datev_lohnart_lug": "LA 851 (Jobticket / ÖPNV steuerfrei § 3 Nr. 15 EStG)", "audit_proof_requirement": "Ticketnachweis / Abo-Rechnung Deutschlandticket im Lohnkonto + Ausweis Zeile 17 LStB.", "description": "Steuer- und SV-freier Arbeitgeberzuschuss zum Deutschlandticket / ÖPNV-Monatsticket (58,00 €/Monat)."}, {"module_id": "dienstrad_3_37", "code_number": 9, "name": "Dienstrad / E-Bike zur Privatnutzung (§ 3 Nr. 37 EStG)", "legal_basis": "§ 3 Nr. 37 EStG (Überlassung eines betrieblichen Fahrrads/Pedelecs bis 25 km/h)", "svev_basis": "§ 1 Abs. 1 Satz 1 Nr. 1 SvEV (100 % SV-frei)", "category": "100_STEUER_SV_FREI", "max_monthly_eur": 120.0, "max_annual_eur": 1440.0, "default_monthly_eur": 65.0, "pauschal_tax_rate": 0.0, "taxable_portion_ratio": 0.0, "zusaetzlichkeit_required": true, "freigrenze_warning": "Wird das Dienstrad/Pedelec (kein S-Pedelec > 25 km/h) ZUSÄTZLICH zum ohnehin geschuldeten Arbeitslohn überlassen, beträgt der geldwerte Vorteil 0,00 € (komplett steuer- und SV-frei nach § 3 Nr. 37 EStG).", "datev_lohnart_lodas": "StLA 891 (Dienstrad § 3 Nr. 37 EStG zusätzlich — 0 € geldwerter Vorteil)", "datev_lohnart_lug": "Statistische Dokumentation Dienstrad § 3 Nr. 37 EStG", "audit_proof_requirement": "Leasingvertrag auf Namen der GmbH + Dienstrad-Überlassungsvertrag (zusätzlich zum Gehalt).", "description": "Steuer- und SV-freie Überlassung eines E-Bikes / Dienstrads (bis 25 km/h) zusätzlich zum Grundgehalt."}, {"module_id": "aufmerksamkeiten_19_1a", "code_number": 10, "name": "Persönliche Aufmerksamkeiten & Verpflegungsmehraufwand (R 19.6 LStR / § 3 Nr. 16 EStG)", "legal_basis": "R 19.6 Abs. 1 LStR (60 € je persönlichem Anlass) & § 3 Nr. 16 i.V.m. § 9 Abs. 4a EStG (14 €/28 € VMA)", "svev_basis": "§ 1 Abs. 1 Satz 1 Nr. 1 SvEV (100 % SV-frei)", "category": "100_STEUER_SV_FREI", "max_monthly_eur": 48.0, "max_annual_eur": 576.0, "default_monthly_eur": 28.0, "pauschal_tax_rate": 0.0, "taxable_portion_ratio": 0.0, "zusaetzlichkeit_required": false, "freigrenze_warning": "Aufmerksamkeiten bis 60,00 € inkl. USt. (Freigrenze!) sind zusätzlich zum 50-€-Sachbezug möglich, aber NUR zu einem besonderen persönlichen Ereignis (Geburtstag, Hochzeit, Geburt eines Kindes, Firmenjubiläum — NICHT Weihnachten!). Verpflegungsmehraufwand (14 € ab > 8h Auswärtstätigkeit, 28 € bei 24h) erfordert Reisekostenabrechnung.", "datev_lohnart_lodas": "StLA 249 (Aufmerksamkeit R 19.6 LStR) / StLA 220 (Reisekosten VMA § 3 Nr. 16 EStG)", "datev_lohnart_lug": "LA 862 (Aufmerksamkeiten bis 60 EUR) / LA 840 (Verpflegungsmehraufwand stfr.)", "audit_proof_requirement": "Vermerk des persönlichen Anlasses (z. B. Geburtstag AN) auf dem Beleg bzw. Reisekostenabrechnung (> 8 Std. Auswärtstätigkeit).", "description": "Sachgeschenke zu persönlichen Ereignissen (bis 60 € je Anlass) + steuerfreier Verpflegungsmehraufwand bei Auswärtstätigkeit."}];
+    const SPECS_2026 = [{"module_id": "sachbezug_50", "code_number": 1, "name": "Steuerfreier Sachbezug (§ 8 Abs. 2 S. 11 EStG)", "legal_basis": "§ 8 Abs. 2 Satz 11 EStG i.V.m. § 8 Abs. 1 Satz 3 EStG & § 2 Abs. 1 Nr. 10 ZAG", "svev_basis": "§ 1 Abs. 1 Satz 1 Nr. 1 SvEV (100 % SV-frei)", "category": "100_STEUER_SV_FREI", "max_monthly_eur": 50.0, "max_annual_eur": 600.0, "default_monthly_eur": 50.0, "pauschal_tax_rate": 0.0, "taxable_portion_ratio": 0.0, "zusaetzlichkeit_required": true, "freigrenze_warning": "STRENGE FREIGRENZE 50,00 €/Monat: Schon 50,01 € macht den gesamten Monatsbetrag steuer- und SV-pflichtig! Keine Barauszahlung, nur ZAG-konforme Closed-Loop-/Region-Karte (§ 2 Abs. 1 Nr. 10 ZAG). Kein Ansparen über mehrere Monate.", "datev_lohnart_lodas": "StLA 247 (Sachbezug steuer-/SV-frei § 8 Abs. 2 S. 11 EStG)", "datev_lohnart_lug": "LA 860 / 861 (Freigrenze Sachbezug 50 EUR)", "audit_proof_requirement": "Kartenvertrag nach § 2 Abs. 1 Nr. 10 ZAG + monatlicher Ladebeleg <= 50,00 € zum Lohnkonto.", "description": "Monatlicher Sachbezugsgutschein / Tank- oder Regionalkarte bis exakt 50,00 € Brutto = Netto."}, {"module_id": "kindergarten_3_33", "code_number": 2, "name": "Kindergartenzuschuss (§ 3 Nr. 33 EStG — unbegrenzt)", "legal_basis": "§ 3 Nr. 33 EStG i.V.m. R 3.33 LStR", "svev_basis": "§ 1 Abs. 1 Satz 1 Nr. 1 SvEV (100 % SV-frei)", "category": "100_STEUER_SV_FREI", "max_monthly_eur": 1200.0, "max_annual_eur": 14400.0, "default_monthly_eur": 350.0, "pauschal_tax_rate": 0.0, "taxable_portion_ratio": 0.0, "zusaetzlichkeit_required": true, "freigrenze_warning": "Gilt für noch nicht schulpflichtige Kinder (Krippe, Kita, Tagesmutter inkl. Verpflegung) bis zur Einschulung. Zwingend Original-Gebührenbescheid/Rechnung der Einrichtung im Lohnkonto aufbewahren!", "datev_lohnart_lodas": "StLA 230 (Kindergartenzuschuss § 3 Nr. 33 EStG)", "datev_lohnart_lug": "LA 855 (Kindergartenzuschuss steuer-/SV-frei)", "audit_proof_requirement": "Original-Gebührenbescheid oder Beitragsrechnung der Kita/Tagesmutter im Lohnkonto (R 3.33 Abs. 4 S. 2 LStR).", "description": "Erstattung der tatsächlichen Betreuungs- und Verpflegungskosten für nicht schulpflichtige Kinder ohne gesetzliche Obergrenze."}, {"module_id": "essenszuschuss_svev", "code_number": 3, "name": "Digitaler Essenszuschuss / Restaurantschecks (2026: 7.67 €/Tag × 15 Tage)", "legal_basis": "§ 8 Abs. 2 Satz 6 EStG i.V.m. § 2 Abs. 1 SvEV (4.57 € Sachbezugswert 2026) & R 8.1 Abs. 7 Nr. 4 LStR (+ 3.10 € steuerfrei)", "svev_basis": "§ 1 Abs. 1 Satz 1 Nr. 3 SvEV (0 % SV bei 25 % Pauschalversteuerung nach § 40 Abs. 2 S. 1 Nr. 1 EStG)", "category": "25_PAUSCHAL_0_SV", "max_monthly_eur": 115.05, "max_annual_eur": 1380.6, "default_monthly_eur": 115.05, "pauschal_tax_rate": 0.25, "taxable_portion_ratio": 0.5958279009126467, "zusaetzlichkeit_required": true, "freigrenze_warning": "15-Mahlzeiten-Regel (R 8.1 Abs. 7 Nr. 4 Buchst. a LStR): Bis zu 15 Zuschüsse/Monat à 7.67 € (4.57 € pauschal mit 25 % versteuert + 3.10 € komplett steuerfrei) ohne Einzelnachweis von Abwesenheitstagen zulässig.", "datev_lohnart_lodas": "StLA 165 (Mahlzeiten pausch. St. 25%) + StLA 248 (AG-Zuschuss 3,10 € stfr.)", "datev_lohnart_lug": "LA 273 (Sachbezug Verpflegung pausch.) + LA 865 (Essenszuschuss stfr.)", "audit_proof_requirement": "Digitale Belegprüfung (keine Einlösung an Nicht-Arbeitstagen, nur unmittelbarer Verzehr) im Lohnkonto.", "description": "Arbeitstäglicher Essenszuschuss für 15 Arbeitstage/Monat: 4.57 € mit 25 % Pauschalsteuer + 3.10 € komplett steuerfrei."}, {"module_id": "erholungsbeihilfe_40_2_3", "code_number": 4, "name": "Erholungsbeihilfe (§ 40 Abs. 2 S. 1 Nr. 3 EStG — Familie)", "legal_basis": "§ 40 Abs. 2 Satz 1 Nr. 3 EStG (156 € AN + 104 € Ehegatte + 52 € je Kind)", "svev_basis": "§ 1 Abs. 1 Satz 1 Nr. 3 SvEV (100 % SV-frei bei 25 % Pauschalsteuer)", "category": "25_PAUSCHAL_0_SV", "max_monthly_eur": 30.33, "max_annual_eur": 364.0, "default_monthly_eur": 30.33, "pauschal_tax_rate": 0.25, "taxable_portion_ratio": 1.0, "zusaetzlichkeit_required": false, "freigrenze_warning": "FREIGRENZE (156 € AN / 104 € Ehepartner / 52 € je Kind p.a.): Auszahlung muss im zeitlichen Zusammenhang (innerhalb von 3 Monaten vor/nach) mit einem Erholungsurlaub von mind. 5 Tagen stehen!", "datev_lohnart_lodas": "StLA 163 (Erholungsbeihilfe pausch. versteuert 25 %)", "datev_lohnart_lug": "LA 350 (Erholungsbeihilfe 25 % Pauschalsteuer, SV-frei)", "audit_proof_requirement": "Urlaubsantrag (> 5 zusammenhängende Urlaubstage) + schriftliche Zweckbestätigung des Arbeitnehmers.", "description": "Jährliche Urlaubs-Barzuwendung (Brutto für Netto für den Mitarbeiter, AG übernimmt 25 % Pauschalsteuer, 0 % SV)."}, {"module_id": "internetpauschale_40_2_5", "code_number": 5, "name": "Internetpauschale (§ 40 Abs. 2 S. 1 Nr. 5 S. 2 EStG)", "legal_basis": "§ 40 Abs. 2 Satz 1 Nr. 5 Satz 2 EStG i.V.m. R 40.2 Abs. 5 LStR", "svev_basis": "§ 1 Abs. 1 Satz 1 Nr. 3 SvEV (100 % SV-frei bei 25 % Pauschalsteuer)", "category": "25_PAUSCHAL_0_SV", "max_monthly_eur": 50.0, "max_annual_eur": 600.0, "default_monthly_eur": 50.0, "pauschal_tax_rate": 0.25, "taxable_portion_ratio": 1.0, "zusaetzlichkeit_required": true, "freigrenze_warning": "Vereinfachungsregelung R 40.2 Abs. 5 LStR: Bis zu 50,00 €/Monat ohne Einzelnachweis der monatlichen Rechnungen, sofern der Arbeitnehmer einmalig schriftlich erklärt, dass ihm für den privaten Internetzugang mindestens dieser Betrag entsteht.", "datev_lohnart_lodas": "StLA 168 (Internetpauschale 25 % pausch. St. § 40 Abs. 2 Nr. 5 EStG)", "datev_lohnart_lug": "LA 354 (Internetzuschuss pauschal versteuert)", "audit_proof_requirement": "Einmalige Erklärung des Arbeitnehmers über tatsächliche Internetkosten (DSL/Glasfaser/WLAN) im Lohnkonto.", "description": "Zuschuss zu den laufenden Kosten des privaten Internetanschlusses bis 50 €/Monat mit 25 % Pauschalsteuer & 0 % SV."}, {"module_id": "it_telekommunikation_3_45", "code_number": 6, "name": "Betriebliches Smartphone / iPad / Laptop zur Privatnutzung (§ 3 Nr. 45 EStG)", "legal_basis": "§ 3 Nr. 45 EStG i.V.m. R 3.45 LStR", "svev_basis": "§ 1 Abs. 1 Satz 1 Nr. 1 SvEV (100 % SV-frei)", "category": "100_STEUER_SV_FREI", "max_monthly_eur": 65.0, "max_annual_eur": 780.0, "default_monthly_eur": 45.0, "pauschal_tax_rate": 0.0, "taxable_portion_ratio": 0.0, "zusaetzlichkeit_required": false, "freigrenze_warning": "WICHTIG: Das wirtschaftliche Eigentum am Gerät (Smartphone/Tablet/Notebook) und der Mobilfunkvertrag müssen beim Arbeitgeber liegen (Überlassung, keine Schenkung!). Für Schenkung/Übereignung gilt stattdessen § 40 Abs. 2 S. 1 Nr. 5 S. 1 EStG (25 % Pauschalsteuer).", "datev_lohnart_lodas": "StLA 890 (Statistische Dokumentation § 3 Nr. 45 EStG — 0 € Steuer/SV)", "datev_lohnart_lug": "Keine Abrechnungs-LA erforderlich (Überlassungsvertrag im Lohnkonto)", "audit_proof_requirement": "Geräte-Überlassungsvertrag zwischen GmbH und Arbeitnehmer (Eigentum verbleibt bei GmbH).", "description": "100 % steuer- und SV-freie private Mitbenutzung von Firmen-Smartphone, Tablet, Laptop inkl. Mobilfunktarif."}, {"module_id": "gesundheitsfoerderung_3_34", "code_number": 7, "name": "Betriebliche Gesundheitsförderung (§ 3 Nr. 34 EStG — bis 600 €/Jahr)", "legal_basis": "§ 3 Nr. 34 EStG i.V.m. §§ 20, 20b SGB V (Zentrale Prüfstelle Prävention)", "svev_basis": "§ 1 Abs. 1 Satz 1 Nr. 1 SvEV (100 % SV-frei)", "category": "100_STEUER_SV_FREI", "max_monthly_eur": 50.0, "max_annual_eur": 600.0, "default_monthly_eur": 50.0, "pauschal_tax_rate": 0.0, "taxable_portion_ratio": 0.0, "zusaetzlichkeit_required": true, "freigrenze_warning": "FREIBETRAG 600,00 €/Kalenderjahr: Nur für nach § 20 SGB V zertifizierte Präventionskurse (Rückenschule, Stressbewältigung, Yoga, Ernährungsberatung). Reine Fitnessstudio-Mitgliedschaftsbeiträge ohne § 20 SGB V-Zertifikat fallen NICHT unter § 3 Nr. 34 EStG (dafür § 8 Abs. 2 S. 11 EStG nutzen).", "datev_lohnart_lodas": "StLA 234 (Gesundheitsförderung § 3 Nr. 34 EStG stfr.)", "datev_lohnart_lug": "LA 858 (Präventionsleistung § 3 Nr. 34 EStG)", "audit_proof_requirement": "Zertifikat der Zentralen Prüfstelle Prävention (§ 20 SGB V) + Teilnahmebescheinigung.", "description": "Erstattung zertifizierter Gesundheits- und Präventionskurse bis zum Jahresfreibetrag von 600,00 € (50,00 €/Monat)."}, {"module_id": "deutschlandticket_3_15", "code_number": 8, "name": "Jobticket / Deutschlandticket (§ 3 Nr. 15 EStG)", "legal_basis": "§ 3 Nr. 15 EStG (ÖPNV-Zuschuss im Linienverkehr)", "svev_basis": "§ 1 Abs. 1 Satz 1 Nr. 1 SvEV (100 % SV-frei)", "category": "100_STEUER_SV_FREI", "max_monthly_eur": 58.0, "max_annual_eur": 696.0, "default_monthly_eur": 58.0, "pauschal_tax_rate": 0.0, "taxable_portion_ratio": 0.0, "zusaetzlichkeit_required": true, "freigrenze_warning": "Zusätzlich zum ohnehin geschuldeten Arbeitslohn (§ 8 Abs. 4 EStG). Pflichtausweis in Zeile 17 der elektronischen Lohnsteuerbescheinigung, da der Zuschuss auf die Entfernungspauschale des AN angerechnet wird.", "datev_lohnart_lodas": "StLA 238 (Fahrtkostenzuschuss ÖPNV § 3 Nr. 15 EStG mit LStB-Ausweis Zeile 17)", "datev_lohnart_lug": "LA 851 (Jobticket / ÖPNV steuerfrei § 3 Nr. 15 EStG)", "audit_proof_requirement": "Ticketnachweis / Abo-Rechnung Deutschlandticket im Lohnkonto + Ausweis Zeile 17 LStB.", "description": "Steuer- und SV-freier Arbeitgeberzuschuss zum Deutschlandticket / ÖPNV-Monatsticket (58,00 €/Monat)."}, {"module_id": "dienstrad_3_37", "code_number": 9, "name": "Dienstrad / E-Bike zur Privatnutzung (§ 3 Nr. 37 EStG)", "legal_basis": "§ 3 Nr. 37 EStG (Überlassung eines betrieblichen Fahrrads/Pedelecs bis 25 km/h)", "svev_basis": "§ 1 Abs. 1 Satz 1 Nr. 1 SvEV (100 % SV-frei)", "category": "100_STEUER_SV_FREI", "max_monthly_eur": 120.0, "max_annual_eur": 1440.0, "default_monthly_eur": 65.0, "pauschal_tax_rate": 0.0, "taxable_portion_ratio": 0.0, "zusaetzlichkeit_required": true, "freigrenze_warning": "Wird das Dienstrad/Pedelec (kein S-Pedelec > 25 km/h) ZUSÄTZLICH zum ohnehin geschuldeten Arbeitslohn überlassen, beträgt der geldwerte Vorteil 0,00 € (komplett steuer- und SV-frei nach § 3 Nr. 37 EStG).", "datev_lohnart_lodas": "StLA 891 (Dienstrad § 3 Nr. 37 EStG zusätzlich — 0 € geldwerter Vorteil)", "datev_lohnart_lug": "Statistische Dokumentation Dienstrad § 3 Nr. 37 EStG", "audit_proof_requirement": "Leasingvertrag auf Namen der GmbH + Dienstrad-Überlassungsvertrag (zusätzlich zum Gehalt).", "description": "Steuer- und SV-freie Überlassung eines E-Bikes / Dienstrads (bis 25 km/h) zusätzlich zum Grundgehalt."}, {"module_id": "aufmerksamkeiten_19_1a", "code_number": 10, "name": "Persönliche Aufmerksamkeiten & Verpflegungsmehraufwand (R 19.6 LStR / § 3 Nr. 16 EStG)", "legal_basis": "R 19.6 Abs. 1 LStR (60 € je persönlichem Anlass) & § 3 Nr. 16 i.V.m. § 9 Abs. 4a EStG (14 €/28 € VMA)", "svev_basis": "§ 1 Abs. 1 Satz 1 Nr. 1 SvEV (100 % SV-frei)", "category": "100_STEUER_SV_FREI", "max_monthly_eur": 48.0, "max_annual_eur": 576.0, "default_monthly_eur": 28.0, "pauschal_tax_rate": 0.0, "taxable_portion_ratio": 0.0, "zusaetzlichkeit_required": false, "freigrenze_warning": "Aufmerksamkeiten bis 60,00 € inkl. USt. (Freigrenze!) sind zusätzlich zum 50-€-Sachbezug möglich, aber NUR zu einem besonderen persönlichen Ereignis (Geburtstag, Hochzeit, Geburt eines Kindes, Firmenjubiläum — NICHT Weihnachten!). Verpflegungsmehraufwand (14 € ab > 8h Auswärtstätigkeit, 28 € bei 24h) erfordert Reisekostenabrechnung.", "datev_lohnart_lodas": "StLA 249 (Aufmerksamkeit R 19.6 LStR) / StLA 220 (Reisekosten VMA § 3 Nr. 16 EStG)", "datev_lohnart_lug": "LA 862 (Aufmerksamkeiten bis 60 EUR) / LA 840 (Verpflegungsmehraufwand stfr.)", "audit_proof_requirement": "Vermerk des persönlichen Anlasses (z. B. Geburtstag AN) auf dem Beleg bzw. Reisekostenabrechnung (> 8 Std. Auswärtstätigkeit).", "description": "Sachgeschenke zu persönlichen Ereignissen (bis 60 € je Anlass) + steuerfreier Verpflegungsmehraufwand bei Auswärtstätigkeit."}];
+
+    let state = {
+      taxYear: 2025,
+      raiseGrossMo: 250,
+      taxRate: 31.5,
+      anSvRate: 20.5,
+      agSvRate: 21.0,
+      umwandlung: false,
+      modules: {}
+    };
+
+    function fmtEur(v) {
+      return v.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
+    }
+
+    function loadScenario(idx) {
+      document.querySelectorAll('.preset-btn').forEach((b, i) => {
+        if (i < 3) b.classList.toggle('active', i === idx);
+      });
+      const scen = SCENARIOS[idx];
+      state.taxYear = scen.tax_year;
+      state.raiseGrossMo = scen.target_raise_gross_monthly_eur;
+      state.taxRate = scen.marginal_income_tax_rate_pct;
+      state.anSvRate = scen.employee_sv_rate_pct;
+      state.agSvRate = scen.employer_sv_rate_pct;
+      state.umwandlung = false;
+
+      document.getElementById('sel-year').value = String(state.taxYear);
+      document.getElementById('rng-raise').value = state.raiseGrossMo;
+      document.getElementById('rng-tax').value = state.taxRate;
+      document.getElementById('rng-ansv').value = state.anSvRate;
+      document.getElementById('rng-agsv').value = state.agSvRate;
+      document.getElementById('chk-umwandlung').checked = false;
+
+      state.modules = {};
+      scen.modules.forEach(m => {
+        state.modules[m.module_id] = {
+          enabled: m.enabled,
+          monthly: m.employee_net_monthly_eur
+        };
+      });
+      renderModulesTable();
+      recalc();
+    }
+
+    function getActiveSpecs() {
+      return Number(document.getElementById('sel-year').value) === 2025 ? SPECS_2025 : SPECS_2026;
+    }
+
+    function renderModulesTable() {
+      const specs = getActiveSpecs();
+      const tbody = document.getElementById('modules-tbody');
+      tbody.innerHTML = '';
+      specs.forEach(spec => {
+        const st = state.modules[spec.module_id] || { enabled: true, monthly: spec.default_monthly_eur };
+        state.modules[spec.module_id] = st;
+        const tr = document.createElement('tr');
+        const badgeHtml = spec.category === '100_STEUER_SV_FREI'
+          ? '<span class="tag-free">0 % St. · 0 % SV</span>'
+          : '<span class="tag-pauschal">25 % Pausch. · 0 % SV</span>';
+
+        tr.innerHTML = `
+          <td>
+            <input type="checkbox" ${st.enabled ? 'checked' : ''}
+              onchange="toggleModule('${spec.module_id}', this.checked)" />
+          </td>
+          <td>
+            <strong>#${spec.code_number} ${spec.name}</strong><br/>
+            <span class="small-muted">${spec.legal_basis}</span><br/>
+            <span class="small-muted" style="color:#93c5fd;">Nachweis: ${spec.audit_proof_requirement}</span>
+          </td>
+          <td>${badgeHtml}</td>
+          <td>
+            <input type="number" step="0.5" min="0" max="${spec.max_monthly_eur}"
+              value="${st.monthly.toFixed(2)}"
+              style="width:82px;background:#0b1020;color:#fff;border:1px solid #28365c;border-radius:4px;padding:4px 6px;"
+              oninput="updateModuleAmount('${spec.module_id}', this.value)" />
+            <div class="small-muted">Max: ${spec.max_monthly_eur.toFixed(2)} €</div>
+          </td>
+          <td id="cell-net-${spec.module_id}" style="font-weight:700;color:var(--emerald);">0,00 €</td>
+          <td id="cell-cost-${spec.module_id}">0,00 €</td>
+          <td>
+            <span class="small-muted">${spec.datev_lohnart_lodas}</span>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function toggleModule(id, checked) {
+      const specs = getActiveSpecs();
+      const spec = specs.find(s => s.module_id === id);
+      state.modules[id].enabled = checked;
+      if (checked && state.modules[id].monthly <= 0 && spec) {
+        state.modules[id].monthly = spec.default_monthly_eur;
+        renderModulesTable();
+      }
+      recalc();
+    }
+
+    function updateModuleAmount(id, val) {
+      const num = parseFloat(val);
+      state.modules[id].monthly = isNaN(num) ? 0 : num;
+      recalc();
+    }
+
+    function recalc() {
+      const newYear = Number(document.getElementById('sel-year').value);
+      if (newYear !== state.taxYear) {
+        state.taxYear = newYear;
+        const specs = getActiveSpecs();
+        const mealSpec = specs.find(s => s.module_id === 'essenszuschuss_svev');
+        if (mealSpec && state.modules['essenszuschuss_svev'] && state.modules['essenszuschuss_svev'].monthly > 100) {
+          state.modules['essenszuschuss_svev'].monthly = mealSpec.max_monthly_eur;
+        }
+        renderModulesTable();
+      }
+
+      state.raiseGrossMo = Number(document.getElementById('rng-raise').value);
+      state.taxRate = Number(document.getElementById('rng-tax').value);
+      state.anSvRate = Number(document.getElementById('rng-ansv').value);
+      state.agSvRate = Number(document.getElementById('rng-agsv').value);
+      state.umwandlung = document.getElementById('chk-umwandlung').checked;
+
+      document.getElementById('lbl-year').textContent = String(state.taxYear);
+      document.getElementById('lbl-raise').textContent = state.raiseGrossMo + ' €';
+      document.getElementById('lbl-tax').textContent = state.taxRate.toFixed(1) + ' %';
+      document.getElementById('lbl-ansv').textContent = state.anSvRate.toFixed(2) + ' %';
+      document.getElementById('lbl-agsv').textContent = state.agSvRate.toFixed(1) + ' %';
+
+      // Regular raise calc
+      const regGrossYr = state.raiseGrossMo * 12;
+      const regAgCostYr = regGrossYr * (1 + state.agSvRate / 100);
+      const regNetYr = regGrossYr * (1 - (state.taxRate + state.anSvRate) / 100);
+      const regWedgeYr = regAgCostYr - regNetYr;
+      const regEff = regAgCostYr > 0 ? (regNetYr / regAgCostYr) * 100 : 0;
+
+      // Baukasten calc
+      const specs = getActiveSpecs();
+      let optNetYr = 0;
+      let optTaxYr = 0;
+      let optAgCostYr = 0;
+      let activeCount = 0;
+      let warnings = [];
+
+      if (state.umwandlung) {
+        warnings.push('KRITISCH (§ 8 Abs. 4 EStG): Schädliche Gehaltsumwandlung aktiviert! Bei Herabsetzung des geschuldeten Bruttolohns entfällt die Steuer- und Beitragsfreiheit für § 8 Abs. 2 S. 11, § 3 Nr. 15/33/34/37 und § 40 Abs. 2 Nr. 5 EStG.');
+      }
+
+      specs.forEach(spec => {
+        const st = state.modules[spec.module_id];
+        const mo = (st && st.enabled) ? st.monthly : 0;
+        if (st && st.enabled && mo > 0) activeCount++;
+        if (st && st.enabled && mo > spec.max_monthly_eur + 0.001) {
+          warnings.push(`#${spec.code_number} ${spec.name}: Betrag (${mo.toFixed(2)} €) überschreitet gesetzliche Freigrenze/Höchstgrenze (${spec.max_monthly_eur.toFixed(2)} €)!`);
+        }
+        const yrNet = mo * 12;
+        const pTax = yrNet * spec.taxable_portion_ratio * spec.pauschal_tax_rate;
+        const yrCost = yrNet + pTax;
+
+        optNetYr += yrNet;
+        optTaxYr += pTax;
+        optAgCostYr += yrCost;
+
+        const netCell = document.getElementById('cell-net-' + spec.module_id);
+        const costCell = document.getElementById('cell-cost-' + spec.module_id);
+        if (netCell) netCell.textContent = fmtEur(yrNet);
+        if (costCell) costCell.textContent = fmtEur(yrCost);
+      });
+
+      const optEff = optAgCostYr > 0 ? (optNetYr / optAgCostYr) * 100 : 100;
+      const retentionRatio = Math.max(0.1, 1 - (state.taxRate + state.anSvRate) / 100);
+      const equivGrossYr = optNetYr / retentionRatio;
+      const equivAgCostYr = equivGrossYr * (1 + state.agSvRate / 100);
+      const agSavePerEmp = equivAgCostYr - optAgCostYr;
+
+      document.getElementById('kpi-gross-mo').textContent = state.raiseGrossMo;
+      document.getElementById('kpi-reg-net').innerHTML = fmtEur(regNetYr) + ' <span style="font-size:14px;font-weight:500;">Netto/Jahr</span>';
+      document.getElementById('kpi-reg-ag').textContent = fmtEur(regAgCostYr) + '/Jahr';
+      document.getElementById('kpi-reg-wedge').textContent = fmtEur(regWedgeYr) + '/Jahr';
+      document.getElementById('kpi-reg-eff').textContent = regEff.toFixed(1);
+
+      document.getElementById('kpi-active-count').textContent = activeCount;
+      document.getElementById('kpi-opt-net').innerHTML = fmtEur(optNetYr) + ' <span style="font-size:14px;font-weight:500;">Netto/Jahr</span>';
+      document.getElementById('kpi-opt-ag').textContent = fmtEur(optAgCostYr) + '/Jahr';
+      document.getElementById('kpi-opt-tax').textContent = fmtEur(optTaxYr) + '/Jahr';
+      document.getElementById('kpi-opt-eff').textContent = optEff.toFixed(1);
+
+      const netGain = optNetYr - regNetYr;
+      document.getElementById('kpi-net-gain').innerHTML = (netGain >= 0 ? '+' : '') + fmtEur(netGain) + ' <span style="font-size:14px;font-weight:500;">/ Jahr</span>';
+      document.getElementById('kpi-opt-net-mo').textContent = fmtEur(optNetYr / 12) + '/Mo';
+      document.getElementById('kpi-reg-net-mo').textContent = fmtEur(regNetYr / 12) + '/Mo';
+
+      document.getElementById('kpi-ag-save').innerHTML = fmtEur(agSavePerEmp) + ' <span style="font-size:14px;font-weight:500;">/ Jahr je MA</span>';
+      document.getElementById('kpi-ag-save-10').textContent = fmtEur(agSavePerEmp * 10) + '/Jahr';
+
+      // Bars
+      document.getElementById('bar-reg-net').style.width = regEff.toFixed(1) + '%';
+      document.getElementById('bar-reg-tax').style.width = (100 - regEff).toFixed(1) + '%';
+      document.getElementById('bar-reg-lbl').textContent = `${regEff.toFixed(1)} % Netto beim Mitarbeiter / ${(100 - regEff).toFixed(1)} % Finanzamt & SV`;
+
+      document.getElementById('bar-opt-net').style.width = optEff.toFixed(1) + '%';
+      document.getElementById('bar-opt-tax').style.width = (100 - optEff).toFixed(1) + '%';
+      document.getElementById('bar-opt-lbl').textContent = `${optEff.toFixed(1)} % Netto beim Mitarbeiter / ${(100 - optEff).toFixed(1)} % Pauschalsteuer (0 % SV)`;
+
+      // Compliance banner
+      const banner = document.getElementById('compliance-banner');
+      if (warnings.length === 0) {
+        banner.className = 'compliance-box ok';
+        banner.innerHTML = '<strong>§ 8 Abs. 4 EStG & SvEV Compliance-Prüfung bestanden:</strong> Alle ' + activeCount + ' aktiven Bausteine werden zusätzlich zum ohnehin geschuldeten Arbeitslohn gewährt und halten die Freigrenzen ein.';
+      } else {
+        banner.className = 'compliance-box err';
+        banner.innerHTML = '<strong>Compliance-Warnung:</strong><br/>' + warnings.join('<br/>');
+      }
+
+      // Contract text update
+      let contractLines = [
+        'ERGÄNZUNGSVEREINBARUNG ZUM ARBEITSVERTRAG (NETTO-LOHNOPTIMIERUNG / GEHALTSEXTRAS)',
+        '==================================================================================',
+        'Zwischen der [Muster GmbH] ("Arbeitgeber") und [Vorname Nachname] ("Arbeitnehmer")',
+        '',
+        '§ 1 Zusätzlichkeitserfordernis (§ 8 Abs. 4 EStG)',
+        'Sämtliche nachfolgenden Leistungen werden ZUSÄTZLICH zum ohnehin geschuldeten Arbeitslohn gewährt.',
+        'Eine schädliche Gehaltsumwandlung (Barlohnverzicht) ist ausgeschlossen.',
+        '',
+        '§ 2 Vereinbarte Netto-Bausteine (' + state.taxYear + '):'
+      ];
+      specs.forEach(spec => {
+        const st = state.modules[spec.module_id];
+        if (st && st.enabled && st.monthly > 0) {
+          contractLines.push(`- #${spec.code_number} ${spec.name}: ${fmtEur(st.monthly)}/Monat (${fmtEur(st.monthly * 12)}/Jahr) | ${spec.datev_lohnart_lodas}`);
+        }
+      });
+      contractLines.push('');
+      contractLines.push(`Gesamter Netto-Vorteil Arbeitnehmer: ${fmtEur(optNetYr / 12)}/Monat (${fmtEur(optNetYr)}/Jahr)`);
+      contractLines.push(`Gesamtaufwand Arbeitgeber inkl. 25 % Pauschalsteuer: ${fmtEur(optAgCostYr / 12)}/Monat (${fmtEur(optAgCostYr)}/Jahr)`);
+      contractLines.push(`Ersparnis gegenüber äquivalenter Bruttolohnerhöhung: ${fmtEur(agSavePerEmp)}/Jahr je Mitarbeiter`);
+      document.getElementById('contract-text').value = contractLines.join('\n');
+    }
+
+    function copyContract() {
+      const el = document.getElementById('contract-text');
+      el.select();
+      document.execCommand('copy');
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      loadScenario(0);
+    });
+  </script>
+</body>
+</html>

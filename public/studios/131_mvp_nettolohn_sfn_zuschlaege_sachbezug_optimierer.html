@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MVP #131 — DACH Nettolohn-, § 3b EStG SFN-Zuschläge & GGF-vGA-Simulator</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --card: #131b33;
+      --border: #26335c;
+      --text: #eef2ff;
+      --muted: #94a3b8;
+      --accent: #38bdf8;
+      --green: #22c55e;
+      --amber: #f59e0b;
+      --red: #ef4444;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      padding: 24px;
+    }
+    .container { max-width: 1380px; margin: 0 auto; }
+    header {
+      background: linear-gradient(135deg, #131b33 0%, #1e293b 100%);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+    h1 { margin: 0 0 8px 0; font-size: 1.65rem; color: #fff; }
+    .subtitle { color: var(--muted); font-size: 0.95rem; margin: 0; }
+    .badge-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+    .badge {
+      background: rgba(56, 189, 248, 0.14);
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      color: var(--accent);
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 600;
+    }
+    .grid { display: grid; grid-template-columns: 420px 1fr; gap: 22px; }
+    @media (max-width: 1050px) { .grid { grid-template-columns: 1fr; } }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px;
+    }
+    .card h2 { margin-top: 0; font-size: 1.15rem; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+    label { display: block; font-size: 0.82rem; color: var(--muted); margin: 10px 0 4px; font-weight: 600; }
+    input, select {
+      width: 100%;
+      padding: 9px 11px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: #0f1629;
+      color: var(--text);
+      font-size: 0.9rem;
+    }
+    .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 20px; }
+    @media (max-width: 850px) { .kpi-grid { grid-template-columns: repeat(2, 1fr); } }
+    .kpi {
+      background: #0f1629;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+    }
+    .kpi .label { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+    .kpi .value { font-size: 1.45rem; font-weight: 700; margin-top: 4px; }
+    .kpi.green .value { color: var(--green); }
+    .kpi.amber .value { color: var(--amber); }
+    .kpi.red .value { color: var(--red); }
+    .alert {
+      border-radius: 10px;
+      padding: 12px 15px;
+      margin-bottom: 12px;
+      font-size: 0.88rem;
+      font-weight: 600;
+    }
+    .alert-red { background: rgba(239, 68, 68, 0.15); border: 1px solid var(--red); color: #fecaca; }
+    .alert-amber { background: rgba(245, 158, 11, 0.15); border: 1px solid var(--amber); color: #fde68a; }
+    .alert-green { background: rgba(34, 197, 94, 0.15); border: 1px solid var(--green); color: #bbf7d0; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.86rem; }
+    th, td { padding: 10px 8px; text-align: left; border-bottom: 1px solid var(--border); }
+    th { color: var(--muted); font-weight: 600; }
+    .num { text-align: right; font-variant-numeric: tabular-nums; }
+  </style>
+</head>
+<body>
+
+<!-- DACH CASHFLOW STUDIOS LAUNCH BAR -->
+<style>
+  #dcs-launch-bar {
+    position: sticky;
+    top: 0;
+    z-index: 99999;
+    background: linear-gradient(90deg, #0b1120 0%, #111827 50%, #0f172a 100%);
+    color: #f8fafc;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.35);
+    padding: 8px 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  }
+  #dcs-launch-bar .dcs-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+  }
+  #dcs-launch-bar .dcs-badge {
+    background: rgba(16, 185, 129, 0.18);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.03em;
+  }
+  #dcs-launch-bar a.dcs-nav {
+    color: #93c5fd;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 12.5px;
+  }
+  #dcs-launch-bar a.dcs-nav:hover {
+    text-decoration: underline;
+    color: #dbeafe;
+  }
+  #dcs-launch-bar .dcs-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  #dcs-launch-bar .dcs-btn {
+    padding: 5px 11px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s ease;
+  }
+  #dcs-launch-bar .dcs-btn-ghost {
+    background: rgba(255,255,255,0.08);
+    color: #e2e8f0;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  #dcs-launch-bar .dcs-btn-primary {
+    background: linear-gradient(135deg, #0ea5e9, #2563eb);
+    color: #ffffff;
+  }
+  #dcs-launch-bar .dcs-btn-emerald {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
+  }
+  @media print {
+    #dcs-launch-bar { display: none !important; }
+  }
+</style>
+<div id="dcs-launch-bar">
+  <div class="dcs-left">
+    <a href="/index.html" class="dcs-nav">← Alle 150 DACH Studios</a>
+    <span class="dcs-badge">MVP #131 VERIFIED</span>
+    <span style="color:#cbd5e1;font-size:12px;">DACH Tax, Corporate & Accounting Arbitrage</span>
+  </div>
+  <div class="dcs-actions">
+    <button onclick="window.print()" class="dcs-btn dcs-btn-ghost">🖨️ PDF / Dossier drucken</button>
+    <a href="#checkout-modal-49" target="_blank" rel="noopener" class="dcs-btn dcs-btn-primary">⚡ Musterschreiben & Voll-Dossier (€49)</a>
+    <a href="#checkout-modal-299" target="_blank" rel="noopener" class="dcs-btn dcs-btn-emerald">🛡️ B2B Umsetzung buchen (€299 / €1.490)</a>
+  </div>
+</div>
+
+  <div class="container">
+    <header>
+      <h1>DACH Nettolohn-, § 3b EStG SFN-Zuschlags-, Sachbezugs- & GGF-vGA-Simulator (MVP #131)</h1>
+      <p class="subtitle">
+        Deterministische Lohnsteuer- & Sozialversicherungs-Engine: <strong>§ 3b EStG (€50/h) vs. § 1 SvEV (€25/h) Dual-Cap-Rechner</strong>,
+        <strong>7 Nettolohn-Bausteine (§§ 3, 8, 40 EStG)</strong> & <strong>BFH-vGA-Wächter für Gesellschafter-Geschäftsführer</strong>.
+      </p>
+      <div class="badge-row">
+        <span class="badge">§ 3b EStG (25% / 40% / 50% / 125% / 150%)</span>
+        <span class="badge">§ 1 Abs. 1 S. 1 Nr. 1 SvEV (€25/h SV-Klippe)</span>
+        <span class="badge">§ 8 Abs. 2 S. 11 EStG (€50,00 Freigrenze)</span>
+        <span class="badge">R 8.1 Abs. 7 LStR Essensmarken (2025: €7,50 / 2026: €7,67)</span>
+        <span class="badge">§ 40 Abs. 2 EStG (25% Erholungsbeihilfe & Internet)</span>
+        <span class="badge">BFH I R 111/03 & VI R 28/19 vGA- & Einzelnachweis-Wächter</span>
+      </div>
+    </header>
+
+    <div class="grid">
+      <div class="card">
+        <h2>1. Szenario & Parameter konfigurieren</h2>
+        <label for="presetSelect">Praxis-Benchmark laden</label>
+        <select id="presetSelect" onchange="loadPreset()"></select>
+
+        <div class="row-2">
+          <div>
+            <label for="roleType">Status / Organstellung</label>
+            <select id="roleType" onchange="recalc()">
+              <option value="STANDARD_EMPLOYEE">Arbeitnehmer (Standard)</option>
+              <option value="SENIOR_HIGH_EARNER">IT-DevOps / Oberarzt / Spezialist (&gt;€25/h)</option>
+              <option value="GGF_CONTROLLING">Gesellschafter-Geschäftsführer (beherrschend)</option>
+              <option value="GGF_MINORITY">Gesellschafter-Geschäftsführer (Minderheit)</option>
+            </select>
+          </div>
+          <div>
+            <label for="taxYear">Veranlagungsjahr (SvEV)</label>
+            <select id="taxYear" onchange="recalc()">
+              <option value="2024">2024 (€7,23 Essen / €49 D-Ticket)</option>
+              <option value="2025" selected>2025 (€7,50 Essen / €58 D-Ticket)</option>
+              <option value="2026">2026 (€7,67 Essen / €58 D-Ticket)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="row-2">
+          <div>
+            <label for="grundlohn">Stunden-Grundlohn (€/h)</label>
+            <input type="number" id="grundlohn" step="0.5" value="42.00" oninput="recalc()" />
+          </div>
+          <div>
+            <label for="taxRate">Grenzsteuersatz AN (%)</label>
+            <input type="number" id="taxRate" step="1" value="42" oninput="recalc()" />
+          </div>
+        </div>
+
+        <label>§ 3b EStG SFN-Stunden pro Monat</label>
+        <div class="row-2">
+          <div>
+            <label for="hNight25">Nacht 20–06 Uhr (25%)</label>
+            <input type="number" id="hNight25" step="1" value="16" oninput="recalc()" />
+          </div>
+          <div>
+            <label for="hNight40">Kernnacht 00–04 Uhr (40%)</label>
+            <input type="number" id="hNight40" step="1" value="8" oninput="recalc()" />
+          </div>
+        </div>
+        <div class="row-2">
+          <div>
+            <label for="hSunday50">Sonntag (50%)</label>
+            <input type="number" id="hSunday50" step="1" value="12" oninput="recalc()" />
+          </div>
+          <div>
+            <label for="hHoliday125">Feiertag (125%)</label>
+            <input type="number" id="hHoliday125" step="1" value="4" oninput="recalc()" />
+          </div>
+        </div>
+        <div class="row-2">
+          <div>
+            <label for="hHoliday150">24.12./25.-26.12./1.5. (150%)</label>
+            <input type="number" id="hHoliday150" step="1" value="0" oninput="recalc()" />
+          </div>
+          <div>
+            <label for="einzelnachweis">Zeiterfassung (§ 3b Nachweis)</label>
+            <select id="einzelnachweis" onchange="recalc()">
+              <option value="true" selected>Einzelnachweis je Schicht (konform)</option>
+              <option value="false">Pauschalzahlung ohne Zeiterfassung!</option>
+            </select>
+          </div>
+        </div>
+
+        <label>7 Nettolohn-Bausteine (§§ 3, 8, 40 EStG)</label>
+        <div class="row-2">
+          <div>
+            <label for="sachbezug">§ 8 Abs. 2 S. 11 Sachbezug (€/Mo)</label>
+            <input type="number" id="sachbezug" step="0.01" value="50.00" oninput="recalc()" />
+          </div>
+          <div>
+            <label for="mealDays">Essensmarken (Tage/Mo, max 15)</label>
+            <input type="number" id="mealDays" step="1" max="15" value="15" oninput="recalc()" />
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>2. Live-Simulation: Nettolohn-Hebel, SvEV-Klippe & vGA-Prüfung</h2>
+        <div id="alertsContainer"></div>
+
+        <div class="kpi-grid">
+          <div class="kpi green">
+            <div class="label">Mehr-Netto Arbeitnehmer / Mo</div>
+            <div class="value" id="kpiNetMo">€0,00</div>
+          </div>
+          <div class="kpi">
+            <div class="label">AG-Gesamtkosten Optimiert / Mo</div>
+            <div class="value" id="kpiAgOptMo">€0,00</div>
+          </div>
+          <div class="kpi amber">
+            <div class="label">AG-Kosten Klassische Bruttoerhöhung</div>
+            <div class="value" id="kpiAgClassicMo">€0,00</div>
+          </div>
+          <div class="kpi green">
+            <div class="label">Ersparnis Arbeitgeber / Jahr</div>
+            <div class="value" id="kpiAnnualSavings">€0,00</div>
+          </div>
+        </div>
+
+        <h3>§ 3b EStG (€50/h) vs. § 1 Abs. 1 Nr. 1 SvEV (€25/h) Dual-Cap-Aufschlüsselung</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Kennzahl SFN-Zuschläge</th>
+              <th class="num">Betrag / Monat</th>
+              <th>Steuer- & SV-Status</th>
+            </tr>
+          </thead>
+          <tbody id="sfnTableBody"></tbody>
+        </table>
+
+        <h3 style="margin-top:22px;">Die 7 ganzjährigen Nettolohn-Bausteine im Detail</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Baustein</th>
+              <th>Rechtsgrundlage</th>
+              <th class="num">AN-Netto / Mo</th>
+              <th class="num">AG-Pauschalst./SV</th>
+              <th class="num">AG-Gesamtkosten</th>
+            </tr>
+          </thead>
+          <tbody id="modulesTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const PRESETS = [
+  {
+    "scenario_id": "PFLEGE_GASTRO_22EUR",
+    "title": "Pflegefachkraft / Schichtleiter Gastronomie (€22,00/h Grundlohn — unter €25 SvEV-Cap)",
+    "sector": "Pflege, Klinik & Gastronomie",
+    "role_type": "STANDARD_EMPLOYEE",
+    "hourly_grundlohn_eur": 22.0,
+    "sfn_result": {
+      "hourly_grundlohn_eur": 22.0,
+      "estg_eligible_grundlohn_eur": 22.0,
+      "svev_eligible_grundlohn_eur": 22.0,
+      "svev_cliff_active": false,
+      "svev_taxable_hourly_gap_eur": 0.0,
+      "gross_sfn_supplement_mo_eur": 633.6,
+      "tax_free_sfn_mo_eur": 633.6,
+      "taxable_sfn_mo_eur": 0.0,
+      "sv_free_sfn_mo_eur": 633.6,
+      "sv_liable_sfn_mo_eur": 0.0,
+      "employee_net_sfn_mo_eur": 633.6,
+      "employer_total_cost_sfn_mo_eur": 633.6,
+      "vga_risk_detected": false,
+      "vga_annual_tax_damage_eur": 0.0,
+      "einzelnachweis_violation": false,
+      "compliance_warnings": []
+    },
+    "module_items": [
+      {
+        "module_code": "MOD_1_SACHBEZUG_50",
+        "legal_basis": "§ 8 Abs. 2 S. 11 EStG",
+        "title": "Steuerfreier Sachbezug (Gutscheinkarte / § 2 Abs. 1 Nr. 10 ZAG)",
+        "monthly_employee_net_eur": 50.0,
+        "monthly_employer_tax_sv_eur": 0.0,
+        "monthly_employer_total_cost_eur": 50.0,
+        "cliff_or_warning": null
+      },
+      {
+        "module_code": "MOD_2_ESSENSMARKEN",
+        "legal_basis": "R 8.1 Abs. 7 Nr. 4 LStR & § 40 Abs. 2 S. 1 Nr. 1 EStG",
+        "title": "Digitale Essensmarken (15 Tage × €7.50 in 2025)",
+        "monthly_employee_net_eur": 112.5,
+        "monthly_employer_tax_sv_eur": 16.5,
+        "monthly_employer_total_cost_eur": 129.0,
+        "cliff_or_warning": null
+      },
+      {
+        "module_code": "MOD_3_ERHOLUNGSBEIHILFE",
+        "legal_basis": "§ 40 Abs. 2 S. 1 Nr. 3 EStG",
+        "title": "Erholungsbeihilfe (€364/Jahr umgelegt; 25% Pauschalsteuer, 0% SV)",
+        "monthly_employee_net_eur": 30.33,
+        "monthly_employer_tax_sv_eur": 7.58,
+        "monthly_employer_total_cost_eur": 37.91,
+        "cliff_or_warning": null
+      },
+      {
+        "module_code": "MOD_4_DEUTSCHLANDTICKET",
+        "legal_basis": "§ 3 Nr. 15 EStG",
+        "title": "Deutschlandticket Jobticket (2025: €58.00/Monat, 100% steuer- & SV-frei)",
+        "monthly_employee_net_eur": 58.0,
+        "monthly_employer_tax_sv_eur": 0.0,
+        "monthly_employer_total_cost_eur": 58.0,
+        "cliff_or_warning": null
+      },
+      {
+        "module_code": "MOD_5_GESUNDHEIT",
+        "legal_basis": "§ 3 Nr. 34 EStG",
+        "title": "Betriebliche Gesundheitsförderung (€600/Jahr ZPP-zertifiziert, 100% steuer- & SV-frei)",
+        "monthly_employee_net_eur": 50.0,
+        "monthly_employer_tax_sv_eur": 0.0,
+        "monthly_employer_total_cost_eur": 50.0,
+        "cliff_or_warning": null
+      },
+      {
+        "module_code": "MOD_6_TK_UEBERLASSUNG",
+        "legal_basis": "§ 3 Nr. 45 EStG",
+        "title": "Überlassung betrieblicher Smartphone/Tablet/Laptop zur Privatnutzung (100% frei)",
+        "monthly_employee_net_eur": 45.0,
+        "monthly_employer_tax_sv_eur": 0.0,
+        "monthly_employer_total_cost_eur": 45.0,
+        "cliff_or_warning": null
+      },
+      {
+        "module_code": "MOD_7_INTERNETZUSCHUSS",
+        "legal_basis": "§ 40 Abs. 2 S. 1 Nr. 5 EStG",
+        "title": "Pauschalbesteuerter Internetzuschuss (bis €50/Monat, 25% Pauschalsteuer, 0% SV)",
+        "monthly_employee_net_eur": 50.0,
+        "monthly_employer_tax_sv_eur": 12.5,
+        "monthly_employer_total_cost_eur": 62.5,
+        "cliff_or_warning": null
+      }
+    ],
+    "modules_monthly_net_eur": 395.83,
+    "modules_monthly_employer_cost_eur": 432.41,
+    "combined_monthly_net_gain_eur": 1029.43,
+    "combined_monthly_employer_cost_eur": 1066.01,
+    "equivalent_classic_gross_raise_mo_eur": 2006.69,
+    "classic_gross_employer_cost_mo_eur": 2432.11,
+    "monthly_savings_vs_classic_raise_eur": 1366.1,
+    "annual_savings_vs_classic_raise_eur": 16393.2,
+    "net_to_employer_cost_efficiency_pct": 96.6,
+    "classic_raise_efficiency_pct": 42.3
+  },
+  {
+    "scenario_id": "DEVOPS_ONCALL_42EUR_SVEV_CLIFF",
+    "title": "Senior IT-DevOps / Cloud SRE Rufbereitschaft (€42,00/h — in der €25–€50 SvEV-Klippe!)",
+    "sector": "IT-On-Call, Rechenzentren & Industrie-Instandhaltung",
+    "role_type": "SENIOR_HIGH_EARNER",
+    "hourly_grundlohn_eur": 42.0,
+    "sfn_result": {
+      "hourly_grundlohn_eur": 42.0,
+      "estg_eligible_grundlohn_eur": 42.0,
+      "svev_eligible_grundlohn_eur": 25.0,
+      "svev_cliff_active": true,
+      "svev_taxable_hourly_gap_eur": 17.0,
+      "gross_sfn_supplement_mo_eur": 764.4,
+      "tax_free_sfn_mo_eur": 764.4,
+      "taxable_sfn_mo_eur": 0.0,
+      "sv_free_sfn_mo_eur": 455.0,
+      "sv_liable_sfn_mo_eur": 309.4,
+      "employee_net_sfn_mo_eur": 700.35,
+      "employer_total_cost_sfn_mo_eur": 829.99,
+      "vga_risk_detected": false,
+      "vga_annual_tax_damage_eur": 0.0,
+      "einzelnachweis_violation": false,
+      "compliance_warnings": [
+        "§ 1 Abs. 1 S. 1 Nr. 1 SvEV Dual-Cap Cliff: Grundlohn (€42.00/h) übersteigt €25,00/h! €455.00/mo sind steuer- UND SV-frei, aber €309.40/mo (Differenz €17.00/h Grundlohn) unterliegen der vollen Sozialversicherung (AN+AG)!"
+      ]
+    },
+    "module_items": [
+      {
+        "module_code": "MOD_1_SACHBEZUG_50",
+        "legal_basis": "§ 8 Abs. 2 S. 11 EStG",
+        "title": "Steuerfreier Sachbezug (Gutscheinkarte / § 2 Abs. 1 Nr. 10 ZAG)",
+        "monthly_employee_net_eur": 50.0,
+        "monthly_employer_tax_sv_eur": 0.0,
+        "monthly_employer_total_cost_eur": 50.0,
+        "cliff_or_warning": null
+      },
+      {
+        "module_code": "MOD_2_ESSENSMARKEN",
+        "legal_basis": "R 8.1 Abs. 7 Nr. 4 LStR & § 40 Abs. 2 S. 1 Nr. 1 EStG",
+        "title": "Digitale Essensmarken (15 Tage × €7.67 in 2026)",
+        "monthly_employee_net_eur": 115.05,
+        "monthly_employer_tax_sv_eur": 17.14,
+        "monthly_employer_total_cost_eur": 132.19,
+        "cliff_or_warning": null
+      },
+      {
+        "module_code": "MOD_3_ERHOLUNGSBEIHILFE",
+        "legal_basis": "§ 40 Abs. 2 S. 1 Nr. 3 EStG",
+        "title": "Erholungsbeihilfe (€364/Jahr umgelegt; 25% Pauschalsteuer, 0% SV)",
+        "monthly_employee_net_eur": 30.33,
+        "monthly_employer_tax_sv_eur": 7.58,
+        "monthly_employer_total_cost_eur": 37.91,
+        "cliff_or_warning": null
+      },
+      {
+        "module_code": "MOD_4_DEUTSCHLANDTICKET",
+        "legal_basis": "§ 3 Nr. 15 EStG",
+        "title": "Deutschlandticket Jobticket (2026: €58.00/Monat, 100% steuer- & SV-frei)",
+        "monthly_employee_net_eur": 58.0,
+        "monthly_employer_tax_sv_eur": 0.0,
+        "monthly_employer_total_cost_eur": 58.0,
+        "cliff_or_warning": null
+      },
+      {
+        "module_code": "MOD_5_GESUNDHEIT",
+        "legal_basis": "§ 3 Nr. 34 EStG",
+        "title": "Betriebliche Gesundheitsförderung (€600/Jahr ZPP-zertifiziert, 100% steuer- & SV-frei)",
+        "monthly_employee_net_eur": 50.0,
+        "monthly_employer_tax_sv_eur": 0.0,
+        "monthly_employer_total_cost_eur": 50.0,
+        "cliff_or_warning": null
+      },
+      {
+        "module_code": "MOD_6_TK_UEBERLASSUNG",
+        "legal_basis": "§ 3 Nr. 45 EStG",
+        "title": "Überlassung betrieblicher Smartphone/Tablet/Laptop zur Privatnutzung (100% frei)",
+        "monthly_employee_net_eur": 45.0,
+        "monthly_employer_tax_sv_eur": 0.0,
+        "monthly_employer_total_cost_eur": 45.0,
+        "cliff_or_warning": null
+      },
+      {
+        "module_code": "MOD_7_INTERNETZUSCHUSS",
+        "legal_basis": "§ 40 Abs. 2 S. 1 Nr. 5 EStG",
+        "title": "Pauschalbesteuerter Internetzuschuss (bis €50/Monat, 25% Pauschalsteuer, 0% SV)",
+        "monthly_employee_net_eur": 50.0,
+        "monthly_employer_tax_sv_eur": 12.5,
+        "monthly_employer_total_cost_eur": 62.5,
+        "cliff_or_warning": null
+      }
+    ],
+    "modules_monthly_net_eur": 398.38,
+    "modules_monthly_employer_cost_eur": 435.6,
+    "combined_monthly_net_gain_eur": 1098.73,
+    "combined_monthly_employer_cost_eur": 1265.59,
+    "equivalent_classic_gross_raise_mo_eur": 2945.66,
+    "classic_gross_employer_cost_mo_eur": 3570.14,
+    "monthly_savings_vs_classic_raise_eur": 2304.55,
+    "annual_savings_vs_classic_raise_eur": 27654.6,
+    "net_to_employer_cost_efficiency_pct": 86.8,
+    "classic_raise_efficiency_pct": 30.8
+  },
+  {
+    "scenario_id": "GGF_VGA_TRAP_55EUR",
+    "title": "Gesellschafter-Geschäftsführer GmbH (€55,00/h — § 8 Abs. 3 KStG vGA-Falle bei SFN!)",
+    "sector": "GmbH-Geschäftsführung (Handwerk / Agentur / Mittelstand)",
+    "role_type": "GGF_CONTROLLING",
+    "hourly_grundlohn_eur": 55.0,
+    "sfn_result": {
+      "hourly_grundlohn_eur": 55.0,
+      "estg_eligible_grundlohn_eur": 50.0,
+      "svev_eligible_grundlohn_eur": 25.0,
+      "svev_cliff_active": true,
+      "svev_taxable_hourly_gap_eur": 25.0,
+      "gross_sfn_supplement_mo_eur": 1031.25,
+      "tax_free_sfn_mo_eur": 0.0,
+      "taxable_sfn_mo_eur": 1031.25,
+      "sv_free_sfn_mo_eur": 1031.25,
+      "sv_liable_sfn_mo_eur": 0.0,
+      "employee_net_sfn_mo_eur": 598.13,
+      "employer_total_cost_sfn_mo_eur": 1340.62,
+      "vga_risk_detected": true,
+      "vga_annual_tax_damage_eur": 8910.0,
+      "einzelnachweis_violation": false,
+      "compliance_warnings": [
+        "CRITICAL vGA-TRAP (§ 8 Abs. 3 S. 2 KStG / BFH I R 111/03, VIII R 27/09): SFN-Zuschläge (€1031.25/mo) an Gesellschafter-Geschäftsführer gelten als verdeckte Gewinnausschüttung! Jahres-Steuerschaden (KSt/GewSt + ESt): €8,910.00/Jahr."
+      ]
+    },
+    "module_items": [
+      {
+        "module_code": "MOD_1_SACHBEZUG_50",
+        "legal_basis": "§ 8 Abs. 2 S. 11 EStG",
+        "title": "Steuerfreier Sachbezug (Gutscheinkarte / § 2 Abs. 1 Nr. 10 ZAG)",
+        "monthly_employee_net_eur": 50.0,
+        "monthly_employer_tax_sv_eur": 0.0,
+        "monthly_employer_total_cost_eur": 50.0,
+        "cliff_or_warning": null
+      },
+      {
+        "module_code": "MOD_2_ESSENSMARKEN",
+        "legal_basis": "R 8.1 Abs. 7 Nr. 4 LStR & § 40 Abs. 2 S. 1 Nr. 1 EStG",
+        "title": "Digitale Essensmarken (15 Tage × €7.50 in 2025)",
+        "monthly_employee_net_eur": 112.5,
+        "monthly_employer_tax_sv_eur": 16.5,
+        "monthly_employer_total_cost_eur": 129.0,
+        "cliff_or_warning": null
+      },
+      {
+        "module_code": "MOD_3_ERHOLUNGSBEIHILFE",
+        "legal_basis": "§ 40 Abs. 2 S. 1 Nr. 3 EStG",
+        "title": "Erholungsbeihilfe (€364/Jahr umgelegt; 25% Pauschalsteuer, 0% SV)",
+        "monthly_employee_net_eur": 30.33,
+        "monthly_employer_tax_sv_eur": 7.58,
+        "monthly_employer_total_cost_eur": 37.91,
+        "cliff_or_warning": null
+      },
+      {
+        "module_code": "MOD_4_DEUTSCHLANDTICKET",
+        "legal_basis": "§ 3 Nr. 15 EStG",
+        "title": "Deutschlandticket Jobticket (2025: €58.00/Monat, 100% steuer- & SV-frei)",
+        "monthly_employee_net_eur": 58.0,
+        "monthly_employer_tax_sv_eur": 0.0,
+        "monthly_employer_total_cost_eur": 58.0,
+        "cliff_or_warning": null
+      },
+      {
+        "module_code": "MOD_5_GESUNDHEIT",
+        "legal_basis": "§ 3 Nr. 34 EStG",
+        "title": "Betriebliche Gesundheitsförderung (€600/Jahr ZPP-zertifiziert, 100% steuer- & SV-frei)",
+        "monthly_employee_net_eur": 50.0,
+        "monthly_employer_tax_sv_eur": 0.0,
+        "monthly_employer_total_cost_eur": 50.0,
+        "cliff_or_warning": null
+      },
+      {
+        "module_code": "MOD_6_TK_UEBERLASSUNG",
+        "legal_basis": "§ 3 Nr. 45 EStG",
+        "title": "Überlassung betrieblicher Smartphone/Tablet/Laptop zur Privatnutzung (100% frei)",
+        "monthly_employee_net_eur": 45.0,
+        "monthly_employer_tax_sv_eur": 0.0,
+        "monthly_employer_total_cost_eur": 45.0,
+        "cliff_or_warning": null
+      },
+      {
+        "module_code": "MOD_7_INTERNETZUSCHUSS",
+        "legal_basis": "§ 40 Abs. 2 S. 1 Nr. 5 EStG",
+        "title": "Pauschalbesteuerter Internetzuschuss (bis €50/Monat, 25% Pauschalsteuer, 0% SV)",
+        "monthly_employee_net_eur": 50.0,
+        "monthly_employer_tax_sv_eur": 12.5,
+        "monthly_employer_total_cost_eur": 62.5,
+        "cliff_or_warning": null
+      }
+    ],
+    "modules_monthly_net_eur": 395.83,
+    "modules_monthly_employer_cost_eur": 432.41,
+    "combined_monthly_net_gain_eur": 993.96,
+    "combined_monthly_employer_cost_eur": 1773.03,
+    "equivalent_classic_gross_raise_mo_eur": 2664.77,
+    "classic_gross_employer_cost_mo_eur": 3229.7,
+    "monthly_savings_vs_classic_raise_eur": 1456.67,
+    "annual_savings_vs_classic_raise_eur": 17480.04,
+    "net_to_employer_cost_efficiency_pct": 56.1,
+    "classic_raise_efficiency_pct": 30.8
+  },
+  {
+    "scenario_id": "HANDWERK_SACHBEZUG_5001_CLIFF",
+    "title": "SHK-/Elektro-Meister mit €50,01 Sachbezugs-Fehler & Pauschal-SFN ohne Einzelnachweis",
+    "sector": "Handwerk, Bau & Logistik",
+    "role_type": "STANDARD_EMPLOYEE",
+    "hourly_grundlohn_eur": 24.5,
+    "sfn_result": {
+      "hourly_grundlohn_eur": 24.5,
+      "estg_eligible_grundlohn_eur": 24.5,
+      "svev_eligible_grundlohn_eur": 24.5,
+      "svev_cliff_active": false,
+      "svev_taxable_hourly_gap_eur": 0.0,
+      "gross_sfn_supplement_mo_eur": 171.5,
+      "tax_free_sfn_mo_eur": 0.0,
+      "taxable_sfn_mo_eur": 171.5,
+      "sv_free_sfn_mo_eur": 0.0,
+      "sv_liable_sfn_mo_eur": 171.5,
+      "employee_net_sfn_mo_eur": 81.12,
+      "employer_total_cost_sfn_mo_eur": 207.86,
+      "vga_risk_detected": false,
+      "vga_annual_tax_damage_eur": 0.0,
+      "einzelnachweis_violation": true,
+      "compliance_warnings": [
+        "COMPLIANCE ALERT (BFH VI R 28/19): Pauschal-SFN-Zuschläge ohne Einzelstundennachweis (Datum, Uhrzeit Beginn/Ende) sind zu 100% steuer- und SV-pflichtig!"
+      ]
+    },
+    "module_items": [
+      {
+        "module_code": "MOD_1_SACHBEZUG_50",
+        "legal_basis": "§ 8 Abs. 2 S. 11 EStG (FREIGRENZE VERLETZT!)",
+        "title": "Sachbezug über €50,00 Freigrenze (100% steuer- & SV-pflichtig!)",
+        "monthly_employee_net_eur": 23.65,
+        "monthly_employer_tax_sv_eur": 10.6,
+        "monthly_employer_total_cost_eur": 60.61,
+        "cliff_or_warning": "FREIGRENZEN-KLIPPE: €50.01 > €50,00! Der gesamte Betrag wird ab €50,01 voll steuer- und SV-pflichtig!"
+      },
+      {
+        "module_code": "MOD_2_ESSENSMARKEN",
+        "legal_basis": "R 8.1 Abs. 7 Nr. 4 LStR & § 40 Abs. 2 S. 1 Nr. 1 EStG",
+        "title": "Digitale Essensmarken (15 Tage × €7.50 in 2025)",
+        "monthly_employee_net_eur": 112.5,
+        "monthly_employer_tax_sv_eur": 16.5,
+        "monthly_employer_total_cost_eur": 129.0,
+        "cliff_or_warning": null
+      },
+      {
+        "module_code": "MOD_3_ERHOLUNGSBEIHILFE",
+        "legal_basis": "§ 40 Abs. 2 S. 1 Nr. 3 EStG",
+        "title": "Erholungsbeihilfe (€364/Jahr umgelegt; 25% Pauschalsteuer, 0% SV)",
+        "monthly_employee_net_eur": 30.33,
+        "monthly_employer_tax_sv_eur": 7.58,
+        "monthly_employer_total_cost_eur": 37.91,
+        "cliff_or_warning": null
+      },
+      {
+        "module_code": "MOD_4_DEUTSCHLANDTICKET",
+        "legal_basis": "§ 3 Nr. 15 EStG",
+        "title": "Deutschlandticket Jobticket (2025: €58.00/Monat, 100% steuer- & SV-frei)",
+        "monthly_employee_net_eur": 58.0,
+        "monthly_employer_tax_sv_eur": 0.0,
+        "monthly_employer_total_cost_eur": 58.0,
+        "cliff_or_warning": null
+      },
+      {
+        "module_code": "MOD_5_GESUNDHEIT",
+        "legal_basis": "§ 3 Nr. 34 EStG",
+        "title": "Betriebliche Gesundheitsförderung (€600/Jahr ZPP-zertifiziert, 100% steuer- & SV-frei)",
+        "monthly_employee_net_eur": 50.0,
+        "monthly_employer_tax_sv_eur": 0.0,
+        "monthly_employer_total_cost_eur": 50.0,
+        "cliff_or_warning": null
+      },
+      {
+        "module_code": "MOD_6_TK_UEBERLASSUNG",
+        "legal_basis": "§ 3 Nr. 45 EStG",
+        "title": "Überlassung betrieblicher Smartphone/Tablet/Laptop zur Privatnutzung (100% frei)",
+        "monthly_employee_net_eur": 45.0,
+        "monthly_employer_tax_sv_eur": 0.0,
+        "monthly_employer_total_cost_eur": 45.0,
+        "cliff_or_warning": null
+      },
+      {
+        "module_code": "MOD_7_INTERNETZUSCHUSS",
+        "legal_basis": "§ 40 Abs. 2 S. 1 Nr. 5 EStG",
+        "title": "Pauschalbesteuerter Internetzuschuss (bis €50/Monat, 25% Pauschalsteuer, 0% SV)",
+        "monthly_employee_net_eur": 50.0,
+        "monthly_employer_tax_sv_eur": 12.5,
+        "monthly_employer_total_cost_eur": 62.5,
+        "cliff_or_warning": null
+      }
+    ],
+    "modules_monthly_net_eur": 369.48,
+    "modules_monthly_employer_cost_eur": 443.02,
+    "combined_monthly_net_gain_eur": 450.6,
+    "combined_monthly_employer_cost_eur": 650.88,
+    "equivalent_classic_gross_raise_mo_eur": 952.64,
+    "classic_gross_employer_cost_mo_eur": 1154.6,
+    "monthly_savings_vs_classic_raise_eur": 503.72,
+    "annual_savings_vs_classic_raise_eur": 6044.64,
+    "net_to_employer_cost_efficiency_pct": 69.2,
+    "classic_raise_efficiency_pct": 39.0
+  }
+];
+    const YEAR_CFG = {
+      2024: { meal_sb: 4.13, meal_top: 3.10, dticket: 49.00 },
+      2025: { meal_sb: 4.40, meal_top: 3.10, dticket: 58.00 },
+      2026: { meal_sb: 4.57, meal_top: 3.10, dticket: 58.00 }
+    };
+
+    function fmtEUR(v) {
+      return new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(v);
+    }
+
+    function initPresets() {
+      const sel = document.getElementById('presetSelect');
+      PRESETS.forEach((p, idx) => {
+        const opt = document.createElement('option');
+        opt.value = idx;
+        opt.textContent = p.title;
+        sel.appendChild(opt);
+      });
+      loadPreset();
+    }
+
+    function loadPreset() {
+      const idx = parseInt(document.getElementById('presetSelect').value || '0', 10);
+      const p = PRESETS[idx];
+      if (!p) return;
+      document.getElementById('roleType').value = p.role_type;
+      document.getElementById('grundlohn').value = p.hourly_grundlohn_eur;
+      if (p.scenario_id === 'PFLEGE_GASTRO_22EUR') {
+        document.getElementById('taxRate').value = 28;
+        document.getElementById('hNight25').value = 24;
+        document.getElementById('hNight40').value = 12;
+        document.getElementById('hSunday50').value = 16;
+        document.getElementById('hHoliday125').value = 8;
+        document.getElementById('einzelnachweis').value = 'true';
+        document.getElementById('sachbezug').value = 50.00;
+        document.getElementById('taxYear').value = '2025';
+      } else if (p.scenario_id === 'DEVOPS_ONCALL_42EUR_SVEV_CLIFF') {
+        document.getElementById('taxRate').value = 42;
+        document.getElementById('hNight25').value = 16;
+        document.getElementById('hNight40').value = 8;
+        document.getElementById('hSunday50').value = 12;
+        document.getElementById('hHoliday125').value = 4;
+        document.getElementById('einzelnachweis').value = 'true';
+        document.getElementById('sachbezug').value = 50.00;
+        document.getElementById('taxYear').value = '2026';
+      } else if (p.scenario_id === 'GGF_VGA_TRAP_55EUR') {
+        document.getElementById('taxRate').value = 42;
+        document.getElementById('hNight25').value = 15;
+        document.getElementById('hNight40').value = 5;
+        document.getElementById('hSunday50').value = 16;
+        document.getElementById('hHoliday125').value = 4;
+        document.getElementById('einzelnachweis').value = 'true';
+        document.getElementById('sachbezug').value = 50.00;
+        document.getElementById('taxYear').value = '2025';
+      } else {
+        document.getElementById('taxRate').value = 32;
+        document.getElementById('hNight25').value = 12;
+        document.getElementById('hNight40').value = 0;
+        document.getElementById('hSunday50').value = 8;
+        document.getElementById('hHoliday125').value = 0;
+        document.getElementById('einzelnachweis').value = 'false';
+        document.getElementById('sachbezug').value = 50.01;
+        document.getElementById('taxYear').value = '2025';
+      }
+      recalc();
+    }
+
+    function recalc() {
+      const role = document.getElementById('roleType').value;
+      const year = parseInt(document.getElementById('taxYear').value, 10);
+      const g = parseFloat(document.getElementById('grundlohn').value) || 0;
+      const taxRate = (parseFloat(document.getElementById('taxRate').value) || 32) / 100.0;
+      const anSv = 0.207;
+      const agSv = 0.212;
+      const h25 = parseFloat(document.getElementById('hNight25').value) || 0;
+      const h40 = parseFloat(document.getElementById('hNight40').value) || 0;
+      const h50 = parseFloat(document.getElementById('hSunday50').value) || 0;
+      const h125 = parseFloat(document.getElementById('hHoliday125').value) || 0;
+      const h150 = parseFloat(document.getElementById('hHoliday150').value) || 0;
+      const hasNachweis = document.getElementById('einzelnachweis').value === 'true';
+      const sachbezug = parseFloat(document.getElementById('sachbezug').value) || 0;
+      const mealDays = Math.min(15, Math.max(0, parseInt(document.getElementById('mealDays').value) || 0));
+
+      const multHours = h25 * 0.25 + h40 * 0.40 + h50 * 0.50 + h125 * 1.25 + h150 * 1.50;
+      const grossSfn = g * multHours;
+      const estgG = Math.min(g, 50.0);
+      const svevG = Math.min(g, 25.0);
+
+      let taxFreeSfn = 0, taxableSfn = 0, svFreeSfn = 0, svLiableSfn = 0, netSfn = 0, agCostSfn = 0;
+      const alerts = [];
+
+      if ((role === 'GGF_CONTROLLING' || role === 'GGF_MINORITY') && grossSfn > 0) {
+        taxableSfn = grossSfn;
+        const vgaYear = grossSfn * 12 * (0.30 + taxRate);
+        netSfn = grossSfn * (1 - taxRate);
+        agCostSfn = grossSfn * 1.30;
+        alerts.push({
+          cls: 'alert-red',
+          msg: `CRITICAL vGA-ALARM (§ 8 Abs. 3 S. 2 KStG / BFH I R 111/03, VIII R 27/09): SFN-Zuschläge (${fmtEUR(grossSfn)}/Mo) an Gesellschafter-Geschäftsführer führen zu 100% verdeckter Gewinnausschüttung! Steuerschaden: ${fmtEUR(vgaYear)}/Jahr.`
+        });
+      } else if (!hasNachweis && grossSfn > 0) {
+        taxableSfn = grossSfn;
+        svLiableSfn = grossSfn;
+        netSfn = grossSfn * (1 - taxRate - anSv);
+        agCostSfn = grossSfn * (1 + agSv);
+        alerts.push({
+          cls: 'alert-red',
+          msg: `EINZELNACHWEIS-FEHLER (BFH VI R 28/19): Pauschal-SFN-Zuschläge ohne Einzelstundennachweis sind zu 100% lohnsteuer- und SV-pflichtig!`
+        });
+      } else {
+        taxFreeSfn = estgG * multHours;
+        taxableSfn = Math.max(0, grossSfn - taxFreeSfn);
+        svFreeSfn = svevG * multHours;
+        svLiableSfn = Math.max(0, grossSfn - svFreeSfn);
+        netSfn = grossSfn - taxableSfn * taxRate - svLiableSfn * anSv;
+        agCostSfn = grossSfn + svLiableSfn * agSv;
+        if (g > 25.0 && multHours > 0) {
+          alerts.push({
+            cls: 'alert-amber',
+            msg: `§ 1 Abs. 1 S. 1 Nr. 1 SvEV Dual-Cap-Klippe aktiv: Grundlohn (${fmtEUR(g)}/h) > €25,00/h! ${fmtEUR(svFreeSfn)}/Mo sind steuer- & SV-frei, aber ${fmtEUR(svLiableSfn)}/Mo unterliegen der vollen Sozialversicherung (AN+AG)!`
+          });
+        }
+      }
+
+      if (sachbezug > 50.0) {
+        alerts.push({
+          cls: 'alert-red',
+          msg: `§ 8 Abs. 2 S. 11 EStG FREIGRENZEN-KLIPPE: ${fmtEUR(sachbezug)} überschreitet €50,00! Der gesamte Sachbezug wird zu 100% steuer- und SV-pflichtig!`
+        });
+      }
+
+      if (alerts.length === 0) {
+        alerts.push({
+          cls: 'alert-green',
+          msg: `100% Compliance-Grünlicht: Einzelnachweis aktiv, Grundlohn innerhalb § 1 SvEV (€25/h) & § 8 Abs. 2 S. 11 EStG (€50,00 Freigrenze) eingehalten.`
+        });
+      }
+
+      const alertsEl = document.getElementById('alertsContainer');
+      alertsEl.innerHTML = alerts.map(a => `<div class="alert ${a.cls}">${a.msg}</div>`).join('');
+
+      const sfnBody = document.getElementById('sfnTableBody');
+      sfnBody.innerHTML = `
+        <tr><td>Brutto-SFN-Zuschläge gesamt (${multHours.toFixed(2)} Zuschlags-Äquivalenzstd.)</td><td class="num">${fmtEUR(grossSfn)}</td><td>Basis Grundlohn ${fmtEUR(g)}/h</td></tr>
+        <tr><td>Davon Lohnsteuerfrei (§ 3b EStG bis €50/h Grundlohn)</td><td class="num">${fmtEUR(taxFreeSfn)}</td><td>Steuerpflichtig: ${fmtEUR(taxableSfn)}</td></tr>
+        <tr><td>Davon Sozialversicherungsfrei (§ 1 SvEV bis €25/h Grundlohn)</td><td class="num">${fmtEUR(svFreeSfn)}</td><td>SV-pflichtig (AN+AG): ${fmtEUR(svLiableSfn)}</td></tr>
+        <tr><td><strong>Netto-SFN-Auszahlung Arbeitnehmer</strong></td><td class="num"><strong>${fmtEUR(netSfn)}</strong></td><td>AG-Gesamtkosten SFN: ${fmtEUR(agCostSfn)}</td></tr>
+      `;
+
+      const yCfg = YEAR_CFG[year];
+      const modRows = [];
+      if (sachbezug <= 50.0) {
+        modRows.push({ name: 'Steuerfreier Sachbezug', law: '§ 8 Abs. 2 S. 11 EStG', net: sachbezug, tax: 0, cost: sachbezug });
+      } else {
+        const netSb = sachbezug * (1 - taxRate - anSv);
+        const agSb = sachbezug * agSv;
+        modRows.push({ name: 'Sachbezug (> €50 Klippe verletzt!)', law: '§ 8 Abs. 2 S. 11 EStG', net: netSb, tax: agSb, cost: sachbezug + agSb });
+      }
+      const mealDaily = yCfg.meal_sb + yCfg.meal_top;
+      const mealNet = mealDaily * mealDays;
+      const mealTax = yCfg.meal_sb * mealDays * 0.25;
+      modRows.push({ name: `Digitale Essensmarken (${mealDays}× ${fmtEUR(mealDaily)})`, law: 'R 8.1 Abs. 7 Nr. 4 LStR', net: mealNet, tax: mealTax, cost: mealNet + mealTax });
+      modRows.push({ name: 'Erholungsbeihilfe (€364/J Familie)', law: '§ 40 Abs. 2 S. 1 Nr. 3 EStG', net: 30.33, tax: 7.58, cost: 37.91 });
+      modRows.push({ name: `Deutschlandticket Jobticket (${year})`, law: '§ 3 Nr. 15 EStG', net: yCfg.dticket, tax: 0, cost: yCfg.dticket });
+      modRows.push({ name: 'Betriebliche Gesundheitsförderung', law: '§ 3 Nr. 34 EStG', net: 50.00, tax: 0, cost: 50.00 });
+      modRows.push({ name: 'Betriebliche IT-/Smartphone-Überlassung', law: '§ 3 Nr. 45 EStG', net: 45.00, tax: 0, cost: 45.00 });
+      modRows.push({ name: 'Pauschalbesteuerter Internetzuschuss', law: '§ 40 Abs. 2 S. 1 Nr. 5 EStG', net: 50.00, tax: 12.50, cost: 62.50 });
+
+      const modBody = document.getElementById('modulesTableBody');
+      modBody.innerHTML = modRows.map(r => `
+        <tr>
+          <td>${r.name}</td>
+          <td>${r.law}</td>
+          <td class="num">${fmtEUR(r.net)}</td>
+          <td class="num">${fmtEUR(r.tax)}</td>
+          <td class="num">${fmtEUR(r.cost)}</td>
+        </tr>
+      `).join('');
+
+      const modNet = modRows.reduce((s, r) => s + r.net, 0);
+      const modCost = modRows.reduce((s, r) => s + r.cost, 0);
+      const totalNet = netSfn + modNet;
+      const totalAgOpt = agCostSfn + modCost;
+      const retention = Math.max(0.20, 1 - taxRate - anSv);
+      const classicGross = totalNet / retention;
+      const classicAgCost = classicGross * (1 + agSv);
+      const annualSavings = (classicAgCost - totalAgOpt) * 12;
+
+      document.getElementById('kpiNetMo').textContent = fmtEUR(totalNet);
+      document.getElementById('kpiAgOptMo').textContent = fmtEUR(totalAgOpt);
+      document.getElementById('kpiAgClassicMo').textContent = fmtEUR(classicAgCost);
+      document.getElementById('kpiAnnualSavings').textContent = fmtEUR(annualSavings);
+    }
+
+    window.addEventListener('DOMContentLoaded', initPresets);
+  </script>
+</body>
+</html>

@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>MVP #88 — Spotify & TikTok Audio Arbitrage + €10 Bot-Fine Shield Studio</title>
+<style>
+  :root {
+    --bg: #0b0f14;
+    --panel: #121922;
+    --panel-alt: #18222f;
+    --text: #eef4fa;
+    --muted: #93a4b8;
+    --accent: #1db954;
+    --accent-cyan: #00f2fe;
+    --warn: #f59e0b;
+    --danger: #ef4444;
+    --border: #263547;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+  }
+  header {
+    background: linear-gradient(135deg, #0f1c2e 0%, #0d2818 55%, #111827 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 24px 32px;
+  }
+  .badge-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .badge {
+    font-size: 12px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: rgba(29, 185, 84, 0.16);
+    color: #4ade80;
+    border: 1px solid rgba(74, 222, 128, 0.35);
+  }
+  .badge.cyan {
+    background: rgba(0, 242, 254, 0.12);
+    color: #38bdf8;
+    border-color: rgba(56, 189, 248, 0.35);
+  }
+  .badge.danger {
+    background: rgba(239, 68, 68, 0.16);
+    color: #f87171;
+    border-color: rgba(248, 113, 113, 0.35);
+  }
+  h1 {
+    margin: 0 0 8px 0;
+    font-size: 24px;
+    letter-spacing: -0.02em;
+  }
+  .subtitle {
+    margin: 0;
+    color: var(--muted);
+    font-size: 14px;
+    max-width: 980px;
+  }
+  main {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 24px 32px 64px;
+  }
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+  .kpi-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+  }
+  .kpi-label {
+    font-size: 12px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .kpi-val {
+    font-size: 24px;
+    font-weight: 800;
+    margin-top: 6px;
+  }
+  .kpi-sub {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+  .section-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px 24px;
+    margin-bottom: 24px;
+  }
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .section-title {
+    margin: 0;
+    font-size: 18px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  th, td {
+    text-align: left;
+    padding: 11px 10px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  th {
+    color: var(--muted);
+    font-weight: 600;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    background: rgba(255,255,255,0.02);
+  }
+  .pill {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+  }
+  .pill.gold { background: rgba(29, 185, 84, 0.2); color: #4ade80; border: 1px solid #22c55e; }
+  .pill.watch { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid #f59e0b; }
+  .pill.danger { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444; }
+  .pill.muted { background: rgba(148, 163, 184, 0.15); color: #cbd5e1; border: 1px solid #475569; }
+  .sim-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+    gap: 20px;
+  }
+  .sim-box {
+    background: var(--panel-alt);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px;
+  }
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  label {
+    display: block;
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+  input[type="number"], input[type="text"] {
+    width: 100%;
+    padding: 8px 10px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: #0d131a;
+    color: var(--text);
+    font-size: 13px;
+  }
+  button {
+    background: var(--accent);
+    color: #041309;
+    font-weight: 700;
+    border: none;
+    border-radius: 8px;
+    padding: 9px 16px;
+    cursor: pointer;
+    font-size: 13px;
+  }
+  button:hover { opacity: 0.92; }
+  .sim-output {
+    margin-top: 14px;
+    padding: 12px;
+    border-radius: 8px;
+    background: #0b1118;
+    border: 1px solid var(--border);
+    font-size: 13px;
+  }
+  ul.flag-list {
+    margin: 4px 0 0 0;
+    padding-left: 16px;
+    color: #fca5a5;
+    font-size: 12px;
+  }
+</style>
+</head>
+<body>
+
+<!-- DACH CASHFLOW STUDIOS LAUNCH BAR -->
+<style>
+  #dcs-launch-bar {
+    position: sticky;
+    top: 0;
+    z-index: 99999;
+    background: linear-gradient(90deg, #0b1120 0%, #111827 50%, #0f172a 100%);
+    color: #f8fafc;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.35);
+    padding: 8px 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  }
+  #dcs-launch-bar .dcs-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+  }
+  #dcs-launch-bar .dcs-badge {
+    background: rgba(16, 185, 129, 0.18);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.03em;
+  }
+  #dcs-launch-bar a.dcs-nav {
+    color: #93c5fd;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 12.5px;
+  }
+  #dcs-launch-bar a.dcs-nav:hover {
+    text-decoration: underline;
+    color: #dbeafe;
+  }
+  #dcs-launch-bar .dcs-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  #dcs-launch-bar .dcs-btn {
+    padding: 5px 11px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s ease;
+  }
+  #dcs-launch-bar .dcs-btn-ghost {
+    background: rgba(255,255,255,0.08);
+    color: #e2e8f0;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  #dcs-launch-bar .dcs-btn-primary {
+    background: linear-gradient(135deg, #0ea5e9, #2563eb);
+    color: #ffffff;
+  }
+  #dcs-launch-bar .dcs-btn-emerald {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
+  }
+  @media print {
+    #dcs-launch-bar { display: none !important; }
+  }
+</style>
+<div id="dcs-launch-bar">
+  <div class="dcs-left">
+    <a href="/index.html" class="dcs-nav">← Alle 150 DACH Studios</a>
+    <span class="dcs-badge">MVP #088 VERIFIED</span>
+    <span style="color:#cbd5e1;font-size:12px;">DACH LegalTech, Labor Law & Consumer Claims</span>
+  </div>
+  <div class="dcs-actions">
+    <button onclick="window.print()" class="dcs-btn dcs-btn-ghost">🖨️ PDF / Dossier drucken</button>
+    <a href="#checkout-modal-49" target="_blank" rel="noopener" class="dcs-btn dcs-btn-primary">⚡ Musterschreiben & Voll-Dossier (€49)</a>
+    <a href="#checkout-modal-299" target="_blank" rel="noopener" class="dcs-btn dcs-btn-emerald">🛡️ B2B Umsetzung buchen (€299 / €1.490)</a>
+  </div>
+</div>
+
+<header>
+  <div class="badge-row">
+    <span class="badge">MVP #88 · Round 18 Gold-Dive</span>
+    <span class="badge cyan">eduair94/spotify-scraper · 13,858 Runs/30d · 43 MAU (322 Runs/User)</span>
+    <span class="badge danger">Spotify €10/Track Artificial Streaming Fine Shield</span>
+  </div>
+  <h1>Spotify & Short-Form Audio Arbitrage + Bot-Streaming Penalty Shield Studio</h1>
+  <p class="subtitle">
+    Dual-Engine Music & Creator Intelligence: (A) Captures the 7–10 day lead window between TikTok/Reels UGC audio surges
+    (<code>24h/7d Velocity &ge; 0.35</code>) and Spotify Popularity saturation (<code>Pop Index &lt; 48</code>) + tracks the
+    <code>&ge; 1,000 Streams/yr</code> royalty unlock floor; (B) Audits third-party Spotify playlists for stream-farming bot loops
+    (<code>Streams/Listener &gt; 14.0x</code>, zero-save ratios, datacenter city spikes) to prevent <strong>€10/track monthly distributor fines</strong>.
+  </p>
+</header>
+
+<main>
+  <div class="kpi-grid" id="kpiGrid"></div>
+
+  <div class="section-card">
+    <div class="section-header">
+      <h2 class="section-title">Play A — TikTok/Reels Sound Velocity &rarr; Spotify Breakout Arbitrage &amp; 1,000-Stream Royalty Floor</h2>
+    </div>
+    <div style="overflow-x:auto;">
+      <table id="arbitrageTable">
+        <thead>
+          <tr>
+            <th>Track / Artist</th>
+            <th>TikTok 24h / 7d Velocity</th>
+            <th>Spotify Pop &amp; Streams</th>
+            <th>1,000-Stream Royalty Floor</th>
+            <th>Arbitrage Lead Score</th>
+            <th>Dual Monetization Playbooks (Creator + Curator)</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="section-card">
+    <div class="section-header">
+      <h2 class="section-title">Play B — Spotify Third-Party Playlist Forensics &amp; €10/Track Artificial Streaming Fine Shield</h2>
+    </div>
+    <div style="overflow-x:auto;">
+      <table id="playlistTable">
+        <thead>
+          <tr>
+            <th>Playlist &amp; Pitch Source</th>
+            <th>Streams / Listener (SPL)</th>
+            <th>Save Rate &amp; 1d Jump</th>
+            <th>Top City Concentration</th>
+            <th>Est. Bot Share &amp; Strike Risk</th>
+            <th>Spotify €10 Fine Verdict &amp; Forensic Flags</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="section-card">
+    <div class="section-header">
+      <h2 class="section-title">Interactive Sandbox — Test Any TikTok Sound or Third-Party Spotify Playlist</h2>
+    </div>
+    <div class="sim-grid">
+      <div class="sim-box">
+        <h3 style="margin-top:0;font-size:15px;">1. Live TikTok-to-Spotify Breakout Calculator</h3>
+        <div class="form-row">
+          <div>
+            <label>TikTok/Reels Clips (Last 24h)</label>
+            <input type="number" id="simClips24h" value="2450" />
+          </div>
+          <div>
+            <label>TikTok/Reels Clips (Last 7d)</label>
+            <input type="number" id="simClips7d" value="5600" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div>
+            <label>Daily Clip Growth (%)</label>
+            <input type="number" id="simGrowthPct" value="58" />
+          </div>
+          <div>
+            <label>Spotify Popularity Index (0–100)</label>
+            <input type="number" id="simPopIndex" value="41" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div>
+            <label>Spotify 12-Month Streams</label>
+            <input type="number" id="simStreams12m" value="840" />
+          </div>
+          <div>
+            <label>Shazam Tags (24h)</label>
+            <input type="number" id="simShazams" value="4200" />
+          </div>
+        </div>
+        <button onclick="runArbitrageSim()">Calculate Arbitrage Lead Score</button>
+        <div class="sim-output" id="arbSimOutput"></div>
+      </div>
+
+      <div class="sim-box">
+        <h3 style="margin-top:0;font-size:15px;">2. Live Playlist Bot-Farm &amp; €10 Fine Inspector</h3>
+        <div class="form-row">
+          <div>
+            <label>Monthly Playlist Streams</label>
+            <input type="number" id="simPlStreams" value="480000" />
+          </div>
+          <div>
+            <label>Unique Monthly Listeners</label>
+            <input type="number" id="simPlListeners" value="24000" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div>
+            <label>Listener Save Rate (%)</label>
+            <input type="number" step="0.05" id="simPlSaveRate" value="0.18" />
+          </div>
+          <div>
+            <label>Max 1-Day Follower Jump (%)</label>
+            <input type="number" step="0.5" id="simPlJump" value="26.0" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div>
+            <label>Unrelated Genres Count</label>
+            <input type="number" id="simPlGenres" value="8" />
+          </div>
+          <div>
+            <label>Top City Listener Share (%)</label>
+            <input type="number" step="0.5" id="simPlCityShare" value="58.0" />
+          </div>
+        </div>
+        <button onclick="runPlaylistSim()">Audit Playlist Strike Risk</button>
+        <div class="sim-output" id="plSimOutput"></div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+const MANIFEST = {"mvp_id": "MVP_88_SPOTIFY_TIKTOK_AUDIO_ARBITRAGE_AND_BOT_SHIELD", "generated_at": "2026-10-17T17:33:46.035690+00:00", "actor_teardown": {"actor_id": "iSBI7FkiTKmEtgImW", "actor_slug": "eduair94/spotify-scraper", "title": "Spotify Scraper—Play Counts, Monthly Listeners & Playlists", "created_at": "2026-04-23T16:09:50.678Z", "modified_at": "2026-10-13T21:45:22.945Z", "stats_snapshot": {"runs_30d": 13858, "succeeded_30d": 13436, "failed_30d": 387, "total_runs_all_time": 27093, "mau_30d": 43, "users_7d": 26, "total_users": 117, "runs_per_mau_30d": 322.28, "success_rate_pct": 96.95}, "pricing_evolution": [{"effective_date": "2026-04-23", "model": "PAY_PER_EVENT", "result_item_free_usd": 0.0002, "bulk_fetch_usd": 0.0003, "note": "Launch pricing ($0.20 / 1,000 items + $0.30 / 1,000 bulk fetches)"}, {"effective_date": "2026-09-28", "model": "PAY_PER_EVENT", "result_item_free_usd": 0.001, "result_item_gold_usd": 0.0006, "bulk_fetch_usd": 0.0003, "note": "5x price hike to $1.00 / 1,000 items without losing power-user polling volume"}, {"effective_date": "2026-10-13", "model": "PAY_PER_EVENT", "result_item_free_usd": 0.001, "result_item_gold_usd": 0.0006, "bulk_fetch_usd": 0.0, "note": "Simplified single-event PPE ($1.00 / 1,000 items across tracks, playlists, charts, artists)"}], "why_users_pay_instead_of_official_spotify_api": ["Spotify's official Web API removed public access to exact track play counts (`playcount`), audio features, recommendations, and algorithmic playlists for standard dev apps.", "Spotify internal Pathfinder GraphQL (`api-partner.spotify.com/pathfinder/v1/query`) exposes exact stream counts, daily velocity, artist `Discovered On` playlists, and top listener cities.", "43 power users run an average of 322 automated scrapes per month (~10.7 runs/day) for daily playlist stream velocity tracking, TikTok-to-Spotify breakout arbitrage, and fake-playlist bot detection."]}, "summary": {"total_tracks_evaluated": 5, "golden_breakout_tracks_count": 3, "tracks_in_1k_unlock_zone": 1, "total_playlists_audited": 5, "bot_farm_playlists_flagged": 2, "safe_organic_playlists_count": 2, "annualized_fine_and_promo_saved_eur": 3408.0}, "track_arbitrage_results": [{"track_id": "sp_trk_01_nachtschicht", "title": "Nachtschicht in Berlin (Sped Up)", "artist": "KiezKlang & LUNA99", "genre": "Melodic Techno / Hypertechno", "isrc": "DE-X88-26-00412", "tiktok_sound_id": "tt_snd_7419920184", "sound_velocity_24h_to_7d": 0.456, "daily_clip_growth_pct": 68.4, "ugc_total_clips": 9450, "estimated_short_form_impressions_7d": 97128000, "spotify_streams_total": 118400, "spotify_streams_12m": 118400, "spotify_daily_streams": 4920, "spotify_popularity_index": 39, "spotify_save_rate_pct": 9.4, "arbitrage_lead_score": 91.0, "lead_window_days_est": 7, "breakout_tier": "GOLDEN_10D_ARBITRAGE_WINDOW", "royalty_floor_status": "MONETIZED_ABOVE_1K (>=1,000/yr)", "streams_needed_for_1k_floor": 0, "unlocked_annual_royalty_eur": 378.88, "creator_clipper_action": "ATTACH AUDIO NOW: 9,450 total clips growing +68%/day (24h/7d ratio 0.46). High algorithmic distribution boost on Reels/TikTok for next 7 days.", "playlist_curator_action": "PIN #1 ON SEO PLAYLIST ('Nachtschicht in Berlin (Sped Up) TikTok Viral 2026'): Only 2 competing playlists; Spotify Pop Index is still 39/100 despite 5,890 Shazams/24h.", "estimated_curator_monthly_revenue_eur": 603.4}, {"track_id": "sp_trk_02_velvet_drift", "title": "Velvet Drift (Late Night Edit)", "artist": "Sora Vance", "genre": "Alt-R&B / Bedroom Pop", "isrc": "US-S1Z-26-08931", "tiktok_sound_id": "tt_snd_7420811920", "sound_velocity_24h_to_7d": 0.434, "daily_clip_growth_pct": 54.2, "ugc_total_clips": 6120, "estimated_short_form_impressions_7d": 80475000, "spotify_streams_total": 184000, "spotify_streams_12m": 162000, "spotify_daily_streams": 6100, "spotify_popularity_index": 44, "spotify_save_rate_pct": 8.7, "arbitrage_lead_score": 81.8, "lead_window_days_est": 6, "breakout_tier": "GOLDEN_10D_ARBITRAGE_WINDOW", "royalty_floor_status": "MONETIZED_ABOVE_1K (>=1,000/yr)", "streams_needed_for_1k_floor": 0, "unlocked_annual_royalty_eur": 518.4, "creator_clipper_action": "ATTACH AUDIO NOW: 6,120 total clips growing +54%/day (24h/7d ratio 0.43). High algorithmic distribution boost on Reels/TikTok for next 6 days.", "playlist_curator_action": "PIN #1 ON SEO PLAYLIST ('Velvet Drift (Late Night Edit) TikTok Viral 2026'): Only 3 competing playlists; Spotify Pop Index is still 44/100 despite 4,120 Shazams/24h.", "estimated_curator_monthly_revenue_eur": 542.82}, {"track_id": "sp_trk_03_glass_echoes", "title": "Glass Echoes (Acoustic Tape)", "artist": "Milo & The Pines", "genre": "Indie Folk", "isrc": "GB-KPL-26-00109", "tiktok_sound_id": "tt_snd_7415003912", "sound_velocity_24h_to_7d": 0.305, "daily_clip_growth_pct": 29.5, "ugc_total_clips": 1180, "estimated_short_form_impressions_7d": 4096000, "spotify_streams_total": 892, "spotify_streams_12m": 892, "spotify_daily_streams": 18, "spotify_popularity_index": 19, "spotify_save_rate_pct": 7.8, "arbitrage_lead_score": 75.2, "lead_window_days_est": 5, "breakout_tier": "EARLY_MOMENTUM_WATCH", "royalty_floor_status": "CRITICAL_1K_UNLOCK_ZONE (600-999/yr)", "streams_needed_for_1k_floor": 108, "unlocked_annual_royalty_eur": 8.38, "creator_clipper_action": "MICRO-CLIP PUSH: Needs only 108 organic streams to cross Spotify's 1,000-stream/yr royalty floor and unlock retroactive catalog payout.", "playlist_curator_action": "ADD TO NICHE GENRE ROTATION (Indie Folk): High save rate (7.8%) will push track past 1,000-stream threshold within 6 days.", "estimated_curator_monthly_revenue_eur": 86.48}, {"track_id": "sp_trk_04_autobahn_phonk", "title": "AUTOBAHN DRIFT 2026", "artist": "KORDEXX", "genre": "Drift Phonk", "isrc": "PL-A21-26-03310", "tiktok_sound_id": "tt_snd_7421194002", "sound_velocity_24h_to_7d": 0.433, "daily_clip_growth_pct": 49.0, "ugc_total_clips": 11200, "estimated_short_form_impressions_7d": 128100000, "spotify_streams_total": 219000, "spotify_streams_12m": 219000, "spotify_daily_streams": 7300, "spotify_popularity_index": 46, "spotify_save_rate_pct": 8.1, "arbitrage_lead_score": 72.3, "lead_window_days_est": 6, "breakout_tier": "GOLDEN_10D_ARBITRAGE_WINDOW", "royalty_floor_status": "MONETIZED_ABOVE_1K (>=1,000/yr)", "streams_needed_for_1k_floor": 0, "unlocked_annual_royalty_eur": 700.8, "creator_clipper_action": "ATTACH AUDIO NOW: 11,200 total clips growing +49%/day (24h/7d ratio 0.43). High algorithmic distribution boost on Reels/TikTok for next 6 days.", "playlist_curator_action": "PIN #1 ON SEO PLAYLIST ('AUTOBAHN DRIFT 2026 TikTok Viral 2026'): Only 4 competing playlists; Spotify Pop Index is still 46/100 despite 4,850 Shazams/24h.", "estimated_curator_monthly_revenue_eur": 481.52}, {"track_id": "sp_trk_05_espresso_summer", "title": "Neon Espresso (Radio Mix)", "artist": "Zara Sol", "genre": "Dance Pop", "isrc": "US-UM7-26-44102", "tiktok_sound_id": "tt_snd_7390112841", "sound_velocity_24h_to_7d": 0.109, "daily_clip_growth_pct": 6.2, "ugc_total_clips": 410000, "estimated_short_form_impressions_7d": 377300000, "spotify_streams_total": 28400000, "spotify_streams_12m": 24100000, "spotify_daily_streams": 145000, "spotify_popularity_index": 79, "spotify_save_rate_pct": 4.1, "arbitrage_lead_score": 12.6, "lead_window_days_est": 0, "breakout_tier": "ALREADY_SATURATED_MAINSTREAM", "royalty_floor_status": "MONETIZED_ABOVE_1K (>=1,000/yr)", "streams_needed_for_1k_floor": 0, "unlocked_annual_royalty_eur": 77120.0, "creator_clipper_action": "SKIP FOR VELOCITY BOOST: Audio is either already mainstream-saturated or lacks short-form breakout velocity.", "playlist_curator_action": "SECONDARY ROTATION ONLY: Do not create dedicated SEO landing playlist; competition is already saturated.", "estimated_curator_monthly_revenue_eur": 5.67}], "playlist_forensic_results": [{"playlist_id": "37i9dQZF_botfarm_01", "playlist_name": "TOP HITS 2026 🔥 GUARANTEED 50K STREAMS BOOST", "curator_handle": "SpotBoostPromos_VIP", "pitch_platform": "Direct Fiverr / Telegram DM", "placement_fee_eur": 49.0, "followers_total": 42800, "streams_per_listener_ratio": 22.84, "listener_save_rate_pct": 0.14, "max_1d_follower_jump_pct": 31.5, "distinct_unrelated_genres": 9, "top_city_name": "Ashburn (US-VA Datacenter Hub)", "top_city_listener_share_pct": 64.8, "estimated_artificial_stream_share_pct": 99.4, "bot_strike_risk_score": 96.6, "triggers_spotify_10eur_fine": true, "expected_monthly_fine_exposure_eur": 10.0, "catalog_takedown_probability_pct": 99.0, "verdict": "BOT_FARM_STRIKE_DANGER", "forensic_flags": ["CRITICAL_LOOP_RATIO: 22.8 streams/listener (Threshold >14.0x indicates automated headless replay loops)", "FOLLOWER_STEP_FUNCTION: +31.5% single-day jump with 4 Spotify bot-purge drop events in 30d", "ZERO_SAVE_BOT_SIGNATURE: Only 0.14% listener save rate (Organic discovery playlists average 3.5%-11.0%)", "OFF_GENRE_TRACK_STUFFING: 9 unrelated genres crammed into one playlist (Classic pay-for-play farm signature; poisons Spotify Radio/Discover Weekly algorithm)", "DATACENTER_GEO_SPIKE: 64.8% of all listeners concentrated in Ashburn (US-VA Datacenter Hub) (Headless proxy / VPS farm concentration)"], "recommended_defense_action": "REJECT PLACEMENT / DEMAND IMMEDIATE REMOVAL: Exceeds Spotify's >=90% artificial stream threshold. If already added without consent, submit Playlist Reporter form via Spotify for Artists & notify distributor (DistroKid/TuneCore/FUGA) with playlist URI before monthly €10/track fine report runs."}, {"playlist_id": "37i9dQZF_botfarm_02", "playlist_name": "Viral Rap & Chill Study Metal 2026 (Daily Stream Club)", "curator_handle": "StreamKingzAgency", "pitch_platform": "Unverified IG Promo Page", "placement_fee_eur": 35.0, "followers_total": 19400, "streams_per_listener_ratio": 16.83, "listener_save_rate_pct": 0.22, "max_1d_follower_jump_pct": 22.4, "distinct_unrelated_genres": 7, "top_city_name": "Frankfurt am Main (DE-Hetzner/FRA Node)", "top_city_listener_share_pct": 53.2, "estimated_artificial_stream_share_pct": 92.4, "bot_strike_risk_score": 92.1, "triggers_spotify_10eur_fine": true, "expected_monthly_fine_exposure_eur": 10.0, "catalog_takedown_probability_pct": 92.4, "verdict": "BOT_FARM_STRIKE_DANGER", "forensic_flags": ["CRITICAL_LOOP_RATIO: 16.8 streams/listener (Threshold >14.0x indicates automated headless replay loops)", "FOLLOWER_STEP_FUNCTION: +22.4% single-day jump with 3 Spotify bot-purge drop events in 30d", "ZERO_SAVE_BOT_SIGNATURE: Only 0.22% listener save rate (Organic discovery playlists average 3.5%-11.0%)", "OFF_GENRE_TRACK_STUFFING: 7 unrelated genres crammed into one playlist (Classic pay-for-play farm signature; poisons Spotify Radio/Discover Weekly algorithm)", "DATACENTER_GEO_SPIKE: 53.2% of all listeners concentrated in Frankfurt am Main (DE-Hetzner/FRA Node) (Headless proxy / VPS farm concentration)"], "recommended_defense_action": "REJECT PLACEMENT / DEMAND IMMEDIATE REMOVAL: Exceeds Spotify's >=90% artificial stream threshold. If already added without consent, submit Playlist Reporter form via Spotify for Artists & notify distributor (DistroKid/TuneCore/FUGA) with playlist URI before monthly €10/track fine report runs."}, {"playlist_id": "5k8mOrganic_03", "playlist_name": "Melodic Techno & Berlin Club Underground 2026", "curator_handle": "KlangKuratorBerlin", "pitch_platform": "SubmitHub (Verified Curator)", "placement_fee_eur": 18.0, "followers_total": 14200, "streams_per_listener_ratio": 2.45, "listener_save_rate_pct": 7.9, "max_1d_follower_jump_pct": 2.4, "distinct_unrelated_genres": 2, "top_city_name": "Berlin, Germany", "top_city_listener_share_pct": 14.6, "estimated_artificial_stream_share_pct": 1.5, "bot_strike_risk_score": 1.0, "triggers_spotify_10eur_fine": false, "expected_monthly_fine_exposure_eur": 0.0, "catalog_takedown_probability_pct": 0.1, "verdict": "SAFE_ORGANIC_PLAYLIST", "forensic_flags": [], "recommended_defense_action": "APPROVED FOR PITCHING: Healthy 2.45x streams/listener ratio and 7.9% save rate. Safe for organic algorithmic seeding."}, {"playlist_id": "7p2mWatch_04", "playlist_name": "TikTok Rising Indie & Bedroom Pop Gems", "curator_handle": "IndieWaveCuration", "pitch_platform": "Groover", "placement_fee_eur": 15.0, "followers_total": 21600, "streams_per_listener_ratio": 2.27, "listener_save_rate_pct": 6.4, "max_1d_follower_jump_pct": 3.1, "distinct_unrelated_genres": 2, "top_city_name": "London, United Kingdom", "top_city_listener_share_pct": 11.2, "estimated_artificial_stream_share_pct": 1.5, "bot_strike_risk_score": 0.6, "triggers_spotify_10eur_fine": false, "expected_monthly_fine_exposure_eur": 0.0, "catalog_takedown_probability_pct": 0.1, "verdict": "SAFE_ORGANIC_PLAYLIST", "forensic_flags": [], "recommended_defense_action": "APPROVED FOR PITCHING: Healthy 2.27x streams/listener ratio and 6.4% save rate. Safe for organic algorithmic seeding."}, {"playlist_id": "9x4mGrey_05", "playlist_name": "Gym Phonk & Gaming Boost 2026 (Sponsored Slots)", "curator_handle": "HypePlaylistNetwork", "pitch_platform": "PlaylistPush / Direct", "placement_fee_eur": 29.0, "followers_total": 31000, "streams_per_listener_ratio": 8.4, "listener_save_rate_pct": 0.85, "max_1d_follower_jump_pct": 11.8, "distinct_unrelated_genres": 5, "top_city_name": "Warsaw, Poland", "top_city_listener_share_pct": 29.4, "estimated_artificial_stream_share_pct": 42.0, "bot_strike_risk_score": 43.8, "triggers_spotify_10eur_fine": false, "expected_monthly_fine_exposure_eur": 0.0, "catalog_takedown_probability_pct": 19.7, "verdict": "SUSPICIOUS_PAID_PROMO_WATCH", "forensic_flags": ["ELEVATED_SPL_RATIO: 8.4 streams/listener (Above organic 1.5x-3.8x range)", "LOW_ENGAGEMENT_SAVE_RATE: 0.85% save rate suggests passive/incentivized traffic"], "recommended_defense_action": "DO NOT PAY FOR PLACEMENT: Mixed organic/incentivized traffic. Will corrupt your artist 'Fans Also Like' graph and depress Discover Weekly algorithmic conversion."}]};
+
+function renderDashboard() {
+  const s = MANIFEST.summary;
+  const kpis = [
+    {
+      label: "Apify Signal (eduair94)",
+      val: "13,858 Runs/30d",
+      sub: "43 MAU · 322.3 runs/user/mo · $1/1k PPE"
+    },
+    {
+      label: "Golden 10-Day Breakout Tracks",
+      val: s.golden_breakout_tracks_count + " / " + s.total_tracks_evaluated,
+      sub: "24h/7d UGC velocity >= 0.35 & Pop < 48"
+    },
+    {
+      label: "1,000-Stream Floor Unlocks",
+      val: s.tracks_in_1k_unlock_zone,
+      sub: "Tracks between 600–999 streams/12m"
+    },
+    {
+      label: "Bot-Farm Playlists Blocked",
+      val: s.bot_farm_playlists_flagged + " / " + s.total_playlists_audited,
+      sub: ">=90% artificial streams · €10/track fine risk"
+    },
+    {
+      label: "Saved Distributor Penalties",
+      val: "€" + s.annualized_fine_and_promo_saved_eur.toFixed(0) + "/yr",
+      sub: "Avoided €10/mo track fines + fake promo fees"
+    }
+  ];
+  document.getElementById("kpiGrid").innerHTML = kpis.map(k => `
+    <div class="kpi-card">
+      <div class="kpi-label">${k.label}</div>
+      <div class="kpi-val">${k.val}</div>
+      <div class="kpi-sub">${k.sub}</div>
+    </div>
+  `).join("");
+
+  const arbRows = MANIFEST.track_arbitrage_results.map(t => {
+    const tierClass = t.breakout_tier === "GOLDEN_10D_ARBITRAGE_WINDOW" ? "gold"
+      : (t.breakout_tier === "EARLY_MOMENTUM_WATCH" ? "watch" : "muted");
+    const floorClass = t.royalty_floor_status.includes("CRITICAL_1K") ? "watch"
+      : (t.royalty_floor_status.includes("MONETIZED") ? "gold" : "danger");
+    return `
+      <tr>
+        <td>
+          <strong>${t.title}</strong><br/>
+          <span style="color:var(--muted)">${t.artist} · ${t.genre}</span><br/>
+          <code style="font-size:11px;color:#38bdf8">${t.isrc} · ${t.tiktok_sound_id}</code>
+        </td>
+        <td>
+          <strong>${(t.sound_velocity_24h_to_7d * 100).toFixed(1)}%</strong> (24h/7d)<br/>
+          <span style="color:#4ade80">+${t.daily_clip_growth_pct}% / day</span><br/>
+          <span style="color:var(--muted)">${t.ugc_total_clips.toLocaleString()} total clips</span>
+        </td>
+        <td>
+          Pop Index: <strong>${t.spotify_popularity_index}/100</strong><br/>
+          12m: ${t.spotify_streams_12m.toLocaleString()} streams<br/>
+          Save Rate: ${t.spotify_save_rate_pct}%
+        </td>
+        <td>
+          <span class="pill ${floorClass}">${t.royalty_floor_status}</span><br/>
+          ${t.streams_needed_for_1k_floor > 0
+            ? `<span style="color:#fbbf24">Needs ${t.streams_needed_for_1k_floor} streams to unlock €${t.unlocked_annual_royalty_eur}</span>`
+            : `<span style="color:var(--muted)">Royalty pool active (€${t.unlocked_annual_royalty_eur}/yr)</span>`}
+        </td>
+        <td>
+          <span style="font-size:18px;font-weight:800;color:#4ade80">${t.arbitrage_lead_score}</span> / 100<br/>
+          <span class="pill ${tierClass}">${t.breakout_tier}</span><br/>
+          ${t.lead_window_days_est > 0 ? `<small style="color:#38bdf8">~${t.lead_window_days_est}d lead before Editorial</small>` : ""}
+        </td>
+        <td>
+          <div style="margin-bottom:6px;"><strong>Creator:</strong> ${t.creator_clipper_action}</div>
+          <div><strong>Curator (€${t.estimated_curator_monthly_revenue_eur}/mo):</strong> ${t.playlist_curator_action}</div>
+        </td>
+      </tr>
+    `;
+  }).join("");
+  document.querySelector("#arbitrageTable tbody").innerHTML = arbRows;
+
+  const plRows = MANIFEST.playlist_forensic_results.map(p => {
+    const vClass = p.verdict === "BOT_FARM_STRIKE_DANGER" ? "danger"
+      : (p.verdict === "SUSPICIOUS_PAID_PROMO_WATCH" ? "watch" : "gold");
+    const flagsHtml = p.forensic_flags.length
+      ? `<ul class="flag-list">${p.forensic_flags.map(f => `<li>${f}</li>`).join("")}</ul>`
+      : `<div style="color:#4ade80;font-size:12px;">No bot-loop anomalies detected.</div>`;
+    return `
+      <tr>
+        <td>
+          <strong>${p.playlist_name}</strong><br/>
+          <span style="color:var(--muted)">@${p.curator_handle} · ${p.pitch_platform}</span><br/>
+          <span style="color:#fbbf24">Pitch/Placement Fee: €${p.placement_fee_eur}</span> · ${p.followers_total.toLocaleString()} followers
+        </td>
+        <td>
+          <strong style="color:${p.streams_per_listener_ratio >= 14 ? '#f87171' : '#eef4fa'}">${p.streams_per_listener_ratio}x</strong><br/>
+          <span style="color:var(--muted)">Normal: 1.3x–3.8x</span>
+        </td>
+        <td>
+          Save Rate: <strong>${p.listener_save_rate_pct}%</strong><br/>
+          Max 1d Jump: +${p.max_1d_follower_jump_pct}%<br/>
+          Genres: ${p.distinct_unrelated_genres}
+        </td>
+        <td>
+          <strong>${p.top_city_listener_share_pct}%</strong><br/>
+          <span style="color:var(--muted)">${p.top_city_name}</span>
+        </td>
+        <td>
+          Est. Bot Share: <strong style="color:${p.estimated_artificial_stream_share_pct >= 90 ? '#f87171' : '#fbbf24'}">${p.estimated_artificial_stream_share_pct}%</strong><br/>
+          Risk Score: <strong>${p.bot_strike_risk_score} / 100</strong><br/>
+          Takedown Prob: ${p.catalog_takedown_probability_pct}%
+        </td>
+        <td>
+          <span class="pill ${vClass}">${p.verdict}</span>
+          ${p.triggers_spotify_10eur_fine ? `<span class="pill danger">TRIGGERS €10/TRACK FINE</span>` : ""}
+          ${flagsHtml}
+          <div style="margin-top:6px;font-size:12px;color:#cbd5e1;"><strong>Action:</strong> ${p.recommended_defense_action}</div>
+        </td>
+      </tr>
+    `;
+  }).join("");
+  document.querySelector("#playlistTable tbody").innerHTML = plRows;
+}
+
+function runArbitrageSim() {
+  const c24 = Number(document.getElementById("simClips24h").value) || 0;
+  const c7d = Math.max(Number(document.getElementById("simClips7d").value) || 1, 1);
+  const growth = Number(document.getElementById("simGrowthPct").value) || 0;
+  const pop = Number(document.getElementById("simPopIndex").value) || 0;
+  const s12m = Number(document.getElementById("simStreams12m").value) || 0;
+  const shaz = Number(document.getElementById("simShazams").value) || 0;
+
+  const vel = c24 / c7d;
+  const velPts = Math.min(24, Math.max(0, (vel / 0.50) * 24));
+  const growthPts = Math.min(16, Math.max(0, (growth / 85.0) * 16));
+  const unsatPts = pop <= 38 ? 25 : (pop <= 48 ? 25 - (pop - 38) * 1.1 : Math.max(0, 14 - (pop - 48) * 0.65));
+  const shazPts = Math.min(10, Math.max(0, ((shaz / Math.max(c24, 1)) / 2.2) * 10));
+  const totalScore = Math.min(100, (velPts + growthPts + unsatPts + 10 + shazPts + 11)).toFixed(1);
+
+  const floorNeed = Math.max(0, 1000 - s12m);
+  const tier = (vel >= 0.35 && growth >= 40 && pop < 48 && totalScore >= 75)
+    ? "GOLDEN_10D_ARBITRAGE_WINDOW"
+    : (totalScore >= 58 && pop < 60 ? "EARLY_MOMENTUM_WATCH" : "SATURATED_OR_LOW_SIGNAL");
+
+  document.getElementById("arbSimOutput").innerHTML = `
+    <div><strong>Arbitrage Lead Score: <span style="color:#4ade80">${totalScore} / 100</span></strong> · <span class="pill gold">${tier}</span></div>
+    <div style="margin-top:6px;">24h/7d Velocity Ratio: <strong>${(vel * 100).toFixed(1)}%</strong> (Target &ge; 35%) · Spotify Pop Index: <strong>${pop}/100</strong></div>
+    <div style="margin-top:6px;color:#fbbf24;">${floorNeed > 0
+      ? `Spotify 1,000-Stream Floor Alert: Needs <strong>${floorNeed} more streams</strong> in 12m window to unlock retroactive royalties!`
+      : `Spotify 1,000-Stream Floor Passed: Track is actively generating distributor royalties.`}</div>
+  `;
+}
+
+function runPlaylistSim() {
+  const streams = Number(document.getElementById("simPlStreams").value) || 0;
+  const listeners = Math.max(Number(document.getElementById("simPlListeners").value) || 1, 1);
+  const saveRate = Number(document.getElementById("simPlSaveRate").value) || 0;
+  const jump = Number(document.getElementById("simPlJump").value) || 0;
+  const genres = Number(document.getElementById("simPlGenres").value) || 1;
+  const cityShare = Number(document.getElementById("simPlCityShare").value) || 0;
+
+  const spl = streams / listeners;
+  const splRisk = spl >= 14 ? Math.min(35, 25 + (spl - 14) * 0.75) : (spl >= 6.5 ? 15 : Math.max(0, (spl - 2) * 2.2));
+  const stepRisk = jump >= 18 ? 18 : (jump >= 8 ? 7 : 0);
+  const saveRisk = saveRate < 0.35 ? 20 : (saveRate < 1.2 ? 11 : 0);
+  const genreRisk = genres >= 6 ? 12 : (genres >= 4 ? 6 : 0);
+  const geoRisk = cityShare >= 42 ? 13 : (cityShare >= 26 ? 6.5 : 0);
+
+  const riskScore = Math.min(100, splRisk + stepRisk + saveRisk + genreRisk + geoRisk).toFixed(1);
+  const botShare = Math.min(99.4, Math.max(1.5, riskScore * 0.96 + (spl >= 18 ? 6.5 : 0))).toFixed(1);
+  const triggersFine = botShare >= 90 || (riskScore >= 82 && spl >= 14);
+
+  document.getElementById("plSimOutput").innerHTML = `
+    <div><strong>Bot Strike Risk Score: <span style="color:${triggersFine ? '#f87171' : '#4ade80'}">${riskScore} / 100</span></strong>
+    · Est. Artificial Streams: <strong>${botShare}%</strong></div>
+    <div style="margin-top:6px;">Streams-per-Listener (SPL): <strong>${spl.toFixed(2)}x</strong> (Bot threshold &gt; 14.0x)</div>
+    <div style="margin-top:6px;color:${triggersFine ? '#f87171' : '#4ade80'};font-weight:700;">
+      ${triggersFine
+        ? "DANGER — EXCEEDS 90% ARTIFICIAL THRESHOLD: Triggers Spotify €10/track monthly fine + distributor takedown!"
+        : "PASS — Below Spotify €10/track artificial streaming penalty threshold."}
+    </div>
+  `;
+}
+
+renderDashboard();
+runArbitrageSim();
+runPlaylistSim();
+</script>
+</body>
+</html>

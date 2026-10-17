@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="de" class="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>EventSnap QR & Race Photo Marketplace — MVP #36</title>
+  <style>
+    :root {
+      --bg: #090d16;
+      --panel: #111827;
+      --panel-alt: #1e293b;
+      --border: #334155;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --accent: #0ea5e9;
+      --accent-2: #6366f1;
+      --emerald: #10b981;
+      --amber: #f59e0b;
+      --rose: #f43f5e;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, sans-serif;
+      background: radial-gradient(circle at 15% 0%, #172554 0%, var(--bg) 48%);
+      color: var(--text);
+      line-height: 1.5;
+      padding: 24px 16px 80px;
+    }
+    .container { max-width: 1260px; margin: 0 auto; }
+    header {
+      display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center;
+      gap: 16px; padding-bottom: 20px; border-bottom: 1px solid var(--border); margin-bottom: 24px;
+    }
+    .badge-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
+    .badge {
+      font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em;
+      padding: 4px 10px; border-radius: 999px; background: rgba(14, 165, 233, 0.16);
+      border: 1px solid rgba(14, 165, 233, 0.4); color: #38bdf8;
+    }
+    .badge.emerald { background: rgba(16, 185, 129, 0.16); border-color: rgba(16, 185, 129, 0.4); color: #34d399; }
+    .badge.amber { background: rgba(245, 158, 11, 0.16); border-color: rgba(245, 158, 11, 0.4); color: #fbbf24; }
+    h1 { font-size: 26px; font-weight: 800; letter-spacing: -0.02em; }
+    .subtitle { color: var(--muted); font-size: 14px; max-width: 780px; margin-top: 4px; }
+    .kpi-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 14px; margin-bottom: 24px;
+    }
+    .kpi-card {
+      background: rgba(17, 24, 39, 0.85); border: 1px solid var(--border);
+      border-radius: 12px; padding: 16px;
+    }
+    .kpi-label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+    .kpi-val { font-size: 24px; font-weight: 800; margin: 4px 0; color: #fff; }
+    .kpi-sub { font-size: 12px; color: #38bdf8; }
+    .mode-tabs {
+      display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px;
+    }
+    .tab-btn {
+      background: var(--panel); border: 1px solid var(--border); color: var(--text);
+      padding: 10px 18px; border-radius: 10px; cursor: pointer; font-weight: 700; font-size: 14px;
+      transition: all 0.15s ease;
+    }
+    .tab-btn.active {
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      border-color: transparent; box-shadow: 0 6px 20px rgba(14, 165, 233, 0.3);
+    }
+    .search-bar {
+      background: var(--panel); border: 1px solid var(--border); border-radius: 14px;
+      padding: 18px; margin-bottom: 24px; display: grid; grid-template-columns: 1fr auto; gap: 14px;
+      align-items: center;
+    }
+    .controls-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+    input[type="text"], select {
+      background: #0f172a; border: 1px solid var(--border); color: var(--text);
+      padding: 10px 14px; border-radius: 8px; font-size: 14px; min-width: 220px;
+    }
+    .chip-btn {
+      background: var(--panel-alt); border: 1px solid var(--border); color: #e2e8f0;
+      padding: 7px 12px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer;
+    }
+    .chip-btn:hover { border-color: var(--accent); color: #fff; }
+    .main-layout {
+      display: grid; grid-template-columns: 1fr 370px; gap: 22px; align-items: start;
+    }
+    @media (max-width: 980px) {
+      .main-layout { grid-template-columns: 1fr; }
+      .search-bar { grid-template-columns: 1fr; }
+    }
+    .photo-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 16px;
+    }
+    .photo-card {
+      background: var(--panel); border: 1px solid var(--border); border-radius: 14px;
+      overflow: hidden; display: flex; flex-direction: column;
+    }
+    .canvas-wrap {
+      position: relative; width: 100%; height: 220px; background: #020617; overflow: hidden;
+    }
+    .canvas-wrap canvas { width: 100%; height: 100%; display: block; }
+    .photo-body { padding: 14px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+    .photo-title { font-weight: 700; font-size: 14px; color: #f1f5f9; }
+    .photo-meta { font-size: 12px; color: var(--muted); display: flex; justify-content: space-between; }
+    .match-pills { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+    .pill {
+      font-size: 11px; padding: 3px 8px; border-radius: 6px; font-weight: 600;
+      background: rgba(14, 165, 233, 0.14); color: #7dd3fc; border: 1px solid rgba(14, 165, 233, 0.3);
+    }
+    .pill.interp {
+      background: rgba(245, 158, 11, 0.16); color: #fcd34d; border-color: rgba(245, 158, 11, 0.4);
+    }
+    .pill.face {
+      background: rgba(16, 185, 129, 0.15); color: #6ee7b7; border-color: rgba(16, 185, 129, 0.35);
+    }
+    .sidebar {
+      background: var(--panel); border: 1px solid var(--border); border-radius: 14px;
+      padding: 20px; position: sticky; top: 20px;
+    }
+    .bundle-card {
+      border: 1px solid var(--border); border-radius: 12px; padding: 14px; margin-top: 12px;
+      background: rgba(15, 23, 42, 0.75); cursor: pointer; transition: all 0.15s ease;
+    }
+    .bundle-card.recommended {
+      border: 2px solid var(--emerald); background: rgba(16, 185, 129, 0.08);
+    }
+    .bundle-header { display: flex; justify-content: space-between; align-items: center; font-weight: 800; }
+    .price-tag { font-size: 20px; color: #fff; }
+    .bundle-desc { font-size: 12px; color: var(--muted); margin-top: 6px; }
+    .cta-btn {
+      width: 100%; margin-top: 16px; padding: 13px; border-radius: 10px; border: none;
+      background: linear-gradient(135deg, var(--emerald), #059669); color: #fff;
+      font-weight: 800; font-size: 15px; cursor: pointer;
+    }
+    .cta-btn:hover { filter: brightness(1.08); }
+    .qr-box {
+      margin-top: 18px; padding: 14px; border-radius: 12px; background: #0f172a;
+      border: 1px dashed var(--border); text-align: center;
+    }
+    .teardown-panel {
+      margin-top: 32px; background: var(--panel); border: 1px solid var(--border);
+      border-radius: 14px; padding: 22px;
+    }
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 13px; }
+    th, td { padding: 10px 12px; border-bottom: 1px solid var(--border); text-align: left; }
+    th { color: var(--muted); font-size: 11px; text-transform: uppercase; }
+  </style>
+</head>
+<body>
+
+<!-- DACH CASHFLOW STUDIOS LAUNCH BAR -->
+<style>
+  #dcs-launch-bar {
+    position: sticky;
+    top: 0;
+    z-index: 99999;
+    background: linear-gradient(90deg, #0b1120 0%, #111827 50%, #0f172a 100%);
+    color: #f8fafc;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.35);
+    padding: 8px 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  }
+  #dcs-launch-bar .dcs-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+  }
+  #dcs-launch-bar .dcs-badge {
+    background: rgba(16, 185, 129, 0.18);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.03em;
+  }
+  #dcs-launch-bar a.dcs-nav {
+    color: #93c5fd;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 12.5px;
+  }
+  #dcs-launch-bar a.dcs-nav:hover {
+    text-decoration: underline;
+    color: #dbeafe;
+  }
+  #dcs-launch-bar .dcs-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  #dcs-launch-bar .dcs-btn {
+    padding: 5px 11px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s ease;
+  }
+  #dcs-launch-bar .dcs-btn-ghost {
+    background: rgba(255,255,255,0.08);
+    color: #e2e8f0;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  #dcs-launch-bar .dcs-btn-primary {
+    background: linear-gradient(135deg, #0ea5e9, #2563eb);
+    color: #ffffff;
+  }
+  #dcs-launch-bar .dcs-btn-emerald {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
+  }
+  @media print {
+    #dcs-launch-bar { display: none !important; }
+  }
+</style>
+<div id="dcs-launch-bar">
+  <div class="dcs-left">
+    <a href="/index.html" class="dcs-nav">← Alle 150 DACH Studios</a>
+    <span class="dcs-badge">MVP #036 VERIFIED</span>
+    <span style="color:#cbd5e1;font-size:12px;">B2B SaaS, Lead-Intent Sniper & AI/MCP Infrastructure</span>
+  </div>
+  <div class="dcs-actions">
+    <button onclick="window.print()" class="dcs-btn dcs-btn-ghost">🖨️ PDF / Dossier drucken</button>
+    <a href="#checkout-modal-49" target="_blank" rel="noopener" class="dcs-btn dcs-btn-primary">⚡ Musterschreiben & Voll-Dossier (€49)</a>
+    <a href="#checkout-modal-299" target="_blank" rel="noopener" class="dcs-btn dcs-btn-emerald">🛡️ B2B Umsetzung buchen (€299 / €1.490)</a>
+  </div>
+</div>
+
+  <div class="container">
+    <header>
+      <div>
+        <div class="badge-row">
+          <span class="badge">MVP #36 · Event & Race Photo Engine</span>
+          <span class="badge emerald">photo-sharing DE: $88.79 / Visitor ($551k All-Time)</span>
+          <span class="badge amber">ZebraSnap: $30.5k / 30d (75% Margin)</span>
+        </div>
+        <h1>EventSnap Pro — Dual-Mode QR & Startnummern Photo Marketplace</h1>
+        <p class="subtitle">
+          Kombiniert <strong>Startnummern-OCR + EXIF Timing-Mat Interpolation</strong> (findet Läufer auch bei verdeckter Startnummer!)
+          mit einer <strong>Live-QR-Wall für Hochzeiten & Firmenfeiern</strong> inkl. Anti-Screenshot-Wasserzeichen & Flat-Pack-Pricing.
+        </p>
+      </div>
+    </header>
+
+    <section class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label">photo-sharing (DE Stealth)</div>
+        <div class="kpi-val">$88.79 / Visitor</div>
+        <div class="kpi-sub">$27,080 / 30d bei 305 Besuchern · $0 MRR (Einmal-Pakete)</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">ZebraSnap Marketplace</div>
+        <div class="kpi-val">$30,527 / 30d</div>
+        <div class="kpi-sub">75% Marge · 16% Free -> 5% Enterprise Take-Rate</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Covered-Bib Recovery</div>
+        <div class="kpi-val">+31% mehr Treffer</div>
+        <div class="kpi-sub">EXIF Timestamp vs. KM-5.0 RFID Timing Mat (±6s)</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Participant Conversion</div>
+        <div class="kpi-val">€24.90 Flat-Pack</div>
+        <div class="kpi-sub">Single €9.90 Anchor -> 78% wählen All-Photos-Bundle</div>
+      </div>
+    </section>
+
+    <div class="mode-tabs">
+      <button class="tab-btn active" id="tab-all" onclick="setMode('all')">Alle Modi (Dual-View)</button>
+      <button class="tab-btn" id="tab-race" onclick="setMode('race')">🏃‍♂️ Modus 1: Firmenlauf / Stadtlauf (OCR + Timing Interpolation)</button>
+      <button class="tab-btn" id="tab-wedding" onclick="setMode('wedding_corporate')">🥂 Modus 2: Hochzeit & Firmenfeier Live-QR-Wall</button>
+    </div>
+
+    <section class="search-bar">
+      <div class="controls-row">
+        <input type="text" id="searchInput" value="1042" placeholder="Startnummer (z.B. 1042, 0419), Name oder Face-Cluster..." oninput="renderGallery()" />
+        <button class="chip-btn" onclick="quickSearch('1042')">#1042 Lukas (inkl. verdeckter Nummer @ KM 5.0!)</button>
+        <button class="chip-btn" onclick="quickSearch('0419')">#0419 Hannah</button>
+        <button class="chip-btn" onclick="quickSearch('2088')">#2088 Markus</button>
+        <button class="chip-btn" onclick="quickSearch('VIP-07')">🥂 Tisch 01 Brautpaar (QR-Wall)</button>
+        <button class="chip-btn" onclick="quickSearch('')">Alle Event-Fotos zeigen</button>
+      </div>
+      <div class="controls-row">
+        <label style="font-size:13px; display:flex; align-items:center; gap:6px; cursor:pointer;">
+          <input type="checkbox" id="toggleWatermark" checked onchange="renderGallery()" />
+          Anti-Screenshot SVG/Canvas Watermark aktiv
+        </label>
+        <label style="font-size:13px; display:flex; align-items:center; gap:6px; cursor:pointer;">
+          <input type="checkbox" id="toggleBoxes" checked onchange="renderGallery()" />
+          KI Bounding-Boxes (Bib & Face)
+        </label>
+      </div>
+    </section>
+
+    <div class="main-layout">
+      <div>
+        <div id="matchSummaryBanner" style="margin-bottom:14px; font-size:14px; color:#cbd5e1;"></div>
+        <div class="photo-grid" id="photoGrid"></div>
+      </div>
+
+      <aside class="sidebar">
+        <div class="badge emerald" style="display:inline-block; margin-bottom:8px;">High-RPV Checkout Engine</div>
+        <h2 style="font-size:19px; font-weight:800;" id="cartTitle">Deine Foto-Auswahl</h2>
+        <p style="font-size:12px; color:var(--muted); margin-top:2px;" id="cartSubtitle">Sofort-Download in 24MP Originalauflösung ohne Wasserzeichen.</p>
+
+        <div class="bundle-card" onclick="selectBundle('single')">
+          <div class="bundle-header">
+            <span>Single HD Download</span>
+            <span class="price-tag">€9.90</span>
+          </div>
+          <div class="bundle-desc">1x Originalfoto (6000×4000px) ohne Kopierschutz. Ideal als Preis-Anker.</div>
+        </div>
+
+        <div class="bundle-card recommended" onclick="selectBundle('flatpack')">
+          <div class="bundle-header">
+            <span>🔥 All Your Photos Flat-Pack</span>
+            <span class="price-tag">€24.90</span>
+          </div>
+          <div class="bundle-desc" id="flatpackDesc">
+            Alle gefundenen Fotos (inkl. KM-5.0 Timing-Interpolation) + Finisher-Overlay.
+          </div>
+        </div>
+
+        <div class="bundle-card" onclick="selectBundle('sponsor')">
+          <div class="bundle-header">
+            <span>🏢 B2B Veranstalter / Sponsor Flatrate</span>
+            <span class="price-tag">€299.00</span>
+          </div>
+          <div class="bundle-desc">
+            Der <strong>photo-sharing ($88.79/Visitor)</strong> Hebel: Veranstalter oder Hauptsponsor schaltet alle Fotos inkl. Sponsoren-Rahmen & QR-Tischaufsteller frei!
+          </div>
+        </div>
+
+        <button class="cta-btn" id="checkoutBtn" onclick="unlockPreview()">
+          🔓 Jetzt Bundle freischalten & Wasserzeichen entfernen
+        </button>
+
+        <div class="qr-box">
+          <div style="font-size:12px; font-weight:700; color:#e2e8f0; margin-bottom:6px;">
+            📱 Druckfertiger QR-Aufsteller (Startnummer / Tischkarte)
+          </div>
+          <svg id="qrSvg" width="132" height="132" viewBox="0 0 132 132" style="background:#fff; padding:8px; border-radius:8px; margin:0 auto; display:block;"></svg>
+          <div style="font-size:11px; color:var(--muted); margin-top:6px;" id="qrCaption">
+            Scan auf Startnummer #1042 -> Direktlink ohne Login
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <section class="teardown-panel">
+      <h3 style="font-size:18px; font-weight:800;">📊 Empirical Teardown: Warum photo-sharing $88.79/Visitor und ZebraSnap $30.5k/30d erzielt</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Metrik / Mechanik</th>
+            <th>photo-sharing (DE Stealth)</th>
+            <th>ZebraSnap (Alfonso Bries)</th>
+            <th>MVP #36 Hybrid-Synthese</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Verifizierter 30d Umsatz</strong></td>
+            <td>$27,080 ($551,483 All-Time · Peak Juni $51.9k)</td>
+            <td>$30,527 (+30.4% MoM · $145,138 All-Time)</td>
+            <td>Dual-Engine (B2B Event-Flatrate + B2C Läufer-Bundles)</td>
+          </tr>
+          <tr>
+            <td><strong>Traffic / Revenue per Visitor</strong></td>
+            <td>305 Besucher -> <strong>$88.79–$91.88 / Visitor</strong> (45% Marge)</td>
+            <td>Athleten-Traffic über QR/Instagram -> <strong>75% Profitmarge</strong></td>
+            <td>Host zahlt €149–€299 vorab + Teilnehmer zahlen €24.90 Flat-Pack</td>
+          </tr>
+          <tr>
+            <td><strong>MRR vs. Transaktions-Volumen</strong></td>
+            <td>$0 MRR (100% Einmal-Eventpakete für Hochzeiten/Firmen)</td>
+            <td>$783 MRR (25 Abos), aber <strong>$29,744/Mo GMV-Transaktionen!</strong></td>
+            <td>Kein Abo-Zwang für Käufer; Fotografen-Tiers (16% -> 5% Provision)</td>
+          </tr>
+          <tr>
+            <td><strong>Technischer Moat im MVP</strong></td>
+            <td>Astro + React + Cloudflare + SQLite QR-Galerien</td>
+            <td>Bib-OCR + Selfie-Search + CloudFront Watermark Overlays</td>
+            <td><strong>Bib-OCR + EXIF Timing-Mat Interpolation + Face-Cluster + SVG Shield</strong></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+  </div>
+
+  <script>
+    const MANIFEST = {"mvp_id": "MVP-36", "title": "Dual-Mode QR Event & Race Photo Marketplace Engine", "generated_at": "2026-10-17T13:18:34.534531+00:00", "teardown_and_pricing": {"benchmark_teardown": {"photo_sharing_de": {"slug": "photo-sharing", "country": "DE", "founded": "2024-04-01", "revenue_30d_usd": 27080, "revenue_all_time_usd": 551483, "visitors_30d": 305, "revenue_per_visitor_usd": 88.79, "latest_snapshot_rpv_usd": 91.88, "profit_margin_pct": 45.0, "mrr_usd": 0.0, "tech_stack": ["Astro", "React", "TypeScript", "Tailwind CSS", "Cloudflare", "Stripe", "SQLite"], "why_rpv_is_88_79_usd": ["Zero-MRR One-Time Event Packages (€49–€299): Brides, grooms, and corporate HR/event managers buy a complete QR Event Wall package upfront rather than a monthly SaaS subscription ($0 MRR, 100% transactional Stripe checkout).", "Summer Event & Wedding Seasonality Spike: Monthly revenue surged from $7.4k (Feb) to $28.4k (Apr), $38.0k (May), $51.9k (Jun), $46.1k (Jul), $45.7k (Aug), and $38.0k (Sep).", "Asymmetric Visitor Accounting: Only B2B/Host buyers visit the marketing root domain (305 high-intent Google Ads/Instagram buyers -> ~150-220 package checkouts), whereas 20,000+ wedding/company guests scan printed table QR codes pointing directly to isolated Cloudflare Worker album endpoints.", "High-Ticket Upsells: Physical printed QR Table Tents, Live Beamer Wall mode, and Guest Flatrate Archive ZIPs push average order value (AOV) to €110–€185."]}, "zebrasnap_us_mx": {"slug": "zebrasnap", "founder": "Alfonso Bries (Vexilo)", "founded": "2024-07-23", "revenue_30d_usd": 30527, "revenue_all_time_usd": 145138, "mrr_usd": 783, "active_subscriptions": 25, "profit_margin_pct": 75.0, "tech_stack": ["Laravel", "React", "React Native", "Tailwind CSS", "AWS CloudFront", "OpenAI", "Stripe", "PayPal"], "commission_vs_subscription_tiers": [{"tier": "Free", "monthly_usd": 0.0, "yearly_usd": 0.0, "commission_pct": 16.0, "storage_gb": 25, "video_min": 0}, {"tier": "Lite", "monthly_usd": 16.99, "yearly_usd": 169.9, "commission_pct": 13.0, "storage_gb": 100, "video_min": 0}, {"tier": "Pro (Recommended)", "monthly_usd": 29.99, "yearly_usd": 299.9, "commission_pct": 7.0, "storage_gb": 500, "video_min": 60}, {"tier": "Enterprise", "monthly_usd": 99.99, "yearly_usd": 999.9, "commission_pct": 5.0, "storage_gb": 2000, "video_min": 120}], "why_gmv_dominates_mrr": ["97.4% of Stripe volume ($29.7k of $30.5k/mo) comes from Sunday/Monday post-race athlete photo checkouts (e.g. Oct 3-5 weekend spike: $6,871 in 72 hours; Oct 10-12 weekend spike: $7,025 in 72 hours).", "Photographers onboard for $0 upfront (16% platform cut) and self-upgrade to Pro ($29.99/mo, 7% cut) once selling >$350/month in race photos.", "Zero-friction athlete search: No login required — selfie face match + bib OCR + shirt color filter + 'Add All Photos of Me' bundle cart."]}}, "mvp_pricing_bundles": {"single_hd_photo_eur": {"sku": "SINGLE-HD-24MP", "title": "Single HD Photo Download", "price_eur": 9.9, "Anchor_role": "Decoy / Anchor (makes the €24.90 Flat-Pack a no-brainer at 3+ photos)", "includes": ["1x Unwatermarked 24MP Original JPEG", "Instant Commercial/Private License"]}, "all_your_photos_flatpack_eur": {"sku": "FLATPACK-ALL-RUNNER", "title": "All Your Photos Flat-Pack (Best Seller)", "price_eur": 24.9, "Anchor_role": "Primary B2C Conversion Driver (78% share of athlete checkouts)", "includes": ["All matched photos of your Bib + Covered-Bib Interpolated + Selfie Cluster (avg. 6.4 photos)", "Bonus: Official Finisher Time Overlay Graphic (Instagram 9:16 + Feed 4:5)", "Instant ZIP & Mobile Camera Roll One-Tap Save"]}, "organizer_sponsor_flatrate_eur": {"sku": "B2B-SPONSOR-FLATRATE", "title": "Event Organizer Sponsor-Branded Flatrate", "price_eur": 299.0, "Anchor_role": "High-RPV B2B Front-End (photo-sharing €88.79/visitor engine)", "includes": ["Up to 1,500 Event Photos indexed via Bib OCR + Timing Mat Interpolation + Face ID", "Custom Sponsor Lower-Third Frame on all social downloads (refinances cost via local sponsor)", "Print-Ready QR Code Startnummer-Flyer & Table Tent PDF Generator", "Live Beamer QR Photo Wall for Finish Line / Afterparty / Wedding Gala"]}}}, "participants": {"1042": {"bib_number": "1042", "full_name": "Lukas Weber", "team_or_table": "DATEV Running Crew", "category": "Firmenlauf 10K · M30", "face_cluster_id": "FACE-CL-01", "face_embedding": [0.91, 0.24, 0.18, 0.05, 0.31, 0.12], "shirt_color_hex": "#ef4444", "shirt_color_name": "Crimson Red", "finish_time": "00:44:12", "checkpoint_times": {"CP-START": "10:20:00", "CP-KM2.5": "10:31:05", "CP-KM5.0": "10:42:18", "CP-KM7.5": "10:53:14", "CP-FINISH": "11:04:12"}}, "0419": {"bib_number": "0419", "full_name": "Hannah Bergmann", "team_or_table": "Siemens Healthineers Pace", "category": "Firmenlauf 10K · W25", "face_cluster_id": "FACE-CL-02", "face_embedding": [0.14, 0.89, 0.29, 0.22, 0.08, 0.19], "shirt_color_hex": "#0ea5e9", "shirt_color_name": "Electric Cyan", "finish_time": "00:41:50", "checkpoint_times": {"CP-START": "10:20:00", "CP-KM2.5": "10:30:15", "CP-KM5.0": "10:40:44", "CP-KM7.5": "10:51:18", "CP-FINISH": "11:01:50"}}, "2088": {"bib_number": "2088", "full_name": "Markus Lindner", "team_or_table": "Adidas Runners Nürnberg", "category": "Stadtlauf 10K · M35", "face_cluster_id": "FACE-CL-03", "face_embedding": [0.22, 0.19, 0.92, 0.17, 0.14, 0.09], "shirt_color_hex": "#10b981", "shirt_color_name": "Neon Emerald", "finish_time": "00:48:35", "checkpoint_times": {"CP-START": "10:20:00", "CP-KM2.5": "10:32:00", "CP-KM5.0": "10:44:10", "CP-KM7.5": "10:56:20", "CP-FINISH": "11:08:35"}}, "VIP-07": {"bib_number": "VIP-07", "full_name": "Clara & Jonas (Brautpaar / Host)", "team_or_table": "Tisch 01 · Ehrenplatz", "category": "Hochzeit & Sommerfest Live-Wall", "face_cluster_id": "FACE-CL-04", "face_embedding": [0.11, 0.15, 0.12, 0.94, 0.21, 0.16], "shirt_color_hex": "#f59e0b", "shirt_color_name": "Champagne Gold", "finish_time": "LIVE-GUEST", "checkpoint_times": {}}, "GAST-12": {"bib_number": "GAST-12", "full_name": "Dr. Stefan Krug", "team_or_table": "Tisch 04 · Sparkasse Sponsor Lounge", "category": "Hochzeit & Firmenfeier Live-Wall", "face_cluster_id": "FACE-CL-05", "face_embedding": [0.15, 0.12, 0.18, 0.21, 0.88, 0.31], "shirt_color_hex": "#8b5cf6", "shirt_color_name": "Royal Violet", "finish_time": "LIVE-GUEST", "checkpoint_times": {}}}, "timing_checkpoints": [{"checkpoint_id": "CP-START", "name": "Startbogen Hauptmarkt (KM 0.0)", "kilometer": 0.0, "mat_timestamps_by_bib": {"1042": "10:20:00", "0419": "10:20:00", "2088": "10:20:00"}}, {"checkpoint_id": "CP-KM2.5", "name": "Burggraben Split (KM 2.5)", "kilometer": 2.5, "mat_timestamps_by_bib": {"1042": "10:31:05", "0419": "10:30:15", "2088": "10:32:00"}}, {"checkpoint_id": "CP-KM5.0", "name": "Wöhrder See Timing Mat (KM 5.0)", "kilometer": 5.0, "mat_timestamps_by_bib": {"1042": "10:42:18", "0419": "10:40:44", "2088": "10:44:10"}}, {"checkpoint_id": "CP-KM7.5", "name": "Altstadt Brücke Split (KM 7.5)", "kilometer": 7.5, "mat_timestamps_by_bib": {"1042": "10:53:14", "0419": "10:51:18", "2088": "10:56:20"}}, {"checkpoint_id": "CP-FINISH", "name": "Zieleinlauf Hauptmarkt (KM 10.0)", "kilometer": 10.0, "mat_timestamps_by_bib": {"1042": "11:04:12", "0419": "11:01:50", "2088": "11:08:35"}}], "photos": [{"photo_id": "RACE-9001", "event_mode": "race", "filename": "DSC_9001_Startbogen.jpg", "station_id": "CAM-A (Start KM 0.2)", "station_kilometer": 0.2, "exif_timestamp": "2026-07-18 10:20:52", "camera_clock_offset_sec": 1.0, "aspect_ratio": 0.67, "raw_ocr_text": "SPARKASSE FIRMENLAUF F-1042 0419", "detected_bibs": ["1042", "0419"], "bib_boxes": [{"left": 0.41, "top": 0.52, "width": 0.14, "height": 0.09, "confidence": 0.98, "label": "F-1042"}, {"left": 0.68, "top": 0.54, "width": 0.12, "height": 0.08, "confidence": 0.94, "label": "0419"}], "face_cluster_ids": ["FACE-CL-01", "FACE-CL-02"], "face_boxes": [{"left": 0.43, "top": 0.21, "width": 0.09, "height": 0.11, "confidence": 0.99, "label": "FACE-CL-01"}, {"left": 0.69, "top": 0.23, "width": 0.08, "height": 0.1, "confidence": 0.97, "label": "FACE-CL-02"}], "dominant_shirt_colors": ["#ef4444", "#0ea5e9"], "interpolated_bibs": [{"bib_number": "1042", "runner_name": "Lukas Weber", "delta_seconds": 0.2, "expected_pass_time": "10:20:53", "calibrated_exif_time": "10:20:53", "interpolation_confidence": 0.99, "bib_was_covered": false, "face_cluster_verified": true, "shirt_color_verified": true, "method": "Pace Interpolated KM 0.2 between CP-START (10:20:00) & CP-KM2.5 (10:31:05)"}, {"bib_number": "0419", "runner_name": "Hannah Bergmann", "delta_seconds": 3.8, "expected_pass_time": "10:20:49", "calibrated_exif_time": "10:20:53", "interpolation_confidence": 0.862, "bib_was_covered": false, "face_cluster_verified": true, "shirt_color_verified": true, "method": "Pace Interpolated KM 0.2 between CP-START (10:20:00) & CP-KM2.5 (10:30:15)"}, {"bib_number": "2088", "runner_name": "Markus Lindner", "delta_seconds": 4.6, "expected_pass_time": "10:20:58", "calibrated_exif_time": "10:20:53", "interpolation_confidence": 0.748, "bib_was_covered": true, "face_cluster_verified": false, "shirt_color_verified": false, "method": "Pace Interpolated KM 0.2 between CP-START (10:20:00) & CP-KM2.5 (10:32:00)"}], "watermark_token": "WM-4B15FE1D2B", "scene_title": "Startbogen Sprint · Lukas (#1042) & Hannah (#0419)", "accent_gradient": ["#ef4444", "#0ea5e9"]}, {"photo_id": "RACE-9002", "event_mode": "race", "filename": "DSC_9002_KM5_WaterStation_CoveredBib.jpg", "station_id": "CAM-B (KM 5.0 Timing Mat)", "station_kilometer": 5.0, "exif_timestamp": "2026-07-18 10:42:17", "camera_clock_offset_sec": 1.5, "aspect_ratio": 0.67, "raw_ocr_text": "WÖHRDER SEE KM 5 WATER STATION [BIB OBSCURED BY ARMS]", "detected_bibs": [], "bib_boxes": [], "face_cluster_ids": ["FACE-CL-01"], "face_boxes": [{"left": 0.46, "top": 0.19, "width": 0.11, "height": 0.13, "confidence": 0.96, "label": "FACE-CL-01"}], "dominant_shirt_colors": ["#ef4444"], "interpolated_bibs": [{"bib_number": "1042", "runner_name": "Lukas Weber", "delta_seconds": 0.5, "expected_pass_time": "10:42:18", "calibrated_exif_time": "10:42:18", "interpolation_confidence": 0.99, "bib_was_covered": true, "face_cluster_verified": true, "shirt_color_verified": true, "method": "Direct RFID Timing Mat @ Wöhrder See Timing Mat (KM 5.0) (10:42:18)"}], "watermark_token": "WM-CF7E17872D", "scene_title": "KM 5.0 Verpflegungsstelle · Startnummer verdeckt (Recovered via 10:42:18 Timing Mat!)", "accent_gradient": ["#f97316", "#ef4444"]}, {"photo_id": "RACE-9003", "event_mode": "race", "filename": "DSC_9003_KM6_25_BridgePaceInterpolation.jpg", "station_id": "CAM-C (KM 6.25 Seebrücke)", "station_kilometer": 6.25, "exif_timestamp": "2026-07-18 10:47:46", "camera_clock_offset_sec": 0.0, "aspect_ratio": 1.5, "raw_ocr_text": "PANORAMA BRIDGE RUN", "detected_bibs": [], "bib_boxes": [], "face_cluster_ids": ["FACE-CL-01"], "face_boxes": [{"left": 0.49, "top": 0.24, "width": 0.08, "height": 0.11, "confidence": 0.94, "label": "FACE-CL-01"}], "dominant_shirt_colors": ["#ef4444"], "interpolated_bibs": [{"bib_number": "1042", "runner_name": "Lukas Weber", "delta_seconds": 0.0, "expected_pass_time": "10:47:46", "calibrated_exif_time": "10:47:46", "interpolation_confidence": 0.99, "bib_was_covered": true, "face_cluster_verified": true, "shirt_color_verified": true, "method": "Pace Interpolated KM 6.2 between CP-KM5.0 (10:42:18) & CP-KM7.5 (10:53:14)"}], "watermark_token": "WM-3B100738B4", "scene_title": "KM 6.25 Seebrücke · Seitenprofil ohne sichtbare Nummer (Pace-Interpolated + Face-ID)", "accent_gradient": ["#ec4899", "#6366f1"]}, {"photo_id": "RACE-9004", "event_mode": "race", "filename": "DSC_9004_Finish_1042.jpg", "station_id": "CAM-D (KM 10.0 Finish Line)", "station_kilometer": 10.0, "exif_timestamp": "2026-07-18 11:04:12", "camera_clock_offset_sec": 0.0, "aspect_ratio": 0.67, "raw_ocr_text": "FINISH 1042 SUB-45", "detected_bibs": ["1042", "45"], "bib_boxes": [{"left": 0.44, "top": 0.5, "width": 0.15, "height": 0.1, "confidence": 0.99, "label": "1042"}], "face_cluster_ids": ["FACE-CL-01"], "face_boxes": [{"left": 0.45, "top": 0.18, "width": 0.11, "height": 0.12, "confidence": 0.99, "label": "FACE-CL-01"}], "dominant_shirt_colors": ["#ef4444"], "interpolated_bibs": [{"bib_number": "1042", "runner_name": "Lukas Weber", "delta_seconds": 0.0, "expected_pass_time": "11:04:12", "calibrated_exif_time": "11:04:12", "interpolation_confidence": 0.99, "bib_was_covered": false, "face_cluster_verified": true, "shirt_color_verified": true, "method": "Direct RFID Timing Mat @ Zieleinlauf Hauptmarkt (KM 10.0) (11:04:12)"}], "watermark_token": "WM-8D808F05DD", "scene_title": "Zieleinlauf Jubel · Lukas Weber (#1042) · 00:44:12 Official Finisher", "accent_gradient": ["#10b981", "#0ea5e9"]}, {"photo_id": "RACE-9005", "event_mode": "race", "filename": "DSC_9005_KM5_0419.jpg", "station_id": "CAM-B (KM 5.0 Timing Mat)", "station_kilometer": 5.0, "exif_timestamp": "2026-07-18 10:40:44", "camera_clock_offset_sec": 0.0, "aspect_ratio": 0.67, "raw_ocr_text": "SIEMENS 0419", "detected_bibs": ["0419"], "bib_boxes": [{"left": 0.47, "top": 0.53, "width": 0.13, "height": 0.09, "confidence": 0.97, "label": "0419"}], "face_cluster_ids": ["FACE-CL-02"], "face_boxes": [{"left": 0.48, "top": 0.2, "width": 0.1, "height": 0.12, "confidence": 0.98, "label": "FACE-CL-02"}], "dominant_shirt_colors": ["#0ea5e9"], "interpolated_bibs": [{"bib_number": "0419", "runner_name": "Hannah Bergmann", "delta_seconds": 0.0, "expected_pass_time": "10:40:44", "calibrated_exif_time": "10:40:44", "interpolation_confidence": 0.99, "bib_was_covered": false, "face_cluster_verified": true, "shirt_color_verified": true, "method": "Direct RFID Timing Mat @ Wöhrder See Timing Mat (KM 5.0) (10:40:44)"}], "watermark_token": "WM-B26FC18541", "scene_title": "KM 5.0 Flying Stride · Hannah Bergmann (#0419)", "accent_gradient": ["#0ea5e9", "#3b82f6"]}, {"photo_id": "RACE-9006", "event_mode": "race", "filename": "DSC_9006_Finish_2088.jpg", "station_id": "CAM-D (KM 10.0 Finish Line)", "station_kilometer": 10.0, "exif_timestamp": "2026-07-18 11:08:35", "camera_clock_offset_sec": 0.0, "aspect_ratio": 0.67, "raw_ocr_text": "ADIDAS RUNNERS 2088", "detected_bibs": ["2088"], "bib_boxes": [{"left": 0.45, "top": 0.51, "width": 0.14, "height": 0.09, "confidence": 0.96, "label": "2088"}], "face_cluster_ids": ["FACE-CL-03"], "face_boxes": [{"left": 0.46, "top": 0.21, "width": 0.1, "height": 0.11, "confidence": 0.97, "label": "FACE-CL-03"}], "dominant_shirt_colors": ["#10b981"], "interpolated_bibs": [{"bib_number": "2088", "runner_name": "Markus Lindner", "delta_seconds": 0.0, "expected_pass_time": "11:08:35", "calibrated_exif_time": "11:08:35", "interpolation_confidence": 0.99, "bib_was_covered": false, "face_cluster_verified": true, "shirt_color_verified": true, "method": "Direct RFID Timing Mat @ Zieleinlauf Hauptmarkt (KM 10.0) (11:08:35)"}], "watermark_token": "WM-5917BC6E5C", "scene_title": "Finish Line Sprint · Markus Lindner (#2088)", "accent_gradient": ["#10b981", "#059669"]}, {"photo_id": "WALL-7001", "event_mode": "wedding_corporate", "filename": "QR_WALL_7001_SparklerEntrance.jpg", "station_id": "QR-TISCH-01 (Live Guest Upload & Photographer Sync)", "station_kilometer": 0.0, "exif_timestamp": "2026-07-18 20:15:10", "camera_clock_offset_sec": 0.0, "aspect_ratio": 0.8, "raw_ocr_text": "TISCH 01 VIP-07", "detected_bibs": ["VIP-07", "01", "07"], "bib_boxes": [], "face_cluster_ids": ["FACE-CL-04", "FACE-CL-05"], "face_boxes": [{"left": 0.38, "top": 0.22, "width": 0.12, "height": 0.14, "confidence": 0.99, "label": "FACE-CL-04"}, {"left": 0.58, "top": 0.24, "width": 0.11, "height": 0.13, "confidence": 0.96, "label": "FACE-CL-05"}], "dominant_shirt_colors": ["#f59e0b", "#8b5cf6"], "interpolated_bibs": [], "watermark_token": "WM-825E152F0C", "scene_title": "Live-QR-Wall · Wunderkerzen-Empfang & Sektempfang (Tisch 01 & Tisch 04)", "accent_gradient": ["#f59e0b", "#ec4899"]}, {"photo_id": "WALL-7002", "event_mode": "wedding_corporate", "filename": "QR_WALL_7002_CorporateAwardStage.jpg", "station_id": "QR-STAGE-MAIN (Beamer Wall Live Stream)", "station_kilometer": 0.0, "exif_timestamp": "2026-07-18 21:05:42", "camera_clock_offset_sec": 0.0, "aspect_ratio": 1.5, "raw_ocr_text": "FIRMENLAUF AFTERPARTY AWARD GAST-12", "detected_bibs": ["GAST-12", "1042", "12"], "bib_boxes": [], "face_cluster_ids": ["FACE-CL-05", "FACE-CL-01"], "face_boxes": [{"left": 0.35, "top": 0.25, "width": 0.11, "height": 0.13, "confidence": 0.98, "label": "FACE-CL-05"}, {"left": 0.56, "top": 0.23, "width": 0.11, "height": 0.13, "confidence": 0.98, "label": "FACE-CL-01"}], "dominant_shirt_colors": ["#8b5cf6", "#ef4444"], "interpolated_bibs": [], "watermark_token": "WM-2EDB07078C", "scene_title": "Afterparty Ehrung · Schnellstes Firmenteam auf der Live-QR-Leinwand", "accent_gradient": ["#8b5cf6", "#0ea5e9"]}], "sample_queries": {"runner_1042_with_covered_bib_recovery": {"query": "1042", "participant": {"bib_number": "1042", "full_name": "Lukas Weber", "team_or_table": "DATEV Running Crew", "category": "Firmenlauf 10K · M30", "face_cluster_id": "FACE-CL-01", "face_embedding": [0.91, 0.24, 0.18, 0.05, 0.31, 0.12], "shirt_color_hex": "#ef4444", "shirt_color_name": "Crimson Red", "finish_time": "00:44:12", "checkpoint_times": {"CP-START": "10:20:00", "CP-KM2.5": "10:31:05", "CP-KM5.0": "10:42:18", "CP-KM7.5": "10:53:14", "CP-FINISH": "11:04:12"}}, "matched_photos": [{"photo_id": "RACE-9001", "filename": "DSC_9001_Startbogen.jpg", "event_mode": "race", "station_id": "CAM-A (Start KM 0.2)", "exif_timestamp": "2026-07-18 10:20:52", "scene_title": "Startbogen Sprint · Lukas (#1042) & Hannah (#0419)", "match_reasons": ["Bib OCR Direct Match", "Timing Mat Split Verified (Δ=0.2s · Pace Interpolated KM 0.2 between CP-START (10:20:00) & CP-KM2.5 (10:31:05))", "Selfie Face-Cluster Match (FACE-CL-01)"], "match_confidence": 0.99, "bib_was_covered_recovered": false, "watermark_token": "WM-4B15FE1D2B"}, {"photo_id": "RACE-9002", "filename": "DSC_9002_KM5_WaterStation_CoveredBib.jpg", "event_mode": "race", "station_id": "CAM-B (KM 5.0 Timing Mat)", "exif_timestamp": "2026-07-18 10:42:17", "scene_title": "KM 5.0 Verpflegungsstelle · Startnummer verdeckt (Recovered via 10:42:18 Timing Mat!)", "match_reasons": ["Covered-Bib Timing Interpolation (Δ=0.5s · Direct RFID Timing Mat @ Wöhrder See Timing Mat (KM 5.0) (10:42:18))", "Selfie Face-Cluster Match (FACE-CL-01)"], "match_confidence": 0.99, "bib_was_covered_recovered": true, "watermark_token": "WM-CF7E17872D"}, {"photo_id": "RACE-9003", "filename": "DSC_9003_KM6_25_BridgePaceInterpolation.jpg", "event_mode": "race", "station_id": "CAM-C (KM 6.25 Seebrücke)", "exif_timestamp": "2026-07-18 10:47:46", "scene_title": "KM 6.25 Seebrücke · Seitenprofil ohne sichtbare Nummer (Pace-Interpolated + Face-ID)", "match_reasons": ["Covered-Bib Timing Interpolation (Δ=0.0s · Pace Interpolated KM 6.2 between CP-KM5.0 (10:42:18) & CP-KM7.5 (10:53:14))", "Selfie Face-Cluster Match (FACE-CL-01)"], "match_confidence": 0.99, "bib_was_covered_recovered": true, "watermark_token": "WM-3B100738B4"}, {"photo_id": "RACE-9004", "filename": "DSC_9004_Finish_1042.jpg", "event_mode": "race", "station_id": "CAM-D (KM 10.0 Finish Line)", "exif_timestamp": "2026-07-18 11:04:12", "scene_title": "Zieleinlauf Jubel · Lukas Weber (#1042) · 00:44:12 Official Finisher", "match_reasons": ["Bib OCR Direct Match", "Timing Mat Split Verified (Δ=0.0s · Direct RFID Timing Mat @ Zieleinlauf Hauptmarkt (KM 10.0) (11:04:12))", "Selfie Face-Cluster Match (FACE-CL-01)"], "match_confidence": 0.99, "bib_was_covered_recovered": false, "watermark_token": "WM-8D808F05DD"}, {"photo_id": "WALL-7002", "filename": "QR_WALL_7002_CorporateAwardStage.jpg", "event_mode": "wedding_corporate", "station_id": "QR-STAGE-MAIN (Beamer Wall Live Stream)", "exif_timestamp": "2026-07-18 21:05:42", "scene_title": "Afterparty Ehrung · Schnellstes Firmenteam auf der Live-QR-Leinwand", "match_reasons": ["Bib OCR Direct Match", "Selfie Face-Cluster Match (FACE-CL-01)"], "match_confidence": 0.98, "bib_was_covered_recovered": false, "watermark_token": "WM-2EDB07078C"}], "bundle_quote": {"matched_photo_count": 5, "single_hd_price_eur": 9.9, "alacarte_total_eur": 49.5, "flatpack_price_eur": 24.9, "flatpack_savings_eur": 24.6, "flatpack_savings_pct": 49.7, "recommended_sku": "FLATPACK-ALL-RUNNER", "organizer_sponsor_flatrate_eur": 299.0, "sponsor_web_download_free": false}}, "runner_0419": {"query": "0419", "participant": {"bib_number": "0419", "full_name": "Hannah Bergmann", "team_or_table": "Siemens Healthineers Pace", "category": "Firmenlauf 10K · W25", "face_cluster_id": "FACE-CL-02", "face_embedding": [0.14, 0.89, 0.29, 0.22, 0.08, 0.19], "shirt_color_hex": "#0ea5e9", "shirt_color_name": "Electric Cyan", "finish_time": "00:41:50", "checkpoint_times": {"CP-START": "10:20:00", "CP-KM2.5": "10:30:15", "CP-KM5.0": "10:40:44", "CP-KM7.5": "10:51:18", "CP-FINISH": "11:01:50"}}, "matched_photos": [{"photo_id": "RACE-9001", "filename": "DSC_9001_Startbogen.jpg", "event_mode": "race", "station_id": "CAM-A (Start KM 0.2)", "exif_timestamp": "2026-07-18 10:20:52", "scene_title": "Startbogen Sprint · Lukas (#1042) & Hannah (#0419)", "match_reasons": ["Bib OCR Direct Match", "Timing Mat Split Verified (Δ=3.8s · Pace Interpolated KM 0.2 between CP-START (10:20:00) & CP-KM2.5 (10:30:15))", "Selfie Face-Cluster Match (FACE-CL-02)"], "match_confidence": 0.98, "bib_was_covered_recovered": false, "watermark_token": "WM-4B15FE1D2B"}, {"photo_id": "RACE-9005", "filename": "DSC_9005_KM5_0419.jpg", "event_mode": "race", "station_id": "CAM-B (KM 5.0 Timing Mat)", "exif_timestamp": "2026-07-18 10:40:44", "scene_title": "KM 5.0 Flying Stride · Hannah Bergmann (#0419)", "match_reasons": ["Bib OCR Direct Match", "Timing Mat Split Verified (Δ=0.0s · Direct RFID Timing Mat @ Wöhrder See Timing Mat (KM 5.0) (10:40:44))", "Selfie Face-Cluster Match (FACE-CL-02)"], "match_confidence": 0.99, "bib_was_covered_recovered": false, "watermark_token": "WM-B26FC18541"}], "bundle_quote": {"matched_photo_count": 2, "single_hd_price_eur": 9.9, "alacarte_total_eur": 19.8, "flatpack_price_eur": 24.9, "flatpack_savings_eur": 0.0, "flatpack_savings_pct": 0.0, "recommended_sku": "SINGLE-HD-24MP", "organizer_sponsor_flatrate_eur": 299.0, "sponsor_web_download_free": false}}, "wedding_vip_07_live_qr_wall": {"query": "VIP-07", "participant": {"bib_number": "VIP-07", "full_name": "Clara & Jonas (Brautpaar / Host)", "team_or_table": "Tisch 01 · Ehrenplatz", "category": "Hochzeit & Sommerfest Live-Wall", "face_cluster_id": "FACE-CL-04", "face_embedding": [0.11, 0.15, 0.12, 0.94, 0.21, 0.16], "shirt_color_hex": "#f59e0b", "shirt_color_name": "Champagne Gold", "finish_time": "LIVE-GUEST", "checkpoint_times": {}}, "matched_photos": [{"photo_id": "WALL-7001", "filename": "QR_WALL_7001_SparklerEntrance.jpg", "event_mode": "wedding_corporate", "station_id": "QR-TISCH-01 (Live Guest Upload & Photographer Sync)", "exif_timestamp": "2026-07-18 20:15:10", "scene_title": "Live-QR-Wall · Wunderkerzen-Empfang & Sektempfang (Tisch 01 & Tisch 04)", "match_reasons": ["Bib OCR Direct Match", "Selfie Face-Cluster Match (FACE-CL-04)"], "match_confidence": 0.98, "bib_was_covered_recovered": false, "watermark_token": "WM-825E152F0C"}], "bundle_quote": {"matched_photo_count": 1, "single_hd_price_eur": 9.9, "alacarte_total_eur": 9.9, "flatpack_price_eur": 24.9, "flatpack_savings_eur": 0.0, "flatpack_savings_pct": 0.0, "recommended_sku": "SINGLE-HD-24MP", "organizer_sponsor_flatrate_eur": 299.0, "sponsor_web_download_free": false}}}};
+    let currentMode = 'all';
+
+    function normBib(s) {
+      return (s || '').trim().toUpperCase().replace(/^(F|M|VIP|TEAM|CORP)-?/, '');
+    }
+
+    function setMode(m) {
+      currentMode = m;
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      if (m === 'all') document.getElementById('tab-all').classList.add('active');
+      if (m === 'race') document.getElementById('tab-race').classList.add('active');
+      if (m === 'wedding_corporate') document.getElementById('tab-wedding').classList.add('active');
+      renderGallery();
+    }
+
+    function quickSearch(val) {
+      document.getElementById('searchInput').value = val;
+      renderGallery();
+    }
+
+    function unlockPreview() {
+      const cb = document.getElementById('toggleWatermark');
+      cb.checked = !cb.checked;
+      document.getElementById('checkoutBtn').textContent = cb.checked
+        ? '🔓 Jetzt Bundle freischalten & Wasserzeichen entfernen'
+        : '✅ HD-Originale freigeschaltet (Wasserzeichen entfernt)';
+      renderGallery();
+    }
+
+    function selectBundle(kind) {
+      document.querySelectorAll('.bundle-card').forEach(c => c.classList.remove('recommended'));
+      event.currentTarget.classList.add('recommended');
+    }
+
+    function renderQrCode(seedText) {
+      const svg = document.getElementById('qrSvg');
+      let hash = 2166136261;
+      for (let i = 0; i < seedText.length; i++) {
+        hash ^= seedText.charCodeAt(i);
+        hash = Math.imul(hash, 16777619);
+      }
+      const cells = 11;
+      const size = 10;
+      let rects = '';
+      for (let r = 0; r < cells; r++) {
+        for (let c = 0; c < cells; c++) {
+          const isFinder = (r < 3 && c < 3) || (r < 3 && c >= cells - 3) || (r >= cells - 3 && c < 3);
+          const bit = ((hash >>> ((r * cells + c) % 28)) & 1) === 1;
+          if (isFinder || bit) {
+            const fill = isFinder ? '#0284c7' : '#0f172a';
+            rects += `<rect x="${11 + c * size}" y="${11 + r * size}" width="${size - 1}" height="${size - 1}" rx="1.5" fill="${fill}"/>`;
+          }
+        }
+      }
+      svg.innerHTML = rects;
+      document.getElementById('qrCaption').textContent =
+        `QR-Direktlink: eventsnap.de/e/${encodeURIComponent(seedText || 'LIVE-WALL')}`;
+    }
+
+    function drawPhotoCanvas(canvas, photo, showWatermark, showBoxes) {
+      const ctx = canvas.getContext('2d');
+      const w = canvas.width = 480;
+      const h = canvas.height = 310;
+
+      // Gradient background representing event scene
+      const grad = ctx.createLinearGradient(0, 0, w, h);
+      grad.addColorStop(0, photo.accent_gradient[0]);
+      grad.addColorStop(1, photo.accent_gradient[1]);
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, w, h);
+
+      // Dark vignette
+      const rad = ctx.createRadialGradient(w * 0.5, h * 0.45, 30, w * 0.5, h * 0.5, w * 0.7);
+      rad.addColorStop(0, 'rgba(15,23,42,0.12)');
+      rad.addColorStop(1, 'rgba(2,6,23,0.72)');
+      ctx.fillStyle = rad;
+      ctx.fillRect(0, 0, w, h);
+
+      // Draw stylized athlete / guest silhouettes inside face/bib coordinates
+      (photo.face_boxes || []).forEach((fb, idx) => {
+        const cx = (fb.left + fb.width * 0.5) * w;
+        const cy = (fb.top + fb.height * 0.5) * h;
+        // Torso
+        ctx.fillStyle = photo.dominant_shirt_colors[idx] || '#38bdf8';
+        ctx.beginPath();
+        ctx.roundRect(cx - 42, cy + 20, 84, 115, 18);
+        ctx.fill();
+        // Head
+        ctx.fillStyle = '#fde68a';
+        ctx.beginPath();
+        ctx.arc(cx, cy - 2, 22, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      // Draw visible bib plates if detected
+      (photo.bib_boxes || []).forEach(bb => {
+        const bx = bb.left * w;
+        const by = bb.top * h;
+        const bw = Math.max(66, bb.width * w);
+        const bh = Math.max(34, bb.height * h);
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(bx, by, bw, bh);
+        ctx.fillStyle = '#0f172a';
+        ctx.font = 'bold 14px monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText(bb.label, bx + bw / 2, by + bh / 2 + 5);
+      });
+
+      // EXIF + Station HUD top bar
+      ctx.fillStyle = 'rgba(2, 6, 23, 0.76)';
+      ctx.fillRect(0, 0, w, 30);
+      ctx.fillStyle = '#e2e8f0';
+      ctx.font = '600 11px monospace';
+      ctx.textAlign = 'left';
+      ctx.fillText(`EXIF ${photo.exif_timestamp} · ${photo.station_id}`, 10, 19);
+
+      // AI Bounding Boxes
+      if (showBoxes) {
+        (photo.face_boxes || []).forEach(fb => {
+          ctx.strokeStyle = '#34d399';
+          ctx.lineWidth = 2;
+          ctx.strokeRect(fb.left * w, fb.top * h, fb.width * w, fb.height * h);
+          ctx.fillStyle = '#059669';
+          ctx.fillRect(fb.left * w, fb.top * h - 16, 78, 16);
+          ctx.fillStyle = '#fff';
+          ctx.font = 'bold 10px monospace';
+          ctx.fillText(fb.label, fb.left * w + 4, fb.top * h - 4);
+        });
+        (photo.bib_boxes || []).forEach(bb => {
+          ctx.strokeStyle = '#38bdf8';
+          ctx.lineWidth = 2;
+          ctx.strokeRect(bb.left * w, bb.top * h, Math.max(66, bb.width * w), Math.max(34, bb.height * h));
+        });
+      }
+
+      // Dynamic Anti-Screenshot Tiled Watermark
+      if (showWatermark) {
+        ctx.save();
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.28)';
+        ctx.lineWidth = 1.5;
+        // Crosshair shield across center
+        ctx.beginPath();
+        ctx.moveTo(0, 0); ctx.lineTo(w, h);
+        ctx.moveTo(w, 0); ctx.lineTo(0, h);
+        ctx.stroke();
+
+        ctx.translate(w / 2, h / 2);
+        ctx.rotate(-26 * Math.PI / 180);
+        ctx.font = 'bold 13px sans-serif';
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.34)';
+        ctx.textAlign = 'center';
+        for (let y = -220; y <= 220; y += 52) {
+          for (let x = -280; x <= 280; x += 240) {
+            ctx.fillText(`© EVENTSNAP · ${photo.watermark_token}`, x, y);
+          }
+        }
+        ctx.restore();
+      }
+    }
+
+    function renderGallery() {
+      const query = document.getElementById('searchInput').value.trim();
+      const qUpper = query.toUpperCase();
+      const qBib = normBib(query);
+      const showWatermark = document.getElementById('toggleWatermark').checked;
+      const showBoxes = document.getElementById('toggleBoxes').checked;
+
+      // Resolve participant if query matches bib/name
+      let matchedParticipant = null;
+      Object.values(MANIFEST.participants).forEach(p => {
+        if (
+          normBib(p.bib_number) === qBib && qBib !== '' ||
+          p.face_cluster_id.toUpperCase() === qUpper ||
+          (qUpper.length >= 3 && p.full_name.toUpperCase().includes(qUpper))
+        ) {
+          matchedParticipant = p;
+        }
+      });
+
+      const targetBib = matchedParticipant ? matchedParticipant.bib_number : query;
+      const targetFace = matchedParticipant ? matchedParticipant.face_cluster_id : query;
+
+      const filtered = [];
+      MANIFEST.photos.forEach(photo => {
+        if (currentMode !== 'all' && photo.event_mode !== currentMode) return;
+        if (!query) {
+          filtered.push({ photo, reasons: ['Live Event Stream (Alle Fotos)'] });
+          return;
+        }
+        const reasons = [];
+        if ((photo.detected_bibs || []).some(b => normBib(b) === normBib(targetBib))) {
+          reasons.push({ text: `Bib OCR #${targetBib}`, kind: 'ocr' });
+        }
+        (photo.interpolated_bibs || []).forEach(interp => {
+          if (normBib(interp.bib_number) === normBib(targetBib)) {
+            const label = interp.bib_was_covered
+              ? `⚡ Verdeckte Nummer via Timing-Mat interpoliert (Δ=${interp.delta_seconds}s)`
+              : `Timing-Mat Split verifiziert (Δ=${interp.delta_seconds}s)`;
+            reasons.push({ text: label, kind: 'interp' });
+          }
+        });
+        if ((photo.face_cluster_ids || []).includes(targetFace)) {
+          reasons.push({ text: `Selfie Face-ID (${targetFace})`, kind: 'face' });
+        }
+        if (reasons.length > 0) {
+          filtered.push({ photo, reasons });
+        }
+      });
+
+      const grid = document.getElementById('photoGrid');
+      grid.innerHTML = '';
+
+      filtered.forEach((item, idx) => {
+        const card = document.createElement('div');
+        card.className = 'photo-card';
+        const cid = `canvas_${item.photo.photo_id}_${idx}`;
+        const pillsHtml = item.reasons.map(r => {
+          const cls = r.kind === 'interp' ? 'pill interp' : (r.kind === 'face' ? 'pill face' : 'pill');
+          return `<span class="${cls}">${r.text || r}</span>`;
+        }).join('');
+
+        card.innerHTML = `
+          <div class="canvas-wrap"><canvas id="${cid}"></canvas></div>
+          <div class="photo-body">
+            <div class="photo-meta">
+              <span>${item.photo.photo_id} · ${item.photo.event_mode === 'race' ? '🏃‍♂️ Lauf' : '🥂 Live-Wall'}</span>
+              <span>${item.photo.watermark_token}</span>
+            </div>
+            <div class="photo-title">${item.photo.scene_title}</div>
+            <div class="match-pills">${pillsHtml}</div>
+          </div>
+        `;
+        grid.appendChild(card);
+        drawPhotoCanvas(document.getElementById(cid), item.photo, showWatermark, showBoxes);
+      });
+
+      const count = filtered.length;
+      const singleTotal = (count * 9.90).toFixed(2);
+      const savings = Math.max(0, count * 9.90 - 24.90).toFixed(2);
+      document.getElementById('matchSummaryBanner').innerHTML = matchedParticipant
+        ? `🎯 <strong>${matchedParticipant.full_name}</strong> (Startnr. <code>#${matchedParticipant.bib_number}</code> · ${matchedParticipant.team_or_table} · Face-ID <code>${matchedParticipant.face_cluster_id}</code>) — <strong>${count} Treffer</strong> (inkl. verdeckter Startnummern via EXIF-Timing-Interpolation!)`
+        : `📸 <strong>${count} Event-Fotos</strong> im aktuellen Filter angezeigt.`;
+
+      document.getElementById('flatpackDesc').innerHTML =
+        `Alle <strong>${count} gefundenen HD-Fotos</strong> im Komplettpaket (Einzelkauf wäre €${singleTotal} -> <strong>Du sparst €${savings}!</strong>) + Finisher-Time-Overlay.`;
+
+      renderQrCode(query || 'LIVE-WALL');
+    }
+
+    renderGallery();
+  </script>
+</body>
+</html>

@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MVP #117 — Vinted / eBay.de Cross-Border Arbitrage Sniper & DACH DAC7 / § 25a UStG Studio</title>
+  <style>
+    :root {
+      --bg: #0b0f17;
+      --panel: #131b2e;
+      --panel-alt: #19233c;
+      --border: #263457;
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --emerald: #10b981;
+      --amber: #f59e0b;
+      --rose: #f43f5e;
+      --sky: #38bdf8;
+      --indigo: #818cf8;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      padding: 28px;
+    }
+    .container { max-width: 1440px; margin: 0 auto; }
+    header {
+      background: linear-gradient(135deg, #131b2e 0%, #0f172a 100%);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 24px 28px;
+      margin-bottom: 24px;
+    }
+    .eyebrow {
+      display: inline-block;
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--sky);
+      background: rgba(56, 189, 248, 0.12);
+      padding: 4px 10px;
+      border-radius: 999px;
+      margin-bottom: 10px;
+    }
+    h1 { margin: 0 0 8px 0; font-size: 1.75rem; font-weight: 800; }
+    h2 { margin: 0 0 14px 0; font-size: 1.25rem; font-weight: 700; color: #f8fafc; }
+    h3 { margin: 8px 0 6px 0; font-size: 1.05rem; }
+    .sub { color: var(--muted); font-size: 0.84rem; }
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .kpi-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px 20px;
+    }
+    .kpi-label { font-size: 0.8rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+    .kpi-value { font-size: 1.65rem; font-weight: 800; margin: 6px 0 4px 0; color: var(--emerald); }
+    .section {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 22px 24px;
+      margin-bottom: 24px;
+    }
+    table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+    th, td { padding: 12px 10px; border-bottom: 1px solid var(--border); vertical-align: top; text-align: left; }
+    th { color: var(--muted); font-weight: 600; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.05em; }
+    td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+    .sku-title { font-weight: 700; color: #f8fafc; margin-bottom: 3px; }
+    .sku-meta { font-size: 0.8rem; color: var(--muted); margin-bottom: 6px; }
+    .pill-wrap { display: flex; flex-wrap: wrap; gap: 5px; }
+    .pill {
+      display: inline-block;
+      font-size: 0.72rem;
+      background: var(--panel-alt);
+      border: 1px solid var(--border);
+      color: #cbd5e1;
+      padding: 2px 8px;
+      border-radius: 6px;
+    }
+    .badge {
+      display: inline-block;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 3px 9px;
+      border-radius: 6px;
+      text-transform: uppercase;
+    }
+    .badge-pass { background: rgba(16, 185, 129, 0.16); color: var(--emerald); border: 1px solid rgba(16, 185, 129, 0.4); }
+    .badge-fail { background: rgba(244, 63, 94, 0.16); color: var(--rose); border: 1px solid rgba(244, 63, 94, 0.4); }
+    .badge-warn { background: rgba(245, 158, 11, 0.16); color: var(--amber); border: 1px solid rgba(245, 158, 11, 0.4); }
+    .row-fail { opacity: 0.68; }
+    .strike { text-decoration: line-through; color: var(--rose); font-size: 0.82rem; }
+    .accent-emerald { color: var(--emerald); }
+    .profit-val { color: var(--emerald); font-size: 1.02rem; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 18px; }
+    @media (max-width: 980px) { .grid-2 { grid-template-columns: 1fr; } }
+    .card {
+      background: var(--panel-alt);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+    }
+    .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .mono-id { font-family: monospace; font-size: 0.78rem; color: var(--sky); }
+    .metric-strip {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      background: rgba(11, 15, 23, 0.55);
+      padding: 10px 12px;
+      border-radius: 8px;
+      margin: 12px 0;
+    }
+    .metric-strip div span { display: block; font-size: 0.72rem; color: var(--muted); }
+    .metric-strip div strong { font-size: 0.95rem; }
+    .legal-box {
+      background: rgba(56, 189, 248, 0.08);
+      border-left: 3px solid var(--sky);
+      padding: 10px 12px;
+      border-radius: 6px;
+      margin-bottom: 12px;
+    }
+    .legal-title { font-weight: 700; font-size: 0.85rem; color: var(--sky); }
+    .legal-trigger { font-size: 0.78rem; color: var(--amber); font-weight: 600; margin-top: 2px; }
+    .checklist { margin: 0; padding-left: 18px; font-size: 0.8rem; color: #cbd5e1; }
+    .checklist li { margin-bottom: 4px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+    label { display: block; font-size: 0.78rem; color: var(--muted); margin-bottom: 4px; font-weight: 600; }
+    input, select {
+      width: 100%;
+      padding: 9px 11px;
+      background: #0b0f17;
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 8px;
+      font-size: 0.9rem;
+    }
+    .result-banner {
+      background: #0b0f17;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin-top: 12px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- DACH CASHFLOW STUDIOS LAUNCH BAR -->
+<style>
+  #dcs-launch-bar {
+    position: sticky;
+    top: 0;
+    z-index: 99999;
+    background: linear-gradient(90deg, #0b1120 0%, #111827 50%, #0f172a 100%);
+    color: #f8fafc;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.35);
+    padding: 8px 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  }
+  #dcs-launch-bar .dcs-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+  }
+  #dcs-launch-bar .dcs-badge {
+    background: rgba(16, 185, 129, 0.18);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.03em;
+  }
+  #dcs-launch-bar a.dcs-nav {
+    color: #93c5fd;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 12.5px;
+  }
+  #dcs-launch-bar a.dcs-nav:hover {
+    text-decoration: underline;
+    color: #dbeafe;
+  }
+  #dcs-launch-bar .dcs-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  #dcs-launch-bar .dcs-btn {
+    padding: 5px 11px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s ease;
+  }
+  #dcs-launch-bar .dcs-btn-ghost {
+    background: rgba(255,255,255,0.08);
+    color: #e2e8f0;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  #dcs-launch-bar .dcs-btn-primary {
+    background: linear-gradient(135deg, #0ea5e9, #2563eb);
+    color: #ffffff;
+  }
+  #dcs-launch-bar .dcs-btn-emerald {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
+  }
+  @media print {
+    #dcs-launch-bar { display: none !important; }
+  }
+</style>
+<div id="dcs-launch-bar">
+  <div class="dcs-left">
+    <a href="/index.html" class="dcs-nav">← Alle 150 DACH Studios</a>
+    <span class="dcs-badge">MVP #117 VERIFIED</span>
+    <span style="color:#cbd5e1;font-size:12px;">DACH Tax, Corporate & Accounting Arbitrage</span>
+  </div>
+  <div class="dcs-actions">
+    <button onclick="window.print()" class="dcs-btn dcs-btn-ghost">🖨️ PDF / Dossier drucken</button>
+    <a href="#checkout-modal-49" target="_blank" rel="noopener" class="dcs-btn dcs-btn-primary">⚡ Musterschreiben & Voll-Dossier (€49)</a>
+    <a href="#checkout-modal-299" target="_blank" rel="noopener" class="dcs-btn dcs-btn-emerald">🛡️ B2B Umsetzung buchen (€299 / €1.490)</a>
+  </div>
+</div>
+
+  <div class="container">
+    <header>
+      <span class="eyebrow">MVP #117 · Round 24 Gold-Dive · Apify Cross-Border Reselling & DACH Tax Engine</span>
+      <h1>Vinted (IT/FR/ES) & Kleinanzeigen → eBay.de Price-Spread Sniper + DAC7 / § 25a UStG Studio</h1>
+      <p class="sub">
+        Kombiniert Echtzeit-Arbitrage auf unterbewertete Gebraucht-Luxusgüter, Vintage-Uhren, Kompaktkameras & Retro-Tech
+        (35%–55% unter eBay.de 30d „Verkaufte Artikel“-Median) mit dem deterministischen <strong>§ 4 PStTG (DAC7: 30 Verkäufe / €2.000)</strong>
+        Prüfmodul und dem <strong>§ 25a UStG Differenzbesteuerungs-Rechner</strong>.
+      </p>
+    </header>
+
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label">Verified Sniper Deals (7/8 Passed)</div>
+        <div class="kpi-value">+€1,280.84</div>
+        <div class="sub">Kumulierter Nettogewinn nach eBay-Gebühren & § 25a UStG</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Ø Abschlag ggü. eBay.de Sold Median</div>
+        <div class="kpi-value">-42.2%</div>
+        <div class="sub">Gate: Listing Age &lt; 15 Min · Ask &le; 0.62× Sold Median · &ge;4.7★</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">§ 25a UStG Steuerersparnis (7 Flips)</div>
+        <div class="kpi-value">+€497.33</div>
+        <div class="sub">62%–65% weniger USt-Last ggü. 19% Regelbesteuerung</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Apify Ecosystem Demand</div>
+        <div class="kpi-value">1,089,686 Runs</div>
+        <div class="sub">Über Top-7 Vinted, Kleinanzeigen & eBay Sold Scrapers</div>
+      </div>
+    </div>
+
+    <!-- INTERACTIVE DUAL CALCULATORS -->
+    <div class="section">
+      <h2>1. Interaktiver Dual-Simulationsrechner: Play A (Flip-Sniper & § 25a UStG) + Play B (DAC7 / § 23 EStG Audit)</h2>
+      <div class="grid-2">
+        <!-- Calculator A: Flip & § 25a UStG -->
+        <div class="card">
+          <h3>Play A: Vinted/Kleinanzeigen → eBay.de Flip & § 25a UStG Rechner</h3>
+          <p class="sub">Berechnet Sofort-Spread, § 25a UStG Differenzsteuer (19/119 nur auf die Rohmarge) vs. 19% Regelbesteuerung.</p>
+          <div class="form-row">
+            <div>
+              <label for="inp-ask">Vinted / Kleinanzeigen Kaufpreis (€)</label>
+              <input id="inp-ask" type="number" value="460" step="5" oninput="recalcFlip()" />
+            </div>
+            <div>
+              <label for="inp-ship-in">Käuferschutz + Inbound-Versand (€)</label>
+              <input id="inp-ship-in" type="number" value="29.80" step="1" oninput="recalcFlip()" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div>
+              <label for="inp-median">eBay.de 30d Sold Median („Verkaufte Artikel“) (€)</label>
+              <input id="inp-median" type="number" value="860" step="10" oninput="recalcFlip()" />
+            </div>
+            <div>
+              <label for="inp-fee">eBay.de Verkaufsprovision (%)</label>
+              <input id="inp-fee" type="number" value="11.0" step="0.5" oninput="recalcFlip()" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div>
+              <label for="inp-age">Listing-Alter (Minuten)</label>
+              <input id="inp-age" type="number" value="7" step="1" oninput="recalcFlip()" />
+            </div>
+            <div>
+              <label for="inp-rating">Verkäufer-Bewertung (★)</label>
+              <input id="inp-rating" type="number" value="4.8" step="0.1" oninput="recalcFlip()" />
+            </div>
+          </div>
+          <div class="result-banner" id="flip-output"></div>
+        </div>
+
+        <!-- Calculator B: DAC7 / PStTG & § 23 EStG -->
+        <div class="card">
+          <h3>Play B: DACH PStTG (DAC7: 30 Verkäufe / €2.000) & § 23 EStG Steuer-Prüfer</h3>
+          <p class="sub">Prüft BZSt-Meldepflicht nach § 4 Abs. 5 PStTG sowie Steuerfreiheit nach § 23 Abs. 1 S. 1 Nr. 2 S. 2 EStG.</p>
+          <div class="form-row">
+            <div>
+              <label for="dac-tx">Anzahl Verkäufe im Kalenderjahr</label>
+              <input id="dac-tx" type="number" value="38" step="1" oninput="recalcDac7()" />
+            </div>
+            <div>
+              <label for="dac-rev">Brutto-Jahresumsatz auf Plattform (€)</label>
+              <input id="dac-rev" type="number" value="2480" step="50" oninput="recalcDac7()" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div>
+              <label for="dac-bucket">Haupt-Artikelkategorie (§ 23 / § 15 EStG)</label>
+              <select id="dac-bucket" onchange="recalcDac7()">
+                <option value="daily_use">Gegenstände des täglichen Gebrauchs (Kleidung, Haushalt, Kinderartikel)</option>
+                <option value="collectibles">Uhren, Schmuck, Sammlermünzen / Pokémon (&lt; 1 Jahr Haltedauer)</option>
+                <option value="commercial">Gezielter Weiterverkauf / Reselling-Arbitrage (§ 15 EStG)</option>
+              </select>
+            </div>
+            <div>
+              <label for="dac-gain">Jährlicher Veräußerungsgewinn (Erlös minus Kaufpreis) (€)</label>
+              <input id="dac-gain" type="number" value="-420" step="50" oninput="recalcDac7()" />
+            </div>
+          </div>
+          <div class="result-banner" id="dac7-output"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SNIPER ARBITRAGE TABLE -->
+    <div class="section">
+      <h2>2. Play A — Live Cross-Border Price-Spread Sniper (Vinted IT/FR/ES & Kleinanzeigen.de → eBay.de Sold Median)</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Deal / SKU & Authenticity Signals</th>
+            <th class="num">Age & Seller</th>
+            <th class="num">Source Ask (All-In)</th>
+            <th class="num">eBay.de 30d Sold Median</th>
+            <th class="num">19% Regel-USt vs. § 25a UStG</th>
+            <th class="num">Net Profit (§ 25a)</th>
+            <th>Sniper Gate Verdict</th>
+          </tr>
+        </thead>
+        <tbody>
+          
+            <tr class="row-pass">
+              <td>
+                <div class="sku-title">Fujifilm X100V Silver (Shutter Count 3,400, OVP + Haoge Hood)</div>
+                <div class="sku-meta">FLIP-01 · Compact Cameras · <strong>Vinted.it</strong> (IT (Milan -> DE Express))</div>
+                <div class="pill-wrap"><span class="pill">Serial #14A08821 photo</span><span class="pill">Shutter count menu screenshot (3,400)</span><span class="pill">Original MediaWorld invoice</span></div>
+              </td>
+              <td class="num">
+                <strong>4 min</strong><br>
+                <span class="sub">4.9★ (84)</span>
+              </td>
+              <td class="num">
+                <strong>€740.00</strong><br>
+                <span class="sub">All-in: €784.50</span>
+              </td>
+              <td class="num">
+                <strong>€1,320.00</strong><br>
+                <span class="sub">Ratio: 0.56x (-40.6%)</span>
+              </td>
+              <td class="num">
+                <span class="strike">€210.76</span><br>
+                <strong class="accent-emerald">€92.61</strong>
+                <span class="sub">(-56.1% USt)</span>
+              </td>
+              <td class="num">
+                <strong class="profit-val">€283.70</strong><br>
+                <span class="sub">Privat: €376.31</span>
+              </td>
+              <td>
+                <span class="badge badge-pass">SNIPER LOCKED</span>
+                <div class="sub" style="margin-top:4px;">SNIPER LOCKED (+€283.70 Net after §25a UStG | 40.6% below eBay.de Sold Median)</div>
+              </td>
+            </tr>
+            
+            <tr class="row-pass">
+              <td>
+                <div class="sku-title">Omega Seamaster Cosmic 2000 Automatic Vintage (Ref. 166.128, 38mm)</div>
+                <div class="sku-meta">FLIP-02 · Vintage Watches · <strong>Vinted.fr</strong> (FR (Lyon -> DE Mondial Relay))</div>
+                <div class="pill-wrap"><span class="pill">Caliber 1012 movement macro</span><span class="pill">Caseback Ref. 166.128 stamp</span><span class="pill">Original Omega buckle</span></div>
+              </td>
+              <td class="num">
+                <strong>7 min</strong><br>
+                <span class="sub">4.8★ (62)</span>
+              </td>
+              <td class="num">
+                <strong>€460.00</strong><br>
+                <span class="sub">All-in: €489.80</span>
+              </td>
+              <td class="num">
+                <strong>€860.00</strong><br>
+                <span class="sub">Ratio: 0.53x (-43.0%)</span>
+              </td>
+              <td class="num">
+                <span class="strike">€137.31</span><br>
+                <strong class="accent-emerald">€63.87</strong>
+                <span class="sub">(-53.5% USt)</span>
+              </td>
+              <td class="num">
+                <strong class="profit-val">€196.74</strong><br>
+                <span class="sub">Privat: €260.61</span>
+              </td>
+              <td>
+                <span class="badge badge-pass">SNIPER LOCKED</span>
+                <div class="sub" style="margin-top:4px;">SNIPER LOCKED (+€196.74 Net after §25a UStG | 43.0% below eBay.de Sold Median)</div>
+              </td>
+            </tr>
+            
+            <tr class="row-pass">
+              <td>
+                <div class="sku-title">Contax T2 Titanium 35mm Film Camera (Carl Zeiss Sonnar 38mm f/2.8)</div>
+                <div class="sku-meta">FLIP-03 · Compact Cameras · <strong>Kleinanzeigen.de</strong> (DE (München - Direkt kaufen))</div>
+                <div class="pill-wrap"><span class="pill">Zeiss Sonnar lens serial #749201</span><span class="pill">No AF gear skip video</span><span class="pill">Original velvet pouch + box</span></div>
+              </td>
+              <td class="num">
+                <strong>6 min</strong><br>
+                <span class="sub">5.0★ (41)</span>
+              </td>
+              <td class="num">
+                <strong>€590.00</strong><br>
+                <span class="sub">All-in: €616.90</span>
+              </td>
+              <td class="num">
+                <strong>€1,090.00</strong><br>
+                <span class="sub">Ratio: 0.54x (-43.4%)</span>
+              </td>
+              <td class="num">
+                <span class="strike">€174.03</span><br>
+                <strong class="accent-emerald">€79.83</strong>
+                <span class="sub">(-54.1% USt)</span>
+              </td>
+              <td class="num">
+                <strong class="profit-val">€259.38</strong><br>
+                <span class="sub">Privat: €339.21</span>
+              </td>
+              <td>
+                <span class="badge badge-pass">SNIPER LOCKED</span>
+                <div class="sub" style="margin-top:4px;">SNIPER LOCKED (+€259.38 Net after §25a UStG | 43.4% below eBay.de Sold Median)</div>
+              </td>
+            </tr>
+            
+            <tr class="row-pass">
+              <td>
+                <div class="sku-title">New Nintendo 3DS XL Hyrule Edition (Dual IPS Screens + CIB German Box)</div>
+                <div class="sku-meta">FLIP-04 · Retro-Tech & Gaming · <strong>Vinted.es</strong> (ES (Madrid -> DE Cross-Border))</div>
+                <div class="pill-wrap"><span class="pill">3DSident Dual-IPS screen proof</span><span class="pill">Matching serial bar on box</span><span class="pill">Unscratched gold shell</span></div>
+              </td>
+              <td class="num">
+                <strong>9 min</strong><br>
+                <span class="sub">4.9★ (119)</span>
+              </td>
+              <td class="num">
+                <strong>€235.00</strong><br>
+                <span class="sub">All-in: €253.25</span>
+              </td>
+              <td class="num">
+                <strong>€449.00</strong><br>
+                <span class="sub">Ratio: 0.52x (-43.6%)</span>
+              </td>
+              <td class="num">
+                <span class="strike">€71.69</span><br>
+                <strong class="accent-emerald">€34.17</strong>
+                <span class="sub">(-52.3% USt)</span>
+              </td>
+              <td class="num">
+                <strong class="profit-val">€105.20</strong><br>
+                <span class="sub">Privat: €139.37</span>
+              </td>
+              <td>
+                <span class="badge badge-pass">SNIPER LOCKED</span>
+                <div class="sub" style="margin-top:4px;">SNIPER LOCKED (+€105.20 Net after §25a UStG | 43.6% below eBay.de Sold Median)</div>
+              </td>
+            </tr>
+            
+            <tr class="row-pass">
+              <td>
+                <div class="sku-title">Rimowa Original Cabin S Aluminium 55cm (Topas Pre-LVMH 4-Multiwheel)</div>
+                <div class="sku-meta">FLIP-05 · Secondhand Luxury · <strong>Vinted.it</strong> (IT (Turin -> DE Tracked))</div>
+                <div class="pill-wrap"><span class="pill">Engraved frame serial #925520</span><span class="pill">TSA 006 lock stamp</span><span class="pill">Original leather luggage tag</span></div>
+              </td>
+              <td class="num">
+                <strong>11 min</strong><br>
+                <span class="sub">4.8★ (53)</span>
+              </td>
+              <td class="num">
+                <strong>€490.00</strong><br>
+                <span class="sub">All-in: €522.40</span>
+              </td>
+              <td class="num">
+                <strong>€885.00</strong><br>
+                <span class="sub">Ratio: 0.55x (-41.0%)</span>
+              </td>
+              <td class="num">
+                <span class="strike">€141.30</span><br>
+                <strong class="accent-emerald">€63.07</strong>
+                <span class="sub">(-55.4% USt)</span>
+              </td>
+              <td class="num">
+                <strong class="profit-val">€191.69</strong><br>
+                <span class="sub">Privat: €254.76</span>
+              </td>
+              <td>
+                <span class="badge badge-pass">SNIPER LOCKED</span>
+                <div class="sub" style="margin-top:4px;">SNIPER LOCKED (+€191.69 Net after §25a UStG | 41.0% below eBay.de Sold Median)</div>
+              </td>
+            </tr>
+            
+            <tr class="row-pass">
+              <td>
+                <div class="sku-title">Seiko Alpinist SARB017 Green Dial JDM Automatic (6R15, Full Set)</div>
+                <div class="sku-meta">FLIP-06 · Vintage Watches · <strong>Kleinanzeigen.de</strong> (DE (Hamburg - Direkt kaufen))</div>
+                <div class="pill-wrap"><span class="pill">6R15-00E1 caseback engraving</span><span class="pill">Seiko JDM warranty card</span><span class="pill">Timegrapher +2s/day photo</span></div>
+              </td>
+              <td class="num">
+                <strong>5 min</strong><br>
+                <span class="sub">4.9★ (77)</span>
+              </td>
+              <td class="num">
+                <strong>€380.00</strong><br>
+                <span class="sub">All-in: €399.90</span>
+              </td>
+              <td class="num">
+                <strong>€685.00</strong><br>
+                <span class="sub">Ratio: 0.55x (-41.6%)</span>
+              </td>
+              <td class="num">
+                <span class="strike">€109.37</span><br>
+                <strong class="accent-emerald">€48.70</strong>
+                <span class="sub">(-55.5% USt)</span>
+              </td>
+              <td class="num">
+                <strong class="profit-val">€154.06</strong><br>
+                <span class="sub">Privat: €202.76</span>
+              </td>
+              <td>
+                <span class="badge badge-pass">SNIPER LOCKED</span>
+                <div class="sub" style="margin-top:4px;">SNIPER LOCKED (+€154.06 Net after §25a UStG | 41.6% below eBay.de Sold Median)</div>
+              </td>
+            </tr>
+            
+            <tr class="row-pass">
+              <td>
+                <div class="sku-title">Arc'teryx Beta AR Gore-Tex Pro Jacket Men's L (Kingfisher, 2023)</div>
+                <div class="sku-meta">FLIP-07 · Secondhand Luxury · <strong>Vinted.fr</strong> (FR (Annecy -> DE))</div>
+                <div class="pill-wrap"><span class="pill">Gore-Tex Pro internal seam tape macro</span><span class="pill">YKK Vislon AquaGuard zipper stamp</span><span class="pill">Care tag PO# 129482</span></div>
+              </td>
+              <td class="num">
+                <strong>8 min</strong><br>
+                <span class="sub">4.7★ (38)</span>
+              </td>
+              <td class="num">
+                <strong>€220.00</strong><br>
+                <span class="sub">All-in: €237.50</span>
+              </td>
+              <td class="num">
+                <strong>€410.00</strong><br>
+                <span class="sub">Ratio: 0.54x (-42.1%)</span>
+              </td>
+              <td class="num">
+                <span class="strike">€65.46</span><br>
+                <strong class="accent-emerald">€30.34</strong>
+                <span class="sub">(-53.7% USt)</span>
+              </td>
+              <td class="num">
+                <strong class="profit-val">€90.07</strong><br>
+                <span class="sub">Privat: €120.41</span>
+              </td>
+              <td>
+                <span class="badge badge-pass">SNIPER LOCKED</span>
+                <div class="sub" style="margin-top:4px;">SNIPER LOCKED (+€90.07 Net after §25a UStG | 42.1% below eBay.de Sold Median)</div>
+              </td>
+            </tr>
+            
+            <tr class="row-fail">
+              <td>
+                <div class="sku-title">Dyson Airwrap Complete Long Multi-Styler (Nickel/Copper) — Unverified</div>
+                <div class="sku-meta">FLIP-08 · Consumer Tech (Trap Example) · <strong>Vinted.it</strong> (IT (Naples -> DE))</div>
+                <div class="pill-wrap"><span class="pill">Blurry box photo only</span></div>
+              </td>
+              <td class="num">
+                <strong>28 min</strong><br>
+                <span class="sub">4.1★ (3)</span>
+              </td>
+              <td class="num">
+                <strong>€285.00</strong><br>
+                <span class="sub">All-in: €305.50</span>
+              </td>
+              <td class="num">
+                <strong>€390.00</strong><br>
+                <span class="sub">Ratio: 0.73x (-21.7%)</span>
+              </td>
+              <td class="num">
+                <span class="strike">€62.27</span><br>
+                <strong class="accent-emerald">€16.76</strong>
+                <span class="sub">(-73.1% USt)</span>
+              </td>
+              <td class="num">
+                <strong class="profit-val">€17.85</strong><br>
+                <span class="sub">Privat: €34.61</span>
+              </td>
+              <td>
+                <span class="badge badge-fail">GUARDRAIL BLOCKED</span>
+                <div class="sub" style="margin-top:4px;">REJECTED (Age 28m >= 15m, Ask/Median 0.73 > 0.62, Rating 4.1★ < 4.7★, Missing Serial/Auth proof)</div>
+              </td>
+            </tr>
+            
+        </tbody>
+      </table>
+    </div>
+
+    <!-- DAC7 PROFILES -->
+    <div class="section">
+      <h2>3. Play B — Deterministische DACH PStTG (DAC7) & § 23 EStG / § 25a UStG Referenz-Szenarien</h2>
+      <div class="grid-3">
+        
+            <div class="card profile-card">
+              <div class="card-header">
+                <span class="badge badge-warn">
+                  DAC7 MELDUNG AN BZST AKTIV
+                </span>
+                <span class="mono-id">DAC7-CASE-A</span>
+              </div>
+              <h3>Szenario A: Familien-Haushaltsauflösung (38 Verkäufe / €2.480)</h3>
+              <p class="sub">Verkauft getragene Kleidung, Kinderwagen-Zubehör & Alltagsgegenstände auf Vinted.de & Kleinanzeigen.</p>
+              <div class="metric-strip">
+                <div><span>Transaktionen</span><strong>38 / 30</strong></div>
+                <div><span>Jahresumsatz</span><strong>€2,480.00</strong></div>
+                <div><span>§23 EStG Steuerpfl.</span><strong>€0.00</strong></div>
+                <div><span>§25a USt-Ersparnis</span><strong class="accent-emerald">€0.00</strong></div>
+              </div>
+              <div class="legal-box">
+                <div class="legal-title">100% STEUERFREIER PRIVATVERKAUF (§ 23 Abs. 1 S. 1 Nr. 2 S. 2 EStG — Haushaltsauflösung)</div>
+                <div class="legal-trigger">DUAL TRIGGER (§ 4 Abs. 5 PStTG): 38 Verkäufe (>= 30) & €2,480.00 Umsatz (> €2.000)</div>
+                <p style="margin:6px 0 0 0;font-size:0.86rem;">Trotz automatischer DAC7-Meldung an das BZSt sind 100% der Verkäufe steuerfrei (Gegenstände des täglichen Gebrauchs bzw. Gewinn unter €1.000 Freigrenze). Belege für Rückfragen bereithalten.</p>
+              </div>
+              <ul class="checklist"><li>DAC7-Plattformkopie (§ 22 Abs. 2 PStTG) herunterladen und mit Eigenbelegen abgleichen</li><li>Dokumentation 'Gegenstände des täglichen Gebrauchs' (Kinderkleidung, getragene Mode, Haushalt) sichern</li><li>Bei Finanzamt-Nachfrage: Muster-Stellungnahme § 23 Abs. 1 S. 1 Nr. 2 S. 2 EStG einreichen (0€ Steuerlast)</li></ul>
+            </div>
+            
+            <div class="card profile-card">
+              <div class="card-header">
+                <span class="badge badge-warn">
+                  DAC7 MELDUNG AN BZST AKTIV
+                </span>
+                <span class="mono-id">DAC7-CASE-B</span>
+              </div>
+              <h3>Szenario B: Uhren- & Pokémon-Sammler (<1 Jahr Haltedauer, 12 Verkäufe / €3.950)</h3>
+              <p class="sub">Unter 30 Verkäufen, aber >€2.000 Umsatz. Verkauft 6 Sammlerstücke innerhalb von 12 Monaten mit €1.183 Spekulationsgewinn.</p>
+              <div class="metric-strip">
+                <div><span>Transaktionen</span><strong>12 / 30</strong></div>
+                <div><span>Jahresumsatz</span><strong>€3,950.00</strong></div>
+                <div><span>§23 EStG Steuerpfl.</span><strong>€1,183.00</strong></div>
+                <div><span>§25a USt-Ersparnis</span><strong class="accent-emerald">€0.00</strong></div>
+              </div>
+              <div class="legal-box">
+                <div class="legal-title">PRIVATES VERÄUSSERUNGSGESCHÄFT (§ 23 Abs. 1 Nr. 2 EStG — Steuerpflichtig da >= €1.000 Freigrenze)</div>
+                <div class="legal-trigger">REVENUE TRIGGER (§ 4 Abs. 5 PStTG): €3,950.00 Jahresumsatz (> €2.000 Grenze)</div>
+                <p style="margin:6px 0 0 0;font-size:0.86rem;">Anlage SO (Einkommensteuererklärung) ausfüllen: €1,183.00 Gewinn aus Uhren/Sammlerstücken (< 1 Jahr Haltedauer) überschreitet die €1.000 Freigrenze. Kein Gewerbe/USt nötig.</p>
+              </div>
+              <ul class="checklist"><li>Anschaffungs- und Veräußerungszeitpunkte (< 365 Tage) für Sammlerstücke/Uhren in Anlage SO dokumentieren</li><li>Verkäufe von Kleidung/Alltagsgegenständen (§ 23 Abs. 1 S. 1 Nr. 2 S. 2 EStG) separat als steuerfrei ausweisen</li><li>Plattformgebühren & Versandkosten als Werbungskosten (§ 23 Abs. 3 S. 1 EStG) abziehen</li></ul>
+            </div>
+            
+            <div class="card profile-card">
+              <div class="card-header">
+                <span class="badge badge-warn">
+                  DAC7 MELDUNG AN BZST AKTIV
+                </span>
+                <span class="mono-id">DAC7-CASE-C</span>
+              </div>
+              <h3>Szenario C: Gewerblicher Cross-Border Reseller (45 Flips / €28.800 Umsatz)</h3>
+              <p class="sub">Kauft Kameras & Uhren von Privat auf Vinted IT/FR für Ø €390 und verkauft auf eBay.de für Ø €640 mit § 25a UStG Differenzbesteuerung.</p>
+              <div class="metric-strip">
+                <div><span>Transaktionen</span><strong>45 / 30</strong></div>
+                <div><span>Jahresumsatz</span><strong>€28,800.00</strong></div>
+                <div><span>§23 EStG Steuerpfl.</span><strong>€0.00</strong></div>
+                <div><span>§25a USt-Ersparnis</span><strong class="accent-emerald">€2,802.10</strong></div>
+              </div>
+              <div class="legal-box">
+                <div class="legal-title">GEWERBLICHER RESELLER (§ 15 EStG + § 25a UStG Differenzbesteuerung)</div>
+                <div class="legal-trigger">DUAL TRIGGER (§ 4 Abs. 5 PStTG): 45 Verkäufe (>= 30) & €28,800.00 Umsatz (> €2.000)</div>
+                <p style="margin:6px 0 0 0;font-size:0.86rem;">Gewerbeanmeldung + § 25a UStG Option nutzen: Spart €2,802.10 USt (-60.9% ggü. 19% Regelbesteuerung) durch Besteuerung nur der Rohmarge!</p>
+              </div>
+              <ul class="checklist"><li>Eigenankaufsbeleg (Vinted/Kleinanzeigen Chat + Zahlungsnachweis ohne USt-Ausweis) archivieren</li><li>Rechnungshinweis Pflichttext: 'Gebrauchtgegenstände / Sonderregelung (§ 25a UStG)'</li><li>Keine gesonderte Ausweisung der Umsatzsteuer auf der Ausgangsrechnung (§ 14a Abs. 6 UStG)</li><li>Einzelmargen-Aufzeichnungspflicht nach § 25a Abs. 6 UStG (Einkaufspreis, Verkaufspreis, Bemessungsgrundlage)</li></ul>
+            </div>
+            
+      </div>
+    </div>
+
+    <!-- APIFY STORE TELEMETRY -->
+    <div class="section">
+      <h2>4. Live Apify Store Actor Telemetry (Vinted, Kleinanzeigen.de & eBay Sold Listings)</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Actor Slug & Title</th>
+            <th>Category</th>
+            <th class="num">Total Runs (30d)</th>
+            <th class="num">Users (30d)</th>
+            <th>Pricing Model</th>
+            <th>Pipeline Role</th>
+          </tr>
+        </thead>
+        <tbody>
+          
+            <tr>
+              <td><code>caffein.dev/ebay-sold-listings</code><br><span class="sub">eBay Sold Listings Search</span></td>
+              <td>eBay Sold Comps & Median Benchmark</td>
+              <td class="num"><strong>829,756</strong><br><span class="sub">30d: 238,234</span></td>
+              <td class="num"><strong>4,007</strong><br><span class="sub">30d: 869</span></td>
+              <td><span class="pill">PAY_PER_EVENT ($0.0025–$0.0040 / sold listing)</span></td>
+              <td class="sub">Extracts 30-day confirmed eBay.de 'Verkaufte Artikel' median prices & sell-through velocity.</td>
+            </tr>
+            
+            <tr>
+              <td><code>kazkn/vinted-smart-scraper</code><br><span class="sub">Vinted Smart Scraper - Cross-Country Arbitrage Scanner</span></td>
+              <td>Vinted Cross-Border Arbitrage (26 EU Markets)</td>
+              <td class="num"><strong>125,401</strong><br><span class="sub">30d: 2,575</span></td>
+              <td class="num"><strong>1,029</strong><br><span class="sub">30d: 64</span></td>
+              <td><span class="pill">PAY_PER_EVENT ($0.001875–$0.0025 / result + $0.15 arbitrage check)</span></td>
+              <td class="sub">Scans Vinted.it, Vinted.fr, Vinted.es & Vinted.de for underpriced compact cameras, watches & luxury gear.</td>
+            </tr>
+            
+            <tr>
+              <td><code>scrape.badger/vinted-scraper</code><br><span class="sub">Vinted Scraper: Search, Items, Prices & Profiles</span></td>
+              <td>High-Frequency Vinted Feed Polling</td>
+              <td class="num"><strong>46,107</strong><br><span class="sub">30d: 27,435</span></td>
+              <td class="num"><strong>203</strong><br><span class="sub">30d: 57</span></td>
+              <td><span class="pill">PAY_PER_EVENT ($0.0010 / listing)</span></td>
+              <td class="sub">Sub-15-minute new listing sniper across 26 European Vinted catalogs with seller trust rating extraction.</td>
+            </tr>
+            
+            <tr>
+              <td><code>epicscrapers/vinted-search-scraper</code><br><span class="sub">Vinted Scraper | From $0.75/1k</span></td>
+              <td>Vinted Catalog & AI Filtering</td>
+              <td class="num"><strong>27,118</strong><br><span class="sub">30d: 3,786</span></td>
+              <td class="num"><strong>817</strong><br><span class="sub">30d: 121</span></td>
+              <td><span class="pill">PAY_PER_EVENT ($0.00075–$0.0030 / product)</span></td>
+              <td class="sub">Low-cost bulk catalog sweep + AI-filtered defect/authenticity screening.</td>
+            </tr>
+            
+            <tr>
+              <td><code>memo23/kleinanzeigen-search-scraper-ppe</code><br><span class="sub">Kleinanzeigen.de | $1.5 | Scraper (Richest output)[PPE]</span></td>
+              <td>Kleinanzeigen.de Real-Time Classifieds</td>
+              <td class="num"><strong>27,177</strong><br><span class="sub">30d: 6,121</span></td>
+              <td class="num"><strong>325</strong><br><span class="sub">30d: 118</span></td>
+              <td><span class="pill">PAY_PER_EVENT ($0.0015 / listing + $0.005 start)</span></td>
+              <td class="sub">Captures local German Kleinanzeigen 'Direkt kaufen' & pickup deals before commercial dealers react.</td>
+            </tr>
+            
+            <tr>
+              <td><code>memo23/ebay-search-scraper-ppe</code><br><span class="sub">eBay Scraper — Active & Sold Listings, Prices & Analytics</span></td>
+              <td>eBay Active + Sold Summary Analytics</td>
+              <td class="num"><strong>20,484</strong><br><span class="sub">30d: 9,711</span></td>
+              <td class="num"><strong>724</strong><br><span class="sub">30d: 300</span></td>
+              <td><span class="pill">PAY_PER_EVENT ($0.003 fast item / $0.02 sold-summary)</span></td>
+              <td class="sub">Computes eBay.de sell-through rates, MPN/EAN matching, and active competition depth.</td>
+            </tr>
+            
+            <tr>
+              <td><code>beatanalytics/kleinanzeigen-scraper</code><br><span class="sub">Kleinanzeigen Scraper</span></td>
+              <td>Kleinanzeigen Keyword & Seller Extraction</td>
+              <td class="num"><strong>13,543</strong><br><span class="sub">30d: 1,783</span></td>
+              <td class="num"><strong>163</strong><br><span class="sub">30d: 74</span></td>
+              <td><span class="pill">PAY_PER_EVENT ($0.0015 / post)</span></td>
+              <td class="sub">Extracts full German item descriptions, shutter counts, box/papers mentions, and seller badges.</td>
+            </tr>
+            
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    const BENCHMARK_CANDIDATES = [{"deal_id": "FLIP-01", "sku_name": "Fujifilm X100V Silver (Shutter Count 3,400, OVP + Haoge Hood)", "category": "Compact Cameras", "source_platform": "Vinted.it", "source_country": "IT (Milan -> DE Express)", "listing_age_minutes": 4, "seller_rating": 4.9, "seller_reviews": 84, "authenticity_signals": ["Serial #14A08821 photo", "Shutter count menu screenshot (3,400)", "Original MediaWorld invoice"], "source_ask_eur": 740.0, "buyer_protection_and_shipping_eur": 44.5, "ebay_de_30d_sold_comps_eur": [1290.0, 1320.0, 1350.0, 1280.0, 1380.0, 1310.0, 1340.0], "ebay_de_sell_through_pct": 94.2, "ebay_de_fee_rate": 0.11, "outbound_shipping_de_eur": 13.99, "total_acquisition_cost_eur": 784.5, "ebay_de_30d_sold_median_eur": 1320.0, "price_to_median_ratio": 0.5606, "discount_vs_median_pct": 40.6, "ebay_de_platform_fee_eur": 145.2, "gross_margin_eur": 535.5, "regular_vat_19_eur": 210.76, "margin_vat_25a_ustg_eur": 92.61, "vat_saved_by_25a_eur": 118.15, "vat_reduction_pct": 56.1, "net_profit_private_eur": 376.31, "net_profit_commercial_25a_eur": 283.7, "net_profit_commercial_regular_vat_eur": 165.55, "sniper_passed": true, "sniper_verdict": "SNIPER LOCKED (+€283.70 Net after §25a UStG | 40.6% below eBay.de Sold Median)"}, {"deal_id": "FLIP-02", "sku_name": "Omega Seamaster Cosmic 2000 Automatic Vintage (Ref. 166.128, 38mm)", "category": "Vintage Watches", "source_platform": "Vinted.fr", "source_country": "FR (Lyon -> DE Mondial Relay)", "listing_age_minutes": 7, "seller_rating": 4.8, "seller_reviews": 62, "authenticity_signals": ["Caliber 1012 movement macro", "Caseback Ref. 166.128 stamp", "Original Omega buckle"], "source_ask_eur": 460.0, "buyer_protection_and_shipping_eur": 29.8, "ebay_de_30d_sold_comps_eur": [840.0, 890.0, 860.0, 820.0, 910.0, 850.0, 875.0], "ebay_de_sell_through_pct": 88.5, "ebay_de_fee_rate": 0.11, "outbound_shipping_de_eur": 14.99, "total_acquisition_cost_eur": 489.8, "ebay_de_30d_sold_median_eur": 860.0, "price_to_median_ratio": 0.5349, "discount_vs_median_pct": 43.0, "ebay_de_platform_fee_eur": 94.6, "gross_margin_eur": 370.2, "regular_vat_19_eur": 137.31, "margin_vat_25a_ustg_eur": 63.87, "vat_saved_by_25a_eur": 73.44, "vat_reduction_pct": 53.5, "net_profit_private_eur": 260.61, "net_profit_commercial_25a_eur": 196.74, "net_profit_commercial_regular_vat_eur": 123.3, "sniper_passed": true, "sniper_verdict": "SNIPER LOCKED (+€196.74 Net after §25a UStG | 43.0% below eBay.de Sold Median)"}, {"deal_id": "FLIP-03", "sku_name": "Contax T2 Titanium 35mm Film Camera (Carl Zeiss Sonnar 38mm f/2.8)", "category": "Compact Cameras", "source_platform": "Kleinanzeigen.de", "source_country": "DE (München - Direkt kaufen)", "listing_age_minutes": 6, "seller_rating": 5.0, "seller_reviews": 41, "authenticity_signals": ["Zeiss Sonnar lens serial #749201", "No AF gear skip video", "Original velvet pouch + box"], "source_ask_eur": 590.0, "buyer_protection_and_shipping_eur": 26.9, "ebay_de_30d_sold_comps_eur": [1050.0, 1090.0, 1120.0, 1040.0, 1150.0, 1080.0, 1100.0], "ebay_de_sell_through_pct": 91.0, "ebay_de_fee_rate": 0.11, "outbound_shipping_de_eur": 13.99, "total_acquisition_cost_eur": 616.9, "ebay_de_30d_sold_median_eur": 1090.0, "price_to_median_ratio": 0.5413, "discount_vs_median_pct": 43.4, "ebay_de_platform_fee_eur": 119.9, "gross_margin_eur": 473.1, "regular_vat_19_eur": 174.03, "margin_vat_25a_ustg_eur": 79.83, "vat_saved_by_25a_eur": 94.2, "vat_reduction_pct": 54.1, "net_profit_private_eur": 339.21, "net_profit_commercial_25a_eur": 259.38, "net_profit_commercial_regular_vat_eur": 165.18, "sniper_passed": true, "sniper_verdict": "SNIPER LOCKED (+€259.38 Net after §25a UStG | 43.4% below eBay.de Sold Median)"}, {"deal_id": "FLIP-04", "sku_name": "New Nintendo 3DS XL Hyrule Edition (Dual IPS Screens + CIB German Box)", "category": "Retro-Tech & Gaming", "source_platform": "Vinted.es", "source_country": "ES (Madrid -> DE Cross-Border)", "listing_age_minutes": 9, "seller_rating": 4.9, "seller_reviews": 119, "authenticity_signals": ["3DSident Dual-IPS screen proof", "Matching serial bar on box", "Unscratched gold shell"], "source_ask_eur": 235.0, "buyer_protection_and_shipping_eur": 18.25, "ebay_de_30d_sold_comps_eur": [430.0, 449.0, 460.0, 420.0, 455.0, 440.0, 450.0], "ebay_de_sell_through_pct": 96.4, "ebay_de_fee_rate": 0.11, "outbound_shipping_de_eur": 6.99, "total_acquisition_cost_eur": 253.25, "ebay_de_30d_sold_median_eur": 449.0, "price_to_median_ratio": 0.5234, "discount_vs_median_pct": 43.6, "ebay_de_platform_fee_eur": 49.39, "gross_margin_eur": 195.75, "regular_vat_19_eur": 71.69, "margin_vat_25a_ustg_eur": 34.17, "vat_saved_by_25a_eur": 37.52, "vat_reduction_pct": 52.3, "net_profit_private_eur": 139.37, "net_profit_commercial_25a_eur": 105.2, "net_profit_commercial_regular_vat_eur": 67.68, "sniper_passed": true, "sniper_verdict": "SNIPER LOCKED (+€105.20 Net after §25a UStG | 43.6% below eBay.de Sold Median)"}, {"deal_id": "FLIP-05", "sku_name": "Rimowa Original Cabin S Aluminium 55cm (Topas Pre-LVMH 4-Multiwheel)", "category": "Secondhand Luxury", "source_platform": "Vinted.it", "source_country": "IT (Turin -> DE Tracked)", "listing_age_minutes": 11, "seller_rating": 4.8, "seller_reviews": 53, "authenticity_signals": ["Engraved frame serial #925520", "TSA 006 lock stamp", "Original leather luggage tag"], "source_ask_eur": 490.0, "buyer_protection_and_shipping_eur": 32.4, "ebay_de_30d_sold_comps_eur": [860.0, 890.0, 920.0, 870.0, 885.0, 910.0, 880.0], "ebay_de_sell_through_pct": 93.8, "ebay_de_fee_rate": 0.11, "outbound_shipping_de_eur": 10.49, "total_acquisition_cost_eur": 522.4, "ebay_de_30d_sold_median_eur": 885.0, "price_to_median_ratio": 0.5537, "discount_vs_median_pct": 41.0, "ebay_de_platform_fee_eur": 97.35, "gross_margin_eur": 362.6, "regular_vat_19_eur": 141.3, "margin_vat_25a_ustg_eur": 63.07, "vat_saved_by_25a_eur": 78.23, "vat_reduction_pct": 55.4, "net_profit_private_eur": 254.76, "net_profit_commercial_25a_eur": 191.69, "net_profit_commercial_regular_vat_eur": 113.46, "sniper_passed": true, "sniper_verdict": "SNIPER LOCKED (+€191.69 Net after §25a UStG | 41.0% below eBay.de Sold Median)"}, {"deal_id": "FLIP-06", "sku_name": "Seiko Alpinist SARB017 Green Dial JDM Automatic (6R15, Full Set)", "category": "Vintage Watches", "source_platform": "Kleinanzeigen.de", "source_country": "DE (Hamburg - Direkt kaufen)", "listing_age_minutes": 5, "seller_rating": 4.9, "seller_reviews": 77, "authenticity_signals": ["6R15-00E1 caseback engraving", "Seiko JDM warranty card", "Timegrapher +2s/day photo"], "source_ask_eur": 380.0, "buyer_protection_and_shipping_eur": 19.9, "ebay_de_30d_sold_comps_eur": [670.0, 695.0, 680.0, 710.0, 660.0, 690.0, 685.0], "ebay_de_sell_through_pct": 90.5, "ebay_de_fee_rate": 0.11, "outbound_shipping_de_eur": 6.99, "total_acquisition_cost_eur": 399.9, "ebay_de_30d_sold_median_eur": 685.0, "price_to_median_ratio": 0.5547, "discount_vs_median_pct": 41.6, "ebay_de_platform_fee_eur": 75.35, "gross_margin_eur": 285.1, "regular_vat_19_eur": 109.37, "margin_vat_25a_ustg_eur": 48.7, "vat_saved_by_25a_eur": 60.67, "vat_reduction_pct": 55.5, "net_profit_private_eur": 202.76, "net_profit_commercial_25a_eur": 154.06, "net_profit_commercial_regular_vat_eur": 93.39, "sniper_passed": true, "sniper_verdict": "SNIPER LOCKED (+€154.06 Net after §25a UStG | 41.6% below eBay.de Sold Median)"}, {"deal_id": "FLIP-07", "sku_name": "Arc'teryx Beta AR Gore-Tex Pro Jacket Men's L (Kingfisher, 2023)", "category": "Secondhand Luxury", "source_platform": "Vinted.fr", "source_country": "FR (Annecy -> DE)", "listing_age_minutes": 8, "seller_rating": 4.7, "seller_reviews": 38, "authenticity_signals": ["Gore-Tex Pro internal seam tape macro", "YKK Vislon AquaGuard zipper stamp", "Care tag PO# 129482"], "source_ask_eur": 220.0, "buyer_protection_and_shipping_eur": 17.5, "ebay_de_30d_sold_comps_eur": [395.0, 410.0, 425.0, 390.0, 415.0, 405.0, 410.0], "ebay_de_sell_through_pct": 89.1, "ebay_de_fee_rate": 0.11, "outbound_shipping_de_eur": 6.99, "total_acquisition_cost_eur": 237.5, "ebay_de_30d_sold_median_eur": 410.0, "price_to_median_ratio": 0.5366, "discount_vs_median_pct": 42.1, "ebay_de_platform_fee_eur": 45.1, "gross_margin_eur": 172.5, "regular_vat_19_eur": 65.46, "margin_vat_25a_ustg_eur": 30.34, "vat_saved_by_25a_eur": 35.12, "vat_reduction_pct": 53.7, "net_profit_private_eur": 120.41, "net_profit_commercial_25a_eur": 90.07, "net_profit_commercial_regular_vat_eur": 54.95, "sniper_passed": true, "sniper_verdict": "SNIPER LOCKED (+€90.07 Net after §25a UStG | 42.1% below eBay.de Sold Median)"}, {"deal_id": "FLIP-08", "sku_name": "Dyson Airwrap Complete Long Multi-Styler (Nickel/Copper) — Unverified", "category": "Consumer Tech (Trap Example)", "source_platform": "Vinted.it", "source_country": "IT (Naples -> DE)", "listing_age_minutes": 28, "seller_rating": 4.1, "seller_reviews": 3, "authenticity_signals": ["Blurry box photo only"], "source_ask_eur": 285.0, "buyer_protection_and_shipping_eur": 20.5, "ebay_de_30d_sold_comps_eur": [380.0, 390.0, 395.0, 375.0, 400.0], "ebay_de_sell_through_pct": 84.0, "ebay_de_fee_rate": 0.11, "outbound_shipping_de_eur": 6.99, "total_acquisition_cost_eur": 305.5, "ebay_de_30d_sold_median_eur": 390.0, "price_to_median_ratio": 0.7308, "discount_vs_median_pct": 21.7, "ebay_de_platform_fee_eur": 42.9, "gross_margin_eur": 84.5, "regular_vat_19_eur": 62.27, "margin_vat_25a_ustg_eur": 16.76, "vat_saved_by_25a_eur": 45.51, "vat_reduction_pct": 73.1, "net_profit_private_eur": 34.61, "net_profit_commercial_25a_eur": 17.85, "net_profit_commercial_regular_vat_eur": -27.66, "sniper_passed": false, "sniper_verdict": "REJECTED (Age 28m >= 15m, Ask/Median 0.73 > 0.62, Rating 4.1★ < 4.7★, Missing Serial/Auth proof)"}];
+    const BENCHMARK_PROFILES = [{"profile_id": "DAC7-CASE-A", "profile_name": "Szenario A: Familien-Haushaltsauflösung (38 Verkäufe / €2.480)", "persona_description": "Verkauft getragene Kleidung, Kinderwagen-Zubehör & Alltagsgegenstände auf Vinted.de & Kleinanzeigen.", "calendar_year": 2026, "total_transactions": 38, "gross_revenue_eur": 2480.0, "dac7_tx_threshold": 30, "dac7_revenue_threshold_eur": 2000.0, "dac7_reported_to_bzst": true, "dac7_trigger_reason": "DUAL TRIGGER (§ 4 Abs. 5 PStTG): 38 Verkäufe (>= 30) & €2,480.00 Umsatz (> €2.000)", "daily_use_exempt_count": 38, "daily_use_exempt_revenue_eur": 2480.0, "daily_use_exempt_gain_eur": -1984.0, "speculative_23_estg_count": 0, "speculative_23_estg_gain_eur": 0.0, "speculative_23_freigrenze_eur": 1000.0, "speculative_23_taxable_eur": 0.0, "commercial_15_estg_count": 0, "commercial_15_estg_revenue_eur": 0.0, "commercial_15_estg_gross_margin_eur": 0.0, "regular_vat_19_liability_eur": 0.0, "margin_vat_25a_liability_eur": 0.0, "vat_savings_25a_eur": 0.0, "vat_savings_25a_pct": 0.0, "tax_classification": "100% STEUERFREIER PRIVATVERKAUF (§ 23 Abs. 1 S. 1 Nr. 2 S. 2 EStG — Haushaltsauflösung)", "recommended_legal_action": "Trotz automatischer DAC7-Meldung an das BZSt sind 100% der Verkäufe steuerfrei (Gegenstände des täglichen Gebrauchs bzw. Gewinn unter €1.000 Freigrenze). Belege für Rückfragen bereithalten.", "compliance_checklist": ["DAC7-Plattformkopie (§ 22 Abs. 2 PStTG) herunterladen und mit Eigenbelegen abgleichen", "Dokumentation 'Gegenstände des täglichen Gebrauchs' (Kinderkleidung, getragene Mode, Haushalt) sichern", "Bei Finanzamt-Nachfrage: Muster-Stellungnahme § 23 Abs. 1 S. 1 Nr. 2 S. 2 EStG einreichen (0€ Steuerlast)"]}, {"profile_id": "DAC7-CASE-B", "profile_name": "Szenario B: Uhren- & Pokémon-Sammler (<1 Jahr Haltedauer, 12 Verkäufe / €3.950)", "persona_description": "Unter 30 Verkäufen, aber >€2.000 Umsatz. Verkauft 6 Sammlerstücke innerhalb von 12 Monaten mit €1.183 Spekulationsgewinn.", "calendar_year": 2026, "total_transactions": 12, "gross_revenue_eur": 3950.0, "dac7_tx_threshold": 30, "dac7_revenue_threshold_eur": 2000.0, "dac7_reported_to_bzst": true, "dac7_trigger_reason": "REVENUE TRIGGER (§ 4 Abs. 5 PStTG): €3,950.00 Jahresumsatz (> €2.000 Grenze)", "daily_use_exempt_count": 6, "daily_use_exempt_revenue_eur": 730.0, "daily_use_exempt_gain_eur": -859.0, "speculative_23_estg_count": 6, "speculative_23_estg_gain_eur": 1183.0, "speculative_23_freigrenze_eur": 1000.0, "speculative_23_taxable_eur": 1183.0, "commercial_15_estg_count": 0, "commercial_15_estg_revenue_eur": 0.0, "commercial_15_estg_gross_margin_eur": 0.0, "regular_vat_19_liability_eur": 0.0, "margin_vat_25a_liability_eur": 0.0, "vat_savings_25a_eur": 0.0, "vat_savings_25a_pct": 0.0, "tax_classification": "PRIVATES VERÄUSSERUNGSGESCHÄFT (§ 23 Abs. 1 Nr. 2 EStG — Steuerpflichtig da >= €1.000 Freigrenze)", "recommended_legal_action": "Anlage SO (Einkommensteuererklärung) ausfüllen: €1,183.00 Gewinn aus Uhren/Sammlerstücken (< 1 Jahr Haltedauer) überschreitet die €1.000 Freigrenze. Kein Gewerbe/USt nötig.", "compliance_checklist": ["Anschaffungs- und Veräußerungszeitpunkte (< 365 Tage) für Sammlerstücke/Uhren in Anlage SO dokumentieren", "Verkäufe von Kleidung/Alltagsgegenständen (§ 23 Abs. 1 S. 1 Nr. 2 S. 2 EStG) separat als steuerfrei ausweisen", "Plattformgebühren & Versandkosten als Werbungskosten (§ 23 Abs. 3 S. 1 EStG) abziehen"]}, {"profile_id": "DAC7-CASE-C", "profile_name": "Szenario C: Gewerblicher Cross-Border Reseller (45 Flips / €28.800 Umsatz)", "persona_description": "Kauft Kameras & Uhren von Privat auf Vinted IT/FR für Ø €390 und verkauft auf eBay.de für Ø €640 mit § 25a UStG Differenzbesteuerung.", "calendar_year": 2026, "total_transactions": 45, "gross_revenue_eur": 28800.0, "dac7_tx_threshold": 30, "dac7_revenue_threshold_eur": 2000.0, "dac7_reported_to_bzst": true, "dac7_trigger_reason": "DUAL TRIGGER (§ 4 Abs. 5 PStTG): 45 Verkäufe (>= 30) & €28,800.00 Umsatz (> €2.000)", "daily_use_exempt_count": 0, "daily_use_exempt_revenue_eur": 0.0, "daily_use_exempt_gain_eur": 0.0, "speculative_23_estg_count": 0, "speculative_23_estg_gain_eur": 0.0, "speculative_23_freigrenze_eur": 1000.0, "speculative_23_taxable_eur": 0.0, "commercial_15_estg_count": 45, "commercial_15_estg_revenue_eur": 28800.0, "commercial_15_estg_gross_margin_eur": 7740.0, "regular_vat_19_liability_eur": 4598.32, "margin_vat_25a_liability_eur": 1796.22, "vat_savings_25a_eur": 2802.1, "vat_savings_25a_pct": 60.9, "tax_classification": "GEWERBLICHER RESELLER (§ 15 EStG + § 25a UStG Differenzbesteuerung)", "recommended_legal_action": "Gewerbeanmeldung + § 25a UStG Option nutzen: Spart €2,802.10 USt (-60.9% ggü. 19% Regelbesteuerung) durch Besteuerung nur der Rohmarge!", "compliance_checklist": ["Eigenankaufsbeleg (Vinted/Kleinanzeigen Chat + Zahlungsnachweis ohne USt-Ausweis) archivieren", "Rechnungshinweis Pflichttext: 'Gebrauchtgegenstände / Sonderregelung (§ 25a UStG)'", "Keine gesonderte Ausweisung der Umsatzsteuer auf der Ausgangsrechnung (§ 14a Abs. 6 UStG)", "Einzelmargen-Aufzeichnungspflicht nach § 25a Abs. 6 UStG (Einkaufspreis, Verkaufspreis, Bemessungsgrundlage)"]}];
+
+    function recalcFlip() {
+      const ask = parseFloat(document.getElementById('inp-ask').value) || 0;
+      const shipIn = parseFloat(document.getElementById('inp-ship-in').value) || 0;
+      const median = parseFloat(document.getElementById('inp-median').value) || 1;
+      const feePct = (parseFloat(document.getElementById('inp-fee').value) || 0) / 100.0;
+      const age = parseInt(document.getElementById('inp-age').value) || 0;
+      const rating = parseFloat(document.getElementById('inp-rating').value) || 0;
+
+      const allIn = ask + shipIn;
+      const ratio = ask / median;
+      const ebayFee = median * feePct;
+      const outShip = 10.99;
+
+      const regVat = median * (19.0 / 119.0);
+      const rawSpread = Math.max(0, median - ask);
+      const marginVat25a = rawSpread * (19.0 / 119.0);
+      const vatSaved = regVat - marginVat25a;
+      const vatSavePct = regVat > 0 ? (vatSaved / regVat) * 100.0 : 0;
+
+      const net25a = median - allIn - ebayFee - outShip - marginVat25a;
+      const netReg = median - allIn - ebayFee - outShip - regVat;
+
+      const passed = (age < 15) && (ratio <= 0.62) && (rating >= 4.7);
+      const badge = passed
+        ? '<span class="badge badge-pass">SNIPER GATE PASSED (&le; 0.62x Median, &lt;15m, &ge;4.7★)</span>'
+        : '<span class="badge badge-fail">GUARDRAIL ALERT (Prüfe Ask/Median &le; 0.62, Alter &lt; 15m, Rating &ge; 4.7★)</span>';
+
+      document.getElementById('flip-output').innerHTML = `
+        <div style="margin-bottom:8px;">${badge}</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;font-size:0.86rem;">
+          <div><span class="sub">Ask / Median Ratio</span><br><strong>${ratio.toFixed(2)}x (${((1 - allIn/median)*100).toFixed(1)}% Spread)</strong></div>
+          <div><span class="sub">19% Regel-USt vs. § 25a UStG</span><br><span class="strike">€${regVat.toFixed(2)}</span> → <strong class="accent-emerald">€${marginVat25a.toFixed(2)} (-${vatSavePct.toFixed(1)}%)</strong></div>
+          <div><span class="sub">Netto-Flip-Gewinn (§ 25a UStG)</span><br><strong class="profit-val">€${net25a.toFixed(2)}</strong> <span class="sub">(Regel-USt: €${netReg.toFixed(2)})</span></div>
+        </div>
+      `;
+    }
+
+    function recalcDac7() {
+      const tx = parseInt(document.getElementById('dac-tx').value) || 0;
+      const rev = parseFloat(document.getElementById('dac-rev').value) || 0;
+      const bucket = document.getElementById('dac-bucket').value;
+      const gain = parseFloat(document.getElementById('dac-gain').value) || 0;
+
+      const reported = (tx >= 30) || (rev > 2000);
+      const reportBadge = reported
+        ? '<span class="badge badge-warn">PStTG / DAC7 MELDUNG AN BZST AKTIV (&ge;30 Verkäufe ODER &gt;€2.000)</span>'
+        : '<span class="badge badge-pass">UNTERHALB DAC7-SCHWELLE (Keine BZSt-Meldung)</span>';
+
+      let verdict = '';
+      if (bucket === 'daily_use') {
+        verdict = '<strong>100% STEUERFREI (§ 23 Abs. 1 S. 1 Nr. 2 S. 2 EStG):</strong> Gegenstände des täglichen Gebrauchs (Kleidung, Möbel, Kinderartikel) sind auch innerhalb der 1-Jahres-Frist und trotz DAC7-Meldung komplett einkommensteuerfrei!';
+      } else if (bucket === 'collectibles') {
+        if (gain >= 1000) {
+          verdict = `<strong>STEUERPFLICHTIGES PRIVATES VERÄUSSERUNGSGESCHÄFT (§ 23 EStG):</strong> Jahresgewinn (€${gain.toFixed(2)}) erreicht/überschreitet die <strong>€1.000 Freigrenze</strong> (§ 23 Abs. 3 S. 5 EStG). Voller Gewinn in Anlage SO einzutragen, aber kein Gewerbe/USt nötig.`;
+        } else {
+          verdict = `<strong>STEUERFREI UNTER €1.000 FREIGRENZE (§ 23 Abs. 3 S. 5 EStG):</strong> Jahresgewinn (€${gain.toFixed(2)}) aus Uhren/Sammlerstücken (&lt;1 Jahr) liegt unter der €1.000 Freigrenze (0€ Einkommensteuer).`;
+        }
+      } else {
+        const estVat25a = Math.max(0, gain) * (19.0 / 119.0);
+        const estVatReg = rev * (19.0 / 119.0);
+        verdict = `<strong>GEWERBLICHER HANDEL (§ 15 EStG + § 25a UStG):</strong> Nachhaltige Gewinnerzielungsabsicht. Durch Option zur <strong>§ 25a UStG Differenzbesteuerung</strong> sinkt die USt-Last von €${estVatReg.toFixed(2)} auf <strong>€${estVat25a.toFixed(2)}</strong> (Ersparnis: €${(estVatReg - estVat25a).toFixed(2)})!`;
+      }
+
+      document.getElementById('dac7-output').innerHTML = `
+        <div style="margin-bottom:8px;">${reportBadge}</div>
+        <div style="font-size:0.86rem;line-height:1.45;">${verdict}</div>
+      `;
+    }
+
+    recalcFlip();
+    recalcDac7();
+  </script>
+</body>
+</html>

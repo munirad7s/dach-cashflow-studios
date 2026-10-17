@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MVP #93 — Pinterest Visual-Shopping Board Velocity & Broken-Affiliate-Pin Hijacker</title>
+    <style>
+        :root {
+            --bg: #0b0d13;
+            --panel: #131722;
+            --panel-alt: #1a2030;
+            --border: #283147;
+            --text: #f1f5f9;
+            --muted: #94a3b8;
+            --pin-red: #e60023;
+            --emerald: #10b981;
+            --amber: #f59e0b;
+            --sky: #38bdf8;
+            --purple: #a855f7;
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.5;
+        }
+        .container {
+            max-width: 1440px;
+            margin: 0 auto;
+            padding: 28px 24px 64px;
+        }
+        header {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 16px;
+            padding-bottom: 22px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 24px;
+        }
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(230, 0, 35, 0.16);
+            color: #ff6b81;
+            border: 1px solid rgba(230, 0, 35, 0.4);
+            padding: 4px 12px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+        h1 {
+            margin: 10px 0 6px;
+            font-size: 28px;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+        }
+        .subtitle {
+            color: var(--muted);
+            font-size: 14px;
+            max-width: 880px;
+        }
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(215px, 1fr));
+            gap: 14px;
+            margin-bottom: 26px;
+        }
+        .kpi-card {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px 18px;
+        }
+        .kpi-label {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--muted);
+        }
+        .kpi-value {
+            font-size: 26px;
+            font-weight: 800;
+            margin-top: 6px;
+        }
+        .kpi-sub {
+            font-size: 12px;
+            color: var(--muted);
+            margin-top: 4px;
+        }
+        .section-card {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+        .section-title {
+            font-size: 17px;
+            font-weight: 700;
+            margin: 0 0 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        th, td {
+            text-align: left;
+            padding: 11px 12px;
+            border-bottom: 1px solid var(--border);
+            vertical-align: top;
+        }
+        th {
+            color: var(--muted);
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            background: rgba(255,255,255,0.02);
+        }
+        .mono-tag {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+            font-size: 12px;
+            background: var(--panel-alt);
+            padding: 3px 7px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+        }
+        .status-pill {
+            display: inline-block;
+            padding: 2px 9px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+        .muted { color: var(--muted); }
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+        .filter-btn {
+            background: var(--panel-alt);
+            color: var(--text);
+            border: 1px solid var(--border);
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .filter-btn.active {
+            background: var(--pin-red);
+            border-color: var(--pin-red);
+            color: #fff;
+        }
+        .studio-layout {
+            display: grid;
+            grid-template-columns: 1.35fr 1fr;
+            gap: 20px;
+        }
+        @media (max-width: 1080px) {
+            .studio-layout { grid-template-columns: 1fr; }
+        }
+        .pin-row {
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+        .pin-row:hover, .pin-row.selected {
+            background: rgba(56, 189, 248, 0.08);
+        }
+        .pin-canvas-preview {
+            width: 280px;
+            height: 420px;
+            margin: 0 auto 18px;
+            border-radius: 16px;
+            padding: 22px 18px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            box-shadow: 0 18px 40px rgba(0,0,0,0.45);
+            border: 2px solid rgba(255,255,255,0.18);
+            color: #111827;
+            text-align: center;
+        }
+        .pin-canvas-top-badge {
+            background: #111827;
+            color: #ffffff;
+            font-size: 11px;
+            font-weight: 800;
+            padding: 5px 10px;
+            border-radius: 999px;
+            letter-spacing: 0.06em;
+            align-self: center;
+        }
+        .pin-canvas-center-box {
+            background: rgba(255, 255, 255, 0.94);
+            padding: 18px 14px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+        }
+        .pin-canvas-headline {
+            font-size: 19px;
+            font-weight: 900;
+            line-height: 1.15;
+            color: #0f172a;
+            margin-bottom: 8px;
+        }
+        .pin-canvas-subhead {
+            font-size: 12px;
+            font-weight: 600;
+            color: #334155;
+        }
+        .pin-canvas-footer {
+            background: #e60023;
+            color: #ffffff;
+            font-size: 11px;
+            font-weight: 800;
+            padding: 8px 12px;
+            border-radius: 8px;
+            letter-spacing: 0.04em;
+        }
+        .meta-box {
+            background: var(--panel-alt);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 12px 14px;
+            margin-bottom: 10px;
+            font-size: 13px;
+        }
+        .meta-label {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 4px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- DACH CASHFLOW STUDIOS LAUNCH BAR -->
+<style>
+  #dcs-launch-bar {
+    position: sticky;
+    top: 0;
+    z-index: 99999;
+    background: linear-gradient(90deg, #0b1120 0%, #111827 50%, #0f172a 100%);
+    color: #f8fafc;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.35);
+    padding: 8px 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  }
+  #dcs-launch-bar .dcs-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+  }
+  #dcs-launch-bar .dcs-badge {
+    background: rgba(16, 185, 129, 0.18);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.03em;
+  }
+  #dcs-launch-bar a.dcs-nav {
+    color: #93c5fd;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 12.5px;
+  }
+  #dcs-launch-bar a.dcs-nav:hover {
+    text-decoration: underline;
+    color: #dbeafe;
+  }
+  #dcs-launch-bar .dcs-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  #dcs-launch-bar .dcs-btn {
+    padding: 5px 11px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s ease;
+  }
+  #dcs-launch-bar .dcs-btn-ghost {
+    background: rgba(255,255,255,0.08);
+    color: #e2e8f0;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  #dcs-launch-bar .dcs-btn-primary {
+    background: linear-gradient(135deg, #0ea5e9, #2563eb);
+    color: #ffffff;
+  }
+  #dcs-launch-bar .dcs-btn-emerald {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
+  }
+  @media print {
+    #dcs-launch-bar { display: none !important; }
+  }
+</style>
+<div id="dcs-launch-bar">
+  <div class="dcs-left">
+    <a href="/index.html" class="dcs-nav">← Alle 150 DACH Studios</a>
+    <span class="dcs-badge">MVP #093 VERIFIED</span>
+    <span style="color:#cbd5e1;font-size:12px;">Creator Economy, Video & Media Arbitrage</span>
+  </div>
+  <div class="dcs-actions">
+    <button onclick="window.print()" class="dcs-btn dcs-btn-ghost">🖨️ PDF / Dossier drucken</button>
+    <a href="#checkout-modal-49" target="_blank" rel="noopener" class="dcs-btn dcs-btn-primary">⚡ Musterschreiben & Voll-Dossier (€49)</a>
+    <a href="#checkout-modal-299" target="_blank" rel="noopener" class="dcs-btn dcs-btn-emerald">🛡️ B2B Umsetzung buchen (€299 / €1.490)</a>
+  </div>
+</div>
+
+<div class="container">
+    <header>
+        <div>
+            <span class="eyebrow">MVP #93 • Pinterest Visual-Shopping & Broken-Pin Arbitrage</span>
+            <h1>Pinterest Save-Velocity & Dead-Affiliate-Link Hijack Studio</h1>
+            <div class="subtitle">
+                Teardown of <strong>epctex/pinterest-scraper (243 MAU)</strong>, <strong>danielmilevski9/pinterest-crawler (210 MAU)</strong>,
+                <strong>devcake/pinterest-scraper (44.7% Fail Rate)</strong> & <strong>easyapi/pinterest-search-scraper (157 MAU)</strong>.
+                Scans high-save evergreen German Pins (4–8 month half-life) for dead outbound URLs:
+                <strong>Play A (Expired Domain €9.90 Capture)</strong> & <strong>Play B (1000x1500 Replacement Pin Hijack)</strong>.
+            </div>
+        </div>
+    </header>
+
+    <div class="kpi-grid">
+        <div class="kpi-card">
+            <div class="kpi-label">Combined Viral Saves Scanned</div>
+            <div class="kpi-value" style="color:var(--pin-red);">330,400</div>
+            <div class="kpi-sub">Across 6 #1 ranking German commercial Pins</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">Wasted Outbound Clicks / Mo</div>
+            <div class="kpi-value" style="color:var(--sky);">21,516</div>
+            <div class="kpi-sub">High-intent shoppers hitting NXDOMAIN / 404 / OOS</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">Play A: Free Expired Domains</div>
+            <div class="kpi-value" style="color:var(--emerald);">3 Domains</div>
+            <div class="kpi-sub">Total registration cost: €29.70</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">Projected Hijack Yield / Mo</div>
+            <div class="kpi-value" style="color:var(--amber);">€9,434.17</div>
+            <div class="kpi-sub">€113,210.04/yr evergreen run-rate</div>
+        </div>
+    </div>
+
+    <div class="section-card">
+        <div class="section-title">
+            <span>1. Apify Pinterest Scraper Teardown (610+ Combined MAU vs. Our Dead-Link Hijack Layer)</span>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Actor Slug</th>
+                    <th>Adoption (MAU)</th>
+                    <th>Total Runs</th>
+                    <th>30d Success Rate</th>
+                    <th>Pricing & Compute</th>
+                    <th>Blind Spot Exploited by MVP #93</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+        <tr>
+            <td><span class="mono-tag">epctex/pinterest-scraper</span></td>
+            <td><strong>243 MAU</strong> <span class="muted">(Live 30d: 183)</span></td>
+            <td>1,336,900</td>
+            <td><span class="status-pill" style="background:#10b98122;color:#10b981;border:1px solid #10b98155;">99.99%</span></td>
+            <td>Transitioned $35/mo Flat -> PPE ($3.10 / 1,000 full pins, $0.10 / 1,000 summaries)</td>
+            <td class="muted">Dumps raw pin JSON without verifying whether the outbound destination URL (`link` / `rich_metadata.url`) is actually alive, returning 200 OK, or in-stock on Amazon/Shopify/Etsy.</td>
+        </tr>
+        
+        <tr>
+            <td><span class="mono-tag">danielmilevski9/pinterest-crawler</span></td>
+            <td><strong>210 MAU</strong> <span class="muted">(Live 30d: 37)</span></td>
+            <td>1,280,198</td>
+            <td><span class="status-pill" style="background:#10b98122;color:#10b981;border:1px solid #10b98155;">99.49%</span></td>
+            <td>Free / Platform Compute Only (apify/actor-node:16)</td>
+            <td class="muted">No save-velocity normalization (age vs. total repins) and zero outbound link health/WHOIS checks.</td>
+        </tr>
+        
+        <tr>
+            <td><span class="mono-tag">devcake/pinterest-scraper</span></td>
+            <td><strong>210 MAU</strong> <span class="muted">(Live 30d: 0)</span></td>
+            <td>4,820</td>
+            <td><span class="status-pill" style="background:#ef444422;color:#ef4444;border:1px solid #ef444455;">55.30%</span></td>
+            <td>Delisted / HTTP 404 on Apify API (44.7% Historical Fail Rate)</td>
+            <td class="muted">Our engine bypasses heavy headless DOM rendering by parsing `__PWS_DATA__` / `BaseSearchResource` state trees and running async HTTP/DNS checks directly on outbound merchant links.</td>
+        </tr>
+        
+        <tr>
+            <td><span class="mono-tag">easyapi/pinterest-search-scraper</span></td>
+            <td><strong>157 MAU</strong> <span class="muted">(Live 30d: 136)</span></td>
+            <td>77,554</td>
+            <td><span class="status-pill" style="background:#f59e0b22;color:#f59e0b;border:1px solid #f59e0b55;">91.23%</span></td>
+            <td>PPE ($0.09 Actor Start + $2.99 / 1,000 results, 2048MB RAM)</td>
+            <td class="muted">Over-allocates 2GB RAM just for keyword searches and completely ignores outbound affiliate/merchant URLs.</td>
+        </tr>
+        
+            </tbody>
+        </table>
+    </div>
+
+    <div class="studio-layout">
+        <div class="section-card">
+            <div class="section-title">
+                <span>2. High-Save Broken Pin Hijack Scanner (Click Row to Generate 1000x1500 Blueprint)</span>
+            </div>
+            <div class="controls">
+                <button class="filter-btn active" onclick="filterPins('ALL', this)">Alle Chancen (6)</button>
+                <button class="filter-btn" onclick="filterPins('PLAY_A', this)">Play A: Expired Domain (€9.90)</button>
+                <button class="filter-btn" onclick="filterPins('PLAY_B', this)">Play B: 404 / Amazon OOS Hijack</button>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Keyword Cluster & Pin</th>
+                        <th>Saves & Velocity</th>
+                        <th>Dead Outbound Target</th>
+                        <th>Arbitrage Play</th>
+                        <th>Est. Yield / Mo</th>
+                    </tr>
+                </thead>
+                <tbody id="pinTableBody"></tbody>
+            </table>
+        </div>
+
+        <div class="section-card">
+            <div class="section-title">
+                <span>3. 1000x1500 (2:3) Replacement Pin & Board SEO Blueprint</span>
+            </div>
+            <div id="blueprintContainer"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+const MANIFEST = {"mvp_id": "MVP_93_PINTEREST_VISUAL_SHOPPING_DEADLINK_HIJACKER", "generated_at": "2026-10-17T17:46:37.466666+00:00", "reference_date": "2026-10-17", "category_context": {"combined_catalog_mau": 610, "evergreen_search_half_life_months": "4 to 8 Months (vs. 24 Hours on TikTok/IG)", "commercial_shopping_intent_pct": 83.0, "actors_analyzed": [{"actor": "epctex/pinterest-scraper", "historical_mau": 243, "live_30d_users": 183, "total_users": 3255, "total_runs": 1336900, "runs_30d_succeeded": 1216764, "runs_30d_total": 1216832, "success_rate_pct": 99.99, "pricing_model": "Transitioned $35/mo Flat -> PPE ($3.10 / 1,000 full pins, $0.10 / 1,000 summaries)", "architecture_notes": "1,340 builds; 256MB lightweight HTTP client hitting Pinterest internal JSON resources (PinResource, BoardFeedResource, BaseSearchResource). Extracts 56 pin fields.", "weakness_exploited": "Dumps raw pin JSON without verifying whether the outbound destination URL (`link` / `rich_metadata.url`) is actually alive, returning 200 OK, or in-stock on Amazon/Shopify/Etsy."}, {"actor": "danielmilevski9/pinterest-crawler", "historical_mau": 210, "live_30d_users": 37, "total_users": 3353, "total_runs": 1280198, "runs_30d_succeeded": 2154, "runs_30d_total": 2165, "success_rate_pct": 99.49, "pricing_model": "Free / Platform Compute Only (apify/actor-node:16)", "architecture_notes": "Legacy Node 16 crawler (`falkenbach/actors#main:pinterest-crawler`), unmaintained since March 2025, 3.19★ rating. Misses modern Rich Pin product availability and Idea Pin metadata.", "weakness_exploited": "No save-velocity normalization (age vs. total repins) and zero outbound link health/WHOIS checks."}, {"actor": "devcake/pinterest-scraper", "historical_mau": 210, "live_30d_users": 0, "total_users": 210, "total_runs": 4820, "runs_30d_succeeded": 0, "runs_30d_total": 0, "success_rate_pct": 55.3, "pricing_model": "Delisted / HTTP 404 on Apify API (44.7% Historical Fail Rate)", "architecture_notes": "Headless browser scraper that choked on Pinterest CSR hydration changes and Cloudflare/Akamai bot walls, resulting in a 44.7% failure rate before being removed from the store.", "weakness_exploited": "Our engine bypasses heavy headless DOM rendering by parsing `__PWS_DATA__` / `BaseSearchResource` state trees and running async HTTP/DNS checks directly on outbound merchant links."}, {"actor": "easyapi/pinterest-search-scraper", "historical_mau": 157, "live_30d_users": 136, "total_users": 1994, "total_runs": 77554, "runs_30d_succeeded": 1540, "runs_30d_total": 1688, "success_rate_pct": 91.23, "pricing_model": "PPE ($0.09 Actor Start + $2.99 / 1,000 results, 2048MB RAM)", "architecture_notes": "Heavy 2GB container with 88 timeouts + 58 aborts in 30 days (8.77% combined timeout/abort rate). Extracts basic search cards and video URLs.", "weakness_exploited": "Over-allocates 2GB RAM just for keyword searches and completely ignores outbound affiliate/merchant URLs."}]}, "portfolio_summary": {"pins_scanned": 6, "combined_viral_saves": 330400, "monthly_wasted_outbound_clicks": 21516, "unregistered_expired_domains_found": 3, "total_domain_registration_cost_eur": 29.7, "projected_monthly_hijack_revenue_eur": 9434.17, "annualized_hijack_run_rate_eur": 113210.04}, "opportunities": [{"pin_id": "pin_de_7729401823", "keyword_cluster": "Meal Prep Rezepte Abnehmen", "niche_category": "Kitchen Gadgets & Digital Recipe Bundles", "pin_url": "https://www.pinterest.de/pin/7729401823/", "pin_title": "21 High-Protein Meal Prep Rezepte zum Abnehmen (Unter 500 kcal & Büro-tauglich)", "pin_description": "Schnelle Meal Prep Rezepte Abnehmen für die ganze Arbeitswoche! Inklusive Glas-Frischhaltedosen mit 3 Fächern und kostenlosem Wochenplan PDF.", "pin_created_at": "2026-02-04", "total_saves": 81500, "total_comments": 219, "reaction_count": 2610, "board_name": "Meal Prep Rezepte Abnehmen & High Protein", "board_followers": 162000, "dominant_color": "#5C8D4E", "image_dimensions": "1000x1500", "outbound_url": "https://fitkueche-alltag.de/21-high-protein-meal-prep-rezepte-abnehmen/", "outbound_domain": "fitkueche-alltag.de", "http_status": "NXDOMAIN", "merchant_platform": "Expired Food & Meal-Prep Blog", "failure_type": "EXPIRED_DOMAIN_UNREGISTERED", "domain_available_to_register": true, "domain_registration_cost_eur": 9.9, "failure_evidence": "DNS lookup failed (NXDOMAIN); DENIC status: free (former WordPress recipe + Amazon affiliate blog)", "commercial_intent_score": 91, "estimated_ctr_pct": 4.9, "affiliate_epc_eur": 0.49, "recommended_affiliate_offer": "€19 High-Protein Meal-Prep eBook Funnel + Amazon DE Borosilikat-Glas Meal-Prep Boxen 10er Set", "affiliate_destination_url": "https://www.amazon.de/s?k=meal+prep+glasdosen+3+faecher&tag=pinhijack-21", "overlay_headline_de": "21 HIGH-PROTEIN MEAL PREP IDEEN", "overlay_subhead_de": "Unter 500 kcal • 25 Min. Vorbereitungszeit • Wochenplan + Boxen-Guide", "overlay_badge_de": "INKL. EINKAUFSLISTE (PDF)", "months_live": 8.38, "saves_per_month": 9726, "evergreen_retention_factor": 0.75, "estimated_monthly_impressions": 134948, "estimated_monthly_outbound_clicks": 6612, "primary_play": "PLAY_A_EXPIRED_DOMAIN_CAPTURE_PLUS_PLAY_B", "play_a_available": true, "play_a_monthly_rev_eur": 3239.88, "play_b_monthly_clicks": 2513, "play_b_monthly_rev_eur": 1231.37, "projected_monthly_revenue_eur": 3670.86, "hijack_priority_score": 96.4, "replacement_seo_blueprint": {"canvas_aspect_ratio": "2:3 Vertical (1000x1500 px)", "safe_zone_margins_px": "Top/Bottom 120px, Left/Right 80px", "dominant_palette_hex": "#5C8D4E", "text_overlay_headline": "21 HIGH-PROTEIN MEAL PREP IDEEN", "text_overlay_subhead": "Unter 500 kcal • 25 Min. Vorbereitungszeit • Wochenplan + Boxen-Guide", "text_overlay_cta_badge": "INKL. EINKAUFSLISTE (PDF)", "seo_pin_title": "Meal Prep Rezepte Abnehmen: 21 High-Protein Meal Prep Ideen (Aktuelle Einkaufsliste 2026)", "seo_pin_description": "Schnelle Meal Prep Rezepte Abnehmen für die ganze Arbeitswoche! Inklusive Glas-Frischhaltedosen mit 3 Fächern und kostenlosem Wochenplan PDF. Sofort verfügbare Produkte & geprüfte Empfehlungen für Meal Prep Rezepte Abnehmen – jetzt alle Favoriten direkt entdecken!", "seo_alt_text": "Vertikale Infografik 1000x1500 zum Thema Meal Prep Rezepte Abnehmen mit Shopping-Empfehlungen: Unter 500 kcal • 25 Min. Vorbereitungszeit • Wochenplan + Boxen-Guide", "target_board_taxonomy": ["Meal Prep Rezepte Abnehmen & High Protein", "Meal Prep Rezepte Abnehmen – Bestseller & Favoriten", "Wohnen, Haushalt & DIY Ideen Deutschland"], "outbound_utm_link": "https://www.amazon.de/s?k=meal+prep+glasdosen+3+faecher&tag=pinhijack-21&utm_source=pinterest&utm_medium=organic_pin&utm_campaign=hijack_pin_de_7729401823"}}, {"pin_id": "pin_de_9948102341", "keyword_cluster": "Wohnzimmer Einrichten Ideen", "niche_category": "Home & Living D2C / Interior Affiliate", "pin_url": "https://www.pinterest.de/pin/9948102341/", "pin_title": "15 Gemütliche Wohnzimmer Einrichten Ideen im Skandi-Boho Stil (Kleines Budget)", "pin_description": "Entdecke die besten Wohnzimmer Einrichten Ideen für kleine Räume! Leinen-Vorhänge, Beistelltische aus Eiche, Bouclé-Sessel und indirekte LED-Beleuchtung zum Nachshoppen.", "pin_created_at": "2025-11-12", "total_saves": 64800, "total_comments": 142, "reaction_count": 1890, "board_name": "Wohnzimmer Inspiration & Skandi Deko", "board_followers": 118400, "dominant_color": "#D8C8B8", "image_dimensions": "1000x1500", "outbound_url": "https://wohnkonzept-nordic-atelier.de/wohnzimmer-skandi-boho-favoriten/", "outbound_domain": "wohnkonzept-nordic-atelier.de", "http_status": "NXDOMAIN", "merchant_platform": "Expired WordPress Interior Blog", "failure_type": "EXPIRED_DOMAIN_UNREGISTERED", "domain_available_to_register": true, "domain_registration_cost_eur": 9.9, "failure_evidence": "DNS lookup failed (NXDOMAIN); DENIC status: free (dropped 19 days ago)", "commercial_intent_score": 94, "estimated_ctr_pct": 3.8, "affiliate_epc_eur": 0.42, "recommended_affiliate_offer": "Home24 / Westwing / Amazon DE Skandi-Boho Wohnzimmer Kollektion (7-10% Provision)", "affiliate_destination_url": "https://www.amazon.de/s?k=skandi+boho+wohnzimmer+deko&tag=pinhijack-21", "overlay_headline_de": "15 SKANDI-BOHO WOHNZIMMER IDEEN", "overlay_subhead_de": "Unter 250€ komplett nachstylen • Direkt-Links in der Liste", "overlay_badge_de": "INKL. BUDGET-SHOPPINGLISTE", "months_live": 11.14, "saves_per_month": 5817, "evergreen_retention_factor": 0.663, "estimated_monthly_impressions": 71348, "estimated_monthly_outbound_clicks": 2711, "primary_play": "PLAY_A_EXPIRED_DOMAIN_CAPTURE_PLUS_PLAY_B", "play_a_available": true, "play_a_monthly_rev_eur": 1138.62, "play_b_monthly_clicks": 1030, "play_b_monthly_rev_eur": 432.6, "projected_monthly_revenue_eur": 1290.03, "hijack_priority_score": 86.6, "replacement_seo_blueprint": {"canvas_aspect_ratio": "2:3 Vertical (1000x1500 px)", "safe_zone_margins_px": "Top/Bottom 120px, Left/Right 80px", "dominant_palette_hex": "#D8C8B8", "text_overlay_headline": "15 SKANDI-BOHO WOHNZIMMER IDEEN", "text_overlay_subhead": "Unter 250€ komplett nachstylen • Direkt-Links in der Liste", "text_overlay_cta_badge": "INKL. BUDGET-SHOPPINGLISTE", "seo_pin_title": "Wohnzimmer Einrichten Ideen: 15 Skandi-Boho Wohnzimmer Ideen (Aktuelle Einkaufsliste 2026)", "seo_pin_description": "Entdecke die besten Wohnzimmer Einrichten Ideen für kleine Räume! Leinen-Vorhänge, Beistelltische aus Eiche, Bouclé-Sessel und indirekte LED-Beleuchtung zum Nachshoppen. Sofort verfügbare Produkte & geprüfte Empfehlungen für Wohnzimmer Einrichten Ideen – jetzt alle Favoriten direkt entdecken!", "seo_alt_text": "Vertikale Infografik 1000x1500 zum Thema Wohnzimmer Einrichten Ideen mit Shopping-Empfehlungen: Unter 250€ komplett nachstylen • Direkt-Links in der Liste", "target_board_taxonomy": ["Wohnzimmer Inspiration & Skandi Deko", "Wohnzimmer Einrichten Ideen – Bestseller & Favoriten", "Wohnen, Haushalt & DIY Ideen Deutschland"], "outbound_utm_link": "https://www.amazon.de/s?k=skandi+boho+wohnzimmer+deko&tag=pinhijack-21&utm_source=pinterest&utm_medium=organic_pin&utm_campaign=hijack_pin_de_9948102341"}}, {"pin_id": "pin_de_4491827365", "keyword_cluster": "Kinderzimmer Montessori Ideen", "niche_category": "Baby & Kids Furniture / High-AOV D2C Affiliate", "pin_url": "https://www.pinterest.de/pin/4491827365/", "pin_title": "Montessori Kinderzimmer einrichten: Hausbett, Bücherregal auf Augenhöhe & Spielzeug-Rotation", "pin_description": "Montessori Kinderzimmer Ideen ab 1 bis 6 Jahren: Selbstständigkeit fördern mit Bodenbett, Kletterdreieck, offenem Montessori-Regal und ruhigen Naturfarben.", "pin_created_at": "2026-01-29", "total_saves": 42600, "total_comments": 83, "reaction_count": 1220, "board_name": "Kinderzimmer Montessori & Naturholz Ideen", "board_followers": 68900, "dominant_color": "#E2CFC4", "image_dimensions": "1000x1500", "outbound_url": "https://minimontessori-werkstatt.de/montessori-kinderzimmer-checkliste/", "outbound_domain": "minimontessori-werkstatt.de", "http_status": "NXDOMAIN", "merchant_platform": "Expired Niche Parenting & Wooden Toy Affiliate Site", "failure_type": "EXPIRED_DOMAIN_UNREGISTERED", "domain_available_to_register": true, "domain_registration_cost_eur": 9.9, "failure_evidence": "DNS lookup failed (NXDOMAIN); DENIC status: free (high-AOV wooden toy affiliate links)", "commercial_intent_score": 98, "estimated_ctr_pct": 4.1, "affiliate_epc_eur": 0.67, "recommended_affiliate_offer": "Ehrenkind / Tausendkind / Amazon DE Montessori Hausbett, Kletterdreieck & Bücherregal (€150-€420 AOV)", "affiliate_destination_url": "https://www.amazon.de/s?k=montessori+buecherregal+kinderzimmer+holz&tag=pinhijack-21", "overlay_headline_de": "MONTESSORI KINDERZIMMER GUIDE", "overlay_subhead_de": "Bodenbett • Front-Bücherregal • Spielzeug-Rotation (1–6 Jahre)", "overlay_badge_de": "PÄDAGOGISCH EMPFOHLEN", "months_live": 8.57, "saves_per_month": 4971, "evergreen_retention_factor": 0.744, "estimated_monthly_impressions": 68421, "estimated_monthly_outbound_clicks": 2805, "primary_play": "PLAY_A_EXPIRED_DOMAIN_CAPTURE_PLUS_PLAY_B", "play_a_available": true, "play_a_monthly_rev_eur": 1879.35, "play_b_monthly_clicks": 1262, "play_b_monthly_rev_eur": 845.54, "projected_monthly_revenue_eur": 2175.29, "hijack_priority_score": 84.7, "replacement_seo_blueprint": {"canvas_aspect_ratio": "2:3 Vertical (1000x1500 px)", "safe_zone_margins_px": "Top/Bottom 120px, Left/Right 80px", "dominant_palette_hex": "#E2CFC4", "text_overlay_headline": "MONTESSORI KINDERZIMMER GUIDE", "text_overlay_subhead": "Bodenbett • Front-Bücherregal • Spielzeug-Rotation (1–6 Jahre)", "text_overlay_cta_badge": "PÄDAGOGISCH EMPFOHLEN", "seo_pin_title": "Kinderzimmer Montessori Ideen: Montessori Kinderzimmer Guide (Aktuelle Einkaufsliste 2026)", "seo_pin_description": "Montessori Kinderzimmer Ideen ab 1 bis 6 Jahren: Selbstständigkeit fördern mit Bodenbett, Kletterdreieck, offenem Montessori-Regal und ruhigen Naturfarben. Sofort verfügbare Produkte & geprüfte Empfehlungen für Kinderzimmer Montessori Ideen – jetzt alle Favoriten direkt entdecken!", "seo_alt_text": "Vertikale Infografik 1000x1500 zum Thema Kinderzimmer Montessori Ideen mit Shopping-Empfehlungen: Bodenbett • Front-Bücherregal • Spielzeug-Rotation (1–6 Jahre)", "target_board_taxonomy": ["Kinderzimmer Montessori & Naturholz Ideen", "Kinderzimmer Montessori Ideen – Bestseller & Favoriten", "Wohnen, Haushalt & DIY Ideen Deutschland"], "outbound_utm_link": "https://www.amazon.de/s?k=montessori+buecherregal+kinderzimmer+holz&tag=pinhijack-21&utm_source=pinterest&utm_medium=organic_pin&utm_campaign=hijack_pin_de_4491827365"}}, {"pin_id": "pin_de_8831049218", "keyword_cluster": "Hochzeitsdeko Boho", "niche_category": "Wedding & Event Supplies / Etsy & Amazon", "pin_url": "https://www.pinterest.de/pin/8831049218/", "pin_title": "Boho Hochzeitsdeko Tischdeko selber machen: Pampasgras, Makramee & Kerzenhalter", "pin_description": "Traumhafte Hochzeitsdeko Boho für Sommer- und Scheunenhochzeiten. Tischläufer aus Musselin, goldene Stabkerzenhalter und Gastgeschenke-Checkliste.", "pin_created_at": "2026-01-18", "total_saves": 48200, "total_comments": 96, "reaction_count": 1340, "board_name": "Hochzeitsdeko Boho & Scheunenhochzeit", "board_followers": 84500, "dominant_color": "#E6D7C3", "image_dimensions": "1000x1500", "outbound_url": "https://brautglanz-manufaktur.de/products/boho-tischdeko-komplettset-60-gaeste", "outbound_domain": "brautglanz-manufaktur.de", "http_status": "HTTP_404", "merchant_platform": "Shopify D2C Store (Deleted Product)", "failure_type": "SHOPIFY_PRODUCT_404", "domain_available_to_register": false, "domain_registration_cost_eur": null, "failure_evidence": "HTTP 404 Not Found on /products/boho-tischdeko-komplettset-60-gaeste (Shopify default 404 template)", "commercial_intent_score": 97, "estimated_ctr_pct": 4.4, "affiliate_epc_eur": 0.58, "recommended_affiliate_offer": "Etsy Boho Tischdeko Bundle + Amazon DE Musselin Tischläufer 10er Pack (8-12% Provision)", "affiliate_destination_url": "https://www.etsy.com/de/search?q=boho+hochzeitsdeko+tischdeko+set", "overlay_headline_de": "BOHO HOCHZEITS-TISCHDEKO SET", "overlay_subhead_de": "Pampasgras • Musselin-Läufer • Gold-Kerzenhalter (Sofort lieferbar)", "overlay_badge_de": "KOMPLETT-LOOK FÜR 60 GÄSTE", "months_live": 8.94, "saves_per_month": 5391, "evergreen_retention_factor": 0.732, "estimated_monthly_impressions": 73005, "estimated_monthly_outbound_clicks": 3212, "primary_play": "PLAY_B_1000X1500_REPLACEMENT_PIN_HIJACK", "play_a_available": false, "play_a_monthly_rev_eur": 0.0, "play_b_monthly_clicks": 1445, "play_b_monthly_rev_eur": 838.1, "projected_monthly_revenue_eur": 838.1, "hijack_priority_score": 79.0, "replacement_seo_blueprint": {"canvas_aspect_ratio": "2:3 Vertical (1000x1500 px)", "safe_zone_margins_px": "Top/Bottom 120px, Left/Right 80px", "dominant_palette_hex": "#E6D7C3", "text_overlay_headline": "BOHO HOCHZEITS-TISCHDEKO SET", "text_overlay_subhead": "Pampasgras • Musselin-Läufer • Gold-Kerzenhalter (Sofort lieferbar)", "text_overlay_cta_badge": "KOMPLETT-LOOK FÜR 60 GÄSTE", "seo_pin_title": "Hochzeitsdeko Boho: Boho Hochzeits-Tischdeko Set (Aktuelle Einkaufsliste 2026)", "seo_pin_description": "Traumhafte Hochzeitsdeko Boho für Sommer- und Scheunenhochzeiten. Tischläufer aus Musselin, goldene Stabkerzenhalter und Gastgeschenke-Checkliste. Sofort verfügbare Produkte & geprüfte Empfehlungen für Hochzeitsdeko Boho – jetzt alle Favoriten direkt entdecken!", "seo_alt_text": "Vertikale Infografik 1000x1500 zum Thema Hochzeitsdeko Boho mit Shopping-Empfehlungen: Pampasgras • Musselin-Läufer • Gold-Kerzenhalter (Sofort lieferbar)", "target_board_taxonomy": ["Hochzeitsdeko Boho & Scheunenhochzeit", "Hochzeitsdeko Boho – Bestseller & Favoriten", "Wohnen, Haushalt & DIY Ideen Deutschland"], "outbound_utm_link": "https://www.etsy.com/de/search?q=boho+hochzeitsdeko+tischdeko+set&utm_source=pinterest&utm_medium=organic_pin&utm_campaign=hijack_pin_de_8831049218"}}, {"pin_id": "pin_de_6619204912", "keyword_cluster": "Balkon Sichtschutz Ideen", "niche_category": "Garden & Balcony DIY / Amazon & Obi Affiliate", "pin_url": "https://www.pinterest.de/pin/6619204912/", "pin_title": "Kleiner Balkon Sichtschutz Ideen ohne Bohren: Bambus, Pflanzkasten-Spalier & Outdoor-Vorhang", "pin_description": "Die 12 besten Balkon Sichtschutz Ideen für Mietwohnungen ohne Bohren! Wetterfeste Sichtschutzmatten, Hochbeet mit Rankgitter und Klemmmarkisen im Test.", "pin_created_at": "2026-03-01", "total_saves": 39400, "total_comments": 64, "reaction_count": 980, "board_name": "Balkon Gestaltung & Sichtschutz Ideen", "board_followers": 73200, "dominant_color": "#3E6B48", "image_dimensions": "1000x1500", "outbound_url": "https://www.amazon.de/dp/B09X7K2L9M?tag=gartenheld-21", "outbound_domain": "amazon.de", "http_status": "HTTP_200_OOS", "merchant_platform": "Amazon DE Direct Affiliate Link", "failure_type": "AMAZON_OUT_OF_STOCK", "domain_available_to_register": false, "domain_registration_cost_eur": null, "failure_evidence": "HTTP 200 OK but DOM `#availability` contains 'Derzeit nicht verfügbar. Ob und wann dieser Artikel wieder vorrätig sein wird, ist unbekannt.'", "commercial_intent_score": 96, "estimated_ctr_pct": 4.2, "affiliate_epc_eur": 0.54, "recommended_affiliate_offer": "Amazon DE Bestseller Pflanzkasten mit Rankgitter & Sichtschutz ohne Bohren (€89-€149 Warenkorb)", "affiliate_destination_url": "https://www.amazon.de/s?k=balkon+sichtschutz+ohne+bohren+pflanzkasten&tag=pinhijack-21", "overlay_headline_de": "BALKON SICHTSCHUTZ OHNE BOHREN", "overlay_subhead_de": "12 Mieter-freundliche Lösungen • Windfest & Blickdicht in 15 Minuten", "overlay_badge_de": "TOP-EMPFEHLUNG FÜR MIETWOHNUNGEN", "months_live": 7.56, "saves_per_month": 5212, "evergreen_retention_factor": 0.779, "estimated_monthly_impressions": 75113, "estimated_monthly_outbound_clicks": 3155, "primary_play": "PLAY_B_1000X1500_REPLACEMENT_PIN_HIJACK", "play_a_available": false, "play_a_monthly_rev_eur": 0.0, "play_b_monthly_clicks": 1420, "play_b_monthly_rev_eur": 766.8, "projected_monthly_revenue_eur": 766.8, "hijack_priority_score": 77.9, "replacement_seo_blueprint": {"canvas_aspect_ratio": "2:3 Vertical (1000x1500 px)", "safe_zone_margins_px": "Top/Bottom 120px, Left/Right 80px", "dominant_palette_hex": "#3E6B48", "text_overlay_headline": "BALKON SICHTSCHUTZ OHNE BOHREN", "text_overlay_subhead": "12 Mieter-freundliche Lösungen • Windfest & Blickdicht in 15 Minuten", "text_overlay_cta_badge": "TOP-EMPFEHLUNG FÜR MIETWOHNUNGEN", "seo_pin_title": "Balkon Sichtschutz Ideen: Balkon Sichtschutz Ohne Bohren (Aktuelle Einkaufsliste 2026)", "seo_pin_description": "Die 12 besten Balkon Sichtschutz Ideen für Mietwohnungen ohne Bohren! Wetterfeste Sichtschutzmatten, Hochbeet mit Rankgitter und Klemmmarkisen im Test. Sofort verfügbare Produkte & geprüfte Empfehlungen für Balkon Sichtschutz Ideen – jetzt alle Favoriten direkt entdecken!", "seo_alt_text": "Vertikale Infografik 1000x1500 zum Thema Balkon Sichtschutz Ideen mit Shopping-Empfehlungen: 12 Mieter-freundliche Lösungen • Windfest & Blickdicht in 15 Minuten", "target_board_taxonomy": ["Balkon Gestaltung & Sichtschutz Ideen", "Balkon Sichtschutz Ideen – Bestseller & Favoriten", "Wohnen, Haushalt & DIY Ideen Deutschland"], "outbound_utm_link": "https://www.amazon.de/s?k=balkon+sichtschutz+ohne+bohren+pflanzkasten&tag=pinhijack-21&utm_source=pinterest&utm_medium=organic_pin&utm_campaign=hijack_pin_de_6619204912"}}, {"pin_id": "pin_de_5501928374", "keyword_cluster": "Ordnungssystem Küche Vorratskammer", "niche_category": "Home Organization / High-Volume Amazon Bundles", "pin_url": "https://www.pinterest.de/pin/5501928374/", "pin_title": "Speisekammer & Küchenschrank organisieren: Vorratsgläser mit Etiketten + Drehteller Trick", "pin_description": "Endlich Ordnung in der Küche! Mit luftdichten Vorratsdosen, wasserfesten Minimalist-Etiketten und Acryl-Organizer-Boxen verdoppelst du deinen Stauraum sofort.", "pin_created_at": "2025-12-09", "total_saves": 53900, "total_comments": 118, "reaction_count": 1540, "board_name": "Küche Organisieren & Vorratskammer Ideen", "board_followers": 95800, "dominant_color": "#C9B79C", "image_dimensions": "1000x1500", "outbound_url": "https://ordnungsliebe-zuhause.de/speisekammer-organisieren-etiketten-set/", "outbound_domain": "ordnungsliebe-zuhause.de", "http_status": "HTTP_502", "merchant_platform": "WordPress + WooCommerce Blog (502 Bad Gateway)", "failure_type": "DEAD_BLOG_502_404", "domain_available_to_register": false, "domain_registration_cost_eur": null, "failure_evidence": "HTTP 502 Bad Gateway (origin PHP-FPM dead for >14 days; 100% visitor bounce)", "commercial_intent_score": 95, "estimated_ctr_pct": 4.5, "affiliate_epc_eur": 0.51, "recommended_affiliate_offer": "Amazon DE 24er Vorratsdosen Set + Etsy Minimalist Gewürz-&-Vorratsetiketten Vorlage", "affiliate_destination_url": "https://www.amazon.de/s?k=vorratsdosen+set+mit+etiketten+luftdicht&tag=pinhijack-21", "overlay_headline_de": "VORRATSKAMMER PERFEKT ORGANISIEREN", "overlay_subhead_de": "2x mehr Platz im Schrank • Luftdichte Boxen + Wasserfeste Etiketten", "overlay_badge_de": "VORHER / NACHHER SYSTEM", "months_live": 10.25, "saves_per_month": 5259, "evergreen_retention_factor": 0.69, "estimated_monthly_impressions": 67131, "estimated_monthly_outbound_clicks": 3021, "primary_play": "PLAY_B_1000X1500_REPLACEMENT_PIN_HIJACK", "play_a_available": false, "play_a_monthly_rev_eur": 0.0, "play_b_monthly_clicks": 1359, "play_b_monthly_rev_eur": 693.09, "projected_monthly_revenue_eur": 693.09, "hijack_priority_score": 77.7, "replacement_seo_blueprint": {"canvas_aspect_ratio": "2:3 Vertical (1000x1500 px)", "safe_zone_margins_px": "Top/Bottom 120px, Left/Right 80px", "dominant_palette_hex": "#C9B79C", "text_overlay_headline": "VORRATSKAMMER PERFEKT ORGANISIEREN", "text_overlay_subhead": "2x mehr Platz im Schrank • Luftdichte Boxen + Wasserfeste Etiketten", "text_overlay_cta_badge": "VORHER / NACHHER SYSTEM", "seo_pin_title": "Ordnungssystem Küche Vorratskammer: Vorratskammer Perfekt Organisieren (Aktuelle Einkaufsliste 2026)", "seo_pin_description": "Endlich Ordnung in der Küche! Mit luftdichten Vorratsdosen, wasserfesten Minimalist-Etiketten und Acryl-Organizer-Boxen verdoppelst du deinen Stauraum sofort. Sofort verfügbare Produkte & geprüfte Empfehlungen für Ordnungssystem Küche Vorratskammer – jetzt alle Favoriten direkt entdecken!", "seo_alt_text": "Vertikale Infografik 1000x1500 zum Thema Ordnungssystem Küche Vorratskammer mit Shopping-Empfehlungen: 2x mehr Platz im Schrank • Luftdichte Boxen + Wasserfeste Etiketten", "target_board_taxonomy": ["Küche Organisieren & Vorratskammer Ideen", "Ordnungssystem Küche Vorratskammer – Bestseller & Favoriten", "Wohnen, Haushalt & DIY Ideen Deutschland"], "outbound_utm_link": "https://www.amazon.de/s?k=vorratsdosen+set+mit+etiketten+luftdicht&tag=pinhijack-21&utm_source=pinterest&utm_medium=organic_pin&utm_campaign=hijack_pin_de_5501928374"}}]};
+let currentFilter = 'ALL';
+let selectedPinId = MANIFEST.opportunities[0].pin_id;
+
+function filterPins(mode, btnEl) {
+    currentFilter = mode;
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btnEl.classList.add('active');
+    renderTable();
+}
+
+function selectPin(pinId) {
+    selectedPinId = pinId;
+    renderTable();
+    renderBlueprint();
+}
+
+function renderTable() {
+    const tbody = document.getElementById('pinTableBody');
+    const items = MANIFEST.opportunities.filter(item => {
+        if (currentFilter === 'PLAY_A') return item.play_a_available;
+        if (currentFilter === 'PLAY_B') return !item.play_a_available;
+        return true;
+    });
+
+    tbody.innerHTML = items.map(item => {
+        const isSelected = item.pin_id === selectedPinId ? 'selected' : '';
+        const statusColor = item.play_a_available ? '#10b981' : '#f59e0b';
+        const playBadge = item.play_a_available
+            ? `<span class="status-pill" style="background:#10b98122;color:#10b981;border:1px solid #10b98155;">PLAY A: €9.90 Domain + Play B</span>`
+            : `<span class="status-pill" style="background:#38bdf822;color:#38bdf8;border:1px solid #38bdf855;">PLAY B: 1000x1500 Pin Hijack</span>`;
+
+        return `
+        <tr class="pin-row ${isSelected}" onclick="selectPin('${item.pin_id}')">
+            <td>
+                <strong>${item.keyword_cluster}</strong><br>
+                <span class="muted" style="font-size:12px;">${item.pin_title}</span>
+            </td>
+            <td>
+                <strong>${item.total_saves.toLocaleString('de-DE')} Saves</strong><br>
+                <span class="muted" style="font-size:12px;">${item.saves_per_month.toLocaleString('de-DE')}/Mo • ${item.estimated_monthly_outbound_clicks.toLocaleString('de-DE')} Clicks/Mo</span>
+            </td>
+            <td>
+                <span class="mono-tag" style="color:${statusColor}">${item.http_status}</span><br>
+                <span class="muted" style="font-size:11px;">${item.outbound_domain}</span>
+            </td>
+            <td>${playBadge}</td>
+            <td>
+                <strong style="color:#10b981;">€${item.projected_monthly_revenue_eur.toFixed(2)}/Mo</strong><br>
+                <span class="muted" style="font-size:11px;">Score: ${item.hijack_priority_score}</span>
+            </td>
+        </tr>`;
+    }).join('');
+}
+
+function renderBlueprint() {
+    const item = MANIFEST.opportunities.find(p => p.pin_id === selectedPinId) || MANIFEST.opportunities[0];
+    const bp = item.replacement_seo_blueprint;
+    const container = document.getElementById('blueprintContainer');
+
+    container.innerHTML = `
+        <div class="pin-canvas-preview" style="background: linear-gradient(160deg, ${bp.dominant_palette_hex} 0%, #1e293b 100%);">
+            <div class="pin-canvas-top-badge">PINTEREST 1000×1500 SAFE-ZONE</div>
+            <div class="pin-canvas-center-box">
+                <div class="pin-canvas-headline">${bp.text_overlay_headline}</div>
+                <div class="pin-canvas-subhead">${bp.text_overlay_subhead}</div>
+            </div>
+            <div class="pin-canvas-footer">${bp.text_overlay_cta_badge}</div>
+        </div>
+
+        <div class="meta-box">
+            <div class="meta-label">Dead Outbound Diagnostic</div>
+            <div><strong>URL:</strong> <span class="mono-tag">${item.outbound_url}</span></div>
+            <div style="margin-top:4px;color:#fca5a5;"><strong>Diagnose:</strong> ${item.failure_evidence}</div>
+        </div>
+
+        <div class="meta-box">
+            <div class="meta-label">Replacement Pin SEO Title & Description</div>
+            <div><strong>Title:</strong> ${bp.seo_pin_title}</div>
+            <div style="margin-top:6px;"><strong>Description:</strong> ${bp.seo_pin_description}</div>
+            <div style="margin-top:6px;" class="muted"><strong>Alt-Text:</strong> ${bp.seo_alt_text}</div>
+        </div>
+
+        <div class="meta-box">
+            <div class="meta-label">Board Taxonomy & Affiliate Destination</div>
+            <div><strong>Target Boards:</strong> ${bp.target_board_taxonomy.join(' • ')}</div>
+            <div style="margin-top:6px;"><strong>Monetization Offer:</strong> ${item.recommended_affiliate_offer}</div>
+            <div style="margin-top:6px;"><strong>Tracked Outbound Link:</strong> <span class="mono-tag">${bp.outbound_utm_link}</span></div>
+        </div>
+    `;
+}
+
+renderTable();
+renderBlueprint();
+</script>
+</body>
+</html>

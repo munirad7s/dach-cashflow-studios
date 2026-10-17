@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PrüfungsHorizont.de — IHK AP1/AP2 & Abitur Erwartungshorizont-Trainer (MVP #41)</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --panel: #131b31;
+      --panel-alt: #18233f;
+      --border: #28365e;
+      --text: #eef2ff;
+      --muted: #9aa8c7;
+      --accent: #38bdf8;
+      --accent-strong: #0284c7;
+      --emerald: #10b981;
+      --amber: #f59e0b;
+      --rose: #f43f5e;
+      --purple: #a855f7;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.55;
+      padding-bottom: 4rem;
+    }
+    header {
+      background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 1.5rem 2rem;
+    }
+    .container {
+      max-width: 1380px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+    }
+    .header-top {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+    }
+    .brand-badge {
+      background: linear-gradient(135deg, var(--accent), var(--purple));
+      color: #090d16;
+      font-weight: 800;
+      padding: 0.45rem 0.75rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      letter-spacing: 0.04em;
+    }
+    .brand h1 {
+      font-size: 1.35rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+    .brand p {
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+    .kpi-strip {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+    .kpi-pill {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 0.35rem 0.85rem;
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+    .kpi-pill strong { color: var(--emerald); }
+
+    .grid-main {
+      display: grid;
+      grid-template-columns: 1.08fr 0.92fr;
+      gap: 1.5rem;
+      margin-top: 1.5rem;
+    }
+    @media (max-width: 1024px) {
+      .grid-main { grid-template-columns: 1fr; }
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.35rem;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.28);
+    }
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .card-title {
+      font-size: 1.02rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.22rem 0.65rem;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    .badge-afb1 { background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.35); }
+    .badge-afb2 { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.35); }
+    .badge-afb3 { background: rgba(168, 85, 247, 0.18); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.4); }
+    .badge-track { background: rgba(16, 185, 129, 0.14); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+
+    .task-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 1.15rem;
+    }
+    .task-tab {
+      background: var(--panel-alt);
+      color: var(--muted);
+      border: 1px solid var(--border);
+      padding: 0.5rem 0.85rem;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .task-tab:hover {
+      color: var(--text);
+      border-color: var(--accent);
+    }
+    .task-tab.active {
+      background: rgba(56, 189, 248, 0.16);
+      color: var(--accent);
+      border-color: var(--accent);
+    }
+
+    .scenario-box {
+      background: rgba(15, 23, 42, 0.65);
+      border-left: 3px solid var(--accent);
+      padding: 0.85rem 1rem;
+      border-radius: 6px;
+      font-size: 0.88rem;
+      color: #cbd5e1;
+      margin-bottom: 0.9rem;
+    }
+    .prompt-box {
+      background: rgba(168, 85, 247, 0.09);
+      border: 1px solid rgba(168, 85, 247, 0.35);
+      padding: 0.95rem 1rem;
+      border-radius: 8px;
+      font-size: 0.94rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+    }
+    .operator-callout {
+      background: var(--panel-alt);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.75rem 0.95rem;
+      font-size: 0.82rem;
+      margin-bottom: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+    textarea {
+      width: 100%;
+      min-height: 195px;
+      background: #090e1c;
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.9rem;
+      font-family: 'JetBrains Mono', Consolas, monospace;
+      font-size: 0.86rem;
+      line-height: 1.5;
+      resize: vertical;
+      margin-bottom: 0.85rem;
+    }
+    textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.55rem;
+      align-items: center;
+    }
+    .btn {
+      border: 1px solid var(--border);
+      background: var(--panel-alt);
+      color: var(--text);
+      padding: 0.55rem 0.95rem;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .btn:hover { border-color: var(--accent); }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+      color: #06101e;
+      border: none;
+      font-weight: 700;
+    }
+    .btn-primary:hover { opacity: 0.93; }
+
+    .score-banner {
+      border-radius: 10px;
+      padding: 1rem 1.15rem;
+      margin-bottom: 1.1rem;
+      border: 1px solid var(--border);
+      background: rgba(15, 23, 42, 0.8);
+    }
+    .score-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 0.45rem;
+    }
+    .score-big {
+      font-size: 1.65rem;
+      font-weight: 800;
+    }
+    .score-headline {
+      font-size: 0.9rem;
+      color: #e2e8f0;
+      font-weight: 600;
+    }
+
+    .structure-chain {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 0.45rem;
+      margin-bottom: 1.15rem;
+    }
+    .chain-step {
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.5rem 0.45rem;
+      text-align: center;
+      font-size: 0.73rem;
+    }
+    .chain-step.ok {
+      border-color: rgba(16, 185, 129, 0.6);
+      background: rgba(16, 185, 129, 0.12);
+      color: #6ee7b7;
+    }
+    .chain-step.miss {
+      border-color: rgba(244, 63, 94, 0.55);
+      background: rgba(244, 63, 94, 0.1);
+      color: #fda4af;
+    }
+
+    .rubric-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.7rem;
+    }
+    .rubric-item {
+      background: rgba(15, 23, 42, 0.65);
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      padding: 0.8rem 0.95rem;
+      font-size: 0.83rem;
+    }
+    .rubric-item.full { border-left: 4px solid var(--emerald); }
+    .rubric-item.partial { border-left: 4px solid var(--amber); }
+    .rubric-item.missing { border-left: 4px solid var(--rose); }
+    .rubric-row-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 700;
+      margin-bottom: 0.35rem;
+    }
+    .kw-chip {
+      display: inline-block;
+      padding: 0.12rem 0.45rem;
+      border-radius: 4px;
+      font-size: 0.72rem;
+      font-family: monospace;
+      margin-right: 0.3rem;
+      margin-top: 0.25rem;
+    }
+    .kw-hit { background: rgba(16, 185, 129, 0.2); color: #6ee7b7; }
+    .kw-miss { background: rgba(244, 63, 94, 0.18); color: #fda4af; }
+  </style>
+</head>
+<body>
+
+<!-- DACH CASHFLOW STUDIOS LAUNCH BAR -->
+<style>
+  #dcs-launch-bar {
+    position: sticky;
+    top: 0;
+    z-index: 99999;
+    background: linear-gradient(90deg, #0b1120 0%, #111827 50%, #0f172a 100%);
+    color: #f8fafc;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.35);
+    padding: 8px 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  }
+  #dcs-launch-bar .dcs-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+  }
+  #dcs-launch-bar .dcs-badge {
+    background: rgba(16, 185, 129, 0.18);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.03em;
+  }
+  #dcs-launch-bar a.dcs-nav {
+    color: #93c5fd;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 12.5px;
+  }
+  #dcs-launch-bar a.dcs-nav:hover {
+    text-decoration: underline;
+    color: #dbeafe;
+  }
+  #dcs-launch-bar .dcs-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  #dcs-launch-bar .dcs-btn {
+    padding: 5px 11px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s ease;
+  }
+  #dcs-launch-bar .dcs-btn-ghost {
+    background: rgba(255,255,255,0.08);
+    color: #e2e8f0;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  #dcs-launch-bar .dcs-btn-primary {
+    background: linear-gradient(135deg, #0ea5e9, #2563eb);
+    color: #ffffff;
+  }
+  #dcs-launch-bar .dcs-btn-emerald {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
+  }
+  @media print {
+    #dcs-launch-bar { display: none !important; }
+  }
+</style>
+<div id="dcs-launch-bar">
+  <div class="dcs-left">
+    <a href="/index.html" class="dcs-nav">← Alle 150 DACH Studios</a>
+    <span class="dcs-badge">MVP #041 VERIFIED</span>
+    <span style="color:#cbd5e1;font-size:12px;">B2B SaaS, Lead-Intent Sniper & AI/MCP Infrastructure</span>
+  </div>
+  <div class="dcs-actions">
+    <button onclick="window.print()" class="dcs-btn dcs-btn-ghost">🖨️ PDF / Dossier drucken</button>
+    <a href="#checkout-modal-49" target="_blank" rel="noopener" class="dcs-btn dcs-btn-primary">⚡ Musterschreiben & Voll-Dossier (€49)</a>
+    <a href="#checkout-modal-299" target="_blank" rel="noopener" class="dcs-btn dcs-btn-emerald">🛡️ B2B Umsetzung buchen (€299 / €1.490)</a>
+  </div>
+</div>
+
+  <header>
+    <div class="container header-top">
+      <div class="brand">
+        <span class="brand-badge">MVP #41 · DE ADAPTATION</span>
+        <div>
+          <h1>PrüfungsHorizont.de — IHK AP1/AP2 & Abitur Erwartungshorizont-Trainer</h1>
+          <p>Deterministischer AFB I–III Operatoren- & IHK-Bewertungsschlüssel-Grader · Vorbild: Skolechat.no ($32k/30d @ 96% Marge)</p>
+        </div>
+      </div>
+      <div class="kpi-strip">
+        <div class="kpi-pill">Vorbild: <strong>Skolechat.no (2.442 Abos in 60d)</strong></div>
+        <div class="kpi-pill">DE Markt: <strong>120k IHK-Azubis + 380k Abiturienten/Jahr</strong></div>
+        <div class="kpi-pill">B2B Azubi-Pass: <strong>49 € Einmal / 19,90 € mtl.</strong></div>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="grid-main">
+      <!-- LEFT COLUMN: EXAM SIMULATOR & INPUT -->
+      <section class="card">
+        <div class="card-header">
+          <div class="card-title">1. Offizielle Prüfungsaufgabe & Operatoren-Vorgabe</div>
+          <span id="trackBadge" class="badge badge-track">IHK AP2</span>
+        </div>
+
+        <div class="task-tabs" id="taskTabs"></div>
+
+        <div class="operator-callout">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem;">
+            <strong id="operatorTitle" style="color:var(--accent);">Operator: Erläutern</strong>
+            <span id="afbBadge" class="badge badge-afb2">AFB II</span>
+          </div>
+          <div id="operatorDef" style="color:var(--muted);"></div>
+          <div id="curriculumRef" style="font-size:0.75rem; color:#94a3b8;"></div>
+        </div>
+
+        <div class="scenario-box" id="scenarioBox"></div>
+        <div class="prompt-box" id="promptBox"></div>
+
+        <label for="answerInput" style="display:block; font-size:0.82rem; font-weight:600; margin-bottom:0.4rem; color:var(--muted);">
+          Ihre Prüfungsantwort (Freitext / SQL-Abfrage):
+        </label>
+        <textarea id="answerInput" spellcheck="false"></textarea>
+
+        <div class="btn-row">
+          <button class="btn btn-primary" onclick="evaluateCurrent()">Am Erwartungshorizont bewerten</button>
+          <button class="btn" onclick="loadSample('partial')">Typische Azubi-/Schüler-Antwort (Teilpunkte)</button>
+          <button class="btn" onclick="loadSample('model')">IHK-/Abitur-Musterlösung (10/10 P.)</button>
+          <button class="btn" onclick="loadSample('weak')">Schwache Antwort (0–2 P.)</button>
+        </div>
+      </section>
+
+      <!-- RIGHT COLUMN: DETERMINISTIC ERWARTUNGSHORIZONT REPORT -->
+      <section class="card">
+        <div class="card-header">
+          <div class="card-title">2. Exakte Punkteverteilung & Erwartungshorizont-Diagnose</div>
+          <span id="gradeBadge" class="badge badge-afb1">IHK-Notenschlüssel</span>
+        </div>
+
+        <div class="score-banner" id="scoreBanner">
+          <div class="score-top">
+            <span class="score-big" id="scorePoints">7 / 10 Punkte</span>
+            <span style="font-size:0.85rem; color:var(--muted);" id="abiPoints">Abitur: 10 Notenpunkte · IHK: Note 3</span>
+          </div>
+          <div class="score-headline" id="scoreHeadline"></div>
+        </div>
+
+        <div style="font-size:0.78rem; font-weight:700; color:var(--muted); margin-bottom:0.4rem; text-transform:uppercase; letter-spacing:0.04em;">
+          Operatoren-Strukturkette (Thesensatz → Begründung → Fachbegriff/Norm → Praxisbeispiel → Fazit)
+        </div>
+        <div class="structure-chain" id="structureChain"></div>
+
+        <div style="font-size:0.78rem; font-weight:700; color:var(--muted); margin-bottom:0.5rem; text-transform:uppercase; letter-spacing:0.04em;">
+          Einzelkriterien nach offiziellem Bewertungsschlüssel (AFB I – III)
+        </div>
+        <div class="rubric-list" id="rubricList"></div>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    const QUESTION_BANK = {"IHK_SQL_AP2": {"question_id": "IHK_SQL_AP2", "exam_track": "IHK_AP2_AE", "track_badge": "IHK AP2 · Fachinformatiker AE/SI (Datenbanken & SQL)", "curriculum_ref": "IHK-Prüfungskatalog AP2 (Neuordnung 2020) · Lernfeld 8 / 11b · Datenmodellierung & SQL", "topic_area": "SQL", "operator": "Entwickeln / Erstellen (SQL & Algorithmen)", "afb_level": "AFB II", "afb_title": "Reorganisation & Transfer (Formale Implementierung)", "operator_definition_de": "Eine formale Abfrage, ein Modell oder einen Algorithmus regelkonform konstruieren und auf ein gegebenes Schema anwenden.", "required_elements": ["fachbegriff", "praxisbeispiel"], "scenario_context_de": "Gegeben sind die Tabellen `Kunde (KundenID, Name, Branche)` und `Auftrag (AuftragsID, KundenID, Auftragsdatum, Nettobetrag, Status)`. Die Geschäftsführung benötigt eine Auswertung aller abgeschlossenen Aufträge aus dem Jahr 2026, bei denen der Gesamtumsatz pro Kunde mindestens 10.000 EUR beträgt.", "prompt_de": "Entwickeln Sie eine SQL-Abfrage, die `KundenID`, `Name` und die Summe der `Nettobetrag`-Werte als `Gesamtumsatz` für alle Kunden ausgibt, deren abgeschlossene Aufträge (`Status = 'abgeschlossen'`) im Jahr 2026 in Summe mindestens 10.000 EUR betragen. Sortieren Sie absteigend nach `Gesamtumsatz`.", "max_points": 10, "time_budget_min": 12, "model_answer_de": "SELECT k.KundenID, k.Name, SUM(a.Nettobetrag) AS Gesamtumsatz\nFROM Kunde k\nINNER JOIN Auftrag a ON k.KundenID = a.KundenID\nWHERE a.Status = 'abgeschlossen'\n  AND a.Auftragsdatum BETWEEN '2026-01-01' AND '2026-12-31'\nGROUP BY k.KundenID, k.Name\nHAVING SUM(a.Nettobetrag) >= 10000\nORDER BY Gesamtumsatz DESC;", "sample_partial_answer_de": "SELECT k.KundenID, k.Name, SUM(a.Nettobetrag) AS Gesamtumsatz FROM Kunde k JOIN Auftrag a ON k.KundenID = a.KundenID WHERE a.Status = 'abgeschlossen' AND YEAR(a.Auftragsdatum) = 2026 GROUP BY k.KundenID;", "sample_weak_answer_de": "SELECT Name, SUM(Nettobetrag) FROM Auftrag WHERE Nettobetrag >= 10000 AND Status = 'abgeschlossen';", "criteria": [{"criterion_id": "SQL_SELECT_SUM", "title": "SELECT-Projektion & Aggregatfunktion SUM(Nettobetrag)", "max_points": 2, "afb_level": "AFB I", "structural_role": "thesensatz", "required_keywords_any": ["select", "sum("], "secondary_keywords_any": ["gesamtumsatz", "nettobetrag"], "missing_hint_de": "SELECT k.KundenID, k.Name, SUM(a.Nettobetrag) AS Gesamtumsatz", "official_reference": "IHK Bewertungsschlüssel SQL: Projektion & Aggregation (2 P.)"}, {"criterion_id": "SQL_JOIN", "title": "Tabellenverknüpfung via INNER JOIN über Fremdschlüssel KundenID", "max_points": 2, "afb_level": "AFB II", "structural_role": "fachbegriff", "required_keywords_any": ["join", "on"], "secondary_keywords_any": ["kundenid", "auftrag", "kunde"], "missing_hint_de": "FROM Kunde k INNER JOIN Auftrag a ON k.KundenID = a.KundenID", "official_reference": "IHK Bewertungsschlüssel SQL: Relationen-Verbund / JOIN (2 P.)"}, {"criterion_id": "SQL_WHERE_FILTER", "title": "WHERE-Selektion vor Gruppierung (Status = 'abgeschlossen' UND Zeitraum 2026)", "max_points": 2, "afb_level": "AFB II", "structural_role": "begruendung", "required_keywords_any": ["2026"], "secondary_keywords_any": ["where", "abgeschlossen", "between", "year("], "missing_hint_de": "WHERE a.Status = 'abgeschlossen' AND a.Auftragsdatum BETWEEN '2026-01-01' AND '2026-12-31'", "official_reference": "IHK Bewertungsschlüssel SQL: Tupel-Filterung vor Aggregation (2 P.)"}, {"criterion_id": "SQL_GROUP_BY", "title": "Vollständige Gruppierung über alle Nicht-Aggregatspalten (GROUP BY KundenID, Name)", "max_points": 2, "afb_level": "AFB II", "structural_role": "praxisbeispiel", "required_keywords_any": ["group by"], "secondary_keywords_any": ["kundenid", "name"], "missing_hint_de": "GROUP BY k.KundenID, k.Name (beide Attribute im SELECT müssen gruppiert werden!)", "official_reference": "IHK Bewertungsschlüssel SQL: Strenge SQL-92 Gruppierungsregel (2 P.)"}, {"criterion_id": "SQL_HAVING_ORDER", "title": "HAVING-Filter auf Aggregat (>= 10000) & Sortierung (ORDER BY ... DESC)", "max_points": 2, "afb_level": "AFB III", "structural_role": "fazit", "required_keywords_any": ["having", "order by"], "secondary_keywords_any": ["10000", "desc"], "missing_hint_de": "HAVING SUM(a.Nettobetrag) >= 10000 ORDER BY Gesamtumsatz DESC", "official_reference": "IHK Bewertungsschlüssel SQL: Gruppenfilterung HAVING statt WHERE + Sortierung (2 P.)"}]}, "IHK_VLAN_AP1_AP2": {"question_id": "IHK_VLAN_AP1_AP2", "exam_track": "IHK_AP2_SI", "track_badge": "IHK AP1/AP2 · Netzwerke & VLAN-Segmentierung (IEEE 802.1Q)", "curriculum_ref": "IHK-Prüfungskatalog AP1 / AP2 FISI · Lernfeld 4 & 9 · Netzwerkarchitektur & VLAN", "topic_area": "Netzwerke/VLAN", "operator": "Erläutern", "afb_level": "AFB II", "afb_title": "Reorganisation & Transfer (Erklären + Praxisbeispiel)", "operator_definition_de": "Einen Sachverhalt erklären und zusätzlich durch konkrete Beispiele, Szenarien oder zusätzliche Informationen veranschaulichen.", "required_elements": ["thesensatz", "begruendung", "fachbegriff", "praxisbeispiel"], "scenario_context_de": "Ein mittelständisches Klinikum betreibt bisher ein flaches Layer-2-Netzwerk (ein einziges Subnetz 192.168.10.0/24) für Verwaltung, Medizintechnik-Geräte und Gäste-WLAN über zwei Etagen-Switches. Die IT-Leitung fordert die Einführung von Tagged VLANs.", "prompt_de": "Erläutern Sie die Funktionsweise von Tagged VLANs über die Verbindungsstrecke zwischen den Etagen-Switches unter Nennung des zugehörigen IEEE-Standards und begründen Sie zwei Sicherheits- bzw. Performance-Vorteile für das Klinikum anhand eines konkreten Praxisbeispiels.", "max_points": 10, "time_budget_min": 15, "model_answer_de": "Thesensatz: Durch den Einsatz von Virtual Local Area Networks (VLANs) wird die bisher flache Layer-2-Infrastruktur des Klinikums auf derselben physischen Switch-Hardware logisch in voneinander isolierte Broadcast-Domänen unterteilt.\nFachnorm & Funktionsweise: Auf der Verbindungsstrecke (Uplink) zwischen den beiden Etagen-Switches wird ein sogenannter Trunk-Port gemäß dem Standard IEEE 802.1Q eingerichtet. Während Endgeräte an Access-Ports (untagged) angeschlossen sind, fügt der sendende Switch beim Weiterleiten über den Trunk-Port ein 4-Byte langes VLAN-Tag (mit einer 12-Bit VLAN-ID) in den Ethernet-Frame ein. Der empfangende Switch liest die VLAN-ID aus, entfernt das Tag vor der Zustellung an den Ziel-Access-Port und stellt den Frame ausschließlich innerhalb desselben VLANs zu.\nPraxisbeispiel Klinikum: Im Klinikum werden z. B. VLAN 10 (Verwaltung/Patientendaten), VLAN 20 (Medizintechnik) und VLAN 30 (Gäste-WLAN) angelegt. Ein Besucher im Gäste-WLAN (VLAN 30) kann selbst bei identischem physischem Switch keine Pakete an ein MRT-Gerät in VLAN 20 senden, da ein Wechsel zwischen VLANs (Inter-VLAN-Routing) zwingend über einen Layer-3-Router bzw. eine zentrale Firewall mit restriktiven ACL-Regeln erfolgen muss.\nFazit & Sicherheits-/Performance-Vorteile: Erstens steigt die Netzwerksicherheit massiv, da Angriffe wie ARP-Spoofing oder Paket-Sniffing auf die jeweilige Broadcast-Domäne begrenzt bleiben (zusätzlich sollte das Native VLAN ungenutzt gesetzt werden, um VLAN-Hopping zu verhindern). Zweitens verbessert sich die Performance, weil Broadcast-Frames die Bandbreite der Medizintechnik nicht mehr belasten.", "sample_partial_answer_de": "Mit Tagged VLANs kann man ein Netzwerk logisch in mehrere Broadcast-Domänen aufteilen. Zwischen den Switches nutzt man dafür einen Trunk-Port, der den Standard IEEE 802.1Q verwendet und eine VLAN-ID in den Frame schreibt. Dadurch sind die Netze getrennt und die Sicherheit ist höher, weil Broadcasts nicht überall ankommen.", "sample_weak_answer_de": "Ein VLAN trennt das Netzwerk in verschiedene Bereiche auf, damit die Gäste im Klinikum nicht auf die Server zugreifen können. Dazu verbindet man die beiden Switches mit einem Kabel und stellt die Ports richtig ein.", "criteria": [{"criterion_id": "VLAN_THESENSATZ_BROADCAST", "title": "Thesensatz: Logische Layer-2-Segmentierung & Trennung von Broadcast-Domänen", "max_points": 2, "afb_level": "AFB I", "structural_role": "thesensatz", "required_keywords_any": ["broadcast-domäne", "broadcastdomäne", "broadcast", "logische trennung", "layer-2"], "secondary_keywords_any": ["segmentierung", "physisch", "switch"], "missing_hint_de": "Thesensatz zur logischen Trennung eines physischen Switches in separate Broadcast-Domänen (Layer 2)", "official_reference": "IHK Erwartungshorizont Netzwerke: Definition VLAN / Broadcast-Domäne (2 P.)"}, {"criterion_id": "VLAN_IEEE_8021Q_TAG", "title": "Fachbegriff & Norm: IEEE 802.1Q Standard & 4-Byte VLAN-Tag (12-Bit VLAN-ID)", "max_points": 2, "afb_level": "AFB I", "structural_role": "fachbegriff", "required_keywords_any": ["802.1q", "vlan-id", "4-byte", "4 byte", "tag"], "secondary_keywords_any": ["ethernet-frame", "header", "12-bit", "vid"], "missing_hint_de": "Nennung des Standards IEEE 802.1Q sowie Einfügen des 4-Byte VLAN-Tags (inkl. 12-Bit VLAN-ID) in den Ethernet-Frame", "official_reference": "IHK Erwartungshorizont Netzwerke: Norm IEEE 802.1Q & Frame-Tagging (2 P.)"}, {"criterion_id": "VLAN_TRUNK_ACCESS", "title": "Kausale Funktionsweise: Trunk-Port (Uplink zwischen Switches) vs. Access-Port (Endgeräte)", "max_points": 2, "afb_level": "AFB II", "structural_role": "begruendung", "required_keywords_any": ["trunk", "uplink"], "secondary_keywords_any": ["access-port", "access port", "untagged", "tagged", "mehrere vlans"], "missing_hint_de": "Erklärung des Trunk-Ports (überträgt mehrere VLANs getaggt über ein Kabel zwischen Switches) im Gegensatz zum Access-Port", "official_reference": "IHK Erwartungshorizont Netzwerke: Trunking vs. Access-Port Funktionsweise (2 P.)"}, {"criterion_id": "VLAN_PRAXISBEISPIEL_KLINIK", "title": "Praxisbeispiel Klinikum: Trennung Gäste-WLAN (z.B. VLAN 30) von Medizintechnik/Patientendaten (VLAN 10/20)", "max_points": 2, "afb_level": "AFB II", "structural_role": "praxisbeispiel", "required_keywords_any": ["gäste", "medizintechnik", "patienten", "verwaltung", "vlan 10", "vlan 20"], "secondary_keywords_any": ["klinik", "beispi", "firewall", "inter-vlan", "router"], "missing_hint_de": "Konkretes Klinik-Praxisbeispiel: Isolierung von Gäste-WLAN (VLAN 30) und Medizintechnik/Verwaltung (VLAN 10/20), Kommunikation nur über Firewall/Layer-3-Router", "official_reference": "IHK Erwartungshorizont Operator 'Erläutern': Fallbezug auf Szenario (2 P.)"}, {"criterion_id": "VLAN_SECURITY_FAZIT", "title": "Sicherheits-/Performance-Fazit: Schutz vor ARP-Spoofing/Sniffing, geringere Broadcast-Last & Schutz vor VLAN-Hopping (Native VLAN)", "max_points": 2, "afb_level": "AFB III", "structural_role": "fazit", "required_keywords_any": ["arp-spoofing", "sniffing", "mitschneiden", "vlan-hopping", "broadcast-sturm", "performance", "firewall"], "secondary_keywords_any": ["native vlan", "sicherheit", "entlastung", "fazit"], "missing_hint_de": "Begründetes Fazit: Schutz vor Sniffing/ARP-Spoofing im Gäste-Netz, Reduktion von Broadcast-Traffic und Absicherung (z.B. Native VLAN ändern gegen VLAN-Hopping)", "official_reference": "IHK Erwartungshorizont IT-Security: Schutzziele & Netzwerksicherheit (2 P.)"}]}, "IHK_NWA_AP1": {"question_id": "IHK_NWA_AP1", "exam_track": "IHK_AP1", "track_badge": "IHK AP1 · Einrichten eines IT-gestützten Arbeitsplatzes (Nutzwertanalyse)", "curriculum_ref": "IHK-Prüfungskatalog AP1 · Abschnitt 1.2 & 1.4 · Angebotsvergleich & Nutzwertanalyse", "topic_area": "Nutzwertanalyse", "operator": "Beurteilen / Bewerten / Begründen", "afb_level": "AFB III", "afb_title": "Reflexion & Problemlösung (Kriteriengeleitetes Sach-/Werturteil)", "operator_definition_de": "Zu einem Sachverhalt ein selbstständiges, kriteriengeleitetes Urteil unter Abwägung von Vor- und Nachteilen sowie Bezug auf Normen/Praxis formulieren.", "required_elements": ["thesensatz", "begruendung", "fachbegriff", "praxisbeispiel", "fazit"], "scenario_context_de": "Für die Beschaffung von 50 mobilen Arbeitsplätzen liegen drei Lieferantenangebote vor. Neben dem Anschaffungspreis sollen auch qualitative Kriterien wie Vor-Ort-Service-Reaktionszeit, Ergonomie/Displayhelligkeit und Reparierbarkeit berücksichtigt werden. Sie führen dazu eine Nutzwertanalyse (NWA) durch.", "prompt_de": "Beschreiben Sie den systematischen Ablauf einer Nutzwertanalyse und beurteilen Sie kritisch die Aussagekraft des Ergebnisses im Hinblick auf K.O.-Kriterien (Muss-Kriterien) sowie subjektive Einflüsse bei einer IT-Beschaffung.", "max_points": 10, "time_budget_min": 15, "model_answer_de": "Thesensatz: Die Nutzwertanalyse (NWA) ist ein mehrdimensionales, quantitatives Entscheidungsverfahren, mit dem qualitative (nicht-monetäre) Kriterien bei der IT-Beschaffung messbar und vergleichbar gemacht werden.\nSystematischer Ablauf & Fachbegriffe: Zunächst werden vorab harte K.O.-Kriterien (Muss-Kriterien wie maximale Budgetobergrenze oder zwingende Hardware-Schnittstellen) geprüft, um ungeeignete Angebote sofort auszuschließen. Anschließend werden die Bewertungskriterien (Soll-Kriterien) festgelegt und prozentual gewichtet, wobei die Summe aller Gewichte exakt 100 % ergeben muss. Jedes Angebot erhält pro Kriterium einen Erfüllungswert auf einer einheitlichen Punkteskala (z. B. 1 bis 10 Punkte). Durch Multiplikation von Gewichtung und Punktzahl entsteht der Teilnutzwert; die Summe aller Teilnutzwerte ergibt den Gesamtnutzwert und damit die Rangfolge.\nPraxisbeispiel Notebook-Beschaffung: Bei den 50 mobilen Arbeitsplätzen wird z. B. der 24h-Vor-Ort-Service mit 40 %, die Display-Ergonomie mit 35 % und die Reparierbarkeit mit 25 % gewichtet. Da der Anschaffungspreis oft separat gehalten wird, setzt man im letzten Schritt den Gesamtnutzwert ins Verhältnis zu den Gesamtkosten (Preis-Nutzen-Verhältnis).\nKritische Beurteilung & Fazit: Trotz der mathematischen Berechnung besteht die Gefahr einer Scheinobjektivität: Sowohl die Auswahl der Kriterien als auch deren prozentuale Gewichtung und Punktevergabe unterliegen starker Subjektivität und können manipuliert werden, um einen bevorzugten Lieferanten gewinnen zu lassen. Zudem könnten ohne strikte K.O.-Kriterien gravierende Mängel durch hohe Punktzahlen bei Nebenkriterien kompensiert werden. Fazit: Die NWA liefert eine transparente und revisionssichere Entscheidungsgrundlage, sofern K.O.-Kriterien vorab strikt gefiltert und die Gewichtungen im Team (IT, Einkauf, Betriebsrat) konsensual festgelegt werden.", "sample_partial_answer_de": "Bei der Nutzwertanalyse legt man Kriterien fest wie Ergonomie und Vor-Ort-Service und vergibt eine Gewichtung, die zusammen 100% ergibt. Dann vergibt man Punkte von 1 bis 10 und multipliziert Gewicht mal Punkte zum Teilnutzwert. Das Angebot mit dem höchsten Gesamtnutzwert gewinnt. Der Nachteil ist, dass die Punktevergabe subjektiv ist.", "sample_weak_answer_de": "Man macht eine Tabelle mit den drei Angeboten für die Notebooks und schaut, welches Angebot am besten ist und den günstigsten Preis hat.", "criteria": [{"criterion_id": "NWA_THESENSATZ_DEF", "title": "Thesensatz: Definition Nutzwertanalyse (quantitatives Bewertungsverfahren für qualitative/nicht-monetäre Kriterien)", "max_points": 2, "afb_level": "AFB I", "structural_role": "thesensatz", "required_keywords_any": ["qualitativ", "nicht-monetär", "nicht monetär", "entscheidung", "nutzwertanalyse"], "secondary_keywords_any": ["vergleich", "alternativen", "nutzwert"], "missing_hint_de": "Thesensatz: Systematisches Verfahren zur Bewertung von Entscheidungsalternativen anhand qualitativer (nicht-monetärer) Kriterien", "official_reference": "IHK AP1 Erwartungshorizont: Zielsetzung Nutzwertanalyse (2 P.)"}, {"criterion_id": "NWA_GEWICHTUNG_PUNKTE", "title": "Ablauf & Berechnungsformel: Kriterien gewichten (Summe = 100%) & Teilnutzwert = Gewicht × Punkte → Gesamtnutzwert", "max_points": 2, "afb_level": "AFB I", "structural_role": "fachbegriff", "required_keywords_any": ["100%", "100 %", "gewichtung", "teilnutzwert", "multipli"], "secondary_keywords_any": ["punkteskala", "gesamtnutzwert", "summe", "rangfolge"], "missing_hint_de": "Darstellung des Rechenwegs: Kriteriengewichtung (Summe = 100%), Punkteskala (z.B. 1–10), Teilnutzwert = Gewicht × Punktzahl, Summe = Gesamtnutzwert", "official_reference": "IHK AP1 Erwartungshorizont: Methodik & Rechenweg NWA (2 P.)"}, {"criterion_id": "NWA_KO_KRITERIEN", "title": "Kausalbegründung K.O.-Kriterien: Muss-Kriterien (z.B. Budgetobergrenze / Pflichtschnittstellen) vorab prüfen", "max_points": 2, "afb_level": "AFB II", "structural_role": "begruendung", "required_keywords_any": ["k.o.", "ko-kriteri", "muss-kriteri", "ausschluss", "vorab"], "secondary_keywords_any": ["budget", "mindestanforderung", "nicht kompensierbar"], "missing_hint_de": "Prüfung von K.O.-/Muss-Kriterien vor der NWA: Ein fehlendes Pflichtmerkmal darf nicht durch hohe Punkte bei weichen Kriterien kompensiert werden", "official_reference": "IHK AP1 Erwartungshorizont: Abgrenzung Muss- vs. Soll-Kriterien (2 P.)"}, {"criterion_id": "NWA_PRAXISBEISPIEL", "title": "Praxisbeispiel Notebook-Beschaffung: Konkretes Beispiel (z.B. 24h Vor-Ort-Service vs. Displayhelligkeit / Preis-Leistungs-Verhältnis)", "max_points": 2, "afb_level": "AFB II", "structural_role": "praxisbeispiel", "required_keywords_any": ["notebook", "vor-ort-service", "display", "ergonomie", "preis-nutzen", "kosten-nutzen"], "secondary_keywords_any": ["reaktionszeit", "arbeitsplatz", "lieferant"], "missing_hint_de": "Konkretes Praxisbeispiel zur Notebook-Beschaffung (z.B. Gewichtung von Vor-Ort-Service und anschließende Gegenüberstellung von Gesamtnutzwert und Anschaffungspreis)", "official_reference": "IHK AP1 Erwartungshorizont: Fallbezug Arbeitsplatzbeschaffung (2 P.)"}, {"criterion_id": "NWA_SUBJEKTIVITAET_FAZIT", "title": "Kritische Beurteilung (AFB III): Scheinobjektivität / Subjektivität bei Kriterienauswahl & Gewichtung → Fazit (Team-Bewertung)", "max_points": 2, "afb_level": "AFB III", "structural_role": "fazit", "required_keywords_any": ["subjektiv", "scheinobjektiv", "manipul", "willkür"], "secondary_keywords_any": ["fazit", "beurteilung", "gremium", "mehrere personen", "sensitivitätsanalyse"], "missing_hint_de": "Kritisches Urteil (AFB III): Gefahr der Scheinobjektivität/Manipulation durch subjektive Gewichtung; Fazit: Gewichtung im interdisziplinären Team festlegen und Preis-Nutzen-Quotient bilden", "official_reference": "IHK AP1 Erwartungshorizont Operator 'Beurteilen': Kritische Reflexion (2 P.)"}]}, "IHK_PM_NETZPLAN_AP2": {"question_id": "IHK_PM_NETZPLAN_AP2", "exam_track": "IHK_AP2_AE", "track_badge": "IHK AP2 · Projektmanagement & Netzplantechnik (DIN 69900)", "curriculum_ref": "IHK-Prüfungskatalog AP2 · Planen eines Softwareprodukts / Projektmanagement · Netzplan", "topic_area": "Projektmanagement", "operator": "Erläutern", "afb_level": "AFB II", "afb_title": "Reorganisation & Transfer (Erklären + Praxisbeispiel)", "operator_definition_de": "Einen Sachverhalt erklären und zusätzlich durch konkrete Beispiele, Szenarien oder zusätzliche Informationen veranschaulichen.", "required_elements": ["thesensatz", "begruendung", "fachbegriff", "praxisbeispiel"], "scenario_context_de": "In einem Software-Migrationsprojekt liegt ein Vorgangsknoten-Netzplan nach DIN 69900 vor. Beim Vorgang D ('Datenbank-Schema migrieren', Dauer = 6 Tage) fällt der leitende Datenbankentwickler krankheitsbedingt aus, wodurch sich Vorgang D um 4 Tage verzögert. Vorgang E ('UI-Texte anpassen') hat einen Gesamtpuffer (GP) von 5 Tagen und einen Freien Puffer (FP) von 2 Tagen.", "prompt_de": "Erläutern Sie den Unterschied zwischen dem Kritischen Pfad, dem Gesamtpuffer (GP) und dem Freien Puffer (FP) inklusive ihrer Berechnungsformeln (FAZ, FEZ, SAZ, SEZ) und begründen Sie die Auswirkungen einer Verzögerung von 4 Tagen sowohl für einen Vorgang auf dem Kritischen Pfad als auch für Vorgang E.", "max_points": 10, "time_budget_min": 15, "model_answer_de": "Thesensatz: In der Netzplantechnik nach DIN 69900 steuern der Kritische Pfad sowie die Pufferzeiten (GP und FP) die Terminüberwachung und zeigen exakt auf, welche Verzögerungen den Projektendtermin gefährden.\nFachbegriffe & Berechnungsformeln: Der Gesamtpuffer (GP) berechnet sich nach der Formel `GP = SAZ - FAZ` (bzw. `SEZ - FEZ`, also Spätester minus Frühester Anfangs-/Endzeitpunkt). Er gibt an, um wie viele Zeiteinheiten ein Vorgang maximal verzögert werden kann, ohne das Gesamtprojektende zu verschieben. Der Kritische Pfad ist die lückenlose Kette aller Vorgänge vom Projektstart bis zum Projektende, bei denen `GP = 0` gilt (`FAZ = SAZ`); er bestimmt die minimale Gesamtprojektdauer. Der Freie Puffer (FP) berechnet sich als `FP = min(FAZ aller direkten Nachfolger) - FEZ des aktuellen Vorgangs` und gibt an, wie lange sich ein Vorgang verzögern darf, ohne auch nur den frühesten Starttermin (FAZ) seiner unmittelbaren Nachfolger zu beeinflussen.\nPraxisbeispiel & Auswirkung auf Vorgang D und E: Liegt Vorgang D ('Datenbank-Schema migrieren') auf dem Kritischen Pfad (GP = 0), schlägt die Verzögerung von 4 Tagen mangels Puffer 1:1 durch und verzögert das gesamte Projektende um exakt 4 Tage.\nFazit für Vorgang E (GP = 5 Tage, FP = 2 Tage): Verzögert sich hingegen Vorgang E um 4 Tage, wird das Gesamtprojektende NICHT gefährdet, da die Verzögerung (4 Tage) kleiner als der Gesamtpuffer (5 Tage) ist; es verbleibt ein Rest-Gesamtpuffer von 1 Tag. Allerdings wird der Freie Puffer von 2 Tagen um `4 - 2 = 2 Tage` überschritten, sodass sich der früheste Anfangszeitpunkt (FAZ) der direkten Nachfolger von E um 2 Tage nach hinten verschiebt.", "sample_partial_answer_de": "Der Kritische Pfad ist der längste Weg durch den Netzplan, auf dem alle Vorgänge einen Gesamtpuffer von 0 haben (GP = SAZ - FAZ). Wenn sich ein Vorgang auf dem Kritischen Pfad um 4 Tage verzögert, dauert das ganze Projekt 4 Tage länger. Bei Vorgang E ist der Gesamtpuffer 5 Tage, also macht eine Verzögerung von 4 Tagen nichts für das Projektende aus.", "sample_weak_answer_de": "Ein Netzplan zeigt alle Vorgänge im Projekt. Wenn der Entwickler 4 Tage krank ist, verzögert sich das Projekt um 4 Tage, außer man hat genug Pufferzeit eingeplant.", "criteria": [{"criterion_id": "PM_KRITISCHER_PFAD", "title": "Thesensatz & Definition: Kritischer Pfad (längste Vorgangskette ohne Puffer, GP = 0, bestimmt Projektdauer)", "max_points": 2, "afb_level": "AFB I", "structural_role": "thesensatz", "required_keywords_any": ["kritischer pfad", "kritische pfad", "gp = 0", "puffer = 0", "pufferzeit gleich null"], "secondary_keywords_any": ["gesamtdauer", "projektende", "kette"], "missing_hint_de": "Definition Kritischer Pfad: Kette von Vorgängen vom Start bis Ende, bei denen Gesamtpuffer GP = 0 ist; bestimmt die minimale Gesamtprojektdauer", "official_reference": "IHK Erwartungshorizont Projektmanagement: Kritischer Pfad (2 P.)"}, {"criterion_id": "PM_FORMEL_GP", "title": "Fachbegriff & Formel Gesamtpuffer (GP = SAZ - FAZ bzw. SEZ - FEZ) & Bedeutung", "max_points": 2, "afb_level": "AFB I", "structural_role": "fachbegriff", "required_keywords_any": ["saz - faz", "sez - fez", "saz-faz", "sez-fez"], "secondary_keywords_any": ["gesamtpuffer", "spätest", "frühest", "projektende"], "missing_hint_de": "Formel Gesamtpuffer: GP = SAZ - FAZ (oder SEZ - FEZ); maximale Zeitspanne, die ein Vorgang verschoben werden kann, ohne das Gesamtprojektende zu gefährden", "official_reference": "IHK Erwartungshorizont Netzplan DIN 69900: Berechnung GP (2 P.)"}, {"criterion_id": "PM_FORMEL_FP", "title": "Kausale Abgrenzung & Formel Freier Puffer (FP = min(FAZ Nachfolger) - FEZ) ohne Einfluss auf Nachfolger", "max_points": 2, "afb_level": "AFB II", "structural_role": "begruendung", "required_keywords_any": ["nachfolger", "fez"], "secondary_keywords_any": ["freier puffer", "fp =", "frühesten anfangszeitpunkt", "faz"], "missing_hint_de": "Formel Freier Puffer: FP = FAZ(Nachfolger) - FEZ(Vorgang); maximale Verzögerung, ohne den frühesten Start (FAZ) des direkten Nachfolgers zu verschieben", "official_reference": "IHK Erwartungshorizont Netzplan DIN 69900: Berechnung FP (2 P.)"}, {"criterion_id": "PM_SZENARIO_D_KRITISCH", "title": "Praxisbeispiel Vorgang D: Liegt D auf dem Kritischen Pfad (GP=0), verschiebt sich das Gesamtprojektende exakt um 4 Tage", "max_points": 2, "afb_level": "AFB II", "structural_role": "praxisbeispiel", "required_keywords_any": ["4 tage", "vier tage", "projektende verschiebt", "verzögert sich das gesamtprojekt"], "secondary_keywords_any": ["vorgang d", "kritisch", "endtermin"], "missing_hint_de": "Szenario-Anwendung Vorgang D: Wenn D auf dem Kritischen Pfad liegt (GP = 0), führt die Verzögerung um 4 Tage unmittelbar zu einer Verzögerung des Projektendtermins um 4 Tage", "official_reference": "IHK Erwartungshorizont Operator 'Erläutern': Transfer auf Vorgang D (2 P.)"}, {"criterion_id": "PM_SZENARIO_E_PUFFER", "title": "Transfer & Fazit Vorgang E (GP=5, FP=2 bei +4 Tagen): Projektende hält (4 <= 5), aber direkte Nachfolger verschieben sich um 2 Tage (4 - 2)", "max_points": 2, "afb_level": "AFB III", "structural_role": "fazit", "required_keywords_any": ["2 tage", "zwei tage", "vorgang e", "restpuffer", "1 tag"], "secondary_keywords_any": ["nachfolger", "gp", "fp", "projektende bleibt"], "missing_hint_de": "Präzise Differenzierung für Vorgang E (+4 Tage bei GP=5, FP=2): Gesamtprojektende bleibt erhalten (Rest-GP = 1 Tag), ABER der Freie Puffer (2 Tage) wird um 2 Tage überschritten -> FAZ der Nachfolger verschiebt sich um 2 Tage!", "official_reference": "IHK Erwartungshorizont Projektmanagement: Pufferverbrauch-Analyse (2 P.)"}]}, "IHK_DSGVO_AP2": {"question_id": "IHK_DSGVO_AP2", "exam_track": "IHK_WISO", "track_badge": "IHK AP1/AP2 · Datenschutz (DSGVO Art. 28 / Art. 32 / Art. 33) & IT-Security", "curriculum_ref": "IHK-Prüfungskatalog AP1/AP2 · Datenschutz & Urheberrecht · DSGVO im IT-Betrieb", "topic_area": "DSGVO", "operator": "Beurteilen / Bewerten / Begründen", "afb_level": "AFB III", "afb_title": "Reflexion & Problemlösung (Kriteriengeleitetes Sach-/Werturteil)", "operator_definition_de": "Zu einem Sachverhalt ein selbstständiges, kriteriengeleitetes Urteil unter Abwägung von Vor- und Nachteilen sowie Bezug auf Normen/Praxis formulieren.", "required_elements": ["thesensatz", "begruendung", "fachbegriff", "praxisbeispiel", "fazit"], "scenario_context_de": "Ein deutscher Online-Händler (Verantwortlicher) möchte sein CRM-System inklusive 80.000 Kundendatensätzen (Namen, Adressen, Kaufhistorie, IBAN) bei einem externen Cloud-Dienstleister hosten lassen. Zudem kam es gestern durch einen Fehlkonfigurationsfehler zu einem unbefugten Zugriff auf 500 IBAN-Datensätze.", "prompt_de": "Beurteilen Sie die datenschutzrechtlichen Pflichten des Online-Händlers gemäß DSGVO sowohl für das Auslagern des CRM-Hostings an den Cloud-Dienstleister als auch für den Umgang mit dem gestrigen Sicherheitsvorfall.", "max_points": 10, "time_budget_min": 15, "model_answer_de": "Thesensatz: Der Online-Händler bleibt als Verantwortlicher im Sinne der DSGVO sowohl beim Cloud-Outsourcing als auch beim Sicherheitsvorfall vollumfänglich in der datenschutzrechtlichen Verantwortung (Rechenschaftspflicht nach Art. 5 Abs. 2 DSGVO).\nPflichten beim CRM-Cloud-Hosting (Art. 28 & Art. 32 DSGVO): Da der externe Cloud-Dienstleister personenbezogene Kundendaten im Auftrag und auf Weisung des Händlers speichert, liegt eine Auftragsverarbeitung vor. Der Händler muss vorab zwingend einen Vertrag zur Auftragsverarbeitung (AV-Vertrag / AVV nach Art. 28 DSGVO) abschließen. Zudem muss er kontrollieren und dokumentieren, dass der Dienstleister geeignete Technische und Organisatorische Maßnahmen (TOMs nach Art. 32 DSGVO, wie Ende-zu-Ende-Verschlüsselung, Zugriffskontrolle und Backup-Konzepte) einhält und das Hosting innerhalb der EU/des EWR stattfindet (bzw. bei Drittländern Angemessenheitsbeschluss/EU-Standardvertragsklauseln nach Art. 44 ff. DSGVO vorliegen).\nPflichten beim IBAN-Sicherheitsvorfall (Art. 33 & Art. 34 DSGVO): Der unbefugte Zugriff auf 500 IBAN-Datensätze stellt eine Verletzung des Schutzes personenbezogener Daten dar. Der Händler muss den Vorfall unverzüglich, spätestens jedoch innerhalb von 72 Stunden nach Bekanntwerden, an die zuständige Datenschutz-Aufsichtsbehörde melden (Art. 33 DSGVO). Da bei geleakten Bankverbindungen (IBAN) ein hohes Risiko für finanzielle Schäden (z. B. Lastschriftmissbrauch oder gezieltes Phishing) für die Rechte und Freiheiten natürlicher Personen besteht, müssen zusätzlich die 500 betroffenen Kunden unverzüglich direkt benachrichtigt werden (Art. 34 DSGVO), begleitet von technischer Schließung der Fehlkonfiguration.\nBeurteilung & Fazit: Ein Auslagern der IT befreit nicht von der Haftung. Versäumt der Händler den AV-Vertrag oder die 72-Stunden-Meldung, drohen empfindliche Bußgelder nach Art. 83 DSGVO von bis zu 20 Mio. EUR oder 4 % des gesamten weltweit erzielten Jahresumsatzes sowie Schadensersatzansprüche der Kunden nach Art. 82 DSGVO.", "sample_partial_answer_de": "Für das Cloud-Hosting muss der Online-Händler einen Auftragsverarbeitungsvertrag (AVV nach Art. 28 DSGVO) abschließen und prüfen, ob die Server in der EU stehen und technische und organisatorische Maßnahmen (TOMs) eingehalten werden. Wegen des Hacks gestern muss er den Vorfall innerhalb von 72 Stunden an die Datenschutzbehörde melden.", "sample_weak_answer_de": "Der Händler muss darauf achten, dass die Cloud sicher ist und das Passwort geändert wird. Außerdem sollte er die Polizei rufen wegen den geklauten IBAN-Nummern.", "criteria": [{"criterion_id": "DSGVO_AVV_ART28", "title": "Thesensatz & Rechtsgrundlage Cloud-Hosting: Auftragsverarbeitung (AVV / AV-Vertrag nach Art. 28 DSGVO)", "max_points": 2, "afb_level": "AFB I", "structural_role": "thesensatz", "required_keywords_any": ["auftragsverarbeitung", "av-vertrag", "avv", "art. 28", "artikel 28"], "secondary_keywords_any": ["weisungsgebunden", "verantwortlicher", "auftragsverarbeiter"], "missing_hint_de": "Abschluss eines Vertrags zur Auftragsverarbeitung (AVV nach Art. 28 DSGVO), da der Cloud-Hoster weisungsgebunden personenbezogene Daten verarbeitet", "official_reference": "IHK Erwartungshorizont Datenschutz: Auftragsverarbeitung Art. 28 DSGVO (2 P.)"}, {"criterion_id": "DSGVO_TOM_ART32", "title": "Fachbegriff & Norm: Technische und organisatorische Maßnahmen (TOMs nach Art. 32 DSGVO) & Serverstandort EU/EWR", "max_points": 2, "afb_level": "AFB II", "structural_role": "fachbegriff", "required_keywords_any": ["technische und organisatorische", "tom", "art. 32", "verschlüsselung", "eu", "ewr", "drittland"], "secondary_keywords_any": ["zutrittskontrolle", "zugriffskontrolle", "pseudonymisierung", "standardvertragsklauseln"], "missing_hint_de": "Prüfung und Dokumentation der Technischen und Organisatorischen Maßnahmen (TOMs gem. Art. 32 DSGVO, z.B. Verschlüsselung, Zugriffskontrolle) sowie Serverstandort EU/EWR (bzw. Art. 44 ff. bei Drittland)", "official_reference": "IHK Erwartungshorizont Datenschutz: TOMs Art. 32 & Drittlandtransfer (2 P.)"}, {"criterion_id": "DSGVO_MELDEPFLICHT_72H", "title": "Kausalbegründung Sicherheitsvorfall: Meldepflicht binnen 72 Stunden an Aufsichtsbehörde (Art. 33 DSGVO)", "max_points": 2, "afb_level": "AFB II", "structural_role": "begruendung", "required_keywords_any": ["72 stunden", "72h", "aufsichtsbehörde", "art. 33", "landesdatenschutz"], "secondary_keywords_any": ["meldepflicht", "datenpanne", "unverzüglich"], "missing_hint_de": "Meldepflicht der Datenpanne (Data Breach) unverzüglich, spätestens binnen 72 Stunden nach Bekanntwerden an die zuständige Datenschutz-Aufsichtsbehörde (Art. 33 DSGVO)", "official_reference": "IHK Erwartungshorizont Datenschutz: Meldepflicht 72h Art. 33 DSGVO (2 P.)"}, {"criterion_id": "DSGVO_BETROFFENE_ART34", "title": "Praxisbeispiel IBAN-Leck: Benachrichtigung der 500 betroffenen Kunden wegen hohem Risiko (Art. 34 DSGVO) + Sofortmaßnahmen", "max_points": 2, "afb_level": "AFB II", "structural_role": "praxisbeispiel", "required_keywords_any": ["betroffene", "kunden informieren", "benachrichtig", "art. 34", "iban", "hohes risiko"], "secondary_keywords_any": ["500", "lastschrift", "missbrauch", "lücke schließen"], "missing_hint_de": "Benachrichtigung der 500 betroffenen Kunden gem. Art. 34 DSGVO, da bei entwendeten IBAN-Finanzdaten ein hohes Risiko für Missbrauch/Lastschriftbetrug besteht + Schließen der Fehlkonfiguration", "official_reference": "IHK Erwartungshorizont Datenschutz: Benachrichtigungspflicht Art. 34 DSGVO (2 P.)"}, {"criterion_id": "DSGVO_HAFTUNG_FAZIT", "title": "Rechtliches Urteil & Fazit (AFB III): Rechenschaftspflicht (Art. 5 Abs. 2) & Bußgeldrisiko (Art. 83: bis 20 Mio. € / 4% Jahresumsatz)", "max_points": 2, "afb_level": "AFB III", "structural_role": "fazit", "required_keywords_any": ["bußgeld", "4%", "4 %", "20 mio", "rechenschaftspflicht", "haftung", "art. 83", "art. 5"], "secondary_keywords_any": ["fazit", "verantwortlich bleibt", "dokumentation"], "missing_hint_de": "Begründetes Fazit: Der Online-Händler bleibt als Verantwortlicher haftbar (Rechenschaftspflicht Art. 5 Abs. 2 DSGVO); bei Verstößen drohen Bußgelder bis 20 Mio. EUR oder 4 % des weltweiten Jahresumsatzes (Art. 83 DSGVO)", "official_reference": "IHK Erwartungshorizont Operator 'Beurteilen': Haftungs- & Sanktionsfolgen (2 P.)"}]}, "ABI_WR_EZB_LEHRPLANPLUS": {"question_id": "ABI_WR_EZB_LEHRPLANPLUS", "exam_track": "ABI_WR", "track_badge": "Abitur LehrplanPLUS (Bayern/NRW/BW) · Wirtschaft & Recht (Geldpolitik der EZB)", "curriculum_ref": "LehrplanPLUS Gymnasium Bayern · W&R 12/13 · Lernbereich 2: Geldpolitik der EZB & Magisches Viereck", "topic_area": "Abitur Wirtschaft (LehrplanPLUS)", "operator": "Erörtern", "afb_level": "AFB III", "afb_title": "Reflexion & Problemlösung (Dialektische Abwägung & Schlussfolgerung)", "operator_definition_de": "Eine Problemstellung durch Gegenüberstellung von Pro- und Kontra-Argumenten (These / Antithese) abwägen und zu einem begründeten Fazit führen.", "required_elements": ["thesensatz", "begruendung", "fachbegriff", "praxisbeispiel", "fazit"], "scenario_context_de": "Im Euroraum liegt die Inflationsrate (HVPI) aufgrund gestiegener Energie- und Dienstleistungspreise bei 4,2 %, während sich gleichzeitig das Wirtschaftswachstum (BIP) deutlich abkühlt. Der EZB-Rat diskutiert eine Erhöhung des Hauptrefinanzierungssatzes um 75 Basispunkte.", "prompt_de": "Erörtern Sie die Auswirkungen einer Leitzinserhöhung durch die Europäische Zentralbank (EZB) auf die Preisniveaustabilität und das Wirtschaftswachstum unter Darstellung des Zinskanals (Transmissionsmechanismus).", "max_points": 10, "time_budget_min": 20, "model_answer_de": "Thesensatz: Eine Erhöhung des Leitzinses um 75 Basispunkte ist eine klassische Maßnahme restriktiver Geldpolitik, mit der die EZB ihrem im AEUV (Art. 127) verankerten Primärziel der Preisniveaustabilität (mittelfristig 2,0 % HVPI) nachkommt, sich jedoch in einem scharfen Zielkonflikt zum bereits schwächelnden Wirtschaftswachstum bewegt.\nFunktionsweise des Zinskanals (Transmissionsmechanismus): Hebt die EZB den Hauptrefinanzierungssatz an, verteuert sich die Beschaffung von Zentralbankgeld für die Geschäftsbanken. Diese geben die gestiegenen Refinanzierungskosten in Form höherer Kreditzinsen und Einlagenzinsen an Unternehmen und private Haushalte weiter.\nPro-Argumentation (Inflationsbekämpfung): Durch die höheren Kreditzinsen sinkt die Rentabilität von kreditfinanzierten Unternehmensinvestitionen (I), während private Haushalte Konsumausgaben (C) auf Kredit einschränken und aufgrund attraktiverer Einlagenzinsen vermehrt sparen. Der resultierende Rückgang der gesamtwirtschaftlichen Nachfrage reduziert den Preisüberwälzungsspielraum der Unternehmen und dämpft die Inflation. Zudem signalisiert die EZB Entschlossenheit, verankert die Inflationserwartungen und verhindert eine Zweitrunden- bzw. Lohn-Preis-Spirale.\nKontra-Argumentation (Wachstumsrisiken & Ursachenproblem): Im vorliegenden Szenario wird die Inflation von 4,2 % maßgeblich durch gestiegene Energiepreise (angebotsseitige Kostendruckinflation) getrieben, auf welche die Zinspolitik der EZB kurzfristig keinen direkten Einfluss hat. Gleichzeitig wirkt die Zinserhöhung mit einer Wirkungsverzögerung (Time-Lag) prozyklisch verschärfend auf das sich ohnehin abkühlende BIP: Einbrechende Bau- und Ausrüstungsinvestitionen können die Eurozone in eine Rezession bzw. Stagflation drücken und die Arbeitslosigkeit erhöhen.\nBegründetes Fazit: Im Zielkonflikt des Magischen Vierecks zwischen Preisniveaustabilität und angemessenem Wirtschaftswachstum muss die EZB aufgrund ihres gesetzlichen Primärmandats und zum Schutz ihrer Glaubwürdigkeit den Leitzins anheben, um eine Entankerung der Inflationserwartungen zu verhindern; angesichts des angebotsseitigen Energiepreisschocks sollte der Zinsschritt jedoch maßvoll kommuniziert und durch angebotsorientierte Fiskalpolitik flankiert werden.", "sample_partial_answer_de": "Wenn die EZB den Leitzins erhöht, wird es für Geschäftsbanken teurer, sich Geld bei der EZB zu leihen. Die Geschäftsbanken erhöhen dann die Zinsen für Kredite. Dadurch nehmen Unternehmen weniger Kredite für Investitionen auf und Verbraucher kaufen weniger auf Kredit und sparen mehr. Die Nachfrage sinkt und die Inflation geht zurück. Allerdings schadet das dem Wirtschaftswachstum.", "sample_weak_answer_de": "Die EZB erhöht die Zinsen, damit das Geld wieder mehr wert wird und die Preise für Energie sinken. Für Sparer ist das gut, aber für Firmen mit Schulden schlecht.", "criteria": [{"criterion_id": "ABI_WR_THESENSATZ_ZIEL", "title": "Thesensatz & Primärziel: Preisniveaustabilität (Art. 127 AEUV, HVPI mittelfristig 2,0 %) & restriktive Geldpolitik", "max_points": 2, "afb_level": "AFB I", "structural_role": "thesensatz", "required_keywords_any": ["preisniveaustabilität", "2 %", "2,0 %", "2 prozent", "restriktiv", "art. 127", "hvpi"], "secondary_keywords_any": ["ezb", "primärziel", "inflation"], "missing_hint_de": "Thesensatz zum vorrangigen Ziel der EZB (Preisniveaustabilität gem. Art. 127 AEUV, Zielwert 2 % HVPI mittelfristig) durch restriktive Geldpolitik", "official_reference": "LehrplanPLUS Abitur W&R Erwartungshorizont AFB I: Primärziel EZB (2 P.)"}, {"criterion_id": "ABI_WR_ZINSKANAL", "title": "Fachbegriffe & Kausalkette (Zinskanal / Transmissionsmechanismus): Hauptrefinanzierungssatz ↑ → Geschäftsbankenzinsen ↑ → Kreditnachfrage ↓", "max_points": 2, "afb_level": "AFB II", "structural_role": "fachbegriff", "required_keywords_any": ["hauptrefinanzierung", "geschäftsbanken", "kredit", "transmissionsmechanismus", "zinskanal"], "secondary_keywords_any": ["zentralbankgeld", "refinanzierungskosten", "geldmenge"], "missing_hint_de": "Darstellung des Zinskanals: EZB erhöht Hauptrefinanzierungssatz -> Refinanzierung für Geschäftsbanken teurer -> höhere Kreditzinsen/Einlagenzinsen für Unternehmen und Haushalte", "official_reference": "LehrplanPLUS Abitur W&R Erwartungshorizont AFB II: Transmissionsmechanismus (2 P.)"}, {"criterion_id": "ABI_WR_PRO_INFLATION", "title": "Pro-Argument (These / Dämpfung der Inflation): Konsum (C) & Investitionen (I) sinken → Gesamtnachfrage sinkt → Preisauftrieb gebremst", "max_points": 2, "afb_level": "AFB II", "structural_role": "begruendung", "required_keywords_any": ["investition", "konsum", "gesamtwirtschaftliche nachfrage", "gesamtnachfrage", "sparen"], "secondary_keywords_any": ["inflation sinkt", "preisauftrieb", "opportunitätskosten"], "missing_hint_de": "Wirkungskette Preisniveau: Höhere Zinsen senken kreditfinanzierte Unternehmensinvestitionen (I) und privaten Konsum (C), Sparneigung steigt -> Rückgang der gesamtwirtschaftlichen Nachfrage dämpft Nachfragesoginflation", "official_reference": "LehrplanPLUS Abitur W&R Erwartungshorizont AFB II: Wirkungskette Preisniveau (2 P.)"}, {"criterion_id": "ABI_WR_KONTRA_ANGEBOT", "title": "Kontra-Argument / Praxisbezug (Antithese): Angebotsseitige Kosteninflation (Energie) kaum durch Zinsen steuerbar + Rezessions-/Arbeitslosigkeitsrisiko", "max_points": 2, "afb_level": "AFB II", "structural_role": "praxisbeispiel", "required_keywords_any": ["angebotsinflation", "kostendruck", "energie", "rezession", "arbeitslosigkeit", "stagflation"], "secondary_keywords_any": ["zielkonflikt", "magisches viereck", "wachstum", "time-lag", "wirkungsverzögerung"], "missing_hint_de": "Antithese & Szenariobezug: Bei angebotsseitiger Inflation (Energiepreisschock) wirken Leitzinsen nur begrenzt; gleichzeitig verschärft teures Fremdkapital die Wachstumsabkühlung (Gefahr von Rezession/Stagflation und höherer Arbeitslosigkeit)", "official_reference": "LehrplanPLUS Abitur W&R Erwartungshorizont AFB II/III: Zielkonflikt & Ursachenanalyse (2 P.)"}, {"criterion_id": "ABI_WR_FAZIT_URTEIL", "title": "Begründetes Fazit (AFB III): Abwägung Zielkonflikt im Magischen Viereck & Glaubwürdigkeit der Inflationserwartungen", "max_points": 2, "afb_level": "AFB III", "structural_role": "fazit", "required_keywords_any": ["zielkonflikt", "magische", "inflationserwartung", "lohn-preis-spirale", "fazit", "abwägung"], "secondary_keywords_any": ["urteil", "glaubwürdigkeit", "dosiert"], "missing_hint_de": "Dialektisches Fazit (AFB III): Abwägung des Zielkonflikts im Magischen Viereck (Preisniveaustabilität vs. angemessenes Wirtschaftswachstum/hoher Beschäftigungsstand) unter Einbezug der Verankerung von Inflationserwartungen (Schutz vor Lohn-Preis-Spirale)", "official_reference": "LehrplanPLUS Abitur W&R Erwartungshorizont Operator 'Erörtern' AFB III (2 P.)"}]}, "ABI_INF_KOMPLEXITAET": {"question_id": "ABI_INF_KOMPLEXITAET", "exam_track": "ABI_INF", "track_badge": "Abitur LehrplanPLUS · Informatik Oberstufe (Algorithmen & O-Notation)", "curriculum_ref": "LehrplanPLUS Gymnasium Bayern · Informatik 12/13 · Algorithmen, Binäre Suche & Zeitkomplexität", "topic_area": "Abitur Informatik (LehrplanPLUS)", "operator": "Beurteilen / Bewerten / Begründen", "afb_level": "AFB III", "afb_title": "Reflexion & Problemlösung (Kriteriengeleitetes Sach-/Werturteil)", "operator_definition_de": "Zu einem Sachverhalt ein selbstständiges, kriteriengeleitetes Urteil unter Abwägung von Vor- und Nachteilen sowie Bezug auf Normen/Praxis formulieren.", "required_elements": ["thesensatz", "begruendung", "fachbegriff", "praxisbeispiel", "fazit"], "scenario_context_de": "Ein Maut-Prüfsystem speichert `n = 1.000.000` registrierte Kfz-Kennzeichen in einem Array. Pro Sekunde finden 2.500 Suchanfragen statt, jedoch werden nur einmal täglich nachts ca. 500 neue Kennzeichen gesammelt eingefügt. Ein Entwickler schlägt vor, das Array unsortiert zu belassen und die Lineare Suche statt der Binären Suche zu verwenden, um sich den Sortieraufwand zu sparen.", "prompt_de": "Vergleichen Sie die Zeitkomplexität der Linearen Suche und der Binären Suche in der Landau-Notation (O-Notation) inklusive ihrer Vorbedingungen und beurteilen Sie den Vorschlag des Entwicklers anhand einer konkreten Schwellenwert-/Schrittzahlberechnung für das Maut-Prüfsystem.", "max_points": 10, "time_budget_min": 15, "model_answer_de": "Thesensatz & Vorbedingung: Der Vorschlag des Entwicklers, im Maut-Prüfsystem auf eine Sortierung zu verzichten und die Lineare Suche einzusetzen, ist fachlich abzulehnen. Während die Lineare Suche auf unsortierten Arrays Sequenz für Sequenz prüft, halbiert die Binäre Suche nach dem Divide-and-Conquer-Prinzip in jedem Schritt den Suchraum, setzt dafür jedoch zwingend ein sortiertes Array als Vorbedingung voraus.\nVergleich in Landau-Notation (O-Notation): Die Lineare Suche besitzt im Worst-Case (Kennzeichen am Ende oder nicht enthalten) sowie im Average-Case eine lineare Zeitkomplexität von `O(n)`. Die Binäre Suche erreicht hingegen durch fortlaufende Halbierung eine logarithmische Zeitkomplexität von `O(log n)`. Das einmalige Sortieren des Arrays (z. B. via Mergesort oder Quicksort) liegt bei `O(n log n)`.\nKonkrete Schrittzahlberechnung für n = 1.000.000: Bei `n = 1.000.000` Kennzeichen benötigt die Lineare Suche im Worst-Case 1.000.000 Vergleichsschritte (im Schnitt 500.000 Schritte). Die Binäre Suche benötigt hingegen wegen `2^20 = 1.048.576 > 1.000.000` im Worst-Case höchstens `ceil(log2(1.000.000)) = 20` Vergleichsschritte pro Suchanfrage (Faktor 50.000 schneller!).\nPraxisbezug Maut-Prüfsystem: Da pro Sekunde 2.500 Echtzeit-Suchanfragen eintreffen, verursacht die Lineare Suche im Extremfall `2.500 * 1.000.000 = 2,5 Milliarden` Vergleiche pro Sekunde, während die Binäre Suche nur `2.500 * 20 = 50.000` Vergleiche pro Sekunde benötigt. Die 500 neuen Kennzeichen werden ohnehin nur einmal nachts im Batch eingefügt.\nBeurteilung & Fazit: Der Vorschlag des Entwicklers ist strikt zurückzuweisen. Selbst eine komplette nächtliche Neusortierung des Arrays mit `O(n log n)` kostet nur ca. `1.000.000 * 20 = 20 Mio.` Operationen und hat sich im Echtzeitbetrieb bereits nach wenigen tausendstel Sekunden amortisiert.", "sample_partial_answer_de": "Die Lineare Suche hat eine Laufzeit von O(n) und funktioniert auch auf unsortierten Arrays. Die Binäre Suche halbiert immer den Bereich und hat eine Laufzeit von O(log n), braucht aber ein sortiertes Array. Bei 1.000.000 Elementen braucht die Binäre Suche nur ca. 20 Schritte, die Lineare Suche bis zu 1.000.000 Schritte.", "sample_weak_answer_de": "Die Binäre Suche ist viel schneller als die Lineare Suche, deshalb sollte man für das Maut-System auf jeden Fall die Binäre Suche nehmen.", "criteria": [{"criterion_id": "ABI_INF_THESENSATZ_VORBEDINGUNG", "title": "Thesensatz & Vorbedingung: Binäre Suche erfordert zwingend ein sortiertes Array (Divide-and-Conquer), Lineare Suche funktioniert unsortiert", "max_points": 2, "afb_level": "AFB I", "structural_role": "thesensatz", "required_keywords_any": ["sortiert", "vorbedingung", "divide", "halbier"], "secondary_keywords_any": ["lineare suche", "binäre suche", "unsortiert"], "missing_hint_de": "Thesensatz & Vorbedingung: Binäre Suche halbiert den Suchraum (Divide-and-Conquer), setzt aber zwingend ein aufsteigend/absteigend sortiertes Array voraus", "official_reference": "Abitur Informatik Erwartungshorizont AFB I: Vorbedingung Suchalgorithmen (2 P.)"}, {"criterion_id": "ABI_INF_LANDAU_NOTATION", "title": "Fachbegriffe & Landau-Notation: Lineare Suche Worst-Case O(n) vs. Binäre Suche O(log n) & Sortierung O(n log n)", "max_points": 2, "afb_level": "AFB II", "structural_role": "fachbegriff", "required_keywords_any": ["o(n)", "o(log n)", "o(log_2", "logarithmisch"], "secondary_keywords_any": ["o(n log n)", "quicksort", "mergesort", "worst-case", "landau"], "missing_hint_de": "Exakte Angabe der Zeitkomplexität im Worst-Case: Lineare Suche O(n), Binäre Suche O(log n) sowie Sortierverfahren (z.B. Mergesort/Quicksort) O(n log n)", "official_reference": "Abitur Informatik Erwartungshorizont AFB II: Asymptotische Laufzeit (2 P.)"}, {"criterion_id": "ABI_INF_RECHNUNG_1MIO", "title": "Kausalbegründung durch konkrete Rechnung für n = 1.000.000: Linear bis zu 1.000.000 Vergleiche vs. Binär max. log2(10^6) ≈ 20 Vergleiche", "max_points": 2, "afb_level": "AFB II", "structural_role": "begruendung", "required_keywords_any": ["20", "1.000.000", "1000000", "log2", "2^20"], "secondary_keywords_any": ["vergleichsschritte", "schritte", "500.000"], "missing_hint_de": "Konkrete Schrittzahlrechnung für n = 1.000.000: Lineare Suche benötigt im Worst-Case 1.000.000 (im Mittel 500.000) Vergleiche, Binäre Suche maximal ceil(log2(1.000.000)) = 20 Vergleiche!", "official_reference": "Abitur Informatik Erwartungshorizont AFB II: Quantitative Komplexitätsrechnung (2 P.)"}, {"criterion_id": "ABI_INF_PRAXISBEISPIEL_MAUT", "title": "Praxisbezug Maut-System: 2.500 Anfragen/Sekunde (leselastig) vs. seltenes nächtliches Batch-Update (500 Einträge)", "max_points": 2, "afb_level": "AFB II", "structural_role": "praxisbeispiel", "required_keywords_any": ["2.500", "2500", "nachts", "sekunde", "lesezugriff", "batch"], "secondary_keywords_any": ["echtzeit", "maut", "amortisier"], "missing_hint_de": "Einbezug des Maut-Szenarios: Bei 2.500 Suchanfragen pro Sekunde würden bei linearer Suche bis zu 2,5 Mrd. Vergleiche/s anfallen, während bei binärer Suche nur 2.500 × 20 = 50.000 Vergleiche/s nötig sind", "official_reference": "Abitur Informatik Erwartungshorizont AFB II: Szenario-Transfer (2 P.)"}, {"criterion_id": "ABI_INF_BEURTEILUNG_FAZIT", "title": "Begründetes Urteil (AFB III): Ablehnung des Entwicklervorschlags (Sortierkosten O(n log n) nachts amortisieren sich sofort)", "max_points": 2, "afb_level": "AFB III", "structural_role": "fazit", "required_keywords_any": ["abzulehnen", "falsch", "amortisier", "unbrauchbar", "nicht sinnvoll", "fazit"], "secondary_keywords_any": ["sortieraufwand", "echtzeitfähigkeit", "hash", "binärbaum"], "missing_hint_de": "Klares Sachurteil (AFB III): Der Vorschlag des Entwicklers ist strikt abzulehnen, da sich der einmalige nächtliche Sortieraufwand von O(n log n) ≈ 20 Mio. Operationen bereits nach wenigen Millisekunden Echtzeitbetrieb amortisiert", "official_reference": "Abitur Informatik Erwartungshorizont Operator 'Beurteilen' AFB III (2 P.)"}]}};
+    const QUESTION_IDS = Object.keys(QUESTION_BANK);
+    let currentQid = QUESTION_IDS[1]; // Default to VLAN AP1/AP2
+
+    const ROLE_LABELS = {
+      thesensatz: "1. Thesensatz",
+      begruendung: "2. Begründung",
+      fachbegriff: "3. Fachbegriff/Norm",
+      praxisbeispiel: "4. Praxisbeispiel",
+      fazit: "5. Fazit / Urteil"
+    };
+
+    function renderTabs() {
+      const container = document.getElementById("taskTabs");
+      container.innerHTML = "";
+      QUESTION_IDS.forEach(qid => {
+        const q = QUESTION_BANK[qid];
+        const btn = document.createElement("button");
+        btn.className = "task-tab" + (qid === currentQid ? " active" : "");
+        btn.textContent = q.topic_area + " (" + q.afb_level + ")";
+        btn.onclick = () => selectQuestion(qid);
+        container.appendChild(btn);
+      });
+    }
+
+    function selectQuestion(qid) {
+      currentQid = qid;
+      renderTabs();
+      const q = QUESTION_BANK[qid];
+      document.getElementById("trackBadge").textContent = q.track_badge;
+      document.getElementById("operatorTitle").textContent = "Operator: " + q.operator + " (" + q.max_points + " Punkte · " + q.time_budget_min + " Min.)";
+      const afbEl = document.getElementById("afbBadge");
+      afbEl.textContent = q.afb_level + " · " + q.afb_title;
+      afbEl.className = "badge " + (q.afb_level === "AFB I" ? "badge-afb1" : q.afb_level === "AFB II" ? "badge-afb2" : "badge-afb3");
+      document.getElementById("operatorDef").textContent = q.operator_definition_de;
+      document.getElementById("curriculumRef").textContent = "Lehrplan-/Prüfungskatalog-Referenz: " + q.curriculum_ref;
+      document.getElementById("scenarioBox").textContent = "Szenario: " + q.scenario_context_de;
+      document.getElementById("promptBox").textContent = "Aufgabenstellung: " + q.prompt_de;
+      loadSample("partial");
+    }
+
+    function loadSample(kind) {
+      const q = QUESTION_BANK[currentQid];
+      const input = document.getElementById("answerInput");
+      if (kind === "model") input.value = q.model_answer_de;
+      else if (kind === "weak") input.value = q.sample_weak_answer_de;
+      else input.value = q.sample_partial_answer_de;
+      evaluateCurrent();
+    }
+
+    function computeGrades(pct) {
+      let ihk = "Note 6 (ungenügend)";
+      if (pct >= 92) ihk = "Note 1 (sehr gut)";
+      else if (pct >= 81) ihk = "Note 2 (gut)";
+      else if (pct >= 67) ihk = "Note 3 (befriedigend)";
+      else if (pct >= 50) ihk = "Note 4 (ausreichend · bestanden)";
+      else if (pct >= 30) ihk = "Note 5 (mangelhaft)";
+
+      const abiMap = [[95,15],[90,14],[85,13],[80,12],[75,11],[70,10],[65,9],[60,8],[55,7],[50,6],[45,5],[40,4],[33,3],[27,2],[20,1]];
+      let np = 0;
+      for (const [th, val] of abiMap) {
+        if (pct >= th) { np = val; break; }
+      }
+      return { ihk, np };
+    }
+
+    function evaluateCurrent() {
+      const q = QUESTION_BANK[currentQid];
+      const text = (document.getElementById("answerInput").value || "").toLowerCase();
+      let awarded = 0;
+      const missingParts = [];
+      const roleHits = {};
+      const rubricContainer = document.getElementById("rubricList");
+      rubricContainer.innerHTML = "";
+
+      q.criteria.forEach(crit => {
+        const primHits = crit.required_keywords_any.filter(kw => text.includes(kw.toLowerCase()));
+        const secHits = crit.secondary_keywords_any.filter(kw => text.includes(kw.toLowerCase()));
+        let pts = 0;
+        let status = "missing";
+        if (primHits.length >= 1 && (primHits.length >= 2 || secHits.length >= 1)) {
+          pts = crit.max_points;
+          status = "full";
+        } else if (primHits.length >= 1 || secHits.length >= 2) {
+          pts = Math.max(1, Math.floor(crit.max_points / 2));
+          status = "partial";
+        }
+        awarded += pts;
+        if (pts > 0) roleHits[crit.structural_role] = true;
+        if (pts < crit.max_points) {
+          missingParts.push(crit.title + " (-" + (crit.max_points - pts) + " P.)");
+        }
+
+        const item = document.createElement("div");
+        item.className = "rubric-item " + status;
+        const matchedChips = primHits.concat(secHits).map(k => `<span class="kw-chip kw-hit">✓ ${k}</span>`).join("");
+        const missingHintHtml = pts < crit.max_points
+          ? `<div style="margin-top:0.35rem; color:#fda4af;"><strong>Es fehlen ${crit.max_points - pts} P. für:</strong> ${crit.missing_hint_de}</div>`
+          : `<div style="margin-top:0.3rem; color:#6ee7b7;">Vollständig gemäß Erwartungshorizont erfüllt.</div>`;
+
+        item.innerHTML = `
+          <div class="rubric-row-top">
+            <span>[${crit.afb_level}] ${crit.title}</span>
+            <span>${pts} / ${crit.max_points} P.</span>
+          </div>
+          <div style="font-size:0.74rem; color:var(--muted);">${crit.official_reference}</div>
+          <div>${matchedChips}</div>
+          ${missingHintHtml}
+        `;
+        rubricContainer.appendChild(item);
+      });
+
+      const pct = Math.round((awarded / q.max_points) * 100);
+      const grades = computeGrades(pct);
+      document.getElementById("scorePoints").textContent = `${awarded} / ${q.max_points} Punkte (${pct} %)`;
+      document.getElementById("abiPoints").textContent = `${grades.ihk} · Abitur: ${grades.np} / 15 Notenpunkte`;
+      document.getElementById("gradeBadge").textContent = grades.ihk;
+
+      const missingTotal = q.max_points - awarded;
+      document.getElementById("scoreHeadline").textContent = missingTotal === 0
+        ? `${awarded} / ${q.max_points} Punkte — Volle Punktzahl nach IHK-/Abitur-Erwartungshorizont!`
+        : `${awarded} / ${q.max_points} Punkte — Es fehlen ${missingTotal} Punkte für: ${missingParts.join("; ")}`;
+
+      const chainEl = document.getElementById("structureChain");
+      chainEl.innerHTML = "";
+      ["thesensatz", "begruendung", "fachbegriff", "praxisbeispiel", "fazit"].forEach(role => {
+        const req = q.required_elements.includes(role);
+        const ok = !!roleHits[role];
+        const step = document.createElement("div");
+        step.className = "chain-step " + (ok ? "ok" : (req ? "miss" : ""));
+        step.innerHTML = `<strong>${ROLE_LABELS[role]}</strong><br/><span>${ok ? "✓ Vorhanden" : (req ? "✗ Fehlt (Pflicht)" : "Optional")}</span>`;
+        chainEl.appendChild(step);
+      });
+    }
+
+    selectQuestion(currentQid);
+  </script>
+</body>
+</html>

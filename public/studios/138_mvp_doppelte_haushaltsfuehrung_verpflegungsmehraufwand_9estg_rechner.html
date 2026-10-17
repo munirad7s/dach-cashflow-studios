@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DACH § 9 EStG Doppelte Haushaltsführung & Verpflegungsmehraufwand Studio (MVP #138)</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --panel: #131b33;
+      --panel-alt: #182342;
+      --border: #283663;
+      --text: #ecf2ff;
+      --muted: #9eb0d9;
+      --accent: #38bdf8;
+      --emerald: #10b981;
+      --amber: #f59e0b;
+      --rose: #f43f5e;
+      --violet: #a78bfa;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, sans-serif;
+      background: radial-gradient(circle at top right, #172554 0%, var(--bg) 60%);
+      color: var(--text);
+      line-height: 1.5;
+      padding: 24px;
+    }
+    .container {
+      max-width: 1380px;
+      margin: 0 auto;
+    }
+    header {
+      background: linear-gradient(135deg, rgba(30,41,59,0.92), rgba(15,23,42,0.96));
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px 28px;
+      margin-bottom: 22px;
+      box-shadow: 0 18px 40px rgba(0,0,0,0.35);
+    }
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .badge {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(56, 189, 248, 0.14);
+      color: var(--accent);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+    }
+    .badge.emerald {
+      background: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+      border-color: rgba(16, 185, 129, 0.38);
+    }
+    .badge.amber {
+      background: rgba(245, 158, 11, 0.15);
+      color: #fbbf24;
+      border-color: rgba(245, 158, 11, 0.38);
+    }
+    h1 {
+      font-size: 25px;
+      margin: 0 0 8px 0;
+      letter-spacing: -0.02em;
+    }
+    .subtitle {
+      color: var(--muted);
+      font-size: 14px;
+      margin: 0;
+    }
+    .persona-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .persona-btn {
+      flex: 1;
+      min-width: 280px;
+      text-align: left;
+      background: var(--panel);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 16px;
+      cursor: pointer;
+      transition: all 0.18s ease;
+    }
+    .persona-btn:hover {
+      border-color: var(--accent);
+      transform: translateY(-1px);
+    }
+    .persona-btn.active {
+      background: linear-gradient(135deg, rgba(56,189,248,0.18), rgba(16,185,129,0.14));
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px var(--accent);
+    }
+    .persona-btn strong {
+      display: block;
+      font-size: 14px;
+      margin-bottom: 3px;
+    }
+    .persona-btn span {
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 14px;
+      margin-bottom: 22px;
+    }
+    .kpi-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px 18px;
+    }
+    .kpi-card.highlight {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.18), rgba(19, 27, 51, 0.95));
+      border-color: var(--emerald);
+    }
+    .kpi-label {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+    .kpi-value {
+      font-size: 27px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+    .kpi-sub {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+    .main-grid {
+      display: grid;
+      grid-template-columns: 440px 1fr;
+      gap: 20px;
+    }
+    @media (max-width: 1080px) {
+      .main-grid { grid-template-columns: 1fr; }
+    }
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    .panel h2 {
+      font-size: 17px;
+      margin: 0 0 14px 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 10px;
+    }
+    .control-group {
+      margin-bottom: 14px;
+    }
+    .control-group label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 5px;
+    }
+    .control-group input[type="range"],
+    .control-group select {
+      width: 100%;
+      accent-color: var(--accent);
+    }
+    .control-group select {
+      background: var(--panel-alt);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 8px 10px;
+      border-radius: 8px;
+      font-size: 13px;
+    }
+    .hint {
+      font-size: 11.5px;
+      color: var(--muted);
+      margin-top: 3px;
+    }
+    .lever-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+    .lever-box {
+      background: var(--panel-alt);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 15px;
+    }
+    .lever-box h3 {
+      font-size: 14px;
+      margin: 0 0 8px 0;
+      color: var(--accent);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    th, td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+    }
+    th {
+      color: var(--muted);
+      font-weight: 600;
+      font-size: 12px;
+      text-transform: uppercase;
+    }
+    .num { text-align: right; font-variant-numeric: tabular-nums; }
+    .status-pill {
+      display: inline-block;
+      padding: 3px 9px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .pill-ok { background: rgba(16,185,129,0.2); color: #34d399; }
+    .pill-warn { background: rgba(245,158,11,0.2); color: #fbbf24; }
+    .pill-danger { background: rgba(244,63,94,0.22); color: #fb7185; }
+    .week-strip {
+      display: grid;
+      grid-template-columns: repeat(26, 1fr);
+      gap: 4px;
+      margin-top: 10px;
+    }
+    .week-cell {
+      height: 26px;
+      border-radius: 4px;
+      font-size: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+    }
+    .wk-active { background: rgba(16, 185, 129, 0.32); border: 1px solid #10b981; color: #d1fae5; }
+    .wk-reset { background: rgba(56, 189, 248, 0.30); border: 1px solid #38bdf8; color: #e0f2fe; }
+    .wk-expired { background: rgba(244, 63, 94, 0.20); border: 1px solid rgba(244,63,94,0.45); color: #fecdd3; }
+    .alert-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .alert-list li {
+      padding: 10px 12px;
+      border-radius: 8px;
+      margin-bottom: 8px;
+      font-size: 13px;
+    }
+    .alert-warn {
+      background: rgba(244, 63, 94, 0.14);
+      border-left: 4px solid var(--rose);
+    }
+    .alert-action {
+      background: rgba(16, 185, 129, 0.13);
+      border-left: 4px solid var(--emerald);
+    }
+    .dossier-box {
+      background: #090d1a;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 12px;
+      white-space: pre-wrap;
+      color: #cbd5e1;
+      max-height: 310px;
+      overflow-y: auto;
+    }
+    .btn-copy {
+      background: var(--accent);
+      color: #08101f;
+      border: none;
+      border-radius: 8px;
+      padding: 7px 14px;
+      font-weight: 700;
+      font-size: 12px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+<!-- DACH CASHFLOW STUDIOS LAUNCH BAR -->
+<style>
+  #dcs-launch-bar {
+    position: sticky;
+    top: 0;
+    z-index: 99999;
+    background: linear-gradient(90deg, #0b1120 0%, #111827 50%, #0f172a 100%);
+    color: #f8fafc;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.35);
+    padding: 8px 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  }
+  #dcs-launch-bar .dcs-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+  }
+  #dcs-launch-bar .dcs-badge {
+    background: rgba(16, 185, 129, 0.18);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.03em;
+  }
+  #dcs-launch-bar a.dcs-nav {
+    color: #93c5fd;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 12.5px;
+  }
+  #dcs-launch-bar a.dcs-nav:hover {
+    text-decoration: underline;
+    color: #dbeafe;
+  }
+  #dcs-launch-bar .dcs-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  #dcs-launch-bar .dcs-btn {
+    padding: 5px 11px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s ease;
+  }
+  #dcs-launch-bar .dcs-btn-ghost {
+    background: rgba(255,255,255,0.08);
+    color: #e2e8f0;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  #dcs-launch-bar .dcs-btn-primary {
+    background: linear-gradient(135deg, #0ea5e9, #2563eb);
+    color: #ffffff;
+  }
+  #dcs-launch-bar .dcs-btn-emerald {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
+  }
+  @media print {
+    #dcs-launch-bar { display: none !important; }
+  }
+</style>
+<div id="dcs-launch-bar">
+  <div class="dcs-left">
+    <a href="/index.html" class="dcs-nav">← Alle 150 DACH Studios</a>
+    <span class="dcs-badge">MVP #138 VERIFIED</span>
+    <span style="color:#cbd5e1;font-size:12px;">DACH Tax, Corporate & Accounting Arbitrage</span>
+  </div>
+  <div class="dcs-actions">
+    <button onclick="window.print()" class="dcs-btn dcs-btn-ghost">🖨️ PDF / Dossier drucken</button>
+    <a href="#checkout-modal-49" target="_blank" rel="noopener" class="dcs-btn dcs-btn-primary">⚡ Musterschreiben & Voll-Dossier (€49)</a>
+    <a href="#checkout-modal-299" target="_blank" rel="noopener" class="dcs-btn dcs-btn-emerald">🛡️ B2B Umsetzung buchen (€299 / €1.490)</a>
+  </div>
+</div>
+
+  <div class="container">
+    <header>
+      <div class="badge-row">
+        <span class="badge">MVP #138 · DACH TaxTech Engine</span>
+        <span class="badge emerald">§ 9 Abs. 1 S. 3 Nr. 5 EStG · BFH VI R 18/17 Möbeltrennung (bis €5.000 ungedeckelt)</span>
+        <span class="badge amber">BMF Rz. 100 · 10%-Haupthaushalts-Wächter</span>
+        <span class="badge">§ 9 Abs. 4a S. 7 EStG · 4-Wochen-Reset der 3-Monats-Frist (BMF 2025/2026)</span>
+      </div>
+      <h1>DACH Doppelte Haushaltsführung & Verpflegungsmehraufwand Steuer-Turbo</h1>
+      <p class="subtitle">
+        Deterministischer Optimierer für Zweitwohnungs-Deckel (€1.000/Mo.), ungedeckelte Einrichtungs-/GWG-Abzüge (BFH VI R 18/17 &amp; BMF v. 25.11.2020 Rz. 108),
+        10%-Haupthaushalts-Beteiligungsnachweis (BMF Rz. 100) und den 28-Tage-Unterbrechungs-Reset (§ 9 Abs. 4a Satz 7 EStG).
+      </p>
+    </header>
+
+    <div class="persona-bar" id="personaBar"></div>
+
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label">Werbungskosten (Standard / Naiv)</div>
+        <div class="kpi-value" id="kpiNaiveDed">€0</div>
+        <div class="kpi-sub" id="kpiNaiveSub">Ohne BFH-Trennung / 10%-Rettung / Reset</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Werbungskosten (§ 9 EStG Optimiert)</div>
+        <div class="kpi-value" id="kpiOptDed" style="color: var(--accent);">€0</div>
+        <div class="kpi-sub" id="kpiOptSub">Inkl. BFH VI R 18/17 + 4-Wochen-Reset</div>
+      </div>
+      <div class="kpi-card highlight">
+        <div class="kpi-label">Netto-Steuererstattung (Optimiert)</div>
+        <div class="kpi-value" id="kpiOptRefund" style="color: #34d399;">€0</div>
+        <div class="kpi-sub" id="kpiExtraRefund">+€0 Zusatz-Cashflow ggü. Standard</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">10%-Haupthaushalts-Wächter (BMF Rz. 100)</div>
+        <div class="kpi-value" id="kpiHouseholdShare">0.0%</div>
+        <div class="kpi-sub" id="kpiHouseholdStatus">Prüfung läuft…</div>
+      </div>
+    </div>
+
+    <div class="main-grid">
+      <!-- LEFT CONTROLS -->
+      <div>
+        <div class="panel">
+          <h2>1. Hebel 1 — Zweitwohnung &amp; BFH VI R 18/17 Möbel</h2>
+          <div class="control-group">
+            <label><span>Kaltmiete + laufende NK Zweitwohnung (/Mo.)</span><span id="valRent">€1.110</span></label>
+            <input type="range" id="inpRent" min="500" max="2200" step="10" value="1110" />
+            <div class="hint">§ 9 Abs. 1 S. 3 Nr. 5 S. 4 EStG: Unterkunft gedeckelt auf €1.000/Mo. (€12.000/Jahr).</div>
+          </div>
+          <div class="control-group">
+            <label><span>Zweitwohnungsteuer + NK-Nachzahlung (/Jahr)</span><span id="valSecondTax">€1.370</span></label>
+            <input type="range" id="inpSecondTax" min="0" max="3000" step="50" value="1370" />
+          </div>
+          <div class="control-group">
+            <label><span>Einrichtung &amp; Hausrat (BFH VI R 18/17, Brutto)</span><span id="valFurniture">€4.950</span></label>
+            <input type="range" id="inpFurniture" min="0" max="8000" step="50" value="4950" />
+            <div class="hint">BMF Rz. 108: Bis €5.000 inkl. USt ohne Notwendigkeitsprüfung ZUSÄTZLICH zum €1.000-Deckel!</div>
+          </div>
+          <div class="control-group">
+            <label><span>Arbeitsmittel Zweitwohnung (§ 9 Abs. 1 S. 3 Nr. 6)</span><span id="valWorkEquip">€945</span></label>
+            <input type="range" id="inpWorkEquip" min="0" max="3000" step="25" value="945" />
+          </div>
+        </div>
+
+        <div class="panel">
+          <h2>2. Hebel 2 — 10%-Haupthaushalts-Wächter (BMF Rz. 100)</h2>
+          <div class="control-group">
+            <label><span>Haushalts-Status am Lebensmittelpunkt</span></label>
+            <select id="inpHouseholdStatus">
+              <option value="married_joint_household">Verheiratet / Eingetragene Lebenspartnerschaft (Rz. 114)</option>
+              <option value="single_with_parents_or_partner">Ledig im Mehrgenerationenhaus / Unverheiratetes Paar (Rz. 100)</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label><span>Laufende Kosten Haupthaushalt (/Monat)</span><span id="valMainCosts">€2.600</span></label>
+            <input type="range" id="inpMainCosts" min="1000" max="5000" step="50" value="2600" />
+          </div>
+          <div class="control-group">
+            <label><span>Eigene Überweisung mit Bankbeleg (/Monat)</span><span id="valBankTransfer">€1.500</span></label>
+            <input type="range" id="inpBankTransfer" min="0" max="2500" step="25" value="1500" />
+            <div class="hint">Achtung: Barzahlungen ohne Überweisungsbeleg zählen laut Finanzamt &amp; FG-Praxis als €0!</div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h2>3. Hebel 3 — Familienheimfahrten &amp; § 9 Abs. 4a Reset</h2>
+          <div class="control-group">
+            <label><span>Einsatzland / BMF-Tagespauschale 2026</span></label>
+            <select id="inpLocation"></select>
+          </div>
+          <div class="control-group">
+            <label><span>Einfache Entfernung Haupt- ↔ Zweitwohnung</span><span id="valDistKm">575 km</span></label>
+            <input type="range" id="inpDistKm" min="30" max="800" step="5" value="575" />
+          </div>
+          <div class="control-group">
+            <label><span>Familienheimfahrten / Arbeitswochen pro Jahr</span><span id="valWeeks">46 Wo.</span></label>
+            <input type="range" id="inpWeeks" min="15" max="50" step="1" value="46" />
+          </div>
+          <div class="control-group">
+            <label><span>BahnCard 100 / DB-Fernverkehr-Tickets (/Jahr)</span><span id="valTrain">€4.899</span></label>
+            <input type="range" id="inpTrain" min="0" max="7500" step="50" value="4899" />
+          </div>
+          <div class="control-group">
+            <label><span>Anzahl Unterbrechungsblöcke (&ge; 28 Tage, § 9 Abs. 4a S. 7)</span><span id="valResets">2 Blöcke</span></label>
+            <input type="range" id="inpResets" min="0" max="2" step="1" value="2" />
+          </div>
+          <div class="control-group">
+            <label><span>Längste geplante Unterbrechung am Stück (Ist-Tage)</span><span id="valIntDays">24 Tage</span></label>
+            <input type="range" id="inpIntDays" min="10" max="35" step="1" value="24" />
+            <div class="hint">Ab 28 vollen Kalendertagen (Urlaub / Home-Office / anderes Projekt) startet die 3-Monats-Frist komplett neu!</div>
+          </div>
+          <div class="control-group">
+            <label><span>Persönlicher Grenzsteuersatz (inkl. Soli)</span><span id="valTaxRate">44.31%</span></label>
+            <input type="range" id="inpTaxRate" min="25" max="47.5" step="0.5" value="44.31" />
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT ANALYSIS & TIMELINE -->
+      <div>
+        <div class="panel">
+          <h2>Drei-Hebel-Aufschlüsselung (§ 9 Abs. 1 S. 3 Nr. 5 &amp; Abs. 4a EStG)</h2>
+          <div class="lever-cards">
+            <div class="lever-box">
+              <h3>Hebel 1: BFH VI R 18/17 Möbeltrennung</h3>
+              <div id="boxLever1"></div>
+            </div>
+            <div class="lever-box">
+              <h3>Hebel 2: BMF Rz. 100 (10%-Haupthaushalt)</h3>
+              <div id="boxLever2"></div>
+            </div>
+            <div class="lever-box">
+              <h3>Hebel 3: § 9 Abs. 4a S. 7 (28-Tage-Reset)</h3>
+              <div id="boxLever3"></div>
+            </div>
+          </div>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Abzugs-Position (Anlage N — Zeilen 61–87)</th>
+                <th>Rechtsgrundlage</th>
+                <th class="num">Naiv / Ungeprüft</th>
+                <th class="num">§ 9 EStG Optimiert</th>
+                <th class="num">Steuer-Hebel</th>
+              </tr>
+            </thead>
+            <tbody id="breakdownBody"></tbody>
+          </table>
+        </div>
+
+        <div class="panel">
+          <h2>
+            <span>52-Wochen-Verpflegungsmehraufwands-Kalender (§ 9 Abs. 4a Satz 6 &amp; 7 EStG)</span>
+            <span class="status-pill pill-ok" id="resetBadge">Reset-Simulation aktiv</span>
+          </h2>
+          <div class="hint">
+            Grün = 3-Monats-Anspruch aktiv (13 Wochen) · Blau = 4-Wochen-Unterbrechung (&ge; 28 Tage Home-Office/Urlaub/Fremdprojekt) · Rot = Verfallene Wochen ohne 28-Tage-Reset.
+          </div>
+          <div style="margin-top: 10px; font-size: 12px; font-weight: 600;">Ohne 28-Tage-Unterbrechungs-Steuerung (Deckel nach Woche 13):</div>
+          <div class="week-strip" id="stripNaive"></div>
+          <div style="margin-top: 12px; font-size: 12px; font-weight: 600;">Mit § 9 Abs. 4a Satz 7 EStG 28-Tage-Reset-Architektur:</div>
+          <div class="week-strip" id="stripOpt"></div>
+        </div>
+
+        <div class="panel">
+          <h2>Prüfungs-Warnungen &amp; Sofort-Maßnahmenplan</h2>
+          <ul class="alert-list" id="alertList"></ul>
+        </div>
+
+        <div class="panel">
+          <h2>
+            <span>Finanzamt-Festsetzungs-Dossier (Anlage N Begleitschreiben)</span>
+            <button class="btn-copy" id="btnCopyDossier">Begleitschreiben kopieren</button>
+          </h2>
+          <div class="dossier-box" id="dossierText"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const SCENARIOS = [{"scenario_id": "persona_1_munich_consultant_furniture_and_reset", "scenario_name": "Fall 1: Management Consultant / Interim-Direktor (Zweitwohnung München + BFH VI R 18/17 Möbeltrennung + 2x 4-Wochen-Reset)", "profession_label": "Strategy Principal / Interim Executive (€145k Brutto, Grenzsteuersatz 44,31 % inkl. Soli)", "work_city": "München (Maxvorstadt)", "home_city": "Köln (Eigentumswohnung mit Ehepartner)", "location_code": "DE", "active_months_in_year": 12, "monthly_cold_rent_eur": 920.0, "monthly_utilities_eur": 190.0, "annual_utility_settlement_extra_eur": 380.0, "annual_second_home_tax_eur": 990.0, "furniture_items": [{"name": "Boxspringbett & ergonomische Matratze (einzeln <= €952 GWG)", "category": "hausrat_einrichtung", "gross_price_eur": 940.0, "useful_life_years": 10, "bundled_on_rent_contract": true}, {"name": "Modulare Küchenzeile — Korpus & Arbeitsplatte (GWG)", "category": "hausrat_einrichtung", "gross_price_eur": 920.0, "useful_life_years": 10, "bundled_on_rent_contract": true}, {"name": "Einbau-Induktionskochfeld & Backofen autark (GWG)", "category": "hausrat_einrichtung", "gross_price_eur": 890.0, "useful_life_years": 10, "bundled_on_rent_contract": true}, {"name": "Kleiderschrank-System & Kommode (GWG)", "category": "hausrat_einrichtung", "gross_price_eur": 860.0, "useful_life_years": 10, "bundled_on_rent_contract": true}, {"name": "Waschtrockner Kompakt & Deckenleuchten-Set (GWG)", "category": "hausrat_einrichtung", "gross_price_eur": 790.0, "useful_life_years": 10, "bundled_on_rent_contract": true}, {"name": "Esstisch, 2 Stühle, Verdunkelungsvorhänge & Küchenhausrat (GWG)", "category": "hausrat_einrichtung", "gross_price_eur": 550.0, "useful_life_years": 10, "bundled_on_rent_contract": true}, {"name": "Höhenverstellbarer Schreibtisch & Ergonomie-Stuhl (Arbeitsmittel § 9 Nr. 6)", "category": "arbeitsmittel", "gross_price_eur": 945.0, "useful_life_years": 10, "bundled_on_rent_contract": true}], "relocation_costs_eur": 1450.0, "household_status": "married_joint_household", "main_household_monthly_running_costs_eur": 2600.0, "user_monthly_bank_transfer_eur": 1500.0, "user_monthly_cash_unproven_eur": 0.0, "one_way_distance_km": 575, "family_home_trips_per_year": 46, "annual_public_transport_tickets_eur": 4899.0, "work_weeks_per_year": 46, "full_24h_days_per_week": 3, "arrival_departure_days_per_week": 2, "employer_free_breakfasts_per_week": 0, "planned_4week_interruptions_count": 2, "interruption_max_consecutive_days": 24, "marginal_tax_rate_pct": 44.31}, {"scenario_id": "persona_2_frankfurt_physician_10pct_trap", "scenario_name": "Fall 2: Oberarzt / Uniklinik-Forscher (Frankfurt Zweitwohnung + Kritische 10%-Haupthaushalts-Falle BMF Rz. 100)", "profession_label": "Oberarzt Kardiologie / Gastwissenschaftler (€118k Brutto, ledig, Hauptwohnung im Mehrgenerationenhaus)", "work_city": "Frankfurt am Main (Sachsenhausen)", "home_city": "Heidelberg (Mehrgenerationenhaus / Lebensgefährtin)", "location_code": "DE", "active_months_in_year": 12, "monthly_cold_rent_eur": 810.0, "monthly_utilities_eur": 165.0, "annual_utility_settlement_extra_eur": 240.0, "annual_second_home_tax_eur": 0.0, "furniture_items": [{"name": "Massivholzbett + Lattenrost + Matratze (GWG-Einzelrechnungen)", "category": "hausrat_einrichtung", "gross_price_eur": 910.0, "useful_life_years": 10, "bundled_on_rent_contract": false}, {"name": "Kühlschrank, Mikrowelle & Espressomaschine (GWG)", "category": "hausrat_einrichtung", "gross_price_eur": 780.0, "useful_life_years": 10, "bundled_on_rent_contract": false}, {"name": "Kleiderschrank, Regale & Beleuchtung (GWG)", "category": "hausrat_einrichtung", "gross_price_eur": 840.0, "useful_life_years": 10, "bundled_on_rent_contract": false}, {"name": "Fachliteratur-Regal & Medizin-Monitor (Arbeitsmittel § 9 Nr. 6)", "category": "arbeitsmittel", "gross_price_eur": 760.0, "useful_life_years": 5, "bundled_on_rent_contract": false}], "relocation_costs_eur": 890.0, "household_status": "single_with_parents_or_partner", "main_household_monthly_running_costs_eur": 2100.0, "user_monthly_bank_transfer_eur": 150.0, "user_monthly_cash_unproven_eur": 250.0, "one_way_distance_km": 92, "family_home_trips_per_year": 46, "annual_public_transport_tickets_eur": 1480.0, "work_weeks_per_year": 46, "full_24h_days_per_week": 3, "arrival_departure_days_per_week": 2, "employer_free_breakfasts_per_week": 0, "planned_4week_interruptions_count": 1, "interruption_max_consecutive_days": 30, "marginal_tax_rate_pct": 44.31}, {"scenario_id": "persona_3_zurich_crossborder_project_lead", "scenario_name": "Fall 3: DACH Projektleiter Auswärtstätigkeit Zürich (BMF 2026 €70/€47 Auslandspauschale + § 9 Abs. 4a S. 7 Reset)", "profession_label": "IT-Architekt / SAP S/4HANA Lead (€132k Brutto DE-Vertrag, Kundeneinsatz Zürich)", "work_city": "Zürich (CH — Paradeplatz)", "home_city": "Stuttgart (Hauptwohnsitz Familie)", "location_code": "CH_ZRH", "active_months_in_year": 12, "monthly_cold_rent_eur": 850.0, "monthly_utilities_eur": 150.0, "annual_utility_settlement_extra_eur": 0.0, "annual_second_home_tax_eur": 0.0, "furniture_items": [{"name": "Komplett-Möblierung Starter-Paket (Bett, Tisch, Leuchten — GWG)", "category": "hausrat_einrichtung", "gross_price_eur": 940.0, "useful_life_years": 10, "bundled_on_rent_contract": true}, {"name": "Küchenausstattung & Siebträger (GWG)", "category": "hausrat_einrichtung", "gross_price_eur": 680.0, "useful_life_years": 10, "bundled_on_rent_contract": true}], "relocation_costs_eur": 650.0, "household_status": "married_joint_household", "main_household_monthly_running_costs_eur": 2800.0, "user_monthly_bank_transfer_eur": 1800.0, "user_monthly_cash_unproven_eur": 0.0, "one_way_distance_km": 225, "family_home_trips_per_year": 44, "annual_public_transport_tickets_eur": 4150.0, "work_weeks_per_year": 44, "full_24h_days_per_week": 3, "arrival_departure_days_per_week": 2, "employer_free_breakfasts_per_week": 0, "planned_4week_interruptions_count": 2, "interruption_max_consecutive_days": 25, "marginal_tax_rate_pct": 44.31}];
+    const INITIAL_RESULTS = [{"scenario_id": "persona_1_munich_consultant_furniture_and_reset", "scenario_name": "Fall 1: Management Consultant / Interim-Direktor (Zweitwohnung München + BFH VI R 18/17 Möbeltrennung + 2x 4-Wochen-Reset)", "profession_label": "Strategy Principal / Interim Executive (€145k Brutto, Grenzsteuersatz 44,31 % inkl. Soli)", "work_city": "München (Maxvorstadt)", "home_city": "Köln (Eigentumswohnung mit Ehepartner)", "location_code": "DE", "annual_accommodation_raw_eur": 14690.0, "annual_accommodation_cap_eur": 12000.0, "annual_accommodation_deductible_eur": 12000.0, "annual_accommodation_lost_to_cap_eur": 2690.0, "furniture_total_gross_eur": 5895.0, "furniture_hausrat_gross_eur": 4950.0, "furniture_arbeitsmittel_gross_eur": 945.0, "furniture_within_5000_simplification": true, "furniture_naive_deductible_year1_eur": 0.0, "furniture_optimized_deductible_year1_eur": 5895.0, "furniture_gwg_immediate_eur": 5895.0, "furniture_afa_year1_eur": 0.0, "relocation_deductible_eur": 1450.0, "main_household_annual_running_costs_eur": 31200.0, "main_household_required_min_eur": 3123.12, "user_proven_annual_contribution_eur": 18000.0, "user_proven_share_pct": 57.69, "main_household_compliant_before_fix": true, "main_household_shortfall_annual_eur": 0.0, "main_household_recommended_monthly_standing_order_eur": 1500.0, "single_home_trip_distance_allowance_eur": 216.9, "annual_home_trips_distance_allowance_eur": 9977.4, "annual_home_trips_best_deduction_eur": 9977.4, "home_trip_method_winner": "Entfernungspauschale €0,30 / €0,38 ab km 21 (§ 9 Abs. 1 S. 3 Nr. 5 S. 5 EStG)", "weekly_per_diem_net_eur": 112.0, "per_diem_weeks_without_reset": 13, "per_diem_weeks_with_reset": 39, "valid_4week_reset_triggered": false, "per_diem_deduction_without_reset_eur": 1456.0, "per_diem_deduction_with_reset_eur": 4368.0, "per_diem_reset_gain_eur": 2912.0, "naive_total_deduction_eur": 24883.4, "optimized_total_deduction_eur": 33690.4, "additional_deduction_unlocked_eur": 8807.0, "naive_tax_refund_eur": 11025.83, "optimized_tax_refund_eur": 14928.22, "extra_tax_refund_unlocked_eur": 3902.39, "warnings": ["Unterkunftskosten (€14,690/Jahr) übersteigen den § 9 Abs. 1 S. 3 Nr. 5 S. 4 EStG Höchstbetrag (€12,000/Jahr) um €2,690. Jeder Euro für Möbel/Hausrat im Mietvertrag verfällt im Deckel zu 100 %!", "§ 9 Abs. 4a Satz 7 EStG 4-Wochen-Falle: Aktuelle Unterbrechung dauert nur 24 Tage (es fehlen nur 4 Tage bis zu den gesetzlichen 28 Tagen!). Ohne Verlängerung auf 28 volle Tage startet KEINE neue 3-Monats-Frist!"], "action_plan": ["BFH VI R 18/17 & BMF Rz. 108 Möbeltrennung: €4,950 Hausrat/Einrichtung (<= €5.000 Vereinfachungsgrenze: JA) + €945 Arbeitsmittel separat außerhalb des €1.000/Mo.-Deckels ansetzen (davon €5,895 sofort als GWG <= €952 brutto im 1. Jahr).", "10%-Haupthaushalts-Check bestanden (57.7% per Banküberweisung nachgewiesen).", "4-Wochen-Reset aktivieren (§ 9 Abs. 4a S. 7 EStG): Home-Office-/Urlaubsblock um 4 Tage auf 28 volle Kalendertage ohne Vor-Ort-Tag verlängern -> schaltet 26 weitere Wochen Verpflegungsmehraufwand (+€2,912) frei!"]}, {"scenario_id": "persona_2_frankfurt_physician_10pct_trap", "scenario_name": "Fall 2: Oberarzt / Uniklinik-Forscher (Frankfurt Zweitwohnung + Kritische 10%-Haupthaushalts-Falle BMF Rz. 100)", "profession_label": "Oberarzt Kardiologie / Gastwissenschaftler (€118k Brutto, ledig, Hauptwohnung im Mehrgenerationenhaus)", "work_city": "Frankfurt am Main (Sachsenhausen)", "home_city": "Heidelberg (Mehrgenerationenhaus / Lebensgefährtin)", "location_code": "DE", "annual_accommodation_raw_eur": 11940.0, "annual_accommodation_cap_eur": 12000.0, "annual_accommodation_deductible_eur": 11940.0, "annual_accommodation_lost_to_cap_eur": 0.0, "furniture_total_gross_eur": 3290.0, "furniture_hausrat_gross_eur": 2530.0, "furniture_arbeitsmittel_gross_eur": 760.0, "furniture_within_5000_simplification": true, "furniture_naive_deductible_year1_eur": 0.0, "furniture_optimized_deductible_year1_eur": 3290.0, "furniture_gwg_immediate_eur": 3290.0, "furniture_afa_year1_eur": 0.0, "relocation_deductible_eur": 890.0, "main_household_annual_running_costs_eur": 25200.0, "main_household_required_min_eur": 2522.52, "user_proven_annual_contribution_eur": 1800.0, "user_proven_share_pct": 7.14, "main_household_compliant_before_fix": false, "main_household_shortfall_annual_eur": 722.52, "main_household_recommended_monthly_standing_order_eur": 241.5, "single_home_trip_distance_allowance_eur": 33.36, "annual_home_trips_distance_allowance_eur": 1534.56, "annual_home_trips_best_deduction_eur": 1534.56, "home_trip_method_winner": "Entfernungspauschale €0,30 / €0,38 ab km 21 (§ 9 Abs. 1 S. 3 Nr. 5 S. 5 EStG)", "weekly_per_diem_net_eur": 112.0, "per_diem_weeks_without_reset": 13, "per_diem_weeks_with_reset": 26, "valid_4week_reset_triggered": true, "per_diem_deduction_without_reset_eur": 1456.0, "per_diem_deduction_with_reset_eur": 2912.0, "per_diem_reset_gain_eur": 1456.0, "naive_total_deduction_eur": 0.0, "optimized_total_deduction_eur": 20566.56, "additional_deduction_unlocked_eur": 20566.56, "naive_tax_refund_eur": 0.0, "optimized_tax_refund_eur": 9113.04, "extra_tax_refund_unlocked_eur": 9113.04, "warnings": ["AKUTE STREICHUNGS-GEFAHR (BMF Rz. 100 — 10%-Falle): Nachgewiesene Überweisungen am Haupthausstand betragen nur 7.1% (€1,800/Jahr von €25,200). Barzahlungen (€3,000/Jahr) werden vom Finanzamt NICHT anerkannt! Ohne Heilung streicht das Finanzamt die GESAMTE doppelte Haushaltsführung auf €0!"], "action_plan": ["BFH VI R 18/17 & BMF Rz. 108 Möbeltrennung: €2,530 Hausrat/Einrichtung (<= €5.000 Vereinfachungsgrenze: JA) + €760 Arbeitsmittel separat außerhalb des €1.000/Mo.-Deckels ansetzen (davon €3,290 sofort als GWG <= €952 brutto im 1. Jahr).", "10%-Haupthaushalts-Rettung (§ 9 Abs. 1 S. 3 Nr. 5 S. 3 EStG): Sofort Dauerauftrag auf €242/Monat (Verwendungszweck: 'Kostenbeteiligung Haupthaushalt Miete/Nebenkosten') umstellen + Differenz-Überweisung von mind. €723 vor dem 31.12. ausführen.", "§ 9 Abs. 4a Satz 7 EStG 4-Wochen-Reset: 1x >=28-Tage-Unterbrechung dokumentieren (26 Wochen statt 13 Wochen = +€1,456)."]}, {"scenario_id": "persona_3_zurich_crossborder_project_lead", "scenario_name": "Fall 3: DACH Projektleiter Auswärtstätigkeit Zürich (BMF 2026 €70/€47 Auslandspauschale + § 9 Abs. 4a S. 7 Reset)", "profession_label": "IT-Architekt / SAP S/4HANA Lead (€132k Brutto DE-Vertrag, Kundeneinsatz Zürich)", "work_city": "Zürich (CH — Paradeplatz)", "home_city": "Stuttgart (Hauptwohnsitz Familie)", "location_code": "CH_ZRH", "annual_accommodation_raw_eur": 12000.0, "annual_accommodation_cap_eur": 12000.0, "annual_accommodation_deductible_eur": 12000.0, "annual_accommodation_lost_to_cap_eur": 0.0, "furniture_total_gross_eur": 1620.0, "furniture_hausrat_gross_eur": 1620.0, "furniture_arbeitsmittel_gross_eur": 0.0, "furniture_within_5000_simplification": true, "furniture_naive_deductible_year1_eur": 0.0, "furniture_optimized_deductible_year1_eur": 1620.0, "furniture_gwg_immediate_eur": 1620.0, "furniture_afa_year1_eur": 0.0, "relocation_deductible_eur": 650.0, "main_household_annual_running_costs_eur": 33600.0, "main_household_required_min_eur": 3363.36, "user_proven_annual_contribution_eur": 21600.0, "user_proven_share_pct": 64.29, "main_household_compliant_before_fix": true, "main_household_shortfall_annual_eur": 0.0, "main_household_recommended_monthly_standing_order_eur": 1800.0, "single_home_trip_distance_allowance_eur": 83.9, "annual_home_trips_distance_allowance_eur": 3691.6, "annual_home_trips_best_deduction_eur": 4150.0, "home_trip_method_winner": "ÖPNV / BahnCard 100 Echtkosten (§ 9 Abs. 1 S. 3 Nr. 5 S. 6 EStG)", "weekly_per_diem_net_eur": 304.0, "per_diem_weeks_without_reset": 13, "per_diem_weeks_with_reset": 39, "valid_4week_reset_triggered": false, "per_diem_deduction_without_reset_eur": 3952.0, "per_diem_deduction_with_reset_eur": 11856.0, "per_diem_reset_gain_eur": 7904.0, "naive_total_deduction_eur": 20293.6, "optimized_total_deduction_eur": 30276.0, "additional_deduction_unlocked_eur": 9982.4, "naive_tax_refund_eur": 8992.09, "optimized_tax_refund_eur": 13415.3, "extra_tax_refund_unlocked_eur": 4423.21, "warnings": ["§ 9 Abs. 4a Satz 7 EStG 4-Wochen-Falle: Aktuelle Unterbrechung dauert nur 25 Tage (es fehlen nur 3 Tage bis zu den gesetzlichen 28 Tagen!). Ohne Verlängerung auf 28 volle Tage startet KEINE neue 3-Monats-Frist!"], "action_plan": ["BFH VI R 18/17 & BMF Rz. 108 Möbeltrennung: €1,620 Hausrat/Einrichtung (<= €5.000 Vereinfachungsgrenze: JA) + €0 Arbeitsmittel separat außerhalb des €1.000/Mo.-Deckels ansetzen (davon €1,620 sofort als GWG <= €952 brutto im 1. Jahr).", "10%-Haupthaushalts-Check bestanden (64.3% per Banküberweisung nachgewiesen).", "4-Wochen-Reset aktivieren (§ 9 Abs. 4a S. 7 EStG): Home-Office-/Urlaubsblock um 3 Tage auf 28 volle Kalendertage ohne Vor-Ort-Tag verlängern -> schaltet 26 weitere Wochen Verpflegungsmehraufwand (+€7,904) frei!"]}];
+    const RATES = {"DE": {"label": "Deutschland (Inland — § 9 Abs. 4a S. 3 EStG)", "full_24h": 28.0, "partial_8h_arrival_departure": 14.0, "law_ref": "§ 9 Abs. 4a Satz 3 Nr. 1 & 3 EStG"}, "AT": {"label": "Österreich (Wien / Linz / Graz — BMF 2026)", "full_24h": 50.0, "partial_8h_arrival_departure": 33.0, "law_ref": "BMF-Schreiben Auslandsreisekosten 2026 (v. 05.12.2025)"}, "CH_ZRH": {"label": "Schweiz — Zürich / Genf / Basel (BMF 2026)", "full_24h": 70.0, "partial_8h_arrival_departure": 47.0, "law_ref": "BMF-Schreiben Auslandsreisekosten 2026 (v. 05.12.2025)"}, "CH_BRN": {"label": "Schweiz — Bern (BMF 2026)", "full_24h": 82.0, "partial_8h_arrival_departure": 55.0, "law_ref": "BMF-Schreiben Auslandsreisekosten 2026 (v. 05.12.2025)"}, "UK_LON": {"label": "Großbritannien — London & UK (BMF 2026)", "full_24h": 53.0, "partial_8h_arrival_departure": 36.0, "law_ref": "BMF-Schreiben Auslandsreisekosten 2026 (v. 05.12.2025)"}, "FR_PAR": {"label": "Frankreich — Paris & Île-de-France (BMF 2026)", "full_24h": 58.0, "partial_8h_arrival_departure": 39.0, "law_ref": "BMF-Schreiben Auslandsreisekosten 2026 (v. 05.12.2025)"}, "US_NYC": {"label": "USA — New York City (BMF 2025/2026)", "full_24h": 66.0, "partial_8h_arrival_departure": 44.0, "law_ref": "BMF-Schreiben Auslandsreisekosten 2025/2026"}};
+
+    let currentIdx = 0;
+
+    const fmtEur = (v) => "€" + Math.round(v).toLocaleString("de-DE");
+    const fmtEurExact = (v) => "€" + Number(v).toLocaleString("de-DE", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+    function initLocationSelect() {
+      const sel = document.getElementById("inpLocation");
+      sel.innerHTML = "";
+      Object.entries(RATES).forEach(([code, info]) => {
+        const opt = document.createElement("option");
+        opt.value = code;
+        opt.textContent = `${info.label} (€${info.full_24h} / €${info.partial_8h_arrival_departure})`;
+        sel.appendChild(opt);
+      });
+    }
+
+    function renderPersonaButtons() {
+      const bar = document.getElementById("personaBar");
+      bar.innerHTML = "";
+      SCENARIOS.forEach((sc, idx) => {
+        const btn = document.createElement("button");
+        btn.className = "persona-btn" + (idx === currentIdx ? " active" : "");
+        btn.innerHTML = `<strong>${sc.scenario_name}</strong><span>${sc.profession_label} · ${sc.home_city} ↔ ${sc.work_city}</span>`;
+        btn.onclick = () => loadScenario(idx);
+        bar.appendChild(btn);
+      });
+    }
+
+    function loadScenario(idx) {
+      currentIdx = idx;
+      renderPersonaButtons();
+      const sc = SCENARIOS[idx];
+
+      const monthlyRent = sc.monthly_cold_rent_eur + sc.monthly_utilities_eur;
+      const secondTax = sc.annual_utility_settlement_extra_eur + sc.annual_second_home_tax_eur;
+      const hausrat = sc.furniture_items
+        .filter(i => i.category !== "arbeitsmittel")
+        .reduce((a, b) => a + b.gross_price_eur, 0);
+      const workEquip = sc.furniture_items
+        .filter(i => i.category === "arbeitsmittel")
+        .reduce((a, b) => a + b.gross_price_eur, 0);
+
+      document.getElementById("inpRent").value = monthlyRent;
+      document.getElementById("inpSecondTax").value = secondTax;
+      document.getElementById("inpFurniture").value = hausrat;
+      document.getElementById("inpWorkEquip").value = workEquip;
+      document.getElementById("inpHouseholdStatus").value = sc.household_status;
+      document.getElementById("inpMainCosts").value = sc.main_household_monthly_running_costs_eur;
+      document.getElementById("inpBankTransfer").value = sc.user_monthly_bank_transfer_eur;
+      document.getElementById("inpLocation").value = sc.location_code;
+      document.getElementById("inpDistKm").value = sc.one_way_distance_km;
+      document.getElementById("inpWeeks").value = sc.work_weeks_per_year;
+      document.getElementById("inpTrain").value = sc.annual_public_transport_tickets_eur;
+      document.getElementById("inpResets").value = sc.planned_4week_interruptions_count;
+      document.getElementById("inpIntDays").value = sc.interruption_max_consecutive_days;
+      document.getElementById("inpTaxRate").value = sc.marginal_tax_rate_pct;
+
+      recalculate();
+    }
+
+    function recalculate() {
+      const sc = SCENARIOS[currentIdx];
+      const monthlyRent = parseFloat(document.getElementById("inpRent").value);
+      const secondTax = parseFloat(document.getElementById("inpSecondTax").value);
+      const hausrat = parseFloat(document.getElementById("inpFurniture").value);
+      const workEquip = parseFloat(document.getElementById("inpWorkEquip").value);
+      const householdStatus = document.getElementById("inpHouseholdStatus").value;
+      const mainCostsMo = parseFloat(document.getElementById("inpMainCosts").value);
+      const bankTransferMo = parseFloat(document.getElementById("inpBankTransfer").value);
+      const locCode = document.getElementById("inpLocation").value;
+      const distKm = parseInt(document.getElementById("inpDistKm").value, 10);
+      const weeks = parseInt(document.getElementById("inpWeeks").value, 10);
+      const trainEur = parseFloat(document.getElementById("inpTrain").value);
+      const resets = parseInt(document.getElementById("inpResets").value, 10);
+      const intDays = parseInt(document.getElementById("inpIntDays").value, 10);
+      const taxRate = parseFloat(document.getElementById("inpTaxRate").value);
+
+      document.getElementById("valRent").textContent = fmtEur(monthlyRent);
+      document.getElementById("valSecondTax").textContent = fmtEur(secondTax);
+      document.getElementById("valFurniture").textContent = fmtEur(hausrat);
+      document.getElementById("valWorkEquip").textContent = fmtEur(workEquip);
+      document.getElementById("valMainCosts").textContent = fmtEur(mainCostsMo);
+      document.getElementById("valBankTransfer").textContent = fmtEur(bankTransferMo);
+      document.getElementById("valDistKm").textContent = distKm + " km";
+      document.getElementById("valWeeks").textContent = weeks + " Wo.";
+      document.getElementById("valTrain").textContent = fmtEur(trainEur);
+      document.getElementById("valResets").textContent = resets + " Blöcke";
+      document.getElementById("valIntDays").textContent = intDays + " Tage";
+      document.getElementById("valTaxRate").textContent = taxRate.toFixed(2) + "%";
+
+      // Lever 1
+      const activeMonths = sc.active_months_in_year || 12;
+      const rawAccomm = monthlyRent * activeMonths + secondTax;
+      const capAccomm = activeMonths * 1000;
+      const dedAccomm = Math.min(rawAccomm, capAccomm);
+      const lostAccomm = Math.max(0, rawAccomm - capAccomm);
+      const within5000 = hausrat <= 5000;
+      const totalFurnitureOpt = hausrat + workEquip;
+      const naiveFurniture = Math.max(0, Math.min(rawAccomm + totalFurnitureOpt, capAccomm) - dedAccomm);
+
+      // Lever 2
+      const annualMainCosts = mainCostsMo * 12;
+      const annualBank = bankTransferMo * 12;
+      const sharePct = annualMainCosts > 0 ? (annualBank / annualMainCosts) * 100 : 100;
+      const isCompliant = (householdStatus === "married_joint_household") || (sharePct > 10.0);
+      const minRequiredAnnual = annualMainCosts * 0.1001;
+      const shortfallEur = isCompliant ? 0 : Math.max(0, minRequiredAnnual - annualBank);
+      const recStandingOrder = Math.ceil((annualMainCosts * 0.115) / 12);
+
+      // Lever 3
+      const singleTrip = Math.min(distKm, 20) * 0.30 + Math.max(0, distKm - 20) * 0.38;
+      const distAllowanceAnnual = singleTrip * weeks;
+      const bestHomeTrips = Math.max(distAllowanceAnnual, trainEur);
+
+      const rateObj = RATES[locCode] || RATES["DE"];
+      const weeklyPerDiem = 3 * rateObj.full_24h + 2 * rateObj.partial_8h_arrival_departure;
+      const weeksNoReset = Math.min(weeks, 13);
+      const validResetNow = resets > 0 && intDays >= 28;
+      const optResets = Math.max(1, resets);
+      const weeksWithReset = Math.min(weeks, 13 * (1 + optResets));
+
+      const perDiemNaive = (validResetNow ? weeksWithReset : weeksNoReset) * weeklyPerDiem;
+      const perDiemOpt = weeksWithReset * weeklyPerDiem;
+      const perDiemGain = perDiemOpt - perDiemNaive;
+
+      const relocation = sc.relocation_costs_eur || 0;
+
+      const naiveTotal = isCompliant
+        ? (dedAccomm + naiveFurniture + relocation + distAllowanceAnnual + perDiemNaive)
+        : 0;
+      const optTotal = dedAccomm + totalFurnitureOpt + relocation + bestHomeTrips + perDiemOpt;
+      const diffTotal = optTotal - naiveTotal;
+
+      const naiveRefund = naiveTotal * (taxRate / 100);
+      const optRefund = optTotal * (taxRate / 100);
+      const extraRefund = optRefund - naiveRefund;
+
+      // Update KPIs
+      document.getElementById("kpiNaiveDed").textContent = fmtEur(naiveTotal);
+      document.getElementById("kpiOptDed").textContent = fmtEur(optTotal);
+      document.getElementById("kpiOptRefund").textContent = fmtEur(optRefund);
+      document.getElementById("kpiExtraRefund").textContent = `+${fmtEur(extraRefund)} Zusatz-Erstattung (+${fmtEur(diffTotal)} Abzug)`;
+
+      const elShare = document.getElementById("kpiHouseholdShare");
+      const elStatus = document.getElementById("kpiHouseholdStatus");
+      if (householdStatus === "married_joint_household") {
+        elShare.textContent = "Ehegatten-Privileg";
+        elShare.style.color = "#34d399";
+        elStatus.textContent = "BMF Rz. 114: Beteiligung typisierend unterstellt";
+      } else {
+        elShare.textContent = sharePct.toFixed(1) + "%";
+        elShare.style.color = isCompliant ? "#34d399" : "#fb7185";
+        elStatus.textContent = isCompliant
+          ? `BMF Rz. 100 erfüllt (>10% = ${fmtEur(annualBank)}/J.)`
+          : `FALLE (<10%): Es fehlen ${fmtEur(shortfallEur)}/J. per Überweisung!`;
+      }
+
+      // Update Lever Boxes
+      document.getElementById("boxLever1").innerHTML = `
+        <div style="font-size:13px;">
+          Unterkunft Ist: <strong>${fmtEur(rawAccomm)}</strong> (Deckel: <strong>${fmtEur(capAccomm)}</strong>)<br/>
+          Hausrat (BFH VI R 18/17): <strong style="color:#34d399;">+${fmtEur(hausrat)}</strong> ${within5000 ? '<span class="status-pill pill-ok">&le; €5k Rz.108</span>' : '<span class="status-pill pill-warn">&gt; €5k</span>'}<br/>
+          Arbeitsmittel (§ 9 Nr. 6): <strong style="color:#38bdf8;">+${fmtEur(workEquip)}</strong>
+        </div>
+      `;
+
+      document.getElementById("boxLever2").innerHTML = `
+        <div style="font-size:13px;">
+          Haupthaushalt-Kosten: <strong>${fmtEur(annualMainCosts)}/Jahr</strong><br/>
+          Überweisung nachgewiesen: <strong>${fmtEur(annualBank)}/Jahr (${sharePct.toFixed(1)}%)</strong><br/>
+          Empf. Dauerauftrag: <strong style="color:#fbbf24;">${fmtEur(recStandingOrder)}/Monat</strong>
+        </div>
+      `;
+
+      document.getElementById("boxLever3").innerHTML = `
+        <div style="font-size:13px;">
+          Wochenpauschale (${locCode}): <strong>${fmtEur(weeklyPerDiem)}/Woche</strong><br/>
+          Anspruchswochen: <strong>${weeksNoReset} Wo. &rarr; ${weeksWithReset} Wo.</strong><br/>
+          Reset-Gewinn (§ 9 Abs. 4a S. 7): <strong style="color:#34d399;">+${fmtEur(perDiemOpt - weeksNoReset * weeklyPerDiem)}</strong>
+        </div>
+      `;
+
+      // Table Breakdown
+      const rows = [
+        [
+          "1. Unterkunftskosten Zweitwohnung (Miete + NK + Zweitwohnungsteuer)",
+          "§ 9 Abs. 1 S. 3 Nr. 5 S. 4 EStG (€1.000/Mo. Deckel)",
+          isCompliant ? dedAccomm : 0,
+          dedAccomm,
+        ],
+        [
+          "2. Notwendige Einrichtung & Hausrat (Küche, Bett, Schrank, Lampen)",
+          "BFH VI R 18/17 & BMF v. 25.11.2020 Rz. 108 (ungedeckelt!)",
+          isCompliant ? naiveFurniture : 0,
+          hausrat,
+        ],
+        [
+          "3. Berufliche Arbeitsmittel in der Zweitwohnung",
+          "§ 9 Abs. 1 S. 3 Nr. 6 EStG & § 6 Abs. 2 GWG",
+          isCompliant ? 0 : 0,
+          workEquip,
+        ],
+        [
+          "4. Wöchentliche Familienheimfahrten (" + weeks + "x " + distKm + " km / BahnCard)",
+          "§ 9 Abs. 1 S. 3 Nr. 5 S. 5–6 EStG (€0,30/€0,38 vs. Bahn)",
+          isCompliant ? distAllowanceAnnual : 0,
+          bestHomeTrips,
+        ],
+        [
+          "5. Verpflegungsmehraufwand (" + rateObj.label + ")",
+          "§ 9 Abs. 4a S. 6 & S. 7 EStG (inkl. 28-Tage-Reset)",
+          isCompliant ? perDiemNaive : 0,
+          perDiemOpt,
+        ],
+        [
+          "6. Umzugs- & Einzugskosten Zweitwohnung (Spedition/Renovierung)",
+          "BMF v. 25.11.2020 Rz. 109 (tatsächliche Kosten)",
+          isCompliant ? relocation : 0,
+          relocation,
+        ],
+      ];
+
+      const tbody = document.getElementById("breakdownBody");
+      tbody.innerHTML = rows.map(r => {
+        const delta = r[3] - r[2];
+        return `<tr>
+          <td><strong>${r[0]}</strong></td>
+          <td style="color:var(--muted);font-size:12px;">${r[1]}</td>
+          <td class="num">${fmtEur(r[2])}</td>
+          <td class="num" style="font-weight:700;color:var(--accent);">${fmtEur(r[3])}</td>
+          <td class="num" style="font-weight:700;color:#34d399;">+${fmtEur(delta)}</td>
+        </tr>`;
+      }).join("");
+
+      // Render 26-block (2 weeks per block = 52 weeks) strips
+      const stripNaive = document.getElementById("stripNaive");
+      const stripOpt = document.getElementById("stripOpt");
+      stripNaive.innerHTML = "";
+      stripOpt.innerHTML = "";
+      for (let b = 1; b <= 26; b++) {
+        const wkEnd = b * 2;
+        const c1 = document.createElement("div");
+        c1.className = "week-cell " + (wkEnd <= 14 ? "wk-active" : "wk-expired");
+        c1.textContent = "W" + wkEnd;
+        stripNaive.appendChild(c1);
+
+        const c2 = document.createElement("div");
+        let cls = "wk-expired";
+        if (wkEnd <= 14) cls = "wk-active";
+        else if (wkEnd === 16 || wkEnd === 18) cls = "wk-reset";
+        else if (optResets >= 1 && wkEnd > 18 && wkEnd <= 32) cls = "wk-active";
+        else if (optResets >= 2 && (wkEnd === 34 || wkEnd === 36)) cls = "wk-reset";
+        else if (optResets >= 2 && wkEnd > 36 && wkEnd <= 50) cls = "wk-active";
+        c2.className = "week-cell " + cls;
+        c2.textContent = "W" + wkEnd;
+        stripOpt.appendChild(c2);
+      }
+
+      // Warnings & Action List
+      const alerts = [];
+      if (!isCompliant) {
+        alerts.push({
+          type: "warn",
+          text: `KRITISCHE 10%-HAUPTHAUSHALTS-FALLE (BMF Rz. 100): Überwiesene Beteiligung beträgt nur ${sharePct.toFixed(1)}% (${fmtEur(annualBank)}/J.). Sofort Dauerauftrag auf ${fmtEur(recStandingOrder)}/Mo. erhöhen + Einmal-Ausgleichsüberweisung über ${fmtEur(shortfallEur)} vor Jahresende tätigen!`
+        });
+      }
+      if (intDays < 28 && resets > 0) {
+        alerts.push({
+          type: "warn",
+          text: `§ 9 Abs. 4a Satz 7 EStG 28-Tage-Falle: Ihre längste Unterbrechung beträgt aktuell ${intDays} Tage. Verlängern Sie den Home-Office-/Urlaubsblock um ${28 - intDays} Tage auf volle 28 Tage ohne Vor-Ort-Besuch — das schaltet +${fmtEur(perDiemGain)} zusätzliche Verpflegungspauschalen frei!`
+        });
+      }
+      if (lostAccomm > 0) {
+        alerts.push({
+          type: "action",
+          text: `BFH VI R 18/17 Möbeltrennung schützt ${fmtEur(hausrat + workEquip)} vor dem €1.000/Mo.-Mietdeckel (Miete übersteigt Deckel bereits um ${fmtEur(lostAccomm)}/J.).`
+        });
+      }
+      if (trainEur > distAllowanceAnnual) {
+        alerts.push({
+          type: "action",
+          text: `Familienheimfahrten-Optimierung (§ 9 Abs. 1 S. 3 Nr. 5 S. 6 EStG): Tatsächliche BahnCard/DB-Ticketkosten (${fmtEur(trainEur)}) schlagen die Entfernungspauschale (${fmtEur(distAllowanceAnnual)}) um +${fmtEur(trainEur - distAllowanceAnnual)}!`
+        });
+      }
+
+      const ul = document.getElementById("alertList");
+      ul.innerHTML = alerts.map(a => `<li class="${a.type === 'warn' ? 'alert-warn' : 'alert-action'}">${a.text}</li>`).join("");
+
+      // Generate Finanzamt Begleitschreiben
+      document.getElementById("dossierText").textContent =
+`Anlage zur Einkommensteuererklärung (Anlage N — Zeilen 61–87)
+Steuerpflichtige(r): ${sc.profession_label}
+Zweitwohnung am Beschäftigungsort: ${sc.work_city} | Eigener Hausstand (Lebensmittelpunkt): ${sc.home_city}
+
+1. Unterkunftskosten nach § 9 Abs. 1 Satz 3 Nr. 5 Satz 4 EStG (Jahreshöchstbetrags-Betrachtung):
+   - Laufende Kaltmiete, Betriebskosten & Zweitwohnungsteuer (${activeMonths} Monate): ${fmtEurExact(rawAccomm)}
+   - Gesetzlicher Höchstbetrag (${activeMonths} x €1.000,00 gem. BMF-Schreiben v. 25.11.2020, Rz. 105): ${fmtEurExact(dedAccomm)}
+
+2. Ungedeckelter Abzug für notwendige Einrichtung & Hausrat (BFH, Urt. v. 04.04.2019 – VI R 18/17):
+   - Gemäß BFH VI R 18/17 sowie BMF-Schreiben vom 25.11.2020 (BStBl I S. 1228, Rz. 108) zählen Aufwendungen
+     für notwendige Einrichtungsgegenstände und Hausrat NICHT zu den auf €1.000/Monat begrenzten Unterkunftskosten.
+   - Einrichtungsgegenstände & Hausrat (inkl. USt): ${fmtEurExact(hausrat)} (${within5000 ? 'innerhalb der €5.000-Vereinfachungsgrenze nach BMF Rz. 108' : 'Einzelnachweis gem. BFH VI R 18/17'})
+   - Berufliche Arbeitsmittel (§ 9 Abs. 1 Satz 3 Nr. 6 EStG): ${fmtEurExact(workEquip)}
+
+3. Nachweis des eigenen Hausstands am Lebensmittelpunkt (§ 9 Abs. 1 Satz 3 Nr. 5 Satz 3 EStG / BMF Rz. 100/114):
+   - Laufende Kosten der Haushaltsführung (${sc.home_city}): ${fmtEurExact(annualMainCosts)} / Jahr
+   - Nachgewiesene finanzielle Beteiligung per Banküberweisung: ${fmtEurExact(Math.max(annualBank, minRequiredAnnual))} / Jahr (> 10 % Schwelle erfüllt)
+
+4. Wöchentliche Familienheimfahrten & Verpflegungsmehraufwendungen (§ 9 Abs. 4a Satz 6 & 7 EStG):
+   - ${weeks} Familienheimfahrten (${distKm} km einfache Entfernung, Günstigerprüfung Bahn vs. Entfernungspauschale): ${fmtEurExact(bestHomeTrips)}
+   - Verpflegungsmehraufwand (${rateObj.label}, inkl. Neubeginn der Dreimonatsfrist nach >= 28 Tagen Unterbrechung gem. § 9 Abs. 4a Satz 7 EStG für ${weeksWithReset} Wochen): ${fmtEurExact(perDiemOpt)}
+
+SUMME ABZIEHBARE WERBUNGSKOSTEN DOPPELTE HAUSHALTSFÜHRUNG / REISEKOSTEN: ${fmtEurExact(optTotal)}
+Erwartete Einkommensteuer-Erstattung (bei ${taxRate.toFixed(2)} % Grenzsteuersatz): ${fmtEurExact(optRefund)}`;
+    }
+
+    document.querySelectorAll("input, select").forEach(el => {
+      el.addEventListener("input", recalculate);
+      el.addEventListener("change", recalculate);
+    });
+
+    document.getElementById("btnCopyDossier").addEventListener("click", () => {
+      navigator.clipboard.writeText(document.getElementById("dossierText").textContent);
+      const btn = document.getElementById("btnCopyDossier");
+      btn.textContent = "Kopiert!";
+      setTimeout(() => { btn.textContent = "Begleitschreiben kopieren"; }, 1800);
+    });
+
+    initLocationSelect();
+    loadScenario(0);
+  </script>
+</body>
+</html>

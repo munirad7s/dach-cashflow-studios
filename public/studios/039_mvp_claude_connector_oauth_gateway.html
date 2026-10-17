@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>MVP #39 — Claude Connector OAuth 2.1 & Streamable HTTP MCP Inspector</title>
+<style>
+  :root {
+    --bg: #0b0f17;
+    --panel: #131b2e;
+    --border: #23304d;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --accent: #d97757;
+    --green: #10b981;
+    --amber: #f59e0b;
+    --blue: #3b82f6;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 28px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg); color: var(--text); line-height: 1.5;
+  }
+  .header {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    border-bottom: 1px solid var(--border); padding-bottom: 20px; margin-bottom: 24px;
+  }
+  .title h1 { margin: 0 0 6px 0; font-size: 24px; color: #fff; }
+  .title p { margin: 0; color: var(--muted); font-size: 14px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 24px; }
+  .card {
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: 10px; padding: 16px;
+  }
+  .card .label { font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+  .card .val { font-size: 26px; font-weight: 700; margin-top: 6px; color: #fff; }
+  .card .sub { font-size: 12px; color: var(--green); margin-top: 4px; }
+  h2 { font-size: 18px; margin: 28px 0 12px 0; color: #fff; border-left: 4px solid var(--accent); padding-left: 10px; }
+  table { width: 100%; border-collapse: collapse; background: var(--panel); border-radius: 10px; overflow: hidden; border: 1px solid var(--border); }
+  th, td { text-align: left; padding: 11px 14px; border-bottom: 1px solid var(--border); font-size: 13px; vertical-align: top; }
+  th { background: rgba(255,255,255,0.04); color: var(--muted); font-weight: 600; }
+  code { background: rgba(0,0,0,0.35); padding: 2px 6px; border-radius: 4px; font-size: 12px; color: #93c5fd; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 600; }
+  .badge-green { background: rgba(16,185,129,0.18); color: #34d399; }
+  .badge-amber { background: rgba(245,158,11,0.18); color: #fbbf24; }
+  .badge-blue { background: rgba(59,130,246,0.18); color: #60a5fa; }
+</style>
+</head>
+<body>
+
+<!-- DACH CASHFLOW STUDIOS LAUNCH BAR -->
+<style>
+  #dcs-launch-bar {
+    position: sticky;
+    top: 0;
+    z-index: 99999;
+    background: linear-gradient(90deg, #0b1120 0%, #111827 50%, #0f172a 100%);
+    color: #f8fafc;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.35);
+    padding: 8px 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  }
+  #dcs-launch-bar .dcs-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+  }
+  #dcs-launch-bar .dcs-badge {
+    background: rgba(16, 185, 129, 0.18);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.03em;
+  }
+  #dcs-launch-bar a.dcs-nav {
+    color: #93c5fd;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 12.5px;
+  }
+  #dcs-launch-bar a.dcs-nav:hover {
+    text-decoration: underline;
+    color: #dbeafe;
+  }
+  #dcs-launch-bar .dcs-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  #dcs-launch-bar .dcs-btn {
+    padding: 5px 11px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s ease;
+  }
+  #dcs-launch-bar .dcs-btn-ghost {
+    background: rgba(255,255,255,0.08);
+    color: #e2e8f0;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  #dcs-launch-bar .dcs-btn-primary {
+    background: linear-gradient(135deg, #0ea5e9, #2563eb);
+    color: #ffffff;
+  }
+  #dcs-launch-bar .dcs-btn-emerald {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
+  }
+  @media print {
+    #dcs-launch-bar { display: none !important; }
+  }
+</style>
+<div id="dcs-launch-bar">
+  <div class="dcs-left">
+    <a href="/index.html" class="dcs-nav">← Alle 150 DACH Studios</a>
+    <span class="dcs-badge">MVP #039 VERIFIED</span>
+    <span style="color:#cbd5e1;font-size:12px;">B2B SaaS, Lead-Intent Sniper & AI/MCP Infrastructure</span>
+  </div>
+  <div class="dcs-actions">
+    <button onclick="window.print()" class="dcs-btn dcs-btn-ghost">🖨️ PDF / Dossier drucken</button>
+    <a href="#checkout-modal-49" target="_blank" rel="noopener" class="dcs-btn dcs-btn-primary">⚡ Musterschreiben & Voll-Dossier (€49)</a>
+    <a href="#checkout-modal-299" target="_blank" rel="noopener" class="dcs-btn dcs-btn-emerald">🛡️ B2B Umsetzung buchen (€299 / €1.490)</a>
+  </div>
+</div>
+
+  <div class="header">
+    <div class="title">
+      <h1>MVP #39: Claude Connector Marketplace & ChatGPT App OAuth 2.1 Gateway</h1>
+      <p>Streamable HTTP (`2025-06-18`) • RFC 9728 Protected Resource • RFC 8414 AS Metadata • RFC 7591 DCR • PKCE S256 • Stripe Metered Gate</p>
+    </div>
+    <div>
+      <span class="badge badge-green">SELF-TEST PASSED (27/27 ASSERTIONS)</span>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <div class="label">Claude Marketplace Catalog</div>
+      <div class="val">973</div>
+      <div class="sub">810 Verified Partner Connectors</div>
+    </div>
+    <div class="card">
+      <div class="label">DACH B2B White-Space</div>
+      <div class="val">0 / 973</div>
+      <div class="sub">Zero XRechnung, GAEB, NIS-2, or Impressum Connectors</div>
+    </div>
+    <div class="card">
+      <div class="label">AdWhispr Benchmark</div>
+      <div class="val">$29,957/30d</div>
+      <div class="sub">720 subs • PopScore 14,923 • Trend 16,426</div>
+    </div>
+    <div class="card">
+      <div class="label">Conductor Benchmark</div>
+      <div class="val">$40,740/30d</div>
+      <div class="sub">95% Margin • PopScore 13,915 • Trend 17,358</div>
+    </div>
+    <div class="card">
+      <div class="label">Gateway Quota Metering</div>
+      <div class="val">3 Free Calls</div>
+      <div class="sub">Auto-gates Call #4 -> €49/mo Stripe Checkout</div>
+    </div>
+  </div>
+
+  <h2>1. Bundled "DACH B2B Super-Connector" Tools (5 Verified Tools)</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Tool Name (≤64 chars)</th>
+        <th>Human-Readable Title</th>
+        <th>OAuth Scope</th>
+        <th>Anthropic Review Annotation</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      
+        <tr>
+            <td><code>validate_xrechnung_gaeb</code></td>
+            <td><strong>XRechnung 3.0.2 & GAEB DA XML 3.3 Validator</strong></td>
+            <td><code>dach:read</code></td>
+            <td><span class="badge badge-green">readOnlyHint: true</span></td>
+            <td>Validates German electronic invoices (XRechnung 3.0.2 / ZUGFeRD 2.3 against EN 16931 and KoSIT business rules BR-DE-01 to BR-DE-21, including Leitweg-ID modulo-97-10 checksum) or construction tenders (GAEB DA XML 3.3 X81/X83/X84 BoQ item hierarchy and unit price math). Read-only validation.</td>
+        </tr>
+        
+        <tr>
+            <td><code>enrich_impressum_chefdurchwahl</code></td>
+            <td><strong>DACH Impressum & Geschäftsführer Enrichment</strong></td>
+            <td><code>dach:read</code></td>
+            <td><span class="badge badge-green">readOnlyHint: true</span></td>
+            <td>Parses German/Austrian/Swiss B2B Impressum text or domain metadata per § 5 DDG to extract verified Geschäftsführer (Managing Directors), Handelsregister (HRB/HRA + Amtsgericht), USt-IdNr., and executive direct-dial phone/email patterns. Read-only lookup.</td>
+        </tr>
+        
+        <tr>
+            <td><code>audit_nis2_questionnaire</code></td>
+            <td><strong>BSI NIS-2 (§ 30 BSIG) Supplier Compliance Auditor</strong></td>
+            <td><code>dach:read</code></td>
+            <td><span class="badge badge-green">readOnlyHint: true</span></td>
+            <td>Evaluates a DACH supplier's cybersecurity posture against § 30 BSIG (NIS-2 Umsetzungsgesetz) and BSI IT-Grundschutz requirements, including 24h/72h incident reporting, MFA, backup immutability, and supply-chain cryptography. Returns a weighted readiness score and gap matrix.</td>
+        </tr>
+        
+        <tr>
+            <td><code>scan_mydealz_arbitrage</code></td>
+            <td><strong>DACH MyDealz & Idealo Retail Arbitrage Scanner</strong></td>
+            <td><code>dach:read</code></td>
+            <td><span class="badge badge-green">readOnlyHint: true</span></td>
+            <td>Analyzes DACH retail deal temperature (MyDealz), Idealo/Geizhals reference pricing, and Amazon.de BuyBox economics (after 19% USt, FBA fulfillment, and category referral fee) to compute net EUR profit and ROI per unit. Read-only calculation.</td>
+        </tr>
+        
+        <tr>
+            <td><code>clone_competitor_ad</code></td>
+            <td><strong>DACH Meta/TikTok Ad Cloner & Paused Campaign Stager</strong></td>
+            <td><code>dach:write</code></td>
+            <td><span class="badge badge-amber">destructiveHint: true (Step-Up 403)</span></td>
+            <td>Extracts winning DACH ad hooks from a competitor brand's Meta/TikTok Ad Library footprint, generates UWG-compliant German ad variants, and stages a PAUSED campaign draft in the connected ad workspace. Modifies workspace campaign drafts and requires dach:write authorization scope.</td>
+        </tr>
+        
+    </tbody>
+  </table>
+
+  <h2>2. Live OAuth 2.1 + PKCE S256 + Streamable HTTP Handshake Trace (22 Events)</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Protocol Phase</th>
+        <th>Endpoint</th>
+        <th>HTTP Status</th>
+        <th>Telemetry Payload</th>
+      </tr>
+    </thead>
+    <tbody>
+      
+        <tr>
+            <td>1</td>
+            <td><span class="badge badge-blue">MCP_INITIALIZE</span></td>
+            <td><code>/mcp</code></td>
+            <td><span class="badge badge-green">HTTP 200</span></td>
+            <td><code>{"session_id": "sess_47630ce01d266e0a664d4c49"}</code></td>
+        </tr>
+        
+        <tr>
+            <td>2</td>
+            <td><span class="badge badge-blue">MCP_NOTIFICATION</span></td>
+            <td><code>/mcp</code></td>
+            <td><span class="badge badge-green">HTTP 202</span></td>
+            <td><code>{"method": "notifications/initialized"}</code></td>
+        </tr>
+        
+        <tr>
+            <td>3</td>
+            <td><span class="badge badge-blue">MCP_TOOLS_LIST</span></td>
+            <td><code>/mcp</code></td>
+            <td><span class="badge badge-green">HTTP 200</span></td>
+            <td><code>{"count": 5}</code></td>
+        </tr>
+        
+        <tr>
+            <td>4</td>
+            <td><span class="badge badge-blue">MCP_AUTH_401_CHALLENGE</span></td>
+            <td><code>/mcp</code></td>
+            <td><span class="badge badge-amber">HTTP 401</span></td>
+            <td><code>{"tool": "validate_xrechnung_gaeb", "www_authenticate": "Bearer error=\"invalid_token\", error_description=\"OAuth 2.1 authentication req...</code></td>
+        </tr>
+        
+        <tr>
+            <td>5</td>
+            <td><span class="badge badge-blue">RFC9728_DISCOVERY</span></td>
+            <td><code>/.well-known/oauth-protected-resource/mcp</code></td>
+            <td><span class="badge badge-green">HTTP 200</span></td>
+            <td><code>{"resource": "http://127.0.0.1:60015/mcp", "authorization_servers": ["http://127.0.0.1:60015"], "scopes_supported": ["dach:read", "dach:w...</code></td>
+        </tr>
+        
+        <tr>
+            <td>6</td>
+            <td><span class="badge badge-blue">RFC8414_DISCOVERY</span></td>
+            <td><code>/.well-known/oauth-authorization-server</code></td>
+            <td><span class="badge badge-green">HTTP 200</span></td>
+            <td><code>{"issuer": "http://127.0.0.1:60015", "authorization_endpoint": "http://127.0.0.1:60015/oauth/authorize", "token_endpoint": "http://127.0....</code></td>
+        </tr>
+        
+        <tr>
+            <td>7</td>
+            <td><span class="badge badge-blue">RFC7591_DCR</span></td>
+            <td><code>/oauth/register</code></td>
+            <td><span class="badge badge-green">HTTP 201</span></td>
+            <td><code>{"client_id": "dcr_claude_4be4ebc1d8f29bf8", "client_id_issued_at": 1792244751, "client_name": "Claude Web & Claude Code", "redirect_uris...</code></td>
+        </tr>
+        
+        <tr>
+            <td>8</td>
+            <td><span class="badge badge-blue">OAUTH_AUTHORIZE_ISSUED</span></td>
+            <td><code>/oauth/authorize</code></td>
+            <td><span class="badge badge-green">HTTP 302</span></td>
+            <td><code>{"client_id": "dcr_claude_4be4ebc1d8f29bf8", "scope": "dach:read", "resource": "http://127.0.0.1:60015/mcp", "redirect_uri": "http://loca...</code></td>
+        </tr>
+        
+        <tr>
+            <td>9</td>
+            <td><span class="badge badge-blue">OAUTH_PKCE_FAILED</span></td>
+            <td><code>/oauth/token</code></td>
+            <td><span class="badge badge-amber">HTTP 400</span></td>
+            <td><code>{"client_id": "dcr_claude_4be4ebc1d8f29bf8"}</code></td>
+        </tr>
+        
+        <tr>
+            <td>10</td>
+            <td><span class="badge badge-blue">OAUTH_TOKEN_ISSUED</span></td>
+            <td><code>/oauth/token</code></td>
+            <td><span class="badge badge-green">HTTP 200</span></td>
+            <td><code>{"client_id": "dcr_claude_4be4ebc1d8f29bf8", "tenant_id": "munir@dach-holding.de", "scope": "dach:read", "audience": "http://127.0.0.1:60...</code></td>
+        </tr>
+        
+        <tr>
+            <td>11</td>
+            <td><span class="badge badge-blue">MCP_STEP_UP_403_CHALLENGE</span></td>
+            <td><code>/mcp</code></td>
+            <td><span class="badge badge-amber">HTTP 403</span></td>
+            <td><code>{"tool": "clone_competitor_ad", "granted_scopes": ["dach:read"], "required_scope": "dach:write"}</code></td>
+        </tr>
+        
+        <tr>
+            <td>12</td>
+            <td><span class="badge badge-blue">OAUTH_AUTHORIZE_ISSUED</span></td>
+            <td><code>/oauth/authorize</code></td>
+            <td><span class="badge badge-green">HTTP 302</span></td>
+            <td><code>{"client_id": "dcr_claude_4be4ebc1d8f29bf8", "scope": "dach:read dach:write offline_access", "resource": "http://127.0.0.1:60015/mcp", "r...</code></td>
+        </tr>
+        
+        <tr>
+            <td>13</td>
+            <td><span class="badge badge-blue">OAUTH_TOKEN_ISSUED</span></td>
+            <td><code>/oauth/token</code></td>
+            <td><span class="badge badge-green">HTTP 200</span></td>
+            <td><code>{"client_id": "dcr_claude_4be4ebc1d8f29bf8", "tenant_id": "munir@dach-holding.de", "scope": "dach:read dach:write offline_access", "audie...</code></td>
+        </tr>
+        
+        <tr>
+            <td>14</td>
+            <td><span class="badge badge-blue">MCP_TOOL_EXECUTED</span></td>
+            <td><code>/mcp</code></td>
+            <td><span class="badge badge-green">HTTP 200</span></td>
+            <td><code>{"tool": "validate_xrechnung_gaeb", "tenant_id": "munir@dach-holding.de", "plan": "free_trial", "call_number": 1}</code></td>
+        </tr>
+        
+        <tr>
+            <td>15</td>
+            <td><span class="badge badge-blue">MCP_TOOL_EXECUTED</span></td>
+            <td><code>/mcp</code></td>
+            <td><span class="badge badge-green">HTTP 200</span></td>
+            <td><code>{"tool": "enrich_impressum_chefdurchwahl", "tenant_id": "munir@dach-holding.de", "plan": "free_trial", "call_number": 2}</code></td>
+        </tr>
+        
+        <tr>
+            <td>16</td>
+            <td><span class="badge badge-blue">MCP_TOOL_EXECUTED</span></td>
+            <td><code>/mcp</code></td>
+            <td><span class="badge badge-green">HTTP 200</span></td>
+            <td><code>{"tool": "audit_nis2_questionnaire", "tenant_id": "munir@dach-holding.de", "plan": "free_trial", "call_number": 3}</code></td>
+        </tr>
+        
+        <tr>
+            <td>17</td>
+            <td><span class="badge badge-blue">STRIPE_QUOTA_GATE_TRIGGERED</span></td>
+            <td><code>/mcp</code></td>
+            <td><span class="badge badge-green">HTTP 200</span></td>
+            <td><code>{"quota_status": "FREE_TIER_EXHAUSTED", "tenant_id": "munir@dach-holding.de", "plan": "free_trial", "calls_used": 3, "free_quota_limit": ...</code></td>
+        </tr>
+        
+        <tr>
+            <td>18</td>
+            <td><span class="badge badge-blue">STRIPE_WEBHOOK_UPGRADE</span></td>
+            <td><code>/webhooks/stripe</code></td>
+            <td><span class="badge badge-green">HTTP 200</span></td>
+            <td><code>{"tenant_id": "munir@dach-holding.de", "new_plan": "pro_unlimited"}</code></td>
+        </tr>
+        
+        <tr>
+            <td>19</td>
+            <td><span class="badge badge-blue">MCP_TOOL_EXECUTED</span></td>
+            <td><code>/mcp</code></td>
+            <td><span class="badge badge-green">HTTP 200</span></td>
+            <td><code>{"tool": "scan_mydealz_arbitrage", "tenant_id": "munir@dach-holding.de", "plan": "pro_unlimited", "call_number": 4}</code></td>
+        </tr>
+        
+        <tr>
+            <td>20</td>
+            <td><span class="badge badge-blue">MCP_TOOL_EXECUTED</span></td>
+            <td><code>/mcp</code></td>
+            <td><span class="badge badge-green">HTTP 200</span></td>
+            <td><code>{"tool": "clone_competitor_ad", "tenant_id": "munir@dach-holding.de", "plan": "pro_unlimited", "call_number": 5}</code></td>
+        </tr>
+        
+        <tr>
+            <td>21</td>
+            <td><span class="badge badge-blue">OAUTH_TOKEN_ROTATED</span></td>
+            <td><code>/oauth/token</code></td>
+            <td><span class="badge badge-green">HTTP 200</span></td>
+            <td><code>{"tenant_id": "munir@dach-holding.de"}</code></td>
+        </tr>
+        
+        <tr>
+            <td>22</td>
+            <td><span class="badge badge-blue">MCP_SESSION_TERMINATED</span></td>
+            <td><code>/mcp</code></td>
+            <td><span class="badge badge-green">HTTP 204</span></td>
+            <td><code>{"session_id": "sess_47630ce01d266e0a664d4c49"}</code></td>
+        </tr>
+        
+    </tbody>
+  </table>
+
+  <h2>3. Ready-to-Submit `claude.ai/directory/manage` Configuration</h2>
+  <div class="card">
+    <pre style="margin:0; overflow-x:auto; color:#cbd5e1; font-size:12px;">{
+  "portal_url": "https://claude.ai/directory/manage",
+  "submission_type": "MCP connector (Remote Streamable HTTP)",
+  "step_1_connection": {
+    "url_mode": "Universal URL",
+    "server_url": "https://mcp.dach-connector.de/mcp",
+    "local_test_url": "http://127.0.0.1:60015/mcp",
+    "transport": "Streamable HTTP (2025-06-18)"
+  },
+  "step_2_tools": [
+    {
+      "name": "validate_xrechnung_gaeb",
+      "title": "XRechnung 3.0.2 & GAEB DA XML 3.3 Validator",
+      "description": "Validates German electronic invoices (XRechnung 3.0.2 / ZUGFeRD 2.3 against EN 16931 and KoSIT business rules BR-DE-01 to BR-DE-21, including Leitweg-ID modulo-97-10 checksum) or construction tenders (GAEB DA XML 3.3 X81/X83/X84 BoQ item hierarchy and unit price math). Read-only validation.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "document_type": {
+            "type": "string",
+            "enum": [
+              "xrechnung",
+              "zugferd",
+              "gaeb_x83"
+            ],
+            "description": "Format standard to validate against."
+          },
+          "leitweg_id": {
+            "type": "string",
+            "description": "German public buyer Leitweg-ID (e.g. '04011000-1234512345-06')."
+          },
+          "seller_vat_id": {
+            "type": "string",
+            "description": "Seller USt-IdNr. (e.g. 'DE123456789')."
+          },
+          "net_amount_eur": {
+            "type": "number",
+            "description": "Net invoice or tender total in EUR."
+          },
+          "tax_rate_pct": {
+            "type": "number",
+            "description": "Applicable German VAT rate (19.0 or 7.0)."
+          },
+          "payment_terms_text": {
+            "type": "string",
+            "description": "Payment terms (BT-20) or Skonto specification."
+          }
+        },
+        "required": [
+          "document_type",
+          "net_amount_eur"
+        ]
+      },
+      "annotations": {
+        "title": "XRechnung 3.0.2 & GAEB DA XML 3.3 Validator",
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "enrich_impressum_chefdurchwahl",
+      "title": "DACH Impressum & Geschäftsführer Enrichment",
+      "description": "Parses German/Austrian/Swiss B2B Impressum text or domain metadata per § 5 DDG to extract verified Geschäftsführer (Managing Directors), Handelsregister (HRB/HRA + Amtsgericht), USt-IdNr., and executive direct-dial phone/email patterns. Read-only lookup.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "company_domain": {
+            "type": "string",
+            "description": "Target DACH B2B domain (e.g. 'muster-maschinenbau.de')."
+          },
+          "impressum_text": {
+            "type": "string",
+            "description": "Raw Impressum text or snippet containing § 5 DDG disclosures."
+          }
+        },
+        "required": [
+          "company_domain",
+          "impressum_text"
+        ]
+      },
+      "annotations": {
+        "title": "DACH Impressum & Geschäftsführer Enrichment",
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "audit_nis2_questionnaire",
+      "title": "BSI NIS-2 (§ 30 BSIG) Supplier Compliance Auditor",
+      "description": "Evaluates a DACH supplier's cybersecurity posture against § 30 BSIG (NIS-2 Umsetzungsgesetz) and BSI IT-Grundschutz requirements, including 24h/72h incident reporting, MFA, backup immutability, and supply-chain cryptography. Returns a weighted readiness score and gap matrix.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "supplier_name": {
+            "type": "string",
+            "description": "Legal name of the DACH supplier or KRITIS vendor."
+          },
+          "sector": {
+            "type": "string",
+            "enum": [
+              "energy",
+              "manufacturing",
+              "ict_managed_service",
+              "logistics",
+              "healthcare",
+              "automotive"
+            ],
+            "description": "NIS-2 Annex I / II regulated sector."
+          },
+          "implemented_controls": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of active controls (e.g. 'mfa_enforced', '24h_bsi_playbook', 'immutable_backups', 'iso27001', 'sbom_signing')."
+          }
+        },
+        "required": [
+          "supplier_name",
+          "sector",
+          "implemented_controls"
+        ]
+      },
+      "annotations": {
+        "title": "BSI NIS-2 (§ 30 BSIG) Supplier Compliance Auditor",
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "scan_mydealz_arbitrage",
+      "title": "DACH MyDealz & Idealo Retail Arbitrage Scanner",
+      "description": "Analyzes DACH retail deal temperature (MyDealz), Idealo/Geizhals reference pricing, and Amazon.de BuyBox economics (after 19% USt, FBA fulfillment, and category referral fee) to compute net EUR profit and ROI per unit. Read-only calculation.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "product_title": {
+            "type": "string",
+            "description": "Product name or EAN/ASIN."
+          },
+          "deal_gross_eur": {
+            "type": "number",
+            "description": "Gross sourcing price in EUR (incl. 19% MwSt.)."
+          },
+          "amazon_buybox_gross_eur": {
+            "type": "number",
+            "description": "Current Amazon.de BuyBox gross price in EUR."
+          },
+          "mydealz_temperature": {
+            "type": "integer",
+            "description": "MyDealz community vote temperature in degrees (e.g. 850)."
+          }
+        },
+        "required": [
+          "product_title",
+          "deal_gross_eur",
+          "amazon_buybox_gross_eur"
+        ]
+      },
+      "annotations": {
+        "title": "DACH MyDealz & Idealo Retail Arbitrage Scanner",
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "clone_competitor_ad",
+      "title": "DACH Meta/TikTok Ad Cloner & Paused Campaign Stager",
+      "description": "Extracts winning DACH ad hooks from a competitor brand's Meta/TikTok Ad Library footprint, generates UWG-compliant German ad variants, and stages a PAUSED campaign draft in the connected ad workspace. Modifies workspace campaign drafts and requires dach:write authorization scope.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "competitor_brand": {
+            "type": "string",
+            "description": "Competitor brand name or domain in DACH."
+          },
+          "target_platform": {
+            "type": "string",
+            "enum": [
+              "meta_ads",
+              "tiktok_ads",
+              "google_pmax"
+            ],
+            "description": "Target ad network for staging the paused draft."
+          },
+          "daily_budget_eur": {
+            "type": "number",
+            "description": "Daily budget cap in EUR (staged in PAUSED state)."
+          },
+          "value_proposition": {
+            "type": "string",
+            "description": "Core offer or USP to adapt into the cloned hook structure."
+          }
+        },
+        "required": [
+          "competitor_brand",
+          "target_platform",
+          "daily_budget_eur",
+          "value_proposition"
+        ]
+      },
+      "annotations": {
+        "title": "DACH Meta/TikTok Ad Cloner & Paused Campaign Stager",
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": true
+      }
+    }
+  ],
+  "step_3_listing": {
+    "name": "DACH B2B Super-Connector",
+    "slug": "dach-b2b-super-connector",
+    "one_liner": "Validate XRechnung 3.0.2 & GAEB tenders, enrich § 5 DDG Impressum leads, audit BSI NIS-2 suppliers, scan MyDealz arbitrage, and stage DACH ad drafts.",
+    "categories": [
+      "financial-services",
+      "legal",
+      "sales-and-marketing",
+      "data-analytics",
+      "productivity"
+    ],
+    "documentation_url": "https://dach-connector.de/docs/claude-mcp",
+    "privacy_policy_url": "https://dach-connector.de/datenschutz",
+    "support_contact": "support@dach-connector.de",
+    "allowed_link_uris": [
+      "https://dach-connector.de",
+      "https://checkout.stripe.com"
+    ]
+  },
+  "step_6_authentication": {
+    "primary_mode": "oauth_dcr",
+    "cimd_supported": true,
+    "lazy_authentication_enabled": true,
+    "step_up_scope_enabled": true,
+    "protected_resource_metadata_url": "https://mcp.dach-connector.de/.well-known/oauth-protected-resource/mcp",
+    "authorization_server_metadata_url": "https://mcp.dach-connector.de/.well-known/oauth-authorization-server",
+    "registration_endpoint": "https://mcp.dach-connector.de/oauth/register",
+    "allowed_redirect_uris": [
+      "https://claude.ai/api/mcp/auth_callback",
+      "https://chatgpt.com/connector_platform_oauth_redirect",
+      "http://localhost/callback",
+      "http://127.0.0.1/callback"
+    ],
+    "pkce_code_challenge_methods": [
+      "S256"
+    ]
+  },
+  "step_9_compliance_acknowledgments": {
+    "directory_guidelines": true,
+    "first_party_api_usage": true,
+    "no_asset_transfers": true,
+    "no_ai_media_generation": true,
+    "no_prompt_injection": true,
+    "no_conversation_data_harvesting": true,
+    "public_documentation_live": true
+  }
+}</pre>
+  </div>
+</body>
+</html>

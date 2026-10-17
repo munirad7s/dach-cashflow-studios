@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MVP #164 — Dual-Mode DACH ArbZG (§§ 3–5, 22 ArbZG / BAG 1 ABR 22/21) &amp; Überstunden-Abgeltungs-Prüfstand (§ 307 / § 612 BGB)</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --panel: #131b33;
+      --panel-alt: #192342;
+      --border: #2a3966;
+      --text: #eef2ff;
+      --muted: #9fb0d9;
+      --accent: #38bdf8;
+      --danger: #f43f5e;
+      --warn: #f59e0b;
+      --ok: #10b981;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+    }
+    header {
+      background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 24px 32px;
+    }
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .badge {
+      font-size: 12px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(56, 189, 248, 0.15);
+      color: var(--accent);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+    }
+    h1 {
+      margin: 0 0 8px 0;
+      font-size: 22px;
+      letter-spacing: -0.02em;
+    }
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 24px 32px 64px;
+    }
+    .mode-tabs {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    .tab-btn {
+      flex: 1;
+      padding: 14px 18px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      color: var(--text);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.15s ease;
+    }
+    .tab-btn.active {
+      background: rgba(56, 189, 248, 0.14);
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px var(--accent);
+    }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1.05fr 1.25fr;
+      gap: 20px;
+    }
+    @media (max-width: 1024px) {
+      .grid-2 { grid-template-columns: 1fr; }
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    .card h2 {
+      margin: 0 0 14px 0;
+      font-size: 17px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(185px, 1fr));
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+    .kpi {
+      background: var(--panel-alt);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+    }
+    .kpi-label {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+    .kpi-val {
+      font-size: 20px;
+      font-weight: 700;
+    }
+    .kpi-val.danger { color: var(--danger); }
+    .kpi-val.ok { color: var(--ok); }
+    .kpi-val.warn { color: var(--warn); }
+    label {
+      display: block;
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 4px;
+      margin-top: 10px;
+    }
+    input, select {
+      width: 100%;
+      padding: 9px 11px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: #0d1428;
+      color: var(--text);
+      font-size: 13px;
+    }
+    .checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 10px;
+      font-size: 13px;
+    }
+    .checkbox-row input { width: auto; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    th, td {
+      padding: 10px 8px;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+    }
+    th {
+      color: var(--muted);
+      font-weight: 600;
+      font-size: 12px;
+    }
+    .pill {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 600;
+      margin: 2px;
+    }
+    .pill-danger { background: rgba(244, 63, 94, 0.18); color: #fda4af; border: 1px solid rgba(244, 63, 94, 0.4); }
+    .pill-ok { background: rgba(16, 185, 129, 0.18); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.4); }
+    .pill-warn { background: rgba(245, 158, 11, 0.18); color: #fcd34d; border: 1px solid rgba(245, 158, 11, 0.4); }
+    .alert-box {
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin-top: 14px;
+      font-size: 13px;
+      border: 1px solid var(--border);
+      background: var(--panel-alt);
+    }
+    .alert-box.danger {
+      border-color: rgba(244, 63, 94, 0.5);
+      background: rgba(244, 63, 94, 0.1);
+    }
+    .alert-box.ok {
+      border-color: rgba(16, 185, 129, 0.5);
+      background: rgba(16, 185, 129, 0.1);
+    }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+
+<!-- DACH CASHFLOW STUDIOS LAUNCH BAR -->
+<style>
+  #dcs-launch-bar {
+    position: sticky;
+    top: 0;
+    z-index: 99999;
+    background: linear-gradient(90deg, #0b1120 0%, #111827 50%, #0f172a 100%);
+    color: #f8fafc;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.35);
+    padding: 8px 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  }
+  #dcs-launch-bar .dcs-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+  }
+  #dcs-launch-bar .dcs-badge {
+    background: rgba(16, 185, 129, 0.18);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.03em;
+  }
+  #dcs-launch-bar a.dcs-nav {
+    color: #93c5fd;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 12.5px;
+  }
+  #dcs-launch-bar a.dcs-nav:hover {
+    text-decoration: underline;
+    color: #dbeafe;
+  }
+  #dcs-launch-bar .dcs-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  #dcs-launch-bar .dcs-btn {
+    padding: 5px 11px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s ease;
+  }
+  #dcs-launch-bar .dcs-btn-ghost {
+    background: rgba(255,255,255,0.08);
+    color: #e2e8f0;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  #dcs-launch-bar .dcs-btn-primary {
+    background: linear-gradient(135deg, #0ea5e9, #2563eb);
+    color: #ffffff;
+  }
+  #dcs-launch-bar .dcs-btn-emerald {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
+  }
+  @media print {
+    #dcs-launch-bar { display: none !important; }
+  }
+</style>
+<div id="dcs-launch-bar">
+  <div class="dcs-left">
+    <a href="/index.html" class="dcs-nav">← Alle 150 DACH Studios</a>
+    <span class="dcs-badge">MVP #164 VERIFIED</span>
+    <span style="color:#cbd5e1;font-size:12px;">DACH LegalTech, Labor Law & Consumer Claims</span>
+  </div>
+  <div class="dcs-actions">
+    <button onclick="window.print()" class="dcs-btn dcs-btn-ghost">🖨️ PDF / Dossier drucken</button>
+    <a href="#checkout-modal-49" target="_blank" rel="noopener" class="dcs-btn dcs-btn-primary">⚡ Musterschreiben & Voll-Dossier (€49)</a>
+    <a href="#checkout-modal-299" target="_blank" rel="noopener" class="dcs-btn dcs-btn-emerald">🛡️ B2B Umsetzung buchen (€299 / €1.490)</a>
+  </div>
+</div>
+
+  <header>
+    <div class="badge-row">
+      <span class="badge">MVP #164</span>
+      <span class="badge">§§ 3, 4, 5, 16, 22, 23 ArbZG</span>
+      <span class="badge">BAG 1 ABR 22/21 (§ 3 Abs. 2 Nr. 1 ArbSchG Zeiterfassungspflicht!)</span>
+      <span class="badge">§ 307 Abs. 1 S. 2 &amp; § 612 BGB (BAG 5 AZR 362/18 / 5 AZR 765/10 BBG RV €101.400)</span>
+      <span class="badge">BAG 9 AZR 574/19 (§ 3 MiLoG-Ausschlussfristen-Retter)</span>
+    </div>
+    <h1>DACH Arbeitszeitgesetz (§§ 3–5 ArbZG) &amp; Überstunden-Abgeltungs-Prüfstand</h1>
+    <p class="subtitle">Zweiseitige deterministische Prüf-Engine: HR-Bußgeld-Abwehr (§ 22 ArbZG bis 30.000 € / Verstoß) vs. Arbeitnehmer-Überstundenklage (§ 612 BGB)</p>
+  </header>
+
+  <div class="container">
+    <div class="mode-tabs">
+      <button id="tabModeB" class="tab-btn active" onclick="switchMode('B')">
+        Mode B — Arbeitnehmer &amp; Führungskräfte: Überstunden-Abgeltungsklausel (§ 307 BGB), BBG-RV-Grenze &amp; MiLoG-Ausschlussfrist-Retter
+      </button>
+      <button id="tabModeA" class="tab-btn" onclick="switchMode('A')">
+        Mode A — B2B Arbeitgeber &amp; HR: ArbZG-Schicht-Auditor (§§ 3, 4, 5, 22 ArbZG) &amp; BAG 1 ABR 22/21 Vertrauensarbeitszeit-Check
+      </button>
+    </div>
+
+    <!-- MODE B SECTION -->
+    <div id="sectionModeB">
+      <div class="grid-2">
+        <div class="card">
+          <h2>1. Vertrags-, Gehalts- &amp; Klausel-Parameter (§ 307 / § 612 BGB)</h2>
+          <label>Preset-Fall laden</label>
+          <select id="bPresetSelect" onchange="loadModeBPreset(this.value)">
+            <option value="0">Fall 1: Senior Consultant (6.500 €/Mon. = 78.000 € &lt; BBG RV) + pauschale All-In-Klausel + MiLoG-Fehler</option>
+            <option value="1">Fall 2: VP Engineering (9.200 €/Mon. = 110.400 € &gt; BBG RV 101.400 €) — Dienste höherer Art (BAG 5 AZR 765/10)</option>
+            <option value="2">Fall 3: Project Lead (5.200 €/Mon.) — Wirksamer 10h/Monat-Deckel, Differenz (60h) zahlungspflichtig</option>
+          </select>
+
+          <label>Veranlagungsjahr (für BBG Rentenversicherung West/Gesamt)</label>
+          <select id="bYear" onchange="recalcModeB()">
+            <option value="2026" selected>2026 (BBG RV: 101.400 € / Jahr | 8.450 € / Monat)</option>
+            <option value="2025">2025 (BBG RV: 96.600 € / Jahr | 8.050 € / Monat)</option>
+            <option value="2024">2024 (BBG RV: 90.600 € / Jahr | 7.550 € / Monat)</option>
+          </select>
+
+          <label>Bruttomonatsgehalt (€)</label>
+          <input type="number" id="bMonthlyGross" value="6500" step="100" oninput="recalcModeB()" />
+
+          <label>Garantierter Jahresbonus / 13. Gehalt (€)</label>
+          <input type="number" id="bBonusGross" value="0" step="500" oninput="recalcModeB()" />
+
+          <label>Vertragliche Wochenarbeitszeit (Stunden)</label>
+          <input type="number" id="bWeeklyHours" value="40" step="0.5" oninput="recalcModeB()" />
+
+          <label>Überstunden-Klausel im Arbeitsvertrag (AGB)</label>
+          <select id="bClauseType" onchange="recalcModeB()">
+            <option value="uncapped_all_in" selected>Pauschale All-In-Klausel ("Mit dem Gehalt sind sämtliche Überstunden abgegolten")</option>
+            <option value="capped_10_percent_or_hours">Bezifferte Pauschalklausel ("Bis zu X Überstunden pro Monat sind abgegolten")</option>
+            <option value="none">Keine Abgeltungsklausel im Arbeitsvertrag</option>
+            <option value="individual_agreement">Echte ausgehandelte Individualabrede (§ 305 Abs. 1 S. 3 BGB)</option>
+          </select>
+
+          <label>Bezifferter Deckel (Stunden/Monat, falls Deckel-Klausel gewählt)</label>
+          <input type="number" id="bCapHours" value="0" step="1" oninput="recalcModeB()" />
+
+          <label>Dokumentierte Überstunden gesamt (Stunden)</label>
+          <input type="number" id="bTotalOT" value="240" step="5" oninput="recalcModeB()" />
+
+          <label>Zeitraum (Monate)</label>
+          <input type="number" id="bMonths" value="12" step="1" oninput="recalcModeB()" />
+
+          <h2 style="margin-top:20px;">2. Darlegungslast (BAG 5 AZR 57/22) &amp; Ausschlussfristen (BAG 9 AZR 574/19)</h2>
+          <div class="checkbox-row">
+            <input type="checkbox" id="bStep1Logs" checked onchange="recalcModeB()" />
+            <span>Stufe 1: Taggenaue Aufzeichnungen (Beginn, Ende, Pause) liegen vor</span>
+          </div>
+          <div class="checkbox-row">
+            <input type="checkbox" id="bStep2Induce" checked onchange="recalcModeB()" />
+            <span>Stufe 2: Arbeitgeber-Anordnung, Duldung oder nur durch Überstunden schaffbares Pensum</span>
+          </div>
+          <div class="checkbox-row">
+            <input type="checkbox" id="bHasAF" checked onchange="recalcModeB()" />
+            <span>Arbeitsvertrag enthält eine Ausschluss-/Verfallfrist (z. B. 3 Monate)</span>
+          </div>
+          <label>Davon Überstunden älter als die Ausschlussfrist (Stunden)</label>
+          <input type="number" id="bOldOT" value="180" step="5" oninput="recalcModeB()" />
+
+          <div class="checkbox-row">
+            <input type="checkbox" id="bAFNoMiLoG" checked onchange="recalcModeB()" />
+            <span>Vertrag nach 2014 OHNE ausdrücklichen § 3 S. 1 MiLoG Mindestlohn-Ausnahmehinweis (BAG 9 AZR 574/19!)</span>
+          </div>
+          <div class="checkbox-row">
+            <input type="checkbox" id="bAFSchriftform" onchange="recalcModeB()" />
+            <span>Vertrag ab 01.10.2016 verlangt noch strenge "Schriftform" statt "Textform" (§ 309 Nr. 13 BGB)</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Prüfergebnis Mode B — Überstundenvergütung (§ 612 Abs. 1 BGB)</h2>
+          <div class="kpi-grid">
+            <div class="kpi">
+              <div class="kpi-label">Jahresbrutto vs. BBG RV</div>
+              <div class="kpi-val" id="bKpiSalary">78.000 €</div>
+              <div class="kpi-label" id="bKpiBBGSub">unter BBG (101.400 €)</div>
+            </div>
+            <div class="kpi">
+              <div class="kpi-label">Stundenlohn (Basis 4,33 Wo/Mon)</div>
+              <div class="kpi-val" id="bKpiHourly">37,50 € / Std.</div>
+              <div class="kpi-label">§ 612 Abs. 2 BGB übliche Vergütung</div>
+            </div>
+            <div class="kpi">
+              <div class="kpi-label">Vergütungspflichtige Stunden</div>
+              <div class="kpi-val ok" id="bKpiPayableHours">240,0 Std.</div>
+              <div class="kpi-label" id="bKpiDeductSub">0,0 Std. wirksam abgegolten</div>
+            </div>
+            <div class="kpi">
+              <div class="kpi-label">Durchsetzbarer Zahlbetrag (Brutto)</div>
+              <div class="kpi-val ok" id="bKpiPayout">9.000,00 €</div>
+              <div class="kpi-label" id="bKpiScoreSub">Darlegungs-Score: 100/100</div>
+            </div>
+          </div>
+
+          <div id="bClauseAlert" class="alert-box danger"></div>
+          <div id="bBBGAlert" class="alert-box ok"></div>
+          <div id="bAFAlert" class="alert-box ok"></div>
+          <div id="bProofAlert" class="alert-box"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODE A SECTION -->
+    <div id="sectionModeA" class="hidden">
+      <div class="grid-2">
+        <div class="card">
+          <h2>Mode A — HR Arbeitszeiterfassungs- &amp; Bußgeld-Parameter (§§ 3–5, 22 ArbZG)</h2>
+          <div class="checkbox-row">
+            <input type="checkbox" id="aTracksTime" onchange="recalcModeA()" />
+            <span>Systematische Erfassung von Beginn, Ende &amp; Dauer vorhanden (BAG 1 ABR 22/21 / § 3 Abs. 2 Nr. 1 ArbSchG)</span>
+          </div>
+          <div class="checkbox-row">
+            <input type="checkbox" id="aLeitend" onchange="recalcModeA()" />
+            <span>Echter leitender Angestellter gem. § 18 Abs. 1 Nr. 1 ArbZG i.V.m. § 5 Abs. 3 BetrVG</span>
+          </div>
+          <div class="checkbox-row">
+            <input type="checkbox" id="aTarif7" onchange="recalcModeA()" />
+            <span>Tarifvertragliche Öffnungsklausel nach § 7 ArbZG (&gt;10h bei Arbeitsbereitschaft)</span>
+          </div>
+          <div class="checkbox-row">
+            <input type="checkbox" id="aIntentional" checked onchange="recalcModeA()" />
+            <span>Wiederholter / vorsätzlicher Verstoß (erhöhter Bußgeldrahmen &amp; § 23 ArbZG Strafrisiko)</span>
+          </div>
+
+          <div id="aBagAlert" class="alert-box danger" style="margin-top:18px;"></div>
+          <div id="aRemediationBox" class="alert-box" style="margin-top:14px;"></div>
+        </div>
+
+        <div class="card">
+          <h2>Schicht-Prüfprotokoll &amp; § 22 ArbZG Bußgeld-Exposition</h2>
+          <div class="kpi-grid">
+            <div class="kpi">
+              <div class="kpi-label">BAG 1 ABR 22/21 Status</div>
+              <div class="kpi-val danger" id="aKpiBag">PFLICHTVERSTOSS</div>
+            </div>
+            <div class="kpi">
+              <div class="kpi-label">Ø Werktägliche Arbeitszeit</div>
+              <div class="kpi-val danger" id="aKpiAvg">8,90 Std.</div>
+              <div class="kpi-label">Limit: 8,00 Std. (24 Wo.)</div>
+            </div>
+            <div class="kpi">
+              <div class="kpi-label">ArbZG-Einzelverstöße</div>
+              <div class="kpi-val danger" id="aKpiCount">8 Verstöße</div>
+            </div>
+            <div class="kpi">
+              <div class="kpi-label">Gesetzlicher Bußgeldrahmen (§ 22)</div>
+              <div class="kpi-val danger" id="aKpiFine">240.000 €</div>
+              <div class="kpi-label" id="aKpiRealFine">Realistische Schätzung: 32.500 €</div>
+            </div>
+          </div>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Datum</th>
+                <th>Schicht &amp; Spät-Ping</th>
+                <th>Pausen (gültig ≥15m)</th>
+                <th>Netto-AZ</th>
+                <th>Ruhezeit</th>
+                <th>Verstöße (§§ 3, 4, 5, 11 ArbZG)</th>
+              </tr>
+            </thead>
+            <tbody id="aShiftTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const STUDIO_DATA = {
+  "mode_a_default": {
+    "company_name": "TechScale DACH GmbH (Vertrauensarbeitszeit ohne Zeiterfassung)",
+    "work_time_model": "Vertrauensarbeitszeit (ohne Systemerfassung)",
+    "is_leitender_angestellter_18_arbzg": false,
+    "tracks_begin_end_duration": false,
+    "has_7_arbzg_tarif_opening": false,
+    "bag_1_abr_22_21_compliant": false,
+    "six_month_avg_daily_hours": 8.9,
+    "exceeds_8h_six_month_avg": true,
+    "total_shifts_audited": 5,
+    "shifts_with_10h_breach": 2,
+    "shifts_with_11h_rest_breach": 2,
+    "shifts_with_break_breach": 2,
+    "shifts_with_sunday_breach": 1,
+    "total_violation_count": 9,
+    "statutory_max_fine_ceiling_eur": 270000.0,
+    "realistic_authority_fine_estimate_eur": 40500.0,
+    "criminal_risk_23_arbzg": true,
+    "shift_reports": [
+      {
+        "date": "2026-10-12",
+        "gross_presence_hours": 11.5,
+        "valid_break_minutes": 15,
+        "discarded_short_break_minutes": 20,
+        "required_break_minutes": 45,
+        "net_working_hours": 11.25,
+        "rest_until_next_shift_hours": 9.5,
+        "late_ping_triggered_rest_breach": true,
+        "exceeds_10h_limit": true,
+        "break_violation": true,
+        "rest_11h_violation": true,
+        "sunday_ersatzruhetag_violation": false,
+        "violation_codes": [
+          "§ 3 S. 2 ArbZG (>10h Höchstarbeitszeit)",
+          "§ 4 ArbZG (Ruhepause 15m < 45m; <15m-Blöcke zählen nicht!)",
+          "§ 5 Abs. 1 ArbZG (Ruhezeit 9.5h < 11.0h)"
+        ],
+        "estimated_fine_exposure_eur": 13000.0
+      },
+      {
+        "date": "2026-10-13",
+        "gross_presence_hours": 10.75,
+        "valid_break_minutes": 30,
+        "discarded_short_break_minutes": 0,
+        "required_break_minutes": 45,
+        "net_working_hours": 10.25,
+        "rest_until_next_shift_hours": 13.75,
+        "late_ping_triggered_rest_breach": false,
+        "exceeds_10h_limit": true,
+        "break_violation": true,
+        "rest_11h_violation": false,
+        "sunday_ersatzruhetag_violation": false,
+        "violation_codes": [
+          "§ 3 S. 2 ArbZG (>10h Höchstarbeitszeit)",
+          "§ 4 ArbZG (Ruhepause 30m < 45m; <15m-Blöcke zählen nicht!)"
+        ],
+        "estimated_fine_exposure_eur": 8000.0
+      },
+      {
+        "date": "2026-10-14",
+        "gross_presence_hours": 9.0,
+        "valid_break_minutes": 30,
+        "discarded_short_break_minutes": 0,
+        "required_break_minutes": 30,
+        "net_working_hours": 8.5,
+        "rest_until_next_shift_hours": 8.5,
+        "late_ping_triggered_rest_breach": true,
+        "exceeds_10h_limit": false,
+        "break_violation": false,
+        "rest_11h_violation": true,
+        "sunday_ersatzruhetag_violation": false,
+        "violation_codes": [
+          "§ 5 Abs. 1 ArbZG (Ruhezeit 8.5h < 11.0h)"
+        ],
+        "estimated_fine_exposure_eur": 5000.0
+      },
+      {
+        "date": "2026-10-15",
+        "gross_presence_hours": 9.5,
+        "valid_break_minutes": 30,
+        "discarded_short_break_minutes": 0,
+        "required_break_minutes": 30,
+        "net_working_hours": 9.0,
+        "rest_until_next_shift_hours": 17.0,
+        "late_ping_triggered_rest_breach": false,
+        "exceeds_10h_limit": false,
+        "break_violation": false,
+        "rest_11h_violation": false,
+        "sunday_ersatzruhetag_violation": false,
+        "violation_codes": [],
+        "estimated_fine_exposure_eur": 0.0
+      },
+      {
+        "date": "2026-10-18",
+        "gross_presence_hours": 6.0,
+        "valid_break_minutes": 30,
+        "discarded_short_break_minutes": 0,
+        "required_break_minutes": 0,
+        "net_working_hours": 5.5,
+        "rest_until_next_shift_hours": null,
+        "late_ping_triggered_rest_breach": false,
+        "exceeds_10h_limit": false,
+        "break_violation": false,
+        "rest_11h_violation": false,
+        "sunday_ersatzruhetag_violation": true,
+        "violation_codes": [
+          "§ 11 Abs. 3 ArbZG (Sonntagsarbeit ohne Ersatzruhetag binnen 15 Tagen)"
+        ],
+        "estimated_fine_exposure_eur": 6000.0
+      }
+    ],
+    "remediation_actions": [
+      "BAG 1 ABR 22/21 & § 3 Abs. 2 Nr. 1 ArbSchG: Sofortige Einführung einer objektiven, verlässlichen und zugänglichen Arbeitszeiterfassung (Beginn, Ende, Dauer) auch bei Vertrauensarbeitszeit!",
+      "§ 3 S. 2 ArbZG: 2 Schicht(en) überschreiten die absolute 10,0-Stunden-Grenze — System-Warnung bei 9:30h einrichten.",
+      "§ 5 Abs. 1 ArbZG: 2 Ruhezeitverstoß/-verstöße (<11,0h). Feierabend-Mails/Slack nach 21:00 Uhr unterbinden (neuer 11h-Lauf ab letzter Aktion!).",
+      "§ 4 ArbZG: 2 Pausenverstoß/-verstöße. Kurzpausen <15 Min. gelten rechtlich als Arbeitszeit; mind. 30 Min. (>6h) bzw. 45 Min. (>9h) erzwingen.",
+      "§ 3 S. 2 HS 2 ArbZG: Durchschnittliche werktägliche Arbeitszeit (8.9h) übersteigt 8,0h im Ausgleichszeitraum (6 Monate / 24 Wochen)."
+    ]
+  },
+  "mode_b_presets": [
+    {
+      "employee_name": "Lukas Weber (Senior Consultant, €6.500/Monat = €78.000/Jahr < BBG RV €101.400)",
+      "reference_year": 2026,
+      "annual_gross_salary_eur": 78000.0,
+      "monthly_gross_salary_eur": 6500.0,
+      "weekly_contract_hours": 40.0,
+      "bbg_rv_threshold_eur": 101400.0,
+      "below_bbg_rv_threshold": true,
+      "clause_type": "uncapped_all_in",
+      "clause_cap_hours_per_month": 0.0,
+      "clause_valid_under_307_bgb": false,
+      "clause_invalidity_reason": "Unwirksam gem. § 307 Abs. 1 S. 2 BGB (Transparenzgebot — BAG 5 AZR 517/09, BAG 5 AZR 362/18): Pauschale Abgeltung sämtlicher Überstunden ohne konkrete Höchstgrenze lässt den Arbeitnehmer im Unklaren, welche Leistung er für sein Gehalt maximal schuldet. Keine geltungserhaltende Reduktion -> Klausel fällt ersatzlos weg!",
+      "objective_remuneration_expectation_612_bgb": true,
+      "derived_hourly_rate_eur": 37.5,
+      "total_documented_overtime_hours": 240.0,
+      "months_spanned": 12,
+      "deductible_capped_hours": 0.0,
+      "payable_overtime_hours": 240.0,
+      "gross_overtime_claim_eur": 9000.0,
+      "has_step1_day_by_day_logs": true,
+      "has_step2_employer_inducement_or_tolerance": true,
+      "employer_failed_1_abr_22_21_tracking": true,
+      "darlegungslast_5_azr_57_22_score": 100,
+      "has_contractual_ausschlussfrist": true,
+      "ausschlussfrist_months": 3,
+      "ausschlussfrist_requires_strict_schriftform": false,
+      "contract_post_2014_without_milog_carveout": true,
+      "hours_older_than_ausschlussfrist": 180.0,
+      "ausschlussfrist_void_or_bypassed": true,
+      "ausschlussfrist_analysis": "Ausschlussfrist UNWIRKSAM (Retter-Effekt!): Klausel enthält keinen ausdrücklichen Ausnahmehinweis für den gesetzlichen Mindestlohn (§ 3 S. 1 MiLoG) -> Verstoß gegen das Transparenzgebot (§ 307 Abs. 1 S. 2 BGB per BAG 18.09.2018 – 9 AZR 162/18 & BAG 9 AZR 574/19), Klausel ist insgesamt unwirksam!",
+      "enforceable_overtime_hours": 240.0,
+      "enforceable_gross_payout_eur": 9000.0
+    },
+    {
+      "employee_name": "Dr. Hannah Becker (VP Engineering, €9.200/Monat = €110.400/Jahr > BBG RV €101.400)",
+      "reference_year": 2026,
+      "annual_gross_salary_eur": 110400.0,
+      "monthly_gross_salary_eur": 9200.0,
+      "weekly_contract_hours": 40.0,
+      "bbg_rv_threshold_eur": 101400.0,
+      "below_bbg_rv_threshold": false,
+      "clause_type": "uncapped_all_in",
+      "clause_cap_hours_per_month": 0.0,
+      "clause_valid_under_307_bgb": false,
+      "clause_invalidity_reason": "Unwirksam gem. § 307 Abs. 1 S. 2 BGB (Transparenzgebot — BAG 5 AZR 517/09, BAG 5 AZR 362/18): Pauschale Abgeltung sämtlicher Überstunden ohne konkrete Höchstgrenze lässt den Arbeitnehmer im Unklaren, welche Leistung er für sein Gehalt maximal schuldet. Keine geltungserhaltende Reduktion -> Klausel fällt ersatzlos weg!",
+      "objective_remuneration_expectation_612_bgb": false,
+      "derived_hourly_rate_eur": 53.08,
+      "total_documented_overtime_hours": 210.0,
+      "months_spanned": 12,
+      "deductible_capped_hours": 210.0,
+      "payable_overtime_hours": 0.0,
+      "gross_overtime_claim_eur": 0.0,
+      "has_step1_day_by_day_logs": true,
+      "has_step2_employer_inducement_or_tolerance": true,
+      "employer_failed_1_abr_22_21_tracking": true,
+      "darlegungslast_5_azr_57_22_score": 100,
+      "has_contractual_ausschlussfrist": true,
+      "ausschlussfrist_months": 3,
+      "ausschlussfrist_requires_strict_schriftform": false,
+      "contract_post_2014_without_milog_carveout": false,
+      "hours_older_than_ausschlussfrist": 120.0,
+      "ausschlussfrist_void_or_bypassed": false,
+      "ausschlussfrist_analysis": "Ausschlussfrist (3 Monate, Textform + MiLoG-Ausnahme) ist wirksam: 0.0h verfallen, 0.0h durchsetzbar.",
+      "enforceable_overtime_hours": 0.0,
+      "enforceable_gross_payout_eur": 0.0
+    },
+    {
+      "employee_name": "Miriam Kaya (Project Lead, €5.200/Monat, wirksamer 10h/Monat-Deckel)",
+      "reference_year": 2026,
+      "annual_gross_salary_eur": 62400.0,
+      "monthly_gross_salary_eur": 5200.0,
+      "weekly_contract_hours": 40.0,
+      "bbg_rv_threshold_eur": 101400.0,
+      "below_bbg_rv_threshold": true,
+      "clause_type": "capped_10_percent_or_hours",
+      "clause_cap_hours_per_month": 10.0,
+      "clause_valid_under_307_bgb": true,
+      "clause_invalidity_reason": "Wirksam gem. § 307 Abs. 1 S. 2 BGB (BAG 5 AZR 517/09): Konkrete Höchstgrenze von bis zu 10.0 Überstunden/Monat ist transparent und angemessen.",
+      "objective_remuneration_expectation_612_bgb": true,
+      "derived_hourly_rate_eur": 30.0,
+      "total_documented_overtime_hours": 180.0,
+      "months_spanned": 12,
+      "deductible_capped_hours": 120.0,
+      "payable_overtime_hours": 60.0,
+      "gross_overtime_claim_eur": 1800.0,
+      "has_step1_day_by_day_logs": true,
+      "has_step2_employer_inducement_or_tolerance": true,
+      "employer_failed_1_abr_22_21_tracking": false,
+      "darlegungslast_5_azr_57_22_score": 90,
+      "has_contractual_ausschlussfrist": false,
+      "ausschlussfrist_months": 3,
+      "ausschlussfrist_requires_strict_schriftform": false,
+      "contract_post_2014_without_milog_carveout": false,
+      "hours_older_than_ausschlussfrist": 0.0,
+      "ausschlussfrist_void_or_bypassed": true,
+      "ausschlussfrist_analysis": "Keine vertragliche Ausschlussfrist vorhanden — es gilt die 3-jährige Regelverjährung (§ 195 BGB).",
+      "enforceable_overtime_hours": 60.0,
+      "enforceable_gross_payout_eur": 1800.0
+    }
+  ],
+  "bbg_rv_thresholds_eur": {
+    "2024": 90600.0,
+    "2025": 96600.0,
+    "2026": 101400.0
+  },
+  "milog_hourly_eur": {
+    "2024": 12.41,
+    "2025": 12.82,
+    "2026": 14.6
+  }
+};
+
+    function switchMode(mode) {
+      document.getElementById('sectionModeB').classList.toggle('hidden', mode !== 'B');
+      document.getElementById('sectionModeA').classList.toggle('hidden', mode !== 'A');
+      document.getElementById('tabModeB').classList.toggle('active', mode === 'B');
+      document.getElementById('tabModeA').classList.toggle('active', mode === 'A');
+    }
+
+    function loadModeBPreset(idxStr) {
+      const p = STUDIO_DATA.mode_b_presets[parseInt(idxStr, 10)];
+      if (!p) return;
+      document.getElementById('bYear').value = String(p.reference_year);
+      document.getElementById('bMonthlyGross').value = p.monthly_gross_salary_eur;
+      document.getElementById('bBonusGross').value = 0;
+      document.getElementById('bWeeklyHours').value = p.weekly_contract_hours;
+      document.getElementById('bClauseType').value = p.clause_type;
+      document.getElementById('bCapHours').value = p.clause_cap_hours_per_month;
+      document.getElementById('bTotalOT').value = p.total_documented_overtime_hours;
+      document.getElementById('bMonths').value = p.months_spanned;
+      document.getElementById('bStep1Logs').checked = p.has_step1_day_by_day_logs;
+      document.getElementById('bStep2Induce').checked = p.has_step2_employer_inducement_or_tolerance;
+      document.getElementById('bHasAF').checked = p.has_contractual_ausschlussfrist;
+      document.getElementById('bOldOT').value = p.hours_older_than_ausschlussfrist;
+      document.getElementById('bAFNoMiLoG').checked = p.contract_post_2014_without_milog_carveout;
+      document.getElementById('bAFSchriftform').checked = p.ausschlussfrist_requires_strict_schriftform;
+      recalcModeB();
+    }
+
+    function recalcModeB() {
+      const year = parseInt(document.getElementById('bYear').value, 10);
+      const bbg = STUDIO_DATA.bbg_rv_thresholds_eur[year] || 101400;
+      const monthly = parseFloat(document.getElementById('bMonthlyGross').value) || 0;
+      const bonus = parseFloat(document.getElementById('bBonusGross').value) || 0;
+      const weekly = parseFloat(document.getElementById('bWeeklyHours').value) || 40;
+      const clauseType = document.getElementById('bClauseType').value;
+      const capHours = parseFloat(document.getElementById('bCapHours').value) || 0;
+      const totalOT = parseFloat(document.getElementById('bTotalOT').value) || 0;
+      const months = Math.max(1, parseInt(document.getElementById('bMonths').value, 10) || 12);
+
+      const step1 = document.getElementById('bStep1Logs').checked;
+      const step2 = document.getElementById('bStep2Induce').checked;
+      const hasAF = document.getElementById('bHasAF').checked;
+      const oldOT = parseFloat(document.getElementById('bOldOT').value) || 0;
+      const noMiLoG = document.getElementById('bAFNoMiLoG').checked;
+      const schriftform = document.getElementById('bAFSchriftform').checked;
+
+      const annual = monthly * 12 + bonus;
+      const belowBBG = annual < bbg;
+      const monthlyHours = (weekly * 13.0) / 3.0;
+      const hourly = monthlyHours > 0 ? (monthly / monthlyHours) : 0;
+      const maxCapAllowed = monthlyHours * 0.15;
+
+      let clauseValid = false;
+      let clauseText = '';
+      if (clauseType === 'uncapped_all_in') {
+        clauseValid = false;
+        clauseText = '<strong>§ 307 Abs. 1 S. 2 BGB (BAG 5 AZR 517/09 &amp; 5 AZR 362/18):</strong> Pauschale Abgeltung sämtlicher Überstunden ohne Höchstgrenze verstößt gegen das Transparenzgebot und ist <strong>komplett unwirksam</strong> (keine geltungserhaltende Reduktion!).';
+      } else if (clauseType === 'capped_10_percent_or_hours') {
+        if (capHours > 0 && capHours <= maxCapAllowed) {
+          clauseValid = true;
+          clauseText = `<strong>§ 307 Abs. 1 S. 2 BGB:</strong> Bezifferter Deckel von ${capHours.toFixed(1)} Std./Monat ist transparent und wirksam. Darüber hinausgehende Überstunden sind nach § 612 BGB zu vergüten.`;
+        } else {
+          clauseValid = false;
+          clauseText = `<strong>§ 307 Abs. 1 BGB:</strong> Deckel (${capHours.toFixed(1)} Std./Monat) ist unwirksam (fehlend oder &gt;15% der Monatsarbeitszeit = ${maxCapAllowed.toFixed(1)} Std.).`;
+        }
+      } else if (clauseType === 'individual_agreement') {
+        clauseValid = true;
+        clauseText = '<strong>§ 305 Abs. 1 S. 3 BGB:</strong> Echte Individualabrede unterliegt keiner AGB-Transparenzkontrolle.';
+      } else {
+        clauseValid = false;
+        clauseText = 'Keine Abgeltungsklausel vereinbart — es gilt unmittelbar § 612 Abs. 1 BGB.';
+      }
+
+      let deducted = 0;
+      let payable = 0;
+      if (!belowBBG && clauseType !== 'none') {
+        deducted = totalOT;
+        payable = 0;
+      } else if (clauseValid && clauseType === 'capped_10_percent_or_hours') {
+        deducted = Math.min(totalOT, capHours * months);
+        payable = Math.max(0, totalOT - deducted);
+      } else if (clauseValid && clauseType === 'individual_agreement') {
+        deducted = totalOT;
+        payable = 0;
+      } else {
+        deducted = 0;
+        payable = totalOT;
+      }
+
+      let enforceableHours = payable;
+      let afText = '';
+      let afGood = true;
+      if (!hasAF) {
+        afText = '<strong>Keine Ausschlussfrist:</strong> Es gilt die 3-jährige Regelverjährung (§ 195 BGB). Alle vergütungspflichtigen Überstunden bleiben erhalten.';
+      } else if (noMiLoG || schriftform) {
+        const reasons = [];
+        if (noMiLoG) reasons.push('fehlender Mindestlohn-Ausnahmehinweis (§ 3 S. 1 MiLoG per <strong>BAG 9 AZR 574/19</strong>)');
+        if (schriftform) reasons.push('unzulässige Schriftformklausel statt Textform (§ 309 Nr. 13 BGB)');
+        afText = `<strong>Ausschlussfrist UNWIRKSAM (Retter-Effekt!):</strong> Wegen ${reasons.join(' &amp; ')} ist die Verfallklausel unwirksam — auch die ${oldOT.toFixed(1)} älteren Überstunden verfallen NICHT!`;
+      } else {
+        afGood = false;
+        const forfeited = Math.min(payable, Math.max(0, oldOT));
+        enforceableHours = Math.max(0, payable - forfeited);
+        afText = `<strong>Wirksame Ausschlussfrist:</strong> ${forfeited.toFixed(1)} Std. sind wegen Fristablaufs verfallen; ${enforceableHours.toFixed(1)} Std. bleiben durchsetzbar.`;
+      }
+
+      const score = (step1 ? 50 : 0) + (step2 ? 40 : 0) + 10;
+      const payout = (step1 && step2) ? (enforceableHours * hourly) : 0;
+
+      document.getElementById('bKpiSalary').textContent = annual.toLocaleString('de-DE') + ' €';
+      document.getElementById('bKpiSalary').className = 'kpi-val ' + (belowBBG ? 'ok' : 'warn');
+      document.getElementById('bKpiBBGSub').textContent = (belowBBG ? 'UNTER ' : 'ÜBER ') + 'BBG RV (' + bbg.toLocaleString('de-DE') + ' €)';
+      document.getElementById('bKpiHourly').textContent = hourly.toFixed(2).replace('.', ',') + ' € / Std.';
+      document.getElementById('bKpiPayableHours').textContent = enforceableHours.toFixed(1).replace('.', ',') + ' Std.';
+      document.getElementById('bKpiDeductSub').textContent = deducted.toFixed(1).replace('.', ',') + ' Std. abgegolten';
+      document.getElementById('bKpiPayout').textContent = payout.toLocaleString('de-DE', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' €';
+      document.getElementById('bKpiScoreSub').textContent = `BAG 5 AZR 57/22 Score: ${score}/100`;
+
+      const clauseBox = document.getElementById('bClauseAlert');
+      clauseBox.className = 'alert-box ' + (clauseValid ? 'ok' : 'danger');
+      clauseBox.innerHTML = clauseText;
+
+      const bbgBox = document.getElementById('bBBGAlert');
+      bbgBox.className = 'alert-box ' + (belowBBG ? 'ok' : 'danger');
+      bbgBox.innerHTML = belowBBG
+        ? `<strong>§ 612 Abs. 1 BGB Vergütungserwartung BEJAHT (BAG 5 AZR 765/10):</strong> Jahresgehalt (${annual.toLocaleString('de-DE')} €) liegt unter der Beitragsbemessungsgrenze RV (${bbg.toLocaleString('de-DE')} €). Jede ungedeckelte Überstunde ab der 1. Stunde ist voll zu vergüten!`
+        : `<strong>BBG-RV-Schwelle überschritten (BAG 5 AZR 765/10 — "Dienste höherer Art"):</strong> Jahresgehalt (${annual.toLocaleString('de-DE')} €) liegt über der BBG RV (${bbg.toLocaleString('de-DE')} €). Objektive Vergütungserwartung nach § 612 Abs. 1 BGB entfällt grundsätzlich.`;
+
+      const afBox = document.getElementById('bAFAlert');
+      afBox.className = 'alert-box ' + (afGood ? 'ok' : 'danger');
+      afBox.innerHTML = afText;
+
+      const proofBox = document.getElementById('bProofAlert');
+      proofBox.className = 'alert-box ' + ((step1 && step2) ? 'ok' : 'danger');
+      proofBox.innerHTML = (step1 && step2)
+        ? '<strong>Darlegungs- &amp; Beweislast (BAG 5 AZR 57/22) erfüllt:</strong> Taggenaue Aufzeichnungen (Stufe 1) + Veranlassung/Duldung oder nicht in Regelarbeitszeit schaffbares Pensum (Stufe 2) liegen vor.'
+        : '<strong>WARNUNG (BAG 5 AZR 57/22):</strong> Auch nach dem Zeiterfassungs-Beschluss (1 ABR 22/21) muss der Arbeitnehmer im Überstundenprozess Stufe 1 (Taggenaue Stunden) und Stufe 2 (Arbeitgeber-Veranlassung/Duldung) vortragen!';
+    }
+
+    function recalcModeA() {
+      const base = STUDIO_DATA.mode_a_default;
+      const tracks = document.getElementById('aTracksTime').checked;
+      const leitend = document.getElementById('aLeitend').checked;
+      const tarif7 = document.getElementById('aTarif7').checked;
+      const intentional = document.getElementById('aIntentional').checked;
+
+      const tbody = document.getElementById('aShiftTableBody');
+      tbody.innerHTML = '';
+
+      if (leitend) {
+        document.getElementById('aKpiBag').textContent = 'AUSGENOMMEN (§ 18 ArbZG)';
+        document.getElementById('aKpiBag').className = 'kpi-val ok';
+        document.getElementById('aKpiAvg').textContent = '—';
+        document.getElementById('aKpiCount').textContent = '0 Verstöße';
+        document.getElementById('aKpiCount').className = 'kpi-val ok';
+        document.getElementById('aKpiFine').textContent = '0 €';
+        document.getElementById('aKpiFine').className = 'kpi-val ok';
+        document.getElementById('aKpiRealFine').textContent = '§ 18 Abs. 1 Nr. 1 ArbZG greift';
+        document.getElementById('aBagAlert').className = 'alert-box ok';
+        document.getElementById('aBagAlert').innerHTML = '<strong>§ 18 Abs. 1 Nr. 1 ArbZG:</strong> Echte leitende Angestellte (§ 5 Abs. 3 BetrVG) sind vom Arbeitszeitgesetz ausgenommen.';
+        document.getElementById('aRemediationBox').innerHTML = 'Keine Maßnahmen nach ArbZG erforderlich.';
+        return;
+      }
+
+      let violations = 0;
+      let realFine = 0;
+      if (!tracks) {
+        violations += 1;
+        realFine += 5000;
+      }
+      if (base.exceeds_8h_six_month_avg) {
+        violations += 1;
+        realFine += 3500;
+      }
+
+      base.shift_reports.forEach(r => {
+        const codes = [];
+        if (r.exceeds_10h_limit && !tarif7) {
+          violations += 1;
+          realFine += intentional ? 5000 : 2500;
+          codes.push('<span class="pill pill-danger">&gt;10h (§ 3 S. 2)</span>');
+        }
+        if (r.break_violation) {
+          violations += 1;
+          realFine += intentional ? 3000 : 1500;
+          codes.push(`<span class="pill pill-warn">Pause ${r.valid_break_minutes}m &lt; ${r.required_break_minutes}m (§ 4)</span>`);
+        }
+        if (r.rest_11h_violation) {
+          violations += 1;
+          realFine += intentional ? 5000 : 2500;
+          codes.push(`<span class="pill pill-danger">Ruhezeit ${r.rest_until_next_shift_hours}h &lt; 11h (§ 5)</span>`);
+        }
+        if (r.sunday_ersatzruhetag_violation) {
+          violations += 1;
+          realFine += intentional ? 6000 : 3000;
+          codes.push('<span class="pill pill-danger">Sonntag ohne Ersatzruhetag (§ 11)</span>');
+        }
+        if (codes.length === 0) {
+          codes.push('<span class="pill pill-ok">Konform</span>');
+        }
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><strong>${r.date}</strong></td>
+          <td>${r.gross_presence_hours.toFixed(2)}h Präsenz ${r.late_ping_triggered_rest_breach ? '<span class="pill pill-danger">Spät-Mail/Slack!</span>' : ''}</td>
+          <td>${r.valid_break_minutes}m gültig ${r.discarded_short_break_minutes > 0 ? '(' + r.discarded_short_break_minutes + 'm &lt;15m verworfen!)' : ''}</td>
+          <td><strong>${r.net_working_hours.toFixed(2)}h</strong></td>
+          <td>${r.rest_until_next_shift_hours !== null ? r.rest_until_next_shift_hours.toFixed(2) + 'h' : '—'}</td>
+          <td>${codes.join(' ')}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      const maxCeiling = violations * 30000;
+      document.getElementById('aKpiBag').textContent = tracks ? 'KONFORM' : 'PFLICHTVERSTOSS';
+      document.getElementById('aKpiBag').className = 'kpi-val ' + (tracks ? 'ok' : 'danger');
+      document.getElementById('aKpiAvg').textContent = base.six_month_avg_daily_hours.toFixed(2).replace('.', ',') + ' Std.';
+      document.getElementById('aKpiCount').textContent = violations + ' Verstöße';
+      document.getElementById('aKpiCount').className = 'kpi-val ' + (violations > 0 ? 'danger' : 'ok');
+      document.getElementById('aKpiFine').textContent = maxCeiling.toLocaleString('de-DE') + ' €';
+      document.getElementById('aKpiRealFine').textContent = 'Realistische Schätzung: ' + realFine.toLocaleString('de-DE') + ' €';
+
+      const bagAlert = document.getElementById('aBagAlert');
+      bagAlert.className = 'alert-box ' + (tracks ? 'ok' : 'danger');
+      bagAlert.innerHTML = tracks
+        ? '<strong>BAG 1 ABR 22/21 &amp; § 3 Abs. 2 Nr. 1 ArbSchG erfüllt:</strong> Systematische Arbeitszeiterfassung (Beginn, Ende, Dauer) ist aktiv.'
+        : '<strong>BAG, Beschl. v. 13.09.2022 – 1 ABR 22/21:</strong> Auch bei <em>Vertrauensarbeitszeit</em> besteht bereits heute kraft Gesetzes (§ 3 Abs. 2 Nr. 1 ArbSchG) die zwingende Pflicht zur Erfassung von Beginn, Ende und Dauer der täglichen Arbeitszeit!';
+
+      document.getElementById('aRemediationBox').innerHTML = '<strong>Sofort-Maßnahmenplan:</strong><ul>' +
+        base.remediation_actions.map(x => `<li>${x}</li>`).join('') + '</ul>';
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      recalcModeB();
+      recalcModeA();
+    });
+  </script>
+</body>
+</html>

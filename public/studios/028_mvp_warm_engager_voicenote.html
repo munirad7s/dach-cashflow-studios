@@ -1,0 +1,2009 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MVP #28 — Warm Engager & LinkedIn Voice-Note Outreach Studio (Unfair.so × PROSP.ai)</title>
+  <style>
+    :root {
+      --bg: #0b0f17;
+      --surface: #131b2e;
+      --surface-alt: #19233c;
+      --border: #263457;
+      --text: #eef2ff;
+      --muted: #94a3b8;
+      --accent: #6366f1;
+      --accent-glow: rgba(99, 102, 241, 0.25);
+      --emerald: #10b981;
+      --amber: #f59e0b;
+      --rose: #f43f5e;
+      --cyan: #06b6d4;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      padding: 24px;
+    }
+    .container { max-width: 1440px; margin: 0 auto; }
+    header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      padding: 20px 24px;
+      background: linear-gradient(135deg, #131b2e 0%, #1e1b4b 100%);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      margin-bottom: 24px;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(99, 102, 241, 0.18);
+      color: #a5b4fc;
+      border: 1px solid rgba(99, 102, 241, 0.4);
+    }
+    .badge.emerald {
+      background: rgba(16, 185, 129, 0.15);
+      color: #6ee7b7;
+      border-color: rgba(16, 185, 129, 0.4);
+    }
+    .badge.amber {
+      background: rgba(245, 158, 11, 0.15);
+      color: #fcd34d;
+      border-color: rgba(245, 158, 11, 0.4);
+    }
+    h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; margin-top: 6px; }
+    .sub { color: var(--muted); font-size: 13.5px; margin-top: 4px; }
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+    .kpi-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+    }
+    .kpi-label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+    .kpi-val { font-size: 26px; font-weight: 700; margin-top: 4px; color: var(--text); }
+    .kpi-note { font-size: 12px; color: var(--emerald); margin-top: 4px; }
+    .teardown-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    @media (max-width: 980px) {
+      .teardown-grid, .studio-layout { grid-template-columns: 1fr !important; }
+    }
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px;
+    }
+    .panel h2 {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .studio-layout {
+      display: grid;
+      grid-template-columns: 440px 1fr;
+      gap: 20px;
+    }
+    .lead-card {
+      background: var(--surface-alt);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 12px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .lead-card:hover, .lead-card.active {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+    .lead-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 8px;
+    }
+    .lead-name { font-weight: 700; font-size: 15px; }
+    .lead-role { font-size: 12.5px; color: var(--muted); }
+    .lead-quote {
+      margin-top: 8px;
+      font-size: 12.5px;
+      color: #cbd5e1;
+      background: rgba(15, 23, 42, 0.6);
+      padding: 8px 10px;
+      border-radius: 8px;
+      border-left: 3px solid var(--cyan);
+    }
+    .lead-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+      font-size: 11.5px;
+      color: var(--muted);
+    }
+    .voicenote-bubble {
+      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+      border: 1px solid #334155;
+      border-radius: 16px;
+      padding: 18px;
+      margin: 14px 0;
+    }
+    .vn-controls {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .play-btn {
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      border: none;
+      background: var(--accent);
+      color: white;
+      font-size: 18px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      box-shadow: 0 4px 14px var(--accent-glow);
+    }
+    .play-btn:hover { background: #4f46e5; }
+    .waveform-bars {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      height: 48px;
+      flex: 1;
+    }
+    .w-bar {
+      flex: 1;
+      background: #475569;
+      border-radius: 3px;
+      transition: background 0.1s ease;
+    }
+    .w-bar.played { background: var(--cyan); }
+    .w-bar.pause-valley { background: #334155; opacity: 0.55; }
+    .script-box {
+      background: #0d1322;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+      font-family: "JetBrains Mono", Consolas, monospace;
+      font-size: 13px;
+      line-height: 1.65;
+      margin-top: 12px;
+      color: #e2e8f0;
+    }
+    .tag-pill {
+      background: rgba(245, 158, 11, 0.18);
+      color: #fcd34d;
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-size: 11.5px;
+    }
+    .phonetic-pill {
+      background: rgba(16, 185, 129, 0.18);
+      color: #6ee7b7;
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-weight: 600;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      font-size: 12.5px;
+    }
+    th, td {
+      text-align: left;
+      padding: 8px 10px;
+      border-bottom: 1px solid var(--border);
+    }
+    th { color: var(--muted); font-weight: 600; }
+    .btn-action {
+      background: var(--surface-alt);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .btn-action:hover { border-color: var(--accent); }
+  </style>
+</head>
+<body>
+
+<!-- DACH CASHFLOW STUDIOS LAUNCH BAR -->
+<style>
+  #dcs-launch-bar {
+    position: sticky;
+    top: 0;
+    z-index: 99999;
+    background: linear-gradient(90deg, #0b1120 0%, #111827 50%, #0f172a 100%);
+    color: #f8fafc;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.35);
+    padding: 8px 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  }
+  #dcs-launch-bar .dcs-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+  }
+  #dcs-launch-bar .dcs-badge {
+    background: rgba(16, 185, 129, 0.18);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.03em;
+  }
+  #dcs-launch-bar a.dcs-nav {
+    color: #93c5fd;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 12.5px;
+  }
+  #dcs-launch-bar a.dcs-nav:hover {
+    text-decoration: underline;
+    color: #dbeafe;
+  }
+  #dcs-launch-bar .dcs-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  #dcs-launch-bar .dcs-btn {
+    padding: 5px 11px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s ease;
+  }
+  #dcs-launch-bar .dcs-btn-ghost {
+    background: rgba(255,255,255,0.08);
+    color: #e2e8f0;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  #dcs-launch-bar .dcs-btn-primary {
+    background: linear-gradient(135deg, #0ea5e9, #2563eb);
+    color: #ffffff;
+  }
+  #dcs-launch-bar .dcs-btn-emerald {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
+  }
+  @media print {
+    #dcs-launch-bar { display: none !important; }
+  }
+</style>
+<div id="dcs-launch-bar">
+  <div class="dcs-left">
+    <a href="/index.html" class="dcs-nav">← Alle 150 DACH Studios</a>
+    <span class="dcs-badge">MVP #028 VERIFIED</span>
+    <span style="color:#cbd5e1;font-size:12px;">B2B SaaS, Lead-Intent Sniper & AI/MCP Infrastructure</span>
+  </div>
+  <div class="dcs-actions">
+    <button onclick="window.print()" class="dcs-btn dcs-btn-ghost">🖨️ PDF / Dossier drucken</button>
+    <a href="#checkout-modal-49" target="_blank" rel="noopener" class="dcs-btn dcs-btn-primary">⚡ Musterschreiben & Voll-Dossier (€49)</a>
+    <a href="#checkout-modal-299" target="_blank" rel="noopener" class="dcs-btn dcs-btn-emerald">🛡️ B2B Umsetzung buchen (€299 / €1.490)</a>
+  </div>
+</div>
+
+  <div class="container">
+    <header>
+      <div>
+        <span class="badge">MVP #28 · Social Signal + Voice-Note Outbound Engine</span>
+        <span class="badge emerald">Anti-Cringe Verified · 22.0s Opus Lock</span>
+        <h1>Warm Engager & LinkedIn Voice-Note Outreach Studio</h1>
+        <p class="sub">Synthesizes <b>unfair.so</b> ($400k/30d warm thread engager extraction) + <b>PROSP.ai</b> ($98k/30d, $128k MRR AI-cloned LinkedIn DM voice notes)</p>
+      </div>
+      <div style="display:flex; gap:10px;">
+        <button class="btn-action" onclick="exportLeadsCsv()">⬇ Export Enriched Leads CSV</button>
+        <button class="btn-action" onclick="copyCurrentPayload()">📋 Copy Active Sequence JSON</button>
+      </div>
+    </header>
+
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label">Monitored Pain Threads</div>
+        <div class="kpi-val">2</div>
+        <div class="kpi-note">LinkedIn & X (<60m Golden Window)</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Enriched Warm Prospects</div>
+        <div class="kpi-val">6</div>
+        <div class="kpi-note">4 Tier-1 Hot Voice-Note Leads</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Avg Composite Lead Score</div>
+        <div class="kpi-val">89.0<span style="font-size:15px;color:var(--muted)">/100</span></div>
+        <div class="kpi-note">ICP + Intent + Freshness Velocity</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Voice-Note Target Lock</div>
+        <div class="kpi-val">22.0s</div>
+        <div class="kpi-note">48kHz .ogg Opus + 37 DE Phonetic Locks</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Expected Reply Rate Lift</div>
+        <div class="kpi-val">28.5%</div>
+        <div class="kpi-note">6.8x vs Cold Text DMs (4.2%)</div>
+      </div>
+    </div>
+
+    <div class="teardown-grid">
+      <div class="panel">
+        <h2>
+          <span>1. unfair.so Teardown ($400,128 / 30d · $31.7k MRR · 80% Margin)</span>
+          <span class="badge amber">Founded 2026-07-12</span>
+        </h2>
+        <p style="font-size:13px; color:var(--muted); margin-bottom:10px;">
+          <b>Dual-Engine Evolution:</b> Launched as an X/Social Warm Reply & Engager Lead Extractor ($79 / $249 / $799/mo), then expanded into <b>Unfair 2.0</b>: a 1,000+ Creator Synchronized Launch & Quote-Wave Marketplace where every engager on the post is exported as an enriched Email + LinkedIn B2B lead CSV.
+        </p>
+        <table>
+          <thead><tr><th>Tier</th><th>Pricing</th><th>Core Mechanism</th></tr></thead>
+          <tbody>
+            <tr><td><b>Unfair</b></td><td>$99/mo + 15% creator fee ($79 legacy)</td><td>5 campaigns, 30 creator invites/mo, ICP follower breakdown, Engager Email+LinkedIn CSV export</td></tr>
+            <tr><td><b>Very Unfair</b></td><td>$249/mo + 10% creator fee</td><td>Unlimited campaigns to 5,000+ creators, price counteroffers, dedicated Slack channel</td></tr>
+            <tr><td><b>Launchmaxxing</b></td><td>$990/mo + $2k/100K views (&gt;50K)</td><td>Managed GTM manager, 2 launches/wk, 5-min simultaneous quote-wave, $2k+ creator budget (drives $78.7k/day spikes)</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="panel">
+        <h2>
+          <span>2. PROSP.ai Teardown ($98,483 / 30d · $128k MRR · 1,108 Subs)</span>
+          <span class="badge emerald">80% Margin · 42 Buy Offers</span>
+        </h2>
+        <p style="font-size:13px; color:var(--muted); margin-bottom:10px;">
+          <b>Core Wedge:</b> Reads each prospect's real LinkedIn profile & recent post/comment activity to send a 1:1 text opener + an <b>AI-cloned voice note</b> (trained on a 90s voice sample) via a dedicated cloud residential proxy. Cuts cost-per-meeting from $310 to $41.
+        </p>
+        <table>
+          <thead><tr><th>Tier</th><th>Pricing (per 4 weeks)</th><th>Core Mechanism</th></tr></thead>
+          <tbody>
+            <tr><td><b>Solo / Starter</b></td><td>$29 – $59.99 / account</td><td>AI voice notes in your cloned voice, 1 dedicated residential proxy, Chrome lead scraper, 14d free trial</td></tr>
+            <tr><td><b>Agency / Scale</b></td><td>$30.99 – $45.99 / account</td><td><i>"Your 6th account costs less than nothing"</i> (5 accts = $309.95, 6 accts = $275.94 retroactive drop), Unibox for 12+ clients</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="studio-layout">
+      <div class="panel">
+        <h2>
+          <span>Ranked Warm Thread Engagers</span>
+          <span class="badge" id="leadCountBadge">6 Enriched Leads</span>
+        </h2>
+        <div id="leadListContainer"></div>
+      </div>
+
+      <div class="panel" id="detailPanel">
+        <!-- Populated dynamically by JS -->
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const MANIFEST = {
+  "mvp_id": "MVP_28_WARM_ENGAGER_VOICENOTE_ENGINE",
+  "generated_at": "2026-10-17T12:46:37.110464+00:00",
+  "teardown_benchmarks": {
+    "unfair_so": {
+      "name": "unfair.so",
+      "url": "https://unfair.so/",
+      "trustmrr_url": "https://trustmrr.com/startup/unfair.md",
+      "founded": "2026-07-12",
+      "founder": "Ted (@notmiramurati / @unfairdotso)",
+      "revenue_30d_usd": 400128,
+      "latest_snapshot_30d_usd": 391118,
+      "all_time_revenue_usd": 485021,
+      "mrr_usd": 31707,
+      "active_subscriptions": 40,
+      "profit_margin_pct": 80.0,
+      "peak_daily_revenue_usd": 78707,
+      "positioning": "1000+ creators your buyers already follow — pick them by their real ICP audience, launch synchronized quote-waves in a 5-minute window to trigger the X/LinkedIn feed algorithm, draft non-cringe replies on high-intent threads, and export every engager as an enriched B2B lead (Email + LinkedIn CSV).",
+      "dual_engine_evolution": {
+        "v1_social_reply_sniper": "Monitors high-intent X/social conversations via official X API, drafts value-first non-cringe replies with human approval, enriches every liker/commenter into verified B2B email + LinkedIn contacts, and triggers warm follow-ups while they remember you.",
+        "v2_creator_quote_wave_marketplace": "Matches B2B launches with 1,000+ vetted creators analyzed by follower roles/companies (e.g., '34+ AI founders, 17+ YC alumni follow'). Coordinates simultaneous quote-posts in a 5-minute launch window (with 12h/6h/1h/5m reminders) to trip algorithmic distribution, then captures 100% of post engagers into a lead CSV."
+      },
+      "pricing_tiers": [
+        {
+          "tier": "Unfair (SaaS v1 / Starter v2)",
+          "price_monthly_usd": 99,
+          "legacy_trustmrr_price_usd": 79,
+          "platform_fee": "15% on creator spend (+3% Stripe)",
+          "features": [
+            "Up to 5 campaigns, invite up to 30 creators/mo",
+            "Follower-level ICP analytics (roles, companies, verified followers)",
+            "Every engager becomes a lead: verified Email + LinkedIn CSV export",
+            "AI reply & angle drafting agent"
+          ]
+        },
+        {
+          "tier": "Very Unfair (Growth)",
+          "price_monthly_usd": 249,
+          "platform_fee": "10% on creator spend (+3% Stripe)",
+          "features": [
+            "Unlimited campaigns broadcast to 5,000+ creators",
+            "Unlimited creator invites & counteroffer price negotiation",
+            "Dedicated account manager & priority Slack channel"
+          ]
+        },
+        {
+          "tier": "Launchmaxxing / Unfairmaxxing (Managed GTM)",
+          "price_monthly_usd": 990,
+          "legacy_trustmrr_price_usd": 799,
+          "platform_fee": "0% creator fee + $2,000 per 100K views above first 50K (max $10k/launch)",
+          "features": [
+            "Dedicated GTM manager runs up to 2 managed launches/week (20 spots)",
+            "Full lineup curation, briefs, 5-minute quote-wave orchestration",
+            "Minimum $2,000 creator budget per launch (explains $27k-$78k daily Stripe spikes)"
+          ]
+        }
+      ]
+    },
+    "prosp_ai": {
+      "name": "PROSP",
+      "url": "https://prosp.ai/",
+      "trustmrr_url": "https://trustmrr.com/startup/prosp.md",
+      "founded": "2025-08-21",
+      "founder": "Yann (@yanndine, France)",
+      "revenue_30d_usd": 98483,
+      "all_time_revenue_usd": 507250,
+      "mrr_usd": 128005,
+      "active_subscriptions": 1108,
+      "profit_margin_pct": 80.0,
+      "asking_price_usd": 1000000,
+      "acquisition_offers": 42,
+      "positioning": "LinkedIn outreach so personal, prospects actually reply. Prosp reads each prospect's real profile and recent LinkedIn activity to write a 1:1 message and an AI-cloned voice note in your own voice inside LinkedIn DMs — achieving 3x-5x higher reply rates than text DMs.",
+      "core_workflow": [
+        "1. Lead Finder & Chrome Extension: Scrapes and enriches LinkedIn prospects + CRM imports on the way in.",
+        "2. Real Profile & Activity Reader: Reads each prospect's recent posts/comments so the opener cites something only a human noticed.",
+        "3. 90-Second AI Voice Cloning: Clones founder/client voice from a 90s sample and injects personalized 1:1 audio voice notes into DM sequences.",
+        "4. Dedicated Cloud Residential Proxy: 1 free residential proxy per sender account with human-paced cloud execution.",
+        "5. Unified Multi-Account Unibox: Rotates 12+ client accounts into a single inbox sorted by client, campaign, and buyer intent."
+      ],
+      "pricing_tiers": [
+        {
+          "tier": "Solo / Starter",
+          "price_per_account_4w_usd": "29.00 - 59.99",
+          "features": [
+            "Full platform access + AI voice notes in cloned voice",
+            "1 free dedicated residential proxy included",
+            "AI profile/post personalization + Chrome extension",
+            "14-day free trial (no credit card required)"
+          ]
+        },
+        {
+          "tier": "Agency / Scale (Retroactive Volume Drop)",
+          "price_per_account_4w_usd": "30.99 - 45.99",
+          "features": [
+            "Retroactive volume discount: 5 accounts = $309.95/4w ($61.99/ea), 6 accounts = $275.94/4w ($45.99/ea — '6th account costs less than nothing')",
+            "Unified Unibox across all client accounts with setter handoff",
+            "900+ conversations/month/account, cutting cost-per-meeting from $310 to $41"
+          ]
+        }
+      ]
+    }
+  },
+  "campaign_summary": {
+    "monitored_threads_count": 2,
+    "enriched_prospects_count": 6,
+    "tier_1_hot_voicenote_count": 4,
+    "average_composite_lead_score": 89.0,
+    "all_public_replies_non_cringe": true,
+    "target_voicenote_duration_sec": 22.0,
+    "total_german_phonetic_locks_applied": 37,
+    "expected_reply_rate_text_dm_pct": 4.2,
+    "expected_reply_rate_warm_voicenote_pct": 28.5,
+    "reply_rate_lift_multiplier": "6.8x"
+  },
+  "scored_threads": [
+    {
+      "thread_id": "thr_li_01_heyreach_ban",
+      "platform": "LinkedIn",
+      "author_name": "Marcus Lindner",
+      "author_role": "Founder @ Scalebound GTM",
+      "competitor_mentioned": "Expandi / Standard Text-Sequencers",
+      "thread_category": "competitor_complaint",
+      "posted_minutes_ago": 38,
+      "pain_intensity_score": 82.0,
+      "competitor_churn_signal": 92.0,
+      "buying_urgency_score": 98.5,
+      "icp_audience_density": 97.5,
+      "freshness_window_score": 86.7,
+      "thread_intent_score": 90.8,
+      "matched_pain_signals": [
+        "gesperrt",
+        "immun",
+        "1,4%"
+      ]
+    },
+    {
+      "thread_id": "thr_x_02_datev_personio_pain",
+      "platform": "X",
+      "author_name": "Jan-Philipp Wegner",
+      "author_role": "CTO @ FinOps Mittelstand",
+      "competitor_mentioned": "Lemlist / Apollo Cold Email",
+      "thread_category": "buying_intent_rfp",
+      "posted_minutes_ago": 52,
+      "pain_intensity_score": 82.0,
+      "competitor_churn_signal": 86.0,
+      "buying_urgency_score": 88.2,
+      "icp_audience_density": 97.5,
+      "freshness_window_score": 81.8,
+      "thread_intent_score": 86.5,
+      "matched_pain_signals": [
+        "tot",
+        "quarantäne",
+        "schmerz"
+      ]
+    }
+  ],
+  "ranked_prospects": [
+    {
+      "prospect_id": "eng_005",
+      "thread_id": "thr_x_02_datev_personio_pain",
+      "source_platform": "X",
+      "competitor_pain_topic": "Lemlist / Apollo Cold Email",
+      "full_name": "Matthias Vonlanthen",
+      "first_name": "Matthias",
+      "role": "Co-Founder & CRO",
+      "seniority": "Founder",
+      "company": "Shopware FlowLabs GmbH",
+      "company_domain": "shopware-flowlabs.de",
+      "company_size": "50-200",
+      "industry": "E-Commerce ERP Automation",
+      "location": "Köln, DE",
+      "engagement_type": "commenter",
+      "engagement_text": "Wir tracken inzwischen manuell, wer unter solchen Posts liked, aber das Research + Anschreiben dauert 25 Minuten pro Lead. Gibt es dafür einen sauberen Workflow?",
+      "engaged_minutes_ago": 11,
+      "verified_email": "matthias.vonlanthen@shopware-flowlabs.de",
+      "email_confidence_pct": 96,
+      "linkedin_url": "https://www.linkedin.com/in/matthias-vonlanthen",
+      "x_handle": "@mvonlanthen_cro",
+      "icp_fit_score": 98.0,
+      "engagement_intent_weight": 1.0,
+      "warmth_velocity_score": 87.3,
+      "composite_lead_score": 93.4,
+      "priority_tier": "TIER_1_HOT_VOICENOTE",
+      "public_reply_draft": "Volle Zustimmung, Matthias. Sobald M365-Filter Fachbegriffe wie DATEV oder ZUGFeRD in Cold-Mails scannen, fällt die Zustellbarkeit unter 42%. Wenn man stattdessen die aktiven Thread-Engager innerhalb von 20 Minuten per nativer 22s-LinkedIn-Voice-Note anspricht, liegt die Hör-Rate bei über 78%, weil niemand eine echte Audio-Notiz ignoriert.",
+      "public_reply_lint": {
+        "is_non_cringe": true,
+        "cringe_free_score": 100,
+        "word_count": 44,
+        "has_concrete_metric_or_specificity": true,
+        "violations": []
+      },
+      "voice_note": {
+        "prospect_id": "eng_005",
+        "target_duration_sec": 22.0,
+        "estimated_spoken_duration_sec": 22.1,
+        "spoken_word_count": 50,
+        "total_pause_duration_sec": 1.7,
+        "pacing_wpm": 147.8,
+        "raw_script_with_tags": "Hey Matthias, [pause 0.3s] ich hab gerade deinen Kommentar vor 11 Minuten bei Jan-Philipp Wegner gesehen [breath_in 0.25s] zum Thema Lemlist und Antwortraten. [pause 0.4s] Weil ihr bei Shopware FlowLabs GmbH genau vor dieser Hürde steht: [micro_hesitation 0.2s] Wir koppeln für Teams wie DATEV- und Personio-Partner warme Signale mit ZUGFeRD-sicheren Sprachnachrichten. [breath_in 0.25s] Soll ich dir das Playbook hier reinwerfen? [pause 0.3s]",
+        "phonetic_locked_script": "Hey <<Ma-thie-as|maˈtiːas>>, [pause 0.3s] ich hab gerade deinen Kommentar vor 11 Minuten bei Jan-Philipp Wegner gesehen [breath_in 0.25s] zum Thema <<Lemm-list|ˈlɛmlɪst>> und Antwortraten. [pause 0.4s] Weil ihr bei <<Schopp-währ|ˈʃɔpvɛːɐ̯>> FlowLabs <<G-M-B-H (Geh-Em-Beh-Hah)|ɡeːʔɛmbeːˈhaː>> genau vor dieser Hürde steht: [micro_hesitation 0.2s] Wir koppeln für Teams wie <<Dah-teff|ˈdaːtɛf>>- und <<Per-soh-nio|pɛɐ̯ˈzoːnjo>>-Partner warme Signale mit <<Tsuhk-pferd|ˈt͡suːkˌp͡fɛɐ̯t>>-sicheren Sprachnachrichten. [breath_in 0.25s] Soll ich dir das Playbook hier reinwerfen? [pause 0.3s]",
+        "companion_text_teaser": "Hey Matthias — hab dir gerade 22 Sek. als Sprachnachricht zu deinem Signal unter dem Jan-Philipp Wegner-Post dagelassen 👇",
+        "referenced_thread_hook": "deinen Kommentar vor 11 Minuten bei Jan-Philipp Wegner",
+        "phonetic_locks_applied": [
+          {
+            "token": "Matthias",
+            "tts_respelling": "Ma-thie-as",
+            "ipa": "maˈtiːas",
+            "common_ai_error": "Ma-thai-as (English th/diphthong)",
+            "lock_rule": "aspirated_t_no_dental_fricative"
+          },
+          {
+            "token": "Personio",
+            "tts_respelling": "Per-soh-nio",
+            "ipa": "pɛɐ̯ˈzoːnjo",
+            "common_ai_error": "Per-sahn-io",
+            "lock_rule": "voiced_s_long_closed_o"
+          },
+          {
+            "token": "Shopware",
+            "tts_respelling": "Schopp-währ",
+            "ipa": "ˈʃɔpvɛːɐ̯",
+            "common_ai_error": "Shop-wa-re",
+            "lock_rule": "bilingual_brand_lock"
+          },
+          {
+            "token": "ZUGFeRD",
+            "tts_respelling": "Tsuhk-pferd",
+            "ipa": "ˈt͡suːkˌp͡fɛɐ̯t",
+            "common_ai_error": "Zug-ferd (English z and u)",
+            "lock_rule": "affricate_ts_plus_pf_cluster"
+          },
+          {
+            "token": "Lemlist",
+            "tts_respelling": "Lemm-list",
+            "ipa": "ˈlɛmlɪst",
+            "common_ai_error": "Leem-list",
+            "lock_rule": "short_lax_e_brand_lock"
+          },
+          {
+            "token": "DATEV",
+            "tts_respelling": "Dah-teff",
+            "ipa": "ˈdaːtɛf",
+            "common_ai_error": "Day-tev / D-A-T-E-V",
+            "lock_rule": "long_a_voiceless_final_v"
+          },
+          {
+            "token": "GmbH",
+            "tts_respelling": "G-M-B-H (Geh-Em-Beh-Hah)",
+            "ipa": "ɡeːʔɛmbeːˈhaː",
+            "common_ai_error": "Dschi-Em-Bi-Eitsch",
+            "lock_rule": "de_acronym_expansion_gee_em_bee_haa"
+          }
+        ],
+        "opus_metadata": {
+          "codec": "opus",
+          "container": "ogg",
+          "rfc_spec": "RFC 7845 (Ogg Encapsulation for the Opus Audio Codec)",
+          "sample_rate_hz": 48000,
+          "channels": 1,
+          "bitrate_kbps": 32,
+          "duration_sec": 22.0,
+          "frame_size_ms": 20,
+          "total_frames": 1100,
+          "estimated_file_size_bytes": 88840,
+          "lufs_integrated": -16.2,
+          "true_peak_db": -1.4,
+          "ambient_room_floor_db": -54.0,
+          "pause_windows_sec": [
+            [
+              0.82,
+              1.11
+            ],
+            [
+              5.98,
+              6.23
+            ],
+            [
+              8.27,
+              8.67
+            ],
+            [
+              13.13,
+              13.32
+            ],
+            [
+              18.61,
+              18.86
+            ],
+            [
+              21.7,
+              22.0
+            ]
+          ],
+          "waveform_bars_64": [
+            0.18,
+            0.213,
+            0.06,
+            0.244,
+            0.651,
+            0.602,
+            0.688,
+            0.731,
+            0.386,
+            0.18,
+            0.222,
+            0.18,
+            0.37,
+            0.291,
+            0.502,
+            0.775,
+            0.57,
+            0.07,
+            0.506,
+            0.18,
+            0.18,
+            0.18,
+            0.382,
+            0.328,
+            0.12,
+            0.648,
+            0.74,
+            0.48,
+            0.398,
+            0.18,
+            0.18,
+            0.331,
+            0.233,
+            0.579,
+            0.531,
+            0.616,
+            0.779,
+            0.434,
+            0.11,
+            0.27,
+            0.18,
+            0.18,
+            0.436,
+            0.503,
+            0.823,
+            0.594,
+            0.531,
+            0.518,
+            0.18,
+            0.235,
+            0.243,
+            0.18,
+            0.412,
+            0.575,
+            0.08,
+            0.548,
+            0.539,
+            0.314,
+            0.28,
+            0.18,
+            0.223,
+            0.209,
+            0.399,
+            0.09
+          ],
+          "sha256_audio_fingerprint": "496d9fed43656ed0363f232e"
+        }
+      }
+    },
+    {
+      "prospect_id": "eng_001",
+      "thread_id": "thr_li_01_heyreach_ban",
+      "source_platform": "LinkedIn",
+      "competitor_pain_topic": "Expandi / Standard Text-Sequencers",
+      "full_name": "Sören Wagenknecht",
+      "first_name": "Sören",
+      "role": "VP Revenue Operations",
+      "seniority": "VP",
+      "company": "Müller-Künstner Logistik GmbH",
+      "company_domain": "mueller-kuenstner.de",
+      "company_size": "200-500",
+      "industry": "Supply Chain & Industrial SaaS",
+      "location": "Hamburg, DE",
+      "engagement_type": "commenter",
+      "engagement_text": "100% unsere Erfahrung bei Müller-Künstner. Unsere SDRs verbrennen Leads mit Text-Sequenzen, wir suchen dringend nach einem Weg für persönliche Audio-DMs ohne manuellen Zeitfresser.",
+      "engaged_minutes_ago": 14,
+      "verified_email": "soeren.wagenknecht@mueller-kuenstner.de",
+      "email_confidence_pct": 96,
+      "linkedin_url": "https://www.linkedin.com/in/soeren-wagenknecht-revops",
+      "x_handle": "@soeren_revops",
+      "icp_fit_score": 93.9,
+      "engagement_intent_weight": 1.0,
+      "warmth_velocity_score": 83.9,
+      "composite_lead_score": 93.0,
+      "priority_tier": "TIER_1_HOT_VOICENOTE",
+      "public_reply_draft": "Starker Punkt, Sören. Wir sehen in 40+ DACH-Accounts exakt denselben Einbruch bei reinen Text-Sequenzen (unter 1,8% Reply-Rate). Was die Kurve bei Teams wie Müller-Künstner Logistik GmbH sofort auf 24–31% dreht: Erst den konkreten Thread-Kommentar abwarten und dann innerhalb von 30 Minuten eine 22-Sekunden-Sprachnachricht über eine dedizierte Residential-IP senden, die exakt den Kommentar aufgreift.",
+      "public_reply_lint": {
+        "is_non_cringe": true,
+        "cringe_free_score": 100,
+        "word_count": 53,
+        "has_concrete_metric_or_specificity": true,
+        "violations": []
+      },
+      "voice_note": {
+        "prospect_id": "eng_001",
+        "target_duration_sec": 22.0,
+        "estimated_spoken_duration_sec": 22.1,
+        "spoken_word_count": 50,
+        "total_pause_duration_sec": 1.7,
+        "pacing_wpm": 147.8,
+        "raw_script_with_tags": "Hey Sören, [pause 0.3s] ich hab gerade deinen Kommentar vor 14 Minuten bei Marcus Lindner gesehen [breath_in 0.25s] zum Thema Expandi und Antwortraten. [pause 0.4s] Weil ihr bei Müller-Künstner Logistik GmbH genau vor dieser Hürde steht: [micro_hesitation 0.2s] Wir koppeln für Teams wie DATEV- und Personio-Partner warme Signale mit ZUGFeRD-sicheren Sprachnachrichten. [breath_in 0.25s] Soll ich dir das Playbook hier reinwerfen? [pause 0.3s]",
+        "phonetic_locked_script": "Hey <<Söh-ren|ˈzøːʁən>>, [pause 0.3s] ich hab gerade deinen Kommentar vor 14 Minuten bei Marcus Lindner gesehen [breath_in 0.25s] zum Thema Expandi und Antwortraten. [pause 0.4s] Weil ihr bei <<Mül-ler Kün-stner Lo-gis-tik G-M-B-H|ˈmʏlɐ ˈkʏnstnɐ loˈɡɪstɪk ɡeːʔɛmbeːˈhaː>> genau vor dieser Hürde steht: [micro_hesitation 0.2s] Wir koppeln für Teams wie <<Dah-teff|ˈdaːtɛf>>- und <<Per-soh-nio|pɛɐ̯ˈzoːnjo>>-Partner warme Signale mit <<Tsuhk-pferd|ˈt͡suːkˌp͡fɛɐ̯t>>-sicheren Sprachnachrichten. [breath_in 0.25s] Soll ich dir das Playbook hier reinwerfen? [pause 0.3s]",
+        "companion_text_teaser": "Hey Sören — hab dir gerade 22 Sek. als Sprachnachricht zu deinem Signal unter dem Marcus Lindner-Post dagelassen 👇",
+        "referenced_thread_hook": "deinen Kommentar vor 14 Minuten bei Marcus Lindner",
+        "phonetic_locks_applied": [
+          {
+            "token": "Müller-Künstner Logistik GmbH",
+            "tts_respelling": "Mül-ler Kün-stner Lo-gis-tik G-M-B-H",
+            "ipa": "ˈmʏlɐ ˈkʏnstnɐ loˈɡɪstɪk ɡeːʔɛmbeːˈhaː",
+            "common_ai_error": "Muller Kunstner Logistics G-M-B-H (English letter names)",
+            "lock_rule": "german_umlaut_ue_plus_spelled_gee_em_bee_haa"
+          },
+          {
+            "token": "Personio",
+            "tts_respelling": "Per-soh-nio",
+            "ipa": "pɛɐ̯ˈzoːnjo",
+            "common_ai_error": "Per-sahn-io",
+            "lock_rule": "voiced_s_long_closed_o"
+          },
+          {
+            "token": "ZUGFeRD",
+            "tts_respelling": "Tsuhk-pferd",
+            "ipa": "ˈt͡suːkˌp͡fɛɐ̯t",
+            "common_ai_error": "Zug-ferd (English z and u)",
+            "lock_rule": "affricate_ts_plus_pf_cluster"
+          },
+          {
+            "token": "Sören",
+            "tts_respelling": "Söh-ren",
+            "ipa": "ˈzøːʁən",
+            "common_ai_error": "So-ren (English 'o' instead of German ö)",
+            "lock_rule": "force_rounded_front_vowel_oe"
+          },
+          {
+            "token": "DATEV",
+            "tts_respelling": "Dah-teff",
+            "ipa": "ˈdaːtɛf",
+            "common_ai_error": "Day-tev / D-A-T-E-V",
+            "lock_rule": "long_a_voiceless_final_v"
+          }
+        ],
+        "opus_metadata": {
+          "codec": "opus",
+          "container": "ogg",
+          "rfc_spec": "RFC 7845 (Ogg Encapsulation for the Opus Audio Codec)",
+          "sample_rate_hz": 48000,
+          "channels": 1,
+          "bitrate_kbps": 32,
+          "duration_sec": 22.0,
+          "frame_size_ms": 20,
+          "total_frames": 1100,
+          "estimated_file_size_bytes": 88840,
+          "lufs_integrated": -16.2,
+          "true_peak_db": -1.4,
+          "ambient_room_floor_db": -54.0,
+          "pause_windows_sec": [
+            [
+              0.82,
+              1.11
+            ],
+            [
+              5.98,
+              6.23
+            ],
+            [
+              8.27,
+              8.67
+            ],
+            [
+              13.13,
+              13.32
+            ],
+            [
+              18.61,
+              18.86
+            ],
+            [
+              21.7,
+              22.0
+            ]
+          ],
+          "waveform_bars_64": [
+            0.18,
+            0.18,
+            0.1,
+            0.196,
+            0.351,
+            0.471,
+            0.57,
+            0.663,
+            0.779,
+            0.608,
+            0.459,
+            0.222,
+            0.193,
+            0.18,
+            0.342,
+            0.459,
+            0.567,
+            0.12,
+            0.789,
+            0.626,
+            0.303,
+            0.254,
+            0.18,
+            0.18,
+            0.09,
+            0.529,
+            0.531,
+            0.722,
+            0.547,
+            0.543,
+            0.308,
+            0.18,
+            0.18,
+            0.18,
+            0.267,
+            0.63,
+            0.795,
+            0.743,
+            0.06,
+            0.375,
+            0.33,
+            0.181,
+            0.228,
+            0.282,
+            0.519,
+            0.483,
+            0.747,
+            0.645,
+            0.458,
+            0.399,
+            0.325,
+            0.248,
+            0.18,
+            0.411,
+            0.1,
+            0.531,
+            0.818,
+            0.619,
+            0.327,
+            0.307,
+            0.18,
+            0.232,
+            0.267,
+            0.1
+          ],
+          "sha256_audio_fingerprint": "deb03859414ae429a7279f25"
+        }
+      }
+    },
+    {
+      "prospect_id": "eng_002",
+      "thread_id": "thr_li_01_heyreach_ban",
+      "source_platform": "LinkedIn",
+      "competitor_pain_topic": "Expandi / Standard Text-Sequencers",
+      "full_name": "Bettina Krämer",
+      "first_name": "Bettina",
+      "role": "Geschäftsführerin / Managing Director",
+      "seniority": "C-Level",
+      "company": "Krämer & Söhne Digital GmbH",
+      "company_domain": "kraemer-soehne.de",
+      "company_size": "50-200",
+      "industry": "B2B Lead-Gen Agency",
+      "location": "München, DE",
+      "engagement_type": "quote_reposter",
+      "engagement_text": "Genau deshalb stellen wir gerade alle 12 Kunden-Accounts um. Wer 2026 noch reine Text-Templates ohne Residential Proxy und Sprachnachricht schickt, verliert Mandate.",
+      "engaged_minutes_ago": 22,
+      "verified_email": "bettina.kraemer@kraemer-soehne.de",
+      "email_confidence_pct": 96,
+      "linkedin_url": "https://www.linkedin.com/in/bettina-kraemer-b2b",
+      "x_handle": "@bettinakraemer",
+      "icp_fit_score": 96.6,
+      "engagement_intent_weight": 0.92,
+      "warmth_velocity_score": 74.7,
+      "composite_lead_score": 90.4,
+      "priority_tier": "TIER_1_HOT_VOICENOTE",
+      "public_reply_draft": "Starker Punkt, Bettina. Wir sehen in 40+ DACH-Accounts exakt denselben Einbruch bei reinen Text-Sequenzen (unter 1,8% Reply-Rate). Was die Kurve bei Teams wie Krämer & Söhne Digital GmbH sofort auf 24–31% dreht: Erst den konkreten Thread-Kommentar abwarten und dann innerhalb von 30 Minuten eine 22-Sekunden-Sprachnachricht über eine dedizierte Residential-IP senden, die exakt den Kommentar aufgreift.",
+      "public_reply_lint": {
+        "is_non_cringe": true,
+        "cringe_free_score": 100,
+        "word_count": 55,
+        "has_concrete_metric_or_specificity": true,
+        "violations": []
+      },
+      "voice_note": {
+        "prospect_id": "eng_002",
+        "target_duration_sec": 22.0,
+        "estimated_spoken_duration_sec": 22.9,
+        "spoken_word_count": 52,
+        "total_pause_duration_sec": 1.7,
+        "pacing_wpm": 153.7,
+        "raw_script_with_tags": "Hey Bettina, [pause 0.3s] ich hab gerade deinen Repost vor 22 Minuten bei Marcus Lindner gesehen [breath_in 0.25s] zum Thema Expandi und Antwortraten. [pause 0.4s] Weil ihr bei Krämer & Söhne Digital GmbH genau vor dieser Hürde steht: [micro_hesitation 0.2s] Wir koppeln für Teams wie DATEV- und Personio-Partner warme Signale mit ZUGFeRD-sicheren Sprachnachrichten. [breath_in 0.25s] Soll ich dir das Playbook hier reinwerfen? [pause 0.3s]",
+        "phonetic_locked_script": "Hey <<Be-tie-na|bɛˈtiːna>>, [pause 0.3s] ich hab gerade deinen Repost vor 22 Minuten bei Marcus Lindner gesehen [breath_in 0.25s] zum Thema Expandi und Antwortraten. [pause 0.4s] Weil ihr bei <<Krä-mer und Söh-ne|ˈkʁɛːmɐ ʊnt ˈzøːnə>> Digital <<G-M-B-H (Geh-Em-Beh-Hah)|ɡeːʔɛmbeːˈhaː>> genau vor dieser Hürde steht: [micro_hesitation 0.2s] Wir koppeln für Teams wie <<Dah-teff|ˈdaːtɛf>>- und <<Per-soh-nio|pɛɐ̯ˈzoːnjo>>-Partner warme Signale mit <<Tsuhk-pferd|ˈt͡suːkˌp͡fɛɐ̯t>>-sicheren Sprachnachrichten. [breath_in 0.25s] Soll ich dir das Playbook hier reinwerfen? [pause 0.3s]",
+        "companion_text_teaser": "Hey Bettina — hab dir gerade 22 Sek. als Sprachnachricht zu deinem Signal unter dem Marcus Lindner-Post dagelassen 👇",
+        "referenced_thread_hook": "deinen Repost vor 22 Minuten bei Marcus Lindner",
+        "phonetic_locks_applied": [
+          {
+            "token": "Krämer & Söhne",
+            "tts_respelling": "Krä-mer und Söh-ne",
+            "ipa": "ˈkʁɛːmɐ ʊnt ˈzøːnə",
+            "common_ai_error": "Kramer and Sohne",
+            "lock_rule": "open_mid_ae_plus_long_oe"
+          },
+          {
+            "token": "Personio",
+            "tts_respelling": "Per-soh-nio",
+            "ipa": "pɛɐ̯ˈzoːnjo",
+            "common_ai_error": "Per-sahn-io",
+            "lock_rule": "voiced_s_long_closed_o"
+          },
+          {
+            "token": "Bettina",
+            "tts_respelling": "Be-tie-na",
+            "ipa": "bɛˈtiːna",
+            "common_ai_error": "Be-tina (short i)",
+            "lock_rule": "long_tense_i_stress_second_syllable"
+          },
+          {
+            "token": "ZUGFeRD",
+            "tts_respelling": "Tsuhk-pferd",
+            "ipa": "ˈt͡suːkˌp͡fɛɐ̯t",
+            "common_ai_error": "Zug-ferd (English z and u)",
+            "lock_rule": "affricate_ts_plus_pf_cluster"
+          },
+          {
+            "token": "DATEV",
+            "tts_respelling": "Dah-teff",
+            "ipa": "ˈdaːtɛf",
+            "common_ai_error": "Day-tev / D-A-T-E-V",
+            "lock_rule": "long_a_voiceless_final_v"
+          },
+          {
+            "token": "GmbH",
+            "tts_respelling": "G-M-B-H (Geh-Em-Beh-Hah)",
+            "ipa": "ɡeːʔɛmbeːˈhaː",
+            "common_ai_error": "Dschi-Em-Bi-Eitsch",
+            "lock_rule": "de_acronym_expansion_gee_em_bee_haa"
+          }
+        ],
+        "opus_metadata": {
+          "codec": "opus",
+          "container": "ogg",
+          "rfc_spec": "RFC 7845 (Ogg Encapsulation for the Opus Audio Codec)",
+          "sample_rate_hz": 48000,
+          "channels": 1,
+          "bitrate_kbps": 32,
+          "duration_sec": 22.0,
+          "frame_size_ms": 20,
+          "total_frames": 1100,
+          "estimated_file_size_bytes": 88840,
+          "lufs_integrated": -16.2,
+          "true_peak_db": -1.4,
+          "ambient_room_floor_db": -54.0,
+          "pause_windows_sec": [
+            [
+              0.79,
+              1.07
+            ],
+            [
+              5.77,
+              6.01
+            ],
+            [
+              7.97,
+              8.36
+            ],
+            [
+              13.45,
+              13.64
+            ],
+            [
+              18.73,
+              18.97
+            ],
+            [
+              21.71,
+              22.0
+            ]
+          ],
+          "waveform_bars_64": [
+            0.283,
+            0.819,
+            0.09,
+            0.401,
+            0.188,
+            0.277,
+            0.18,
+            0.341,
+            0.325,
+            0.702,
+            0.707,
+            0.544,
+            0.644,
+            0.437,
+            0.209,
+            0.268,
+            0.18,
+            0.426,
+            0.481,
+            0.63,
+            0.601,
+            0.58,
+            0.675,
+            0.08,
+            0.274,
+            0.26,
+            0.18,
+            0.361,
+            0.588,
+            0.788,
+            0.687,
+            0.557,
+            0.461,
+            0.416,
+            0.18,
+            0.18,
+            0.18,
+            0.505,
+            0.522,
+            0.1,
+            0.616,
+            0.716,
+            0.437,
+            0.18,
+            0.208,
+            0.187,
+            0.246,
+            0.577,
+            0.534,
+            0.841,
+            0.688,
+            0.543,
+            0.257,
+            0.18,
+            0.11,
+            0.228,
+            0.409,
+            0.636,
+            0.62,
+            0.723,
+            0.701,
+            0.605,
+            0.284,
+            0.06
+          ],
+          "sha256_audio_fingerprint": "e4cec907ba03653d1b702472"
+        }
+      }
+    },
+    {
+      "prospect_id": "eng_004",
+      "thread_id": "thr_x_02_datev_personio_pain",
+      "source_platform": "X",
+      "competitor_pain_topic": "Lemlist / Apollo Cold Email",
+      "full_name": "Jürgen Althaus",
+      "first_name": "Jürgen",
+      "role": "Head of B2B Sales",
+      "seniority": "Head",
+      "company": "RheinMetallbau Software GmbH",
+      "company_domain": "rheinmetallbau-soft.de",
+      "company_size": "200-500",
+      "industry": "Construction & ERP Software",
+      "location": "Düsseldorf, DE",
+      "engagement_type": "commenter",
+      "engagement_text": "Bei uns exakt dasselbe mit ZUGFeRD und DATEV-Exporten. Cold Mail bringt kaum noch 2% Öffnungsrate bei Kanzleien, aber auf LinkedIn lesen die Entscheider jeden Thread.",
+      "engaged_minutes_ago": 18,
+      "verified_email": "juergen.althaus@rheinmetallbau-soft.de",
+      "email_confidence_pct": 96,
+      "linkedin_url": "https://www.linkedin.com/in/juergen-althaus-sales",
+      "x_handle": "@j_althaus_erp",
+      "icp_fit_score": 88.5,
+      "engagement_intent_weight": 1.0,
+      "warmth_velocity_score": 79.3,
+      "composite_lead_score": 89.4,
+      "priority_tier": "TIER_1_HOT_VOICENOTE",
+      "public_reply_draft": "Volle Zustimmung, Jürgen. Sobald M365-Filter Fachbegriffe wie DATEV oder ZUGFeRD in Cold-Mails scannen, fällt die Zustellbarkeit unter 42%. Wenn man stattdessen die aktiven Thread-Engager innerhalb von 20 Minuten per nativer 22s-LinkedIn-Voice-Note anspricht, liegt die Hör-Rate bei über 78%, weil niemand eine echte Audio-Notiz ignoriert.",
+      "public_reply_lint": {
+        "is_non_cringe": true,
+        "cringe_free_score": 100,
+        "word_count": 44,
+        "has_concrete_metric_or_specificity": true,
+        "violations": []
+      },
+      "voice_note": {
+        "prospect_id": "eng_004",
+        "target_duration_sec": 22.0,
+        "estimated_spoken_duration_sec": 22.1,
+        "spoken_word_count": 50,
+        "total_pause_duration_sec": 1.7,
+        "pacing_wpm": 147.8,
+        "raw_script_with_tags": "Hey Jürgen, [pause 0.3s] ich hab gerade deinen Kommentar vor 18 Minuten bei Jan-Philipp Wegner gesehen [breath_in 0.25s] zum Thema Lemlist und Antwortraten. [pause 0.4s] Weil ihr bei RheinMetallbau Software GmbH genau vor dieser Hürde steht: [micro_hesitation 0.2s] Wir koppeln für Teams wie DATEV- und Personio-Partner warme Signale mit ZUGFeRD-sicheren Sprachnachrichten. [breath_in 0.25s] Soll ich dir das Playbook hier reinwerfen? [pause 0.3s]",
+        "phonetic_locked_script": "Hey <<Jür-gen|ˈjʏʁɡn̩>>, [pause 0.3s] ich hab gerade deinen Kommentar vor 18 Minuten bei Jan-Philipp Wegner gesehen [breath_in 0.25s] zum Thema <<Lemm-list|ˈlɛmlɪst>> und Antwortraten. [pause 0.4s] Weil ihr bei <<Rain-Me-tall-bau|ˈʁaɪ̯nmeˌtalbaʊ̯>> Software <<G-M-B-H (Geh-Em-Beh-Hah)|ɡeːʔɛmbeːˈhaː>> genau vor dieser Hürde steht: [micro_hesitation 0.2s] Wir koppeln für Teams wie <<Dah-teff|ˈdaːtɛf>>- und <<Per-soh-nio|pɛɐ̯ˈzoːnjo>>-Partner warme Signale mit <<Tsuhk-pferd|ˈt͡suːkˌp͡fɛɐ̯t>>-sicheren Sprachnachrichten. [breath_in 0.25s] Soll ich dir das Playbook hier reinwerfen? [pause 0.3s]",
+        "companion_text_teaser": "Hey Jürgen — hab dir gerade 22 Sek. als Sprachnachricht zu deinem Signal unter dem Jan-Philipp Wegner-Post dagelassen 👇",
+        "referenced_thread_hook": "deinen Kommentar vor 18 Minuten bei Jan-Philipp Wegner",
+        "phonetic_locks_applied": [
+          {
+            "token": "RheinMetallbau",
+            "tts_respelling": "Rain-Me-tall-bau",
+            "ipa": "ˈʁaɪ̯nmeˌtalbaʊ̯",
+            "common_ai_error": "Reen-Metal-bow",
+            "lock_rule": "diphthong_ei_short_a_diphthong_au"
+          },
+          {
+            "token": "Personio",
+            "tts_respelling": "Per-soh-nio",
+            "ipa": "pɛɐ̯ˈzoːnjo",
+            "common_ai_error": "Per-sahn-io",
+            "lock_rule": "voiced_s_long_closed_o"
+          },
+          {
+            "token": "ZUGFeRD",
+            "tts_respelling": "Tsuhk-pferd",
+            "ipa": "ˈt͡suːkˌp͡fɛɐ̯t",
+            "common_ai_error": "Zug-ferd (English z and u)",
+            "lock_rule": "affricate_ts_plus_pf_cluster"
+          },
+          {
+            "token": "Lemlist",
+            "tts_respelling": "Lemm-list",
+            "ipa": "ˈlɛmlɪst",
+            "common_ai_error": "Leem-list",
+            "lock_rule": "short_lax_e_brand_lock"
+          },
+          {
+            "token": "Jürgen",
+            "tts_respelling": "Jür-gen",
+            "ipa": "ˈjʏʁɡn̩",
+            "common_ai_error": "Jer-gen / Dschur-gen",
+            "lock_rule": "palatal_approximant_j_plus_short_ue"
+          },
+          {
+            "token": "DATEV",
+            "tts_respelling": "Dah-teff",
+            "ipa": "ˈdaːtɛf",
+            "common_ai_error": "Day-tev / D-A-T-E-V",
+            "lock_rule": "long_a_voiceless_final_v"
+          },
+          {
+            "token": "GmbH",
+            "tts_respelling": "G-M-B-H (Geh-Em-Beh-Hah)",
+            "ipa": "ɡeːʔɛmbeːˈhaː",
+            "common_ai_error": "Dschi-Em-Bi-Eitsch",
+            "lock_rule": "de_acronym_expansion_gee_em_bee_haa"
+          }
+        ],
+        "opus_metadata": {
+          "codec": "opus",
+          "container": "ogg",
+          "rfc_spec": "RFC 7845 (Ogg Encapsulation for the Opus Audio Codec)",
+          "sample_rate_hz": 48000,
+          "channels": 1,
+          "bitrate_kbps": 32,
+          "duration_sec": 22.0,
+          "frame_size_ms": 20,
+          "total_frames": 1100,
+          "estimated_file_size_bytes": 88840,
+          "lufs_integrated": -16.2,
+          "true_peak_db": -1.4,
+          "ambient_room_floor_db": -54.0,
+          "pause_windows_sec": [
+            [
+              0.82,
+              1.11
+            ],
+            [
+              5.98,
+              6.23
+            ],
+            [
+              8.27,
+              8.67
+            ],
+            [
+              13.13,
+              13.32
+            ],
+            [
+              18.61,
+              18.86
+            ],
+            [
+              21.7,
+              22.0
+            ]
+          ],
+          "waveform_bars_64": [
+            0.18,
+            0.392,
+            0.11,
+            0.196,
+            0.363,
+            0.279,
+            0.606,
+            0.687,
+            0.779,
+            0.644,
+            0.315,
+            0.342,
+            0.18,
+            0.18,
+            0.39,
+            0.351,
+            0.615,
+            0.07,
+            0.717,
+            0.494,
+            0.351,
+            0.18,
+            0.18,
+            0.249,
+            0.06,
+            0.505,
+            0.615,
+            0.566,
+            0.739,
+            0.543,
+            0.344,
+            0.235,
+            0.18,
+            0.351,
+            0.363,
+            0.63,
+            0.807,
+            0.551,
+            0.07,
+            0.399,
+            0.33,
+            0.217,
+            0.18,
+            0.402,
+            0.375,
+            0.579,
+            0.795,
+            0.537,
+            0.506,
+            0.447,
+            0.253,
+            0.18,
+            0.213,
+            0.279,
+            0.1,
+            0.711,
+            0.782,
+            0.595,
+            0.411,
+            0.18,
+            0.283,
+            0.232,
+            0.303,
+            0.11
+          ],
+          "sha256_audio_fingerprint": "1be479bae80e9f74d9926e2e"
+        }
+      }
+    },
+    {
+      "prospect_id": "eng_003",
+      "thread_id": "thr_li_01_heyreach_ban",
+      "source_platform": "LinkedIn",
+      "competitor_pain_topic": "Expandi / Standard Text-Sequencers",
+      "full_name": "Lukas Bergmann",
+      "first_name": "Lukas",
+      "role": "Head of Growth",
+      "seniority": "Head",
+      "company": "VeloCloud Systems GmbH",
+      "company_domain": "velocloud-systems.de",
+      "company_size": "50-200",
+      "industry": "Cloud Infrastructure SaaS",
+      "location": "Berlin, DE",
+      "engagement_type": "liker",
+      "engagement_text": "Liked post + liked Sören's comment on SDR reply drop",
+      "engaged_minutes_ago": 9,
+      "verified_email": "lukas.bergmann@velocloud-systems.de",
+      "email_confidence_pct": 96,
+      "linkedin_url": "https://www.linkedin.com/in/lukas-bergmann-growth",
+      "x_handle": "@lukasb_growth",
+      "icp_fit_score": 88.5,
+      "engagement_intent_weight": 0.74,
+      "warmth_velocity_score": 89.7,
+      "composite_lead_score": 85.7,
+      "priority_tier": "TIER_2_WARM_VOICENOTE",
+      "public_reply_draft": "Starker Punkt, Lukas. Wir sehen in 40+ DACH-Accounts exakt denselben Einbruch bei reinen Text-Sequenzen (unter 1,8% Reply-Rate). Was die Kurve bei Teams wie VeloCloud Systems GmbH sofort auf 24–31% dreht: Erst den konkreten Thread-Kommentar abwarten und dann innerhalb von 30 Minuten eine 22-Sekunden-Sprachnachricht über eine dedizierte Residential-IP senden, die exakt den Kommentar aufgreift.",
+      "public_reply_lint": {
+        "is_non_cringe": true,
+        "cringe_free_score": 100,
+        "word_count": 53,
+        "has_concrete_metric_or_specificity": true,
+        "violations": []
+      },
+      "voice_note": {
+        "prospect_id": "eng_003",
+        "target_duration_sec": 22.0,
+        "estimated_spoken_duration_sec": 22.1,
+        "spoken_word_count": 50,
+        "total_pause_duration_sec": 1.7,
+        "pacing_wpm": 147.8,
+        "raw_script_with_tags": "Hey Lukas, [pause 0.3s] ich hab gerade dein Like vor 9 Minuten bei Marcus Lindner gesehen [breath_in 0.25s] zum Thema Expandi und Antwortraten. [pause 0.4s] Weil ihr bei VeloCloud Systems GmbH genau vor dieser Hürde steht: [micro_hesitation 0.2s] Wir koppeln für Teams wie DATEV- und Personio-Partner warme Signale mit ZUGFeRD-sicheren Sprachnachrichten. [breath_in 0.25s] Soll ich dir das Playbook hier reinwerfen? [pause 0.3s]",
+        "phonetic_locked_script": "Hey <<Luh-kas|ˈluːkas>>, [pause 0.3s] ich hab gerade dein Like vor 9 Minuten bei Marcus Lindner gesehen [breath_in 0.25s] zum Thema Expandi und Antwortraten. [pause 0.4s] Weil ihr bei <<We-lo-Klaud|ˈveːloklaʊ̯t>> Systems <<G-M-B-H (Geh-Em-Beh-Hah)|ɡeːʔɛmbeːˈhaː>> genau vor dieser Hürde steht: [micro_hesitation 0.2s] Wir koppeln für Teams wie <<Dah-teff|ˈdaːtɛf>>- und <<Per-soh-nio|pɛɐ̯ˈzoːnjo>>-Partner warme Signale mit <<Tsuhk-pferd|ˈt͡suːkˌp͡fɛɐ̯t>>-sicheren Sprachnachrichten. [breath_in 0.25s] Soll ich dir das Playbook hier reinwerfen? [pause 0.3s]",
+        "companion_text_teaser": "Hey Lukas — hab dir gerade 22 Sek. als Sprachnachricht zu deinem Signal unter dem Marcus Lindner-Post dagelassen 👇",
+        "referenced_thread_hook": "dein Like vor 9 Minuten bei Marcus Lindner",
+        "phonetic_locks_applied": [
+          {
+            "token": "VeloCloud",
+            "tts_respelling": "We-lo-Klaud",
+            "ipa": "ˈveːloklaʊ̯t",
+            "common_ai_error": "Velo-Clood",
+            "lock_rule": "german_v_labiodental_plus_english_cloud"
+          },
+          {
+            "token": "Personio",
+            "tts_respelling": "Per-soh-nio",
+            "ipa": "pɛɐ̯ˈzoːnjo",
+            "common_ai_error": "Per-sahn-io",
+            "lock_rule": "voiced_s_long_closed_o"
+          },
+          {
+            "token": "ZUGFeRD",
+            "tts_respelling": "Tsuhk-pferd",
+            "ipa": "ˈt͡suːkˌp͡fɛɐ̯t",
+            "common_ai_error": "Zug-ferd (English z and u)",
+            "lock_rule": "affricate_ts_plus_pf_cluster"
+          },
+          {
+            "token": "Lukas",
+            "tts_respelling": "Luh-kas",
+            "ipa": "ˈluːkas",
+            "common_ai_error": "Lu-kus (schwa on second syllable)",
+            "lock_rule": "clear_short_a_final_syllable"
+          },
+          {
+            "token": "DATEV",
+            "tts_respelling": "Dah-teff",
+            "ipa": "ˈdaːtɛf",
+            "common_ai_error": "Day-tev / D-A-T-E-V",
+            "lock_rule": "long_a_voiceless_final_v"
+          },
+          {
+            "token": "GmbH",
+            "tts_respelling": "G-M-B-H (Geh-Em-Beh-Hah)",
+            "ipa": "ɡeːʔɛmbeːˈhaː",
+            "common_ai_error": "Dschi-Em-Bi-Eitsch",
+            "lock_rule": "de_acronym_expansion_gee_em_bee_haa"
+          }
+        ],
+        "opus_metadata": {
+          "codec": "opus",
+          "container": "ogg",
+          "rfc_spec": "RFC 7845 (Ogg Encapsulation for the Opus Audio Codec)",
+          "sample_rate_hz": 48000,
+          "channels": 1,
+          "bitrate_kbps": 32,
+          "duration_sec": 22.0,
+          "frame_size_ms": 20,
+          "total_frames": 1100,
+          "estimated_file_size_bytes": 88840,
+          "lufs_integrated": -16.2,
+          "true_peak_db": -1.4,
+          "ambient_room_floor_db": -54.0,
+          "pause_windows_sec": [
+            [
+              0.82,
+              1.11
+            ],
+            [
+              5.98,
+              6.23
+            ],
+            [
+              8.27,
+              8.67
+            ],
+            [
+              13.13,
+              13.32
+            ],
+            [
+              18.61,
+              18.86
+            ],
+            [
+              21.7,
+              22.0
+            ]
+          ],
+          "waveform_bars_64": [
+            0.219,
+            0.2,
+            0.09,
+            0.292,
+            0.363,
+            0.267,
+            0.714,
+            0.711,
+            0.659,
+            0.608,
+            0.399,
+            0.258,
+            0.253,
+            0.18,
+            0.18,
+            0.387,
+            0.531,
+            0.07,
+            0.789,
+            0.554,
+            0.231,
+            0.18,
+            0.18,
+            0.285,
+            0.07,
+            0.445,
+            0.795,
+            0.722,
+            0.643,
+            0.375,
+            0.392,
+            0.18,
+            0.18,
+            0.18,
+            0.351,
+            0.726,
+            0.807,
+            0.539,
+            0.12,
+            0.423,
+            0.21,
+            0.181,
+            0.18,
+            0.318,
+            0.579,
+            0.543,
+            0.555,
+            0.573,
+            0.422,
+            0.327,
+            0.325,
+            0.18,
+            0.18,
+            0.291,
+            0.08,
+            0.747,
+            0.566,
+            0.535,
+            0.591,
+            0.307,
+            0.187,
+            0.18,
+            0.351,
+            0.06
+          ],
+          "sha256_audio_fingerprint": "8079995297d049d81d4b7fbe"
+        }
+      }
+    },
+    {
+      "prospect_id": "eng_006",
+      "thread_id": "thr_x_02_datev_personio_pain",
+      "source_platform": "X",
+      "competitor_pain_topic": "Lemlist / Apollo Cold Email",
+      "full_name": "Katharina Seifert",
+      "first_name": "Katharina",
+      "role": "Director Demand Generation",
+      "seniority": "Director",
+      "company": "Personio PartnerHub GmbH",
+      "company_domain": "personio-partnerhub.de",
+      "company_size": "200-500",
+      "industry": "HR Tech & Payroll",
+      "location": "Frankfurt am Main, DE",
+      "engagement_type": "liker",
+      "engagement_text": "Bookmarked & liked thread on M365 quarantine filter",
+      "engaged_minutes_ago": 27,
+      "verified_email": "katharina.seifert@personio-partnerhub.de",
+      "email_confidence_pct": 96,
+      "linkedin_url": "https://www.linkedin.com/in/katharina-seifert-demand",
+      "x_handle": "@k_seifert_dg",
+      "icp_fit_score": 90.5,
+      "engagement_intent_weight": 0.74,
+      "warmth_velocity_score": 69.0,
+      "composite_lead_score": 81.9,
+      "priority_tier": "TIER_2_WARM_VOICENOTE",
+      "public_reply_draft": "Volle Zustimmung, Katharina. Sobald M365-Filter Fachbegriffe wie DATEV oder ZUGFeRD in Cold-Mails scannen, fällt die Zustellbarkeit unter 42%. Wenn man stattdessen die aktiven Thread-Engager innerhalb von 20 Minuten per nativer 22s-LinkedIn-Voice-Note anspricht, liegt die Hör-Rate bei über 78%, weil niemand eine echte Audio-Notiz ignoriert.",
+      "public_reply_lint": {
+        "is_non_cringe": true,
+        "cringe_free_score": 100,
+        "word_count": 44,
+        "has_concrete_metric_or_specificity": true,
+        "violations": []
+      },
+      "voice_note": {
+        "prospect_id": "eng_006",
+        "target_duration_sec": 22.0,
+        "estimated_spoken_duration_sec": 22.1,
+        "spoken_word_count": 50,
+        "total_pause_duration_sec": 1.7,
+        "pacing_wpm": 147.8,
+        "raw_script_with_tags": "Hey Katharina, [pause 0.3s] ich hab gerade dein Like vor 27 Minuten bei Jan-Philipp Wegner gesehen [breath_in 0.25s] zum Thema Lemlist und Antwortraten. [pause 0.4s] Weil ihr bei Personio PartnerHub GmbH genau vor dieser Hürde steht: [micro_hesitation 0.2s] Wir koppeln für Teams wie DATEV- und Personio-Partner warme Signale mit ZUGFeRD-sicheren Sprachnachrichten. [breath_in 0.25s] Soll ich dir das Playbook hier reinwerfen? [pause 0.3s]",
+        "phonetic_locked_script": "Hey <<Ka-ta-rie-na|kataˈʁiːna>>, [pause 0.3s] ich hab gerade dein Like vor 27 Minuten bei Jan-Philipp Wegner gesehen [breath_in 0.25s] zum Thema <<Lemm-list|ˈlɛmlɪst>> und Antwortraten. [pause 0.4s] Weil ihr bei <<Per-soh-nio|pɛɐ̯ˈzoːnjo>> PartnerHub <<G-M-B-H (Geh-Em-Beh-Hah)|ɡeːʔɛmbeːˈhaː>> genau vor dieser Hürde steht: [micro_hesitation 0.2s] Wir koppeln für Teams wie <<Dah-teff|ˈdaːtɛf>>- und <<Per-soh-nio|pɛɐ̯ˈzoːnjo>>-Partner warme Signale mit <<Tsuhk-pferd|ˈt͡suːkˌp͡fɛɐ̯t>>-sicheren Sprachnachrichten. [breath_in 0.25s] Soll ich dir das Playbook hier reinwerfen? [pause 0.3s]",
+        "companion_text_teaser": "Hey Katharina — hab dir gerade 22 Sek. als Sprachnachricht zu deinem Signal unter dem Jan-Philipp Wegner-Post dagelassen 👇",
+        "referenced_thread_hook": "dein Like vor 27 Minuten bei Jan-Philipp Wegner",
+        "phonetic_locks_applied": [
+          {
+            "token": "Katharina",
+            "tts_respelling": "Ka-ta-rie-na",
+            "ipa": "kataˈʁiːna",
+            "common_ai_error": "Kath-uh-reena (English dental th)",
+            "lock_rule": "unaspirated_t_uvular_r"
+          },
+          {
+            "token": "Personio",
+            "tts_respelling": "Per-soh-nio",
+            "ipa": "pɛɐ̯ˈzoːnjo",
+            "common_ai_error": "Per-sahn-io",
+            "lock_rule": "voiced_s_long_closed_o"
+          },
+          {
+            "token": "ZUGFeRD",
+            "tts_respelling": "Tsuhk-pferd",
+            "ipa": "ˈt͡suːkˌp͡fɛɐ̯t",
+            "common_ai_error": "Zug-ferd (English z and u)",
+            "lock_rule": "affricate_ts_plus_pf_cluster"
+          },
+          {
+            "token": "Lemlist",
+            "tts_respelling": "Lemm-list",
+            "ipa": "ˈlɛmlɪst",
+            "common_ai_error": "Leem-list",
+            "lock_rule": "short_lax_e_brand_lock"
+          },
+          {
+            "token": "DATEV",
+            "tts_respelling": "Dah-teff",
+            "ipa": "ˈdaːtɛf",
+            "common_ai_error": "Day-tev / D-A-T-E-V",
+            "lock_rule": "long_a_voiceless_final_v"
+          },
+          {
+            "token": "GmbH",
+            "tts_respelling": "G-M-B-H (Geh-Em-Beh-Hah)",
+            "ipa": "ɡeːʔɛmbeːˈhaː",
+            "common_ai_error": "Dschi-Em-Bi-Eitsch",
+            "lock_rule": "de_acronym_expansion_gee_em_bee_haa"
+          }
+        ],
+        "opus_metadata": {
+          "codec": "opus",
+          "container": "ogg",
+          "rfc_spec": "RFC 7845 (Ogg Encapsulation for the Opus Audio Codec)",
+          "sample_rate_hz": 48000,
+          "channels": 1,
+          "bitrate_kbps": 32,
+          "duration_sec": 22.0,
+          "frame_size_ms": 20,
+          "total_frames": 1100,
+          "estimated_file_size_bytes": 88840,
+          "lufs_integrated": -16.2,
+          "true_peak_db": -1.4,
+          "ambient_room_floor_db": -54.0,
+          "pause_windows_sec": [
+            [
+              0.82,
+              1.11
+            ],
+            [
+              5.98,
+              6.23
+            ],
+            [
+              8.27,
+              8.67
+            ],
+            [
+              13.13,
+              13.32
+            ],
+            [
+              18.61,
+              18.86
+            ],
+            [
+              21.7,
+              22.0
+            ]
+          ],
+          "waveform_bars_64": [
+            0.223,
+            0.747,
+            0.11,
+            0.497,
+            0.236,
+            0.313,
+            0.18,
+            0.18,
+            0.301,
+            0.486,
+            0.683,
+            0.784,
+            0.536,
+            0.293,
+            0.353,
+            0.18,
+            0.235,
+            0.11,
+            0.421,
+            0.726,
+            0.733,
+            0.532,
+            0.387,
+            0.425,
+            0.1,
+            0.18,
+            0.276,
+            0.229,
+            0.504,
+            0.788,
+            0.783,
+            0.497,
+            0.401,
+            0.344,
+            0.193,
+            0.18,
+            0.18,
+            0.541,
+            0.12,
+            0.575,
+            0.592,
+            0.5,
+            0.413,
+            0.341,
+            0.18,
+            0.18,
+            0.39,
+            0.469,
+            0.69,
+            0.553,
+            0.628,
+            0.639,
+            0.389,
+            0.18,
+            0.11,
+            0.264,
+            0.277,
+            0.444,
+            0.74,
+            0.591,
+            0.617,
+            0.605,
+            0.38,
+            0.1
+          ],
+          "sha256_audio_fingerprint": "83be69141c751f73089d152f"
+        }
+      }
+    }
+  ]
+};
+    let activeLeadIndex = 0;
+    let playInterval = null;
+    let currentBarIndex = 0;
+
+    function formatScriptHtml(rawScript, locks) {
+      let html = rawScript
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+      html = html.replace(/(\[(?:pause|breath_in|micro_hesitation)[^\]]*\])/g, '<span class="tag-pill">$1</span>');
+      locks.forEach(lock => {
+        const escaped = lock.token.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const re = new RegExp(escaped, 'g');
+        html = html.replace(re, `<span class="phonetic-pill" title="TTS: ${lock.tts_respelling} | IPA: ${lock.ipa}">${lock.token}</span>`);
+      });
+      return html;
+    }
+
+    function renderLeadList() {
+      const container = document.getElementById('leadListContainer');
+      container.innerHTML = '';
+      MANIFEST.ranked_prospects.forEach((lead, idx) => {
+        const card = document.createElement('div');
+        card.className = 'lead-card' + (idx === activeLeadIndex ? ' active' : '');
+        card.onclick = () => selectLead(idx);
+        card.innerHTML = `
+          <div class="lead-top">
+            <div>
+              <div class="lead-name">#${idx + 1} · ${lead.full_name}</div>
+              <div class="lead-role">${lead.role} @ <b>${lead.company}</b></div>
+            </div>
+            <span class="badge ${lead.composite_lead_score >= 88 ? 'emerald' : 'amber'}">${lead.composite_lead_score} pts</span>
+          </div>
+          <div class="lead-quote">"${lead.engagement_text}"</div>
+          <div class="lead-meta">
+            <span>⚡ ${lead.engagement_type.toUpperCase()} (${lead.engaged_minutes_ago}m ago)</span>
+            <span>✉ ${lead.verified_email} (${lead.email_confidence_pct}%)</span>
+            <span>🎙 ${lead.voice_note.opus_metadata.duration_sec.toFixed(1)}s Opus</span>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function selectLead(idx) {
+      stopPlayback();
+      activeLeadIndex = idx;
+      renderLeadList();
+      const lead = MANIFEST.ranked_prospects[idx];
+      const vn = lead.voice_note;
+      const opus = vn.opus_metadata;
+      const detail = document.getElementById('detailPanel');
+
+      const barsHtml = opus.waveform_bars_64.map((amp, bIdx) => {
+        const h = Math.max(12, Math.round(amp * 46));
+        const isValley = amp < 0.15;
+        return `<div class="w-bar ${isValley ? 'pause-valley' : ''}" id="wbar-${bIdx}" style="height:${h}px" title="Bar ${bIdx+1}: ${amp}"></div>`;
+      }).join('');
+
+      const locksRows = vn.phonetic_locks_applied.map(l => `
+        <tr>
+          <td><b>${l.token}</b></td>
+          <td><span class="phonetic-pill">${l.tts_respelling}</span></td>
+          <td><code>/${l.ipa}/</code></td>
+          <td style="color:var(--muted)">${l.common_ai_error}</td>
+        </tr>
+      `).join('');
+
+      detail.innerHTML = `
+        <h2>
+          <span>Outreach Sequence Inspector — ${lead.full_name} (${lead.company})</span>
+          <span class="badge emerald">${lead.priority_tier}</span>
+        </h2>
+
+        <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:10px; margin-bottom:16px;">
+          <div class="kpi-card" style="padding:10px 12px;">
+            <div class="kpi-label">Verified Email</div>
+            <div style="font-size:13px;font-weight:600;margin-top:4px;">${lead.verified_email}</div>
+          </div>
+          <div class="kpi-card" style="padding:10px 12px;">
+            <div class="kpi-label">Source Signal</div>
+            <div style="font-size:13px;font-weight:600;margin-top:4px;">${lead.source_platform} · ${lead.engaged_minutes_ago}m ago</div>
+          </div>
+          <div class="kpi-card" style="padding:10px 12px;">
+            <div class="kpi-label">Anti-Cringe Score</div>
+            <div style="font-size:13px;font-weight:600;color:var(--emerald);margin-top:4px;">${lead.public_reply_lint.cringe_free_score}/100 (PASS)</div>
+          </div>
+          <div class="kpi-card" style="padding:10px 12px;">
+            <div class="kpi-label">Audio Spec</div>
+            <div style="font-size:13px;font-weight:600;margin-top:4px;">.ogg Opus 48kHz (${Math.round(opus.estimated_file_size_bytes/1024)} KB)</div>
+          </div>
+        </div>
+
+        <h3 style="font-size:14px; color:var(--cyan); margin-bottom:6px;">Step 1 — Value-First Public Thread Reply (Unfair.so Pattern · Zero Pitch-Slap)</h3>
+        <div class="script-box" style="margin-bottom:16px;">${lead.public_reply_draft}</div>
+
+        <h3 style="font-size:14px; color:var(--cyan); margin-bottom:6px;">Step 2 — 22-Second Personalized LinkedIn Voice-Note DM (PROSP.ai Pattern)</h3>
+        <div class="voicenote-bubble">
+          <div class="vn-controls">
+            <button class="play-btn" id="playBtn" onclick="togglePlayback()">▶</button>
+            <div class="waveform-bars">${barsHtml}</div>
+            <div style="text-align:right; min-width:78px;">
+              <div id="timerDisplay" style="font-weight:700; font-size:14px;">0:00 / 0:22</div>
+              <div style="font-size:11px; color:var(--muted);">${vn.pacing_wpm} WPM</div>
+            </div>
+          </div>
+          <div style="margin-top:10px; font-size:12px; color:var(--muted); display:flex; justify-content:space-between;">
+            <span>Codec: <b>${opus.codec.toUpperCase()} (${opus.container})</b> · Integrated Loudness: <b>${opus.lufs_integrated} LUFS</b></span>
+            <span>Spoken Words: <b>${vn.spoken_word_count}</b> · Breath/Pauses: <b>${vn.total_pause_duration_sec}s</b></span>
+          </div>
+        </div>
+
+        <div style="font-size:12.5px; color:var(--muted); margin-top:8px;"><b>Spoken Script with Breath/Pause Tags & German Phonetic Locks:</b></div>
+        <div class="script-box">${formatScriptHtml(vn.raw_script_with_tags, vn.phonetic_locks_applied)}</div>
+
+        <div style="font-size:12.5px; color:var(--muted); margin-top:12px;"><b>Companion Stacked Text DM Teaser:</b></div>
+        <div class="script-box" style="border-left: 3px solid var(--accent);">${vn.companion_text_teaser}</div>
+
+        <h3 style="font-size:14px; color:var(--emerald); margin-top:18px; margin-bottom:6px;">Step 3 — German Phonetic Pronunciation Lock Matrix (${vn.phonetic_locks_applied.length} Active Locks)</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Original Token</th>
+              <th>TTS Respelling Lock</th>
+              <th>IPA Phonetics</th>
+              <th>Prevented English-TTS Hallucination</th>
+            </tr>
+          </thead>
+          <tbody>${locksRows}</tbody>
+        </table>
+      `;
+    }
+
+    function stopPlayback() {
+      if (playInterval) {
+        clearInterval(playInterval);
+        playInterval = null;
+      }
+      currentBarIndex = 0;
+      const btn = document.getElementById('playBtn');
+      if (btn) btn.textContent = '▶';
+    }
+
+    function togglePlayback() {
+      const lead = MANIFEST.ranked_prospects[activeLeadIndex];
+      const bars = lead.voice_note.opus_metadata.waveform_bars_64;
+      const btn = document.getElementById('playBtn');
+      const timer = document.getElementById('timerDisplay');
+
+      if (playInterval) {
+        stopPlayback();
+        return;
+      }
+
+      btn.textContent = '⏸';
+      currentBarIndex = 0;
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      const ctx = AudioCtx ? new AudioCtx() : null;
+
+      playInterval = setInterval(() => {
+        if (currentBarIndex >= 64) {
+          stopPlayback();
+          return;
+        }
+        const barEl = document.getElementById('wbar-' + currentBarIndex);
+        if (barEl) barEl.classList.add('played');
+
+        const amp = bars[currentBarIndex];
+        if (ctx && amp > 0.16) {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.value = 135 + (amp * 95);
+          gain.gain.value = amp * 0.04;
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start();
+          osc.stop(ctx.currentTime + 0.08);
+        }
+
+        const elapsedSec = Math.round(((currentBarIndex + 1) / 64) * 22);
+        if (timer) {
+          timer.textContent = `0:${elapsedSec.toString().padStart(2, '0')} / 0:22`;
+        }
+        currentBarIndex++;
+      }, 110);
+    }
+
+    function exportLeadsCsv() {
+      const headers = ['prospect_id','full_name','role','company','verified_email','linkedin_url','engagement_type','composite_lead_score','priority_tier','voicenote_duration_sec'];
+      const rows = MANIFEST.ranked_prospects.map(p => [
+        p.prospect_id,
+        `"${p.full_name}"`,
+        `"${p.role}"`,
+        `"${p.company}"`,
+        p.verified_email,
+        p.linkedin_url,
+        p.engagement_type,
+        p.composite_lead_score,
+        p.priority_tier,
+        p.voice_note.opus_metadata.duration_sec
+      ].join(','));
+      const csv = [headers.join(','), ...rows].join('\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'warm_engager_voicenote_leads.csv';
+      a.click();
+    }
+
+    function copyCurrentPayload() {
+      const lead = MANIFEST.ranked_prospects[activeLeadIndex];
+      navigator.clipboard.writeText(JSON.stringify(lead, null, 2));
+      alert('Copied enriched prospect & 22s voice-note payload for ' + lead.full_name);
+    }
+
+    renderLeadList();
+    selectLead(0);
+  </script>
+</body>
+</html>

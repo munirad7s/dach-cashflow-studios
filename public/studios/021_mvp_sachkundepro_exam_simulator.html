@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SachkundePro DACH — IHK & FLL Prüfungssimulator (95% Margin Model)</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --surface: #1e293b;
+      --surface-2: #334155;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --accent: #f97316;
+      --accent-hover: #ea580c;
+      --green: #22c55e;
+      --red: #ef4444;
+      --blue: #38bdf8;
+      --border: #475569;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding-bottom: 4rem;
+    }
+    header {
+      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 1.5rem 2rem;
+    }
+    .container { max-width: 1180px; margin: 0 auto; padding: 0 1.25rem; }
+    .badge {
+      display: inline-block;
+      background: rgba(249, 115, 22, 0.15);
+      color: var(--accent);
+      border: 1px solid rgba(249, 115, 22, 0.4);
+      padding: 0.25rem 0.75rem;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    h1 { font-size: 1.85rem; margin-top: 0.5rem; font-weight: 800; }
+    .subtitle { color: var(--muted); font-size: 0.98rem; margin-top: 0.25rem; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-top: 1.5rem; }
+    .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; margin-top: 1.25rem; }
+    @media (max-width: 820px) { .grid-2 { grid-template-columns: 1fr; } }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem;
+    }
+    .card h2 { font-size: 1.15rem; margin-bottom: 0.75rem; color: #fff; display: flex; align-items: center; justify-content: space-between; }
+    .stat-val { font-size: 1.6rem; font-weight: 800; color: var(--accent); }
+    .stat-lbl { font-size: 0.82rem; color: var(--muted); }
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-top: 1.25rem;
+      align-items: center;
+      background: var(--surface);
+      padding: 1rem;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+    select, button, textarea {
+      font-family: inherit;
+      font-size: 0.92rem;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--surface-2);
+      color: var(--text);
+      padding: 0.55rem 0.9rem;
+    }
+    button {
+      cursor: pointer;
+      font-weight: 600;
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+      transition: background 0.15s;
+    }
+    button:hover { background: var(--accent-hover); }
+    button.secondary {
+      background: var(--surface-2);
+      border-color: var(--border);
+    }
+    .option-btn {
+      display: block;
+      width: 100%;
+      text-align: left;
+      margin-bottom: 0.6rem;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      color: var(--text);
+      font-weight: 500;
+    }
+    .option-btn.correct { background: rgba(34, 197, 94, 0.2); border-color: var(--green); }
+    .option-btn.wrong { background: rgba(239, 68, 68, 0.2); border-color: var(--red); }
+    .bilingual-box {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-top: 1rem;
+      padding: 1rem;
+      border-radius: 10px;
+      background: rgba(15, 23, 42, 0.75);
+      border: 1px solid var(--blue);
+    }
+    @media (max-width: 700px) { .bilingual-box { grid-template-columns: 1fr; } }
+    .lang-pane { padding: 0.5rem; }
+    .lang-pane h4 { font-size: 0.82rem; text-transform: uppercase; color: var(--blue); margin-bottom: 0.4rem; }
+    .rtl { direction: rtl; text-align: right; }
+    .progress-bar {
+      width: 100%;
+      height: 10px;
+      background: var(--surface-2);
+      border-radius: 999px;
+      overflow: hidden;
+      margin-top: 0.4rem;
+    }
+    .progress-fill { height: 100%; background: var(--green); transition: width 0.3s; }
+    table { width: 100%; border-collapse: collapse; margin-top: 0.75rem; font-size: 0.88rem; }
+    th, td { padding: 0.6rem 0.5rem; border-bottom: 1px solid var(--border); text-align: left; }
+    th { color: var(--muted); font-weight: 600; }
+    .pill-pass { color: var(--green); font-weight: 700; }
+    .pill-fail { color: var(--red); font-weight: 700; }
+  </style>
+</head>
+<body>
+
+<!-- DACH CASHFLOW STUDIOS LAUNCH BAR -->
+<style>
+  #dcs-launch-bar {
+    position: sticky;
+    top: 0;
+    z-index: 99999;
+    background: linear-gradient(90deg, #0b1120 0%, #111827 50%, #0f172a 100%);
+    color: #f8fafc;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.35);
+    padding: 8px 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  }
+  #dcs-launch-bar .dcs-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+  }
+  #dcs-launch-bar .dcs-badge {
+    background: rgba(16, 185, 129, 0.18);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.03em;
+  }
+  #dcs-launch-bar a.dcs-nav {
+    color: #93c5fd;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 12.5px;
+  }
+  #dcs-launch-bar a.dcs-nav:hover {
+    text-decoration: underline;
+    color: #dbeafe;
+  }
+  #dcs-launch-bar .dcs-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  #dcs-launch-bar .dcs-btn {
+    padding: 5px 11px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s ease;
+  }
+  #dcs-launch-bar .dcs-btn-ghost {
+    background: rgba(255,255,255,0.08);
+    color: #e2e8f0;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  #dcs-launch-bar .dcs-btn-primary {
+    background: linear-gradient(135deg, #0ea5e9, #2563eb);
+    color: #ffffff;
+  }
+  #dcs-launch-bar .dcs-btn-emerald {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
+  }
+  @media print {
+    #dcs-launch-bar { display: none !important; }
+  }
+</style>
+<div id="dcs-launch-bar">
+  <div class="dcs-left">
+    <a href="/index.html" class="dcs-nav">← Alle 150 DACH Studios</a>
+    <span class="dcs-badge">MVP #021 VERIFIED</span>
+    <span style="color:#cbd5e1;font-size:12px;">B2B SaaS, Lead-Intent Sniper & AI/MCP Infrastructure</span>
+  </div>
+  <div class="dcs-actions">
+    <button onclick="window.print()" class="dcs-btn dcs-btn-ghost">🖨️ PDF / Dossier drucken</button>
+    <a href="#checkout-modal-49" target="_blank" rel="noopener" class="dcs-btn dcs-btn-primary">⚡ Musterschreiben & Voll-Dossier (€49)</a>
+    <a href="#checkout-modal-299" target="_blank" rel="noopener" class="dcs-btn dcs-btn-emerald">🛡️ B2B Umsetzung buchen (€299 / €1.490)</a>
+  </div>
+</div>
+
+  <header>
+    <div class="container">
+      <span class="badge">MVP #21 • Tree Nerd Academy DACH Clone • 95% Profit Margin</span>
+      <h1>SachkundePro™ — Pflichtprüfungs-Simulator & Bilingualer Rechts-Decoder</h1>
+      <p class="subtitle">
+        IHK § 34a GewO • FLL-Zertifizierter Baumkontrolleur • IHK Verkehrsleiter (PBefG/GüKG) • IHK AEVO — Inklusive 100% Bestehens-Garantie-Tracker
+      </p>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="controls">
+      <div>
+        <label for="examSelect" style="font-size:0.82rem;color:var(--muted);display:block;">Prüfungs-Track wählen:</label>
+        <select id="examSelect" onchange="switchExam(this.value)">
+          <option value="ihk_34a_gewo">IHK § 34a GewO (Bewachungsgewerbe)</option>
+          <option value="fll_baumkontrolleur">FLL-Zertifizierter Baumkontrolleur</option>
+          <option value="ihk_pbefg_guekg">IHK Fachkunde Taxi/Mietwagen & Güterkraftverkehr</option>
+          <option value="ihk_aevo">IHK Ausbildereignungsprüfung (AEVO)</option>
+        </select>
+      </div>
+      <div>
+        <label for="langSelect" style="font-size:0.82rem;color:var(--muted);display:block;">Zweitsprache (Side-by-Side Erklärung):</label>
+        <select id="langSelect" onchange="renderCurrentQuestion()">
+          <option value="tr">Türkisch (Türkçe) — Amtsdeutsch-Brücke</option>
+          <option value="ar">Arabisch (العربية) — Amtsdeutsch-Brücke</option>
+          <option value="en">Englisch (English) — Fachbegriffe</option>
+        </select>
+      </div>
+      <div style="margin-left:auto;">
+        <span id="priceBadge" class="badge" style="font-size:0.85rem;">Einmalpreis: 59 € / 149 € / 199 €</span>
+      </div>
+    </div>
+
+    <div class="grid-4" id="examMetaCards"></div>
+
+    <div class="grid-2">
+      <div class="card">
+        <h2>
+          <span>1. Interaktiver Prüfungs-Simulator (Original IHK/FLL-Stil)</span>
+          <span id="qCounter" style="font-size:0.82rem;color:var(--muted);">Frage 1</span>
+        </h2>
+        <div id="questionArea"></div>
+        <div style="display:flex;gap:0.6rem;margin-top:1rem;">
+          <button class="secondary" onclick="prevQuestion()">← Zurück</button>
+          <button onclick="nextQuestion()">Nächste Frage →</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>
+          <span>2. Mündliches Prüfungsgespräch / Baumkontrolle (Live-Grader)</span>
+          <span class="badge">Praxis-Hürde</span>
+        </h2>
+        <p id="oralPrompt" style="font-size:0.9rem;color:#e2e8f0;background:var(--surface-2);padding:0.75rem;border-radius:8px;margin-bottom:0.75rem;"></p>
+        <textarea id="oralInput" rows="4" style="width:100%;margin-bottom:0.6rem;" placeholder="Tippe deine mündliche Antwort an den Prüfungsausschuss hier ein..."></textarea>
+        <div style="display:flex;gap:0.6rem;">
+          <button onclick="gradeOralLive()">Antwort bewerten (Rubrik-Check)</button>
+          <button class="secondary" onclick="fillSampleOral()">Musterantwort laden</button>
+        </div>
+        <div id="oralResult" style="margin-top:0.85rem;"></div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <h2><span>3. Offizielle Prüfungsgewichtung & Diagnose-Matrix</span></h2>
+        <table id="domainTable">
+          <thead>
+            <tr>
+              <th>Sachgebiet / Handlungsfeld</th>
+              <th>Gewichtung</th>
+              <th>Mündlich-Fokus</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <h2>
+          <span>4. 100% Bestehens-oder-Geld-zurück-Garantie Tracker</span>
+          <span class="badge" id="guaranteeStatusBadge">AKTIV</span>
+        </h2>
+        <p style="font-size:0.86rem;color:var(--muted);margin-bottom:0.8rem;">
+          Wie bei Tree Nerd Academy ($31k/Mo, 95% Marge): Wer mindestens 90% der Lektionen & Lernkarten abschließt, erhält bei Nichtbestehen der Erstprüfung 100% Rückerstattung.
+        </p>
+        <div id="guaranteeTrackerBox"></div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const CATALOG = {"ihk_34a_gewo": {"exam_id": "ihk_34a_gewo", "title": "IHK-Sachkundeprüfung § 34a GewO (Bewachungsgewerbe)", "authority": "DIHK / Regionale IHKs (gem. § 34a GewO & BewachV)", "official_fee_eur": "150 € – 220 € (je nach IHK, Wiederholung kostenpflichtig)", "written_structure": "82 Multiple-Choice-Fragen, 120 Minuten, max. 120 Punkte (50% = 60 Punkte zum Bestehen)", "oral_structure": "15–20 Minuten persönliches Prüfungsgespräch vor IHK-Prüfungsausschuss (Fokus: Recht der öff. Sicherheit, Strafrecht, Umgang mit Menschen)", "fail_rate_pct": "45% – 55% (ohne muttersprachliche Rechtserklärung & mündliches Simulationstraining)", "pricing_tiers_eur": {"basic_30d": 59, "pro_lifetime": 149, "guarantee_bundle": 199}, "pass_threshold_pct": 50.0, "domains": [{"id": "pub_sec", "name": "1. Recht der öffentlichen Sicherheit und Ordnung", "weight_pct": 15.0, "max_pts": 18, "oral_focus": true}, {"id": "gewo_law", "name": "2. Gewerberecht (§ 34a GewO & BewachV)", "weight_pct": 10.0, "max_pts": 12, "oral_focus": false}, {"id": "dsgvo", "name": "3. Datenschutzrecht (DSGVO / BDSG)", "weight_pct": 8.0, "max_pts": 10, "oral_focus": false}, {"id": "bgb", "name": "4. Bürgerliches Gesetzbuch (BGB §§ 227, 229, 859)", "weight_pct": 15.0, "max_pts": 18, "oral_focus": true}, {"id": "stgb_stpo", "name": "5. Straf- und Strafverfahrensrecht (StGB / § 127 StPO)", "weight_pct": 20.0, "max_pts": 24, "oral_focus": true}, {"id": "weapons", "name": "6. Umgang mit Waffen (WaffG)", "weight_pct": 7.0, "max_pts": 8, "oral_focus": false}, {"id": "uvv", "name": "7. Unfallverhütungsvorschriften (DGUV Vorschrift 23)", "weight_pct": 7.0, "max_pts": 8, "oral_focus": false}, {"id": "deescalation", "name": "8. Umgang mit Menschen & Deeskalation", "weight_pct": 10.0, "max_pts": 12, "oral_focus": true}, {"id": "sec_tech", "name": "9. Grundzüge der Sicherheitstechnik", "weight_pct": 8.0, "max_pts": 10, "oral_focus": false}]}, "fll_baumkontrolleur": {"exam_id": "fll_baumkontrolleur", "title": "FLL-Zertifizierter Baumkontrolleur (Regelkontrolle & Verkehrssicherheit)", "authority": "Forschungsgesellschaft Landschaftsentwicklung Landschaftsbau e.V. (FLL)", "official_fee_eur": "250 € – 320 € Prüfungsgebühr (Komplettlehrgang inkl. Prüfung: 950 € – 1.250 €)", "written_structure": "50 zentrale FLL-Fragen (Multiple-Choice & Kurzantworten), 60 Minuten (mind. 60% zum Bestehen)", "oral_structure": "45–60 Minuten praktisch-mündliche Prüfung am Baum im Gelände (Regelkontrolle, Schadsymptome, Pilze, Handlungsbedarf nach FLL/ZTV-Baumpflege)", "fail_rate_pct": "10% – 18% (Hauptfehlerquelle: Pilzansprache & VTA-Defektsymptome am echten Baum in der Praxisprüfung)", "pricing_tiers_eur": {"basic_30d": 69, "pro_lifetime": 199, "guarantee_bundle": 229}, "pass_threshold_pct": 60.0, "domains": [{"id": "recht_vsp", "name": "1. Rechtliche Grundlagen (Verkehrssicherungspflicht § 823 BGB & Artenschutz BNatSchG)", "weight_pct": 18.0, "max_pts": 18, "oral_focus": true}, {"id": "baumbio", "name": "2. Baumbiologie, CODIT-Prinzip & Baumartenkenntnis", "weight_pct": 16.0, "max_pts": 16, "oral_focus": false}, {"id": "pilze_path", "name": "3. Holzzersetzende Pilze (Weiß-, Braun-, Moderfäule) & Pathologie", "weight_pct": 24.0, "max_pts": 24, "oral_focus": true}, {"id": "vta_statik", "name": "4. Baumstatik, Defektsymptome & VTA (Visual Tree Assessment)", "weight_pct": 22.0, "max_pts": 22, "oral_focus": true}, {"id": "fll_ablauf", "name": "5. FLL-Baumkontrollrichtlinien (Regelkontrolle, Intervalle, Entwicklungsphasen)", "weight_pct": 12.0, "max_pts": 12, "oral_focus": true}, {"id": "ztv_pflege", "name": "6. ZTV-Baumpflege & Maßnahmenfestlegung", "weight_pct": 8.0, "max_pts": 8, "oral_focus": true}]}, "ihk_pbefg_guekg": {"exam_id": "ihk_pbefg_guekg", "title": "IHK-Fachkundeprüfung Taxi-/Mietwagenverkehr (PBefG) & Güterkraftverkehr (EU 1071/2009)", "authority": "Regionale IHKs (DIHK-Orientierungsrahmen Verkehrsleiter)", "official_fee_eur": "190 € – 350 € (je nach IHK-Gebührenordnung)", "written_structure": "2 schriftliche Teile (je 120 Min., gesamt 240 Min.): Teil 1 Wissens-/MC-Fragen, Teil 2 Fallstudien & Fahrzeugkostenrechnung", "oral_structure": "Bis zu 30 Minuten mündliche Ergänzungsprüfung (falls Gesamtergebnis mind. 50% in beiden Teilen, insgesamt mind. 60% erforderlich)", "fail_rate_pct": "55% – 65% (Hauptkiller: Fahrzeugkostenrechnung / Kalkulation & kaufmännische Sperrklausel)", "pricing_tiers_eur": {"basic_30d": 69, "pro_lifetime": 189, "guarantee_bundle": 229}, "pass_threshold_pct": 60.0, "domains": [{"id": "fahrzeug_kalk", "name": "1. Fahrzeugkostenrechnung & Tarifkalkulation (Fix-/Variabelkosten, Break-Even)", "weight_pct": 30.0, "max_pts": 30, "oral_focus": true}, {"id": "pbefg_bokraft", "name": "2. Personenbeförderungsrecht (PBefG, BOKraft) & Güterkraftverkehrsrecht (GüKG)", "weight_pct": 22.0, "max_pts": 22, "oral_focus": true}, {"id": "kaufm_finanz", "name": "3. Kaufmännische & finanzielle Führung des Betriebs (BWL, Steuern, Buchführung)", "weight_pct": 20.0, "max_pts": 20, "oral_focus": false}, {"id": "sozial_lenk", "name": "4. Arbeits- und Sozialvorschriften (Lenk- und Ruhezeiten VO (EG) 561/2006, FPersV)", "weight_pct": 16.0, "max_pts": 16, "oral_focus": true}, {"id": "tech_sicherheit", "name": "5. Technische Normen, Ladungssicherung & Straßenverkehrssicherheit", "weight_pct": 12.0, "max_pts": 12, "oral_focus": false}]}, "ihk_aevo": {"exam_id": "ihk_aevo", "title": "IHK-Ausbildereignungsprüfung (AEVO / AdA-Schein)", "authority": "Regionale IHKs / HWKs (gem. Ausbilder-Eignungsverordnung)", "official_fee_eur": "180 € – 290 € IHK-Prüfungsgebühr", "written_structure": "ca. 70–80 fallbezogene Multiple-Choice-Aufgaben (oft Alles-oder-Nichts-Prinzip), 180 Minuten, mind. 50% zum Bestehen", "oral_structure": "15 Minuten praktische Durchführung/Präsentation einer Ausbildungssituation + 15 Minuten Fachgespräch", "fail_rate_pct": "12% – 18% (Hauptfehlerquelle: Multiple-Choice Teilpunkte-Falle im BBiG/JArbSchG & Unterweisungskonzept)", "pricing_tiers_eur": {"basic_30d": 49, "pro_lifetime": 129, "guarantee_bundle": 169}, "pass_threshold_pct": 50.0, "domains": [{"id": "hf1", "name": "Handlungsfeld 1: Ausbildungsvoraussetzungen prüfen und Ausbildung planen", "weight_pct": 20.0, "max_pts": 20, "oral_focus": false}, {"id": "hf2", "name": "Handlungsfeld 2: Ausbildung vorbereiten und bei der Einstellung mitwirken", "weight_pct": 20.0, "max_pts": 20, "oral_focus": true}, {"id": "hf3", "name": "Handlungsfeld 3: Ausbildung durchführen (4-Stufen-Methode, Lehrgespräch, JArbSchG)", "weight_pct": 45.0, "max_pts": 45, "oral_focus": true}, {"id": "hf4", "name": "Handlungsfeld 4: Ausbildung abschließen (Prüfungszulassung, Zeugnis § 16 BBiG)", "weight_pct": 15.0, "max_pts": 15, "oral_focus": true}]}};
+    const QUESTIONS = [{"id": "34a_q1", "exam_id": "ihk_34a_gewo", "domain_id": "stgb_stpo", "points": 2, "question_de": "Ein Kaufhausdetektiv beobachtet einen Kunden, der eine Parfümflasche (Wert: 85 €) in seine Jackentasche steckt und den Kassenbereich ohne Bezahlung passiert. Der Täter ist unbekannt und will fliehen. Auf welche Rechtsgrundlage stützt sich die vorläufige Festnahme durch den Detektiv?", "options_de": ["A) § 127 Abs. 1 StPO (Jedermannsrecht zur vorläufigen Festnahme bei Betreffen auf frischer Tat)", "B) § 127 Abs. 2 StPO (Vorläufige Festnahme bei Gefahr im Verzug durch Staatsanwaltschaft und Polizei)", "C) § 34 StGB (Rechtfertigender Notstand zum Schutz des Eigentums)", "D) § 859 BGB (Besitzkehr des unmittelbaren Besitzers, die auch die Festnahme zur Identitätsfeststellung erlaubt)"], "correct_index": 0, "jargon_term": "Auf frischer Tat betroffen & Fluchtverdacht (§ 127 Abs. 1 StPO)", "explanations": {"de": "Richtig ist A: Nach § 127 Abs. 1 Satz 1 StPO ist jedermann (auch ein Sicherheitsmitarbeiter) befugt, eine Person ohne richterliche Anordnung vorläufig festzunehmen, wenn sie auf frischer Tat betroffen oder verfolgt wird UND Fluchtverdacht besteht oder ihre Identität nicht sofort festgestellt werden kann. Abs. 2 gilt NUR für Polizei/Staatsanwaltschaft!", "tr": "Doğru cevap A: CMK § 127 Abs. 1 (Jedermannsrecht) uyarınca, suçüstü yakalanan (auf frischer Tat betroffen) bir kişi kaçma şüphesi varsa veya kimliği hemen tespit edilemiyorsa herkes tarafından geçici olarak yakalanabilir (vorläufige Festnahme). Abs. 2 sadece polis ve savcılık içindir!", "ar": "الإجابة الصحيحة هي A: وفقاً للمادة § 127 الفقرة 1 من قانون الإجراءات الجنائية (StPO - حق أي مواطن)، يحق لموظف الأمن توقيف الشخص مؤقتاً إذا ضُبط متلبساً بالجريمة (auf frischer Tat) وكان هناك اشتباه في هروبه أو تعذر إثبات هويته فوراً. الفقرة 2 مخصصة للشرطة والنيابة العامة فقط!", "en": "Correct is A: Under § 127 (1) StPO (Citizen's Arrest / Jedermannsrecht), anyone may provisionally detain a suspect caught in the act (auf frischer Tat) if there is flight risk or their identity cannot be immediately established. Paragraph 2 applies strictly to police and prosecutors."}}, {"id": "34a_q2", "exam_id": "ihk_34a_gewo", "domain_id": "bgb", "points": 2, "question_de": "Worin besteht der rechtliche Unterschied zwischen 'Besitzwehr' (§ 859 Abs. 1 BGB) und 'Besitzkehr' (§ 859 Abs. 2 BGB) bei verbotener Eigenmacht?", "options_de": ["A) Besitzwehr ist die Abwehr während des noch andauernden Angriffs auf den Besitz; Besitzkehr ist die sofortige Wiedererlangung unmittelbar nach vollendeter Wegnahme.", "B) Besitzwehr darf nur vom Eigentümer ausgeübt werden, Besitzkehr nur vom Besitzdiener (§ 855 BGB).", "C) Besitzwehr erlaubt den Einsatz von Schusswaffen, Besitzkehr nur körperliche Gewalt.", "D) Besitzkehr gilt nur bei Grundstücken, Besitzwehr nur bei beweglichen Sachen."], "correct_index": 0, "jargon_term": "Verbotene Eigenmacht: Besitzwehr vs. Besitzkehr (§§ 858, 859 BGB)", "explanations": {"de": "Richtig ist A: Solange der Dieb die Sache noch nicht endgültig gesichert hat, wehrt sich der Besitzer/Besitzdiener gegen die laufende Entziehung (Besitzwehr, § 859 Abs. 1 BGB). Ist die Wegnahme gerade erst vollendet und der Täter wird auf frischer Tat verfolgt, darf ihm die Sache sofort wieder abgenommen werden (Besitzkehr, § 859 Abs. 2 BGB).", "tr": "Doğru cevap A: 'Besitzwehr' (§ 859 Abs. 1 BGB) zilyetliğe yönelik saldırı devam ederken yapılan savunmadır. 'Besitzkehr' (§ 859 Abs. 2 BGB) ise eşya çalındıktan hemen sonra, fail suçüstü takip edilerek eşyanın derhal geri alınmasıdır.", "ar": "الإجابة الصحيحة هي A: الدفاع عن الحيازة (Besitzwehr) يكون أثناء استمرار الاعتداء لمنع أخذ الشيء. أما استرداد الحيازة (Besitzkehr) فيكون باستعادة الشيء فوراً بعد انتهاء السرقة مباشرة أثناء ملاحقة السارق متلبساً.", "en": "Correct is A: 'Besitzwehr' (§ 859 I BGB) defends possession while the unlawful interference is still ongoing. 'Besitzkehr' (§ 859 II BGB) is the immediate recovery of a movable item right after it was taken by pursuing the perpetrator caught in the act."}}, {"id": "34a_q3", "exam_id": "ihk_34a_gewo", "domain_id": "gewo_law", "points": 1, "question_de": "Für welche der folgenden Tätigkeiten im Bewachungsgewerbe schreibt § 34a Abs. 1a Satz 2 GewO zwingend das erfolgreiche Ablegen der IHK-Sachkundeprüfung (statt einer bloßen 40-stündigen Unterrichtung) vor?", "options_de": ["A) Kontrollgänge im öffentlichen Verkehrsraum (City-Streife) sowie Einlasskontrollen bei gastgewerblichen Diskotheken (Türsteher)", "B) Reine Empfangs- und Pfortendienste in einem nicht-öffentlichen Bürogebäude ohne Hausrechtsbefugnis", "C) Parkplatzeinweiser auf einem privaten Firmengelände bei Tageslicht", "D) Kartenabreißer im Kino ohne Sicherheits- oder Ordnungsfunktion"], "correct_index": 0, "jargon_term": "Sachkundepflichtige Tätigkeiten (§ 34a Abs. 1a S. 2 GewO)", "explanations": {"de": "Richtig ist A: Zwingend sachkundepflichtig nach § 34a GewO sind: 1. Kontrollgänge im öffentlichen Verkehrsraum / Hausrechtsbereichen mit tatsächlich öffentlichem Verkehr, 2. Schutz vor Ladendieben (Kaufhausdetektiv), 3. Bewachung im Einlassbereich gastgewerblichen Diskotheken, 4. Leitende Funktion bei Flüchtlingsunterkünften oder Großveranstaltungen.", "tr": "Doğru cevap A: § 34a GewO uyarınca kamuya açık alanlarda devriye (City-Streife), mağaza dedektifliği (Ladendetektiv), diskotek kapı güvenliği (Türsteher) ve mülteci/büyük etkinlik yönetiminde IHK Sachkundeprüfung zorunludur.", "ar": "الإجابة الصحيحة هي A: يشترط القانون (§ 34a GewO) اجتياز امتحان الكفاءة (Sachkundeprüfung) إلزامياً للدوريات في الأماكن العامة، محققي المتاجر ضد السرقة، حراس أبواب الملاهي الليلية (Türsteher)، والوظائف القيادية في مراكز اللاجئين والفعاليات الكبرى.", "en": "Correct is A: § 34a GewO strictly mandates the full Sachkundeprüfung for patrols in public spaces (City-Streife), retail loss prevention (store detectives), nightclub bouncers (Türsteher), and supervisory roles at refugee shelters or major events."}}, {"id": "34a_q4", "exam_id": "ihk_34a_gewo", "domain_id": "pub_sec", "points": 2, "question_de": "Welches Prinzip gilt für Sicherheitsmitarbeiter in Deutschland hinsichtlich ihrer rechtlichen Befugnisse gegenüber Bürgern?", "options_de": ["A) Sicherheitsmitarbeiter haben keine hoheitlichen Befugnisse; ihnen stehen nur die Jedermannsrechte (Notwehr, Notstand, vorläufige Festnahme) sowie übertragene Selbsthilferechte des Auftraggebers (z. B. Hausrecht) zu.", "B) Durch das Tragen der Dienstkleidung und den Bewacherausweis erhalten Sicherheitsmitarbeiter Hilfspolizei-Befugnisse zur Personenkontrolle.", "C) Sicherheitsmitarbeiter dürfen bei Verdacht auf Ladendiebstahl jederzeit gegen den Willen des Kunden dessen Kleidung und Körper durchsuchen.", "D) Das Gewaltmonopol des Staates wird im befriedeten Besitztum vollständig auf den Sicherheitsdienst übertragen."], "correct_index": 0, "jargon_term": "Gewaltmonopol des Staates vs. Jedermannsrechte & übertragene Rechte", "explanations": {"de": "Richtig ist A: Das Gewaltmonopol liegt beim Staat (Polizei). Private Sicherheitskräfte haben KEINE Hoheitsrechte. Sie handeln ausschließlich auf Basis der Jedermannsrechte (§ 32 StGB, § 34 StGB, §§ 227, 228, 229 BGB, § 127 Abs. 1 StPO) und der vom Auftraggeber vertraglich übertragenen Rechte (Hausrecht, Besitzdiener § 855 BGB).", "tr": "Doğru cevap A: Devletin güç kullanma tekeli (Gewaltmonopol) polise aittir. Özel güvenlik görevlilerinin resmi/devlet yetkisi (hoheitliche Befugnisse) YOKTUR; sadece herkesin sahip olduğu hakları (Jedermannsrecht) ve müşteriden devralınan bina/mülk hakkını (Hausrecht) kullanabilirler.", "ar": "الإجابة الصحيحة هي A: احتكار القوة (Gewaltmonopol) بيد الدولة (الشرطة) فقط. لا يملك موظف الأمن الخاص أي سلطات حكومية سيادية، بل يتصرف فقط بناءً على حقوق أي مواطن (Jedermannsrechte) وحقوق المالك المفوضة إليه كحق المنزل (Hausrecht).", "en": "Correct is A: The monopoly on force belongs to the state. Private security guards have zero sovereign/police powers; they rely exclusively on citizen's rights (Jedermannsrechte) and property rights delegated by the client (Hausrecht / Besitzdiener)."}}, {"id": "fll_q1", "exam_id": "fll_baumkontrolleur", "domain_id": "pilze_path", "points": 2, "question_de": "Bei der Regelkontrolle einer älteren Buche (Fagus sylvatica) entdecken Sie am Stammfuß zwischen den Wurzelanläufen mehrjährige, flache, krustenförmige Fruchtkörper, die im Sommer grau-rötlich und im Herbst kohlig-schwarz und spröde erscheinen. Um welchen Pilz handelt es sich und welche Versagensart ist typisch?", "options_de": ["A) Brandkrustenpilz (Kretzschmaria deusta) – verursacht Moderfäule (und selektive Weißfäule) mit hoher Gefahr eines spröden, ankündigungslosen Keramikbruchs", "B) Schwefelporling (Laetiporus sulphureus) – verursacht reine Splintholzfäule ohne Auswirkung auf die Standsicherheit", "C) Echter Zunderschwamm (Fomes fomentarius) – verursacht Braunfäule ausschließlich im Feinwurzelbereich", "D) Birkenporling (Fomitopsis betulina) – harmloser Saprobiont an abgestorbenen Rindenschuppen"], "correct_index": 0, "jargon_term": "Brandkrustenpilz (Kretzschmaria deusta) & Sprödbruch / Keramikbruch", "explanations": {"de": "Richtig ist A: Kretzschmaria deusta (Brandkrustenpilz) ist einer der gefährlichsten Holzzersetzer an Buche, Linde und Ahorn. Er baut Zellulose und Lignin (Moderfäule-Typ) ab, sodass das Holz wie Keramik spröde bricht – oft ohne äußerlich erkennbare Kompensationsholzbildung (Sprödbruch ohne Vorankündigung!).", "tr": "Doğru cevap A: Kretzschmaria deusta (Brandkrustenpilz), kayın ve ıhlamur ağaçlarında en tehlikeli mantarlardan biridir. Odunu gevrek hale getirir (Moderfäule) ve dışarıdan uyarı vermeden ani kırılmaya (Sprödbruch / Keramikbruch) yol açar.", "ar": "الإجابة الصحيحة هي A: فطر القشرة المحترقة (Kretzschmaria deusta) هو من أخطر الفطريات المحللة للخشب في أشجار الزان والزيزفون، حيث يسبب تعفناً يجعل الخشب ينكسر فجأة وبشكل هش كالسيراميك (Sprödbruch) دون علامات تحذيرية خارجية.", "en": "Correct is A: Kretzschmaria deusta (Brittle Cinder fungus) causes soft rot (Moderfäule) in beech, lime, and maple. Because it degrades cellulose inside the cell wall rapidly, it leads to sudden, unannounced brittle fracture (Keramikbruch) with minimal external reaction wood."}}, {"id": "fll_q2", "exam_id": "fll_baumkontrolleur", "domain_id": "recht_vsp", "points": 2, "question_de": "Wie definiert die FLL-Baumkontrollrichtlinie den Umfang einer 'Regelkontrolle' im Hinblick auf die Verkehrssicherungspflicht (§ 823 BGB)?", "options_de": ["A) Eine visuelle Kontrolle vom Boden aus ohne technische Hilfsmittel (Sichtkontrolle auf verdächtige Umstände / Defektsymptome) in angemessenen Zeitabständen", "B) Eine zwingende Bohrwiderstandsmessung (Resistograph) und Schalltomographie an jedem Straßenbaum im 6-Monats-Rhythmus", "C) Eine Kontrolle ausschließlich mittels Hubarbeitsbühne oder Seilklettertechnik (SKT) in der äußeren Peripherie", "D) Eine rein digitale Auswertung von Satelliten-Luftbildern ohne Begehung vor Ort"], "correct_index": 0, "jargon_term": "Regelkontrolle (Sichtkontrolle vom Boden) vs. Eingehende Untersuchung", "explanations": {"de": "Richtig ist A: Nach gefestigter BGH-Rechtsprechung und FLL-Richtlinie genügt für die Regelkontrolle eine fachkundige, äußere Gesundheits- und Zustandskontrolle vom Boden aus (Sichtkontrolle). Erst wenn verdächtige Umstände (Defektsymptome, Pilzfruchtkörper, Höhlungen) vorliegen, die vom Boden nicht abschließend beurteilt werden können, ist eine eingehende Untersuchung veranlasst.", "tr": "Doğru cevap A: FLL yönergesine ve Federal Mahkeme (BGH) içtihadına göre 'Regelkontrolle', yerden yapılan uzman gözle kontrolüdür (Sichtkontrolle vom Boden). Sadece şüpheli belirtiler varsa detaylı teknik inceleme (eingehende Untersuchung) gerekir.", "ar": "الإجابة الصحيحة هي A: وفقاً لتوجيهات FLL، فإن الفحص الدوري (Regelkontrolle) هو فحص بصري متخصص من مستوى الأرض دون أجهزة تقنية معقدة. ولا يلزم إجراء فحص معمق (Eingehende Untersuchung) إلا عند ظهور أعراض خلل أو فطريات مثيرة للشك.", "en": "Correct is A: Under German Supreme Court (BGH) case law and FLL guidelines, a routine inspection (Regelkontrolle) is a visual inspection from the ground. An in-depth investigation (eingehende Untersuchung) is only triggered when suspicious defect symptoms cannot be conclusively assessed visually."}}, {"id": "fll_q3", "exam_id": "fll_baumkontrolleur", "domain_id": "fll_ablauf", "points": 2, "question_de": "Welche zwei Hauptkriterien bestimmen nach dem FLL-Matrix-Schema maßgeblich das Regelkontrollintervall eines Baumes?", "options_de": ["A) Die Entwicklungsphase des Baumes (Jugend-, Reife-, Alterungsphase) UND die berechtigte Sicherheitserwartung des Verkehrs kombiniert mit dem Zustand des Baumes", "B) Ausschließlich der Stammdurchmesser in 1,30 m Höhe (BHD) und die Baumhöhe", "C) Das Pflanzjahr und der Kaufpreis der Baumschule", "D) Die Himmelsrichtung des Standorts und die Laubfarbe im Herbst"], "correct_index": 0, "jargon_term": "FLL-Kontrollintervall-Matrix (Entwicklungsphase × Sicherheitserwartung × Baumzustand)", "explanations": {"de": "Richtig ist A: Die FLL-Baumkontrollrichtlinie legt das Kontrollintervall (z. B. 1 bis 3 Jahre) anhand einer Matrix fest, die aus (1) der Entwicklungsphase (Jugend-, Reife-, Alterungsphase), (2) dem Zustand des Baumes (gesund bis stark geschädigt) und (3) der berechtigten Sicherheitserwartung des Verkehrs (höher, mittel, geringer) besteht.", "tr": "Doğru cevap A: FLL kontrol aralığı matrisi üç faktöre dayanır: 1. Ağacın gelişim evresi (Gençlik, Olgunluk, Yaşlanma), 2. Ağacın sağlık/hasar durumu, 3. Trafik güvenlik beklentisi (Sicherheitserwartung).", "ar": "الإجابة الصحيحة هي A: تحدد مصفوفة FLL الفترة الزمنية بين الفحوصات بناءً على: 1. مرحلة نمو الشجرة (الشباب، النضج، الشيخوخة)، 2. الحالة الصحية للشجرة، 3. مستوى توقعات السلامة المرورية في الموقع.", "en": "Correct is A: The FLL inspection interval matrix combines (1) the tree's developmental stage (juvenile, mature, senescent), (2) tree condition/damage level, and (3) legitimate traffic safety expectation at the site."}}, {"id": "pbefg_q1", "exam_id": "ihk_pbefg_guekg", "domain_id": "fahrzeug_kalk", "points": 3, "question_de": "Ein Mietwagenunternehmer kalkuliert für ein Fahrzeug: Jährliche Fixkosten = 24.000 €, variable Kosten = 0,45 € pro km, durchschnittlicher Erlös pro Besetzt-km = 1,65 € (bei 100% Besetzt-km-Kalkulation). Wie hoch ist die jährliche Gewinnschwelle (Break-Even-Fahrleistung in km)?", "options_de": ["A) 20.000 km pro Jahr (Deckungsbeitrag = 1,20 € pro km; 24.000 € / 1,20 €)", "B) 14.545 km pro Jahr (24.000 € / 1,65 €)", "C) 53.333 km pro Jahr (24.000 € / 0,45 €)", "D) 11.428 km pro Jahr (24.000 € / 2,10 €)"], "correct_index": 0, "jargon_term": "Break-Even-Fahrleistung & Deckungsbeitrag pro Kilometer", "explanations": {"de": "Richtig ist A: Deckungsbeitrag pro km (db) = Erlös pro km (1,65 €) minus variable Kosten pro km (0,45 €) = 1,20 €/km. Break-Even-Menge = Fixkosten (24.000 €) geteilt durch db (1,20 €/km) = 20.000 km.", "tr": "Doğru cevap A: Kilometre başına katkı payı (Deckungsbeitrag) = Gelir (1,65 €) - Değişken maliyet (0,45 €) = 1,20 €/km. Başabaş noktası (Break-Even) = Sabit maliyet (24.000 €) / 1,20 € = 20.000 km.", "ar": "الإجابة الصحيحة هي A: هامش المساهمة لكل كيلومتر = الإيراد (1.65 €) ناقص التكلفة المتغيرة (0.45 €) = 1.20 € لكل كم. نقطة التعادل (Break-Even) = التكاليف الثابتة (24,000 €) مقسومة على 1.20 € = 20,000 كم سنوياً.", "en": "Correct is A: Contribution margin per km = Revenue/km (1.65 €) - Variable Cost/km (0.45 €) = 1.20 €/km. Break-even mileage = Fixed Costs (24,000 €) / 1.20 €/km = 20,000 km/year."}}, {"id": "aevo_q1", "exam_id": "ihk_aevo", "domain_id": "hf3", "points": 2, "question_de": "Wie lang darf die vertraglich vereinbarte Probezeit in einem Berufsausbildungsverhältnis nach § 20 Berufsbildungsgesetz (BBiG) mindestens und höchstens dauern?", "options_de": ["A) Mindestens 1 Monat und höchstens 4 Monate", "B) Mindestens 2 Wochen und höchstens 6 Monate (wie im regulären Arbeitsvertrag nach § 622 BGB)", "C) Immer exakt 3 Monate ohne Abweichungsmöglichkeit", "D) Mindestens 3 Monate und höchstens 12 Monate"], "correct_index": 0, "jargon_term": "Probezeit im Berufsausbildungsverhältnis (§ 20 BBiG)", "explanations": {"de": "Richtig ist A: Nach § 20 Satz 1 und 2 BBiG beginnt das Berufsausbildungsverhältnis zwingend mit einer Probezeit. Sie muss mindestens einen Monat und darf höchstens vier Monate betragen (Achtung Falle: 6 Monate gelten nur bei normalen Arbeitsverträgen, NICHT in der Ausbildung!).", "tr": "Doğru cevap A: Mesleki Eğitim Yasası (§ 20 BBiG) uyarınca çıraklık sözleşmelerinde deneme süresi (Probezeit) en az 1 ay, en fazla 4 ay olabilir (Normal iş sözleşmelerindeki 6 ay kuralı burada geçerli değildir!).", "ar": "الإجابة الصحيحة هي A: وفقاً للمادة § 20 من قانون التدريب المهني (BBiG)، يجب أن تتراوح فترة التجربة (Probezeit) للمتدرب بين شهر واحد كحد أدنى و4 أشهر كحد أقصى.", "en": "Correct is A: Under § 20 BBiG, vocational training contracts must begin with a probationary period lasting at least 1 month and at most 4 months (unlike regular employment contracts which allow up to 6 months)."}}];
+    const ORAL_RUBRICS = {"ihk_34a_oral_1": {"scenario_id": "ihk_34a_oral_1", "exam_id": "ihk_34a_gewo", "title": "Mündliches Prüfungsgespräch § 34a GewO: Verdacht auf Ladendiebstahl & Taschenkontrolle", "examiner_prompt_de": "Prüferfrage: 'Sie arbeiten als Sicherheitsmitarbeiter im Eingangsbereich eines Elektronikmarkts. Beim Hinausgehen eines Kunden piept die Warensicherungsanlage. Der Kunde weigert sich stehenzubleiben und lässt Sie nicht in seinen Rucksack schauen. Wie verhalten Sie sich rechtlich und deeskalierend korrekt?'", "required_criteria": [{"id": "deescalation_politeness", "label": "Deeskalation & höfliches Ansprechen (technischen Fehlalarm als Möglichkeit nennen)", "weight": 25, "keywords": ["höflich", "ruhig", "deeskalierend", "fehlalarm", "bitte", "sachlich", "ansprechen"]}, {"id": "no_forced_bag_search", "label": "Keine erzwungene Taschenkontrolle (Hoheitsrecht der Polizei, kein Durchsuchungsrecht ohne Einwilligung)", "weight": 30, "keywords": ["keine durchsuchung", "nicht in den rucksack", "einwilligung", "hoheitsrecht", "polizei", "freiwillig", "verweigern"]}, {"id": "stpo_127_distinction", "label": "Abgrenzung § 127 Abs. 1 StPO (bloßes Piepen = noch kein dringender Tatverdacht / nicht auf frischer Tat betroffen ohne Beobachtung)", "weight": 25, "keywords": ["127", "stpo", "frischer tat", "verdacht", "beobachtet", "jedermannsrecht", "festnahme"]}, {"id": "proportionality_witness", "label": "Verhältnismäßigkeit, Eigensicherung & Zeugen/Polizei hinzuziehen", "weight": 20, "keywords": ["zeuge", "polizei rufen", "eigensicherung", "verhältnismäßig", "hausrecht", "filialleiter"]}]}, "fll_baum_oral_1": {"scenario_id": "fll_baum_oral_1", "exam_id": "fll_baumkontrolleur", "title": "Praktisch-mündliche Prüfung am Baum: Druckzwiesel mit Rindeneinschluss & Pilzfruchtkörper an Rosskastanie", "examiner_prompt_de": "Prüferfrage am Baum: 'Wir stehen vor einer 70-jährigen Rosskastanie (Aesculus hippocastanum) an einem Kinderspielplatz. In 4 m Höhe erkennen Sie einen V-förmigen Zwiesel mit deutlicher Naht und Saftfluss; am Stammfuß sitzt ein Flacher Lackporling (Ganoderma applanatum). Führen Sie die Regelkontrolle laut denkend durch und begründen Sie den Handlungsbedarf!'", "required_criteria": [{"id": "sicherheitserwartung_phase", "label": "Standort & Entwicklungsphase benennen (Kinderspielplatz = höhere Sicherheitserwartung, Reife-/Alterungsphase)", "weight": 20, "keywords": ["spielplatz", "höhere sicherheitserwartung", "verkehrssicherung", "reifephase", "alterungsphase"]}, {"id": "druckzwiesel_vta", "label": "Defektsymptom V-Zwiesel / Druckzwiesel mit Rindeneinschluss (Ausbruchgefahr bei Starkwind)", "weight": 30, "keywords": ["druckzwiesel", "rindeneinschluss", "ausbruchgefahr", "v-zwiesel", "kompensationsholz", "ohren"]}, {"id": "ganoderma_fungi", "label": "Pilzansprache Ganoderma applanatum (Weißfäuleerreger im Wurzel-/Stammfußbereich -> Standsicherheit beeinträchtigt)", "weight": 25, "keywords": ["lackporling", "ganoderma", "weißfäule", "standsicherheit", "wurzelfäule", "lignin"]}, {"id": "ztv_handlungsbedarf", "label": "Maßnahmen nach FLL/ZTV-Baumpflege (Kronensicherung / Einkürzung oder eingehende Untersuchung wegen Stammfußfäule)", "weight": 25, "keywords": ["kronensicherung", "eingehende untersuchung", "einkürzung", "ztv", "entlastungsschnitt", "handlungsbedarf"]}]}};
+    const INITIAL_REPORT = {"generated_at": "2026-10-17T12:00:41.329900+00:00", "model_benchmark": {"reference_startup": "Tree Nerd Academy (treenerdacademy.com / treenerdacademia.com)", "reference_mrr_usd": 31094, "reference_total_rev_10m_usd": 224118, "profit_margin_pct": 95, "domain_rating": 7.0}, "exams_supported": ["ihk_34a_gewo", "fll_baumkontrolleur", "ihk_pbefg_guekg", "ihk_aevo"], "diagnostic_samples": {"ihk_34a_gewo": {"exam_id": "ihk_34a_gewo", "exam_title": "IHK-Sachkundeprüfung § 34a GewO (Bewachungsgewerbe)", "official_fee_eur": "150 € – 220 € (je nach IHK, Wiederholung kostenpflichtig)", "pass_threshold_pct": 50.0, "total_points_earned": 5, "total_points_possible": 7, "overall_score_pct": 71.4, "passed_diagnostic": true, "domain_breakdown": [{"domain_id": "pub_sec", "domain_name": "1. Recht der öffentlichen Sicherheit und Ordnung", "weight_pct": 15.0, "oral_focus": true, "questions_tested": 1, "points_earned": 0, "points_possible": 2, "score_pct": 0.0, "status": "CRITICAL_GAP"}, {"domain_id": "gewo_law", "domain_name": "2. Gewerberecht (§ 34a GewO & BewachV)", "weight_pct": 10.0, "oral_focus": false, "questions_tested": 1, "points_earned": 1, "points_possible": 1, "score_pct": 100.0, "status": "STRONG"}, {"domain_id": "dsgvo", "domain_name": "3. Datenschutzrecht (DSGVO / BDSG)", "weight_pct": 8.0, "oral_focus": false, "questions_tested": 0, "points_earned": 0, "points_possible": 0, "score_pct": 0.0, "status": "NOT_IN_SAMPLE"}, {"domain_id": "bgb", "domain_name": "4. Bürgerliches Gesetzbuch (BGB §§ 227, 229, 859)", "weight_pct": 15.0, "oral_focus": true, "questions_tested": 1, "points_earned": 2, "points_possible": 2, "score_pct": 100.0, "status": "STRONG"}, {"domain_id": "stgb_stpo", "domain_name": "5. Straf- und Strafverfahrensrecht (StGB / § 127 StPO)", "weight_pct": 20.0, "oral_focus": true, "questions_tested": 1, "points_earned": 2, "points_possible": 2, "score_pct": 100.0, "status": "STRONG"}, {"domain_id": "weapons", "domain_name": "6. Umgang mit Waffen (WaffG)", "weight_pct": 7.0, "oral_focus": false, "questions_tested": 0, "points_earned": 0, "points_possible": 0, "score_pct": 0.0, "status": "NOT_IN_SAMPLE"}, {"domain_id": "uvv", "domain_name": "7. Unfallverhütungsvorschriften (DGUV Vorschrift 23)", "weight_pct": 7.0, "oral_focus": false, "questions_tested": 0, "points_earned": 0, "points_possible": 0, "score_pct": 0.0, "status": "NOT_IN_SAMPLE"}, {"domain_id": "deescalation", "domain_name": "8. Umgang mit Menschen & Deeskalation", "weight_pct": 10.0, "oral_focus": true, "questions_tested": 0, "points_earned": 0, "points_possible": 0, "score_pct": 0.0, "status": "NOT_IN_SAMPLE"}, {"domain_id": "sec_tech", "domain_name": "9. Grundzüge der Sicherheitstechnik", "weight_pct": 8.0, "oral_focus": false, "questions_tested": 0, "points_earned": 0, "points_possible": 0, "score_pct": 0.0, "status": "NOT_IN_SAMPLE"}], "weak_domains": ["1. Recht der öffentlichen Sicherheit und Ordnung"], "question_reviews": [{"question_id": "34a_q1", "domain_id": "stgb_stpo", "points_earned": 2, "points_possible": 2, "is_correct": true, "user_choice_index": 0, "correct_index": 0, "jargon_term": "Auf frischer Tat betroffen & Fluchtverdacht (§ 127 Abs. 1 StPO)", "explanations": {"de": "Richtig ist A: Nach § 127 Abs. 1 Satz 1 StPO ist jedermann (auch ein Sicherheitsmitarbeiter) befugt, eine Person ohne richterliche Anordnung vorläufig festzunehmen, wenn sie auf frischer Tat betroffen oder verfolgt wird UND Fluchtverdacht besteht oder ihre Identität nicht sofort festgestellt werden kann. Abs. 2 gilt NUR für Polizei/Staatsanwaltschaft!", "tr": "Doğru cevap A: CMK § 127 Abs. 1 (Jedermannsrecht) uyarınca, suçüstü yakalanan (auf frischer Tat betroffen) bir kişi kaçma şüphesi varsa veya kimliği hemen tespit edilemiyorsa herkes tarafından geçici olarak yakalanabilir (vorläufige Festnahme). Abs. 2 sadece polis ve savcılık içindir!", "ar": "الإجابة الصحيحة هي A: وفقاً للمادة § 127 الفقرة 1 من قانون الإجراءات الجنائية (StPO - حق أي مواطن)، يحق لموظف الأمن توقيف الشخص مؤقتاً إذا ضُبط متلبساً بالجريمة (auf frischer Tat) وكان هناك اشتباه في هروبه أو تعذر إثبات هويته فوراً. الفقرة 2 مخصصة للشرطة والنيابة العامة فقط!", "en": "Correct is A: Under § 127 (1) StPO (Citizen's Arrest / Jedermannsrecht), anyone may provisionally detain a suspect caught in the act (auf frischer Tat) if there is flight risk or their identity cannot be immediately established. Paragraph 2 applies strictly to police and prosecutors."}}, {"question_id": "34a_q2", "domain_id": "bgb", "points_earned": 2, "points_possible": 2, "is_correct": true, "user_choice_index": 0, "correct_index": 0, "jargon_term": "Verbotene Eigenmacht: Besitzwehr vs. Besitzkehr (§§ 858, 859 BGB)", "explanations": {"de": "Richtig ist A: Solange der Dieb die Sache noch nicht endgültig gesichert hat, wehrt sich der Besitzer/Besitzdiener gegen die laufende Entziehung (Besitzwehr, § 859 Abs. 1 BGB). Ist die Wegnahme gerade erst vollendet und der Täter wird auf frischer Tat verfolgt, darf ihm die Sache sofort wieder abgenommen werden (Besitzkehr, § 859 Abs. 2 BGB).", "tr": "Doğru cevap A: 'Besitzwehr' (§ 859 Abs. 1 BGB) zilyetliğe yönelik saldırı devam ederken yapılan savunmadır. 'Besitzkehr' (§ 859 Abs. 2 BGB) ise eşya çalındıktan hemen sonra, fail suçüstü takip edilerek eşyanın derhal geri alınmasıdır.", "ar": "الإجابة الصحيحة هي A: الدفاع عن الحيازة (Besitzwehr) يكون أثناء استمرار الاعتداء لمنع أخذ الشيء. أما استرداد الحيازة (Besitzkehr) فيكون باستعادة الشيء فوراً بعد انتهاء السرقة مباشرة أثناء ملاحقة السارق متلبساً.", "en": "Correct is A: 'Besitzwehr' (§ 859 I BGB) defends possession while the unlawful interference is still ongoing. 'Besitzkehr' (§ 859 II BGB) is the immediate recovery of a movable item right after it was taken by pursuing the perpetrator caught in the act."}}, {"question_id": "34a_q3", "domain_id": "gewo_law", "points_earned": 1, "points_possible": 1, "is_correct": true, "user_choice_index": 0, "correct_index": 0, "jargon_term": "Sachkundepflichtige Tätigkeiten (§ 34a Abs. 1a S. 2 GewO)", "explanations": {"de": "Richtig ist A: Zwingend sachkundepflichtig nach § 34a GewO sind: 1. Kontrollgänge im öffentlichen Verkehrsraum / Hausrechtsbereichen mit tatsächlich öffentlichem Verkehr, 2. Schutz vor Ladendieben (Kaufhausdetektiv), 3. Bewachung im Einlassbereich gastgewerblichen Diskotheken, 4. Leitende Funktion bei Flüchtlingsunterkünften oder Großveranstaltungen.", "tr": "Doğru cevap A: § 34a GewO uyarınca kamuya açık alanlarda devriye (City-Streife), mağaza dedektifliği (Ladendetektiv), diskotek kapı güvenliği (Türsteher) ve mülteci/büyük etkinlik yönetiminde IHK Sachkundeprüfung zorunludur.", "ar": "الإجابة الصحيحة هي A: يشترط القانون (§ 34a GewO) اجتياز امتحان الكفاءة (Sachkundeprüfung) إلزامياً للدوريات في الأماكن العامة، محققي المتاجر ضد السرقة، حراس أبواب الملاهي الليلية (Türsteher)، والوظائف القيادية في مراكز اللاجئين والفعاليات الكبرى.", "en": "Correct is A: § 34a GewO strictly mandates the full Sachkundeprüfung for patrols in public spaces (City-Streife), retail loss prevention (store detectives), nightclub bouncers (Türsteher), and supervisory roles at refugee shelters or major events."}}, {"question_id": "34a_q4", "domain_id": "pub_sec", "points_earned": 0, "points_possible": 2, "is_correct": false, "user_choice_index": 1, "correct_index": 0, "jargon_term": "Gewaltmonopol des Staates vs. Jedermannsrechte & übertragene Rechte", "explanations": {"de": "Richtig ist A: Das Gewaltmonopol liegt beim Staat (Polizei). Private Sicherheitskräfte haben KEINE Hoheitsrechte. Sie handeln ausschließlich auf Basis der Jedermannsrechte (§ 32 StGB, § 34 StGB, §§ 227, 228, 229 BGB, § 127 Abs. 1 StPO) und der vom Auftraggeber vertraglich übertragenen Rechte (Hausrecht, Besitzdiener § 855 BGB).", "tr": "Doğru cevap A: Devletin güç kullanma tekeli (Gewaltmonopol) polise aittir. Özel güvenlik görevlilerinin resmi/devlet yetkisi (hoheitliche Befugnisse) YOKTUR; sadece herkesin sahip olduğu hakları (Jedermannsrecht) ve müşteriden devralınan bina/mülk hakkını (Hausrecht) kullanabilirler.", "ar": "الإجابة الصحيحة هي A: احتكار القوة (Gewaltmonopol) بيد الدولة (الشرطة) فقط. لا يملك موظف الأمن الخاص أي سلطات حكومية سيادية، بل يتصرف فقط بناءً على حقوق أي مواطن (Jedermannsrechte) وحقوق المالك المفوضة إليه كحق المنزل (Hausrecht).", "en": "Correct is A: The monopoly on force belongs to the state. Private security guards have zero sovereign/police powers; they rely exclusively on citizen's rights (Jedermannsrechte) and property rights delegated by the client (Hausrecht / Besitzdiener)."}}]}, "fll_baumkontrolleur": {"exam_id": "fll_baumkontrolleur", "exam_title": "FLL-Zertifizierter Baumkontrolleur (Regelkontrolle & Verkehrssicherheit)", "official_fee_eur": "250 € – 320 € Prüfungsgebühr (Komplettlehrgang inkl. Prüfung: 950 € – 1.250 €)", "pass_threshold_pct": 60.0, "total_points_earned": 6, "total_points_possible": 6, "overall_score_pct": 100.0, "passed_diagnostic": true, "domain_breakdown": [{"domain_id": "recht_vsp", "domain_name": "1. Rechtliche Grundlagen (Verkehrssicherungspflicht § 823 BGB & Artenschutz BNatSchG)", "weight_pct": 18.0, "oral_focus": true, "questions_tested": 1, "points_earned": 2, "points_possible": 2, "score_pct": 100.0, "status": "STRONG"}, {"domain_id": "baumbio", "domain_name": "2. Baumbiologie, CODIT-Prinzip & Baumartenkenntnis", "weight_pct": 16.0, "oral_focus": false, "questions_tested": 0, "points_earned": 0, "points_possible": 0, "score_pct": 0.0, "status": "NOT_IN_SAMPLE"}, {"domain_id": "pilze_path", "domain_name": "3. Holzzersetzende Pilze (Weiß-, Braun-, Moderfäule) & Pathologie", "weight_pct": 24.0, "oral_focus": true, "questions_tested": 1, "points_earned": 2, "points_possible": 2, "score_pct": 100.0, "status": "STRONG"}, {"domain_id": "vta_statik", "domain_name": "4. Baumstatik, Defektsymptome & VTA (Visual Tree Assessment)", "weight_pct": 22.0, "oral_focus": true, "questions_tested": 0, "points_earned": 0, "points_possible": 0, "score_pct": 0.0, "status": "NOT_IN_SAMPLE"}, {"domain_id": "fll_ablauf", "domain_name": "5. FLL-Baumkontrollrichtlinien (Regelkontrolle, Intervalle, Entwicklungsphasen)", "weight_pct": 12.0, "oral_focus": true, "questions_tested": 1, "points_earned": 2, "points_possible": 2, "score_pct": 100.0, "status": "STRONG"}, {"domain_id": "ztv_pflege", "domain_name": "6. ZTV-Baumpflege & Maßnahmenfestlegung", "weight_pct": 8.0, "oral_focus": true, "questions_tested": 0, "points_earned": 0, "points_possible": 0, "score_pct": 0.0, "status": "NOT_IN_SAMPLE"}], "weak_domains": [], "question_reviews": [{"question_id": "fll_q1", "domain_id": "pilze_path", "points_earned": 2, "points_possible": 2, "is_correct": true, "user_choice_index": 0, "correct_index": 0, "jargon_term": "Brandkrustenpilz (Kretzschmaria deusta) & Sprödbruch / Keramikbruch", "explanations": {"de": "Richtig ist A: Kretzschmaria deusta (Brandkrustenpilz) ist einer der gefährlichsten Holzzersetzer an Buche, Linde und Ahorn. Er baut Zellulose und Lignin (Moderfäule-Typ) ab, sodass das Holz wie Keramik spröde bricht – oft ohne äußerlich erkennbare Kompensationsholzbildung (Sprödbruch ohne Vorankündigung!).", "tr": "Doğru cevap A: Kretzschmaria deusta (Brandkrustenpilz), kayın ve ıhlamur ağaçlarında en tehlikeli mantarlardan biridir. Odunu gevrek hale getirir (Moderfäule) ve dışarıdan uyarı vermeden ani kırılmaya (Sprödbruch / Keramikbruch) yol açar.", "ar": "الإجابة الصحيحة هي A: فطر القشرة المحترقة (Kretzschmaria deusta) هو من أخطر الفطريات المحللة للخشب في أشجار الزان والزيزفون، حيث يسبب تعفناً يجعل الخشب ينكسر فجأة وبشكل هش كالسيراميك (Sprödbruch) دون علامات تحذيرية خارجية.", "en": "Correct is A: Kretzschmaria deusta (Brittle Cinder fungus) causes soft rot (Moderfäule) in beech, lime, and maple. Because it degrades cellulose inside the cell wall rapidly, it leads to sudden, unannounced brittle fracture (Keramikbruch) with minimal external reaction wood."}}, {"question_id": "fll_q2", "domain_id": "recht_vsp", "points_earned": 2, "points_possible": 2, "is_correct": true, "user_choice_index": 0, "correct_index": 0, "jargon_term": "Regelkontrolle (Sichtkontrolle vom Boden) vs. Eingehende Untersuchung", "explanations": {"de": "Richtig ist A: Nach gefestigter BGH-Rechtsprechung und FLL-Richtlinie genügt für die Regelkontrolle eine fachkundige, äußere Gesundheits- und Zustandskontrolle vom Boden aus (Sichtkontrolle). Erst wenn verdächtige Umstände (Defektsymptome, Pilzfruchtkörper, Höhlungen) vorliegen, die vom Boden nicht abschließend beurteilt werden können, ist eine eingehende Untersuchung veranlasst.", "tr": "Doğru cevap A: FLL yönergesine ve Federal Mahkeme (BGH) içtihadına göre 'Regelkontrolle', yerden yapılan uzman gözle kontrolüdür (Sichtkontrolle vom Boden). Sadece şüpheli belirtiler varsa detaylı teknik inceleme (eingehende Untersuchung) gerekir.", "ar": "الإجابة الصحيحة هي A: وفقاً لتوجيهات FLL، فإن الفحص الدوري (Regelkontrolle) هو فحص بصري متخصص من مستوى الأرض دون أجهزة تقنية معقدة. ولا يلزم إجراء فحص معمق (Eingehende Untersuchung) إلا عند ظهور أعراض خلل أو فطريات مثيرة للشك.", "en": "Correct is A: Under German Supreme Court (BGH) case law and FLL guidelines, a routine inspection (Regelkontrolle) is a visual inspection from the ground. An in-depth investigation (eingehende Untersuchung) is only triggered when suspicious defect symptoms cannot be conclusively assessed visually."}}, {"question_id": "fll_q3", "domain_id": "fll_ablauf", "points_earned": 2, "points_possible": 2, "is_correct": true, "user_choice_index": 0, "correct_index": 0, "jargon_term": "FLL-Kontrollintervall-Matrix (Entwicklungsphase × Sicherheitserwartung × Baumzustand)", "explanations": {"de": "Richtig ist A: Die FLL-Baumkontrollrichtlinie legt das Kontrollintervall (z. B. 1 bis 3 Jahre) anhand einer Matrix fest, die aus (1) der Entwicklungsphase (Jugend-, Reife-, Alterungsphase), (2) dem Zustand des Baumes (gesund bis stark geschädigt) und (3) der berechtigten Sicherheitserwartung des Verkehrs (höher, mittel, geringer) besteht.", "tr": "Doğru cevap A: FLL kontrol aralığı matrisi üç faktöre dayanır: 1. Ağacın gelişim evresi (Gençlik, Olgunluk, Yaşlanma), 2. Ağacın sağlık/hasar durumu, 3. Trafik güvenlik beklentisi (Sicherheitserwartung).", "ar": "الإجابة الصحيحة هي A: تحدد مصفوفة FLL الفترة الزمنية بين الفحوصات بناءً على: 1. مرحلة نمو الشجرة (الشباب، النضج، الشيخوخة)، 2. الحالة الصحية للشجرة، 3. مستوى توقعات السلامة المرورية في الموقع.", "en": "Correct is A: The FLL inspection interval matrix combines (1) the tree's developmental stage (juvenile, mature, senescent), (2) tree condition/damage level, and (3) legitimate traffic safety expectation at the site."}}]}, "ihk_pbefg_guekg": {"exam_id": "ihk_pbefg_guekg", "exam_title": "IHK-Fachkundeprüfung Taxi-/Mietwagenverkehr (PBefG) & Güterkraftverkehr (EU 1071/2009)", "official_fee_eur": "190 € – 350 € (je nach IHK-Gebührenordnung)", "pass_threshold_pct": 60.0, "total_points_earned": 3, "total_points_possible": 3, "overall_score_pct": 100.0, "passed_diagnostic": true, "domain_breakdown": [{"domain_id": "fahrzeug_kalk", "domain_name": "1. Fahrzeugkostenrechnung & Tarifkalkulation (Fix-/Variabelkosten, Break-Even)", "weight_pct": 30.0, "oral_focus": true, "questions_tested": 1, "points_earned": 3, "points_possible": 3, "score_pct": 100.0, "status": "STRONG"}, {"domain_id": "pbefg_bokraft", "domain_name": "2. Personenbeförderungsrecht (PBefG, BOKraft) & Güterkraftverkehrsrecht (GüKG)", "weight_pct": 22.0, "oral_focus": true, "questions_tested": 0, "points_earned": 0, "points_possible": 0, "score_pct": 0.0, "status": "NOT_IN_SAMPLE"}, {"domain_id": "kaufm_finanz", "domain_name": "3. Kaufmännische & finanzielle Führung des Betriebs (BWL, Steuern, Buchführung)", "weight_pct": 20.0, "oral_focus": false, "questions_tested": 0, "points_earned": 0, "points_possible": 0, "score_pct": 0.0, "status": "NOT_IN_SAMPLE"}, {"domain_id": "sozial_lenk", "domain_name": "4. Arbeits- und Sozialvorschriften (Lenk- und Ruhezeiten VO (EG) 561/2006, FPersV)", "weight_pct": 16.0, "oral_focus": true, "questions_tested": 0, "points_earned": 0, "points_possible": 0, "score_pct": 0.0, "status": "NOT_IN_SAMPLE"}, {"domain_id": "tech_sicherheit", "domain_name": "5. Technische Normen, Ladungssicherung & Straßenverkehrssicherheit", "weight_pct": 12.0, "oral_focus": false, "questions_tested": 0, "points_earned": 0, "points_possible": 0, "score_pct": 0.0, "status": "NOT_IN_SAMPLE"}], "weak_domains": [], "question_reviews": [{"question_id": "pbefg_q1", "domain_id": "fahrzeug_kalk", "points_earned": 3, "points_possible": 3, "is_correct": true, "user_choice_index": 0, "correct_index": 0, "jargon_term": "Break-Even-Fahrleistung & Deckungsbeitrag pro Kilometer", "explanations": {"de": "Richtig ist A: Deckungsbeitrag pro km (db) = Erlös pro km (1,65 €) minus variable Kosten pro km (0,45 €) = 1,20 €/km. Break-Even-Menge = Fixkosten (24.000 €) geteilt durch db (1,20 €/km) = 20.000 km.", "tr": "Doğru cevap A: Kilometre başına katkı payı (Deckungsbeitrag) = Gelir (1,65 €) - Değişken maliyet (0,45 €) = 1,20 €/km. Başabaş noktası (Break-Even) = Sabit maliyet (24.000 €) / 1,20 € = 20.000 km.", "ar": "الإجابة الصحيحة هي A: هامش المساهمة لكل كيلومتر = الإيراد (1.65 €) ناقص التكلفة المتغيرة (0.45 €) = 1.20 € لكل كم. نقطة التعادل (Break-Even) = التكاليف الثابتة (24,000 €) مقسومة على 1.20 € = 20,000 كم سنوياً.", "en": "Correct is A: Contribution margin per km = Revenue/km (1.65 €) - Variable Cost/km (0.45 €) = 1.20 €/km. Break-even mileage = Fixed Costs (24,000 €) / 1.20 €/km = 20,000 km/year."}}]}, "ihk_aevo": {"exam_id": "ihk_aevo", "exam_title": "IHK-Ausbildereignungsprüfung (AEVO / AdA-Schein)", "official_fee_eur": "180 € – 290 € IHK-Prüfungsgebühr", "pass_threshold_pct": 50.0, "total_points_earned": 2, "total_points_possible": 2, "overall_score_pct": 100.0, "passed_diagnostic": true, "domain_breakdown": [{"domain_id": "hf1", "domain_name": "Handlungsfeld 1: Ausbildungsvoraussetzungen prüfen und Ausbildung planen", "weight_pct": 20.0, "oral_focus": false, "questions_tested": 0, "points_earned": 0, "points_possible": 0, "score_pct": 0.0, "status": "NOT_IN_SAMPLE"}, {"domain_id": "hf2", "domain_name": "Handlungsfeld 2: Ausbildung vorbereiten und bei der Einstellung mitwirken", "weight_pct": 20.0, "oral_focus": true, "questions_tested": 0, "points_earned": 0, "points_possible": 0, "score_pct": 0.0, "status": "NOT_IN_SAMPLE"}, {"domain_id": "hf3", "domain_name": "Handlungsfeld 3: Ausbildung durchführen (4-Stufen-Methode, Lehrgespräch, JArbSchG)", "weight_pct": 45.0, "oral_focus": true, "questions_tested": 1, "points_earned": 2, "points_possible": 2, "score_pct": 100.0, "status": "STRONG"}, {"domain_id": "hf4", "domain_name": "Handlungsfeld 4: Ausbildung abschließen (Prüfungszulassung, Zeugnis § 16 BBiG)", "weight_pct": 15.0, "oral_focus": true, "questions_tested": 0, "points_earned": 0, "points_possible": 0, "score_pct": 0.0, "status": "NOT_IN_SAMPLE"}], "weak_domains": [], "question_reviews": [{"question_id": "aevo_q1", "domain_id": "hf3", "points_earned": 2, "points_possible": 2, "is_correct": true, "user_choice_index": 0, "correct_index": 0, "jargon_term": "Probezeit im Berufsausbildungsverhältnis (§ 20 BBiG)", "explanations": {"de": "Richtig ist A: Nach § 20 Satz 1 und 2 BBiG beginnt das Berufsausbildungsverhältnis zwingend mit einer Probezeit. Sie muss mindestens einen Monat und darf höchstens vier Monate betragen (Achtung Falle: 6 Monate gelten nur bei normalen Arbeitsverträgen, NICHT in der Ausbildung!).", "tr": "Doğru cevap A: Mesleki Eğitim Yasası (§ 20 BBiG) uyarınca çıraklık sözleşmelerinde deneme süresi (Probezeit) en az 1 ay, en fazla 4 ay olabilir (Normal iş sözleşmelerindeki 6 ay kuralı burada geçerli değildir!).", "ar": "الإجابة الصحيحة هي A: وفقاً للمادة § 20 من قانون التدريب المهني (BBiG)، يجب أن تتراوح فترة التجربة (Probezeit) للمتدرب بين شهر واحد كحد أدنى و4 أشهر كحد أقصى.", "en": "Correct is A: Under § 20 BBiG, vocational training contracts must begin with a probationary period lasting at least 1 month and at most 4 months (unlike regular employment contracts which allow up to 6 months)."}}]}}, "oral_grading_samples": {"ihk_34a_oral_1": {"scenario_id": "ihk_34a_oral_1", "title": "Mündliches Prüfungsgespräch § 34a GewO: Verdacht auf Ladendiebstahl & Taschenkontrolle", "total_score_pct": 100, "passed_oral": true, "criteria_results": [{"criterion_id": "deescalation_politeness", "label": "Deeskalation & höfliches Ansprechen (technischen Fehlalarm als Möglichkeit nennen)", "weight": 25, "awarded": 25, "status": "FULL_CREDIT", "matched_keywords": ["höflich", "ruhig", "deeskalierend", "fehlalarm"]}, {"criterion_id": "no_forced_bag_search", "label": "Keine erzwungene Taschenkontrolle (Hoheitsrecht der Polizei, kein Durchsuchungsrecht ohne Einwilligung)", "weight": 30, "awarded": 30, "status": "FULL_CREDIT", "matched_keywords": ["keine durchsuchung", "einwilligung", "hoheitsrecht", "polizei"]}, {"criterion_id": "stpo_127_distinction", "label": "Abgrenzung § 127 Abs. 1 StPO (bloßes Piepen = noch kein dringender Tatverdacht / nicht auf frischer Tat betroffen ohne Beobachtung)", "weight": 25, "awarded": 25, "status": "FULL_CREDIT", "matched_keywords": ["127", "stpo", "frischer tat"]}, {"criterion_id": "proportionality_witness", "label": "Verhältnismäßigkeit, Eigensicherung & Zeugen/Polizei hinzuziehen", "weight": 20, "awarded": 20, "status": "FULL_CREDIT", "matched_keywords": ["zeuge", "eigensicherung", "verhältnismäßig"]}], "missing_coaching_points": [], "coach_verdict_de": "BESTANDEN (Prüfungsausschuss-reif! Klare Rechts- & Fachbegriffe genutzt.)"}, "fll_baum_oral_1": {"scenario_id": "fll_baum_oral_1", "title": "Praktisch-mündliche Prüfung am Baum: Druckzwiesel mit Rindeneinschluss & Pilzfruchtkörper an Rosskastanie", "total_score_pct": 100, "passed_oral": true, "criteria_results": [{"criterion_id": "sicherheitserwartung_phase", "label": "Standort & Entwicklungsphase benennen (Kinderspielplatz = höhere Sicherheitserwartung, Reife-/Alterungsphase)", "weight": 20, "awarded": 20, "status": "FULL_CREDIT", "matched_keywords": ["spielplatz", "höhere sicherheitserwartung", "reifephase"]}, {"criterion_id": "druckzwiesel_vta", "label": "Defektsymptom V-Zwiesel / Druckzwiesel mit Rindeneinschluss (Ausbruchgefahr bei Starkwind)", "weight": 30, "awarded": 30, "status": "FULL_CREDIT", "matched_keywords": ["druckzwiesel", "rindeneinschluss", "ausbruchgefahr"]}, {"criterion_id": "ganoderma_fungi", "label": "Pilzansprache Ganoderma applanatum (Weißfäuleerreger im Wurzel-/Stammfußbereich -> Standsicherheit beeinträchtigt)", "weight": 25, "awarded": 25, "status": "FULL_CREDIT", "matched_keywords": ["lackporling", "ganoderma", "weißfäule", "standsicherheit"]}, {"criterion_id": "ztv_handlungsbedarf", "label": "Maßnahmen nach FLL/ZTV-Baumpflege (Kronensicherung / Einkürzung oder eingehende Untersuchung wegen Stammfußfäule)", "weight": 25, "awarded": 25, "status": "FULL_CREDIT", "matched_keywords": ["kronensicherung", "eingehende untersuchung", "ztv"]}], "missing_coaching_points": [], "coach_verdict_de": "BESTANDEN (Prüfungsausschuss-reif! Klare Rechts- & Fachbegriffe genutzt.)"}}, "pass_guarantee_status": {"guarantee_unlocked": true, "overall_guarantee_progress_pct": 96.7, "requirements": {"lessons_90pct": {"current_pct": 94.5, "target_pct": 90.0, "met": true}, "flashcards_90pct": {"mastered": 4250, "total": 4500, "current_pct": 94.4, "target_pct": 90.0, "met": true}, "mock_exams_3x": {"completed": 4, "target": 3, "met": true}, "oral_roleplay_2x": {"completed": 3, "target": 2, "met": true}}, "refund_policy_summary_de": "100% Geld-zurück-Garantie AKTIV: Bei Nichtbestehen der offiziellen IHK-/FLL-Erstprüfung wird der volle Kurspreis (bis 229 €) gegen Vorlage des Prüfungsbescheids binnen 30 Tagen erstattet."}};
+
+    let currentExamId = "ihk_34a_gewo";
+    let currentQIndex = 0;
+    let selectedAnswers = {};
+
+    function getFilteredQuestions() {
+      return QUESTIONS.filter(q => q.exam_id === currentExamId);
+    }
+
+    function switchExam(examId) {
+      currentExamId = examId;
+      currentQIndex = 0;
+      renderMeta();
+      renderCurrentQuestion();
+      renderDomainTable();
+      renderOralBox();
+    }
+
+    function renderMeta() {
+      const spec = CATALOG[currentExamId];
+      const tiers = spec.pricing_tiers_eur;
+      document.getElementById("priceBadge").textContent =
+        `Einmalpreis: ${tiers.basic_30d} € / ${tiers.pro_lifetime} € / ${tiers.guarantee_bundle} €`;
+
+      document.getElementById("examMetaCards").innerHTML = `
+        <div class="card"><div class="stat-val">${spec.official_fee_eur.split("(")[0]}</div><div class="stat-lbl">Offizielle Prüfungsgebühr</div></div>
+        <div class="card"><div class="stat-val">${spec.fail_rate_pct.split("(")[0]}</div><div class="stat-lbl">Typische Durchfallquote</div></div>
+        <div class="card"><div class="stat-val">${spec.pass_threshold_pct}%</div><div class="stat-lbl">Bestehensgrenze</div></div>
+        <div class="card"><div class="stat-val">4.500+</div><div class="stat-lbl">Bilinguale Karten & Fälle</div></div>
+      `;
+    }
+
+    function renderCurrentQuestion() {
+      const qs = getFilteredQuestions();
+      const q = qs[currentQIndex] || qs[0];
+      const lang = document.getElementById("langSelect").value;
+      const langNames = { tr: "Türkisch (Türkçe)", ar: "Arabisch (العربية)", en: "Englisch (English)" };
+
+      document.getElementById("qCounter").textContent = `Frage ${currentQIndex + 1} von ${qs.length} (${q.points} Pkt.)`;
+
+      const chosen = selectedAnswers[q.id];
+      const optsHtml = q.options_de.map((opt, idx) => {
+        let cls = "option-btn";
+        if (chosen !== undefined) {
+          if (idx === q.correct_index) cls += " correct";
+          else if (idx === chosen) cls += " wrong";
+        }
+        return `<button class="${cls}" onclick="selectAnswer('${q.id}', ${idx})">${opt}</button>`;
+      }).join("");
+
+      const expHtml = chosen !== undefined ? `
+        <div class="bilingual-box">
+          <div class="lang-pane">
+            <h4>🇩🇪 Offizielle Prüfungslogik (Deutsch)</h4>
+            <p style="font-size:0.86rem;"><strong>Fachbegriff:</strong> ${q.jargon_term}</p>
+            <p style="font-size:0.86rem;margin-top:0.35rem;">${q.explanations.de}</p>
+          </div>
+          <div class="lang-pane ${lang === 'ar' ? 'rtl' : ''}">
+            <h4>🌐 Erklärung auf ${langNames[lang]}</h4>
+            <p style="font-size:0.86rem;margin-top:0.35rem;">${q.explanations[lang]}</p>
+          </div>
+        </div>
+      ` : `<p style="font-size:0.82rem;color:var(--muted);margin-top:0.5rem;">💡 Wähle eine Antwortoption, um die zweisprachige Paragraphen-/Facherklärung freizuschalten.</p>`;
+
+      document.getElementById("questionArea").innerHTML = `
+        <p style="font-weight:600;margin-bottom:0.85rem;">${q.question_de}</p>
+        ${optsHtml}
+        ${expHtml}
+      `;
+    }
+
+    function selectAnswer(qid, idx) {
+      selectedAnswers[qid] = idx;
+      renderCurrentQuestion();
+    }
+
+    function nextQuestion() {
+      const qs = getFilteredQuestions();
+      currentQIndex = (currentQIndex + 1) % qs.length;
+      renderCurrentQuestion();
+    }
+
+    function prevQuestion() {
+      const qs = getFilteredQuestions();
+      currentQIndex = (currentQIndex - 1 + qs.length) % qs.length;
+      renderCurrentQuestion();
+    }
+
+    function renderDomainTable() {
+      const spec = CATALOG[currentExamId];
+      const tbody = document.querySelector("#domainTable tbody");
+      tbody.innerHTML = spec.domains.map(d => `
+        <tr>
+          <td>${d.name}</td>
+          <td><strong>${d.weight_pct}%</strong> (${d.max_pts} Pkt.)</td>
+          <td>${d.oral_focus ? '<span class="pill-pass">Ja (Prüferausschuss)</span>' : '<span style="color:var(--muted)">Schriftlich</span>'}</td>
+        </tr>
+      `).join("");
+    }
+
+    function getActiveOralScenario() {
+      if (currentExamId === "fll_baumkontrolleur") return ORAL_RUBRICS["fll_baum_oral_1"];
+      return ORAL_RUBRICS["ihk_34a_oral_1"];
+    }
+
+    function renderOralBox() {
+      const scen = getActiveOralScenario();
+      document.getElementById("oralPrompt").textContent = scen.examiner_prompt_de;
+      document.getElementById("oralResult").innerHTML = "";
+    }
+
+    function fillSampleOral() {
+      const scen = getActiveOralScenario();
+      if (scen.scenario_id === "fll_baum_oral_1") {
+        document.getElementById("oralInput").value =
+          "Am Kinderspielplatz herrscht eine höhere Sicherheitserwartung; die Kastanie ist in der Reifephase. Der V-förmige Druckzwiesel mit Rindeneinschluss zeigt Ausbruchgefahr. Zudem verursacht der Flache Lackporling (Ganoderma) eine Weißfäule im Wurzelbereich, was die Standsicherheit gefährdet. Nach ZTV-Baumpflege empfehle ich eine eingehende Untersuchung und eine Kronensicherung bzw. einen Entlastungsschnitt.";
+      } else {
+        document.getElementById("oralInput").value =
+          "Ich spreche den Kunden höflich, ruhig und deeskalierend an und weise auf einen möglichen technischen Fehlalarm hin. Ich führe keine Durchsuchung gegen seinen Willen durch, da Taschenkontrollen ohne Einwilligung ein Hoheitsrecht der Polizei sind. Da ein bloßes Piepen noch kein Betreffen auf frischer Tat nach § 127 StPO ist, achte ich auf Verhältnismäßigkeit, Eigensicherung und ziehe einen Zeugen bzw. die Polizei hinzu.";
+      }
+      gradeOralLive();
+    }
+
+    function gradeOralLive() {
+      const scen = getActiveOralScenario();
+      const text = document.getElementById("oralInput").value.toLowerCase();
+      let score = 0;
+      const rows = scen.required_criteria.map(c => {
+        const hits = c.keywords.filter(k => text.includes(k));
+        let pts = 0;
+        if (hits.length >= 2) pts = c.weight;
+        else if (hits.length === 1) pts = Math.round(c.weight * 0.6);
+        score += pts;
+        return `<li style="margin-bottom:0.35rem;font-size:0.84rem;">
+          ${pts === c.weight ? '✅' : (pts > 0 ? '⚠️' : '❌')} <strong>${c.label}</strong> (${pts}/${c.weight} Pkt.)
+        </li>`;
+      }).join("");
+
+      document.getElementById("oralResult").innerHTML = `
+        <div style="padding:0.75rem;border-radius:8px;background:var(--surface-2);">
+          <div style="font-weight:700;margin-bottom:0.4rem;">Mündlicher Score: ${score}% — ${score >= 60 ? '<span class="pill-pass">BESTANDEN</span>' : '<span class="pill-fail">NOCH UNVOLLSTÄNDIG</span>'}</div>
+          <ul style="list-style:none;">${rows}</ul>
+        </div>
+      `;
+    }
+
+    function renderGuaranteeTracker() {
+      const g = INITIAL_REPORT.pass_guarantee_status;
+      const r = g.requirements;
+      document.getElementById("guaranteeStatusBadge").textContent =
+        g.guarantee_unlocked ? "GARANTIE AKTIV (100%)" : `FORTSCHRITT: ${g.overall_guarantee_progress_pct}%`;
+
+      document.getElementById("guaranteeTrackerBox").innerHTML = `
+        <div style="margin-bottom:0.75rem;">
+          <div style="display:flex;justify-content:space-between;font-size:0.84rem;">
+            <span>1. Video-/Audio-Lektionen (mind. 90%)</span>
+            <strong>${r.lessons_90pct.current_pct}%</strong>
+          </div>
+          <div class="progress-bar"><div class="progress-fill" style="width:${r.lessons_90pct.current_pct}%"></div></div>
+        </div>
+        <div style="margin-bottom:0.75rem;">
+          <div style="display:flex;justify-content:space-between;font-size:0.84rem;">
+            <span>2. Karteikarten gemeistert (${r.flashcards_90pct.mastered} / ${r.flashcards_90pct.total})</span>
+            <strong>${r.flashcards_90pct.current_pct}%</strong>
+          </div>
+          <div class="progress-bar"><div class="progress-fill" style="width:${r.flashcards_90pct.current_pct}%"></div></div>
+        </div>
+        <div style="margin-bottom:0.75rem;">
+          <div style="display:flex;justify-content:space-between;font-size:0.84rem;">
+            <span>3. Zeitgesteuerte Generalproben bestanden (Ziel: 3)</span>
+            <strong>${r.mock_exams_3x.completed} / 3</strong>
+          </div>
+          <div class="progress-bar"><div class="progress-fill" style="width:${Math.min(100, (r.mock_exams_3x.completed/3)*100)}%"></div></div>
+        </div>
+        <p style="font-size:0.83rem;color:var(--green);margin-top:0.6rem;font-weight:600;">${g.refund_policy_summary_de}</p>
+      `;
+    }
+
+    switchExam("ihk_34a_gewo");
+    selectAnswer("34a_q1", 0);
+    fillSampleOral();
+    renderGuaranteeTracker();
+  </script>
+</body>
+</html>

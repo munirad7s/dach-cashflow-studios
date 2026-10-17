@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DACH GmbH-vGA- & Gesellschafter-Geschäftsführer-Prüfstand (§ 8 Abs. 3 Satz 2 KStG) — MVP #94</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --panel: #131b33;
+      --panel-alt: #192342;
+      --border: #2a3966;
+      --text: #eef2ff;
+      --muted: #9fb0d9;
+      --accent: #38bdf8;
+      --green: #22c55e;
+      --yellow: #eab308;
+      --red: #ef4444;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+    }
+    header {
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 20px 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 14px;
+    }
+    header h1 { margin: 0; font-size: 1.35rem; color: #f8fafc; }
+    header p { margin: 4px 0 0; font-size: 0.88rem; color: var(--muted); }
+    .badge-bar { display: flex; gap: 8px; flex-wrap: wrap; }
+    .badge {
+      padding: 5px 11px;
+      border-radius: 999px;
+      font-size: 0.76rem;
+      font-weight: 600;
+      background: var(--panel-alt);
+      border: 1px solid var(--border);
+      color: var(--accent);
+    }
+    main { max-width: 1480px; margin: 0 auto; padding: 22px; }
+    .grid-top { display: grid; grid-template-columns: 410px 1fr; gap: 20px; }
+    @media (max-width: 1100px) { .grid-top { grid-template-columns: 1fr; } }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+      margin-bottom: 18px;
+    }
+    .card h2 { margin: 0 0 12px; font-size: 1.05rem; color: #f1f5f9; }
+    .scenario-btns { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+    .scenario-btns button {
+      flex: 1;
+      padding: 8px 10px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--panel-alt);
+      color: var(--text);
+      cursor: pointer;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+    .scenario-btns button.active {
+      background: #0284c7;
+      border-color: #38bdf8;
+    }
+    .field { margin-bottom: 10px; }
+    .field label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-bottom: 3px;
+    }
+    .field input[type="range"], .field select, .field input[type="number"] {
+      width: 100%;
+      padding: 6px 8px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: #0f172a;
+      color: var(--text);
+    }
+    .toggle-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0;
+      border-bottom: 1px dashed rgba(255,255,255,0.08);
+      font-size: 0.82rem;
+    }
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+    @media (max-width: 900px) { .kpi-grid { grid-template-columns: repeat(2, 1fr); } }
+    .kpi {
+      background: var(--panel-alt);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 13px;
+    }
+    .kpi .label { font-size: 0.75rem; color: var(--muted); }
+    .kpi .value { font-size: 1.32rem; font-weight: 700; margin-top: 4px; }
+    .kpi .sub { font-size: 0.74rem; color: var(--muted); margin-top: 3px; }
+    .pill {
+      display: inline-block;
+      padding: 3px 9px;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      font-weight: 700;
+    }
+    .pill.GRUEN { background: rgba(34,197,94,0.18); color: #4ade80; border: 1px solid #22c55e; }
+    .pill.GELB { background: rgba(234,179,8,0.18); color: #fde047; border: 1px solid #eab308; }
+    .pill.ROT { background: rgba(239,68,68,0.2); color: #fca5a5; border: 1px solid #ef4444; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+    th, td {
+      padding: 9px 10px;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--muted); font-weight: 600; background: rgba(15,23,42,0.5); }
+    pre {
+      background: #090e1c;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px;
+      white-space: pre-wrap;
+      font-size: 0.8rem;
+      color: #dbeafe;
+      max-height: 360px;
+      overflow-y: auto;
+    }
+    .bar-wrap {
+      background: #090e1c;
+      border-radius: 8px;
+      height: 22px;
+      overflow: hidden;
+      display: flex;
+      border: 1px solid var(--border);
+      margin-top: 6px;
+    }
+    .bar-fixed { background: #22c55e; height: 100%; }
+    .bar-var { background: #f59e0b; height: 100%; }
+  </style>
+</head>
+<body>
+
+<!-- DACH CASHFLOW STUDIOS LAUNCH BAR -->
+<style>
+  #dcs-launch-bar {
+    position: sticky;
+    top: 0;
+    z-index: 99999;
+    background: linear-gradient(90deg, #0b1120 0%, #111827 50%, #0f172a 100%);
+    color: #f8fafc;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.35);
+    padding: 8px 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  }
+  #dcs-launch-bar .dcs-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+  }
+  #dcs-launch-bar .dcs-badge {
+    background: rgba(16, 185, 129, 0.18);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.03em;
+  }
+  #dcs-launch-bar a.dcs-nav {
+    color: #93c5fd;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 12.5px;
+  }
+  #dcs-launch-bar a.dcs-nav:hover {
+    text-decoration: underline;
+    color: #dbeafe;
+  }
+  #dcs-launch-bar .dcs-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  #dcs-launch-bar .dcs-btn {
+    padding: 5px 11px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s ease;
+  }
+  #dcs-launch-bar .dcs-btn-ghost {
+    background: rgba(255,255,255,0.08);
+    color: #e2e8f0;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  #dcs-launch-bar .dcs-btn-primary {
+    background: linear-gradient(135deg, #0ea5e9, #2563eb);
+    color: #ffffff;
+  }
+  #dcs-launch-bar .dcs-btn-emerald {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
+  }
+  @media print {
+    #dcs-launch-bar { display: none !important; }
+  }
+</style>
+<div id="dcs-launch-bar">
+  <div class="dcs-left">
+    <a href="/index.html" class="dcs-nav">← Alle 150 DACH Studios</a>
+    <span class="dcs-badge">MVP #094 VERIFIED</span>
+    <span style="color:#cbd5e1;font-size:12px;">DACH Tax, Corporate & Accounting Arbitrage</span>
+  </div>
+  <div class="dcs-actions">
+    <button onclick="window.print()" class="dcs-btn dcs-btn-ghost">🖨️ PDF / Dossier drucken</button>
+    <a href="#checkout-modal-49" target="_blank" rel="noopener" class="dcs-btn dcs-btn-primary">⚡ Musterschreiben & Voll-Dossier (€49)</a>
+    <a href="#checkout-modal-299" target="_blank" rel="noopener" class="dcs-btn dcs-btn-emerald">🛡️ B2B Umsetzung buchen (€299 / €1.490)</a>
+  </div>
+</div>
+
+  <header>
+    <div>
+      <h1>DACH GmbH-vGA- & Gesellschafter-Geschäftsführer-Prüfstand (§ 8 Abs. 3 Satz 2 KStG)</h1>
+      <p>Deterministischer 10-Punkte-BFH-Fremdvergleich · 75/25 & 50% Tantieme-Rechner · Doppelbesteuerungs-Simulator (KSt + GewSt + KapESt + § 233a AO) · Gesellschafterbeschluss-Generator</p>
+    </div>
+    <div class="badge-bar">
+      <span class="badge">§ 8 Abs. 3 Satz 2 KStG</span>
+      <span class="badge">KStR R 8.5 – R 8.9</span>
+      <span class="badge">BFH I R 50/94 & BMF 01.02.2002</span>
+      <span class="badge">§ 181 BGB HRB-Check</span>
+    </div>
+  </header>
+
+  <main>
+    <div class="grid-top">
+      <div class="card">
+        <h2>1. GmbH- & GGf-Parameter (Live-Simulator)</h2>
+        <div class="scenario-btns">
+          <button id="btn-scen-0" class="active" onclick="loadScenario(0)">Fall 1: Akute vGA-Falle</button>
+          <button id="btn-scen-1" onclick="loadScenario(1)">Fall 2: Tantieme/VK-Drift</button>
+          <button id="btn-scen-2" onclick="loadScenario(2)">Fall 3: BP-Sicher (Grün)</button>
+        </div>
+
+        <div class="field">
+          <label><span>Branche (BBE / Karlsruher Tabelle)</span></label>
+          <select id="inp-industry" onchange="recalc()">
+            <option value="it_saas_beratung">IT, SaaS, Tech & Unternehmensberatung</option>
+            <option value="handel_ecommerce">Handel, Großhandel & E-Commerce</option>
+            <option value="handwerk_bau_produktion">Handwerk, Bau & Produktion</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label><span>Jahresumsatz GmbH</span><strong id="lbl-rev">1.400.000 EUR</strong></label>
+          <input type="range" id="inp-rev" min="250000" max="8000000" step="50000" value="1400000" oninput="recalc()" />
+        </div>
+
+        <div class="field">
+          <label><span>Jahresüberschuss vor Tantieme & Steuern</span><strong id="lbl-profit">220.000 EUR</strong></label>
+          <input type="range" id="inp-profit" min="20000" max="1500000" step="10000" value="220000" oninput="recalc()" />
+        </div>
+
+        <div class="field">
+          <label><span>Gewerbesteuer-Hebesatz (%)</span><strong id="lbl-hebe">455 %</strong></label>
+          <input type="range" id="inp-hebe" min="200" max="550" step="5" value="455" oninput="recalc()" />
+        </div>
+
+        <div class="field">
+          <label><span>GGf-Beteiligung (% Geschäftsanteile)</span><strong id="lbl-share">100 %</strong></label>
+          <input type="range" id="inp-share" min="10" max="100" step="5" value="100" oninput="recalc()" />
+        </div>
+
+        <div class="field">
+          <label><span>Jahres-Festgehalt (brutto inkl. Weihnachtsgeld)</span><strong id="lbl-fixed">130.000 EUR</strong></label>
+          <input type="range" id="inp-fixed" min="48000" max="360000" step="2000" value="130000" oninput="recalc()" />
+        </div>
+
+        <div class="field">
+          <label><span>Gewinntantieme (dieser GGf)</span><strong id="lbl-tant">105.000 EUR</strong></label>
+          <input type="range" id="inp-tant" min="0" max="250000" step="2500" value="105000" oninput="recalc()" />
+        </div>
+
+        <div class="field">
+          <label><span>Umsatztantieme (fast immer 100% vGA!)</span><strong id="lbl-revtant">25.000 EUR</strong></label>
+          <input type="range" id="inp-revtant" min="0" max="100000" step="2500" value="25000" oninput="recalc()" />
+        </div>
+
+        <div class="field">
+          <label><span>Überstundenvergütung / Urlaubsabgeltung</span><strong id="lbl-overtime">18.500 EUR</strong></label>
+          <input type="range" id="inp-overtime" min="0" max="50000" step="500" value="18500" oninput="recalc()" />
+        </div>
+
+        <div class="field">
+          <label><span>Debitorisches Verrechnungskonto (Darlehen an GGf)</span><strong id="lbl-vk">140.000 EUR</strong></label>
+          <input type="range" id="inp-vk" min="0" max="400000" step="5000" value="140000" oninput="recalc()" />
+        </div>
+
+        <div class="field">
+          <label><span>Zinssatz Verrechnungskonto (Fremdvergleich: 6,5%)</span><strong id="lbl-vk-int">0,5 %</strong></label>
+          <input type="range" id="inp-vk-int" min="0" max="9" step="0.25" value="0.5" oninput="recalc()" />
+        </div>
+
+        <div class="toggle-row">
+          <span>Schriftlicher Gesellschafterbeschluss VOR 01.01.?</span>
+          <input type="checkbox" id="chk-prior" onchange="recalc()" />
+        </div>
+        <div class="toggle-row">
+          <span>§ 181 BGB Befreiung im Handelsregister (HRB)?</span>
+          <input type="checkbox" id="chk-181" onchange="recalc()" />
+        </div>
+        <div class="toggle-row">
+          <span>Schriftlicher Darlehensvertrag für Verrechnungskonto?</span>
+          <input type="checkbox" id="chk-vk-contract" onchange="recalc()" />
+        </div>
+        <div class="toggle-row">
+          <span>Dienstwagen-Privatnutzung im GF-Vertrag geregelt?</span>
+          <input type="checkbox" id="chk-car" onchange="recalc()" />
+        </div>
+      </div>
+
+      <div>
+        <div class="kpi-grid">
+          <div class="kpi">
+            <div class="label">Beanstandetes vGA-Volumen p.a.</div>
+            <div class="value" id="kpi-vga-vol" style="color: var(--red);">0 EUR</div>
+            <div class="sub" id="kpi-risk-badge">Risiko-Stufe</div>
+          </div>
+          <div class="kpi">
+            <div class="label">GmbH-Steuernachzahlung (KSt+Soli+GewSt)</div>
+            <div class="value" id="kpi-corp-tax">0 EUR</div>
+            <div class="sub" id="kpi-corp-rate">Steuersatz GmbH</div>
+          </div>
+          <div class="kpi">
+            <div class="label">KapESt + Soli beim Gesellschafter (26,375%)</div>
+            <div class="value" id="kpi-div-tax">0 EUR</div>
+            <div class="sub">+ § 233a AO Nachzahlungszinsen</div>
+          </div>
+          <div class="kpi">
+            <div class="label">Gesamter BP-Liquiditätsschock (Doppelsteuer)</div>
+            <div class="value" id="kpi-total-shock" style="color: #fbbf24;">0 EUR</div>
+            <div class="sub" id="kpi-eff-rate">Effektive vGA-Strafquote</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>2. 75/25-Split & 50%-Gewinnabschöpfungs-Monitor (BFH I R 50/94 / BMF 01.02.2002)</h2>
+          <div id="split-summary" style="font-size: 0.85rem; color: var(--muted);"></div>
+          <div class="bar-wrap">
+            <div id="bar-fixed" class="bar-fixed" style="width: 75%;"></div>
+            <div id="bar-var" class="bar-var" style="width: 25%;"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>3. 10-Punkte-BFH-Betriebsprüfungs-Matrix (§ 8 Abs. 3 Satz 2 KStG & KStR R 8.5–8.9)</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Regel</th>
+                <th>Prüfungskriterium & Rechtsgrundlage</th>
+                <th>Status</th>
+                <th>vGA-Risiko</th>
+                <th>Befund & Sofortmaßnahme</th>
+              </tr>
+            </thead>
+            <tbody id="criteria-tbody"></tbody>
+          </table>
+        </div>
+
+        <div class="card">
+          <h2>4. Automatisch generierter, BP-sicherer Gesellschafterbeschluss (Vorab-Vereinbarung)</h2>
+          <pre id="resolution-box"></pre>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const DATA = {"scenarios": [{"scenario_id": "SCEN-01-AKUTE-VGA-FALLE", "company_name": "AlphaTech Solutions GmbH", "legal_form": "GmbH", "industry": "it_saas_beratung", "annual_revenue_eur": 1400000.0, "pre_bonus_pre_tax_profit_eur": 220000.0, "equity_capital_eur": 250000.0, "hebesatz_percent": 455.0, "ggf_name": "Max Mustermann", "shareholding_percent": 100.0, "aligned_interests_majority": true, "num_managing_directors": 1, "has_prior_written_resolution": false, "resolution_days_before_period": -45, "has_181_bgb_hrb_exemption": false, "fixed_annual_salary_eur": 130000.0, "profit_tantieme_eur": 105000.0, "other_gfs_tantieme_eur": 20000.0, "revenue_tantieme_eur": 25000.0, "is_documented_startup_phase": false, "overtime_and_holiday_payout_eur": 18500.0, "company_car_annual_value_eur": 16800.0, "company_car_in_contract": false, "bav_annual_contribution_eur": 14400.0, "bav_probation_years_completed": 1.0, "ggf_age_at_bav_grant": 59, "verrechnungskonto_debit_eur": 140000.0, "verrechnungskonto_has_loan_contract": false, "verrechnungskonto_interest_percent": 0.5, "arm_length_interest_percent": 6.5, "audit_lag_years": 3.5}, {"scenario_id": "SCEN-02-TANTIEME-VERRECHNUNGSKONTO-DRIFT", "company_name": "Franken Handel & E-Commerce GmbH", "legal_form": "GmbH", "industry": "handel_ecommerce", "annual_revenue_eur": 2800000.0, "pre_bonus_pre_tax_profit_eur": 310000.0, "equity_capital_eur": 400000.0, "hebesatz_percent": 490.0, "ggf_name": "Julia Becker", "shareholding_percent": 60.0, "aligned_interests_majority": true, "num_managing_directors": 2, "has_prior_written_resolution": true, "resolution_days_before_period": 14, "has_181_bgb_hrb_exemption": true, "fixed_annual_salary_eur": 140000.0, "profit_tantieme_eur": 78000.0, "other_gfs_tantieme_eur": 40000.0, "revenue_tantieme_eur": 0.0, "is_documented_startup_phase": false, "overtime_and_holiday_payout_eur": 0.0, "company_car_annual_value_eur": 14400.0, "company_car_in_contract": true, "bav_annual_contribution_eur": 12000.0, "bav_probation_years_completed": 5.0, "ggf_age_at_bav_grant": 44, "verrechnungskonto_debit_eur": 85000.0, "verrechnungskonto_has_loan_contract": true, "verrechnungskonto_interest_percent": 2.0, "arm_length_interest_percent": 6.5, "audit_lag_years": 3.0}, {"scenario_id": "SCEN-03-BP-SICHER-OPTIMIERT", "company_name": "Bavaria Precision Systems GmbH", "legal_form": "GmbH", "industry": "it_saas_beratung", "annual_revenue_eur": 2200000.0, "pre_bonus_pre_tax_profit_eur": 360000.0, "equity_capital_eur": 300000.0, "hebesatz_percent": 455.0, "ggf_name": "Dr. Lukas Weber", "shareholding_percent": 100.0, "aligned_interests_majority": true, "num_managing_directors": 1, "has_prior_written_resolution": true, "resolution_days_before_period": 20, "has_181_bgb_hrb_exemption": true, "fixed_annual_salary_eur": 168000.0, "profit_tantieme_eur": 52000.0, "other_gfs_tantieme_eur": 0.0, "revenue_tantieme_eur": 0.0, "is_documented_startup_phase": false, "overtime_and_holiday_payout_eur": 0.0, "company_car_annual_value_eur": 15600.0, "company_car_in_contract": true, "bav_annual_contribution_eur": 18000.0, "bav_probation_years_completed": 6.0, "ggf_age_at_bav_grant": 42, "verrechnungskonto_debit_eur": 0.0, "verrechnungskonto_has_loan_contract": true, "verrechnungskonto_interest_percent": 6.5, "arm_length_interest_percent": 6.5, "audit_lag_years": 3.5}], "reports": [{"scenario_id": "SCEN-01-AKUTE-VGA-FALLE", "company_name": "AlphaTech Solutions GmbH", "ggf_name": "Max Mustermann", "is_controlling_ggf": true, "total_remuneration_eur": 309700.0, "fixed_share_percent": 52.05, "variable_share_percent": 41.98, "tantieme_share_of_profit_percent": 68.18, "benchmark_q3_eur": 210000.0, "benchmark_safe_harbor_ceiling_eur": 252000.0, "minimum_equity_return_eur": 15000.0, "remaining_profit_after_comp_eur": 70000.0, "overall_risk_level": "HOCH / AKUTE VGA-GEFAHR", "risk_score_0_100": 100, "criteria_findings": [{"rule_id": "BFH-01", "title": "Rückwirkungsverbot & Klarheitsgebot (Beherrschender GGf)", "legal_basis": "§ 8 Abs. 3 S. 2 KStG, KStR R 8.5 Abs. 2, BFH I R 98/96", "status": "ROT", "vga_exposure_eur": 149500.0, "summary": "Beherrschender GGf (100.0%): Es liegt kein schriftlicher Gesellschafterbeschluss VOR Beginn des Leistungszeitraums vor. Nachträgliche Tantiemen und rückwirkende Gehaltserhöhungen sind formell 100% vGA.", "remediation": "Vorab-Gesellschafterbeschluss zwingend vor dem 01.01. des Wirtschaftsjahres schriftlich fassen, unterzeichnen und mit eindeutiger Berechnungsformel dokumentieren."}, {"rule_id": "BFH-02", "title": "§ 181 BGB Befreiung im Handelsregister (Insichgeschäft)", "legal_basis": "§ 181 BGB, § 35 Abs. 3 GmbHG, BFH I R 75/95", "status": "ROT", "vga_exposure_eur": 143000.0, "summary": "Keine eingetragene Befreiung vom Selbstkontrahierungsverbot (§ 181 BGB) im Handelsregister (HRB). Vom Allein-GGf mit sich selbst geschlossene Nachträge sind zivilrechtlich schwebend unwirksam und steuerlich vGA.", "remediation": "Satzungsöffnungsklausel prüfen, Befreiung von § 181 BGB notariell zum Handelsregister (HRB) anmelden und Vertragsnachträge für die Zukunft neu bestätigen."}, {"rule_id": "BFH-03", "title": "75% / 25% Festgehalt-zu-Tantieme-Regel", "legal_basis": "BFH I R 50/94, BFH I R 46/01, BMF 01.02.2002 (Ref. I R 4/96)", "status": "ROT", "vga_exposure_eur": 76266.67, "summary": "Variabler Anteil beträgt 42.0% der Gesamtbezüge (Festanteil 52.0%). Erlaubtes 25%-Maximum bei aktuellem Festgehalt liegt bei 53,733.33 EUR (Überschreitung um 76,266.67 EUR).", "remediation": "Tantieme im GF-Vertrag vertraglich auf maximal 53,733.33 EUR p.a. (33,33% der Festbezüge = 25% der Gesamtbezüge) deckeln oder Festgehalt anteilig erhöhen."}, {"rule_id": "BFH-04", "title": "50%-Gewinnabschöpfungsgrenze (Jahresüberschuss vor Tantieme/Steuern)", "legal_basis": "BFH I R 50/94, KStR R 8.7, BMF 01.02.2002", "status": "ROT", "vga_exposure_eur": 40000.0, "summary": "Alle GF-Tantiemen zusammen (150,000.00 EUR) schöpfen 68.2% des Jahresüberschusses vor Tantieme (220,000.00 EUR) ab. Über 50% (110,000.00 EUR) gilt der Anscheinsbeweis für eine vGA.", "remediation": "Tantiemeklausel zwingend mit doppelter Obergrenze versehen: Höchstens 50% des Jahresüberschusses vor Tantieme und Ertragsteuern nach Abzug etwaiger Verlustvorträge."}, {"rule_id": "BFH-05", "title": "Verbot der Umsatztantieme (Gewinnabschöpfung ohne Ertragsschutz)", "legal_basis": "KStR R 8.7, BFH I R 109/99", "status": "ROT", "vga_exposure_eur": 25000.0, "summary": "Vereinbarte Umsatztantieme (25,000.00 EUR) außerhalb einer zeitlich eng befristeten Gründungs-/Aufbauphase wird vom Finanzamt zu 100% als vGA qualifiziert.", "remediation": "Umsatztantieme sofort mit Wirkung für das nächste Wirtschaftsjahr auf eine reine Rohgewinn- oder Jahresüberschuss-Tantieme umstellen."}, {"rule_id": "BFH-06", "title": "Angemessenheit der Gesamtbezüge & Mindest-Eigenkapitalverzinsung", "legal_basis": "KStR R 8.5 Abs. 1, BFH I R 46/01 (Karlsruher Tabelle / BBE-Studie)", "status": "ROT", "vga_exposure_eur": 57700.0, "summary": "Gesamtbezüge (309,700.00 EUR) überschreiten die BBE-Obergrenze inkl. 20% Sicherheitszuschlag (252,000.00 EUR) bzw. unterschreiten die Mindestkapitalverzinsung (15,000.00 EUR). Überhang: 57,700.00 EUR.", "remediation": "Gesamtvergütung innerhalb des oberen Quartils der BBE-/Karlsruher-Tabelle plus 20% Bandbreitenzuschlag halten; überschießende Gewinne regulär als offene Dividende ausschütten."}, {"rule_id": "BFH-07", "title": "Verbot der Überstundenvergütung & Urlaubsabgeltung für GGf", "legal_basis": "BFH I R 67/96, BFH I R 40/97, KStR R 8.5", "status": "ROT", "vga_exposure_eur": 18500.0, "summary": "Ausgezahlte Überstundenvergütung / Zuschläge / laufende Urlaubsabgeltung (18,500.00 EUR) widerspricht dem Aufgabenbild der Allzuständigkeit eines Geschäftsführers und ist zu 100% vGA.", "remediation": "Jegliche Stundenlohn-, Überstunden-, Sonn-/Feiertagszuschlags- oder Urlaubsabgeltungsklauseln aus dem GF-Anstellungsvertrag streichen; stattdessen Festgehalt vorab anheben."}, {"rule_id": "BFH-08", "title": "Debitorisches Gesellschafter-Verrechnungskonto & Zins-Fremdvergleich", "legal_basis": "§ 8 Abs. 3 S. 2 KStG, BFH I R 19/06 (Margenteilungsgrundsatz)", "status": "ROT", "vga_exposure_eur": 22400.0, "summary": "Verrechnungskonto weist 140,000.00 EUR Forderung gegen den GGf aus (Vertrag: NEIN, Zins: 0.50% statt Fremdvergleich 6.50%). Steuerliches vGA-Risiko p.a.: 22,400.00 EUR.", "remediation": "Sofort schriftlichen Rahmen-Darlehensvertrag mit Tilgungsplan, Sicherheiten und fremdüblichem Zinssatz (6.50% p.a. nach Margenteilungsgrundsatz) per Gesellschafterbeschluss verabschieden oder Saldo durch Gewinnausschüttung glattstellen."}, {"rule_id": "BFH-09", "title": "Dienstwagen-Überlassung & Privatnutzungsklausel", "legal_basis": "BFH I R 42/12, BMF 03.04.2012", "status": "ROT", "vga_exposure_eur": 16800.0, "summary": "Dienstwagen (16,800.00 EUR Jahreswert) wird ohne ausdrückliche Gestattung im GF-Anstellungsvertrag privat genutzt. BFH setzt den gemeinen Wert der Nutzungsüberlassung inkl. Gewinnaufschlag als vGA an.", "remediation": "Privatnutzung des Dienstwagens inkl. 1%-Lohnversteuerung ausdrücklich per Gesellschafterbeschluss im GF-Anstellungsvertrag verankern."}, {"rule_id": "BFH-10", "title": "Pensionszusage / bAV (Probezeit & 10-Jahres-Erdienbarkeit)", "legal_basis": "§ 6a EStG, KStR R 8.7, BMF 14.12.2012", "status": "ROT", "vga_exposure_eur": 14400.0, "summary": "bAV-/Pensionszusage (14,400.00 EUR p.a.) verletzt die Probezeit (1.0 J. statt mind. 2–3 J.) oder den 10-jährigen Erdienbarkeitszeitraum vor Alter 67 (Zusagealter 59).", "remediation": "Pensionszusagen erst nach Ablauf von 3 Jahren Unternehmens- und GF-Probezeit sowie spätestens vor Vollendung des 57. Lebensjahres erteilen."}], "clawback": {"total_vga_volume_eur": 271066.67, "kst_rate_percent": 15.0, "soli_on_kst_percent": 0.825, "gewst_rate_percent": 15.925, "combined_corporate_tax_rate_percent": 31.75, "corporate_tax_clawback_eur": 86063.67, "ao_233a_interest_1_8_eur": 5422.01, "ao_233a_interest_6_0_legacy_eur": 18073.37, "shareholder_kapest_soli_rate_percent": 26.375, "shareholder_dividend_tax_eur": 71493.83, "total_liquidity_shock_eur": 162979.51, "effective_double_tax_burden_percent": 60.13, "estimated_wage_tax_refund_offset_eur": 104440.0, "net_economic_damage_after_est_offset_eur": 58539.51}, "resolution_markdown": "# GESELLSCHAFTERBESCHLUSS (Prüfungssichere Vorab-Vereinbarung nach § 8 Abs. 3 Satz 2 KStG)\n\n**Gesellschaft:** AlphaTech Solutions GmbH (GmbH)\n**Gesellschafter-Geschäftsführer (GGf):** Max Mustermann (Beteiligung: 100.0%)\n**Beschlussdatum (zwingend VOR Beginn des Wirtschaftsjahres):** 15.12.2026 (Wirksam ab 01.01.2027)\n\n### 1. Festgehalt & Verbot der Überstundenvergütung (`BFH I R 67/96`)\nDas Jahresfestgehalt des Geschäftsführers Max Mustermann wird mit Wirkung ab dem 01.01.2027 auf **130,000.00 EUR brutto p.a.** (auszahlbar in 12 gleichen Monatsraten) festgesetzt. Mit dieser Vergütung sind sämtliche Überstunden, Mehrarbeit sowie Sonn-, Feiertags- und Nachtarbeitszeiten vollständig abgegolten; eine gesonderte Überstundenvergütung oder laufende Urlaubsabgeltung ist ausgeschlossen.\n\n### 2. Gewinntantieme mit doppelter BFH-Deckelung (`75/25-Regel` & `50%-Gewinngrenze`, `BFH I R 50/94`, `BMF 01.02.2002`)\nDem Geschäftsführer wird eine erfolgsabhängige Jahrestantieme am handelsrechtlichen Jahresüberschuss (vor Abzug der Tantieme und der Ertragsteuern KSt/GewSt/Soli, jedoch nach Verrechnung etwaiger Verlustvorträge) gewährt. Die Tantieme unterliegt einer zwingenden **doppelten Höchstgrenze (Cap)**:\n- **Cap A (75/25-Grundsatz):** Höchstens **25,0 % der Gesamtbezüge** (= maximal 33,33 % der Festbezüge, aktuell **53,733.33 EUR**).\n- **Cap B (50%-Gewinnabschöpfungsverbot):** Alle Geschäftsführer-Tantiemen zusammen dürfen **50,0 % des Jahresüberschusses** vor Tantieme und Ertragsteuern (aktuell **110,000.00 EUR**) nicht überschreiten.\n- **Effektiver Auszahlungs-Deckel:** **53,733.33 EUR p.a.** (Gesamtbezüge innerhalb der BBE-Safe-Harbor-Grenze von 252,000.00 EUR).\n\n### 3. Befreiung von § 181 BGB & Dienstwagen / Verrechnungskonto\nDer Geschäftsführer ist gemäß Satzung und Handelsregistereintragung von den Beschränkungen des **§ 181 BGB** befreit. Eine private Nutzung des überlassenen Dienstwagens ist ausdrücklich als Gehaltsbestandteil gestattet und nach der 1%-Regelung (bzw. Fahrtenbuch) lohnzuversteuern. Etwaige Salden auf dem Gesellschafter-Verrechnungskonto werden gemäß gesondertem Darlehensvertrag mit **6.50 % p.a.** fremdüblich verzinst."}, {"scenario_id": "SCEN-02-TANTIEME-VERRECHNUNGSKONTO-DRIFT", "company_name": "Franken Handel & E-Commerce GmbH", "ggf_name": "Julia Becker", "is_controlling_ggf": true, "total_remuneration_eur": 244400.0, "fixed_share_percent": 68.09, "variable_share_percent": 31.91, "tantieme_share_of_profit_percent": 38.06, "benchmark_q3_eur": 220500.0, "benchmark_safe_harbor_ceiling_eur": 264600.0, "minimum_equity_return_eur": 24000.0, "remaining_profit_after_comp_eur": 192000.0, "overall_risk_level": "HOCH / AKUTE VGA-GEFAHR", "risk_score_0_100": 59, "criteria_findings": [{"rule_id": "BFH-01", "title": "Rückwirkungsverbot & Klarheitsgebot (Beherrschender GGf)", "legal_basis": "§ 8 Abs. 3 S. 2 KStG, KStR R 8.5 Abs. 2", "status": "GRUEN", "vga_exposure_eur": 0.0, "summary": "Schriftlicher Gesellschafterbeschluss wurde 14 Tage vor Beginn des Leistungszeitraums klar und eindeutig dokumentiert.", "remediation": "Beschlussprotokoll im digitalen Verfahrensdokumentations-Ordner revisionssicher archivieren."}, {"rule_id": "BFH-02", "title": "§ 181 BGB Befreiung im Handelsregister (Insichgeschäft)", "legal_basis": "§ 181 BGB, § 35 Abs. 3 GmbHG", "status": "GRUEN", "vga_exposure_eur": 0.0, "summary": "Befreiung von den Beschränkungen des § 181 BGB ist wirksam in Satzung und Handelsregister (HRB) eingetragen.", "remediation": "Aktuellen chronologischen HRB-Abdruck zu den GF-Vertragsunterlagen heften."}, {"rule_id": "BFH-03", "title": "75% / 25% Festgehalt-zu-Tantieme-Regel", "legal_basis": "BFH I R 50/94, BFH I R 46/01, BMF 01.02.2002 (Ref. I R 4/96)", "status": "ROT", "vga_exposure_eur": 22533.33, "summary": "Variabler Anteil beträgt 31.9% der Gesamtbezüge (Festanteil 68.1%). Erlaubtes 25%-Maximum bei aktuellem Festgehalt liegt bei 55,466.67 EUR (Überschreitung um 22,533.33 EUR).", "remediation": "Tantieme im GF-Vertrag vertraglich auf maximal 55,466.67 EUR p.a. (33,33% der Festbezüge = 25% der Gesamtbezüge) deckeln oder Festgehalt anteilig erhöhen."}, {"rule_id": "BFH-04", "title": "50%-Gewinnabschöpfungsgrenze (Jahresüberschuss vor Tantieme/Steuern)", "legal_basis": "BFH I R 50/94, KStR R 8.7, BMF 01.02.2002", "status": "GRUEN", "vga_exposure_eur": 0.0, "summary": "Gesamt-Tantiemequote liegt bei 38.1% des Jahresüberschusses (unterhalb der 50%-Schwelle von 155,000.00 EUR).", "remediation": "Verlustvorträge vor Tantiemeberechnung stets in die Bemessungsgrundlage einbeziehen."}, {"rule_id": "BFH-05", "title": "Verbot der Umsatztantieme (Gewinnabschöpfung ohne Ertragsschutz)", "legal_basis": "KStR R 8.7, BFH I R 109/99", "status": "GRUEN", "vga_exposure_eur": 0.0, "summary": "Keine schädliche unbefristete Umsatztantieme vereinbart.", "remediation": "Erfolgsabhängige Vergütungen ausschließlich am Jahresüberschuss nach HGB ausrichten."}, {"rule_id": "BFH-06", "title": "Angemessenheit der Gesamtbezüge & Mindest-Eigenkapitalverzinsung", "legal_basis": "KStR R 8.5 Abs. 1, BFH I R 46/01 (Karlsruher Tabelle / BBE-Studie)", "status": "GRUEN", "vga_exposure_eur": 0.0, "summary": "Gesamtbezüge (244,400.00 EUR) liegen innerhalb des Fremdvergleichsrahmens (Safe-Harbor-Decke: 264,600.00 EUR).", "remediation": "Alle 2–3 Jahre Gehaltsbenchmark-Gutachten (BBE / IHK) zum Beschluss dokumentieren."}, {"rule_id": "BFH-07", "title": "Verbot der Überstundenvergütung & Urlaubsabgeltung für GGf", "legal_basis": "BFH I R 67/96, BFH I R 40/97, KStR R 8.5", "status": "GRUEN", "vga_exposure_eur": 0.0, "summary": "Keine schädliche Überstundenvergütung oder laufende Urlaubsabgeltung an den GGf gezahlt.", "remediation": "Im GF-Vertrag ausdrücklich festhalten, dass Mehrarbeit durch das Festgehalt abgegolten ist."}, {"rule_id": "BFH-08", "title": "Debitorisches Gesellschafter-Verrechnungskonto & Zins-Fremdvergleich", "legal_basis": "§ 8 Abs. 3 S. 2 KStG, BFH I R 19/06 (Margenteilungsgrundsatz)", "status": "ROT", "vga_exposure_eur": 3825.0, "summary": "Verrechnungskonto weist 85,000.00 EUR Forderung gegen den GGf aus (Vertrag: Ja, Zins: 2.00% statt Fremdvergleich 6.50%). Steuerliches vGA-Risiko p.a.: 3,825.00 EUR.", "remediation": "Sofort schriftlichen Rahmen-Darlehensvertrag mit Tilgungsplan, Sicherheiten und fremdüblichem Zinssatz (6.50% p.a. nach Margenteilungsgrundsatz) per Gesellschafterbeschluss verabschieden oder Saldo durch Gewinnausschüttung glattstellen."}, {"rule_id": "BFH-09", "title": "Dienstwagen-Überlassung & Privatnutzungsklausel", "legal_basis": "BFH I R 42/12, BMF 03.04.2012", "status": "GRUEN", "vga_exposure_eur": 0.0, "summary": "Dienstwagen-Überlassung ist vertraglich sauber geregelt und wird ordnungsgemäß lohnversteuert.", "remediation": "Bruttolistenpreis-Nachweis im Lohnkonto aufbewahren."}, {"rule_id": "BFH-10", "title": "Pensionszusage / bAV (Probezeit & 10-Jahres-Erdienbarkeit)", "legal_basis": "§ 6a EStG, KStR R 8.7, BMF 14.12.2012", "status": "GRUEN", "vga_exposure_eur": 0.0, "summary": "Betriebliche Altersvorsorge erfüllt Wartezeit- und Erdienbarkeitskriterien.", "remediation": "75%-Überversorgungsgrenze bei künftigen Gehaltsanpassungen regelmäßig prüfen."}], "clawback": {"total_vga_volume_eur": 26358.33, "kst_rate_percent": 15.0, "soli_on_kst_percent": 0.825, "gewst_rate_percent": 17.15, "combined_corporate_tax_rate_percent": 32.975, "corporate_tax_clawback_eur": 8691.66, "ao_233a_interest_1_8_eur": 469.35, "ao_233a_interest_6_0_legacy_eur": 1564.5, "shareholder_kapest_soli_rate_percent": 26.375, "shareholder_dividend_tax_eur": 6952.01, "total_liquidity_shock_eur": 16113.02, "effective_double_tax_burden_percent": 61.13, "estimated_wage_tax_refund_offset_eur": 9464.0, "net_economic_damage_after_est_offset_eur": 6649.02}, "resolution_markdown": "# GESELLSCHAFTERBESCHLUSS (Prüfungssichere Vorab-Vereinbarung nach § 8 Abs. 3 Satz 2 KStG)\n\n**Gesellschaft:** Franken Handel & E-Commerce GmbH (GmbH)\n**Gesellschafter-Geschäftsführer (GGf):** Julia Becker (Beteiligung: 60.0%)\n**Beschlussdatum (zwingend VOR Beginn des Wirtschaftsjahres):** 15.12.2026 (Wirksam ab 01.01.2027)\n\n### 1. Festgehalt & Verbot der Überstundenvergütung (`BFH I R 67/96`)\nDas Jahresfestgehalt des Geschäftsführers Julia Becker wird mit Wirkung ab dem 01.01.2027 auf **140,000.00 EUR brutto p.a.** (auszahlbar in 12 gleichen Monatsraten) festgesetzt. Mit dieser Vergütung sind sämtliche Überstunden, Mehrarbeit sowie Sonn-, Feiertags- und Nachtarbeitszeiten vollständig abgegolten; eine gesonderte Überstundenvergütung oder laufende Urlaubsabgeltung ist ausgeschlossen.\n\n### 2. Gewinntantieme mit doppelter BFH-Deckelung (`75/25-Regel` & `50%-Gewinngrenze`, `BFH I R 50/94`, `BMF 01.02.2002`)\nDem Geschäftsführer wird eine erfolgsabhängige Jahrestantieme am handelsrechtlichen Jahresüberschuss (vor Abzug der Tantieme und der Ertragsteuern KSt/GewSt/Soli, jedoch nach Verrechnung etwaiger Verlustvorträge) gewährt. Die Tantieme unterliegt einer zwingenden **doppelten Höchstgrenze (Cap)**:\n- **Cap A (75/25-Grundsatz):** Höchstens **25,0 % der Gesamtbezüge** (= maximal 33,33 % der Festbezüge, aktuell **55,466.67 EUR**).\n- **Cap B (50%-Gewinnabschöpfungsverbot):** Alle Geschäftsführer-Tantiemen zusammen dürfen **50,0 % des Jahresüberschusses** vor Tantieme und Ertragsteuern (aktuell **155,000.00 EUR**) nicht überschreiten.\n- **Effektiver Auszahlungs-Deckel:** **55,466.67 EUR p.a.** (Gesamtbezüge innerhalb der BBE-Safe-Harbor-Grenze von 264,600.00 EUR).\n\n### 3. Befreiung von § 181 BGB & Dienstwagen / Verrechnungskonto\nDer Geschäftsführer ist gemäß Satzung und Handelsregistereintragung von den Beschränkungen des **§ 181 BGB** befreit. Eine private Nutzung des überlassenen Dienstwagens ist ausdrücklich als Gehaltsbestandteil gestattet und nach der 1%-Regelung (bzw. Fahrtenbuch) lohnzuversteuern. Etwaige Salden auf dem Gesellschafter-Verrechnungskonto werden gemäß gesondertem Darlehensvertrag mit **6.50 % p.a.** fremdüblich verzinst."}, {"scenario_id": "SCEN-03-BP-SICHER-OPTIMIERT", "company_name": "Bavaria Precision Systems GmbH", "ggf_name": "Dr. Lukas Weber", "is_controlling_ggf": true, "total_remuneration_eur": 253600.0, "fixed_share_percent": 79.5, "variable_share_percent": 20.5, "tantieme_share_of_profit_percent": 14.44, "benchmark_q3_eur": 295000.0, "benchmark_safe_harbor_ceiling_eur": 354000.0, "minimum_equity_return_eur": 18000.0, "remaining_profit_after_comp_eur": 308000.0, "overall_risk_level": "NIEDRIG", "risk_score_0_100": 0, "criteria_findings": [{"rule_id": "BFH-01", "title": "Rückwirkungsverbot & Klarheitsgebot (Beherrschender GGf)", "legal_basis": "§ 8 Abs. 3 S. 2 KStG, KStR R 8.5 Abs. 2", "status": "GRUEN", "vga_exposure_eur": 0.0, "summary": "Schriftlicher Gesellschafterbeschluss wurde 20 Tage vor Beginn des Leistungszeitraums klar und eindeutig dokumentiert.", "remediation": "Beschlussprotokoll im digitalen Verfahrensdokumentations-Ordner revisionssicher archivieren."}, {"rule_id": "BFH-02", "title": "§ 181 BGB Befreiung im Handelsregister (Insichgeschäft)", "legal_basis": "§ 181 BGB, § 35 Abs. 3 GmbHG", "status": "GRUEN", "vga_exposure_eur": 0.0, "summary": "Befreiung von den Beschränkungen des § 181 BGB ist wirksam in Satzung und Handelsregister (HRB) eingetragen.", "remediation": "Aktuellen chronologischen HRB-Abdruck zu den GF-Vertragsunterlagen heften."}, {"rule_id": "BFH-03", "title": "75% / 25% Festgehalt-zu-Tantieme-Regel", "legal_basis": "BFH I R 50/94, BFH I R 46/01, BMF 01.02.2002 (Ref. I R 4/96)", "status": "GRUEN", "vga_exposure_eur": 0.0, "summary": "Split 79.5% Festbezüge zu 20.5% Tantieme hält die 75/25-Aufgriffsgrenze der Finanzverwaltung ein.", "remediation": "Jahres-Deckelungsklausel (Cap auf 25% der Gesamtbezüge) im Beschluss beibehalten."}, {"rule_id": "BFH-04", "title": "50%-Gewinnabschöpfungsgrenze (Jahresüberschuss vor Tantieme/Steuern)", "legal_basis": "BFH I R 50/94, KStR R 8.7, BMF 01.02.2002", "status": "GRUEN", "vga_exposure_eur": 0.0, "summary": "Gesamt-Tantiemequote liegt bei 14.4% des Jahresüberschusses (unterhalb der 50%-Schwelle von 180,000.00 EUR).", "remediation": "Verlustvorträge vor Tantiemeberechnung stets in die Bemessungsgrundlage einbeziehen."}, {"rule_id": "BFH-05", "title": "Verbot der Umsatztantieme (Gewinnabschöpfung ohne Ertragsschutz)", "legal_basis": "KStR R 8.7, BFH I R 109/99", "status": "GRUEN", "vga_exposure_eur": 0.0, "summary": "Keine schädliche unbefristete Umsatztantieme vereinbart.", "remediation": "Erfolgsabhängige Vergütungen ausschließlich am Jahresüberschuss nach HGB ausrichten."}, {"rule_id": "BFH-06", "title": "Angemessenheit der Gesamtbezüge & Mindest-Eigenkapitalverzinsung", "legal_basis": "KStR R 8.5 Abs. 1, BFH I R 46/01 (Karlsruher Tabelle / BBE-Studie)", "status": "GRUEN", "vga_exposure_eur": 0.0, "summary": "Gesamtbezüge (253,600.00 EUR) liegen innerhalb des Fremdvergleichsrahmens (Safe-Harbor-Decke: 354,000.00 EUR).", "remediation": "Alle 2–3 Jahre Gehaltsbenchmark-Gutachten (BBE / IHK) zum Beschluss dokumentieren."}, {"rule_id": "BFH-07", "title": "Verbot der Überstundenvergütung & Urlaubsabgeltung für GGf", "legal_basis": "BFH I R 67/96, BFH I R 40/97, KStR R 8.5", "status": "GRUEN", "vga_exposure_eur": 0.0, "summary": "Keine schädliche Überstundenvergütung oder laufende Urlaubsabgeltung an den GGf gezahlt.", "remediation": "Im GF-Vertrag ausdrücklich festhalten, dass Mehrarbeit durch das Festgehalt abgegolten ist."}, {"rule_id": "BFH-08", "title": "Debitorisches Gesellschafter-Verrechnungskonto & Zins-Fremdvergleich", "legal_basis": "§ 8 Abs. 3 S. 2 KStG, BFH I R 19/06 (Margenteilungsgrundsatz)", "status": "GRUEN", "vga_exposure_eur": 0.0, "summary": "Kein debitorischer Saldo zu Lasten des Gesellschafters auf dem Verrechnungskonto.", "remediation": "Private Ausgaben strikt von Geschäftskonten und Firmenkreditkarten trennen."}, {"rule_id": "BFH-09", "title": "Dienstwagen-Überlassung & Privatnutzungsklausel", "legal_basis": "BFH I R 42/12, BMF 03.04.2012", "status": "GRUEN", "vga_exposure_eur": 0.0, "summary": "Dienstwagen-Überlassung ist vertraglich sauber geregelt und wird ordnungsgemäß lohnversteuert.", "remediation": "Bruttolistenpreis-Nachweis im Lohnkonto aufbewahren."}, {"rule_id": "BFH-10", "title": "Pensionszusage / bAV (Probezeit & 10-Jahres-Erdienbarkeit)", "legal_basis": "§ 6a EStG, KStR R 8.7, BMF 14.12.2012", "status": "GRUEN", "vga_exposure_eur": 0.0, "summary": "Betriebliche Altersvorsorge erfüllt Wartezeit- und Erdienbarkeitskriterien.", "remediation": "75%-Überversorgungsgrenze bei künftigen Gehaltsanpassungen regelmäßig prüfen."}], "clawback": {"total_vga_volume_eur": 0.0, "kst_rate_percent": 15.0, "soli_on_kst_percent": 0.825, "gewst_rate_percent": 15.925, "combined_corporate_tax_rate_percent": 31.75, "corporate_tax_clawback_eur": 0.0, "ao_233a_interest_1_8_eur": 0.0, "ao_233a_interest_6_0_legacy_eur": 0.0, "shareholder_kapest_soli_rate_percent": 26.375, "shareholder_dividend_tax_eur": 0.0, "total_liquidity_shock_eur": 0.0, "effective_double_tax_burden_percent": 0.0, "estimated_wage_tax_refund_offset_eur": 0.0, "net_economic_damage_after_est_offset_eur": 0.0}, "resolution_markdown": "# GESELLSCHAFTERBESCHLUSS (Prüfungssichere Vorab-Vereinbarung nach § 8 Abs. 3 Satz 2 KStG)\n\n**Gesellschaft:** Bavaria Precision Systems GmbH (GmbH)\n**Gesellschafter-Geschäftsführer (GGf):** Dr. Lukas Weber (Beteiligung: 100.0%)\n**Beschlussdatum (zwingend VOR Beginn des Wirtschaftsjahres):** 15.12.2026 (Wirksam ab 01.01.2027)\n\n### 1. Festgehalt & Verbot der Überstundenvergütung (`BFH I R 67/96`)\nDas Jahresfestgehalt des Geschäftsführers Dr. Lukas Weber wird mit Wirkung ab dem 01.01.2027 auf **168,000.00 EUR brutto p.a.** (auszahlbar in 12 gleichen Monatsraten) festgesetzt. Mit dieser Vergütung sind sämtliche Überstunden, Mehrarbeit sowie Sonn-, Feiertags- und Nachtarbeitszeiten vollständig abgegolten; eine gesonderte Überstundenvergütung oder laufende Urlaubsabgeltung ist ausgeschlossen.\n\n### 2. Gewinntantieme mit doppelter BFH-Deckelung (`75/25-Regel` & `50%-Gewinngrenze`, `BFH I R 50/94`, `BMF 01.02.2002`)\nDem Geschäftsführer wird eine erfolgsabhängige Jahrestantieme am handelsrechtlichen Jahresüberschuss (vor Abzug der Tantieme und der Ertragsteuern KSt/GewSt/Soli, jedoch nach Verrechnung etwaiger Verlustvorträge) gewährt. Die Tantieme unterliegt einer zwingenden **doppelten Höchstgrenze (Cap)**:\n- **Cap A (75/25-Grundsatz):** Höchstens **25,0 % der Gesamtbezüge** (= maximal 33,33 % der Festbezüge, aktuell **67,200.00 EUR**).\n- **Cap B (50%-Gewinnabschöpfungsverbot):** Alle Geschäftsführer-Tantiemen zusammen dürfen **50,0 % des Jahresüberschusses** vor Tantieme und Ertragsteuern (aktuell **180,000.00 EUR**) nicht überschreiten.\n- **Effektiver Auszahlungs-Deckel:** **67,200.00 EUR p.a.** (Gesamtbezüge innerhalb der BBE-Safe-Harbor-Grenze von 354,000.00 EUR).\n\n### 3. Befreiung von § 181 BGB & Dienstwagen / Verrechnungskonto\nDer Geschäftsführer ist gemäß Satzung und Handelsregistereintragung von den Beschränkungen des **§ 181 BGB** befreit. Eine private Nutzung des überlassenen Dienstwagens ist ausdrücklich als Gehaltsbestandteil gestattet und nach der 1%-Regelung (bzw. Fahrtenbuch) lohnzuversteuern. Etwaige Salden auf dem Gesellschafter-Verrechnungskonto werden gemäß gesondertem Darlehensvertrag mit **6.50 % p.a.** fremdüblich verzinst."}], "benchmarks": {"it_saas_beratung": [{"max_revenue_eur": 500000, "median_total_comp": 115000, "q3_total_comp": 145000}, {"max_revenue_eur": 1500000, "median_total_comp": 165000, "q3_total_comp": 210000}, {"max_revenue_eur": 5000000, "median_total_comp": 235000, "q3_total_comp": 295000}, {"max_revenue_eur": 999999999, "median_total_comp": 340000, "q3_total_comp": 430000}], "handel_ecommerce": [{"max_revenue_eur": 500000, "median_total_comp": 95000, "q3_total_comp": 120000}, {"max_revenue_eur": 1500000, "median_total_comp": 135000, "q3_total_comp": 170000}, {"max_revenue_eur": 5000000, "median_total_comp": 195000, "q3_total_comp": 245000}, {"max_revenue_eur": 999999999, "median_total_comp": 285000, "q3_total_comp": 360000}], "handwerk_bau_produktion": [{"max_revenue_eur": 500000, "median_total_comp": 100000, "q3_total_comp": 125000}, {"max_revenue_eur": 1500000, "median_total_comp": 145000, "q3_total_comp": 180000}, {"max_revenue_eur": 5000000, "median_total_comp": 205000, "q3_total_comp": 260000}, {"max_revenue_eur": 999999999, "median_total_comp": 300000, "q3_total_comp": 380000}]}};
+    let currentScenario = JSON.parse(JSON.stringify(DATA.scenarios[0]));
+
+    function fmtEUR(v) {
+      return new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(v);
+    }
+
+    function loadScenario(idx) {
+      document.querySelectorAll('.scenario-btns button').forEach((b, i) => b.classList.toggle('active', i === idx));
+      currentScenario = JSON.parse(JSON.stringify(DATA.scenarios[idx]));
+      document.getElementById('inp-industry').value = currentScenario.industry;
+      document.getElementById('inp-rev').value = currentScenario.annual_revenue_eur;
+      document.getElementById('inp-profit').value = currentScenario.pre_bonus_pre_tax_profit_eur;
+      document.getElementById('inp-hebe').value = currentScenario.hebesatz_percent;
+      document.getElementById('inp-share').value = currentScenario.shareholding_percent;
+      document.getElementById('inp-fixed').value = currentScenario.fixed_annual_salary_eur;
+      document.getElementById('inp-tant').value = currentScenario.profit_tantieme_eur;
+      document.getElementById('inp-revtant').value = currentScenario.revenue_tantieme_eur;
+      document.getElementById('inp-overtime').value = currentScenario.overtime_and_holiday_payout_eur;
+      document.getElementById('inp-vk').value = currentScenario.verrechnungskonto_debit_eur;
+      document.getElementById('inp-vk-int').value = currentScenario.verrechnungskonto_interest_percent;
+      document.getElementById('chk-prior').checked = currentScenario.has_prior_written_resolution;
+      document.getElementById('chk-181').checked = currentScenario.has_181_bgb_hrb_exemption;
+      document.getElementById('chk-vk-contract').checked = currentScenario.verrechnungskonto_has_loan_contract;
+      document.getElementById('chk-car').checked = currentScenario.company_car_in_contract;
+      recalc();
+    }
+
+    function recalc() {
+      const ind = document.getElementById('inp-industry').value;
+      const rev = parseFloat(document.getElementById('inp-rev').value);
+      const profit = parseFloat(document.getElementById('inp-profit').value);
+      const hebe = parseFloat(document.getElementById('inp-hebe').value);
+      const share = parseFloat(document.getElementById('inp-share').value);
+      const fixed = parseFloat(document.getElementById('inp-fixed').value);
+      const tant = parseFloat(document.getElementById('inp-tant').value);
+      const revtant = parseFloat(document.getElementById('inp-revtant').value);
+      const overtime = parseFloat(document.getElementById('inp-overtime').value);
+      const vk = parseFloat(document.getElementById('inp-vk').value);
+      const vkInt = parseFloat(document.getElementById('inp-vk-int').value);
+      const hasPrior = document.getElementById('chk-prior').checked;
+      const has181 = document.getElementById('chk-181').checked;
+      const hasVkContract = document.getElementById('chk-vk-contract').checked;
+      const hasCar = document.getElementById('chk-car').checked;
+
+      document.getElementById('lbl-rev').textContent = fmtEUR(rev);
+      document.getElementById('lbl-profit').textContent = fmtEUR(profit);
+      document.getElementById('lbl-hebe').textContent = hebe + ' %';
+      document.getElementById('lbl-share').textContent = share + ' %';
+      document.getElementById('lbl-fixed').textContent = fmtEUR(fixed);
+      document.getElementById('lbl-tant').textContent = fmtEUR(tant);
+      document.getElementById('lbl-revtant').textContent = fmtEUR(revtant);
+      document.getElementById('lbl-overtime').textContent = fmtEUR(overtime);
+      document.getElementById('lbl-vk').textContent = fmtEUR(vk);
+      document.getElementById('lbl-vk-int').textContent = vkInt.toFixed(2) + ' %';
+
+      const carVal = currentScenario.company_car_annual_value_eur;
+      const bavVal = currentScenario.bav_annual_contribution_eur;
+      const fixedComp = fixed + carVal + bavVal;
+      const totalVar = tant + revtant;
+      const totalComp = fixedComp + totalVar + overtime;
+
+      const fixedPct = totalComp > 0 ? (fixedComp / totalComp * 100) : 100;
+      const varPct = totalComp > 0 ? (totalVar / totalComp * 100) : 0;
+      const maxVar7525 = fixedComp / 3.0;
+      const max50Profit = Math.max(0, profit * 0.50);
+      const allTant = totalVar + currentScenario.other_gfs_tantieme_eur;
+      const tantProfitPct = profit > 0 ? (allTant / profit * 100) : 100;
+
+      const tiers = DATA.benchmarks[ind];
+      let selTier = tiers[tiers.length - 1];
+      for (const t of tiers) {
+        if (rev <= t.max_revenue_eur) { selTier = t; break; }
+      }
+      const safeHarbor = selTier.q3_total_comp * 1.20;
+      const isCtrl = share > 50 || currentScenario.aligned_interests_majority;
+
+      const rows = [
+        {
+          id: 'BFH-01',
+          title: 'Rückwirkungsverbot & Klarheitsgebot',
+          basis: '§ 8 Abs. 3 S. 2 KStG, KStR R 8.5 Abs. 2',
+          status: (isCtrl && !hasPrior) ? 'ROT' : 'GRUEN',
+          vga: (isCtrl && !hasPrior) ? (totalVar + fixed * 0.15) : 0,
+          text: (isCtrl && !hasPrior) ? 'Kein schriftlicher Beschluss vor Leistungszeitraum (100% vGA auf Tantieme & Erhöhung).' : 'Vorab-Gesellschafterbeschluss liegt fristgerecht vor.'
+        },
+        {
+          id: 'BFH-02',
+          title: '§ 181 BGB Befreiung im Handelsregister',
+          basis: '§ 181 BGB, BFH I R 75/95',
+          status: (isCtrl && !has181) ? 'ROT' : 'GRUEN',
+          vga: (isCtrl && !has181) ? (totalVar + fixed * 0.10) : 0,
+          text: (isCtrl && !has181) ? 'Fehlende HRB-Befreiung vom Selbstkontrahierungsverbot macht Vereinbarung schwebend unwirksam.' : '§ 181 BGB Befreiung im HRB eingetragen.'
+        },
+        {
+          id: 'BFH-03',
+          title: '75% / 25% Festgehalt-zu-Tantieme-Split',
+          basis: 'BFH I R 50/94, BMF 01.02.2002',
+          status: totalVar > maxVar7525 ? 'ROT' : 'GRUEN',
+          vga: Math.max(0, totalVar - maxVar7525),
+          text: `Festanteil ${fixedPct.toFixed(1)}% / Variabel ${varPct.toFixed(1)}% (Max. 25%-Tantieme: ${fmtEUR(maxVar7525)}).`
+        },
+        {
+          id: 'BFH-04',
+          title: '50%-Gewinnabschöpfungsgrenze',
+          basis: 'BFH I R 50/94, KStR R 8.7',
+          status: allTant > max50Profit ? 'ROT' : 'GRUEN',
+          vga: Math.max(0, allTant - max50Profit),
+          text: `Gesamt-Tantiemen schöpfen ${tantProfitPct.toFixed(1)}% des Gewinns vor Tantieme ab (50%-Cap: ${fmtEUR(max50Profit)}).`
+        },
+        {
+          id: 'BFH-05',
+          title: 'Verbot der Umsatztantieme',
+          basis: 'KStR R 8.7, BFH I R 109/99',
+          status: revtant > 0 ? 'ROT' : 'GRUEN',
+          vga: revtant,
+          text: revtant > 0 ? 'Umsatztantieme ohne befristete Aufbauphase ist zu 100% vGA.' : 'Keine schädliche Umsatztantieme.'
+        },
+        {
+          id: 'BFH-06',
+          title: 'Angemessenheit Gesamtbezüge (BBE + 20%)',
+          basis: 'KStR R 8.5 Abs. 1, Karlsruher Tabelle',
+          status: totalComp > safeHarbor ? 'ROT' : 'GRUEN',
+          vga: Math.max(0, totalComp - safeHarbor),
+          text: `Gesamtbezüge ${fmtEUR(totalComp)} vs. BBE Safe-Harbor-Decke ${fmtEUR(safeHarbor)}.`
+        },
+        {
+          id: 'BFH-07',
+          title: 'Verbot der Überstundenvergütung für GGf',
+          basis: 'BFH I R 67/96, KStR R 8.5',
+          status: overtime > 0 ? 'ROT' : 'GRUEN',
+          vga: overtime,
+          text: overtime > 0 ? 'Überstunden-/Urlaubsabgeltung an GGf verstößt gegen Allzuständigkeitsgrundsatz (100% vGA).' : 'Keine Überstundenvergütung.'
+        },
+        {
+          id: 'BFH-08',
+          title: 'Debitorisches Gesellschafter-Verrechnungskonto',
+          basis: '§ 8 Abs. 3 S. 2 KStG, BFH I R 19/06',
+          status: (vk > 0 && (!hasVkContract || vkInt < 6.25)) ? 'ROT' : 'GRUEN',
+          vga: vk > 0 ? (vk * Math.max(0, (6.5 - vkInt) / 100) + (!hasVkContract ? vk * 0.10 : 0)) : 0,
+          text: vk > 0 ? `Saldo ${fmtEUR(vk)} mit ${vkInt.toFixed(2)}% Zins (Fremdvergleich: 6,50%).` : 'Kein debitorischer Saldo.'
+        },
+        {
+          id: 'BFH-09',
+          title: '1%-Dienstwagen-Prüfer & Vertragsgrundlage',
+          basis: 'BFH I R 42/12',
+          status: !hasCar ? 'ROT' : 'GRUEN',
+          vga: !hasCar ? carVal : 0,
+          text: !hasCar ? 'Dienstwagen-Privatnutzung ohne ausdrückliche Vertragsklausel führt zu vGA in Höhe des gemeinen Werts.' : 'Dienstwagen vertraglich sauber geregelt.'
+        },
+        {
+          id: 'BFH-10',
+          title: 'Pensionszusage / bAV (Probezeit & Erdienbarkeit)',
+          basis: '§ 6a EStG, KStR R 8.7',
+          status: (currentScenario.bav_probation_years_completed < 2 || currentScenario.ggf_age_at_bav_grant > 57) ? 'ROT' : 'GRUEN',
+          vga: (currentScenario.bav_probation_years_completed < 2 || currentScenario.ggf_age_at_bav_grant > 57) ? bavVal : 0,
+          text: `Probezeit: ${currentScenario.bav_probation_years_completed} J., Alter bei Zusage: ${currentScenario.ggf_age_at_bav_grant} J.`
+        }
+      ];
+
+      const formalVga = Math.max(rows[0].vga, rows[1].vga);
+      const substCompVga = rows[2].vga + rows[3].vga + rows[4].vga + rows[5].vga + rows[6].vga + rows[8].vga + rows[9].vga;
+      const vkVga = rows[7].vga;
+      const totalVga = Math.min(totalComp, Math.max(formalVga, substCompVga)) + vkVga;
+
+      const corpRate = 15.0 + 0.825 + (3.5 * (hebe / 100.0));
+      const corpTax = totalVga * (corpRate / 100.0);
+      const aoInterest = corpTax * 0.018 * 3.5;
+      const divTax = totalVga * 0.26375;
+      const totalShock = corpTax + aoInterest + divTax;
+      const effPct = totalVga > 0 ? (totalShock / totalVga * 100.0) : 0;
+
+      document.getElementById('kpi-vga-vol').textContent = fmtEUR(totalVga);
+      document.getElementById('kpi-risk-badge').textContent = totalVga > 15000 ? 'HOCH / AKUTE VGA-GEFAHR' : (totalVga > 0 ? 'MITTEL' : 'NIEDRIG (BP-SICHER)');
+      document.getElementById('kpi-corp-tax').textContent = fmtEUR(corpTax + aoInterest);
+      document.getElementById('kpi-corp-rate').textContent = `${corpRate.toFixed(2)}% KSt+Soli+GewSt inkl. § 233a AO`;
+      document.getElementById('kpi-div-tax').textContent = fmtEUR(divTax);
+      document.getElementById('kpi-total-shock').textContent = fmtEUR(totalShock);
+      document.getElementById('kpi-eff-rate').textContent = `Effektive Doppelsteuer-Belastung: ${effPct.toFixed(1)}%`;
+
+      document.getElementById('bar-fixed').style.width = `${Math.min(100, fixedPct)}%`;
+      document.getElementById('bar-var').style.width = `${Math.max(0, 100 - fixedPct)}%`;
+      document.getElementById('split-summary').innerHTML =
+        `Festbezüge: <strong>${fmtEUR(fixedComp)} (${fixedPct.toFixed(1)}%)</strong> · Variable Tantiemen: <strong>${fmtEUR(totalVar)} (${varPct.toFixed(1)}%)</strong> · ` +
+        `Erlaubtes 25%-Tantieme-Maximum: <strong>${fmtEUR(maxVar7525)}</strong> · 50%-Gewinn-Cap: <strong>${fmtEUR(max50Profit)}</strong>`;
+
+      const tbody = document.getElementById('criteria-tbody');
+      tbody.innerHTML = rows.map(r => `
+        <tr>
+          <td><strong>${r.id}</strong></td>
+          <td><strong>${r.title}</strong><br/><span style="color:var(--muted);font-size:0.75rem;">${r.basis}</span></td>
+          <td><span class="pill ${r.status}">${r.status}</span></td>
+          <td><strong>${fmtEUR(r.vga)}</strong></td>
+          <td>${r.text}</td>
+        </tr>
+      `).join('');
+
+      const safeCap = Math.min(maxVar7525, max50Profit);
+      document.getElementById('resolution-box').textContent =
+`GESELLSCHAFTERBESCHLUSS (Prüfungssichere Vorab-Vereinbarung nach § 8 Abs. 3 Satz 2 KStG)
+========================================================================================
+Gesellschaft: ${currentScenario.company_name} (${currentScenario.legal_form})
+Gesellschafter-Geschäftsführer: ${currentScenario.ggf_name} (Beteiligung: ${share.toFixed(1)} %)
+Beschlussdatum: 15.12. VOR Beginn des neuen Wirtschaftsjahres (Klarheits- & Rückwirkungsverbot)
+
+1. FESTGEHALT & AUSSCHLUSS VON ÜBERSTUNDENVERGÜTUNGEN (BFH I R 67/96):
+   Das Jahresfestgehalt wird mit Wirkung ab dem 01.01. auf ${fmtEUR(fixed)} brutto p.a. festgesetzt.
+   Sämtliche Mehrarbeit sowie Sonn-, Feiertags- und Nachtarbeit sind mit dem Festgehalt abgegolten.
+
+2. GEWINNTANTIEME MIT DOPPELTER BFH-DECKELUNG (75/25-Regel & 50%-Grenze, BFH I R 50/94):
+   Die Gewinntantieme bemisst sich nach dem handelsrechtlichen Jahresüberschuss vor Tantieme und Ertragsteuern
+   abzüglich etwaiger Verlustvorträge und wird doppelt gedeckelt auf:
+   - Cap A (75/25-Regel): Maximal ${fmtEUR(maxVar7525)} p.a. (25 % der Gesamtbezüge = 33,33 % der Festbezüge)
+   - Cap B (50%-Gewinngrenze): Maximal ${fmtEUR(max50Profit)} p.a. für sämtliche Geschäftsführer zusammen
+   -> Effektiver Auszahlungs-Höchstbetrag (Safe Harbor): ${fmtEUR(safeCap)} p.a.
+
+3. § 181 BGB BEFREIUNG, DIENSTWAGEN & GESELLSCHAFTER-VERRECHNUNGSKONTO:
+   Die Befreiung von den Beschränkungen des § 181 BGB ist im Handelsregister (HRB) eingetragen.
+   Die private Dienstwagennutzung ist ausdrücklich vertraglich gestattet (1%-Versteuerung / Fahrtenbuch).
+   Debitorische Salden auf dem Verrechnungskonto werden fremdüblich mit 6,50 % p.a. verzinst.`;
+    }
+
+    window.onload = () => loadScenario(0);
+  </script>
+</body>
+</html>

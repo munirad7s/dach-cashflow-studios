@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MVP #86 — DACH Industrial & E-Commerce Tier-1 OEM Factory (源头工厂) Sourcing Radar</title>
+<style>
+  :root {
+    --bg: #0b1020;
+    --panel: #131c33;
+    --border: #263459;
+    --text: #e8eef9;
+    --muted: #98a7c7;
+    --emerald: #10b981;
+    --crimson: #ef4444;
+    --amber: #f59e0b;
+    --cyan: #06b6d4;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 28px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+  }
+  header {
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 20px;
+    margin-bottom: 24px;
+  }
+  h1 { margin: 0 0 8px 0; font-size: 1.65rem; color: #fff; }
+  .subtitle { color: var(--muted); font-size: 0.95rem; }
+  .kpi-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+  .kpi-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+  }
+  .kpi-label { color: var(--muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; }
+  .kpi-val { font-size: 1.6rem; font-weight: 700; margin-top: 6px; color: var(--emerald); }
+  .pair-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 22px;
+    margin-bottom: 24px;
+  }
+  .pair-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 14px;
+    margin-bottom: 18px;
+  }
+  .cat-pill {
+    display: inline-block;
+    background: rgba(6, 182, 212, 0.15);
+    color: var(--cyan);
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 600;
+  }
+  .pair-header h3 { margin: 8px 0 0 0; font-size: 1.2rem; }
+  .savings-highlight {
+    text-align: right;
+    background: rgba(16, 185, 129, 0.12);
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    padding: 10px 16px;
+    border-radius: 8px;
+    min-width: 240px;
+  }
+  .sav-amount { font-size: 1.25rem; font-weight: 700; color: var(--emerald); }
+  .sav-sub { font-size: 0.8rem; color: var(--muted); }
+  .comparison-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+    margin-bottom: 16px;
+  }
+  @media (max-width: 900px) { .comparison-grid { grid-template-columns: 1fr; } }
+  .entity-box {
+    padding: 16px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+  }
+  .middleman-box { background: rgba(239, 68, 68, 0.06); border-color: rgba(239, 68, 68, 0.35); }
+  .factory-box { background: rgba(16, 185, 129, 0.06); border-color: rgba(16, 185, 129, 0.35); }
+  .entity-role { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; margin-bottom: 6px; }
+  .middleman-box .entity-role { color: var(--crimson); }
+  .factory-box .entity-role { color: var(--emerald); }
+  .entity-box h4 { margin: 0 0 4px 0; font-size: 1.05rem; }
+  .entity-en { font-size: 0.85rem; color: var(--muted); margin-bottom: 10px; }
+  .badge-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+  .badge { font-size: 0.75rem; padding: 3px 8px; border-radius: 5px; font-weight: 600; }
+  .badge-danger { background: rgba(239, 68, 68, 0.2); color: #fca5a5; }
+  .badge-warn { background: rgba(245, 158, 11, 0.2); color: #fcd34d; }
+  .badge-success { background: rgba(16, 185, 129, 0.2); color: #6ee7b7; }
+  .score-pill { font-size: 0.75rem; padding: 3px 8px; border-radius: 5px; font-weight: 700; }
+  .score-low { background: #3f1d28; color: #fda4af; }
+  .score-high { background: #064e3b; color: #6ee7b7; }
+  .meta-list { margin: 0; padding-left: 18px; font-size: 0.85rem; color: #d1d9ec; }
+  .meta-list li { margin-bottom: 5px; }
+  .verdict-banner {
+    background: rgba(6, 182, 212, 0.1);
+    border-left: 4px solid var(--cyan);
+    padding: 10px 14px;
+    font-size: 0.88rem;
+    margin-bottom: 16px;
+    border-radius: 4px;
+  }
+  .evidence-section h5 { margin: 0 0 10px 0; font-size: 0.88rem; color: var(--muted); text-transform: uppercase; }
+  .evidence-item {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 10px;
+    font-size: 0.84rem;
+  }
+  .ev-header { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 4px; align-items: center; }
+  .ev-platform { font-weight: 700; color: var(--cyan); }
+  .ev-actor { color: var(--muted); }
+  .ev-signal { margin-left: auto; color: var(--amber); font-weight: 600; }
+  .ev-title { font-weight: 600; margin-bottom: 4px; color: #fff; }
+  .ev-summary { color: #cbd5e1; margin-bottom: 6px; }
+  .equip-tag {
+    display: inline-block;
+    background: rgba(148, 163, 184, 0.15);
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    margin-right: 6px;
+    margin-top: 4px;
+  }
+</style>
+</head>
+<body>
+
+<!-- DACH CASHFLOW STUDIOS LAUNCH BAR -->
+<style>
+  #dcs-launch-bar {
+    position: sticky;
+    top: 0;
+    z-index: 99999;
+    background: linear-gradient(90deg, #0b1120 0%, #111827 50%, #0f172a 100%);
+    color: #f8fafc;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.35);
+    padding: 8px 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  }
+  #dcs-launch-bar .dcs-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+  }
+  #dcs-launch-bar .dcs-badge {
+    background: rgba(16, 185, 129, 0.18);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.03em;
+  }
+  #dcs-launch-bar a.dcs-nav {
+    color: #93c5fd;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 12.5px;
+  }
+  #dcs-launch-bar a.dcs-nav:hover {
+    text-decoration: underline;
+    color: #dbeafe;
+  }
+  #dcs-launch-bar .dcs-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  #dcs-launch-bar .dcs-btn {
+    padding: 5px 11px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s ease;
+  }
+  #dcs-launch-bar .dcs-btn-ghost {
+    background: rgba(255,255,255,0.08);
+    color: #e2e8f0;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  #dcs-launch-bar .dcs-btn-primary {
+    background: linear-gradient(135deg, #0ea5e9, #2563eb);
+    color: #ffffff;
+  }
+  #dcs-launch-bar .dcs-btn-emerald {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
+  }
+  @media print {
+    #dcs-launch-bar { display: none !important; }
+  }
+</style>
+<div id="dcs-launch-bar">
+  <div class="dcs-left">
+    <a href="/index.html" class="dcs-nav">← Alle 150 DACH Studios</a>
+    <span class="dcs-badge">MVP #086 VERIFIED</span>
+    <span style="color:#cbd5e1;font-size:12px;">E-Commerce, Pricing & Cross-Market Arbitrage</span>
+  </div>
+  <div class="dcs-actions">
+    <button onclick="window.print()" class="dcs-btn dcs-btn-ghost">🖨️ PDF / Dossier drucken</button>
+    <a href="#checkout-modal-49" target="_blank" rel="noopener" class="dcs-btn dcs-btn-primary">⚡ Musterschreiben & Voll-Dossier (€49)</a>
+    <a href="#checkout-modal-299" target="_blank" rel="noopener" class="dcs-btn dcs-btn-emerald">🛡️ B2B Umsetzung buchen (€299 / €1.490)</a>
+  </div>
+</div>
+
+<header>
+  <h1>MVP #86 — Bilibili / Zhihu / WeChat Tier-1 OEM Factory (源头工厂) Sourcing Radar</h1>
+  <div class="subtitle">
+    GB 32100-2015 18-Digit Unified Social Credit Code (统一社会信用代码) Modulo-31 Checksum Validator &amp; Alibaba Middleman-Markup Stripper
+  </div>
+</header>
+
+<section class="kpi-row">
+  <div class="kpi-card">
+    <div class="kpi-label">Total Annual DDP Savings</div>
+    <div class="kpi-val">€925,600.00</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-label">Total Annual FOB Savings</div>
+    <div class="kpi-val">€863,500.00</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-label">Avg Middleman Cut Stripped</div>
+    <div class="kpi-val">34.4%</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-label">Verified Tier-1 Factories vs Middlemen</div>
+    <div class="kpi-val">4 OEM / 4 Mid</div>
+  </div>
+</section>
+
+<main>
+  
+            <div class="pair-card" data-category="Robotics &amp; Drone Actuators (东莞长安CNC精密加工)">
+                <div class="pair-header">
+                    <div>
+                        <span class="cat-pill">Robotics &amp; Drone Actuators (东莞长安CNC精密加工)</span>
+                        <h3>7075-T6 5-Axis CNC Harmonic Reducer Housing (Ø85mm ±0.005mm)</h3>
+                    </div>
+                    <div class="savings-highlight">
+                        <div class="sav-amount">Save €225,600 / yr DDP</div>
+                        <div class="sav-sub">-€18.80/unit (34.7% stripped) · 12,000 units/yr</div>
+                    </div>
+                </div>
+
+                <div class="comparison-grid">
+                    <div class="entity-box middleman-box">
+                        <div class="entity-role">ALIBABA_TRADING_MIDDLEMAN (贸易/电子商务 + CBD Office Suite)</div>
+                        <h4>深圳市星际未来跨境电子商务有限公司</h4>
+                        <div class="entity-en">Shenzhen Interstellar Future Cross-Border E-Commerce Co., Ltd. (Alibaba Gold 5Yr)</div>
+                        <div class="badge-row"><span class="badge badge-danger">USCC INVALID (Modulo-31 Checksum Mismatch: expected &#x27;E&#x27;, got &#x27;A&#x27;)</span> <span class="score-pill score-low">OEM Score: 15/100</span></div>
+                        <ul class="meta-list">
+                            <li><strong>Address:</strong> 广东省深圳市福田区华强北街道深南中路世纪汇商务中心写字楼A座1804室</li>
+                            <li><strong>Business Scope (经营范围):</strong> 一般经营项目：电子产品批发、零售；电子商务；国内贸易；货物进出口、技术进出口（不含生产加工）。</li>
+                            <li><strong>SAMR Staff / Floor:</strong> 6 insured staff · 0 m² floor</li>
+                            <li><strong>Alibaba Quote:</strong> €48.50 FOB / <strong>€54.20 DDP</strong> (MOQ 500, 35d lead)</li>
+                        </ul>
+                    </div>
+
+                    <div class="entity-box factory-box">
+                        <div class="entity-role">VERIFIED_TIER1_OEM_FACTORY (生产/制造 + Industrial Park Floor Address + ISO9001/IATF16949)</div>
+                        <h4>东莞市长安金泰精密机械制造有限公司</h4>
+                        <div class="entity-en">Dongguan Chang&#x27;an Jintai Precision Machinery Manufacturing Co., Ltd.</div>
+                        <div class="badge-row"><span class="badge badge-success">GB 32100-2015 Verified · 91441900MA52X8R93U</span> <span class="score-pill score-high">OEM Score: 100/100</span></div>
+                        <ul class="meta-list">
+                            <li><strong>Industrial Park Address:</strong> 广东省东莞市长安镇乌沙振安中路金泰工业园厂房1-3栋全栋</li>
+                            <li><strong>Manufacturing Scope (经营范围):</strong> 研发、生产、加工、制造：五轴精密CNC机械零件、机器人减速器壳体、航空铝压铸及模具制造；表面阳极氧化处理。</li>
+                            <li><strong>SAMR Staff / Plant Floor:</strong> 184 insured staff · <strong>14,500 m² plant</strong></li>
+                            <li><strong>Audited Certs:</strong> ISO9001:2015, IATF16949:2016, TÜV Rheinland Audited Plant</li>
+                            <li><strong>Direct Factory Gate:</strong> €31.00 FOB / <strong>€35.40 DDP</strong> (MOQ 100, 16d lead)</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="verdict-banner">STRIP ALIBABA MIDDLEMAN: Bypassing &#x27;Shenzhen Interstellar Future Cross-Border E-Commerce Co., Ltd. (Alibaba Gold 5Yr)&#x27; (which added a +56.5% markup over factory gate) and contracting directly with Tier-1 OEM &#x27;Dongguan Chang&#x27;an Jintai Precision Machinery Manufacturing Co., Ltd.&#x27; (91441900MA52X8R93U) saves €18.80/unit DDP (34.7% reduction) = €225,600.00/yr across 12,000 units, while cutting lead time by 19 days.</div>
+
+                <div class="evidence-section">
+                    <h5>Bilibili (哔哩哔哩) · Zhihu (知乎) · WeChat Channels (微信视频号) Forensic Proof</h5>
+                    
+                <div class="evidence-item">
+                    <div class="ev-header">
+                        <span class="ev-platform">Zhihu (知乎)</span>
+                        <span class="ev-actor">via <code>socialdatax/socialdatax-zhihu-data-api</code></span>
+                        <span class="ev-signal">1,420 Upvotes · 218 Engineering Comments</span>
+                    </div>
+                    <div class="ev-title">阿里巴巴国际站上那些卖谐波减速器壳体的深圳外贸公司，货都是从东莞长安哪几家源头厂拿的？ — <em>@珠三角精密机械老周 (18年CNC厂长)</em></div>
+                    <div class="ev-summary">Zhihu insider thread reveals Shenzhen Futian Alibaba traders re-use identical CNC fixture photos from Dongguan Chang&#x27;an Jintai Precision and add 42% export markup.</div>
+                    <div class="ev-tags"><span class="equip-tag">Drawing Stamp Match: DG-JT-7075-85H</span><span class="equip-tag">Zero In-House CNC Spindles</span></div>
+                </div>
+                
+                <div class="evidence-item">
+                    <div class="ev-header">
+                        <span class="ev-platform">Bilibili (哔哩哔哩)</span>
+                        <span class="ev-actor">via <code>zhorex/bilibili-scraper</code></span>
+                        <span class="ev-signal">3,840 Danmaku (Peak 89/min at 04:12 CMM test) · 142k Views</span>
+                    </div>
+                    <div class="ev-title">【源头工厂实拍】18台德玛吉DMG五轴联动+蔡司三坐标！人形机器人谐波减速器7075铝壳体0.005mm公差全流程 — <em>UP主: 东莞金泰五轴CNC源头厂 (@jintai_cnc_dg)</em></div>
+                    <div class="ev-summary">Unedited 14-minute Bilibili shop-floor walkthrough showing 18 DMG MORI 5-axis mills, Zeiss CMM inspection report matching exact Ø85mm housing SKU, and danmaku peak at 04:12 verifying OEM laser serials.</div>
+                    <div class="ev-tags"><span class="equip-tag">18x DMG MORI DMU 50 5-Axis CNC</span><span class="equip-tag">3x Zeiss Contura CMM (±0.002mm)</span><span class="equip-tag">In-House Hard Anodizing Line</span></div>
+                </div>
+                
+                <div class="evidence-item">
+                    <div class="ev-header">
+                        <span class="ev-platform">WeChat Channels (微信视频号)</span>
+                        <span class="ev-actor">via <code>sian.agency/wechat-channels-scraper</code></span>
+                        <span class="ev-signal">612 Likes · 94 Direct WeChat Engineering Forwards</span>
+                    </div>
+                    <div class="ev-title">德国慕尼黑客户定制3000套机器人关节壳体今日出货实拍，欢迎直接来长安乌沙厂房验厂！ — <em>金泰精密-陈工接单号 (Verified Enterprise 视频号)</em></div>
+                    <div class="ev-summary">Direct factory owner WeChat Channels shipment clip displaying palletized Munich air-freight crates and laser-etched part numbers identical to Alibaba middleman catalog.</div>
+                    <div class="ev-tags"><span class="equip-tag">Direct Factory Gate Quote: ¥245 RMB (~€31.00 FOB Shenzhen)</span></div>
+                </div>
+                
+                </div>
+            </div>
+            
+            <div class="pair-card" data-category="Energy Storage &amp; LiFePO4 Packs (深圳宝安新能源PCBA)">
+                <div class="pair-header">
+                    <div>
+                        <span class="cat-pill">Energy Storage &amp; LiFePO4 Packs (深圳宝安新能源PCBA)</span>
+                        <h3>48V 100Ah Rack-Mount LiFePO4 Smart BMS + EVE Grade-A Pack (UN38.3/CE)</h3>
+                    </div>
+                    <div class="savings-highlight">
+                        <div class="sav-amount">Save €330,000 / yr DDP</div>
+                        <div class="sav-sub">-€220.00/unit (30.8% stripped) · 1,500 units/yr</div>
+                    </div>
+                </div>
+
+                <div class="comparison-grid">
+                    <div class="entity-box middleman-box">
+                        <div class="entity-role">ALIBABA_TRADING_MIDDLEMAN (贸易/电子商务 + CBD Office Suite)</div>
+                        <h4>杭州市云帆智联国际贸易有限公司</h4>
+                        <div class="entity-en">Hangzhou Yunfan Zhilian International Trading Co., Ltd.</div>
+                        <div class="badge-row"><span class="badge badge-warn">USCC Valid · CBD Office (Hangzhou Binjiang CBD, Zhejiang)</span> <span class="score-pill score-low">OEM Score: 15/100</span></div>
+                        <ul class="meta-list">
+                            <li><strong>Address:</strong> 浙江省杭州市滨江区长河街道网商路699号科创大厦写字楼B座908室</li>
+                            <li><strong>Business Scope (经营范围):</strong> 货物进出口；技术进出口；电池及新能源配件批发、零售；互联网销售；跨境电商供应链管理服务。</li>
+                            <li><strong>SAMR Staff / Floor:</strong> 9 insured staff · 0 m² floor</li>
+                            <li><strong>Alibaba Quote:</strong> €640.00 FOB / <strong>€715.00 DDP</strong> (MOQ 50, 42d lead)</li>
+                        </ul>
+                    </div>
+
+                    <div class="entity-box factory-box">
+                        <div class="entity-role">VERIFIED_TIER1_OEM_FACTORY (生产/制造 + Industrial Park Floor Address + ISO9001/IATF16949)</div>
+                        <h4>深圳市宝安创能动力科技有限公司</h4>
+                        <div class="entity-en">Shenzhen Bao&#x27;an Chuangneng Power Technology Manufacturing Co., Ltd.</div>
+                        <div class="badge-row"><span class="badge badge-success">GB 32100-2015 Verified · 91440306MA5D7N8Q2A</span> <span class="score-pill score-high">OEM Score: 100/100</span></div>
+                        <ul class="meta-list">
+                            <li><strong>Industrial Park Address:</strong> 广东省深圳市宝安区沙井街道同富裕工业区创能制造基地厂房1-4栋</li>
+                            <li><strong>Manufacturing Scope (经营范围):</strong> 锂离子电池包、磷酸铁锂储能系统、智能BMS电路板的研发、生产、制造、SMT贴片加工及老化测试。</li>
+                            <li><strong>SAMR Staff / Plant Floor:</strong> 310 insured staff · <strong>22,000 m² plant</strong></li>
+                            <li><strong>Audited Certs:</strong> ISO9001:2015, ISO14001, UL1973, IEC62619 / TÜV SÜD</li>
+                            <li><strong>Direct Factory Gate:</strong> €435.00 FOB / <strong>€495.00 DDP</strong> (MOQ 20, 21d lead)</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="verdict-banner">STRIP ALIBABA MIDDLEMAN: Bypassing &#x27;Hangzhou Yunfan Zhilian International Trading Co., Ltd.&#x27; (which added a +47.1% markup over factory gate) and contracting directly with Tier-1 OEM &#x27;Shenzhen Bao&#x27;an Chuangneng Power Technology Manufacturing Co., Ltd.&#x27; (91440306MA5D7N8Q2A) saves €220.00/unit DDP (30.8% reduction) = €330,000.00/yr across 1,500 units, while cutting lead time by 21 days.</div>
+
+                <div class="evidence-section">
+                    <h5>Bilibili (哔哩哔哩) · Zhihu (知乎) · WeChat Channels (微信视频号) Forensic Proof</h5>
+                    
+                <div class="evidence-item">
+                    <div class="ev-header">
+                        <span class="ev-platform">Zhihu (知乎)</span>
+                        <span class="ev-actor">via <code>scrupulous_buckler/zhihu-douban-high-intent-research</code></span>
+                        <span class="ev-signal">2,190 Upvotes · High-Intent Buyer Score 94/100</span>
+                    </div>
+                    <div class="ev-title">2026年欧洲户用储能48V锂电池包避坑指南：如何识别杭州外贸皮包公司与深圳宝安真正的PACK源头厂？ — <em>@储能硬件拆解局 (Zhihu High-Intent Teardown)</em></div>
+                    <div class="ev-summary">Zhihu high-intent decision report maps UN38.3 test certificate numbers back to Shenzhen Bao&#x27;an Chuangneng Pack Factory, exposing 36% markup by Hangzhou Binjiang trading desks.</div>
+                    <div class="ev-tags"><span class="equip-tag">UN38.3 Cert Master Holder: SZ-CN-2026-8841</span><span class="equip-tag">Re-labeled Front Panel</span></div>
+                </div>
+                
+                <div class="evidence-item">
+                    <div class="ev-header">
+                        <span class="ev-platform">Bilibili (哔哩哔哩)</span>
+                        <span class="ev-actor">via <code>zhorex/bilibili-scraper</code></span>
+                        <span class="ev-signal">5,120 Danmaku · 289k Views · 14.2k Favorites</span>
+                    </div>
+                    <div class="ev-title">拆解出口德国的48V100Ah户用储能电池！走进深圳沙井创能2万平PACK源头工厂看自动激光焊接线 — <em>UP主: 硬核拆解老王 (@wang_teardown_sz)</em></div>
+                    <div class="ev-summary">Bilibili hardware teardown + factory inspection showing 4 automated laser busbar welding lines, Panasonic SMT line for 16S 100A BMS boards, and QR grade-A cell traceability.</div>
+                    <div class="ev-tags"><span class="equip-tag">4x Han&#x27;s Laser Automated Busbar Welders</span><span class="equip-tag">2x Panasonic NPM-D3A SMT Lines</span><span class="equip-tag">120-Channel Regenerative Aging Cabinets</span></div>
+                </div>
+                
+                </div>
+            </div>
+            
+            <div class="pair-card" data-category="Small Appliances &amp; BLDC Pump Assemblies (宁波慈溪小家电产业带)">
+                <div class="pair-header">
+                    <div>
+                        <span class="cat-pill">Small Appliances &amp; BLDC Pump Assemblies (宁波慈溪小家电产业带)</span>
+                        <h3>20-Bar PID Dual-Thermoblock Espresso Brew Group &amp; BLDC Pump Module</h3>
+                    </div>
+                    <div class="savings-highlight">
+                        <div class="sav-amount">Save €208,000 / yr DDP</div>
+                        <div class="sav-sub">-€26.00/unit (34.0% stripped) · 8,000 units/yr</div>
+                    </div>
+                </div>
+
+                <div class="comparison-grid">
+                    <div class="entity-box middleman-box">
+                        <div class="entity-role">ALIBABA_TRADING_MIDDLEMAN (贸易/电子商务 + CBD Office Suite)</div>
+                        <h4>义乌市欧尚优品进出口有限公司</h4>
+                        <div class="entity-en">Yiwu Oushang Youpin Import &amp; Export Co., Ltd.</div>
+                        <div class="badge-row"><span class="badge badge-warn">USCC Valid · CBD Office (Yiwu Futian CBD, Zhejiang)</span> <span class="score-pill score-low">OEM Score: 0/100</span></div>
+                        <ul class="meta-list">
+                            <li><strong>Address:</strong> 浙江省金华义乌市福田街道金融商务区环球大厦写字楼1510室</li>
+                            <li><strong>Business Scope (经营范围):</strong> 日用百货、家用电器批发兼零售；货物进出口、技术进出口；国际贸易代理；电子商务。</li>
+                            <li><strong>SAMR Staff / Floor:</strong> 11 insured staff · 0 m² floor</li>
+                            <li><strong>Alibaba Quote:</strong> €68.00 FOB / <strong>€76.50 DDP</strong> (MOQ 1000, 40d lead)</li>
+                        </ul>
+                    </div>
+
+                    <div class="entity-box factory-box">
+                        <div class="entity-role">VERIFIED_TIER1_OEM_FACTORY (生产/制造 + Industrial Park Floor Address + ISO9001/IATF16949)</div>
+                        <h4>宁波慈溪市宏达电器实业有限公司</h4>
+                        <div class="entity-en">Ningbo Cixi Hongda Electrical Industrial Co., Ltd.</div>
+                        <div class="badge-row"><span class="badge badge-success">GB 32100-2015 Verified · 91330282MA2AF4K81Q</span> <span class="score-pill score-high">OEM Score: 100/100</span></div>
+                        <ul class="meta-list">
+                            <li><strong>Industrial Park Address:</strong> 浙江省宁波慈溪市观海卫镇工业园东区宏达路88号厂房全栋</li>
+                            <li><strong>Manufacturing Scope (经营范围):</strong> 家用电器核心部件、咖啡机加热块、无刷直流水泵、精密注塑件及压铸件的研发、生产、制造、加工。</li>
+                            <li><strong>SAMR Staff / Plant Floor:</strong> 420 insured staff · <strong>35,000 m² plant</strong></li>
+                            <li><strong>Audited Certs:</strong> ISO9001:2015, TÜV GS / LFGB Food-Contact, CE / CB Scheme Primary Lab</li>
+                            <li><strong>Direct Factory Gate:</strong> €44.00 FOB / <strong>€50.50 DDP</strong> (MOQ 300, 22d lead)</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="verdict-banner">STRIP ALIBABA MIDDLEMAN: Bypassing &#x27;Yiwu Oushang Youpin Import &amp; Export Co., Ltd.&#x27; (which added a +54.5% markup over factory gate) and contracting directly with Tier-1 OEM &#x27;Ningbo Cixi Hongda Electrical Industrial Co., Ltd.&#x27; (91330282MA2AF4K81Q) saves €26.00/unit DDP (34.0% reduction) = €208,000.00/yr across 8,000 units, while cutting lead time by 18 days.</div>
+
+                <div class="evidence-section">
+                    <h5>Bilibili (哔哩哔哩) · Zhihu (知乎) · WeChat Channels (微信视频号) Forensic Proof</h5>
+                    
+                <div class="evidence-item">
+                    <div class="ev-header">
+                        <span class="ev-platform">Zhihu (知乎)</span>
+                        <span class="ev-actor">via <code>socialdatax/socialdatax-zhihu-data-api</code></span>
+                        <span class="ev-signal">890 Upvotes · 134 Supply-Chain Replies</span>
+                    </div>
+                    <div class="ev-title">为什么外商在Alibaba找咖啡机核心水泵和加热块总是被义乌外贸公司加价40%以上？ — <em>@慈溪小家电供应链老张</em></div>
+                    <div class="ev-summary">Detailed breakdown of Ningbo Cixi Guanhaiwei industrial cluster showing that 90% of thick-film / thermoblock brew groups sold by Yiwu traders originate from Cixi Hongda Electrical.</div>
+                    <div class="ev-tags"><span class="equip-tag">Mold Cavity ID: CX-HD-TB20</span><span class="equip-tag">Yiwu Middleman Consolidation Fee +38%</span></div>
+                </div>
+                
+                <div class="evidence-item">
+                    <div class="ev-header">
+                        <span class="ev-platform">WeChat Channels (微信视频号)</span>
+                        <span class="ev-actor">via <code>sian.agency/wechat-channels-scraper</code></span>
+                        <span class="ev-signal">1,240 Likes · 310 Importer Inquiries</span>
+                    </div>
+                    <div class="ev-title">观海卫工业园3.5万平注塑+压铸车间实拍！咖啡机双加热块日产15000套，拒绝外贸中间商赚差价 — <em>慈溪宏达电器源头厂-周总 (@cixi_hongda_oem)</em></div>
+                    <div class="ev-summary">WeChat Channels factory tour showing 46 Haitian injection molding machines, automatic aluminum die-casting cells for dual-thermoblock heaters, and LFGB test lab.</div>
+                    <div class="ev-tags"><span class="equip-tag">46x Haitian Servo Injection Molding Machines</span><span class="equip-tag">8x Automated Die-Casting &amp; Brazing Lines</span><span class="equip-tag">In-House TÜV Witness Lab</span></div>
+                </div>
+                
+                </div>
+            </div>
+            
+            <div class="pair-card" data-category="Industrial Machine Vision Optics (江苏丹阳光学产业带)">
+                <div class="pair-header">
+                    <div>
+                        <span class="cat-pill">Industrial Machine Vision Optics (江苏丹阳光学产业带)</span>
+                        <h3>1.1&quot; C-Mount 0.5x Bi-Telecentric Inspection Lens (Coaxial Illumination)</h3>
+                    </div>
+                    <div class="savings-highlight">
+                        <div class="sav-amount">Save €162,000 / yr DDP</div>
+                        <div class="sav-sub">-€81.00/unit (38.2% stripped) · 2,000 units/yr</div>
+                    </div>
+                </div>
+
+                <div class="comparison-grid">
+                    <div class="entity-box middleman-box">
+                        <div class="entity-role">ALIBABA_TRADING_MIDDLEMAN (贸易/电子商务 + CBD Office Suite)</div>
+                        <h4>深圳市视界通达贸易有限公司</h4>
+                        <div class="entity-en">Shenzhen Vision-Link Trading Co., Ltd.</div>
+                        <div class="badge-row"><span class="badge badge-warn">USCC Valid · CBD Office (Shenzhen Futian CBD (Huaqiangbei / Chegongmiao Suites))</span> <span class="score-pill score-low">OEM Score: 15/100</span></div>
+                        <ul class="meta-list">
+                            <li><strong>Address:</strong> 广东省深圳市福田区车公庙泰然八路云松大厦写字楼12D室</li>
+                            <li><strong>Business Scope (经营范围):</strong> 光学仪器、工业相机镜头、电子元器件的批发与零售；国内贸易；货物及技术进出口。</li>
+                            <li><strong>SAMR Staff / Floor:</strong> 5 insured staff · 0 m² floor</li>
+                            <li><strong>Alibaba Quote:</strong> €195.00 FOB / <strong>€212.00 DDP</strong> (MOQ 50, 28d lead)</li>
+                        </ul>
+                    </div>
+
+                    <div class="entity-box factory-box">
+                        <div class="entity-role">VERIFIED_TIER1_OEM_FACTORY (生产/制造 + Industrial Park Floor Address + ISO9001/IATF16949)</div>
+                        <h4>丹阳市明锐精密光学制造有限公司</h4>
+                        <div class="entity-en">Danyang Mingrui Precision Optical Manufacturing Co., Ltd.</div>
+                        <div class="badge-row"><span class="badge badge-success">GB 32100-2015 Verified · 91321181MA1Y9P7B51</span> <span class="score-pill score-high">OEM Score: 100/100</span></div>
+                        <ul class="meta-list">
+                            <li><strong>Industrial Park Address:</strong> 江苏省镇江丹阳市司徒镇精密光学工业园明锐路12号厂房1-2栋</li>
+                            <li><strong>Manufacturing Scope (经营范围):</strong> 精密光学镜片冷加工、多层真空镀膜、工业机器视觉远心镜头研发、生产、制造、装配及检测。</li>
+                            <li><strong>SAMR Staff / Plant Floor:</strong> 142 insured staff · <strong>9,800 m² plant</strong></li>
+                            <li><strong>Audited Certs:</strong> ISO9001:2015, ISO13485 Medical/Optical, CE / RoHS</li>
+                            <li><strong>Direct Factory Gate:</strong> €118.00 FOB / <strong>€131.00 DDP</strong> (MOQ 10, 12d lead)</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="verdict-banner">STRIP ALIBABA MIDDLEMAN: Bypassing &#x27;Shenzhen Vision-Link Trading Co., Ltd.&#x27; (which added a +65.3% markup over factory gate) and contracting directly with Tier-1 OEM &#x27;Danyang Mingrui Precision Optical Manufacturing Co., Ltd.&#x27; (91321181MA1Y9P7B51) saves €81.00/unit DDP (38.2% reduction) = €162,000.00/yr across 2,000 units, while cutting lead time by 16 days.</div>
+
+                <div class="evidence-section">
+                    <h5>Bilibili (哔哩哔哩) · Zhihu (知乎) · WeChat Channels (微信视频号) Forensic Proof</h5>
+                    
+                <div class="evidence-item">
+                    <div class="ev-header">
+                        <span class="ev-platform">Bilibili (哔哩哔哩)</span>
+                        <span class="ev-actor">via <code>zhorex/bilibili-scraper</code></span>
+                        <span class="ev-signal">2,650 Danmaku · 98k Views · 6.4k Coins</span>
+                    </div>
+                    <div class="ev-title">工业双远心镜头拆解对比：深圳贸易商贴牌卖1600元 vs 丹阳源头光学冷加工厂出厂价到底差多少？ — <em>UP主: 机器视觉光学老陈 (@vision_optics_cn)</em></div>
+                    <div class="ev-summary">Bilibili optical interferometer teardown demonstrates that Shenzhen Vision-Link&#x27;s €195 telecentric lens is a re-anodized Danyang Mingrui Optics MRL-05X unit costing €118 ex-factory.</div>
+                    <div class="ev-tags"><span class="equip-tag">Zygo MTF Curve Identical to Danyang MRL-05X</span><span class="equip-tag">+65% Middleman Markup</span></div>
+                </div>
+                
+                <div class="evidence-item">
+                    <div class="ev-header">
+                        <span class="ev-platform">Zhihu (知乎)</span>
+                        <span class="ev-actor">via <code>socialdatax/socialdatax-zhihu-data-api</code></span>
+                        <span class="ev-signal">1,780 Upvotes · 340 Optical Engineer Bookmarks</span>
+                    </div>
+                    <div class="ev-title">远心镜头如何做到畸变&lt;0.03%？分享我们丹阳司徒厂房Satisloh非球面抛光与Leybold镀膜产线实录 — <em>@丹阳明锐光学总工-林博士</em></div>
+                    <div class="ev-summary">Zhihu technical article by Danyang Mingrui Chief Optical Engineer detailing Satisloh CNC glass grinding, Leybold AR coating chambers, and direct OEM pricing for German machine-vision integrators.</div>
+                    <div class="ev-tags"><span class="equip-tag">12x Satisloh CNC Glass Grinding &amp; Polishing Cells</span><span class="equip-tag">4x Buhler Leybold Syrus Pro Vacuum Coating Chambers</span><span class="equip-tag">Trioptics ImageMaster MTF Test Bench</span></div>
+                </div>
+                
+                </div>
+            </div>
+            
+</main>
+</body>
+</html>

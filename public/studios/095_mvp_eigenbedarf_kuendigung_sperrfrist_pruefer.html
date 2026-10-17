@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MVP #95 — DACH §§ 568–577a BGB Eigenbedarfskündigungs- & Mieter-Härtefall-Prüfstand</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --panel: #131b33;
+      --panel-alt: #192342;
+      --border: #2a3966;
+      --text: #eef2ff;
+      --muted: #9fb0db;
+      --accent: #38bdf8;
+      --danger: #f43f5e;
+      --warn: #f59e0b;
+      --ok: #10b981;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+    }
+    header {
+      background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 1.5rem 2rem;
+    }
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 0.6rem;
+    }
+    .badge {
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 0.25rem 0.65rem;
+      border-radius: 999px;
+      background: rgba(56, 189, 248, 0.15);
+      color: var(--accent);
+      border: 1px solid rgba(56, 189, 248, 0.4);
+    }
+    .badge.danger {
+      background: rgba(244, 63, 94, 0.16);
+      color: #fda4af;
+      border-color: rgba(244, 63, 94, 0.45);
+    }
+    .badge.ok {
+      background: rgba(16, 185, 129, 0.16);
+      color: #6ee7b7;
+      border-color: rgba(16, 185, 129, 0.45);
+    }
+    h1 {
+      margin: 0 0 0.4rem 0;
+      font-size: 1.5rem;
+      letter-spacing: -0.01em;
+    }
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+    main {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 1.5rem 2rem 3rem;
+    }
+    .scenario-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+      background: var(--panel);
+      padding: 1rem;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      align-items: center;
+    }
+    .scenario-btn {
+      background: var(--panel-alt);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.55rem 0.95rem;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.84rem;
+      transition: all 0.15s ease;
+    }
+    .scenario-btn:hover, .scenario-btn.active {
+      background: rgba(56, 189, 248, 0.18);
+      border-color: var(--accent);
+      color: #fff;
+    }
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .kpi-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.1rem 1.2rem;
+    }
+    .kpi-label {
+      font-size: 0.76rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+      margin-bottom: 0.35rem;
+    }
+    .kpi-value {
+      font-size: 1.35rem;
+      font-weight: 800;
+    }
+    .kpi-sub {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-top: 0.25rem;
+    }
+    .layout-grid {
+      display: grid;
+      grid-template-columns: 420px 1fr;
+      gap: 1.5rem;
+    }
+    @media (max-width: 1080px) {
+      .layout-grid { grid-template-columns: 1fr; }
+    }
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem;
+      margin-bottom: 1.25rem;
+    }
+    .panel h2 {
+      margin: 0 0 1rem 0;
+      font-size: 1.08rem;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 0.6rem;
+      color: var(--accent);
+    }
+    .form-group {
+      margin-bottom: 0.85rem;
+    }
+    .form-group label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--muted);
+      margin-bottom: 0.25rem;
+    }
+    .form-group select, .form-group input[type="date"], .form-group input[type="number"] {
+      width: 100%;
+      padding: 0.5rem 0.65rem;
+      border-radius: 7px;
+      border: 1px solid var(--border);
+      background: var(--panel-alt);
+      color: var(--text);
+      font-size: 0.86rem;
+    }
+    .checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+      margin-bottom: 0.55rem;
+      font-size: 0.84rem;
+    }
+    .check-card {
+      background: var(--panel-alt);
+      border-left: 4px solid var(--border);
+      border-radius: 8px;
+      padding: 0.95rem 1.1rem;
+      margin-bottom: 0.85rem;
+    }
+    .check-card.FATAL_VOID, .check-card.BARRED_SPERRFRIST {
+      border-left-color: var(--danger);
+      background: rgba(244, 63, 94, 0.08);
+    }
+    .check-card.DEADLINE_EXTENDED, .check-card.BREACH_DAMAGES {
+      border-left-color: var(--warn);
+      background: rgba(245, 158, 11, 0.08);
+    }
+    .check-card.PASS {
+      border-left-color: var(--ok);
+    }
+    .check-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.35rem;
+    }
+    .check-title {
+      font-weight: 700;
+      font-size: 0.94rem;
+    }
+    .status-pill {
+      font-size: 0.72rem;
+      font-weight: 800;
+      padding: 0.2rem 0.55rem;
+      border-radius: 999px;
+      text-transform: uppercase;
+    }
+    .status-pill.FATAL_VOID, .status-pill.BARRED_SPERRFRIST {
+      background: var(--danger);
+      color: #fff;
+    }
+    .status-pill.DEADLINE_EXTENDED, .status-pill.BREACH_DAMAGES {
+      background: var(--warn);
+      color: #111827;
+    }
+    .status-pill.PASS {
+      background: var(--ok);
+      color: #052e16;
+    }
+    .check-basis {
+      font-size: 0.76rem;
+      color: var(--accent);
+      margin-bottom: 0.35rem;
+      font-family: monospace;
+    }
+    .check-remedy {
+      margin-top: 0.45rem;
+      font-size: 0.82rem;
+      color: #cbd5e1;
+      background: rgba(15, 23, 42, 0.55);
+      padding: 0.45rem 0.65rem;
+      border-radius: 6px;
+    }
+    textarea.letter-box {
+      width: 100%;
+      min-height: 155px;
+      background: #090d1a;
+      color: #e2e8f0;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.75rem;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 0.8rem;
+      resize: vertical;
+    }
+    table.damages-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.86rem;
+    }
+    table.damages-table th, table.damages-table td {
+      padding: 0.55rem 0.65rem;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+    }
+    table.damages-table th {
+      color: var(--muted);
+      font-weight: 600;
+    }
+    table.damages-table tr.total-row td {
+      font-weight: 800;
+      color: #fda4af;
+      font-size: 0.96rem;
+      border-top: 2px solid var(--danger);
+    }
+  </style>
+</head>
+<body>
+
+<!-- DACH CASHFLOW STUDIOS LAUNCH BAR -->
+<style>
+  #dcs-launch-bar {
+    position: sticky;
+    top: 0;
+    z-index: 99999;
+    background: linear-gradient(90deg, #0b1120 0%, #111827 50%, #0f172a 100%);
+    color: #f8fafc;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.35);
+    padding: 8px 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  }
+  #dcs-launch-bar .dcs-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+  }
+  #dcs-launch-bar .dcs-badge {
+    background: rgba(16, 185, 129, 0.18);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.03em;
+  }
+  #dcs-launch-bar a.dcs-nav {
+    color: #93c5fd;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 12.5px;
+  }
+  #dcs-launch-bar a.dcs-nav:hover {
+    text-decoration: underline;
+    color: #dbeafe;
+  }
+  #dcs-launch-bar .dcs-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  #dcs-launch-bar .dcs-btn {
+    padding: 5px 11px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s ease;
+  }
+  #dcs-launch-bar .dcs-btn-ghost {
+    background: rgba(255,255,255,0.08);
+    color: #e2e8f0;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  #dcs-launch-bar .dcs-btn-primary {
+    background: linear-gradient(135deg, #0ea5e9, #2563eb);
+    color: #ffffff;
+  }
+  #dcs-launch-bar .dcs-btn-emerald {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
+  }
+  @media print {
+    #dcs-launch-bar { display: none !important; }
+  }
+</style>
+<div id="dcs-launch-bar">
+  <div class="dcs-left">
+    <a href="/index.html" class="dcs-nav">← Alle 150 DACH Studios</a>
+    <span class="dcs-badge">MVP #095 VERIFIED</span>
+    <span style="color:#cbd5e1;font-size:12px;">DACH LegalTech, Labor Law & Consumer Claims</span>
+  </div>
+  <div class="dcs-actions">
+    <button onclick="window.print()" class="dcs-btn dcs-btn-ghost">🖨️ PDF / Dossier drucken</button>
+    <a href="#checkout-modal-49" target="_blank" rel="noopener" class="dcs-btn dcs-btn-primary">⚡ Musterschreiben & Voll-Dossier (€49)</a>
+    <a href="#checkout-modal-299" target="_blank" rel="noopener" class="dcs-btn dcs-btn-emerald">🛡️ B2B Umsetzung buchen (€299 / €1.490)</a>
+  </div>
+</div>
+
+  <header>
+    <div class="badge-row">
+      <span class="badge">MVP #95 · DACH Mietrecht Schutzschild</span>
+      <span class="badge danger">§§ 568, 573, 573a, 573c, 574, 574b, 577a BGB</span>
+      <span class="badge">BGH VIII ZR 276/23 (Cousin-Ausschluss)</span>
+      <span class="badge">BGH VIII ZR 180/18 (Härtefall-Prüfung)</span>
+      <span class="badge ok">§ 174 BGB Sofort-Zurückweisung &amp; § 280 BGB Schadensersatz</span>
+    </div>
+    <h1>DACH Eigenbedarfskündigungs-, Sperrfrist- &amp; Schadensersatz-Prüfstand Studio</h1>
+    <p class="subtitle">Deterministische 6-Stufen-Prüfung für Mieter &amp; private Vermieter: Schriftform &amp; § 174 BGB Vollmachtsfalle · GmbH/UG-Sperre · Privilegierter Personenkreis · 3–10 Jahre WEG-Sperrfrist (§ 577a BGB) · § 573c BGB Fristen · § 280 BGB Vorgetäuschter Eigenbedarf</p>
+  </header>
+
+  <main>
+    <div class="scenario-bar">
+      <strong style="font-size:0.86rem; color:var(--muted);">Praxis-Prüffälle laden:</strong>
+      <button class="scenario-btn active" onclick="loadScenario(0)" id="scen-btn-0">Fall 1: Berlin WEG-Sperrfrist (10 J.) + Cousin (BGH VIII ZR 276/23) + § 174 Vollmacht</button>
+      <button class="scenario-btn" onclick="loadScenario(1)" id="scen-btn-1">Fall 2: München Immobilien-GmbH + PDF-Scan (§ 568 BGB / 0% GmbH)</button>
+      <button class="scenario-btn" onclick="loadScenario(2)" id="scen-btn-2">Fall 3: Hamburg Tochter-Eigenbedarf (9 Mon. Frist + § 574 BGB Härtefall)</button>
+    </div>
+
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label">Gesamturteil Kündigung</div>
+        <div class="kpi-value" id="kpi-verdict" style="color:var(--danger);">UNWIRKSAM (NICHTIG / ZURÜCKWEISBAR)</div>
+        <div class="kpi-sub" id="kpi-fatal-sub">3 zwingende Unwirksamkeitsgründe erkannt</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">§ 174 BGB Zurückweisungs-Fenster</div>
+        <div class="kpi-value" id="kpi-174" style="color:var(--warn);">AKTIV bis 2026-10-22</div>
+        <div class="kpi-sub" id="kpi-174-sub">Originalvollmacht bei Vertretung Pflicht (§ 174 S. 1 BGB)</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">§ 577a BGB WEG-Sperrfrist</div>
+        <div class="kpi-value" id="kpi-sperrfrist">10 Jahre (Berlin)</div>
+        <div class="kpi-sub" id="kpi-sperrfrist-sub">Gesperrt bis 2031-06-15</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">§ 573c BGB Kündigungsfrist &amp; Ende</div>
+        <div class="kpi-value" id="kpi-notice">9 Monate (2027-07-31)</div>
+        <div class="kpi-sub" id="kpi-notice-sub">Widerspruch (§ 574b BGB) bis 2027-05-31</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">§ 280 BGB Schadensersatz-Anspruch</div>
+        <div class="kpi-value" id="kpi-damages" style="color:#fda4af;">51,610.00 €</div>
+        <div class="kpi-sub" id="kpi-damages-sub">Bei vorgetäuschtem Eigenbedarf / Anbietpflicht-Verstoß</div>
+      </div>
+    </div>
+
+    <div class="layout-grid">
+      <div>
+        <div class="panel">
+          <h2>1. Form, Vermieter-Typ &amp; Bedarfsperson (§§ 568, 174, 573 BGB)</h2>
+          <div class="form-group">
+            <label for="inp-city">Stadt / Landes-Sperrfristverordnung (§ 577a Abs. 2 BGB)</label>
+            <select id="inp-city" onchange="recalculate()">
+              <option value="berlin">Berlin (10 Jahre Sperrfrist)</option>
+              <option value="muenchen">München (10 Jahre Sperrfrist)</option>
+              <option value="hamburg">Hamburg (10 Jahre Sperrfrist)</option>
+              <option value="frankfurt">Frankfurt am Main (8 Jahre Sperrfrist)</option>
+              <option value="koeln">Köln (8 Jahre Sperrfrist)</option>
+              <option value="stuttgart">Stuttgart (5 Jahre Sperrfrist)</option>
+              <option value="bundesweit_standard">Bundesweiter Regelfall (3 Jahre nach § 577a Abs. 1 BGB)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="inp-entity">Rechtsform des Vermieters (BGH VIII ZR 231/06)</label>
+            <select id="inp-entity" onchange="recalculate()">
+              <option value="natuerliche_person">Natürliche Person (100% eigenbedarfsfähig)</option>
+              <option value="ehegattengemeinschaft">Ehegattengemeinschaft / Erbengemeinschaft</option>
+              <option value="familien_gbr">Familien-GbR (BGH VIII ZR 231/06)</option>
+              <option value="gmbh">GmbH — Juristische Person (0% Anspruch!)</option>
+              <option value="ug">UG (haftungsbeschränkt) — (0% Anspruch!)</option>
+              <option value="ag">AG (Aktiengesellschaft) — (0% Anspruch!)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="inp-beneficiary">Bedarfsperson (§ 573 Abs. 2 Nr. 2 BGB / BGH VIII ZR 276/23)</label>
+            <select id="inp-beneficiary" onchange="recalculate()">
+              <option value="vermieter_selbst">Vermieter selbst</option>
+              <option value="ehegatte_lebenspartner">Ehegatte / eingetragener Lebenspartner</option>
+              <option value="kinder_stiefkinder">Kinder / Stiefkinder / Adoptivkinder</option>
+              <option value="eltern_grosseltern_enkel">Eltern / Großeltern / Enkelkinder</option>
+              <option value="geschwister">Geschwister (BGH VIII ZR 159/09 — automatisch privilegiert)</option>
+              <option value="pflegepersonal_haushalt">Pflegekraft / Haushaltsangehörige</option>
+              <option value="nichten_neffen_tanten_onkel">Nichten / Neffen / Tanten / Onkel (nur bei enger Bindung)</option>
+              <option value="cousin_cousine">Cousin / Cousine (BGH VIII ZR 276/23 — AUSGESCHLOSSEN!)</option>
+              <option value="ex_schwiegereltern_schwager">Geschiedene Ex-Schwiegerkinder / entfernte Verschwägerte (UNWIRKSAM!)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="inp-channel">Zustellungsform (§ 568 Abs. 1 i.V.m. § 126 BGB Schriftform)</label>
+            <select id="inp-channel" onchange="recalculate()">
+              <option value="wet_ink_original">Eigenhändige Original-Unterschrift (Papierbrief)</option>
+              <option value="email_pdf_scan">E-Mail / PDF-Scan (Formnichtig nach § 125 BGB!)</option>
+              <option value="fax_copy">Telefax / Fotokopie (Formnichtig nach § 125 BGB!)</option>
+              <option value="whatsapp_sms">Messenger / WhatsApp / SMS (Formnichtig!)</option>
+            </select>
+          </div>
+          <div class="checkbox-row">
+            <input type="checkbox" id="inp-all-signed" checked onchange="recalculate()" />
+            <label for="inp-all-signed">Alle im Mietvertrag genannten Vermieter haben unterschrieben</label>
+          </div>
+          <div class="checkbox-row">
+            <input type="checkbox" id="inp-rep" checked onchange="recalculate()" />
+            <label for="inp-rep">Unterschrift durch Hausverwaltung / Vertreter / Bevollmächtigten</label>
+          </div>
+          <div class="checkbox-row">
+            <input type="checkbox" id="inp-poa" onchange="recalculate()" />
+            <label for="inp-poa">Originalvollmacht lag im Original bei (§ 174 Satz 1 BGB)</label>
+          </div>
+          <div class="checkbox-row">
+            <input type="checkbox" id="inp-detailed" checked onchange="recalculate()" />
+            <label for="inp-detailed">Konkrete Kerntatsachen im Kündigungsschreiben benannt (§ 573 Abs. 3 BGB)</label>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h2>2. Fristen, WEG-Umwandlung (§ 577a BGB) &amp; Schadensersatz (§ 280 BGB)</h2>
+          <div class="form-group">
+            <label for="inp-lease-start">Mietbeginn / Überlassung (§ 573c BGB)</label>
+            <input type="date" id="inp-lease-start" value="2015-04-01" onchange="recalculate()" />
+          </div>
+          <div class="form-group">
+            <label for="inp-delivery-date">Zugang der Kündigung (3. Werktag Prüfung)</label>
+            <input type="date" id="inp-delivery-date" value="2026-10-12" onchange="recalculate()" />
+          </div>
+          <div class="form-group">
+            <label for="inp-stated-out">Vom Vermieter geforderter Auszugstermin</label>
+            <input type="date" id="inp-stated-out" value="2027-01-31" onchange="recalculate()" />
+          </div>
+          <div class="checkbox-row">
+            <input type="checkbox" id="inp-condo" checked onchange="recalculate()" />
+            <label for="inp-condo">WEG-Umwandlung + Verkauf nach Mietbeginn (§ 577a BGB)</label>
+          </div>
+          <div class="form-group">
+            <label for="inp-gb-date">Grundbucheintragung des Käufers (Beginn Sperrfrist)</label>
+            <input type="date" id="inp-gb-date" value="2021-06-15" onchange="recalculate()" />
+          </div>
+          <div class="checkbox-row">
+            <input type="checkbox" id="inp-anbiet-vacant" checked onchange="recalculate()" />
+            <label for="inp-anbiet-vacant">Freie Alternativwohnung im Haus vorhanden, aber NICHT angeboten (Anbietpflicht)</label>
+          </div>
+          <div class="checkbox-row">
+            <input type="checkbox" id="inp-hardship-cert" checked onchange="recalculate()" />
+            <label for="inp-hardship-cert">Härtefall-Attest / Hohes Alter / Kein Ersatzwohnraum (§ 574 BGB, BGH VIII ZR 180/18)</label>
+          </div>
+          <div class="form-group">
+            <label for="inp-old-rent">Bisherige Nettokaltmiete (€/Monat)</label>
+            <input type="number" id="inp-old-rent" value="820" step="10" onchange="recalculate()" />
+          </div>
+          <div class="form-group">
+            <label for="inp-new-rent">Vergleichsmiete Ersatzwohnung (€/Monat)</label>
+            <input type="number" id="inp-new-rent" value="1690" step="10" onchange="recalculate()" />
+          </div>
+          <div class="form-group">
+            <label for="inp-horizon">Schadensersatz-Horizont Mietdifferenz (Monate, Standard 42–60)</label>
+            <input type="number" id="inp-horizon" value="48" min="12" max="60" onchange="recalculate()" />
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="panel">
+          <h2>Deterministisches 6-Stufen Prüfprotokoll (§§ 568–577a BGB)</h2>
+          <div id="findings-container"></div>
+        </div>
+
+        <div class="panel">
+          <h2>Vorgetäuschter Eigenbedarf — Schadensersatz-Rechner (§ 280 Abs. 1 BGB i.V.m. § 249 BGB)</h2>
+          <table class="damages-table">
+            <thead>
+              <tr>
+                <th>Schadensposition nach § 280 Abs. 1, § 249 BGB</th>
+                <th>Berechnungsgrundlage</th>
+                <th>Erstattungsbetrag</th>
+              </tr>
+            </thead>
+            <tbody id="damages-tbody"></tbody>
+          </table>
+        </div>
+
+        <div class="panel">
+          <h2>Sofort-Generator: § 174 Satz 1 BGB Zurückweisung &amp; § 574 BGB Härtefall-Widerspruch</h2>
+          <div class="form-group">
+            <label>1. Sofortige Zurückweisung mangels Originalvollmacht (§ 174 S. 1 BGB) &amp; Formrüge (§ 568 BGB)</label>
+            <textarea class="letter-box" id="box-174" readonly>An die Vermieterseite / Hausverwaltung
+Betreff: Unverzügliche Zurückweisung Ihrer Kündigung vom 2026-10-12 gemäß § 174 Satz 1 BGB sowie Rüge der Unwirksamkeit
+
+Sehr geehrte Damen und Herren,
+
+hiermit weise ich die mir am 2026-10-12 zugegangene Eigenbedarfskündigung gemäß § 174 Satz 1 BGB unverzüglich zurück, da dem Kündigungsschreiben keine Originalvollmacht aller im Mietvertrag genannten Vermieter beigefügt war (bzw. die strenge Schriftform des § 568 Abs. 1 i.V.m. § 126 Abs. 1 BGB verletzt wurde).
+Die Kündigung ist damit von Anfang an unwirksam. Vorsorglich widerspreche ich der Kündigung auch materiell-rechtlich (Prüfstatus: UNWIRKSAM (NICHTIG / ZURÜCKWEISBAR)).
+
+Mit freundlichen Grüßen</textarea>
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label>2. Sozialklausel-Härtefallwiderspruch (§§ 574, 574b BGB, BGH VIII ZR 180/18) &amp; § 280 BGB Vorbehalt</label>
+            <textarea class="letter-box" id="box-574" readonly>An die Vermieterseite
+Betreff: Widerspruch gegen die Eigenbedarfskündigung gemäß §§ 574, 574a, 574b BGB (Sozialklausel)
+
+Sehr geehrte Damen und Herren,
+
+fristgemäß vor Ablauf des 2027-05-31 lege ich gegen Ihre Kündigung Widerspruch gemäß § 574 Abs. 1 und Abs. 2 BGB ein und verlange die Fortsetzung des seit dem 2015-04-01 bestehenden Mietverhältnisses (11.5 Jahre Mietdauer).
+Ein Wohnungswechsel bedeutet für mich eine nicht zu rechtfertigende Härte im Sinne der Rechtsprechung des Bundesgerichtshofs (BGH VIII ZR 180/18). Zudem ist angemessener Ersatzwohnraum zu zumutbaren Bedingungen in Berlin nicht beschaffbar (§ 574 Abs. 2 BGB).
+Für den Fall eines vorgetäuschten Eigenbedarfs oder einer Verletzung der Anbietpflicht behalte ich mir Schadensersatzansprüche gemäß § 280 Abs. 1 BGB (aktuell kalkulierter Differenzmiet- und Umzugsschaden: 51,610.00 EUR) ausdrücklich vor.
+
+Mit freundlichen Grüßen</textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const SCENARIOS = [{"case_id": "CASE_01_BERLIN_SPERRFRIST_COUSIN_POA", "title": "Berlin-Prenzlauer Berg: WEG-Umwandlung (10 J. Sperrfrist § 577a BGB) + Cousin (BGH VIII ZR 276/23) + fehlende Originalvollmacht (§ 174 BGB)", "city_key": "berlin", "landlord_entity": "familien_gbr", "beneficiary_type": "cousin_cousine", "beneficiary_close_bond_proven": true, "delivery_channel": "wet_ink_original", "landlords_in_lease_count": 2, "landlords_signed_count": 2, "signed_by_representative": true, "original_poa_attached": false, "notice_delivery_date": "2026-10-12", "inspection_reference_date": "2026-10-17", "stated_reason_detailed": true, "vacant_alternative_flat_in_building": true, "alternative_flat_offered": false, "lease_start_date": "2015-04-01", "condo_converted_after_move_in": true, "grundbuch_registration_date": "2021-06-15", "stated_move_out_date": "2027-01-31", "contains_574b_hardship_instruction": false, "tenant_age": 76, "severe_health_or_dementia_cert": true, "pregnancy_or_exam_phase": false, "no_substitute_housing_available": true, "old_cold_rent_eur": 820.0, "old_living_area_sqm": 85.0, "new_comparable_cold_rent_eur": 1690.0, "damage_horizon_months": 48, "moving_company_cost_eur": 3200.0, "broker_and_search_cost_eur": 1450.0, "kitchen_adaptation_cost_eur": 2800.0, "legal_defense_cost_eur": 2400.0, "suspected_fake_eigenbedarf": true}, {"case_id": "CASE_02_MUENCHEN_GMBH_EMAIL_SCAN", "title": "München-Schwabing: Immobilien-GmbH kündigt per PDF-Scan für Geschäftsführer (§ 568 BGB + 0% GmbH-Anspruch)", "city_key": "muenchen", "landlord_entity": "gmbh", "beneficiary_type": "vermieter_selbst", "beneficiary_close_bond_proven": true, "delivery_channel": "email_pdf_scan", "landlords_in_lease_count": 1, "landlords_signed_count": 1, "signed_by_representative": false, "original_poa_attached": true, "notice_delivery_date": "2026-10-08", "inspection_reference_date": "2026-10-17", "stated_reason_detailed": false, "vacant_alternative_flat_in_building": false, "alternative_flat_offered": false, "lease_start_date": "2019-09-01", "condo_converted_after_move_in": false, "grundbuch_registration_date": null, "stated_move_out_date": "2027-01-31", "contains_574b_hardship_instruction": false, "tenant_age": 42, "severe_health_or_dementia_cert": false, "pregnancy_or_exam_phase": true, "no_substitute_housing_available": true, "old_cold_rent_eur": 1350.0, "old_living_area_sqm": 78.0, "new_comparable_cold_rent_eur": 2150.0, "damage_horizon_months": 42, "moving_company_cost_eur": 2900.0, "broker_and_search_cost_eur": 1200.0, "kitchen_adaptation_cost_eur": 3100.0, "legal_defense_cost_eur": 2100.0, "suspected_fake_eigenbedarf": true}, {"case_id": "CASE_03_HAMBURG_FORMAL_VALID_HARDSHIP", "title": "Hamburg-Eimsbüttel: Formwirksamer Eigenbedarf für Tochter, aber 9 Monate Frist (§ 573c BGB) + Härtefall (§ 574 BGB)", "city_key": "hamburg", "landlord_entity": "natuerliche_person", "beneficiary_type": "kinder_stiefkinder", "beneficiary_close_bond_proven": true, "delivery_channel": "wet_ink_original", "landlords_in_lease_count": 1, "landlords_signed_count": 1, "signed_by_representative": false, "original_poa_attached": true, "notice_delivery_date": "2026-10-02", "inspection_reference_date": "2026-10-17", "stated_reason_detailed": true, "vacant_alternative_flat_in_building": false, "alternative_flat_offered": false, "lease_start_date": "2014-05-01", "condo_converted_after_move_in": true, "grundbuch_registration_date": "2015-08-01", "stated_move_out_date": "2027-06-30", "contains_574b_hardship_instruction": true, "tenant_age": 79, "severe_health_or_dementia_cert": true, "pregnancy_or_exam_phase": false, "no_substitute_housing_available": true, "old_cold_rent_eur": 940.0, "old_living_area_sqm": 90.0, "new_comparable_cold_rent_eur": 1580.0, "damage_horizon_months": 48, "moving_company_cost_eur": 2600.0, "broker_and_search_cost_eur": 900.0, "kitchen_adaptation_cost_eur": 1800.0, "legal_defense_cost_eur": 1950.0, "suspected_fake_eigenbedarf": false}];
+    const PRECOMPUTED_RESULTS = [{"case_id": "CASE_01_BERLIN_SPERRFRIST_COUSIN_POA", "title": "Berlin-Prenzlauer Berg: WEG-Umwandlung (10 J. Sperrfrist § 577a BGB) + Cousin (BGH VIII ZR 276/23) + fehlende Originalvollmacht (§ 174 BGB)", "city_name": "Berlin", "overall_validity": "UNWIRKSAM (NICHTIG / ZURÜCKWEISBAR)", "termination_void_probability_pct": 99, "fatal_defects_count": 3, "can_reject_under_174_bgb": true, "rejection_deadline_date": "2026-10-22", "days_left_for_174_rejection": 5, "sperrfrist_applies": true, "sperrfrist_years": 10, "sperrfrist_end_date": "2031-06-15", "earliest_allowed_notice_date": "2031-06-16", "lease_duration_years": 11.53, "statutory_notice_months": 9, "received_by_third_business_day": false, "earliest_legal_termination_date": "2027-07-31", "stated_move_out_date": "2027-01-31", "stated_date_too_early": true, "hardship_objection_deadline": "2027-05-31", "hardship_extended_to_first_hearing": true, "hardship_score_pct": 95, "findings": [{"check_number": 1, "code": "CHK_01_FORM_AND_174_POA", "title": "Formwirksamkeit (§ 568 BGB Schriftform) & Originalvollmacht (§ 174 BGB)", "statutory_basis": "§ 568 Abs. 1 BGB, § 126 Abs. 1 BGB, § 125 S. 1 BGB, § 174 S. 1 BGB", "status": "FATAL_VOID", "is_fatal_to_termination": true, "summary": "§ 174 Satz 1 BGB Vollmachtsfalle: Kündigung durch Vertreter/Hausverwaltung ohne beigefügte Originalvollmacht! Sofortige Zurückweisung bis 2026-10-22 macht die Kündigung rückwirkend zu 100% unwirksam.", "actionable_remedy": "Sofortige schriftliche Zurückweisung nach § 174 Satz 1 BGB per Einwurf-Einschreiben absenden (innerhalb von 7–10 Tagen nach Zugang) bzw. Formnichtigkeit nach §§ 568, 126, 125 BGB rügen."}, {"check_number": 2, "code": "CHK_02_LANDLORD_ENTITY", "title": "Vermieter-Rechtsform & Eigenbedarfsfähigkeit (BGH VIII ZR 231/06)", "statutory_basis": "BGH VIII ZR 231/06 & § 577a Abs. 1a BGB", "status": "PASS", "is_fatal_to_termination": false, "summary": "Familien-GbR (Gesellschaft bürgerlichen Rechts — Bestandsgesellschafter): Eigenbedarf eines GbR-Gesellschafters grundsätzlich möglich (BGH VIII ZR 231/06), sofern keine Sperrfrist nach § 577a Abs. 1a BGB (Erwerber-GbR außerhalb derselben Familie, BGH VIII ZR 276/23) greift.", "actionable_remedy": "Rechtsform grundsätzlich eigenbedarfsfähig; weiter mit Prüfung des privilegierten Personenkreises (Check 3)."}, {"check_number": 3, "code": "CHK_03_PRIVILEGED_BENEFICIARY", "title": "Privilegierter Personenkreis (§ 573 Abs. 2 Nr. 2 BGB, BGH VIII ZR 276/23) & Begründung (§ 573 Abs. 3 BGB)", "statutory_basis": "BGH VIII ZR 276/23 (Urteil v. 10.07.2024), § 573 Abs. 3 BGB", "status": "FATAL_VOID", "is_fatal_to_termination": true, "summary": "Bedarfsperson 'Cousin / Cousine (Seitenlinie 4. Grad)' gehört NICHT zum privilegierten Personenkreis nach § 573 Abs. 2 Nr. 2 BGB (BGH VIII ZR 276/23 (Urteil v. 10.07.2024)): UNWIRKSAM! Laut BGH (VIII ZR 276/23) gehören Cousins/Cousinen mangels Zeugnisverweigerungsrechts (§ 383 ZPO) NICHT zu den Familienangehörigen — selbst bei enger persönlicher Verbundenheit!", "actionable_remedy": "Schriftlicher Widerspruch wegen Fehlens einer privilegierten Bedarfsperson (BGH VIII ZR 276/23) bzw. formeller Begründungsmängel (§ 573 Abs. 3 BGB)."}, {"check_number": 4, "code": "CHK_04_577A_SPERRFRIST", "title": "WEG-Umwandlungs-Sperrfrist nach § 577a BGB (10 Jahre in Berlin)", "statutory_basis": "Kündigungsschutzklausel-Verordnung Berlin (§ 577a Abs. 2 BGB)", "status": "BARRED_SPERRFRIST", "is_fatal_to_termination": true, "summary": "Wohnung wurde nach Mietbeginn (2015-04-01) in Wohnungseigentum umgewandelt und veräußert (Grundbucheintragung: 2021-06-15). Die 10-jährige Kündigungssperrfrist in Berlin läuft bis zum 2031-06-15. Eine während der Sperrfrist ausgesprochene Kündigung (Zugang 2026-10-12) ist absolut unwirksam — die Kündigungsfrist nach § 573c BGB beginnt erst NACH Ablauf der Sperrfrist ab 2031-06-16!", "actionable_remedy": "Kündigung unter Verweis auf § 577a Abs. 1/2 BGB (Kündigungsschutzklausel-Verordnung Berlin (§ 577a Abs. 2 BGB)) als verfrüht und nichtig zurückweisen."}, {"check_number": 5, "code": "CHK_05_573C_NOTICE_AND_574_HARDSHIP", "title": "Kündigungsfrist (§ 573c Abs. 1 BGB) & Sozialklausel-Härtefall (§§ 574, 574b BGB, BGH VIII ZR 180/18)", "statutory_basis": "§ 573c Abs. 1 BGB, § 574 Abs. 1–2 BGB, § 574b Abs. 2 BGB, BGH VIII ZR 180/18", "status": "DEADLINE_EXTENDED", "is_fatal_to_termination": false, "summary": "Mietdauer bei Zugang: 11.5 Jahre -> Gesetzliche Kündigungsfrist: 9 Monate (Zugang NACH 3. Werktag, Fristbeginn erst Folgemonat). Frühester gesetzlicher Beendigungstermin: 2027-07-31 (Vermieter fordert: 2027-01-31 — ZU FRÜH!). Härtefall-Widerspruchsfrist (§ 574b BGB): 2027-05-31 (VERLÄNGERT bis zum 1. Termin des Räumungsrechtsstreits nach § 574b Abs. 2 S. 2 BGB wegen fehlender Belehrung!). Härtefall-Indikator: 95% (Hohes Lebensalter (76 J.) + Verwurzelung, Schwere Erkrankung/Demenz (fachärztliches Attest, BGH VIII ZR 180/18), Angespannter Wohnungsmarkt ohne zumutbaren Ersatzwohnraum (§ 574 Abs. 2 BGB)).", "actionable_remedy": "Schriftlichen Härtefall-Widerspruch nach §§ 574, 574a BGB spätestens bis 2027-05-31 mit fachärztlichem Attest (BGH VIII ZR 180/18) und dokumentierten Bewerbungen um Ersatzwohnraum (§ 574 Abs. 2 BGB) einlegen."}, {"check_number": 6, "code": "CHK_06_ANBIETPFLICHT_AND_280_DAMAGES", "title": "Anbietpflicht für Alternativwohnung & Schadensersatz bei vorgetäuschtem Eigenbedarf (§ 280 Abs. 1 BGB)", "statutory_basis": "§ 280 Abs. 1 BGB, § 242 BGB Auskunftsanspruch, BGH VIII ZR 78/10", "status": "BREACH_DAMAGES", "is_fatal_to_termination": false, "summary": "Pflichtverletzung der Anbietpflicht (BGH VIII ZR 78/10): Vermieter hat eine im selben Haus/Anlage bis zum Ablauf der Kündigungsfrist frei werdende vergleichbare Alternativwohnung NICHT angeboten. Indizien für vorgetäuschten Eigenbedarf (§ 280 Abs. 1 BGB): Bei Auszug und anschließender Neuvermietung/Leerverkauf entsteht ein bezifferbarer Schadensersatzanspruch von 51,610.00 EUR (davon 41,760.00 EUR Mietdifferenzschaden über 48 Monate à 870.00 EUR/Monat).", "actionable_remedy": "Auskunftsanspruch nach § 242 BGB geltend machen, Meldeamtsregister/Klingelschild nach Auszug kontrollieren und Schadensersatz in Höhe von 51,610.00 EUR nach § 280 Abs. 1 BGB einfordern."}], "damages": {"old_cold_rent_eur": 820.0, "new_comparable_cold_rent_eur": 1690.0, "monthly_rent_diff_eur": 870.0, "damage_horizon_months": 48, "rent_difference_total_eur": 41760.0, "moving_company_cost_eur": 3200.0, "broker_and_search_cost_eur": 1450.0, "kitchen_adaptation_cost_eur": 2800.0, "legal_defense_cost_eur": 2400.0, "total_claimable_damages_eur": 51610.0, "statutory_basis": "§ 280 Abs. 1 BGB i.V.m. § 249 BGB (Schadensersatz bei vorgetäuschtem Eigenbedarf / Verletzung der Anbietpflicht)"}, "rejection_letter_174_bgb": "An die Vermieterseite / Hausverwaltung\nBetreff: Unverzügliche Zurückweisung Ihrer Kündigung vom 2026-10-12 gemäß § 174 Satz 1 BGB sowie Rüge der Unwirksamkeit\n\nSehr geehrte Damen und Herren,\n\nhiermit weise ich die mir am 2026-10-12 zugegangene Eigenbedarfskündigung gemäß § 174 Satz 1 BGB unverzüglich zurück, da dem Kündigungsschreiben keine Originalvollmacht aller im Mietvertrag genannten Vermieter beigefügt war (bzw. die strenge Schriftform des § 568 Abs. 1 i.V.m. § 126 Abs. 1 BGB verletzt wurde).\nDie Kündigung ist damit von Anfang an unwirksam. Vorsorglich widerspreche ich der Kündigung auch materiell-rechtlich (Prüfstatus: UNWIRKSAM (NICHTIG / ZURÜCKWEISBAR)).\n\nMit freundlichen Grüßen", "hardship_objection_letter_574_bgb": "An die Vermieterseite\nBetreff: Widerspruch gegen die Eigenbedarfskündigung gemäß §§ 574, 574a, 574b BGB (Sozialklausel)\n\nSehr geehrte Damen und Herren,\n\nfristgemäß vor Ablauf des 2027-05-31 lege ich gegen Ihre Kündigung Widerspruch gemäß § 574 Abs. 1 und Abs. 2 BGB ein und verlange die Fortsetzung des seit dem 2015-04-01 bestehenden Mietverhältnisses (11.5 Jahre Mietdauer).\nEin Wohnungswechsel bedeutet für mich eine nicht zu rechtfertigende Härte im Sinne der Rechtsprechung des Bundesgerichtshofs (BGH VIII ZR 180/18). Zudem ist angemessener Ersatzwohnraum zu zumutbaren Bedingungen in Berlin nicht beschaffbar (§ 574 Abs. 2 BGB).\nFür den Fall eines vorgetäuschten Eigenbedarfs oder einer Verletzung der Anbietpflicht behalte ich mir Schadensersatzansprüche gemäß § 280 Abs. 1 BGB (aktuell kalkulierter Differenzmiet- und Umzugsschaden: 51,610.00 EUR) ausdrücklich vor.\n\nMit freundlichen Grüßen"}, {"case_id": "CASE_02_MUENCHEN_GMBH_EMAIL_SCAN", "title": "München-Schwabing: Immobilien-GmbH kündigt per PDF-Scan für Geschäftsführer (§ 568 BGB + 0% GmbH-Anspruch)", "city_name": "München", "overall_validity": "UNWIRKSAM (NICHTIG / ZURÜCKWEISBAR)", "termination_void_probability_pct": 99, "fatal_defects_count": 3, "can_reject_under_174_bgb": false, "rejection_deadline_date": null, "days_left_for_174_rejection": null, "sperrfrist_applies": false, "sperrfrist_years": 10, "sperrfrist_end_date": null, "earliest_allowed_notice_date": null, "lease_duration_years": 7.1, "statutory_notice_months": 6, "received_by_third_business_day": false, "earliest_legal_termination_date": "2027-04-30", "stated_move_out_date": "2027-01-31", "stated_date_too_early": true, "hardship_objection_deadline": "2027-02-28", "hardship_extended_to_first_hearing": true, "hardship_score_pct": 45, "findings": [{"check_number": 1, "code": "CHK_01_FORM_AND_174_POA", "title": "Formwirksamkeit (§ 568 BGB Schriftform) & Originalvollmacht (§ 174 BGB)", "statutory_basis": "§ 568 Abs. 1 BGB, § 126 Abs. 1 BGB, § 125 S. 1 BGB, § 174 S. 1 BGB", "status": "FATAL_VOID", "is_fatal_to_termination": true, "summary": "Zustellung per 'email_pdf_scan' verletzt § 568 Abs. 1 i.V.m. § 126 Abs. 1 BGB (strenge Schriftform mit eigenhändiger Original-Unterschrift zwingend; E-Mail/Scan/Fax/Kopie ist nach § 125 S. 1 BGB absolut nichtig!).", "actionable_remedy": "Formnichtigkeit nach §§ 568 Abs. 1, 126 Abs. 1, 125 S. 1 BGB geltend machen; eine neue formwirksame Kündigung löst die volle Kündigungsfrist erst ab Neuzugang aus."}, {"check_number": 2, "code": "CHK_02_LANDLORD_ENTITY", "title": "Vermieter-Rechtsform & Eigenbedarfsfähigkeit (Juristische Person vs. Natürliche Person)", "statutory_basis": "§ 573 Abs. 2 Nr. 2 BGB (Juristische Person — 0% Anspruch)", "status": "FATAL_VOID", "is_fatal_to_termination": true, "summary": "GmbH (Gesellschaft mit beschränkter Haftung): Eine GmbH ist eine juristische Person und hat keine 'Familien- oder Haushaltsangehörigen' und kann selbst nicht 'wohnen'. Eigenbedarf für Gesellschafter/Geschäftsführer ist zu 100% ausgeschlossen!", "actionable_remedy": "Kündigung wegen materieller Unwirksamkeit (§ 573 Abs. 2 Nr. 2 BGB unanwendbar auf Kapitalgesellschaften) vollständig zurückweisen."}, {"check_number": 3, "code": "CHK_03_PRIVILEGED_BENEFICIARY", "title": "Privilegierter Personenkreis (§ 573 Abs. 2 Nr. 2 BGB, BGH VIII ZR 276/23) & Begründung (§ 573 Abs. 3 BGB)", "statutory_basis": "§ 573 Abs. 2 Nr. 2 BGB (unmittelbar), § 573 Abs. 3 BGB", "status": "FATAL_VOID", "is_fatal_to_termination": true, "summary": "Begründungsmangel nach § 573 Abs. 3 BGB: Die Kündigung nennt keine konkreten Kerntatsachen (Name der Bedarfsperson + konkreter Lebenssachverhalt). Ein Nachschieben neuer Gründe ist nach § 573 Abs. 3 S. 2 BGB unzulässig!", "actionable_remedy": "Schriftlicher Widerspruch wegen Fehlens einer privilegierten Bedarfsperson (BGH VIII ZR 276/23) bzw. formeller Begründungsmängel (§ 573 Abs. 3 BGB)."}, {"check_number": 4, "code": "CHK_04_577A_SPERRFRIST", "title": "WEG-Umwandlungs-Sperrfrist nach § 577a BGB (10 Jahre in München)", "statutory_basis": "Bayerische Mieterschutzverordnung (MiSchuV BY — § 577a Abs. 2 BGB)", "status": "PASS", "is_fatal_to_termination": false, "summary": "Keine nach Mietbeginn erfolgte WEG-Umwandlung mit Veräußerung festgestellt.", "actionable_remedy": "Grundbuchauszug zur Verifizierung von Teilungserklärung und Eigentumsumschreibung beim Grundbuchamt anfordern (§ 12 GBO berechtigtes Interesse des Mieters)."}, {"check_number": 5, "code": "CHK_05_573C_NOTICE_AND_574_HARDSHIP", "title": "Kündigungsfrist (§ 573c Abs. 1 BGB) & Sozialklausel-Härtefall (§§ 574, 574b BGB, BGH VIII ZR 180/18)", "statutory_basis": "§ 573c Abs. 1 BGB, § 574 Abs. 1–2 BGB, § 574b Abs. 2 BGB, BGH VIII ZR 180/18", "status": "DEADLINE_EXTENDED", "is_fatal_to_termination": false, "summary": "Mietdauer bei Zugang: 7.1 Jahre -> Gesetzliche Kündigungsfrist: 6 Monate (Zugang NACH 3. Werktag, Fristbeginn erst Folgemonat). Frühester gesetzlicher Beendigungstermin: 2027-04-30 (Vermieter fordert: 2027-01-31 — ZU FRÜH!). Härtefall-Widerspruchsfrist (§ 574b BGB): 2027-02-28 (VERLÄNGERT bis zum 1. Termin des Räumungsrechtsstreits nach § 574b Abs. 2 S. 2 BGB wegen fehlender Belehrung!). Härtefall-Indikator: 45% (Schwangerschaft / akute Staatsexamens- oder Abschlussphase, Angespannter Wohnungsmarkt ohne zumutbaren Ersatzwohnraum (§ 574 Abs. 2 BGB)).", "actionable_remedy": "Schriftlichen Härtefall-Widerspruch nach §§ 574, 574a BGB spätestens bis 2027-02-28 mit fachärztlichem Attest (BGH VIII ZR 180/18) und dokumentierten Bewerbungen um Ersatzwohnraum (§ 574 Abs. 2 BGB) einlegen."}, {"check_number": 6, "code": "CHK_06_ANBIETPFLICHT_AND_280_DAMAGES", "title": "Anbietpflicht für Alternativwohnung & Schadensersatz bei vorgetäuschtem Eigenbedarf (§ 280 Abs. 1 BGB)", "statutory_basis": "§ 280 Abs. 1 BGB, § 242 BGB Auskunftsanspruch, BGH VIII ZR 78/10", "status": "BREACH_DAMAGES", "is_fatal_to_termination": false, "summary": "Indizien für vorgetäuschten Eigenbedarf (§ 280 Abs. 1 BGB): Bei Auszug und anschließender Neuvermietung/Leerverkauf entsteht ein bezifferbarer Schadensersatzanspruch von 42,900.00 EUR (davon 33,600.00 EUR Mietdifferenzschaden über 42 Monate à 800.00 EUR/Monat).", "actionable_remedy": "Auskunftsanspruch nach § 242 BGB geltend machen, Meldeamtsregister/Klingelschild nach Auszug kontrollieren und Schadensersatz in Höhe von 42,900.00 EUR nach § 280 Abs. 1 BGB einfordern."}], "damages": {"old_cold_rent_eur": 1350.0, "new_comparable_cold_rent_eur": 2150.0, "monthly_rent_diff_eur": 800.0, "damage_horizon_months": 42, "rent_difference_total_eur": 33600.0, "moving_company_cost_eur": 2900.0, "broker_and_search_cost_eur": 1200.0, "kitchen_adaptation_cost_eur": 3100.0, "legal_defense_cost_eur": 2100.0, "total_claimable_damages_eur": 42900.0, "statutory_basis": "§ 280 Abs. 1 BGB i.V.m. § 249 BGB (Schadensersatz bei vorgetäuschtem Eigenbedarf / Verletzung der Anbietpflicht)"}, "rejection_letter_174_bgb": "An die Vermieterseite / Hausverwaltung\nBetreff: Unverzügliche Zurückweisung Ihrer Kündigung vom 2026-10-08 gemäß § 174 Satz 1 BGB sowie Rüge der Unwirksamkeit\n\nSehr geehrte Damen und Herren,\n\nhiermit weise ich die mir am 2026-10-08 zugegangene Eigenbedarfskündigung gemäß § 174 Satz 1 BGB unverzüglich zurück, da dem Kündigungsschreiben keine Originalvollmacht aller im Mietvertrag genannten Vermieter beigefügt war (bzw. die strenge Schriftform des § 568 Abs. 1 i.V.m. § 126 Abs. 1 BGB verletzt wurde).\nDie Kündigung ist damit von Anfang an unwirksam. Vorsorglich widerspreche ich der Kündigung auch materiell-rechtlich (Prüfstatus: UNWIRKSAM (NICHTIG / ZURÜCKWEISBAR)).\n\nMit freundlichen Grüßen", "hardship_objection_letter_574_bgb": "An die Vermieterseite\nBetreff: Widerspruch gegen die Eigenbedarfskündigung gemäß §§ 574, 574a, 574b BGB (Sozialklausel)\n\nSehr geehrte Damen und Herren,\n\nfristgemäß vor Ablauf des 2027-02-28 lege ich gegen Ihre Kündigung Widerspruch gemäß § 574 Abs. 1 und Abs. 2 BGB ein und verlange die Fortsetzung des seit dem 2019-09-01 bestehenden Mietverhältnisses (7.1 Jahre Mietdauer).\nEin Wohnungswechsel bedeutet für mich eine nicht zu rechtfertigende Härte im Sinne der Rechtsprechung des Bundesgerichtshofs (BGH VIII ZR 180/18). Zudem ist angemessener Ersatzwohnraum zu zumutbaren Bedingungen in München nicht beschaffbar (§ 574 Abs. 2 BGB).\nFür den Fall eines vorgetäuschten Eigenbedarfs oder einer Verletzung der Anbietpflicht behalte ich mir Schadensersatzansprüche gemäß § 280 Abs. 1 BGB (aktuell kalkulierter Differenzmiet- und Umzugsschaden: 42,900.00 EUR) ausdrücklich vor.\n\nMit freundlichen Grüßen"}, {"case_id": "CASE_03_HAMBURG_FORMAL_VALID_HARDSHIP", "title": "Hamburg-Eimsbüttel: Formwirksamer Eigenbedarf für Tochter, aber 9 Monate Frist (§ 573c BGB) + Härtefall (§ 574 BGB)", "city_name": "Hamburg", "overall_validity": "SCHWEBEND / HÄRTEFALL-ABWEHR (§ 574 BGB)", "termination_void_probability_pct": 95, "fatal_defects_count": 0, "can_reject_under_174_bgb": false, "rejection_deadline_date": null, "days_left_for_174_rejection": null, "sperrfrist_applies": false, "sperrfrist_years": 10, "sperrfrist_end_date": "2025-08-01", "earliest_allowed_notice_date": "2025-08-02", "lease_duration_years": 12.42, "statutory_notice_months": 9, "received_by_third_business_day": true, "earliest_legal_termination_date": "2027-06-30", "stated_move_out_date": "2027-06-30", "stated_date_too_early": false, "hardship_objection_deadline": "2027-04-30", "hardship_extended_to_first_hearing": false, "hardship_score_pct": 95, "findings": [{"check_number": 1, "code": "CHK_01_FORM_AND_174_POA", "title": "Formwirksamkeit (§ 568 BGB Schriftform) & Originalvollmacht (§ 174 BGB)", "statutory_basis": "§ 568 Abs. 1 BGB, § 126 Abs. 1 BGB, § 174 S. 1 BGB", "status": "PASS", "is_fatal_to_termination": false, "summary": "Eigenhändige Originalunterschrift aller Vermieter bzw. ordnungsgemäße Originalvollmacht liegt vor.", "actionable_remedy": "Keine formelle Zurückweisung nach § 174 BGB möglich; Prüfung der materiellen Wirksamkeit (Checks 2–6)."}, {"check_number": 2, "code": "CHK_02_LANDLORD_ENTITY", "title": "Vermieter-Rechtsform & Eigenbedarfsfähigkeit (BGH VIII ZR 231/06)", "statutory_basis": "§ 573 Abs. 2 Nr. 2 BGB", "status": "PASS", "is_fatal_to_termination": false, "summary": "Natürliche Person (Alleineigentümer / Miteigentümer): Natürliche Personen als Vermieter sind uneingeschränkt eigenbedarfsberechtigt.", "actionable_remedy": "Rechtsform grundsätzlich eigenbedarfsfähig; weiter mit Prüfung des privilegierten Personenkreises (Check 3)."}, {"check_number": 3, "code": "CHK_03_PRIVILEGED_BENEFICIARY", "title": "Privilegierter Personenkreis (§ 573 Abs. 2 Nr. 2 BGB) & Begründung (§ 573 Abs. 3 BGB)", "statutory_basis": "§ 573 Abs. 2 Nr. 2 BGB (Verwandte gerader Linie, § 383 Abs. 1 Nr. 3 ZPO)", "status": "PASS", "is_fatal_to_termination": false, "summary": "Bedarfsperson 'Kinder / Stiefkinder / Adoptivkinder' zählt zum privilegierten Kreis (§ 573 Abs. 2 Nr. 2 BGB (Verwandte gerader Linie, § 383 Abs. 1 Nr. 3 ZPO)); Kerntatsachen nach § 573 Abs. 3 BGB sind benannt.", "actionable_remedy": "Plausibilität des Wohnbedarfs (Vorratskündigung / überhöhter Wohnbedarf / Alternativwohnung) im Detail prüfen."}, {"check_number": 4, "code": "CHK_04_577A_SPERRFRIST", "title": "WEG-Umwandlungs-Sperrfrist nach § 577a BGB (10 Jahre in Hamburg)", "statutory_basis": "Hamburger Kündigungsschutzverordnung (§ 577a Abs. 2 BGB)", "status": "PASS", "is_fatal_to_termination": false, "summary": "Sperrfrist (10 Jahre bis 2025-08-01) bereits abgelaufen.", "actionable_remedy": "Grundbuchauszug zur Verifizierung von Teilungserklärung und Eigentumsumschreibung beim Grundbuchamt anfordern (§ 12 GBO berechtigtes Interesse des Mieters)."}, {"check_number": 5, "code": "CHK_05_573C_NOTICE_AND_574_HARDSHIP", "title": "Kündigungsfrist (§ 573c Abs. 1 BGB) & Sozialklausel-Härtefall (§§ 574, 574b BGB, BGH VIII ZR 180/18)", "statutory_basis": "§ 573c Abs. 1 BGB, § 574 Abs. 1–2 BGB, § 574b Abs. 2 BGB, BGH VIII ZR 180/18", "status": "DEADLINE_EXTENDED", "is_fatal_to_termination": false, "summary": "Mietdauer bei Zugang: 12.4 Jahre -> Gesetzliche Kündigungsfrist: 9 Monate (Zugang bis 3. Werktag gewahrt). Frühester gesetzlicher Beendigungstermin: 2027-06-30 (Vermieter fordert: 2027-06-30). Härtefall-Widerspruchsfrist (§ 574b BGB): 2027-04-30. Härtefall-Indikator: 95% (Hohes Lebensalter (79 J.) + Verwurzelung, Schwere Erkrankung/Demenz (fachärztliches Attest, BGH VIII ZR 180/18), Angespannter Wohnungsmarkt ohne zumutbaren Ersatzwohnraum (§ 574 Abs. 2 BGB)).", "actionable_remedy": "Schriftlichen Härtefall-Widerspruch nach §§ 574, 574a BGB spätestens bis 2027-04-30 mit fachärztlichem Attest (BGH VIII ZR 180/18) und dokumentierten Bewerbungen um Ersatzwohnraum (§ 574 Abs. 2 BGB) einlegen."}, {"check_number": 6, "code": "CHK_06_ANBIETPFLICHT_AND_280_DAMAGES", "title": "Anbietpflicht & Vorgetäuschter Eigenbedarf Schadensersatz-Potenzial (§ 280 Abs. 1 BGB)", "statutory_basis": "§ 280 Abs. 1 BGB, § 249 BGB", "status": "PASS", "is_fatal_to_termination": false, "summary": "Keine Verletzung der Anbietpflicht festgestellt. Potenzielles Schadensersatz-Risiko für den Vermieter bei nachträglichem Wegfall des Eigenbedarfs ohne Mitteilung: 37,970.00 EUR.", "actionable_remedy": "Vermieter muss einen vor Ablauf der Kündigungsfrist wegfallenden Eigenbedarf ungefragt mitteilen, andernfalls greift volle Haftung nach § 280 Abs. 1 BGB."}], "damages": {"old_cold_rent_eur": 940.0, "new_comparable_cold_rent_eur": 1580.0, "monthly_rent_diff_eur": 640.0, "damage_horizon_months": 48, "rent_difference_total_eur": 30720.0, "moving_company_cost_eur": 2600.0, "broker_and_search_cost_eur": 900.0, "kitchen_adaptation_cost_eur": 1800.0, "legal_defense_cost_eur": 1950.0, "total_claimable_damages_eur": 37970.0, "statutory_basis": "§ 280 Abs. 1 BGB i.V.m. § 249 BGB (Schadensersatz bei vorgetäuschtem Eigenbedarf / Verletzung der Anbietpflicht)"}, "rejection_letter_174_bgb": "An die Vermieterseite / Hausverwaltung\nBetreff: Unverzügliche Zurückweisung Ihrer Kündigung vom 2026-10-02 gemäß § 174 Satz 1 BGB sowie Rüge der Unwirksamkeit\n\nSehr geehrte Damen und Herren,\n\nhiermit weise ich die mir am 2026-10-02 zugegangene Eigenbedarfskündigung gemäß § 174 Satz 1 BGB unverzüglich zurück, da dem Kündigungsschreiben keine Originalvollmacht aller im Mietvertrag genannten Vermieter beigefügt war (bzw. die strenge Schriftform des § 568 Abs. 1 i.V.m. § 126 Abs. 1 BGB verletzt wurde).\nDie Kündigung ist damit von Anfang an unwirksam. Vorsorglich widerspreche ich der Kündigung auch materiell-rechtlich (Prüfstatus: SCHWEBEND / HÄRTEFALL-ABWEHR (§ 574 BGB)).\n\nMit freundlichen Grüßen", "hardship_objection_letter_574_bgb": "An die Vermieterseite\nBetreff: Widerspruch gegen die Eigenbedarfskündigung gemäß §§ 574, 574a, 574b BGB (Sozialklausel)\n\nSehr geehrte Damen und Herren,\n\nfristgemäß vor Ablauf des 2027-04-30 lege ich gegen Ihre Kündigung Widerspruch gemäß § 574 Abs. 1 und Abs. 2 BGB ein und verlange die Fortsetzung des seit dem 2014-05-01 bestehenden Mietverhältnisses (12.4 Jahre Mietdauer).\nEin Wohnungswechsel bedeutet für mich eine nicht zu rechtfertigende Härte im Sinne der Rechtsprechung des Bundesgerichtshofs (BGH VIII ZR 180/18). Zudem ist angemessener Ersatzwohnraum zu zumutbaren Bedingungen in Hamburg nicht beschaffbar (§ 574 Abs. 2 BGB).\nFür den Fall eines vorgetäuschten Eigenbedarfs oder einer Verletzung der Anbietpflicht behalte ich mir Schadensersatzansprüche gemäß § 280 Abs. 1 BGB (aktuell kalkulierter Differenzmiet- und Umzugsschaden: 37,970.00 EUR) ausdrücklich vor.\n\nMit freundlichen Grüßen"}];
+    const CITIES = {"berlin": {"name": "Berlin", "bundesland": "Berlin", "sperrfrist_years": 10, "verordnung": "Kündigungsschutzklausel-Verordnung Berlin (§ 577a Abs. 2 BGB)", "tight_market": true}, "muenchen": {"name": "München", "bundesland": "Bayern", "sperrfrist_years": 10, "verordnung": "Bayerische Mieterschutzverordnung (MiSchuV BY — § 577a Abs. 2 BGB)", "tight_market": true}, "hamburg": {"name": "Hamburg", "bundesland": "Hamburg", "sperrfrist_years": 10, "verordnung": "Hamburger Kündigungsschutzverordnung (§ 577a Abs. 2 BGB)", "tight_market": true}, "frankfurt": {"name": "Frankfurt am Main", "bundesland": "Hessen", "sperrfrist_years": 8, "verordnung": "Hessische Kündigungsschutzverordnung (§ 577a Abs. 2 BGB — 8 Jahre in angespannten Märkten)", "tight_market": true}, "koeln": {"name": "Köln", "bundesland": "Nordrhein-Westfalen", "sperrfrist_years": 8, "verordnung": "NRW Mieterschutzverordnung (§ 577a Abs. 2 BGB — bis 8 Jahre)", "tight_market": true}, "stuttgart": {"name": "Stuttgart", "bundesland": "Baden-Württemberg", "sperrfrist_years": 5, "verordnung": "Kündigungssperrfristverordnung BW (§ 577a Abs. 2 BGB — 5 Jahre)", "tight_market": true}, "bundesweit_standard": {"name": "Bundesweiter Regelfall (ohne Landes-SperrfristVO)", "bundesland": "Bund (§ 577a Abs. 1 BGB)", "sperrfrist_years": 3, "verordnung": "Gesetzliche Regelsperrfrist (§ 577a Abs. 1 BGB — 3 Jahre)", "tight_market": false}};
+    const ENTITIES = {"natuerliche_person": {"label": "Natürliche Person (Alleineigentümer / Miteigentümer)", "eligible": true, "eligibility_pct": 100, "legal_basis": "§ 573 Abs. 2 Nr. 2 BGB", "explanation": "Natürliche Personen als Vermieter sind uneingeschränkt eigenbedarfsberechtigt."}, "ehegattengemeinschaft": {"label": "Ehegattengemeinschaft / Erbengemeinschaft (natürliche Personen)", "eligible": true, "eligibility_pct": 100, "legal_basis": "§ 573 Abs. 2 Nr. 2 BGB i.V.m. § 568 BGB", "explanation": "Eigenbedarf für einen Miteigentümer zulässig, Kündigung muss aber von ALLEN Vermietern unterschrieben sein."}, "familien_gbr": {"label": "Familien-GbR (Gesellschaft bürgerlichen Rechts — Bestandsgesellschafter)", "eligible": true, "eligibility_pct": 75, "legal_basis": "BGH VIII ZR 231/06 & § 577a Abs. 1a BGB", "explanation": "Eigenbedarf eines GbR-Gesellschafters grundsätzlich möglich (BGH VIII ZR 231/06), sofern keine Sperrfrist nach § 577a Abs. 1a BGB (Erwerber-GbR außerhalb derselben Familie, BGH VIII ZR 276/23) greift."}, "gmbh": {"label": "GmbH (Gesellschaft mit beschränkter Haftung)", "eligible": false, "eligibility_pct": 0, "legal_basis": "§ 573 Abs. 2 Nr. 2 BGB (Juristische Person — 0% Anspruch)", "explanation": "Eine GmbH ist eine juristische Person und hat keine 'Familien- oder Haushaltsangehörigen' und kann selbst nicht 'wohnen'. Eigenbedarf für Gesellschafter/Geschäftsführer ist zu 100% ausgeschlossen!"}, "ug": {"label": "UG (haftungsbeschränkt) / Immobilien-UG", "eligible": false, "eligibility_pct": 0, "legal_basis": "§ 573 Abs. 2 Nr. 2 BGB (Juristische Person — 0% Anspruch)", "explanation": "Als Kapitalgesellschaft kann eine UG niemals wegen Eigenbedarfs kündigen (0% Berechtigung)."}, "ag": {"label": "AG (Aktiengesellschaft / Wohnungsbau-AG)", "eligible": false, "eligibility_pct": 0, "legal_basis": "§ 573 Abs. 2 Nr. 2 BGB (Juristische Person — 0% Anspruch)", "explanation": "Eine Aktiengesellschaft ist vom Eigenbedarf nach § 573 Abs. 2 Nr. 2 BGB gesetzlich vollständig ausgeschlossen."}};
+    const BENEFICIARIES = {"vermieter_selbst": {"label": "Vermieter selbst", "privileged": true, "requires_close_bond": false, "bgh_ref": "§ 573 Abs. 2 Nr. 2 BGB (unmittelbar)", "explanation": "Unmittelbar eigenbedarfsberechtigt."}, "ehegatte_lebenspartner": {"label": "Ehegatte / eingetragener Lebenspartner", "privileged": true, "requires_close_bond": false, "bgh_ref": "§ 573 Abs. 2 Nr. 2 BGB i.V.m. § 383 Abs. 1 Nr. 1–2 ZPO", "explanation": "Automatisch privilegierter Familienangehöriger."}, "kinder_stiefkinder": {"label": "Kinder / Stiefkinder / Adoptivkinder", "privileged": true, "requires_close_bond": false, "bgh_ref": "§ 573 Abs. 2 Nr. 2 BGB (Verwandte gerader Linie, § 383 Abs. 1 Nr. 3 ZPO)", "explanation": "Automatisch privilegiert ohne Nachweis besonderer persönlicher Verbundenheit."}, "eltern_grosseltern_enkel": {"label": "Eltern / Großeltern / Enkelkinder", "privileged": true, "requires_close_bond": false, "bgh_ref": "§ 573 Abs. 2 Nr. 2 BGB (Verwandte gerader Linie, § 383 Abs. 1 Nr. 3 ZPO)", "explanation": "Automatisch privilegiert in gerader Linie."}, "geschwister": {"label": "Geschwister (Bruder / Schwester)", "privileged": true, "requires_close_bond": false, "bgh_ref": "BGH VIII ZR 159/09 (Seitenlinie 2. Grad, § 383 Abs. 1 Nr. 3 ZPO)", "explanation": "Geschwister zählen laut BGH (VIII ZR 159/09) ohne zusätzlichen Nachweis besonderer Verbundenheit zum privilegierten Familienkreis."}, "pflegepersonal_haushalt": {"label": "Pflegekraft / Haushaltsangehörige (im Haushalt lebend)", "privileged": true, "requires_close_bond": false, "bgh_ref": "§ 573 Abs. 2 Nr. 2 Alt. 2 BGB (Angehörige des Haushalts)", "explanation": "Für im Haushalt aufgenommene Lebensgefährten oder benötigtes Pflegepersonal ausdrücklich gesetzlich privilegiert."}, "nichten_neffen_tanten_onkel": {"label": "Nichten / Neffen / Tanten / Onkel (Seitenlinie 3. Grad)", "privileged": false, "requires_close_bond": true, "bgh_ref": "§ 573 Abs. 2 Nr. 2 BGB / Enge persönliche Verbundenheit erforderlich", "explanation": "Ohne nachgewiesene enge persönliche soziale Bindung scheitern Kündigungen für entfernte Seitenverwandte vor Gericht."}, "cousin_cousine": {"label": "Cousin / Cousine (Seitenlinie 4. Grad)", "privileged": false, "requires_close_bond": false, "bgh_ref": "BGH VIII ZR 276/23 (Urteil v. 10.07.2024)", "explanation": "UNWIRKSAM! Laut BGH (VIII ZR 276/23) gehören Cousins/Cousinen mangels Zeugnisverweigerungsrechts (§ 383 ZPO) NICHT zu den Familienangehörigen — selbst bei enger persönlicher Verbundenheit!"}, "ex_schwiegereltern_schwager": {"label": "Geschiedene Ex-Schwiegerkinder / entfernte Verschwägerte", "privileged": false, "requires_close_bond": false, "bgh_ref": "BGH VIII ZR 247/08 & § 383 ZPO", "explanation": "UNWIRKSAM! Nach Auflösung der Ehe/entfernter Schwägerschaft außerhalb des privilegierten Personenkreises."}};
+
+    function formatEUR(val) {
+      return val.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
+    }
+
+    function loadScenario(idx) {
+      document.querySelectorAll('.scenario-btn').forEach((b, i) => {
+        b.classList.toggle('active', i === idx);
+      });
+      const s = SCENARIOS[idx];
+      document.getElementById('inp-city').value = s.city_key;
+      document.getElementById('inp-entity').value = s.landlord_entity;
+      document.getElementById('inp-beneficiary').value = s.beneficiary_type;
+      document.getElementById('inp-channel').value = s.delivery_channel;
+      document.getElementById('inp-all-signed').checked = (s.landlords_signed_count >= s.landlords_in_lease_count);
+      document.getElementById('inp-rep').checked = s.signed_by_representative;
+      document.getElementById('inp-poa').checked = s.original_poa_attached;
+      document.getElementById('inp-detailed').checked = s.stated_reason_detailed;
+      document.getElementById('inp-lease-start').value = s.lease_start_date;
+      document.getElementById('inp-delivery-date').value = s.notice_delivery_date;
+      document.getElementById('inp-stated-out').value = s.stated_move_out_date;
+      document.getElementById('inp-condo').checked = s.condo_converted_after_move_in;
+      document.getElementById('inp-gb-date').value = s.grundbuch_registration_date || '2021-06-15';
+      document.getElementById('inp-anbiet-vacant').checked = (s.vacant_alternative_flat_in_building && !s.alternative_flat_offered);
+      document.getElementById('inp-hardship-cert').checked = s.severe_health_or_dementia_cert;
+      document.getElementById('inp-old-rent').value = s.old_cold_rent_eur;
+      document.getElementById('inp-new-rent').value = s.new_comparable_cold_rent_eur;
+      document.getElementById('inp-horizon').value = s.damage_horizon_months;
+      recalculate();
+    }
+
+    function recalculate() {
+      const cityKey = document.getElementById('inp-city').value;
+      const entityKey = document.getElementById('inp-entity').value;
+      const benKey = document.getElementById('inp-beneficiary').value;
+      const channel = document.getElementById('inp-channel').value;
+      const allSigned = document.getElementById('inp-all-signed').checked;
+      const isRep = document.getElementById('inp-rep').checked;
+      const hasPoa = document.getElementById('inp-poa').checked;
+      const isDetailed = document.getElementById('inp-detailed').checked;
+      const leaseStart = document.getElementById('inp-lease-start').value;
+      const deliveryDate = document.getElementById('inp-delivery-date').value;
+      const statedOut = document.getElementById('inp-stated-out').value;
+      const isCondo = document.getElementById('inp-condo').checked;
+      const gbDate = document.getElementById('inp-gb-date').value;
+      const anbietBreach = document.getElementById('inp-anbiet-vacant').checked;
+      const hardshipCert = document.getElementById('inp-hardship-cert').checked;
+      const oldRent = parseFloat(document.getElementById('inp-old-rent').value || '0');
+      const newRent = parseFloat(document.getElementById('inp-new-rent').value || '0');
+      const horizon = parseInt(document.getElementById('inp-horizon').value || '48', 10);
+
+      const city = CITIES[cityKey];
+      const ent = ENTITIES[entityKey];
+      const ben = BENEFICIARIES[benKey];
+
+      const canReject174 = isRep && !hasPoa;
+      const formInvalid = (channel !== 'wet_ink_original') || !allSigned || canReject174;
+      const delivObj = new Date(deliveryDate + 'T00:00:00');
+      const rejDeadlineObj = new Date(delivObj.getTime() + 10 * 86400000);
+      const rejDeadlineStr = rejDeadlineObj.toISOString().slice(0, 10);
+
+      const entValid = ent.eligible;
+      const benValid = ben.privileged && isDetailed;
+
+      const gbObj = new Date(gbDate + 'T00:00:00');
+      const leaseObj = new Date(leaseStart + 'T00:00:00');
+      const sfEndYear = gbObj.getFullYear() + city.sperrfrist_years;
+      const sfEndStr = sfEndYear + '-' + gbDate.slice(5, 10);
+      const sfEndObj = new Date(sfEndStr + 'T00:00:00');
+      const sperrfristActive = isCondo && (gbObj > leaseObj) && (delivObj <= sfEndObj);
+
+      const leaseYears = Math.max(0, (delivObj - leaseObj) / (365.2425 * 86400000));
+      const noticeMonths = leaseYears >= 8 ? 9 : (leaseYears >= 5 ? 6 : 3);
+      const inKarenz = delivObj.getDate() <= 4;
+      const targetDate = new Date(delivObj.getFullYear(), delivObj.getMonth() + (inKarenz ? noticeMonths : noticeMonths + 1), 0);
+      const earliestEndStr = targetDate.toISOString().slice(0, 10);
+      const objDeadlineDate = new Date(targetDate.getFullYear(), targetDate.getMonth() - 1, 0);
+      const objDeadlineStr = objDeadlineDate.toISOString().slice(0, 10);
+
+      const monthlyDiff = Math.max(0, newRent - oldRent);
+      const rentDiffTotal = monthlyDiff * horizon;
+      const movingCosts = 3200;
+      const brokerCosts = 1450;
+      const kitchenCosts = 2800;
+      const legalCosts = 2400;
+      const totalDamages = rentDiffTotal + movingCosts + brokerCosts + kitchenCosts + legalCosts;
+
+      const checks = [
+        {
+          num: 1,
+          title: 'Check 1 — Schriftform (§ 568 Abs. 1 BGB) & Originalvollmacht (§ 174 S. 1 BGB)',
+          basis: '§ 568 Abs. 1 BGB, § 126 Abs. 1 BGB, § 174 S. 1 BGB',
+          status: formInvalid ? 'FATAL_VOID' : 'PASS',
+          fatal: formInvalid,
+          summary: formInvalid
+            ? (canReject174
+                ? `§ 174 S. 1 BGB Vollmachtsfalle aktiv! Vertreterkündigung ohne Originalvollmacht kann bis ${rejDeadlineStr} sofort zurückgewiesen werden.`
+                : 'Verstoß gegen § 568 Abs. 1 / § 126 BGB (Eigenhändige Unterschrift aller Vermieter im Original fehlt).')
+            : 'Eigenhändige Originalunterschrift aller Vermieter bzw. Originalvollmacht liegt vor.',
+          remedy: canReject174
+            ? `Unverzügliche Zurückweisung nach § 174 S. 1 BGB bis spätestens ${rejDeadlineStr} per Einwurf-Einschreiben!`
+            : (formInvalid ? 'Formnichtigkeit nach § 125 S. 1 BGB rügen.' : 'Formell wirksam — weiter mit materieller Prüfung.')
+        },
+        {
+          num: 2,
+          title: 'Check 2 — Vermieter-Rechtsform (BGH VIII ZR 231/06)',
+          basis: ent.legal_basis,
+          status: entValid ? 'PASS' : 'FATAL_VOID',
+          fatal: !entValid,
+          summary: `${ent.label}: ${ent.explanation}`,
+          remedy: entValid ? 'Rechtsform zulässig.' : 'Eigenbedarf für juristische Personen (GmbH/UG/AG) ist zu 100% gesetzlich ausgeschlossen!'
+        },
+        {
+          num: 3,
+          title: 'Check 3 — Privilegierter Personenkreis (§ 573 Abs. 2 Nr. 2 BGB, BGH VIII ZR 276/23)',
+          basis: ben.bgh_ref + ' · § 573 Abs. 3 BGB',
+          status: benValid ? 'PASS' : 'FATAL_VOID',
+          fatal: !benValid,
+          summary: benValid
+            ? `Bedarfsperson (${ben.label}) ist privilegiert und Kerntatsachen sind nach § 573 Abs. 3 BGB dargelegt.`
+            : `UNWIRKSAM: ${ben.label} (${ben.explanation}) bzw. fehlende Kerntatsachen nach § 573 Abs. 3 BGB.`,
+          remedy: benValid ? 'Tatsächlichen Nutzungswillen prüfen.' : 'Kündigung unter Berufung auf BGH VIII ZR 276/23 / § 573 Abs. 2 Nr. 2 BGB zurückweisen.'
+        },
+        {
+          num: 4,
+          title: `Check 4 — WEG-Umwandlungs-Sperrfrist (§ 577a BGB: ${city.sperrfrist_years} Jahre in ${city.name})`,
+          basis: city.verordnung,
+          status: sperrfristActive ? 'BARRED_SPERRFRIST' : 'PASS',
+          fatal: sperrfristActive,
+          summary: sperrfristActive
+            ? `Kündigung GESPERRT! Nach Grundbucheintragung (${gbDate}) läuft die ${city.sperrfrist_years}-jährige Sperrfrist in ${city.name} bis zum ${sfEndStr}.`
+            : `Keine laufende Sperrfrist nach § 577a BGB zum Zugangszeitpunkt (${deliveryDate}).`,
+          remedy: sperrfristActive
+            ? `Kündigung ist wegen Verstoßes gegen § 577a BGB absolut nichtig; neue Kündigung erst nach dem ${sfEndStr} möglich!`
+            : 'Grundbuchauszug (§ 12 GBO) zur Kontrolle des Eintragungsdatums einsehen.'
+        },
+        {
+          num: 5,
+          title: 'Check 5 — Kündigungsfrist (§ 573c BGB) & Sozialklausel-Härtefall (§§ 574, 574b BGB)',
+          basis: '§ 573c Abs. 1 BGB, §§ 574, 574b Abs. 2 BGB, BGH VIII ZR 180/18',
+          status: (hardshipCert || statedOut < earliestEndStr) ? 'DEADLINE_EXTENDED' : 'PASS',
+          fatal: false,
+          summary: `Mietdauer ${leaseYears.toFixed(1)} J. -> ${noticeMonths} Monate Frist bis ${earliestEndStr}. Widerspruchsfrist (§ 574b BGB) endet am ${objDeadlineStr}.`,
+          remedy: `Härtefall-Widerspruch nach § 574 BGB mit fachärztlichem Attest (BGH VIII ZR 180/18) bis ${objDeadlineStr} einreichen.`
+        },
+        {
+          num: 6,
+          title: 'Check 6 — Anbietpflicht & Vorgetäuschter Eigenbedarf Schadensersatz (§ 280 Abs. 1 BGB)',
+          basis: '§ 280 Abs. 1 BGB, § 249 BGB, BGH VIII ZR 78/10',
+          status: anbietBreach ? 'BREACH_DAMAGES' : 'PASS',
+          fatal: false,
+          summary: anbietBreach
+            ? `Verletzung der Anbietpflicht für freie Alternativwohnung im Haus + Schadensersatzanspruch von ${formatEUR(totalDamages)} bei vorgetäuschtem Eigenbedarf.`
+            : `Kalkuliertes Haftungsvolumen bei vorgetäuschtem Eigenbedarf über ${horizon} Monate: ${formatEUR(totalDamages)}.`,
+          remedy: `Auskunftsanspruch (§ 242 BGB) sichern und Schadensersatz (${formatEUR(totalDamages)}) nach § 280 Abs. 1 BGB einfordern.`
+        }
+      ];
+
+      const fatalCount = checks.filter(c => c.fatal).length;
+      const verdictEl = document.getElementById('kpi-verdict');
+      if (sperrfristActive && fatalCount === 1) {
+        verdictEl.textContent = 'GESPERRT (§ 577a BGB)';
+        verdictEl.style.color = 'var(--danger)';
+      } else if (fatalCount > 0) {
+        verdictEl.textContent = 'UNWIRKSAM / NICHTIG';
+        verdictEl.style.color = 'var(--danger)';
+      } else if (hardshipCert || anbietBreach) {
+        verdictEl.textContent = 'HÄRTEFALL-ABWEHR (§ 574)';
+        verdictEl.style.color = 'var(--warn)';
+      } else {
+        verdictEl.textContent = 'FORMAL WIRKSAM';
+        verdictEl.style.color = 'var(--ok)';
+      }
+      document.getElementById('kpi-fatal-sub').textContent = `${fatalCount} zwingende Unwirksamkeitsgründe erkannt`;
+      document.getElementById('kpi-174').textContent = canReject174 ? `AKTIV bis ${rejDeadlineStr}` : 'Nicht einschlägig';
+      document.getElementById('kpi-sperrfrist').textContent = `${city.sperrfrist_years} Jahre (${city.name})`;
+      document.getElementById('kpi-sperrfrist-sub').textContent = sperrfristActive ? `Gesperrt bis ${sfEndStr}` : 'Keine aktive Sperrfrist';
+      document.getElementById('kpi-notice').textContent = `${noticeMonths} Monate (${earliestEndStr})`;
+      document.getElementById('kpi-notice-sub').textContent = `Widerspruch (§ 574b BGB) bis ${objDeadlineStr}`;
+      document.getElementById('kpi-damages').textContent = formatEUR(totalDamages);
+
+      const container = document.getElementById('findings-container');
+      container.innerHTML = checks.map(c => `
+        <div class="check-card ${c.status}">
+          <div class="check-header">
+            <span class="check-title">${c.title}</span>
+            <span class="status-pill ${c.status}">${c.status}</span>
+          </div>
+          <div class="check-basis">${c.basis}</div>
+          <div>${c.summary}</div>
+          <div class="check-remedy"><strong>Empfohlene Maßnahme:</strong> ${c.remedy}</div>
+        </div>
+      `).join('');
+
+      const tbody = document.getElementById('damages-tbody');
+      tbody.innerHTML = `
+        <tr>
+          <td>Mietdifferenzschaden (§ 280 Abs. 1, § 249 BGB)</td>
+          <td>(${formatEUR(newRent)} − ${formatEUR(oldRent)}) × ${horizon} Monate</td>
+          <td><strong>${formatEUR(rentDiffTotal)}</strong></td>
+        </tr>
+        <tr>
+          <td>Umzugsunternehmen &amp; Transportkosten</td>
+          <td>Spedition, Halteverbotszone, Ummeldung</td>
+          <td>${formatEUR(movingCosts)}</td>
+        </tr>
+        <tr>
+          <td>Makler-, Such- &amp; Doppelmietkosten</td>
+          <td>Wohnungssuche &amp; Übergangsüberschneidung</td>
+          <td>${formatEUR(brokerCosts)}</td>
+        </tr>
+        <tr>
+          <td>Küchenumbau- &amp; Anpassungskosten</td>
+          <td>Wertverlust / Einpassung Einbauküche</td>
+          <td>${formatEUR(kitchenCosts)}</td>
+        </tr>
+        <tr>
+          <td>Außergerichtliche &amp; gerichtliche Rechtsverteidigung</td>
+          <td>RVG-Gebühren &amp; Beweissicherung</td>
+          <td>${formatEUR(legalCosts)}</td>
+        </tr>
+        <tr class="total-row">
+          <td>Gesamter Schadensersatzanspruch (§ 280 Abs. 1 BGB)</td>
+          <td>Bei vorgetäuschtem Eigenbedarf / verletzter Anbietpflicht</td>
+          <td>${formatEUR(totalDamages)}</td>
+        </tr>
+      `;
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      recalculate();
+    });
+  </script>
+</body>
+</html>
