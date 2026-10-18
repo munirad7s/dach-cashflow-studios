@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html class="scroll-smooth" lang="de">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SterneRetter — Google 1-Stern-Bewertungen löschen (50 € nur bei Erfolg)</title>
+  <link href="https://fonts.googleapis.com" rel="preconnect"/>
+  <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+  <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            "surface": "#faf8ff",
+            "surface-card": "#ffffff",
+            "surface-low": "#f2f3ff",
+            "primary": "#004ac6",
+            "primary-hover": "#2563eb",
+            "secondary": "#006e2d",
+            "secondary-bg": "#dcfce7",
+            "danger": "#dc2626",
+            "danger-bg": "#fee2e2",
+            "ink": "#131b2e",
+            "muted": "#434655",
+            "border-subtle": "#c3c6d7"
+          },
+          fontFamily: {
+            sans: ["Inter", "sans-serif"],
+            mono: ["Geist Mono", "monospace"]
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 500, 'GRAD' 0, 'opsz' 20;
+      vertical-align: middle;
+    }
+    canvas#sig-canvas {
+      touch-action: none;
+      cursor: crosshair;
+    }
+    @media print {
+      .no-print { display: none !important; }
+      .print-only { display: block !important; }
+    }
+  </style>
+</head>
+<body class="bg-surface text-ink font-sans antialiased min-h-screen flex flex-col">
+
+  <!-- TOP NAVIGATION BAR -->
+  <header class="bg-surface-card border-b border-border-subtle sticky top-0 z-50 shadow-xs no-print">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <a href="/index.html" class="w-9 h-9 rounded-lg bg-primary text-white flex items-center justify-center font-bold shadow-xs">
+          <span class="material-symbols-outlined text-[20px]">stars</span>
+        </a>
+        <div>
+          <span class="font-bold text-base tracking-tight text-ink block leading-none">SterneRetter DACH</span>
+          <span class="text-xs text-muted">Automatischer Google-Bewertungs-Löschservice · 50 € nur bei Erfolg</span>
+        </div>
+      </div>
+      <div class="flex items-center gap-3">
+        <a href="/index.html#rechner" class="text-xs sm:text-sm font-medium text-muted hover:text-primary px-3 py-1.5 rounded-lg border border-border-subtle bg-white">
+          ← Alle 150 Rechner
+        </a>
+        <a href="#in-store-wizard" class="bg-primary hover:bg-primary-hover text-white text-xs sm:text-sm font-semibold px-4 py-2 rounded-lg shadow-xs inline-flex items-center gap-1.5">
+          <span class="material-symbols-outlined text-[18px]">bolt</span>
+          <span>Neuen Laden-Auftrag starten</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-8 space-y-10">
+
+    <!-- HERO: CLEAR 50 € VALUE PROPOSITION FOR STORE OWNERS -->
+    <section class="bg-surface-card rounded-2xl border border-border-subtle p-6 sm:p-8 shadow-sm no-print">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+        <div class="lg:col-span-7 space-y-4">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-secondary-bg text-secondary text-xs font-semibold">
+            <span class="material-symbols-outlined text-[16px]">verified</span>
+            <span>0 € Vorauszahlung · Zahlung erst NACH erfolgreicher Löschung</span>
+          </div>
+          <h1 class="text-2xl sm:text-4xl font-bold text-ink tracking-tight leading-tight">
+            Unfaire 1-Stern-Bewertung auf Google? Wir lassen sie löschen — für pauschal <span class="text-primary">50 € nur bei Erfolg</span>.
+          </h1>
+          <p class="text-base text-muted leading-relaxed">
+            Wenn jemand Ihren Laden mit 1 oder 2 Sternen bewertet hat, obwohl er <strong>nie Kunde war</strong> (oder ein Konkurrent / Fake-Account ist), muss Google den Bewerter nach <strong>Art. 16 DSA &amp; BGH-Urteil VI ZR 34/15</strong> zur Nachweispflicht auffordern und die Bewertung bei fehlendem Beleg innerhalb von <strong>7–14 Tagen löschen</strong>.
+          </p>
+          <div class="grid grid-cols-3 gap-3 pt-2">
+            <div class="p-3 rounded-xl bg-surface-low border border-border-subtle/60">
+              <span class="font-mono text-xl font-bold text-primary block">0 €</span>
+              <span class="text-xs text-muted">Heute im Laden (Kein Risiko)</span>
+            </div>
+            <div class="p-3 rounded-xl bg-surface-low border border-border-subtle/60">
+              <span class="font-mono text-xl font-bold text-secondary block">50 €</span>
+              <span class="text-xs text-muted">Erst wenn Bewertung weg ist</span>
+            </div>
+            <div class="p-3 rounded-xl bg-surface-low border border-border-subtle/60">
+              <span class="font-mono text-xl font-bold text-ink block">7–14 Tage</span>
+              <span class="text-xs text-muted">Typische Google-Löschdauer</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Step Box -->
+        <div class="lg:col-span-5 bg-surface-low rounded-xl border border-border-subtle p-5 space-y-3">
+          <h2 class="font-bold text-sm uppercase tracking-wider text-primary">Ablauf im Laden (Dauert 60 Sekunden):</h2>
+          <div class="space-y-2.5 text-sm">
+            <div class="flex items-start gap-3 bg-white p-3 rounded-lg border border-border-subtle/60">
+              <span class="w-6 h-6 rounded-full bg-primary text-white text-xs font-bold flex items-center justify-center shrink-0">1</span>
+              <div><strong>Laden eingeben &amp; neuen Schnitt zeigen:</strong> Der Inhaber sieht sofort, wie sein Google-Schnitt nach der Löschung steigt (z.B. 3,9 ★ → 4,6 ★).</div>
+            </div>
+            <div class="flex items-start gap-3 bg-white p-3 rounded-lg border border-border-subtle/60">
+              <span class="w-6 h-6 rounded-full bg-primary text-white text-xs font-bold flex items-center justify-center shrink-0">2</span>
+              <div><strong>Fake-Bewertungen antippen:</strong> Der Inhaber hakt die Bewerter an, die ihm als Kunden nicht bekannt sind.</div>
+            </div>
+            <div class="flex items-start gap-3 bg-white p-3 rounded-lg border border-border-subtle/60">
+              <span class="w-6 h-6 rounded-full bg-primary text-white text-xs font-bold flex items-center justify-center shrink-0">3</span>
+              <div><strong>Mit dem Finger unterschreiben:</strong> Der Inhaber unterschreibt auf dem Display die Übermittlungsvollmacht (50 € nur bei Erfolg).</div>
+            </div>
+            <div class="flex items-start gap-3 bg-white p-3 rounded-lg border border-border-subtle/60">
+              <span class="w-6 h-6 rounded-full bg-secondary text-white text-xs font-bold flex items-center justify-center shrink-0">4</span>
+              <div><strong>Vollautomatische Übermittlung:</strong> Die App erstellt das Vollmacht-PDF + den Art.-16-DSA-Antrag für Google und überwacht die Löschung.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- INTERACTIVE 4-STEP IN-STORE APP WIZARD -->
+    <section id="in-store-wizard" class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+
+      <!-- LEFT 7 COLUMNS: STEP 1 (STORE & REVIEWS) + STEP 2 (SELECT REVIEWS) -->
+      <div class="lg:col-span-7 space-y-6 no-print">
+
+        <!-- STEP 1: LADEN AUSWÄHLEN & STERNE-SPRUNG BERECHNEN -->
+        <div class="bg-surface-card rounded-2xl border border-border-subtle p-6 shadow-sm space-y-5">
+          <div class="flex items-center justify-between border-b border-border-subtle/60 pb-4">
+            <div class="flex items-center gap-2.5">
+              <span class="w-7 h-7 rounded-lg bg-primary text-white font-bold text-sm flex items-center justify-center">1</span>
+              <h2 class="text-lg font-bold text-ink">Schritt 1: Laden eingeben &amp; Sterne-Sprung prüfen</h2>
+            </div>
+            <span class="text-xs font-mono text-secondary bg-secondary-bg px-2.5 py-1 rounded-full font-semibold">Live-Vorschau</span>
+          </div>
+
+          <!-- Demo Preset Buttons for Quick In-Store Pitching -->
+          <div>
+            <span class="text-xs font-semibold text-muted uppercase tracking-wider block mb-2">Schnell-Beispiel laden (oder eigenen Laden eintippen):</span>
+            <div class="flex flex-wrap gap-2">
+              <button type="button" onclick="loadStorePreset('barber')" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-surface-low hover:bg-primary hover:text-white border border-border-subtle transition-colors">
+                💈 Milano Barber Shop (6 Fake-Bewertungen)
+              </button>
+              <button type="button" onclick="loadStorePreset('gastro')" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-surface-low hover:bg-primary hover:text-white border border-border-subtle transition-colors">
+                🍕 Trattoria Roma (5 Fake-Bewertungen)
+              </button>
+              <button type="button" onclick="loadStorePreset('praxis')" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-surface-low hover:bg-primary hover:text-white border border-border-subtle transition-colors">
+                🦷 Zahnarztpraxis Dr. Kaya (4 Fake-Bewertungen)
+              </button>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="sm:col-span-2">
+              <label class="block text-xs font-semibold text-ink mb-1">Name des Geschäfts &amp; Stadt (wie auf Google Maps)</label>
+              <input id="store-name" type="text" value="Milano Barber Shop & Lounge" oninput="recalcStarJump()" class="w-full px-3.5 py-2.5 rounded-xl border border-border-subtle bg-white text-ink font-medium focus:border-primary outline-none"/>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-ink mb-1">Stadt / Adresse</label>
+              <input id="store-city" type="text" value="Nürnberg, Breite Gasse 42" oninput="recalcStarJump()" class="w-full px-3.5 py-2.5 rounded-xl border border-border-subtle bg-white text-ink focus:border-primary outline-none"/>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-ink mb-1">Name des Inhabers / Geschäftsführers</label>
+              <input id="owner-name" type="text" value="Hassan Al-Mansoor" oninput="recalcStarJump()" class="w-full px-3.5 py-2.5 rounded-xl border border-border-subtle bg-white text-ink focus:border-primary outline-none"/>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-ink mb-1">Gesamtanzahl Bewertungen aktuell</label>
+              <input id="total-reviews" type="number" min="5" max="5000" value="48" oninput="recalcStarJump()" class="w-full px-3.5 py-2.5 rounded-xl border border-border-subtle bg-white text-ink font-mono focus:border-primary outline-none"/>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-ink mb-1">Aktueller Google-Schnitt (★)</label>
+              <input id="current-stars" type="number" step="0.1" min="1.0" max="4.9" value="4.0" oninput="recalcStarJump()" class="w-full px-3.5 py-2.5 rounded-xl border border-border-subtle bg-white text-ink font-mono focus:border-primary outline-none"/>
+            </div>
+          </div>
+
+          <!-- Live Before / After Star Banner -->
+          <div class="p-4 rounded-xl bg-surface-low border border-border-subtle flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-4">
+              <div class="text-center px-3 py-2 rounded-lg bg-white border border-border-subtle">
+                <span class="text-[11px] text-muted block">Aktuell</span>
+                <span id="disp-old-stars" class="font-mono text-xl font-bold text-amber-600">4,0 ★</span>
+              </div>
+              <span class="material-symbols-outlined text-primary text-2xl">arrow_forward</span>
+              <div class="text-center px-4 py-2 rounded-lg bg-secondary-bg border border-secondary/30">
+                <span class="text-[11px] text-secondary font-semibold block">Nach Löschung</span>
+                <span id="disp-new-stars" class="font-mono text-2xl font-bold text-secondary">4,5 ★</span>
+              </div>
+            </div>
+            <div class="text-right">
+              <span class="text-xs text-muted block">Erfolgsgebühr (nur für gelöschte):</span>
+              <span id="disp-fee-summary" class="font-mono text-lg font-bold text-ink">6 × 50 € = 300 € (0 € heute)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- STEP 2: UNFAIRE 1-STERN-BEWERTUNGEN AUSWÄHLEN -->
+        <div class="bg-surface-card rounded-2xl border border-border-subtle p-6 shadow-sm space-y-4">
+          <div class="flex items-center justify-between border-b border-border-subtle/60 pb-4">
+            <div class="flex items-center gap-2.5">
+              <span class="w-7 h-7 rounded-lg bg-primary text-white font-bold text-sm flex items-center justify-center">2</span>
+              <h2 class="text-lg font-bold text-ink">Schritt 2: Welche 1-Stern-Bewertungen sollen gelöscht werden?</h2>
+            </div>
+            <button type="button" onclick="addCustomReviewRow()" class="px-3 py-1.5 rounded-lg bg-surface-low hover:bg-primary hover:text-white border border-border-subtle text-xs font-semibold transition-colors">
+              + Weiteren Bewerter hinzufügen
+            </button>
+          </div>
+          <p class="text-xs text-muted">
+            Haken Sie alle Bewerter an, die <strong>nie Kunde in Ihrem Geschäft waren</strong> (weder in der Kasse, noch im Terminbuch oder Rechnungssystem auffindbar).
+          </p>
+
+          <div id="reviews-list" class="space-y-3"></div>
+        </div>
+
+      </div>
+
+      <!-- RIGHT 5 COLUMNS: STEP 3 (FINGER SIGNATURE) & STEP 4 (AUTOMATED PACKAGE) -->
+      <div class="lg:col-span-5 space-y-6 lg:sticky lg:top-20 no-print">
+
+        <!-- STEP 3: FINGER-UNTERSCHRIFT & VOLLMACHT -->
+        <div class="bg-surface-card rounded-2xl border-2 border-primary p-6 shadow-md space-y-4">
+          <div class="flex items-center justify-between border-b border-border-subtle/60 pb-3">
+            <div class="flex items-center gap-2.5">
+              <span class="w-7 h-7 rounded-lg bg-primary text-white font-bold text-sm flex items-center justify-center">3</span>
+              <h2 class="text-base font-bold text-ink">Inhaber-Bestätigung &amp; Unterschrift</h2>
+            </div>
+            <span class="text-xs font-mono font-bold text-secondary bg-secondary-bg px-2 py-0.5 rounded">0 € Vorauszahlung</span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+            <div>
+              <label class="block font-semibold text-ink mb-1">WhatsApp / Handy (für Lösch-Meldung)</label>
+              <input id="owner-phone" type="tel" value="+49 176 4829104" class="w-full px-3 py-2 rounded-lg border border-border-subtle bg-white text-ink"/>
+            </div>
+            <div>
+              <label class="block font-semibold text-ink mb-1">E-Mail (für Rechnung nach Erfolg)</label>
+              <input id="owner-email" type="email" value="info@milano-barbershop.de" class="w-full px-3 py-2 rounded-lg border border-border-subtle bg-white text-ink"/>
+            </div>
+          </div>
+
+          <label class="flex items-start gap-2.5 p-3 rounded-xl bg-surface-low border border-border-subtle/80 text-xs text-ink cursor-pointer">
+            <input id="chk-confirm-no-customer" type="checkbox" checked class="mt-0.5 rounded border-border-subtle text-primary focus:ring-primary"/>
+            <span>
+              <strong>Erklärung des Inhabers:</strong> Ich bestätige als Geschäftsinhaber, dass die ausgewählten Bewerter nach Prüfung meiner Unterlagen <strong>in keiner geschäftlichen Beziehung (kein Kundenkontakt)</strong> zu meinem Betrieb standen, und beauftrage die technische Übermittlung des Löschantrags an Google Ireland Ltd. Ich zahle <strong>50 € (inkl. MwSt.) nur pro tatsächlich gelöschter Bewertung</strong>.
+            </span>
+          </label>
+
+          <!-- Touch / Mouse Signature Pad -->
+          <div>
+            <div class="flex items-center justify-between mb-1">
+              <span class="text-xs font-semibold text-ink">Hier mit dem Finger oder der Maus unterschreiben:</span>
+              <button type="button" onclick="clearSignature()" class="text-xs text-primary hover:underline font-medium">Unterschrift löschen</button>
+            </div>
+            <div class="border-2 border-dashed border-border-subtle rounded-xl bg-surface-low overflow-hidden relative">
+              <canvas id="sig-canvas" width="420" height="130" class="w-full h-[130px] block"></canvas>
+              <div class="absolute bottom-2 left-3 right-3 border-b border-slate-300 pointer-events-none flex justify-between text-[10px] text-slate-400">
+                <span>X Unterschrift Geschäftsinhaber</span>
+                <span id="sig-date-label"></span>
+              </div>
+            </div>
+          </div>
+
+          <button type="button" onclick="generateAutomatedDsaPackage()" class="w-full py-3.5 px-4 rounded-xl bg-primary hover:bg-primary-hover text-white font-bold text-sm shadow-md transition-all flex items-center justify-center gap-2">
+            <span class="material-symbols-outlined text-[20px]">rocket_launch</span>
+            <span>Lösch-Prozess jetzt vollautomatisch starten →</span>
+          </button>
+        </div>
+
+        <!-- STEP 4: AUTOMATION OUTPUT & 1-CLICK GOOGLE DSA DISPATCH -->
+        <div id="automation-result-box" class="bg-surface-card rounded-2xl border border-border-subtle p-6 shadow-sm space-y-4">
+          <div class="flex items-center justify-between border-b border-border-subtle/60 pb-3">
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-secondary animate-pulse"></span>
+              <h3 class="font-bold text-sm text-ink">Schritt 4: Fertiges Google-DSA-Paket &amp; Bot-Übergabe</h3>
+            </div>
+            <span id="case-id-badge" class="font-mono text-xs bg-surface-low px-2 py-0.5 rounded border border-border-subtle">#SR-2026-8841</span>
+          </div>
+
+          <p class="text-xs text-muted">
+            Unten sehen Sie den fertig generierten <strong>Art.-16-DSA-Löschantrag</strong> für Google Ireland Limited. Mit 1 Klick kopieren Sie den Text, drucken die unterschriebene Vollmacht als PDF und öffnen das offizielle Google-DSA-Formular:
+          </p>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <button type="button" onclick="copyDsaText(this)" class="py-2.5 px-3 rounded-lg bg-primary text-white text-xs font-semibold hover:bg-primary-hover flex items-center justify-center gap-1.5">
+              <span class="material-symbols-outlined text-[16px]">content_copy</span>
+              <span>1. Antragstext kopieren</span>
+            </button>
+            <button type="button" onclick="window.print()" class="py-2.5 px-3 rounded-lg bg-white border border-border-subtle text-ink text-xs font-semibold hover:bg-surface-low flex items-center justify-center gap-1.5">
+              <span class="material-symbols-outlined text-[16px]">picture_as_pdf</span>
+              <span>2. Vollmacht-PDF speichern</span>
+            </button>
+            <a href="https://reportcontent.google.com/forms/dsa?hl=de" target="_blank" rel="noopener" class="sm:col-span-2 py-2.5 px-3 rounded-lg bg-secondary text-white text-xs font-semibold hover:opacity-95 flex items-center justify-center gap-1.5">
+              <span class="material-symbols-outlined text-[16px]">open_in_new</span>
+              <span>3. Offizielles Google Art. 16 DSA Formular öffnen &amp; absenden →</span>
+            </a>
+          </div>
+
+          <div>
+            <span class="text-[11px] font-mono font-semibold text-muted uppercase block mb-1">Generierter Antragstext an Google Ireland Ltd. (Art. 16 DSA):</span>
+            <pre id="dsa-notice-output" class="p-3.5 rounded-xl bg-surface-low border border-border-subtle font-mono text-[11px] text-ink whitespace-pre-wrap max-h-64 overflow-y-auto leading-relaxed"></pre>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- PRINTABLE VOLLMACHT & ORDER SHEET (Appears cleanly when printing to PDF) -->
+    <section class="bg-white rounded-2xl border border-border-subtle p-8 shadow-sm space-y-6">
+      <div class="flex items-start justify-between border-b border-slate-200 pb-5">
+        <div>
+          <span class="text-xs font-mono uppercase tracking-wider text-primary font-bold">DOKUMENT FÜR GOOGLE IRELAND LIMITED &amp; MANDANTENAKTE</span>
+          <h2 class="text-xl font-bold text-ink mt-1">Vollmacht &amp; Bestätigung über Nichtbestehen eines Kundenkontakts</h2>
+          <p class="text-xs text-muted">Gemäß Art. 16 Verordnung (EU) 2022/2065 (Digital Services Act) i.V.m. BGH VI ZR 34/15</p>
+        </div>
+        <div class="text-right font-mono text-xs text-muted">
+          <div id="print-case-id">Aktenzeichen: #SR-2026-8841</div>
+          <div id="print-date">Datum: —</div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
+        <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+          <span class="text-xs font-bold uppercase text-slate-500 block mb-1">Auftraggeber / Betroffenes Unternehmen:</span>
+          <div id="print-store-name" class="font-bold text-base text-ink">Milano Barber Shop &amp; Lounge</div>
+          <div id="print-store-city" class="text-slate-600">Nürnberg, Breite Gasse 42</div>
+          <div id="print-owner-name" class="text-slate-700 mt-1">Vertreten durch: Hassan Al-Mansoor</div>
+          <div id="print-owner-contact" class="text-xs font-mono text-slate-500 mt-1">+49 176 4829104 · info@milano-barbershop.de</div>
+        </div>
+        <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+          <span class="text-xs font-bold uppercase text-slate-500 block mb-1">Technischer Übermittlungs- &amp; Meldedienst:</span>
+          <div class="font-bold text-base text-ink">SterneRetter DACH — Plattform-Übermittlungsservice</div>
+          <div class="text-slate-600">Abteilung Art. 16 DSA Notice-and-Action Übermittlung</div>
+          <div class="text-xs text-slate-600 mt-2">
+            <strong>Vergütungsvereinbarung:</strong> Reine Erfolgsbasis (50,00 € inkl. USt. je nachweislich von Google entfernter Bewertung; 0,00 € bei Nichtlöschung).
+          </div>
+        </div>
+      </div>
+
+      <div class="text-sm text-ink space-y-2 leading-relaxed">
+        <p>
+          <strong>1. Sachverhaltsfeststellung (Bestreiten des Kundenkontakts):</strong>
+          Als Inhaber bzw. Zeichnungsberechtigter des oben genannten Unternehmens erkläre ich hiermit nach Prüfung unserer Kunden-, Kassen- und Terminunterlagen, dass die nachfolgend aufgeführten Rezensenten auf Google Maps in keiner geschäftlichen Beziehung zu unserem Betrieb standen und keine Leistungen in Anspruch genommen haben:
+        </p>
+        <ul id="print-reviews-ul" class="list-disc pl-6 font-mono text-xs space-y-1 py-2"></ul>
+        <p>
+          <strong>2. Übermittlungsvollmacht:</strong>
+          Ich bevollmächtige den technischen Meldedienst <em>SterneRetter DACH</em>, diese Beanstandung in meinem Namen über das offizielle Meldeverfahren nach Art. 16 DSA bei der Google Ireland Limited einzureichen, den Prüfstatus zu überwachen und Rückfragen des Providers weiterzuleiten.
+        </p>
+      </div>
+
+      <div class="pt-4 border-t border-slate-200 flex flex-col sm:flex-row items-start sm:items-end justify-between gap-6">
+        <div>
+          <span class="text-xs text-slate-500 block mb-2">Digitale Original-Unterschrift des Geschäftsinhabers:</span>
+          <img id="print-sig-img" alt="Unterschrift" class="h-20 border border-slate-200 rounded bg-white px-4 py-1"/>
+        </div>
+        <div class="text-xs text-slate-500 font-mono">
+          Digital signiert im Geschäft · Rechtsverbindlicher Übermittlungsauftrag
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    const PRESETS = {
+      barber: {
+        store: "Milano Barber Shop & Lounge",
+        city: "Nürnberg, Breite Gasse 42",
+        owner: "Hassan Al-Mansoor",
+        phone: "+49 176 4829104",
+        email: "info@milano-barbershop.de",
+        total: 48,
+        stars: 4.0,
+        reviews: [
+          { author: "kevin_99_nbg", stars: 1, date: "vor 2 Wochen", text: "Katastrophe, nie wieder!!", reason: "Kein Kundenkontakt (Name in Kasse & Buchungssystem unbekannt)" },
+          { author: "LocalGuide_Franken", stars: 1, date: "vor 1 Monat", text: "(Bewertung ohne Text — nur 1 Stern)", reason: "Kommentarlose 1-Stern-Bewertung ohne Kundenkontakt" },
+          { author: "M. Yilmaz", stars: 1, date: "vor 1 Monat", text: "Unfreundlich am Telefon.", reason: "Kein Leistungsaustausch / kein Kundenkontakt zustande gekommen" },
+          { author: "Svenja K.", stars: 1, date: "vor 3 Monaten", text: "(Bewertung ohne Text — nur 1 Stern)", reason: "Kein Kundenkontakt (Herren-Barbershop, Person war nie Kundin)" },
+          { author: "GhostUser88", stars: 1, date: "vor 4 Monaten", text: "Viel zu teuer für die Leistung.", reason: "Anonymes Profil ohne Klarnamen, kein Kundenkontakt nachweisbar" },
+          { author: "Timo R.", stars: 1, date: "vor 5 Monaten", text: "(Bewertung ohne Text — nur 1 Stern)", reason: "Kein Kundenkontakt im Buchungssystem feststellbar" }
+        ]
+      },
+      gastro: {
+        store: "Trattoria Roma & Pizzeria",
+        city: "Fürth, Gustavstraße 18",
+        owner: "Marco Bellini",
+        phone: "+49 172 9910421",
+        email: "kontakt@trattoria-roma-fuerth.de",
+        total: 82,
+        stars: 4.1,
+        reviews: [
+          { author: "xx_Shadow_xx", stars: 1, date: "vor 5 Tagen", text: "(Bewertung ohne Text — nur 1 Stern)", reason: "Kein Kundenkontakt / Fake-Profil ohne Klarnamen" },
+          { author: "Sabine W.", stars: 1, date: "vor 3 Wochen", text: "Wollten um 22:30 Uhr noch essen, Küche war schon zu.", reason: "Kein Bewirtungsvertrag zustande gekommen (kein Gast)" },
+          { author: "Daniel H.", stars: 1, date: "vor 2 Monaten", text: "Lieferung hat 90 Minuten gedauert.", reason: "Kein Kundenkontakt (Restaurant bietet überhaupt keinen Lieferservice an)" },
+          { author: "Chris P.", stars: 1, date: "vor 3 Monaten", text: "(Bewertung ohne Text — nur 1 Stern)", reason: "Kein Kundenkontakt nachweisbar" },
+          { author: "Anonym123", stars: 1, date: "vor 4 Monaten", text: "Nicht zu empfehlen.", reason: "Pauschale Herabsetzung ohne Sachverhalt & ohne Kundenkontakt" }
+        ]
+      },
+      praxis: {
+        store: "Zahnarztpraxis Dr. med. dent. Kaya",
+        city: "Erlangen, Hauptstraße 55",
+        owner: "Dr. Selim Kaya",
+        phone: "+49 171 3309182",
+        email: "empfang@zahnarzt-kaya-erlangen.de",
+        total: 36,
+        stars: 3.9,
+        reviews: [
+          { author: "P. Schneider", stars: 1, date: "vor 1 Woche", text: "Habe keinen kurzfristigen Termin bekommen.", reason: "Kein Behandlungsvertrag zustande gekommen (Person war nie Patient)" },
+          { author: "Julia M.", stars: 1, date: "vor 1 Monat", text: "(Bewertung ohne Text — nur 1 Stern)", reason: "Person nicht in der Patientenakte verzeichnet (BGH VI ZR 34/15)" },
+          { author: "Tom_Erlangen", stars: 1, date: "vor 2 Monaten", text: "Sehr lange Wartezeit.", reason: "Pseudonym nicht im Patientenstamm zuordenbar (Bestreiten der Behandlung)" },
+          { author: "K. Bauer", stars: 1, date: "vor 4 Monaten", text: "(Bewertung ohne Text — nur 1 Stern)", reason: "Kein Patientenkontakt nachweisbar" }
+        ]
+      }
+    };
+
+    let currentReviews = [];
+
+    function renderReviewRows() {
+      const container = document.getElementById('reviews-list');
+      container.innerHTML = currentReviews.map((r, idx) => `
+        <div class="p-3.5 rounded-xl border ${r.checked !== false ? 'border-primary bg-surface-low/60' : 'border-border-subtle bg-white opacity-70'} transition-all">
+          <div class="flex items-start gap-3">
+            <input type="checkbox" ${r.checked !== false ? 'checked' : ''} onchange="toggleReview(${idx}, this.checked)" class="mt-1 h-4 w-4 rounded border-border-subtle text-primary focus:ring-primary"/>
+            <div class="flex-1 min-w-0 space-y-2">
+              <div class="flex flex-wrap items-center justify-between gap-2">
+                <div class="flex items-center gap-2">
+                  <input type="text" value="${r.author}" oninput="updateReviewField(${idx}, 'author', this.value)" class="px-2 py-1 rounded border border-border-subtle bg-white text-xs font-bold text-ink w-44" placeholder="Name des Bewerters"/>
+                  <span class="text-amber-500 font-mono text-xs font-bold">★☆☆☆☆ (1 Stern)</span>
+                </div>
+                <span class="font-mono text-xs font-bold text-secondary">+50 € bei Löschung</span>
+              </div>
+              <input type="text" value="${r.text}" oninput="updateReviewField(${idx}, 'text', this.value)" class="w-full px-2.5 py-1.5 rounded border border-border-subtle bg-white text-xs text-muted" placeholder="Text der Bewertung (oder 'Ohne Text')"/>
+              <div class="flex items-center gap-2 text-xs">
+                <span class="font-semibold text-primary shrink-0">Löschgrund:</span>
+                <input type="text" value="${r.reason}" oninput="updateReviewField(${idx}, 'reason', this.value)" class="w-full px-2.5 py-1 rounded border border-border-subtle bg-white text-xs text-ink"/>
+              </div>
+            </div>
+          </div>
+        </div>
+      `).join('');
+      recalcStarJump();
+    }
+
+    function toggleReview(idx, state) {
+      currentReviews[idx].checked = state;
+      renderReviewRows();
+    }
+
+    function updateReviewField(idx, field, val) {
+      currentReviews[idx][field] = val;
+      generateAutomatedDsaPackage();
+    }
+
+    function addCustomReviewRow() {
+      currentReviews.push({
+        author: "Neuer 1-Stern-Bewerter",
+        stars: 1,
+        date: "aktuell",
+        text: "(Bewertung ohne Text — nur 1 Stern)",
+        reason: "Kein Kundenkontakt (Person in Kasse & Kundenkartei unbekannt)",
+        checked: true
+      });
+      renderReviewRows();
+    }
+
+    function loadStorePreset(key) {
+      const p = PRESETS[key];
+      if (!p) return;
+      document.getElementById('store-name').value = p.store;
+      document.getElementById('store-city').value = p.city;
+      document.getElementById('owner-name').value = p.owner;
+      document.getElementById('owner-phone').value = p.phone;
+      document.getElementById('owner-email').value = p.email;
+      document.getElementById('total-reviews').value = p.total;
+      document.getElementById('current-stars').value = p.stars;
+      currentReviews = p.reviews.map(x => ({ ...x, checked: true }));
+      renderReviewRows();
+    }
+
+    function recalcStarJump() {
+      const total = Math.max(5, parseInt(document.getElementById('total-reviews').value || '48', 10));
+      const curStars = Math.min(4.9, Math.max(1.0, parseFloat(document.getElementById('current-stars').value || '4.0')));
+      const selected = currentReviews.filter(r => r.checked !== false);
+      const delCount = selected.length;
+
+      const totalPointsNow = total * curStars;
+      const remainCount = Math.max(1, total - delCount);
+      const remainPoints = Math.max(remainCount, totalPointsNow - (delCount * 1.0));
+      const newStars = Math.min(5.0, Math.max(curStars, remainPoints / remainCount));
+
+      document.getElementById('disp-old-stars').textContent = curStars.toFixed(1).replace('.', ',') + ' ★';
+      document.getElementById('disp-new-stars').textContent = newStars.toFixed(1).replace('.', ',') + ' ★';
+      document.getElementById('disp-fee-summary').textContent = `${delCount} × 50 € = ${delCount * 50} € (0 € heute)`;
+
+      generateAutomatedDsaPackage();
+    }
+
+    function generateAutomatedDsaPackage() {
+      const store = document.getElementById('store-name').value;
+      const city = document.getElementById('store-city').value;
+      const owner = document.getElementById('owner-name').value;
+      const phone = document.getElementById('owner-phone').value;
+      const email = document.getElementById('owner-email').value;
+      const selected = currentReviews.filter(r => r.checked !== false);
+      const nowStr = new Date().toLocaleDateString('de-DE');
+
+      const reviewLines = selected.map((r, i) =>
+        `${i + 1}. Rezensent: "${r.author}" (1 Stern) — Zitat/Inhalt: "${r.text}"
+   Beanstandungsgrund: ${r.reason}`
+      ).join('\n\n');
+
+      const dsaText =
+`AN: Google Ireland Limited — Legal Removals / Art. 16 DSA Meldestelle
+BETRIFFT: Qualifizierte Meldung rechtswidriger Bewertungen gem. Art. 16 Verordnung (EU) 2022/2065 (Digital Services Act) i.V.m. § 823 Abs. 1 BGB, Art. 17 DSGVO & BGH-Urteil VI ZR 34/15
+
+1. BETROFFENES UNTERNEHMEN (GOOGLE BUSINESS PROFILE):
+Unternehmen: ${store}
+Standort: ${city}
+Inhaber / Vertretungsberechtigter: ${owner}
+Kontakt: ${email} | ${phone}
+
+2. BEANSTANDETE 1-STERN-BEWERTUNGEN (${selected.length} EINTRÄGE):
+${reviewLines}
+
+3. RECHTLICHE BEGRÜNDUNG (BESTREITEN DES KUNDENKONTAKTS — BGH VI ZR 34/15):
+Der Inhaber des betroffenen Geschäftsbetriebs (${owner}) hat sämtliche Kunden-, Kassen-, Rechnungs- und Terminverzeichnisse sorgfältig überprüft. Keine der oben genannten Personen bzw. Profile lässt sich einem tatsächlichen Kundenkontakt, Vertragsschluss oder Leistungsaustausch zuordnen.
+Der Inhaber bestreitet hiermit ausdrücklich, dass die genannten Rezensenten jemals Kunden des Unternehmens waren.
+
+Nach der ständigen Rechtsprechung des Bundesgerichtshofs (BGH, Urteil vom 01.03.2016 – VI ZR 34/15 sowie BGH, Urteil vom 09.08.2022 – VI ZR 1244/20) trifft Google als Host-Provider mit Zugang dieser qualifizierten Rüge die unmittelbare Prüfpflicht:
+- Sie sind verpflichtet, die Rezensenten zur Stellungnahme und zur Vorlage geeigneter Nachweise für den behaupteten Kundenkontakt (Rechnung, Kassenbeleg, Buchungsbestätigung) aufzufordern.
+- Einer Bewertung, der keinerlei tatsächlicher Kundenkontakt zugrunde liegt, fehlt jede Tatsachengrundlage; sie verletzt das Unternehmenspersönlichkeitsrecht sowie den eingerichteten und ausgeübten Gewerbebetrieb (§ 823 Abs. 1, § 1004 BGB analog) und ist nach Art. 16 DSA unverzüglich zu entfernen.
+
+Wir bitten um Entfernung der ${selected.length} beanstandeten Bewertungen binnen 7 Werktagen sowie um Eingangs- und Vollzugsbestätigung.
+
+Mit freundlichen Grüßen
+${owner} (${store})
+Signiert am ${nowStr} (Vollmacht liegt als PDF bei)`;
+
+      document.getElementById('dsa-notice-output').textContent = dsaText;
+
+      // Update Printable Vollmacht section
+      document.getElementById('print-date').textContent = 'Datum: ' + nowStr;
+      document.getElementById('sig-date-label').textContent = nowStr;
+      document.getElementById('print-store-name').textContent = store;
+      document.getElementById('print-store-city').textContent = city;
+      document.getElementById('print-owner-name').textContent = 'Vertreten durch: ' + owner;
+      document.getElementById('print-owner-contact').textContent = `${phone} · ${email}`;
+      document.getElementById('print-reviews-ul').innerHTML = selected.map(r =>
+        `<li><strong>${r.author}</strong> (1 Stern): ${r.text} — <em>${r.reason}</em></li>`
+      ).join('');
+    }
+
+    function copyDsaText(btn) {
+      const txt = document.getElementById('dsa-notice-output').textContent;
+      navigator.clipboard.writeText(txt);
+      const old = btn.innerHTML;
+      btn.innerHTML = '<span>✓ Kopiert!</span>';
+      setTimeout(() => btn.innerHTML = old, 2000);
+    }
+
+    // Touch & Mouse Signature Pad
+    const canvas = document.getElementById('sig-canvas');
+    const ctx = canvas.getContext('2d');
+    let drawing = false;
+
+    function initSignaturePad() {
+      ctx.strokeStyle = '#004ac6';
+      ctx.lineWidth = 2.4;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+
+      // Draw a default realistic demo signature so it works immediately out of the box
+      ctx.beginPath();
+      ctx.moveTo(45, 85);
+      ctx.quadraticCurveTo(85, 35, 120, 78);
+      ctx.quadraticCurveTo(155, 110, 195, 55);
+      ctx.quadraticCurveTo(230, 40, 290, 75);
+      ctx.stroke();
+      syncSignatureToPrint();
+
+      function getPos(e) {
+        const rect = canvas.getBoundingClientRect();
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        return {
+          x: (clientX - rect.left) * (canvas.width / rect.width),
+          y: (clientY - rect.top) * (canvas.height / rect.height)
+        };
+      }
+
+      canvas.addEventListener('mousedown', e => { drawing = true; const p = getPos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); });
+      canvas.addEventListener('mousemove', e => { if (!drawing) return; const p = getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); });
+      window.addEventListener('mouseup', () => { if (drawing) { drawing = false; syncSignatureToPrint(); } });
+
+      canvas.addEventListener('touchstart', e => { e.preventDefault(); drawing = true; const p = getPos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); }, { passive: false });
+      canvas.addEventListener('touchmove', e => { e.preventDefault(); if (!drawing) return; const p = getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); }, { passive: false });
+      canvas.addEventListener('touchend', () => { if (drawing) { drawing = false; syncSignatureToPrint(); } });
+    }
+
+    function clearSignature() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      syncSignatureToPrint();
+    }
+
+    function syncSignatureToPrint() {
+      const img = document.getElementById('print-sig-img');
+      if (img) img.src = canvas.toDataURL('image/png');
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadStorePreset('barber');
+      initSignaturePad();
+    });
+  </script>
+</body>
+</html>
